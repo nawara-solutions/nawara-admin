@@ -27,10 +27,24 @@ Nawara Admin is used by Nawara Solutions staff only.
 
 | Item | State |
 |---|---|
-| Checkpoint | A0 ✅ complete · **A1 — Workspace / tooling** 🔵 current (AI configuration done; Angular not yet generated) |
-| Angular application | **not generated** (A1) |
-| Dependencies | **none installed** |
+| Checkpoint | A0 ✅ · **A1 — Workspace / tooling ✅ complete (owner review)** · A2 ⏸️ not started |
+| Angular application | Angular **22.2.1** workspace (standalone, zoneless, strict); a placeholder page only — no features yet |
 | Production origin (owner decision, recorded in Core) | `https://admin.nawara-solutions.com` |
+
+## Development
+
+Requires **Node 24.18+** (Angular 22.2.1 supports `^22.22.3 || ^24.15.0 || >=26.0.0`) and **npm 11**. The shared Husky
+`commit-msg` hook resolves through `../ai-standard`, so clone this repository next to it (see `CLAUDE.md`).
+
+```bash
+npm ci                 # also activates the commit-msg hook (husky)
+npm start              # dev server on http://localhost:4200
+npm test               # unit tests once (Vitest); npm run test:watch to watch
+npm run lint           # ESLint (TypeScript + templates + accessibility)
+npm run format         # Prettier write;  npm run format:check to verify
+npm run build          # production build into dist/
+npm run validate       # format:check → lint → test → build (run before every commit)
+```
 
 ## Documentation
 

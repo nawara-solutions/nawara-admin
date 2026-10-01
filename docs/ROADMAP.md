@@ -10,8 +10,8 @@
 
 ```text
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
-A1  Workspace & tooling                               🔵 CURRENT ┐
-A2  Design-system foundation                          ⏳ ├─ M1 FOUNDATION
+A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
+A2  Design-system foundation                          ⏸️ NEXT (needs authorization) ├─ M1 FOUNDATION
 A3  Application shell & infrastructure                ⏳ ┘
     ── Frontend-kit review FK-1 ──
 A4  Authentication & session                 🟢       ⏳
@@ -44,8 +44,8 @@ A15 Admin release certification                       ⏳
 
 | Stage | Delivers | Exit criteria |
 |---|---|---|
-| **A1** Workspace & tooling | Angular 22 workspace (zoneless, standalone, strict), SCSS config, i18n mechanism configured for en/fr/ar, ESLint + Stylelint + Prettier, Vitest, import-boundary rules, budgets, CI pipeline (typecheck, lint, test, build all locales), commit conventions aligned with `ai-standard` | empty app builds in 3 locales with every gate green |
-| **A2** Design-system foundation | tokens (primitive-provisional / semantic / scales), light + dark themes, no-flash theme script, typography (self-hosted Plex Sans + Arabic + Mono), breakpoints, base styles (focus, reduced motion, forced colours), icons (`nw-icon`), first primitives: button, icon button, link, form field, input, select, checkbox, dialog, menu, status badge, data state, skeleton, toast | contrast test passes in both themes; every primitive verified in LTR + RTL × light + dark; axe clean |
+| **A1** Workspace & tooling | Angular 22 workspace (zoneless, standalone, strict TS and templates, routing), SCSS, ESLint (incl. `HttpClient` and forbidden-framework import rules), Prettier, Vitest, commitlint + Husky via the shared hook, budgets, `npm run validate`. **Delivered.** Moved out: i18n configuration (A2, Transloco), Stylelint (A2, needs approval), layer import rules (A3), CI pipeline (A3, needs approval) | `npm run validate` green |
+| **A2** Design-system foundation | Transloco (en/fr/ar, missing-key CI check), `dir` handling, Angular CDK where first needed, tokens (primitive-provisional / semantic / scales), light + dark themes, no-flash theme script, typography (self-hosted Plex Sans + Arabic + Mono), breakpoints, base styles (focus, reduced motion, forced colours), icons (`nw-icon`), first primitives: button, icon button, link, form field, input, select, checkbox, dialog, menu, status badge, data state, skeleton, toast | contrast test passes in both themes; every primitive verified in LTR + RTL × light + dark; axe clean |
 | **A3** Shell & infrastructure | responsive shell (sidebar / rail / drawer), top bar, theme and language switchers, localized title strategy, route skeleton with lazy features, runtime config, HTTP interceptors, `AppError`, global `ErrorHandler`, `ViewState`, gateway/mock pattern with one sample domain, preference registry, `nw-data-table` (CDK), Playwright + axe | shell is navigable by keyboard in all locales and themes; a mocked domain renders every `ViewState`; E2E smoke green |
 | **A4** Authentication | owner login (password → TOTP/passkey), enrollment, recovery, operator code login, `AuthSession` (memory strategy), single-flight refresh, logout broadcast, session-ceiling handling, `StepUpService` + dialog, WebAuthn client | works against a local Core; session strategy decision D-A4 recorded |
 | **A5** Organization context | `GET /auth/grants`-based scope overview, `OrganizationContext`, organization detail (🟢), switcher, directory (🔴 mock), stale/unauthorized handling | deep link, refresh and switching behave per ARCHITECTURE §7 |
@@ -72,15 +72,20 @@ navigation **boundary** (capability-tagged navigation items) · lint, format, un
 **Does not contain:** real Core calls beyond configuration · feature screens · a BFF · a state library · an observability vendor ·
 charts · the frontend-kit package.
 
-## Decisions required before A1
+## A1 decisions (resolved by the owner, 2026-10-01)
 
-| Id | Decision | Recommendation |
+| Id | Decision | Outcome |
 |---|---|---|
-| D-A1-1 | Angular major and toolchain | Angular 22.x, TS per Angular, Node 24 LTS, npm (aligned with Nawara Drive desktop) |
-| D-A1-2 | i18n mechanism | `@angular/localize` (compile-time, per-locale builds); alternative: Transloco |
-| D-A1-3 | UI primitives dependency | Angular CDK; evaluate Angular Aria; **no** Angular Material |
-| D-A1-4 | Dev tooling set | ESLint (angular-eslint), Stylelint (+ BEM pattern + logical-properties plugins), Prettier, Vitest; Playwright and Testing Library in A3 |
-| D-A1-5 | Repository conventions | adopt `../ai-standard` (branches, commits, PRs) as Core and Drive do |
+| D-A1-1 | Angular major and toolchain | **Angular 22** (22.2.1), standalone, zoneless, **npm**. Node was verified, not assumed: Angular 22.2.1 supports `^22.22.3 \|\| ^24.15.0 \|\| >=26.0.0`; installed Node 24.18.0 is supported |
+| D-A1-2 | i18n mechanism | **Transloco** (runtime switching, lazy scopes, reusable foundation). Compatibility verified in A1; **installed and configured in A2** |
+| D-A1-3 | UI primitives dependency | **Angular CDK approved for selective use**, installed when A2/A3 needs it; **Angular Material not approved** |
+| D-A1-4 | Dev tooling set | **Angular CLI, TypeScript, npm, Vitest, ESLint, Prettier, commitlint, Husky.** Stylelint is not in the approved baseline: proposed for A2 approval. Playwright and Testing Library remain A3 decisions |
+| D-A1-5 | Repository conventions | **adopted**: `../ai-standard` through its symlink/copy convention (Pre-A1) |
+
+### A1 result
+
+`npm run validate` (format check → lint → type-checked unit tests → production build) passes. No feature code, no design system,
+no localization, no CDK/Transloco/Lucide installed. Details in [`ARCHITECTURE.md` §1, §30](ARCHITECTURE.md#1-angular-baseline).
 
 ## Decisions required later (before the named stage)
 
@@ -89,6 +94,8 @@ charts · the frontend-kit package.
 | D-A2-1 | A2 | Official brand assets (logo, palette, typography). Until supplied, provisional tokens stay marked PROVISIONAL |
 | D-A2-2 | A2 | Icon set (candidate: Lucide) |
 | D-A2-3 | A2 | Digits in Arabic UI (recommended: Latin digits, `nu-latn`) |
+| D-A2-4 | A2 | Stylelint (+ BEM pattern, logical-properties and no-raw-colour rules): not in the A1-approved tool baseline |
+| D-A3-2 | A3 | CI pipeline (GitHub Actions running `npm run validate`), Playwright, Testing Library |
 | D-A4 | A4 (dev) / A14 (prod) | Refresh-token strategy: memory (dev) → token-handler BFF **or** Core V2 cookie mode (CF-01) |
 | D-A3-1 | A3 | Response validation: hand-written decoders vs a schema library (Valibot/Zod) |
 | D-A8 | A8 | Whether organization-admin members are ever Admin users (default: no) |

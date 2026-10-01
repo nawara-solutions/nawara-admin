@@ -20,20 +20,22 @@
 
 ## 1. Angular baseline
 
-| Item | Recommendation | Reason |
+Decided by the owner (D-A1-1, D-A1-4) and established in A1 (versions verified at A1, 2026-10-01):
+
+| Item | Established | Reason / evidence |
 |---|---|---|
-| Angular | **22.x** (latest minor at A1) | Nawara Drive's desktop app already uses Angular **22.1** (`nawara-drive/apps/desktop`). One major across Nawara frontends is a precondition for a shared kit |
-| TypeScript | the version Angular 22 pins (Drive: `~6.0`) | |
-| Builder | `@angular/build` application builder (esbuild) | Angular default; Drive uses it |
-| Node / npm | Node **24 LTS**, **npm** | matches local toolchain, Core and Drive (`package-lock.json`) |
-| Change detection | **zoneless**, `ChangeDetectionStrategy.OnPush` everywhere | modern default; predictable rendering |
+| Angular | **22.2.1** (`@angular/*`, CLI, build) | Nawara Drive's desktop app also uses Angular 22. One major across Nawara frontends is a precondition for a shared kit |
+| TypeScript | **6.0.3** (`~6.0`, Angular 22's supported range) | |
+| Builder | `@angular/build:application` (esbuild) | Angular default |
+| Node / npm | Node **24.18.0**, npm **11.16.0** | Angular 22.2.1 declares `node: ^22.22.3 \|\| ^24.15.0 \|\| >=26.0.0`; the installed Node is inside it |
+| Change detection | **zoneless** (`provideZonelessChangeDetection()` declared explicitly; `zone.js` not installed); **OnPush is Angular 22's default** strategy | modern default; predictable rendering |
 | Components | **standalone** only; no NgModules | |
 | Templates | built-in control flow (`@if`, `@for`, `@switch`, `@defer`) | |
 | Reactivity | **Signals** for state and derived state; **RxJS** for HTTP, cancellation, debouncing, event streams | right tool per responsibility (§5) |
 | DI | `inject()`; abstract classes as gateway tokens | no `InjectionToken` boilerplate for gateways |
-| Unit runner | **Vitest** (Angular's default runner; Drive uses it) | |
-
-The exact versions are fixed at A1 with `ng version` and recorded in the README.
+| Unit runner | **Vitest 5** through `@angular/build:unit-test` (jsdom); specs are type-checked by the test build | Angular default |
+| Lint / format | ESLint 10 + angular-eslint 22.5 (TS, template and template-accessibility presets); Prettier 3 | |
+| Commits | commitlint 21 + Husky 9, through the shared `.husky/commit-msg` | Nawara `ai-standard` |
 
 ## 2. Source layout
 
@@ -67,7 +69,7 @@ src/
 └── styles/                       global SCSS foundation (§13)
 ```
 
-**Dependency rules** (enforced by lint import restrictions at A1):
+**Dependency rules** (the `HttpClient` and forbidden-framework rules are lint-enforced since A1; the layer rules become lint rules when the folders appear in A3):
 
 | From | May import | Must not import |
 |---|---|---|
@@ -199,8 +201,7 @@ Lazy-loaded feature routes. Titles are localized through a custom `TitleStrategy
 - Guards: `authGuard` (a session exists), `capabilityGuard(cap)` (UX only), `availabilityGuard(domain)` (adapter available in this
   environment). **Guards are navigation controls, never security.**
 - Query parameters hold list filters, ranges and cursors, so views are deep-linkable and survive refresh.
-- If `@angular/localize` is selected (§16), the locale is the first path segment of the deployed app (`/en/…`, `/fr/…`, `/ar/…`)
-  through per-locale `baseHref`. Routes above are relative to it.
+- The locale is **not** part of the URL: Transloco switches language at runtime in one build (§16).
 
 ## 7. Global context, organization context and switching
 
@@ -408,7 +409,7 @@ src/styles/
 - Nesting is limited to `&__element`, `&--modifier`, and state or pseudo selectors. There are no descendant chains.
 - **Prefixes:** shared, kit-ready primitives use selector and block `nw-*` (`<nw-button class="nw-button">`). Admin-specific
   components use selector prefix `adm-` and an unprefixed block (`<adm-organization-switcher class="organization-switcher">`).
-- Stylelint enforces the BEM pattern, logical properties and the no-raw-colour rule (A1).
+- Stylelint enforces the BEM pattern, logical properties and the no-raw-colour rule once approved (proposed for A2, §30).
 
 ## 14. Light / dark / system theme
 
@@ -440,26 +441,23 @@ src/styles/
 
 ## 16. Languages: English, French, Arabic
 
-**Mechanism (decision D-A1-2, needed before A1 completes):**
+**Mechanism — decided (D-A1-2): Transloco** (`@jsverse/transloco`), chosen by the owner over `@angular/localize` for runtime
+language switching in one build, lazy-loaded per-feature (scoped) translations, and a foundation reusable by future Nawara
+frontends. A1 verified compatibility: `@jsverse/transloco` 8.4.0 declares `@angular/core >=16` and `rxjs >=6` (maintained, last
+published 2026-09-26). **Installation and configuration belong to A2**, with a runtime smoke test against Angular 22 at that point.
 
-| | `@angular/localize` (recommended) | Transloco (runtime) |
-|---|---|---|
-| Source | first-party Angular | third-party |
-| Runtime cost | none: translations compiled in | catalog loading and lookups |
-| Missing translations | **build error** | runtime fallback; extra tooling needed |
-| Plurals / select | ICU, native | ICU via plugin |
-| Switching language | navigate to the other locale build (`/fr/…`): full load | in place |
-| Deployment | three locale builds under one origin | one build |
+Consequences to honour in A2, because Transloco checks translations at runtime rather than at compile time:
 
-The recommendation is `@angular/localize`. Switching language is rare for operators. Compile-time completeness and zero dependencies
-fit "no retrofits". A reload on switch is acceptable and also resets direction cleanly. If the owner prefers in-place switching,
-Transloco is the alternative, and the rest of this document is unaffected.
+- a **missing-key check in CI** (every key present in `en`, `fr` and `ar`), so incompleteness fails the build as it would have with
+  compile-time localization;
+- typed or constant key usage where practical; no keys built by string concatenation;
+- switching language updates `<html lang dir>` and Core's `Accept-Language` together, without a reload.
 
 **Rules:**
 
 - **Every** user-facing string is localized from the first component: labels, `aria-label`, titles, toasts, validation and empty
   states. Hard-coded copy is a lint and review failure.
-- Message ids are stable and meaningful (`@@organizations.list.empty`) and never derived from English text.
+- Translation keys are stable and meaningful (`organizations.list.empty`) and never derived from English text.
 - The locale preference is explicit (a language switcher) with `navigator.languages` as the first-visit default. It is persisted in
   the preference registry. `Accept-Language` sent to Core always equals the UI locale.
 - **Shared (kit-ready) primitives own no copy.** Labels arrive through inputs or a provided `NwUiLabels` token, so a future kit never
@@ -544,7 +542,7 @@ type ViewState<T> =
 
 ## 22. Forms
 
-- **Typed reactive forms** (`NonNullableFormBuilder`, `FormGroup<{…}>`). Angular's Signal Forms are evaluated at A1 and adopted only
+- **Typed reactive forms** (`NonNullableFormBuilder`, `FormGroup<{…}>`). Angular's Signal Forms are evaluated at A4 (the first real forms) and adopted only
   when stable.
 - `nw-form-field` wires label, hint, error, required state and `aria-describedby` / `aria-invalid` once. Features never hand-write that
   wiring.
@@ -564,7 +562,7 @@ type ViewState<T> =
 - All formatting goes through the `nwDate` / `nwDateTime` / `nwRelativeTime` / `nwNumber` pipes, backed by `Intl` with the active
   locale (and numbering system, §17). Features never call `DatePipe` or `toLocaleString` directly.
 - Range inputs (audit) convert the operator's zone to UTC instants before calling Core, and display the conversion.
-- The Temporal API is evaluated at A1 against target browsers. Until then a thin internal adapter over `Intl` + `Date` keeps a later
+- The Temporal API is evaluated in A2 (when the formatting pipes are built) against target browsers. Until then a thin internal adapter over `Intl` + `Date` keeps a later
   swap local.
 
 ## 24. Configuration, environments and observability
@@ -604,12 +602,14 @@ Target **WCAG 2.2 AA** from the first component.
 | Option | Accessibility | RTL | Dark mode / theming | BEM/SCSS fit | Bundle | Brand freedom | Verdict |
 |---|---|---|---|---|---|---|---|
 | **Angular CDK** | strong (a11y module, overlay, focus) | `Directionality`, bidi-aware overlays | headless: our tokens | full (we write all markup/CSS) | small, tree-shakable | full | **Recommended** |
-| Angular Aria (headless ARIA patterns) | strong | yes | headless | full | small | full | **Evaluate at A1**; adopt per pattern once stable |
+| Angular Aria (headless ARIA patterns) | strong | yes | headless | full | small | full | **Evaluate in A2**; adopt per pattern once stable |
 | Angular Material | strong | good | M3 token theming | poor: its own DOM/classes, overrides fight BEM | larger | Material identity leaks into the brand | **Not recommended** |
 | PrimeNG / others | variable | variable | own theming | poor | larger | limited | **Not recommended** |
 
-The recommendation is **CDK (+ possibly Angular Aria)**, with Nawara's own visual components on top. **Installation requires owner
-approval (D-A1-3).** No library defines the Nawara brand.
+**Decided (D-A1-3): Angular CDK is approved for selective use** (overlays, accessibility, focus management and other behaviour
+primitives) beneath Nawara's own SCSS/BEM components and tokens. It is installed only when A2/A3 has a concrete requirement (not
+installed in A1). **Angular Material is not approved.** Angular Aria remains an evaluation item. No library defines the Nawara
+brand.
 
 ## 28. Performance and lifecycle
 
@@ -629,7 +629,7 @@ approval (D-A1-3).** No library defines the Nawara brand.
 | Gateway contract | Vitest | one shared suite per gateway, run against **mock and HTTP adapters** (HTTP against recorded Core-shaped responses) |
 | Component | Vitest + TestBed (Testing Library: dev-dependency decision at A1) | rendering per `ViewState`, forms, accessibility (axe), both themes, `dir=rtl` |
 | Routing | Vitest + `RouterTestingHarness` | guards, deep links, organization switching resets |
-| Localization | build | all three locales build with missing-translation = error |
+| Localization | CI check (A2) | every Transloco key present in `en`, `fr` and `ar` |
 | E2E | **Playwright** (installed in A3) | sign-in flows, shell navigation, organization switching, keyboard paths, `ar` RTL smoke, axe scans. Runs against mock mode, and against a local Core from A4 |
 | Visual (optional, later) | Playwright screenshots | theme × direction matrix for shared primitives |
 
@@ -637,10 +637,15 @@ Testing dependencies are installed at A1/A3, not in A0.
 
 ## 30. Code-quality gates
 
-Every change must pass: **strict TypeScript** · **strict Angular templates** · **ESLint** (angular-eslint, `no-explicit-any`,
-import-boundary rules) · **Stylelint** (BEM pattern, logical properties, no raw colours, no `@import`) · **Prettier** ·
-**unit/component tests** · **production build of all locales within budgets**. E2E and accessibility suites run on changes to the
-shell, auth, routing or shared primitives, and before each stage closes. Validation is risk-based, not "everything on every typo".
+Every change must pass `npm run validate`: **Prettier check** → **ESLint** (angular-eslint incl. template accessibility,
+`no-explicit-any`, `adm`/`nw` selector prefixes, `HttpClient` only in `*.http.ts` / `core/http`, Material/Bootstrap/Tailwind import
+ban) → **unit tests** (type-checked) → **production build within budgets** (strict TypeScript and strict templates). E2E and
+accessibility suites (from A3) run on changes to the shell, auth, routing or shared primitives, and before each stage closes.
+Validation is risk-based, not "everything on every typo".
+
+**Not yet adopted:** Stylelint (BEM pattern, logical properties, no raw colours, no `@import`). It was not in the owner-approved A1
+tool baseline and is proposed for owner approval in A2, where the first real stylesheets appear. Feature-layer import boundaries
+(`shared` ↛ `core`/`features`, etc.) become lint rules when those folders exist (A3).
 
 **TypeScript strictness:** `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitOverride`,
 `noPropertyAccessFromIndexSignature`, `noFallthroughCasesInSwitch`, and Angular `strictTemplates`, `strictInjectionParameters`,

@@ -36,8 +36,8 @@ owned here. The symlinks need the sibling layout (`ai-standard/`, `nawara-core/`
 
 ```text
 A0  Discovery / Architecture          ✅ COMPLETE
-A1  Workspace / Tooling               🔵 CURRENT
-A2  Design-system foundation          ⏸️
+A1  Workspace / Tooling               ✅ COMPLETE (awaiting owner review)
+A2  Design-system foundation          ⏸️ NOT STARTED — requires separate owner authorization
 A3  Application shell                 ⏸️
 A4  Authentication                    ⏸️
 A5… see docs/ROADMAP.md               ⏸️
@@ -104,5 +104,16 @@ STOP and report the proposal separately.
 
 Shared commands: `/branch`, `/commit`, `/pr`, `/design-doc`. Shared agents: `design-conformance`, `docs-writer`, `tech-lead`.
 
-**Project scripts do not exist yet.** They are created in A1, and this section is updated then with the real scripts and the
-validation order (format → lint → test → production build). Do not invent or document scripts before they exist.
+Project scripts (real, from `package.json`):
+
+| Script | Does |
+|---|---|
+| `npm start` | `ng serve` (development) |
+| `npm test` / `npm run test:watch` | Vitest through `ng test` (single run / watch); specs are type-checked |
+| `npm run lint` | `ng lint` (angular-eslint: TS, templates, template accessibility, Admin import rules) |
+| `npm run format` / `npm run format:check` | Prettier write / check (shared-standard files and Markdown are excluded in `.prettierignore`) |
+| `npm run build` | production build (strict TypeScript + strict templates, budgets) |
+| `npm run validate` | **format:check → lint → test → build**: run before every commit and before reporting a stage complete |
+
+`validate` is a repository-local npm script, not a shared-standard command. Never run `prettier --write` (or any formatter or
+fixer) on the symlinked shared files: it would edit `../ai-standard`.
