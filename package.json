@@ -12,17 +12,26 @@
     "test:watch": "ng test --watch",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "validate": "npm run format:check && npm run lint && npm run test && npm run build"
+    "validate": "npm run format:check && npm run lint && npm run lint:styles && npm run check:i18n && npm run check:contrast && npm run test && npm run build",
+    "check:contrast": "node tools/check-contrast.mjs",
+    "check:i18n": "node tools/check-i18n.mjs",
+    "lint:styles": "stylelint \"src/**/*.scss\""
   },
   "private": true,
   "packageManager": "npm@11.16.0",
   "dependencies": {
+    "@angular/cdk": "^22.2.1",
     "@angular/common": "^22.2.0",
     "@angular/compiler": "^22.2.0",
     "@angular/core": "^22.2.0",
     "@angular/forms": "^22.2.0",
     "@angular/platform-browser": "^22.2.0",
     "@angular/router": "^22.2.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource/ibm-plex-sans-arabic": "^5.3.0",
+    "@jsverse/transloco": "^8.4.0",
+    "lucide": "^1.49.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
@@ -38,6 +47,8 @@
     "husky": "^9.1.7",
     "jsdom": "^30.0.0",
     "prettier": "^3.8.1",
+    "stylelint": "^17.16.0",
+    "stylelint-config-recommended-scss": "^17.0.1",
     "typescript": "~6.0.2",
     "typescript-eslint": "8.69.0",
     "vitest": "^5.0.0"

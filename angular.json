@@ -30,7 +30,20 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": [
+              "@fontsource/ibm-plex-sans/400.css",
+              "@fontsource/ibm-plex-sans/500.css",
+              "@fontsource/ibm-plex-sans/600.css",
+              "@fontsource/ibm-plex-sans-arabic/arabic-400.css",
+              "@fontsource/ibm-plex-sans-arabic/arabic-500.css",
+              "@fontsource/ibm-plex-sans-arabic/arabic-600.css",
+              "@fontsource/ibm-plex-mono/latin-400.css",
+              "@fontsource/ibm-plex-mono/latin-500.css",
+              "src/styles/styles.scss"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": ["src/styles"]
+            }
           },
           "configurations": {
             "production": {

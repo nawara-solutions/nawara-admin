@@ -1,0 +1,21 @@
+<label class="nw-form-field__label" [attr.for]="controlId">
+  {{ label() }}
+  @if (required()) {
+    <span class="nw-form-field__required" aria-hidden="true">*</span>
+  }
+</label>
+<div class="nw-form-field__control">
+  <ng-content />
+  @if (isSelect()) {
+    <nw-icon class="nw-form-field__chevron" name="chevron-down" size="sm" />
+  }
+</div>
+@if (hint(); as hintText) {
+  <p class="nw-form-field__hint" [id]="hintId">{{ hintText }}</p>
+}
+@if (error(); as errorText) {
+  <p class="nw-form-field__error" [id]="errorId">
+    <nw-icon name="circle-alert" size="sm" />
+    <span>{{ errorText }}</span>
+  </p>
+}

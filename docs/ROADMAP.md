@@ -11,7 +11,7 @@
 ```text
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
-A2  Design-system foundation                          ⏸️ NEXT (needs authorization) ├─ M1 FOUNDATION
+A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
 A3  Application shell & infrastructure                ⏳ ┘
     ── Frontend-kit review FK-1 ──
 A4  Authentication & session                 🟢       ⏳
@@ -45,7 +45,7 @@ A15 Admin release certification                       ⏳
 | Stage | Delivers | Exit criteria |
 |---|---|---|
 | **A1** Workspace & tooling | Angular 22 workspace (zoneless, standalone, strict TS and templates, routing), SCSS, ESLint (incl. `HttpClient` and forbidden-framework import rules), Prettier, Vitest, commitlint + Husky via the shared hook, budgets, `npm run validate`. **Delivered.** Moved out: i18n configuration (A2, Transloco), Stylelint (A2, needs approval), layer import rules (A3), CI pipeline (A3, needs approval) | `npm run validate` green |
-| **A2** Design-system foundation | Transloco (en/fr/ar, missing-key CI check), `dir` handling, Angular CDK where first needed, tokens (primitive-provisional / semantic / scales), light + dark themes, no-flash theme script, typography (self-hosted Plex Sans + Arabic + Mono), breakpoints, base styles (focus, reduced motion, forced colours), icons (`nw-icon`), first primitives: button, icon button, link, form field, input, select, checkbox, dialog, menu, status badge, data state, skeleton, toast | contrast test passes in both themes; every primitive verified in LTR + RTL × light + dark; axe clean |
+| **A2** Design-system foundation | Transloco (en/fr/ar, missing-key CI check), `dir` handling, Angular CDK where first needed, tokens (brand primitives / semantic / scales), light + dark themes, no-flash theme script, typography (self-hosted Plex Sans + Arabic + Mono), breakpoints, base styles (focus, reduced motion, forced colours), icons (`nw-icon`), first primitives: button, icon button, link, form field, input, select, checkbox, dialog, menu, status badge, data state, skeleton, toast | contrast test passes in both themes; every primitive verified in LTR + RTL × light + dark; axe clean |
 | **A3** Shell & infrastructure | responsive shell (sidebar / rail / drawer), top bar, theme and language switchers, localized title strategy, route skeleton with lazy features, runtime config, HTTP interceptors, `AppError`, global `ErrorHandler`, `ViewState`, gateway/mock pattern with one sample domain, preference registry, `nw-data-table` (CDK), Playwright + axe | shell is navigable by keyboard in all locales and themes; a mocked domain renders every `ViewState`; E2E smoke green |
 | **A4** Authentication | owner login (password → TOTP/passkey), enrollment, recovery, operator code login, `AuthSession` (memory strategy), single-flight refresh, logout broadcast, session-ceiling handling, `StepUpService` + dialog, WebAuthn client | works against a local Core; session strategy decision D-A4 recorded |
 | **A5** Organization context | `GET /auth/grants`-based scope overview, `OrganizationContext`, organization detail (🟢), switcher, directory (🔴 mock), stale/unauthorized handling | deep link, refresh and switching behave per ARCHITECTURE §7 |
@@ -62,7 +62,7 @@ A15 Admin release certification                       ⏳
 
 ## M1 — Foundation (A1 + A2 + A3)
 
-**Contains:** Angular 22 workspace · strict TypeScript and templates · SCSS (`@use`) · BEM · semantic design tokens · provisional
+**Contains:** Angular 22 workspace · strict TypeScript and templates · SCSS (`@use`) · BEM · semantic design tokens · brand
 theme · light/dark/system · EN/FR/AR · RTL · typography · accessibility foundation · responsive shell · routing skeleton · runtime
 configuration · API infrastructure (interceptors, errors) · gateway + mock architecture · global error handling · `ViewState` and
 data-state UI · data table · preference registry · authentication **boundary** (the `AuthSession` interface and guard with a mock
@@ -87,14 +87,80 @@ charts · the frontend-kit package.
 `npm run validate` (format check → lint → type-checked unit tests → production build) passes. No feature code, no design system,
 no localization, no CDK/Transloco/Lucide installed. Details in [`ARCHITECTURE.md` §1, §30](ARCHITECTURE.md#1-angular-baseline).
 
+## A2 decisions
+
+| Id | Decision | Outcome |
+|---|---|---|
+| D-A2-1 | Official brand | **Supplied as a raster brand board** (palette with printed hex codes, gradients, IBM Plex family names, Lucide-based icon style, logo). Provenance of every value: [`BRAND.md`](BRAND.md) |
+| D-A2-2 | Icon set | **Lucide** (`lucide` core package, ISC), as the brand board states |
+| D-A2-3 | Digits in Arabic UI | **Approved: Latin digits 0–9.** Formatting uses `ar-u-nu-latn` (`formattingLocaleOf`), unit-tested and shown in the gallery |
+| D-A2-4 | Stylelint | **Approved and adopted**: `stylelint-config-recommended-scss` plus project rules (no `@import`, no raw colours outside `src/styles/tokens/`, BEM-shaped class names); part of `npm run validate` |
+
+### A2 state (2026-10-01): implemented and verified; not closed
+
+A2 is **not marked delivered**: its primitive scope needs the owner's decision (table below) and the logo is provisional.
+
+**What exists**
+
+- **Tokens:** brand primitives (`--nw-ref-*`, the 8 printed values marked `brand`) with derived ramps; semantic light and dark
+  themes; scales. Themes can be scoped to a subtree with `data-theme`.
+- **Brand assets:** board rasters (logos, wordmarks, symbols for light and dark), a provisional vector symbol, Nawara
+  favicon and app icons, manifest ([`BRAND.md`](BRAND.md)). `nw-brand-mark` renders the artwork, never font lettering.
+- **Foundation:** self-hosted Plex fonts (range-declared, loaded on demand), base styles (reset, focus, reduced motion, forced
+  colours), breakpoints, CDK overlay on the z-index scale, no-flash theme/locale script, `PreferenceStore`, `ThemeService`
+  (system/light/dark), `LocaleService` (Transloco, `<html lang dir>`, CDK direction).
+- **Checks in `npm run validate`:** Prettier → ESLint → Stylelint → `check:i18n` (en/fr/ar parity; every key referenced as a
+  string literal in templates and TypeScript exists; runtime-built keys are rejected, not silently skipped) → `check:contrast`
+  (61 token pairs × 2 themes, including control states and boundaries) → unit tests → production build.
+- **Verification surface:** the root route renders a design-foundation gallery (replaced by the shell in A3).
+
+**Verified on the production build (2026-10-01)**
+
+| Check | Result |
+|---|---|
+| `npm run validate` | pass: 18 test files, 35 tests; initial bundle 295.63 kB, no budget warning |
+| Light / dark × EN / FR / AR × 1440 px / 390 px (12 renders) | correct `lang`, `dir`, theme before Angular starts; no horizontal overflow; no broken images; no console errors |
+| System theme | followed when nothing is stored; nothing written to storage |
+| Persistence | theme and language survive a reload; only `nw.theme` and `nw.locale` are stored |
+| Keyboard | 26 tab stops, each with a visible focus ring; disabled button skipped |
+| Dialog / menu (CDK) | labelled modal `alertdialog`, focus trapped, Escape closes, focus returns to the trigger; menu arrow keys and RTL placement |
+| RTL | directional icons mirror; the logo does not; Arabic dates and numbers use Latin digits |
+| Reduced motion / forced colours | transitions collapse to 1 ms; control borders kept; wordmark follows the forced palette |
+| axe-core 4.13 (run ad hoc, not a project dependency) | 0 violations in all 12 renders and with the dialog open |
+
+**Not verified:** a real screen reader; browsers other than Chrome; text over the gradient (axe cannot assess it);
+zoom and reflow at 400 %. Token contrast ratios are necessary, not proof of WCAG conformance.
+
+### Primitive scope: for the owner's decision
+
+Approved for A2: `nw-icon`, `nw-button`, `nw-form-field`, input (the `nwControl` directive on native
+`<input>` / `<select>` / `<textarea>`, which keeps native semantics and works with any forms API), `nw-status-badge`.
+The nine below were built beyond that list. They are kept, unchanged in API, pending the decision.
+
+| Extra primitive | Purpose | Depends on | Needed for A2? |
+|---|---|---|---|
+| `nw-brand-mark` | the logo (symbol, optional wordmark) from the brand artwork | brand assets | **Yes**: A2 must show the brand |
+| `nw-icon-button` | icon-only button with a required accessible name | `nw-icon` | No. Used by dialog and toast for "close"; first real need is the A3 top bar |
+| `nw-link` | inline text link styling on `<a>` | — | No. Trivial (styles only); first need A3 |
+| `nw-checkbox` | checkbox on a native input, forms-compatible | `nw-icon`, `@angular/forms` | No. First need: first real form (A4/A7) |
+| `nw-dialog` + `NwDialogService` | modal dialog frame | **CDK Dialog**, `nw-icon-button` | No. First need: confirmations (A4 step-up, A7) |
+| `nw-menu` (+ trigger, item) | action menu | **CDK Menu** | No. First need: A3 top bar / row actions |
+| `nw-data-state` | loading / empty / error block | `nw-icon`, `nw-skeleton` | No. First need: first data view (A3 sample domain) |
+| `nw-skeleton` | loading placeholder | — | No. Used by `nw-data-state` |
+| `nw-toast-outlet` + `NwToastService` | transient feedback, live regions | `nw-icon`, `nw-icon-button` | No. First need: first mutation (A4/A7) |
+
+**Angular CDK** is used by: `LocaleService` (bidi `Directionality`), `nw-dialog` (Dialog), `nw-menu` (Menu), and the overlay
+styles. If dialog and menu are deferred, CDK's only remaining use is `Directionality`, which could also be deferred with them.
+Angular Material is not installed.
+
 ## Decisions required later (before the named stage)
 
 | Id | Before | Decision |
 |---|---|---|
-| D-A2-1 | A2 | Official brand assets (logo, palette, typography). Until supplied, provisional tokens stay marked PROVISIONAL |
-| D-A2-2 | A2 | Icon set (candidate: Lucide) |
-| D-A2-3 | A2 | Digits in Arabic UI (recommended: Latin digits, `nu-latn`) |
-| D-A2-4 | A2 | Stylelint (+ BEM pattern, logical-properties and no-raw-colour rules): not in the A1-approved tool baseline |
+| D-A2-5 | A3 | axe-core as a project dependency for automated accessibility tests (with Playwright). In A2 it was run ad hoc from outside the project: 0 violations |
+| D-A2-6 | A2 review | **Official vector logo files** (symbol, wordmark, lockups, light and dark). Until supplied: board rasters plus a provisional vector reconstruction ([`BRAND.md`](BRAND.md)) |
+| D-A2-7 | A2 review | **Primitive scope**: keep or defer the nine extra primitives (table in "A2 state") |
+| D-A2-8 | A2 review | Stylelint logical-properties rule (physical `left`/`right` ban): not added in the conservative configuration; currently no violations exist |
 | D-A3-2 | A3 | CI pipeline (GitHub Actions running `npm run validate`), Playwright, Testing Library |
 | D-A4 | A4 (dev) / A14 (prod) | Refresh-token strategy: memory (dev) → token-handler BFF **or** Core V2 cookie mode (CF-01) |
 | D-A3-1 | A3 | Response validation: hand-written decoders vs a schema library (Valibot/Zod) |
@@ -134,8 +200,8 @@ FK-3  before A15: confirm no Admin-specific code leaked into CANDIDATE folders
 
 | Item | Class | Notes |
 |---|---|---|
-| tokens, themes, typography, breakpoints | CANDIDATE (from A2) | product-independent by construction |
-| `nw-*` primitives | CANDIDATE (from A2) | labels injected, never owned |
+| tokens, themes, typography, breakpoints | CANDIDATE (from A2) | product-independent by construction; delivered A2 |
+| `nw-*` primitives | CANDIDATE (from A2) | labels injected, never owned; 5 approved + 9 pending the scope decision (D-A2-7) |
 | HTTP interceptors, `AppError`, Core error mapping | CANDIDATE (from A3) | Core contract is shared by all products |
-| i18n/direction, preference registry, theme service | CANDIDATE (from A3) | |
+| i18n/direction, preference registry, theme service | CANDIDATE (from A2) | delivered early: A2 needed them for themes and RTL |
 | shell, navigation, organization switcher, features | LOCAL | Admin-specific |

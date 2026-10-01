@@ -1,0 +1,17 @@
+@if (state() === 'loading') {
+  <div class="nw-data-state__loading" role="status">
+    <span class="nw-visually-hidden">{{ title() }}</span>
+    <nw-skeleton [lines]="3" />
+  </div>
+} @else {
+  <div class="nw-data-state__message" [attr.role]="state() === 'error' ? 'alert' : 'status'">
+    <span class="nw-data-state__icon"><nw-icon [name]="icon()" size="lg" /></span>
+    <p class="nw-data-state__title">{{ title() }}</p>
+    @if (description(); as text) {
+      <p class="nw-data-state__description">{{ text }}</p>
+    }
+  </div>
+  <div class="nw-data-state__actions">
+    <ng-content select="[nwDataStateActions]" />
+  </div>
+}

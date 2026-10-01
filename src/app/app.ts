@@ -1,18 +1,15 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { NwToastOutlet } from './shared/ui/toast/toast-outlet';
 
-/**
- * A1 placeholder root. The application shell, design system and localization arrive in A2/A3
- * (docs/ROADMAP.md); this component only proves the workspace builds, routes and tests.
- */
+/** Root component. The application shell (sidebar, top bar, landmarks) arrives in A3 (docs/ROADMAP.md). */
 @Component({
   selector: 'adm-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, TranslocoPipe, NwToastOutlet],
   template: `
-    <main>
-      <h1>Nawara Admin</h1>
-      <router-outlet />
-    </main>
+    <router-outlet />
+    <nw-toast-outlet [dismissLabel]="'common.dismiss' | transloco" />
   `,
 })
 export class App {}

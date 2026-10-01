@@ -1,0 +1,12 @@
+// CDK overlay structure (dialogs, menus), placed on the Nawara z-index scale (docs/ARCHITECTURE.md §13).
+@use '@angular/cdk' as cdk with (
+  $overlay-container-z-index: var(--nw-z-overlay),
+  $overlay-z-index: var(--nw-z-overlay),
+  $overlay-backdrop-z-index: var(--nw-z-overlay)
+);
+
+@include cdk.overlay;
+
+.cdk-overlay-backdrop.nw-overlay-backdrop {
+  background-color: var(--nw-scrim);
+}

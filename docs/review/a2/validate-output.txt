@@ -1,0 +1,47 @@
+# npm run validate: final run (2026-10-01 22:11), exit 0
+
+> nawara-admin@0.0.0 validate
+> npm run format:check && npm run lint && npm run lint:styles && npm run check:i18n && npm run check:contrast && npm run test && npm run build
+> nawara-admin@0.0.0 format:check
+> prettier --check .
+Checking formatting...
+All matched files use Prettier code style!
+> nawara-admin@0.0.0 lint
+> ng lint
+Linting "nawara-admin"...
+All files pass linting.
+> nawara-admin@0.0.0 lint:styles
+> stylelint "src/**/*.scss"
+> nawara-admin@0.0.0 check:i18n
+> node tools/check-i18n.mjs
+✔ i18n: 107 keys complete in en, fr, ar; 112 static references resolve
+  note: 1 key(s) have no static reference: common.loading
+> nawara-admin@0.0.0 check:contrast
+> node tools/check-contrast.mjs
+✔ contrast: 61 token pairs × 2 themes meet the WCAG 2.2 AA ratios
+> nawara-admin@0.0.0 test
+> ng test --watch=false
+❯ Building...
+✔ Building...
+Application bundle generation complete. [2.024 seconds] - 2026-10-01T21:11:35.596Z
+ RUN  v5.0.3 /home/anwar/Desktop/nawara-solutions/nawara-admin
+ Test Files  18 passed (18)
+      Tests  35 passed (35)
+   Start at  22:11:35
+   Duration  2.84s (environment 55%, import 18%, setup 15%, tests 6%, transform 5%, worker 1%)
+> nawara-admin@0.0.0 build
+> ng build
+❯ Building...
+✔ Building...
+Initial chunk files | Names                   |  Raw size | Estimated transfer size
+main-4EW32N7S.js    | main                    | 272.29 kB |                74.98 kB
+styles-G5ZISUZA.css | styles                  |  23.34 kB |                 3.47 kB
+                    | Initial total           | 295.63 kB |                78.45 kB
+Lazy chunk files    | Names                   |  Raw size | Estimated transfer size
+chunk-ggGxk5sH.js   | foundation-preview-page | 151.06 kB |                32.71 kB
+chunk-C_gW0K5O.js   | ar-json                 |   5.02 kB |                 1.81 kB
+chunk-C8Kb60oW.js   | fr-json                 |   4.28 kB |                 1.82 kB
+chunk-D5XdFMVF.js   | en-json                 |   3.67 kB |                 1.38 kB
+chunk-dAf9T1Pe.js   | foundation-routes       | 130 bytes |               130 bytes
+Application bundle generation complete. [2.673 seconds] - 2026-10-01T21:11:42.009Z
+Output location: /home/anwar/Desktop/nawara-solutions/nawara-admin/dist/nawara-admin

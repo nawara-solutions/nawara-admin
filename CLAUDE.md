@@ -32,13 +32,14 @@ owned here. The symlinks need the sibling layout (`ai-standard/`, `nawara-core/`
 |---|---|
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | stages, the current stage, decisions required before each stage |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | the frontend constitution (the rules below in full, with rationale) |
+| [`docs/BRAND.md`](docs/BRAND.md) | brand provenance (printed / sampled / proposed), logo and icon asset inventory |
 | [`docs/CORE-INTEGRATION.md`](docs/CORE-INTEGRATION.md) | what Core offers (🟢 existing / 🟡 planned-mocked / 🔴 undefined), Core follow-ups |
 
 ```text
 A0  Discovery / Architecture          ✅ COMPLETE
 A1  Workspace / Tooling               ✅ COMPLETE (awaiting owner review)
-A2  Design-system foundation          ⏸️ NOT STARTED — requires separate owner authorization
-A3  Application shell                 ⏸️
+A2  Design-system foundation          🟡 IMPLEMENTED + VERIFIED — owner review and scope decision pending (not closed)
+A3  Application shell                 ⏸️ NOT STARTED — requires separate owner authorization
 A4  Authentication                    ⏸️
 A5… see docs/ROADMAP.md               ⏸️
 ```
@@ -52,8 +53,10 @@ report. Never start the next stage on your own, even if it looks small or obviou
 - **Framework:** Angular (standalone, strict templates, lazy feature routes, Signals for state, RxJS for streams and HTTP).
 - **Styling:** SCSS with `@use`/`@forward` (never `@import`), component styles colocated, **BEM** naming. **Forbidden:** Bootstrap,
   Tailwind, or any general-purpose utility CSS framework, unless the owner explicitly authorizes it.
-- **Design:** semantic design tokens only; no raw colours in components; the official Nawara brand replaces the PROVISIONAL tokens
-  when supplied. A third-party library never defines the brand.
+- **Design:** semantic design tokens only; no raw colours in components; tokens come from the Nawara brand board
+  (`src/styles/tokens/`). [`docs/BRAND.md`](docs/BRAND.md) records which values are printed on the board, sampled or
+  proposed; never present a sampled or proposed value as a brand value. The logo is artwork from `public/brand/` (never font
+  lettering); its vector symbol is a provisional reconstruction. A third-party library never defines the brand.
 - **Themes:** light, dark and system preference, from the first component.
 - **Languages:** English, French, Arabic from the first component; no hard-coded user-facing copy. Machine values (ids, codes, enums)
   are never translated.
@@ -113,7 +116,9 @@ Project scripts (real, from `package.json`):
 | `npm run lint` | `ng lint` (angular-eslint: TS, templates, template accessibility, Admin import rules) |
 | `npm run format` / `npm run format:check` | Prettier write / check (shared-standard files and Markdown are excluded in `.prettierignore`) |
 | `npm run build` | production build (strict TypeScript + strict templates, budgets) |
-| `npm run validate` | **format:check → lint → test → build**: run before every commit and before reporting a stage complete |
+| `npm run lint:styles` | Stylelint: no `@import`, no raw colours outside `src/styles/tokens/`, BEM-shaped class names |
+| `npm run check:i18n` / `npm run check:contrast` | en/fr/ar key parity and static key references / WCAG AA ratios of the token pairs the controls use |
+| `npm run validate` | **format:check → lint → lint:styles → check:i18n → check:contrast → test → build**: run before every commit and before reporting a stage complete |
 
 `validate` is a repository-local npm script, not a shared-standard command. Never run `prettier --write` (or any formatter or
 fixer) on the symlinked shared files: it would edit `../ai-standard`.

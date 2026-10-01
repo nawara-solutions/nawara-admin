@@ -1,0 +1,96 @@
+:host {
+  --nw-button-bg: var(--nw-color-primary);
+  --nw-button-bg-hover: var(--nw-color-primary-hover);
+  --nw-button-bg-active: var(--nw-color-primary-active);
+  --nw-button-fg: var(--nw-text-on-primary);
+  --nw-button-border: transparent;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--nw-space-2);
+  min-block-size: var(--nw-control-height-md);
+  padding-block: var(--nw-space-2);
+  padding-inline: var(--nw-space-4);
+  border: 1px solid var(--nw-button-border);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-button-bg);
+  color: var(--nw-button-fg);
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-semibold);
+  line-height: var(--nw-line-height-tight);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--nw-duration-fast) var(--nw-ease-standard),
+    border-color var(--nw-duration-fast) var(--nw-ease-standard),
+    transform var(--nw-duration-fast) var(--nw-ease-standard);
+
+  &:hover {
+    background-color: var(--nw-button-bg-hover);
+  }
+
+  &:active {
+    background-color: var(--nw-button-bg-active);
+    transform: translateY(1px);
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    --nw-button-bg: var(--nw-surface-sunken);
+    --nw-button-bg-hover: var(--nw-surface-sunken);
+    --nw-button-bg-active: var(--nw-surface-sunken);
+    --nw-button-fg: var(--nw-text-disabled);
+    --nw-button-border: var(--nw-border-subtle);
+
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+:host(.nw-button--secondary) {
+  --nw-button-bg: var(--nw-surface-raised);
+  --nw-button-bg-hover: var(--nw-color-neutral-hover);
+  --nw-button-bg-active: var(--nw-color-neutral-active);
+  --nw-button-fg: var(--nw-text-primary);
+  --nw-button-border: var(--nw-border-default);
+}
+
+:host(.nw-button--ghost) {
+  --nw-button-bg: transparent;
+  --nw-button-bg-hover: var(--nw-color-neutral-hover);
+  --nw-button-bg-active: var(--nw-color-neutral-active);
+  --nw-button-fg: var(--nw-text-primary);
+}
+
+:host(.nw-button--danger) {
+  --nw-button-bg: var(--nw-status-danger-bg);
+  --nw-button-bg-hover: var(--nw-color-danger-hover);
+  --nw-button-bg-active: var(--nw-color-danger-active);
+  --nw-button-fg: var(--nw-status-danger-fg);
+  --nw-button-border: var(--nw-status-danger-fg);
+}
+
+// Hover and press fill the button; the label switches to the on-danger ink so it stays readable.
+:host(.nw-button--danger:hover:not(:disabled, [aria-disabled='true'])),
+:host(.nw-button--danger:active:not(:disabled, [aria-disabled='true'])) {
+  --nw-button-fg: var(--nw-text-on-danger);
+}
+
+:host(.nw-button--danger:active:not(:disabled, [aria-disabled='true'])) {
+  --nw-button-border: var(--nw-color-danger-active);
+}
+
+:host(.nw-button--sm) {
+  min-block-size: var(--nw-control-height-sm);
+  padding-inline: var(--nw-space-3);
+  font-size: var(--nw-text-size-xs);
+}
+
+@media (forced-colors: active) {
+  :host {
+    border-color: ButtonText;
+  }
+}

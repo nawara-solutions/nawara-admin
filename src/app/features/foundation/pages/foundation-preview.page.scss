@@ -1,0 +1,182 @@
+@use 'abstracts' as nw;
+
+:host {
+  display: block;
+  container-type: inline-size;
+  min-block-size: 100dvh;
+  background:
+    radial-gradient(60rem 30rem at 100% 0, var(--nw-brand-glow), transparent 70%),
+    var(--nw-surface-page);
+}
+
+.foundation-preview__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-3);
+}
+
+.foundation-preview__main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--nw-space-6);
+  max-inline-size: var(--nw-content-max);
+  margin-inline: auto;
+  padding: var(--nw-space-7) clamp(var(--nw-space-4), 4vw, var(--nw-space-9));
+
+  @include nw.from(desktop) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.foundation-preview__hero {
+  display: grid;
+  gap: var(--nw-space-4);
+  grid-column: 1 / -1;
+  padding-block: var(--nw-space-7);
+}
+
+.foundation-preview__eyebrow {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-medium);
+  letter-spacing: var(--nw-letter-spacing-label);
+}
+
+.foundation-preview__title {
+  max-inline-size: 18ch;
+  font-size: var(--nw-text-size-display);
+  font-weight: var(--nw-font-weight-medium);
+}
+
+.foundation-preview__emphasis {
+  display: block;
+  color: var(--nw-text-brand);
+}
+
+.foundation-preview__intro {
+  max-inline-size: 60ch;
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-lg);
+}
+
+.foundation-preview__card {
+  display: grid;
+  align-content: start;
+  gap: var(--nw-space-4);
+  padding: var(--nw-space-6);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-lg);
+  background-color: var(--nw-surface-raised);
+  box-shadow: var(--nw-shadow-sm);
+}
+
+.foundation-preview__heading {
+  font-size: var(--nw-text-size-lg);
+}
+
+.foundation-preview__subheading {
+  font-size: var(--nw-text-size-md);
+  color: var(--nw-text-secondary);
+}
+
+.foundation-preview__swatches,
+.foundation-preview__icons,
+.foundation-preview__values {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+  gap: var(--nw-space-4);
+}
+
+.foundation-preview__gradients {
+  display: grid;
+  gap: var(--nw-space-3);
+}
+
+.foundation-preview__swatch,
+.foundation-preview__icon,
+.foundation-preview__value {
+  display: grid;
+  gap: var(--nw-space-1);
+  font-size: var(--nw-text-size-sm);
+}
+
+.foundation-preview__chip,
+.foundation-preview__bar-chip {
+  block-size: 3.5rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+}
+
+.foundation-preview__bar-chip {
+  block-size: 2.5rem;
+}
+
+.foundation-preview__token {
+  overflow-wrap: anywhere;
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+}
+
+.foundation-preview__icon {
+  justify-items: center;
+  padding: var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+}
+
+.foundation-preview__value-icon {
+  color: var(--nw-text-brand);
+}
+
+.foundation-preview__type {
+  display: grid;
+  grid-template-columns: minmax(6rem, auto) 1fr;
+  gap: var(--nw-space-3) var(--nw-space-5);
+  align-items: baseline;
+  margin: 0;
+
+  dt {
+    color: var(--nw-text-secondary);
+    font-size: var(--nw-text-size-xs);
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+.foundation-preview__display {
+  display: grid;
+  font-size: var(--nw-text-size-3xl);
+  line-height: var(--nw-line-height-snug);
+}
+
+.foundation-preview__sample-heading {
+  font-size: var(--nw-text-size-2xl);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.foundation-preview__secondary {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.foundation-preview__card--wide {
+  grid-column: 1 / -1;
+}
+
+.foundation-preview__form,
+.foundation-preview__states {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
+  gap: var(--nw-space-5);
+}
+
+.foundation-preview__full {
+  grid-column: 1 / -1;
+}
+
+.foundation-preview__number {
+  font-variant-numeric: tabular-nums;
+}

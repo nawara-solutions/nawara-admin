@@ -1,0 +1,4 @@
+// Component-facing abstracts: `@use 'abstracts' as nw;` (resolved through stylePreprocessorOptions.includePaths).
+// Emits no CSS.
+@forward 'breakpoints';
+@forward 'a11y';

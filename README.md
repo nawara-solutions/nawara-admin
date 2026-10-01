@@ -27,8 +27,8 @@ Nawara Admin is used by Nawara Solutions staff only.
 
 | Item | State |
 |---|---|
-| Checkpoint | A0 ✅ · **A1 — Workspace / tooling ✅ complete (owner review)** · A2 ⏸️ not started |
-| Angular application | Angular **22.2.1** workspace (standalone, zoneless, strict); a placeholder page only — no features yet |
+| Checkpoint | A0 ✅ · A1 ✅ (owner review) · **A2 — Design foundation 🟡 implemented and verified, owner review pending** · A3 ⏸️ not started |
+| Angular application | Angular **22.2.1** (standalone, zoneless, strict). The root route is a design-foundation gallery (tokens, themes, EN/FR/AR, primitives, brand assets); no shell, authentication or business features yet |
 | Production origin (owner decision, recorded in Core) | `https://admin.nawara-solutions.com` |
 
 ## Development
@@ -40,10 +40,10 @@ Requires **Node 24.18+** (Angular 22.2.1 supports `^22.22.3 || ^24.15.0 || >=26.
 npm ci                 # also activates the commit-msg hook (husky)
 npm start              # dev server on http://localhost:4200
 npm test               # unit tests once (Vitest); npm run test:watch to watch
-npm run lint           # ESLint (TypeScript + templates + accessibility)
+npm run lint           # ESLint (TypeScript + templates + accessibility); npm run lint:styles for Stylelint
 npm run format         # Prettier write;  npm run format:check to verify
 npm run build          # production build into dist/
-npm run validate       # format:check → lint → test → build (run before every commit)
+npm run validate       # format:check → lint → lint:styles → check:i18n → check:contrast → test → build
 ```
 
 ## Documentation
@@ -51,6 +51,7 @@ npm run validate       # format:check → lint → test → build (run before ev
 | Document | Answers |
 |---|---|
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | The frontend engineering constitution: layers, Angular baseline, state, routing, design system, theming, i18n/RTL, accessibility, security, testing, frontend-kit model |
+| [`docs/BRAND.md`](docs/BRAND.md) | What the brand board states, what was sampled, what is proposed; logo and icon asset inventory |
 | [`docs/CORE-INTEGRATION.md`](docs/CORE-INTEGRATION.md) | What Core actually offers today (V1), what is planned (V2), the 🟢/🟡/🔴 contract matrix, and Core follow-ups |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Admin milestones, M1 definition, decisions required before each stage, frontend-kit review points |
 

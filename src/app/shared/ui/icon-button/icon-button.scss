@@ -1,0 +1,36 @@
+:host {
+  display: inline-grid;
+  place-items: center;
+  inline-size: var(--nw-control-height-md);
+  block-size: var(--nw-control-height-md);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--nw-radius-md);
+  background-color: transparent;
+  color: var(--nw-text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--nw-duration-fast) var(--nw-ease-standard),
+    color var(--nw-duration-fast) var(--nw-ease-standard);
+
+  &:hover {
+    background-color: var(--nw-color-neutral-hover);
+    color: var(--nw-text-primary);
+  }
+
+  &:active {
+    background-color: var(--nw-color-neutral-active);
+  }
+
+  &:disabled {
+    color: var(--nw-text-disabled);
+    background-color: transparent;
+    cursor: not-allowed;
+  }
+}
+
+@media (forced-colors: active) {
+  :host {
+    border-color: ButtonText;
+  }
+}

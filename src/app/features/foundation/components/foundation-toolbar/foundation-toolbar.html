@@ -1,0 +1,38 @@
+<nw-brand-mark [label]="'brand.logoLabel' | transloco" wordmark />
+
+<div class="foundation-toolbar__controls">
+  <fieldset class="foundation-toolbar__switch">
+    <legend class="nw-visually-hidden">{{ 'preferences.theme.label' | transloco }}</legend>
+    @for (option of themeOptions; track option.value) {
+      <label class="foundation-toolbar__option">
+        <input
+          class="foundation-toolbar__radio"
+          type="radio"
+          name="theme"
+          [value]="option.value"
+          [checked]="theme.preference() === option.value"
+          (change)="setTheme(option.value)"
+        />
+        <nw-icon [name]="option.icon" size="sm" />
+        <span>{{ option.labelKey | transloco }}</span>
+      </label>
+    }
+  </fieldset>
+
+  <fieldset class="foundation-toolbar__switch">
+    <legend class="nw-visually-hidden">{{ 'preferences.language.label' | transloco }}</legend>
+    @for (option of locales; track option.value) {
+      <label class="foundation-toolbar__option" [attr.lang]="option.value">
+        <input
+          class="foundation-toolbar__radio"
+          type="radio"
+          name="locale"
+          [value]="option.value"
+          [checked]="locale.locale() === option.value"
+          (change)="setLocale(option.value)"
+        />
+        <span>{{ option.name }}</span>
+      </label>
+    }
+  </fieldset>
+</div>

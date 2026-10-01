@@ -330,10 +330,10 @@ confirm (severity-appropriate dialog)
 ### Token architecture
 
 ```text
-Official Nawara brand (logo, palette, type — PENDING from owner)
+Official Nawara brand (brand board, owner 2026-10-01: palette, gradients, type, icon style, logo)
         │
         ▼
-Primitive tokens   --nw-ref-*        raw ramps (PROVISIONAL now); used only by theme files
+Primitive tokens   --nw-ref-*        brand anchors + derived ramps; used only by theme files
         │
         ▼
 Semantic tokens    --nw-color-* · --nw-surface-* · --nw-text-* · --nw-border-* · --nw-status-* · --nw-focus-*
@@ -361,12 +361,18 @@ Shared UI foundations (nw-*)  →  Nawara Admin components
   error. Exceptions need a comment and review.
 - **Contrast:** every text/surface pair in both themes is checked to WCAG 2.2 AA in a token test (A2).
 
-### Provisional brand
+### Brand
 
-Until the owner supplies the official assets, primitives live in a file named **`_primitives.provisional.scss`**, containing a neutral
-grey ramp and a single desaturated placeholder accent, and the logo slot (`nw-brand-mark`) renders a text wordmark. Both are clearly
-marked PROVISIONAL. Incorporating the brand means replacing primitives and the logo asset and re-running the contrast test. **No
-component changes.**
+The brand board (owner, 2026-10-01; a raster image) prints one anchor value per hue: Primary pink `#E6428B`, Secondary orange
+`#FF8A3D`, Accent amber `#FFC857`, Purple `#7B2CBF`, Dark `#1B1B24`, Muted `#6B7280`, Surface `#FAF7F4`, White. It shows two
+gradients without stop values; the gradient tokens are approximations built from the printed palette. [`BRAND.md`](BRAND.md)
+records which values are printed, sampled or proposed. `tokens/_primitives.scss` holds the anchors (marked `brand`) and the ramp steps derived
+from them. **Contrast decides usage:** the brand pink with white body text is 3.81:1, below AA, so solid actions use ramp step
+600 in light and 400 (with dark ink) in dark; the anchor is used for gradients, illustration, the logo and large display text.
+Status green and red are functional, not brand. **The logo is artwork, never font lettering:** `nw-brand-mark` renders files
+from `public/brand/`, a vector symbol that is a **provisional reconstruction** of the board's flower and the board's own
+wordmark as a raster (light and dark versions, chosen by a theme token). An official vector source is still needed (D-A2-6);
+replacing the files changes no consumer.
 
 **Future design source** (a design tool or Claude design output) feeds a *specification*: token values, preferably in the W3C Design
 Tokens format, plus assets. A build step (e.g. Style Dictionary) is added only when such a source exists. The application never
@@ -378,7 +384,7 @@ depends on a design tool.
 src/styles/
 ├── styles.scss                 entry point: @use only, no rules
 ├── tokens/
-│   ├── _primitives.provisional.scss
+│   ├── _primitives.scss
 │   ├── _scales.scss            spacing, radius, type, z-index, motion, layout
 │   ├── _theme-light.scss
 │   └── _theme-dark.scss
@@ -409,7 +415,8 @@ src/styles/
 - Nesting is limited to `&__element`, `&--modifier`, and state or pseudo selectors. There are no descendant chains.
 - **Prefixes:** shared, kit-ready primitives use selector and block `nw-*` (`<nw-button class="nw-button">`). Admin-specific
   components use selector prefix `adm-` and an unprefixed block (`<adm-organization-switcher class="organization-switcher">`).
-- Stylelint enforces the BEM pattern, logical properties and the no-raw-colour rule once approved (proposed for A2, §30).
+- Stylelint enforces BEM-shaped class names, the no-raw-colour rule outside `src/styles/tokens/` and the `@import` ban (§30).
+- A theme can be scoped to a subtree with `data-theme="light|dark"` on any element (for example a fixed dark panel).
 
 ## 14. Light / dark / system theme
 
@@ -475,14 +482,16 @@ Consequences to honour in A2, because Transloco checks translations at runtime r
 - Directional icons (chevrons, arrows, "back") mirror under `:dir(rtl)` through an icon flag. Non-directional icons never mirror.
 - **Bidi isolation:** user data, emails, ids, URLs and numbers inside Arabic text use `<bdi>` / `unicode-bidi: isolate`. Ids and codes
   are always LTR.
-- **Digits:** Arabic UI in Tunisia conventionally uses Latin digits. The recommendation is `ar` with the `latn` numbering system for
-  data (decision D-A2-3).
+- **Digits:** Arabic uses Latin digits 0–9 (owner decision D-A2-3, approved). Every `Intl` formatter takes its locale tag
+  from `formattingLocaleOf` (`core/i18n/locale.ts`), which returns `ar-u-nu-latn` for Arabic; month names stay Arabic.
 - Every component is verified in `ar` before it is considered done. E2E smoke runs in `ar`.
 
 ## 18. Typography
 
-- **Provisional pairing:** **IBM Plex Sans** + **IBM Plex Sans Arabic** (designed as one family, SIL OFL), and **IBM Plex Mono** for
-  ids and codes. The brand may replace it, and the tokens make that a one-file change.
+- **Brand pairing (brand board):** **IBM Plex Sans** + **IBM Plex Sans Arabic** (designed as one family, SIL OFL), and
+  **IBM Plex Mono** for ids and codes. Served from `@fontsource/*` packages through `angular.json` (weights 400/500/600).
+  Plex Sans uses the range-declared entry files, so each subset (`latin`, `latin-ext`, …) is fetched only when a character
+  needs it; the per-subset files declare no `unicode-range` and would all download.
 - **Self-hosted** WOFF2 with `font-display: swap`, subset per script. No third-party font CDN (CSP and privacy).
 - `--nw-font-sans` resolves per language (`:lang(ar)` switches to the Arabic family first). Arabic gets a slightly larger line height,
   **never letter-spacing**, and no `text-transform: uppercase` anywhere (it has no meaning in Arabic).
@@ -591,8 +600,9 @@ Target **WCAG 2.2 AA** from the first component.
 
 ## 26. Icons
 
-- **One icon set**, rendered as inline SVG through a single `nw-icon` component. The candidate is **Lucide** (ISC licence; consistent
-  stroke style), with the final choice by the owner at A2 so it fits the brand. Icon fonts and mixed libraries are not used.
+- **One icon set**, rendered as inline SVG through a single `nw-icon` component: **Lucide** (ISC licence), decided by the brand
+  board (D-A2-2), drawn at stroke width 1.75. Icons are registered by name in `shared/ui/icon/icon.registry.ts`, so only used icons
+  are bundled. Icon fonts and mixed libraries are not used.
 - Icons are decorative by default (`aria-hidden`). An icon-only button gets an accessible name. Critical actions always carry a text
   label.
 - Each icon is marked directional or not for RTL mirroring.
@@ -639,13 +649,19 @@ Testing dependencies are installed at A1/A3, not in A0.
 
 Every change must pass `npm run validate`: **Prettier check** → **ESLint** (angular-eslint incl. template accessibility,
 `no-explicit-any`, `adm`/`nw` selector prefixes, `HttpClient` only in `*.http.ts` / `core/http`, Material/Bootstrap/Tailwind import
-ban) → **unit tests** (type-checked) → **production build within budgets** (strict TypeScript and strict templates). E2E and
+ban) → **Stylelint** (`stylelint-config-recommended-scss`; no `@import`; no raw colours outside `src/styles/tokens/`, with
+`transparent`, `currentColor` and system colours allowed; BEM-shaped class names) → **`check:i18n`** → **`check:contrast`** →
+**unit tests** (type-checked) → **production build within budgets** (strict TypeScript and strict templates). E2E and
 accessibility suites (from A3) run on changes to the shell, auth, routing or shared primitives, and before each stage closes.
 Validation is risk-based, not "everything on every typo".
 
-**Not yet adopted:** Stylelint (BEM pattern, logical properties, no raw colours, no `@import`). It was not in the owner-approved A1
-tool baseline and is proposed for owner approval in A2, where the first real stylesheets appear. Feature-layer import boundaries
-(`shared` ↛ `core`/`features`, etc.) become lint rules when those folders exist (A3).
+`check:i18n` verifies en/fr/ar parity and every key referenced as a string literal in templates and TypeScript; a key built
+at runtime cannot be checked, so a literal key prefix is rejected and full keys must be listed. `check:contrast` verifies
+the token pairs the primitives combine; it is necessary, not proof of WCAG conformance, which needs rendered checks.
+
+**Not yet adopted:** a Stylelint rule banning physical `left`/`right` properties (D-A2-8; no violation exists today) and
+automated axe tests as a project dependency (D-A2-5, with Playwright in A3). Feature-layer import boundaries
+(`shared` ↛ `core`/`features`, etc.) are not lint rules yet (A3).
 
 **TypeScript strictness:** `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitOverride`,
 `noPropertyAccessFromIndexSignature`, `noFallthroughCasesInSwitch`, and Angular `strictTemplates`, `strictInjectionParameters`,

@@ -1,11 +1,37 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" />
     <title>Nawara Admin</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <meta name="color-scheme" content="light dark" />
+    <!-- Brand icons (docs/BRAND.md). theme-color mirrors --nw-surface-page of each theme. -->
+    <meta name="theme-color" content="#faf7f4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#13131a" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <!--
+      No-flash preferences (docs/ARCHITECTURE.md §14): applies the stored theme and locale direction before first paint.
+      Keys mirror src/app/core/preferences/preference-store.ts. Allowed by a CSP hash, never 'unsafe-inline' (§21, A14).
+    -->
+    <script>
+      (function () {
+        var root = document.documentElement;
+        try {
+          var theme = localStorage.getItem('nw.theme');
+          if (theme === 'light' || theme === 'dark') root.setAttribute('data-theme', theme);
+          var locale = localStorage.getItem('nw.locale');
+          if (locale === 'en' || locale === 'fr' || locale === 'ar') {
+            root.lang = locale;
+            root.dir = locale === 'ar' ? 'rtl' : 'ltr';
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <adm-root></adm-root>

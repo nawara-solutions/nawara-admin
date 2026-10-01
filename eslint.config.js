@@ -46,9 +46,10 @@ module.exports = defineConfig([
         'error',
         { type: 'attribute', prefix: SELECTOR_PREFIXES, style: 'camelCase' },
       ],
+      // Attribute selectors keep native semantics for styled controls: <button nw-button>, <a nw-button>.
       '@angular-eslint/component-selector': [
         'error',
-        { type: 'element', prefix: SELECTOR_PREFIXES, style: 'kebab-case' },
+        { type: ['element', 'attribute'], prefix: SELECTOR_PREFIXES, style: 'kebab-case' },
       ],
       '@typescript-eslint/no-explicit-any': 'error',
       'no-restricted-imports': ['error', { patterns: [...FORBIDDEN_FRAMEWORKS, RAW_HTTP] }],
@@ -63,6 +64,9 @@ module.exports = defineConfig([
   {
     files: ['**/*.html'],
     extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],
-    rules: {},
+    rules: {
+      // <button nw-icon-button [label]> renders its required `label` input as aria-label (shared/ui/icon-button).
+      '@angular-eslint/template/elements-content': ['error', { allowList: ['label'] }],
+    },
   },
 ]);

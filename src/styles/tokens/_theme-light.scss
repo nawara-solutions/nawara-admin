@@ -1,0 +1,68 @@
+// Light theme: defines every semantic token intentionally (docs/ARCHITECTURE.md §13, §14).
+// Every text/surface pair is checked to WCAG 2.2 AA by `npm run check:contrast`.
+
+@mixin tokens {
+  color-scheme: light;
+
+  // Surfaces
+  --nw-surface-page: var(--nw-ref-neutral-50);
+  --nw-surface-raised: var(--nw-ref-neutral-0);
+  --nw-surface-sunken: var(--nw-ref-neutral-100);
+  --nw-surface-overlay: var(--nw-ref-neutral-0);
+  --nw-surface-inverse: var(--nw-ref-neutral-850);
+  --nw-surface-brand-subtle: var(--nw-ref-pink-50);
+
+  // Text
+  --nw-text-primary: var(--nw-ref-neutral-850);
+  --nw-text-secondary: var(--nw-ref-neutral-600);
+  --nw-text-disabled: var(--nw-ref-neutral-400);
+  --nw-text-inverse: var(--nw-ref-neutral-ink-inverse);
+  --nw-text-brand: var(--nw-ref-pink-600);
+  --nw-text-link: var(--nw-ref-pink-700);
+  --nw-text-on-primary: var(--nw-ref-neutral-0);
+
+  // Borders
+  --nw-border-subtle: var(--nw-ref-neutral-200);
+  --nw-border-default: var(--nw-ref-neutral-300);
+  --nw-border-strong: var(--nw-ref-neutral-500);
+
+  // Actions
+  --nw-color-primary: var(--nw-ref-pink-600);
+  --nw-color-primary-hover: var(--nw-ref-pink-700);
+  --nw-color-primary-active: var(--nw-ref-pink-800);
+  --nw-color-primary-subtle: var(--nw-ref-pink-50);
+  --nw-color-neutral-hover: var(--nw-ref-neutral-100);
+  --nw-color-neutral-active: var(--nw-ref-neutral-200);
+
+  // Destructive action states (solid on hover, stronger on press)
+  --nw-color-danger-hover: var(--nw-ref-red-700);
+  --nw-color-danger-active: var(--nw-ref-red-800);
+  --nw-text-on-danger: var(--nw-ref-neutral-0);
+
+  // Status: text + background + border, never colour alone (§25)
+  --nw-status-success-fg: var(--nw-ref-green-700);
+  --nw-status-success-bg: var(--nw-ref-green-50);
+  --nw-status-warning-fg: var(--nw-ref-amber-800);
+  --nw-status-warning-bg: var(--nw-ref-amber-50);
+  --nw-status-danger-fg: var(--nw-ref-red-700);
+  --nw-status-danger-bg: var(--nw-ref-red-50);
+  --nw-status-info-fg: var(--nw-ref-purple-700);
+  --nw-status-info-bg: var(--nw-ref-purple-50);
+
+  // Focus
+  --nw-focus-ring: var(--nw-ref-purple-600);
+
+  // Brand expression
+  --nw-gradient-brand: var(--nw-ref-gradient-sunrise);
+  --nw-gradient-brand-cool: var(--nw-ref-gradient-dusk);
+  --nw-brand-glow: var(--nw-ref-amber-50);
+  // Which wordmark artwork shows (nw-brand-mark): dark lettering on light surfaces, light lettering on dark ones
+  --nw-brand-wordmark-on-light-display: block;
+  --nw-brand-wordmark-on-dark-display: none;
+
+  // Elevation
+  --nw-shadow-sm: 0 1px 2px rgb(27 27 36 / 6%);
+  --nw-shadow-md: 0 4px 16px rgb(27 27 36 / 8%);
+  --nw-shadow-lg: 0 12px 40px rgb(27 27 36 / 14%);
+  --nw-scrim: rgb(27 27 36 / 48%);
+}

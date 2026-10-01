@@ -1,0 +1,57 @@
+@use 'abstracts' as nw;
+
+// The host is laid out as a gallery card by the page (grid with a gap); only its own content is styled here.
+.brand-assets__heading {
+  font-size: var(--nw-text-size-lg);
+}
+
+.brand-assets__note {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+// Brand artwork on a fixed light and a fixed dark panel (each panel scopes a theme with `data-theme`).
+.brand-assets__panels {
+  display: grid;
+  align-items: start;
+  gap: var(--nw-space-4);
+
+  @include nw.from(laptop) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.brand-assets__panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--nw-space-5);
+  padding: var(--nw-space-5);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-lg);
+  background-color: var(--nw-surface-raised);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+}
+
+.brand-assets__figure {
+  display: grid;
+  justify-items: start;
+  gap: var(--nw-space-2);
+  min-inline-size: 0;
+}
+
+.brand-assets__figure--wide {
+  flex-basis: 100%;
+}
+
+.brand-assets__artwork {
+  max-inline-size: 100%;
+  block-size: auto;
+}
+
+.brand-assets__favicons {
+  display: flex;
+  align-items: end;
+  gap: var(--nw-space-3);
+}
