@@ -1,0 +1,54 @@
+// Proportions follow the brand board's horizontal lockup: the wordmark block is 0.57 of the symbol height and sits
+// 0.24 of it away. The logo is artwork: it never mirrors in RTL and keeps its own colours in every theme.
+:host {
+  --nw-brand-mark-size: 2.5rem;
+
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--nw-brand-mark-size) * 0.24);
+  direction: ltr;
+}
+
+.nw-brand-mark__symbol {
+  inline-size: var(--nw-brand-mark-size);
+  block-size: var(--nw-brand-mark-size);
+  flex-shrink: 0;
+}
+
+.nw-brand-mark__wordmark {
+  inline-size: auto;
+  block-size: calc(var(--nw-brand-mark-size) * 0.57);
+}
+
+// Each theme says which lettering shows (tokens/_theme-*.scss), so this follows scoped themes and the system preference.
+.nw-brand-mark__wordmark--on-light {
+  display: var(--nw-brand-wordmark-on-light-display);
+}
+
+// The dark-background lettering is drawn slightly smaller on the board; scaled so both versions match optically.
+.nw-brand-mark__wordmark--on-dark {
+  display: var(--nw-brand-wordmark-on-dark-display);
+  block-size: calc(var(--nw-brand-mark-size) * 0.61);
+}
+
+// Forced colours replace the page background, so the app theme no longer says which lettering is readable:
+// follow the forced palette's own light/dark scheme instead.
+@media (forced-colors: active) and (prefers-color-scheme: dark) {
+  .nw-brand-mark__wordmark--on-light {
+    display: none;
+  }
+
+  .nw-brand-mark__wordmark--on-dark {
+    display: block;
+  }
+}
+
+@media (forced-colors: active) and (prefers-color-scheme: light) {
+  .nw-brand-mark__wordmark--on-light {
+    display: block;
+  }
+
+  .nw-brand-mark__wordmark--on-dark {
+    display: none;
+  }
+}

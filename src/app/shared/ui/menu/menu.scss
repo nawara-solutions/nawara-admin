@@ -1,0 +1,23 @@
+:host {
+  display: grid;
+  min-inline-size: 12rem;
+  padding: var(--nw-space-1);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-overlay);
+  box-shadow: var(--nw-shadow-md);
+  animation: nw-menu-enter var(--nw-duration-fast) var(--nw-ease-standard);
+}
+
+@keyframes nw-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+}
+
+@media (forced-colors: active) {
+  :host {
+    border-color: CanvasText;
+  }
+}

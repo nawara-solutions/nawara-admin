@@ -1,0 +1,147 @@
+{
+  "common": {
+    "close": "Fermer",
+    "dismiss": "Ignorer",
+    "loading": "Chargement…"
+  },
+  "brand": {
+    "logoLabel": "Nawara Solutions"
+  },
+  "preferences": {
+    "theme": {
+      "label": "Thème",
+      "system": "Système",
+      "light": "Clair",
+      "dark": "Sombre"
+    },
+    "language": {
+      "label": "Langue"
+    }
+  },
+  "foundation": {
+    "eyebrow": "Nawara Admin · Fondation du design",
+    "title": "Des solutions intelligentes,",
+    "titleEmphasis": "propulsées par l’IA",
+    "intro": "La marque, les jetons de design et les premiers composants de la console Nawara Admin, affichés dans le thème et la langue actuels. Changez de thème et de langue pour vérifier chaque combinaison.",
+    "sections": {
+      "palette": "Palette de couleurs",
+      "gradients": "Dégradés",
+      "typography": "Typographie",
+      "actions": "Actions",
+      "icons": "Icônes",
+      "status": "Statuts",
+      "values": "Valeurs de la marque",
+      "forms": "Formulaires",
+      "overlays": "Boîtes de dialogue et menus",
+      "feedback": "Retours et états des données",
+      "brand": "Éléments de marque",
+      "numbers": "Nombres et dates"
+    },
+    "palette": {
+      "page": "Page",
+      "raised": "Surface surélevée",
+      "sunken": "Surface en retrait",
+      "brandSubtle": "Marque atténuée",
+      "primary": "Action principale",
+      "textPrimary": "Texte principal",
+      "textSecondary": "Texte secondaire",
+      "border": "Bordure",
+      "focus": "Anneau de focus",
+      "inverse": "Surface inversée"
+    },
+    "gradients": {
+      "sunrise": "Aurore",
+      "dusk": "Crépuscule"
+    },
+    "typography": {
+      "display": "Affichage",
+      "heading": "Titre",
+      "body": "Corps",
+      "secondary": "Secondaire",
+      "mono": "Valeurs techniques",
+      "headingSample": "Organisations et opérateurs",
+      "bodySample": "Donner aux personnes et aux organisations des solutions intelligentes, simples et innovantes.",
+      "secondarySample": "Mis à jour par un opérateur il y a quelques minutes."
+    },
+    "actions": {
+      "create": "Créer une organisation",
+      "export": "Exporter",
+      "cancel": "Annuler",
+      "revoke": "Révoquer l’accès",
+      "unavailable": "Indisponible",
+      "next": "Continuer",
+      "back": "Retour",
+      "notifications": "Notifications",
+      "search": "Rechercher",
+      "settings": "Paramètres",
+      "guidelines": "Lire les principes de design"
+    },
+    "icons": {
+      "directionalNote": "Les icônes directionnelles sont inversées dans les langues de droite à gauche."
+    },
+    "status": {
+      "active": "Actif",
+      "pending": "En attente de validation",
+      "suspended": "Suspendu",
+      "invited": "Invité"
+    },
+    "values": {
+      "people": "L’humain d’abord",
+      "innovation": "Innovation par l’IA",
+      "simplicity": "Des solutions simples",
+      "tomorrow": "Un avenir plus lumineux"
+    },
+    "forms": {
+      "name": "Nom de l’organisation",
+      "nameHint": "Visible par les membres et dans le journal d’audit.",
+      "email": "E-mail du propriétaire",
+      "emailError": "Saisissez une adresse e-mail valide.",
+      "role": "Rôle par défaut",
+      "roleOwner": "Propriétaire",
+      "roleOperator": "Opérateur",
+      "roleViewer": "Lecteur",
+      "notes": "Notes internes",
+      "notify": "Prévenir le propriétaire de l’organisation",
+      "terms": "Je confirme que ce changement a été demandé",
+      "locked": "Identifiant de l’organisation"
+    },
+    "overlays": {
+      "openDialog": "Suspendre le membre…",
+      "dialogTitle": "Suspendre ce membre ?",
+      "dialogBody": "Il perdra l’accès à toutes les ressources de l’organisation jusqu’à sa réactivation. Cette action est enregistrée dans le journal d’audit.",
+      "confirm": "Suspendre le membre",
+      "moreActions": "Plus d’actions",
+      "edit": "Modifier",
+      "duplicate": "Dupliquer",
+      "delete": "Supprimer"
+    },
+    "feedback": {
+      "emptyTitle": "Aucune organisation pour l’instant",
+      "emptyDescription": "Les organisations que vous créez ou qui vous sont attribuées apparaissent ici.",
+      "errorTitle": "Impossible de charger les organisations",
+      "errorDescription": "Vérifiez votre connexion et réessayez.",
+      "retry": "Réessayer",
+      "loading": "Chargement des organisations",
+      "showSuccess": "Afficher un message de succès",
+      "showError": "Afficher un message d’erreur",
+      "toastSuccess": "Modifications enregistrées.",
+      "toastError": "L’organisation n’a pas pu être mise à jour."
+    },
+    "brand": {
+      "boardSymbol": "Planche de marque (image matricielle)",
+      "reconstruction": "Reconstruction vectorielle (provisoire)",
+      "note": "Le symbole vectoriel est redessiné d’après la planche de marque ; il reste provisoire tant que le fichier officiel n’est pas fourni. Les logos et la signature ci-dessous proviennent directement de la planche.",
+      "lockupLight": "Logo horizontal sur fond clair",
+      "lockupDark": "Logo horizontal sur fond sombre",
+      "stacked": "Logo vertical",
+      "favicons": "Favicon en 16, 32 et 48 pixels"
+    },
+    "numbers": {
+      "number": "Nombre",
+      "date": "Date",
+      "time": "Heure (UTC)",
+      "formattingTag": "Locale de formatage",
+      "note": "L’arabe utilise les chiffres latins 0–9."
+    }
+  }
+}

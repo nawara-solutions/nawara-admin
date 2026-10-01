@@ -1,0 +1,31 @@
+// Focus, reduced motion and forced colours (docs/ARCHITECTURE.md §25).
+@use '../abstracts' as nw;
+
+:focus-visible {
+  @include nw.focus-ring;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.nw-visually-hidden {
+  @include nw.visually-hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
+  }
+}

@@ -1,0 +1,39 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nw-space-1);
+  padding-block: var(--nw-space-1);
+  padding-inline: var(--nw-space-2) var(--nw-space-3);
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-status-badge-bg);
+  color: var(--nw-status-badge-fg);
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-medium);
+  line-height: var(--nw-line-height-tight);
+}
+
+:host(.nw-status-badge--success) {
+  --nw-status-badge-bg: var(--nw-status-success-bg);
+  --nw-status-badge-fg: var(--nw-status-success-fg);
+}
+
+:host(.nw-status-badge--warning) {
+  --nw-status-badge-bg: var(--nw-status-warning-bg);
+  --nw-status-badge-fg: var(--nw-status-warning-fg);
+}
+
+:host(.nw-status-badge--danger) {
+  --nw-status-badge-bg: var(--nw-status-danger-bg);
+  --nw-status-badge-fg: var(--nw-status-danger-fg);
+}
+
+:host(.nw-status-badge--info) {
+  --nw-status-badge-bg: var(--nw-status-info-bg);
+  --nw-status-badge-fg: var(--nw-status-info-fg);
+}
+
+@media (forced-colors: active) {
+  :host {
+    border: 1px solid CanvasText;
+  }
+}

@@ -1,0 +1,29 @@
+// Global stylesheet entry point (docs/ARCHITECTURE.md §13): loads the layers and mounts the token sets on :root.
+// Theme selection: `data-theme` on <html> (set before first paint by index.html, then by ThemeService);
+// without it, the operating-system preference applies. `data-theme` on any other element scopes a theme to that
+// subtree (for example to show artwork on a fixed light or dark panel).
+@use 'tokens/primitives';
+@use 'tokens/scales';
+@use 'tokens/theme-light';
+@use 'tokens/theme-dark';
+@use 'base';
+
+:root {
+  @include primitives.tokens;
+  @include scales.tokens;
+  @include theme-light.tokens;
+}
+
+[data-theme='light'] {
+  @include theme-light.tokens;
+}
+
+[data-theme='dark'] {
+  @include theme-dark.tokens;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    @include theme-dark.tokens;
+  }
+}

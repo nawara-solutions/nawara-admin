@@ -1,0 +1,74 @@
+// Document-level typography and colour (docs/ARCHITECTURE.md §18). No component styles here.
+
+html {
+  font-family: var(--nw-font-sans);
+  font-size: 100%;
+  line-height: var(--nw-line-height-normal);
+  color: var(--nw-text-primary);
+  background-color: var(--nw-surface-page);
+  text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Arabic: its own family first, a little more line height, never letter-spacing (§18).
+:lang(ar) {
+  --nw-font-sans: var(--nw-font-arabic);
+  --nw-letter-spacing-label: 0;
+}
+
+html:lang(ar) {
+  line-height: 1.7;
+}
+
+body {
+  min-block-size: 100dvh;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: var(--nw-font-weight-semibold);
+  line-height: var(--nw-line-height-tight);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--nw-text-size-3xl);
+}
+
+h2 {
+  font-size: var(--nw-text-size-2xl);
+}
+
+h3 {
+  font-size: var(--nw-text-size-xl);
+}
+
+h4 {
+  font-size: var(--nw-text-size-lg);
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--nw-text-link);
+  text-underline-offset: 0.2em;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--nw-font-mono);
+  font-size: 0.95em;
+}
+
+::selection {
+  background-color: var(--nw-color-primary);
+  color: var(--nw-text-on-primary);
+}

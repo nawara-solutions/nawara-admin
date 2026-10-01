@@ -1,0 +1,26 @@
+:host {
+  display: inline-flex;
+  flex-shrink: 0;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  color: inherit;
+}
+
+:host(.nw-icon--sm) {
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+
+:host(.nw-icon--lg) {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+}
+
+:host(.nw-icon--directional:dir(rtl)) {
+  transform: scaleX(-1);
+}
+
+.nw-icon__svg {
+  inline-size: 100%;
+  block-size: 100%;
+}

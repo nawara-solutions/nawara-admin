@@ -1,0 +1,18 @@
+:host {
+  color: var(--nw-text-link);
+  font-weight: var(--nw-font-weight-medium);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  border-radius: var(--nw-radius-sm);
+  transition: text-decoration-thickness var(--nw-duration-fast) var(--nw-ease-standard);
+
+  &:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  &[aria-current='page'] {
+    color: var(--nw-text-primary);
+    text-decoration: none;
+  }
+}

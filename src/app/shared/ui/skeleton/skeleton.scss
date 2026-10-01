@@ -1,0 +1,39 @@
+:host {
+  display: grid;
+  gap: var(--nw-space-2);
+}
+
+.nw-skeleton__line {
+  display: block;
+  block-size: 0.875rem;
+  border-radius: var(--nw-radius-sm);
+  background: linear-gradient(
+      90deg,
+      var(--nw-surface-sunken) 0%,
+      var(--nw-color-neutral-active) 50%,
+      var(--nw-surface-sunken) 100%
+    )
+    0 0 / 200% 100%;
+  animation: nw-skeleton-shimmer 1.4s ease-in-out infinite;
+
+  &:last-child:not(:first-child) {
+    inline-size: 60%;
+  }
+}
+
+:host(.nw-skeleton--block) .nw-skeleton__line {
+  block-size: 6rem;
+  border-radius: var(--nw-radius-md);
+}
+
+@keyframes nw-skeleton-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nw-skeleton__line {
+    animation: none;
+  }
+}

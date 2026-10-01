@@ -1,0 +1,147 @@
+{
+  "common": {
+    "close": "Close",
+    "dismiss": "Dismiss",
+    "loading": "Loading…"
+  },
+  "brand": {
+    "logoLabel": "Nawara Solutions"
+  },
+  "preferences": {
+    "theme": {
+      "label": "Theme",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "language": {
+      "label": "Language"
+    }
+  },
+  "foundation": {
+    "eyebrow": "Nawara Admin · Design foundation",
+    "title": "Smart solutions,",
+    "titleEmphasis": "powered by AI",
+    "intro": "The brand, tokens and first components of the Nawara Admin console, shown in the current theme and language. Switch the theme and language to check every combination.",
+    "sections": {
+      "palette": "Colour palette",
+      "gradients": "Gradients",
+      "typography": "Typography",
+      "actions": "Actions",
+      "icons": "Icons",
+      "status": "Status",
+      "values": "Brand values",
+      "forms": "Forms",
+      "overlays": "Dialogs and menus",
+      "feedback": "Feedback and data states",
+      "brand": "Brand assets",
+      "numbers": "Numbers and dates"
+    },
+    "palette": {
+      "page": "Page",
+      "raised": "Raised surface",
+      "sunken": "Sunken surface",
+      "brandSubtle": "Brand subtle",
+      "primary": "Primary action",
+      "textPrimary": "Primary text",
+      "textSecondary": "Secondary text",
+      "border": "Border",
+      "focus": "Focus ring",
+      "inverse": "Inverse surface"
+    },
+    "gradients": {
+      "sunrise": "Sunrise",
+      "dusk": "Dusk"
+    },
+    "typography": {
+      "display": "Display",
+      "heading": "Heading",
+      "body": "Body",
+      "secondary": "Secondary",
+      "mono": "Machine values",
+      "headingSample": "Organizations and operators",
+      "bodySample": "Empowering people and organizations with intelligent, simple and innovative solutions.",
+      "secondarySample": "Last updated by an operator a few minutes ago."
+    },
+    "actions": {
+      "create": "Create organization",
+      "export": "Export",
+      "cancel": "Cancel",
+      "revoke": "Revoke access",
+      "unavailable": "Unavailable",
+      "next": "Continue",
+      "back": "Back",
+      "notifications": "Notifications",
+      "search": "Search",
+      "settings": "Settings",
+      "guidelines": "Read the design guidelines"
+    },
+    "icons": {
+      "directionalNote": "Directional icons mirror in right-to-left languages."
+    },
+    "status": {
+      "active": "Active",
+      "pending": "Pending review",
+      "suspended": "Suspended",
+      "invited": "Invited"
+    },
+    "values": {
+      "people": "People first",
+      "innovation": "AI innovation",
+      "simplicity": "Simple solutions",
+      "tomorrow": "A brighter tomorrow"
+    },
+    "forms": {
+      "name": "Organization name",
+      "nameHint": "Shown to members and in audit records.",
+      "email": "Owner email",
+      "emailError": "Enter a valid email address.",
+      "role": "Default role",
+      "roleOwner": "Owner",
+      "roleOperator": "Operator",
+      "roleViewer": "Viewer",
+      "notes": "Internal notes",
+      "notify": "Notify the organization owner",
+      "terms": "I confirm this change was requested",
+      "locked": "Organization id"
+    },
+    "overlays": {
+      "openDialog": "Suspend member…",
+      "dialogTitle": "Suspend this member?",
+      "dialogBody": "They will lose access to every organization resource until restored. This action is recorded in the audit log.",
+      "confirm": "Suspend member",
+      "moreActions": "More actions",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "delete": "Delete"
+    },
+    "feedback": {
+      "emptyTitle": "No organizations yet",
+      "emptyDescription": "Organizations you create or are assigned to appear here.",
+      "errorTitle": "Organizations could not be loaded",
+      "errorDescription": "Check your connection and try again.",
+      "retry": "Try again",
+      "loading": "Loading organizations",
+      "showSuccess": "Show success toast",
+      "showError": "Show error toast",
+      "toastSuccess": "Changes saved.",
+      "toastError": "The organization could not be updated."
+    },
+    "brand": {
+      "boardSymbol": "Brand board (raster)",
+      "reconstruction": "Vector reconstruction (provisional)",
+      "note": "The vector symbol is redrawn from the brand board and is provisional until the official artwork is supplied. Logos and wordmarks below are the board’s own artwork.",
+      "lockupLight": "Horizontal logo on a light surface",
+      "lockupDark": "Horizontal logo on a dark surface",
+      "stacked": "Stacked logo",
+      "favicons": "Favicon at 16, 32 and 48 pixels"
+    },
+    "numbers": {
+      "number": "Number",
+      "date": "Date",
+      "time": "Time (UTC)",
+      "formattingTag": "Formatting locale",
+      "note": "Arabic uses Latin digits 0–9."
+    }
+  }
+}

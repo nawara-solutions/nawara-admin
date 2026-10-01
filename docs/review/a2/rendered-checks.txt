@@ -1,0 +1,57 @@
+# Rendered checks: raw output (production build, headless Chrome, 2026-10-01)
+
+## Theme x language x viewport matrix, system theme, fonts, axe
+
+desktop-light-en   startup={"theme":"light","lang":"en","dir":"ltr"} final=en/ltr/light overflow=no broken=0 axe=none
+desktop-light-fr   startup={"theme":"light","lang":"fr","dir":"ltr"} final=fr/ltr/light overflow=no broken=0 axe=none
+desktop-light-ar   startup={"theme":"light","lang":"ar","dir":"rtl"} final=ar/rtl/light overflow=no broken=0 axe=none
+desktop-dark-en    startup={"theme":"dark","lang":"en","dir":"ltr"} final=en/ltr/dark overflow=no broken=0 axe=none
+desktop-dark-fr    startup={"theme":"dark","lang":"fr","dir":"ltr"} final=fr/ltr/dark overflow=no broken=0 axe=none
+desktop-dark-ar    startup={"theme":"dark","lang":"ar","dir":"rtl"} final=ar/rtl/dark overflow=no broken=0 axe=none
+mobile-light-en    startup={"theme":"light","lang":"en","dir":"ltr"} final=en/ltr/light overflow=no broken=0 axe=none
+mobile-light-fr    startup={"theme":"light","lang":"fr","dir":"ltr"} final=fr/ltr/light overflow=no broken=0 axe=none
+mobile-light-ar    startup={"theme":"light","lang":"ar","dir":"rtl"} final=ar/rtl/light overflow=no broken=0 axe=none
+mobile-dark-en     startup={"theme":"dark","lang":"en","dir":"ltr"} final=en/ltr/dark overflow=no broken=0 axe=none
+mobile-dark-fr     startup={"theme":"dark","lang":"fr","dir":"ltr"} final=fr/ltr/dark overflow=no broken=0 axe=none
+mobile-dark-ar     startup={"theme":"dark","lang":"ar","dir":"rtl"} final=ar/rtl/dark overflow=no broken=0 axe=none
+system-dark {"name":"system-dark","startup":{"theme":null,"lang":"en","dir":"ltr"},"theme":"dark","pageBg":"rgb(19, 19, 26)","stored":null,"checked":"system"}
+system-light {"name":"system-light","startup":{"theme":null,"lang":"en","dir":"ltr"},"theme":"light","pageBg":"rgb(250, 247, 244)","stored":null,"checked":"system"}
+en fonts: ibm-plex-mono-latin-400-normal, ibm-plex-sans-arabic-arabic-400-normal, ibm-plex-sans-latin-400-normal, ibm-plex-sans-latin-500-normal, ibm-plex-sans-latin-600-normal
+ar fonts: ibm-plex-mono-latin-400-normal, ibm-plex-sans-arabic-arabic-400-normal, ibm-plex-sans-arabic-arabic-500-normal, ibm-plex-sans-arabic-arabic-600-normal, ibm-plex-sans-latin-400-normal, ibm-plex-sans-latin-500-normal, ibm-plex-sans-latin-600-normal
+en: dirIcon none | logo none ltr | wordmark [ 'brand/nawara-wordmark.png' ] | number 1,234,567.89
+ar: dirIcon matrix(-1, 0, 0, 1, 0, 0) | logo none ltr | wordmark [ 'brand/nawara-wordmark-on-dark.png' ] | number 1,234,567.89
+console/page errors: none
+
+## Keyboard, focus, dialog, menu, states, persistence, reduced motion, forced colours
+
+tab stops                          26
+tab order                          input[radio]:light > input[radio]:en > button[button]:Create organization > button[button]:Export > button[button]:Create organization > button[button]:Export > button[button]:Cancel > button[button]:Revoke access > button[button]:Back > button[button]:Continue > button[button]:Notifications > button[button]:Search > button[button]:Settings > input[text]:Nawara Academy > input[email]:owner@ > select[select-one]:Owner Operator Viewer > textarea[textarea]: > input[checkbox]:on > input[checkbox]:on > button[button]:Suspend member… > button[button]:More actions > a:Read the design guidelines > button[button]:Show success toast > button[button]:Show error toast > button[button]:Create organization > button[button]:Try again
+stops WITHOUT a visible focus ring []
+disabled button reachable by Tab   false
+dialog on Enter                    {"role":"alertdialog","modal":"true","labelledByResolves":true,"title":"Suspend this member?","focusInside":true,"focused":"Close"}
+focus stays in dialog (6 Tabs)     true
+axe with dialog open               []
+dialog closed by Escape            true
+focus restored to trigger          true
+menu on Enter                      {"open":true,"expanded":"true","items":3,"focused":"Edit"}
+menu after ArrowDown               Duplicate
+menu closed, focus on trigger      true
+danger light rest|hover|press      rgb(253, 236, 236) / rgb(198, 40, 40)  |  rgb(198, 40, 40) / rgb(255, 255, 255)  |  rgb(161, 32, 32) / rgb(255, 255, 255)
+danger dark rest|hover|press       rgb(161, 32, 32) / rgb(242, 139, 130)  |  rgb(242, 139, 130) / rgb(27, 27, 36)  |  rgb(247, 177, 171) / rgb(27, 27, 36)
+form field wiring                  [{"label":true,"describedByResolves":true,"n":1,"invalid":null,"required":"true","disabled":false},{"label":true,"describedByResolves":true,"n":1,"invalid":"true","required":null,"disabled":false},{"label":true,"describedByResolves":true,"n":0,"invalid":null,"required":null,"disabled":false},{"label":true,"describedByResolves":true,"n":0,"invalid":null,"required":null,"disabled":true},{"label":true,"describedByResolves":true,"n":0,"invalid":null,"required":null,"disabled":false}]
+after choosing dark + ar           {"theme":"dark","lang":"ar","dir":"rtl","stored":["dark","ar"],"keys":["nw.locale","nw.theme"]}
+after reload                       {"theme":"dark","lang":"ar","dir":"rtl","h1":"حلول ذكية، مدعومة با","cdkDir":"n/a"}
+RTL menu                           {"menuDir":"rtl","alignedToInlineStart":true,"inViewport":true}
+transition (default)               0.12s, 0.12s, 0.12s
+transition (reduced motion)        0.001s
+forced colours                     {"active":true,"buttonBorder":"rgb(255, 255, 255) solid","inputBorder":"rgb(255, 255, 255)","badgeBorder":"solid 1px"}
+console/page errors                none
+
+## Forced colours: wordmark selection (separate check)
+
+forced colours, palette dark  -> wordmark brand/nawara-wordmark-on-dark.png
+forced colours, palette light -> wordmark brand/nawara-wordmark.png
+
+Note: Chrome's emulation of `forced-colors` alone draws a dark palette while still reporting a light colour scheme, which a
+real high-contrast system does not do. The forced-colours screenshot was therefore captured with both `forced-colors: active`
+and `prefers-color-scheme: dark` emulated.

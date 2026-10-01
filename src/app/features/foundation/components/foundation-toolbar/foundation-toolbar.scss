@@ -1,0 +1,56 @@
+@use 'abstracts' as nw;
+
+:host {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--nw-z-sticky);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nw-space-4);
+  padding: var(--nw-space-3) clamp(var(--nw-space-4), 4vw, var(--nw-space-9));
+  border-block-end: 1px solid var(--nw-border-subtle);
+  background-color: var(--nw-surface-raised);
+}
+
+.foundation-toolbar__switch {
+  display: inline-flex;
+  margin: 0;
+  padding: var(--nw-space-1);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-surface-sunken);
+}
+
+.foundation-toolbar__option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nw-space-1);
+  padding: var(--nw-space-1) var(--nw-space-3);
+  border-radius: var(--nw-radius-pill);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+  cursor: pointer;
+
+  &:has(:checked) {
+    background-color: var(--nw-surface-raised);
+    color: var(--nw-text-primary);
+    box-shadow: var(--nw-shadow-sm);
+  }
+
+  &:has(:focus-visible) {
+    @include nw.focus-ring;
+  }
+}
+
+.foundation-toolbar__radio {
+  @include nw.visually-hidden;
+}
+
+.foundation-toolbar__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-3);
+}

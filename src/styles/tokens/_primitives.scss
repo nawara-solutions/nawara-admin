@@ -1,0 +1,84 @@
+// Primitive tokens (--nw-ref-*): raw colour ramps. Used ONLY by the theme files, never by components (docs/ARCHITECTURE.md §13).
+// Source: official Nawara Solutions brand board (owner, 2026-10-01). The brand defines one anchor value per hue,
+// marked `brand` below; the other steps of each ramp are derived from it for states and contrast. The brand pink
+// (#E6428B) fails WCAG AA with white body text (3.81:1), so solid actions use step 600 in light mode
+// and step 400 in dark mode; the anchor value stays for gradients, illustration and large display text.
+// Status hues (green, red) are not part of the brand board and are functional only.
+// Provenance of every value here (docs/BRAND.md):
+//   `brand`   printed as a hex code on the board (8 values); authoritative
+//   unmarked  DERIVED for UI use (ramp steps, dark surfaces, status hues); a proposal, not a brand value
+
+@mixin tokens {
+  // Pink: brand primary
+  --nw-ref-pink-50: #fdf0f6;
+  --nw-ref-pink-100: #fadce9;
+  --nw-ref-pink-200: #f5b6d2;
+  --nw-ref-pink-300: #f08db8;
+  --nw-ref-pink-400: #eb66a1;
+  --nw-ref-pink-500: #e6428b; // brand: Primary
+  --nw-ref-pink-600: #c42a6f;
+  --nw-ref-pink-700: #a1215b;
+  --nw-ref-pink-800: #7a1945;
+  --nw-ref-pink-900: #3a1428;
+
+  // Orange: brand secondary
+  --nw-ref-orange-50: #fff4ec;
+  --nw-ref-orange-300: #ffb27e;
+  --nw-ref-orange-500: #ff8a3d; // brand: Secondary
+  --nw-ref-orange-700: #c2410c;
+
+  // Amber: brand accent
+  --nw-ref-amber-50: #fff9eb;
+  --nw-ref-amber-500: #ffc857; // brand: Accent
+  --nw-ref-amber-800: #7c4a03;
+  --nw-ref-amber-900: #2a2210;
+
+  // Purple: brand purple
+  --nw-ref-purple-50: #f5eefb;
+  --nw-ref-purple-300: #c49bea;
+  --nw-ref-purple-400: #b07be0;
+  --nw-ref-purple-600: #7b2cbf; // brand: Purple
+  --nw-ref-purple-700: #62219a;
+  --nw-ref-purple-900: #22172f;
+
+  // Neutral: warm surfaces (brand Surface) with cool ink (brand Dark, Muted)
+  --nw-ref-neutral-0: #ffffff; // brand: White
+  --nw-ref-neutral-50: #faf7f4; // brand: Surface
+  --nw-ref-neutral-100: #f2ede8;
+  --nw-ref-neutral-200: #e5dfd8;
+  --nw-ref-neutral-300: #cfc8c0;
+  --nw-ref-neutral-350: #a9abb8;
+  --nw-ref-neutral-400: #7a7d8c;
+  --nw-ref-neutral-500: #6b7280; // brand: Muted
+  --nw-ref-neutral-600: #535866;
+  --nw-ref-neutral-700: #3a3b48;
+  --nw-ref-neutral-750: #2c2c38;
+  --nw-ref-neutral-800: #24242f;
+  --nw-ref-neutral-850: #1b1b24; // brand: Dark
+  --nw-ref-neutral-900: #13131a;
+  --nw-ref-neutral-950: #0d0d12;
+  --nw-ref-neutral-ink-inverse: #f5f1ec;
+
+  // Functional status hues (not brand)
+  --nw-ref-green-50: #ecf8f1;
+  --nw-ref-green-300: #6fcf9a;
+  --nw-ref-green-700: #1e7f4f;
+  --nw-ref-green-900: #10261b;
+  --nw-ref-red-50: #fdecec;
+  --nw-ref-red-200: #f7b1ab;
+  --nw-ref-red-300: #f28b82;
+  --nw-ref-red-700: #c62828;
+  --nw-ref-red-800: #a12020;
+  --nw-ref-red-900: #2d1414;
+
+  // Brand gradients. The board shows two gradient bars but prints NO stop values, so these are APPROXIMATIONS built
+  // from the printed palette. Pixel samples of the board (approximate, raster): bar 1 runs #DB1863 -> #F64D66 ->
+  // #FEBD5A, bar 2 runs #6429B4 -> #C033AF -> #FE71A6, both left to right with a slight downward tilt (about 100deg).
+  --nw-ref-gradient-sunrise: linear-gradient(
+    90deg,
+    var(--nw-ref-pink-500),
+    var(--nw-ref-orange-500),
+    var(--nw-ref-amber-500)
+  );
+  --nw-ref-gradient-dusk: linear-gradient(90deg, var(--nw-ref-purple-600), var(--nw-ref-pink-400));
+}

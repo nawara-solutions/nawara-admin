@@ -1,0 +1,15 @@
+<label class="nw-checkbox__label">
+  <input
+    class="nw-checkbox__input"
+    type="checkbox"
+    [checked]="checked()"
+    [indeterminate]="indeterminate()"
+    [disabled]="isDisabled()"
+    (change)="toggle($event)"
+    (blur)="onTouched()"
+  />
+  <span class="nw-checkbox__box" aria-hidden="true">
+    <nw-icon class="nw-checkbox__mark" [name]="indeterminate() ? 'minus' : 'check'" size="sm" />
+  </span>
+  <span class="nw-checkbox__text"><ng-content /></span>
+</label>

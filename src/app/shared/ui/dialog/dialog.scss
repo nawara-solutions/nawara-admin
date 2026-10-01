@@ -1,0 +1,61 @@
+@use 'abstracts' as nw;
+
+:host {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  inline-size: min(30rem, 100vw - 2 * var(--nw-space-4));
+  max-block-size: calc(100dvh - 2 * var(--nw-space-4));
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-lg);
+  background-color: var(--nw-surface-overlay);
+  color: var(--nw-text-primary);
+  box-shadow: var(--nw-shadow-lg);
+  animation: nw-dialog-enter var(--nw-duration-base) var(--nw-ease-emphasized);
+}
+
+:host(.nw-dialog--wide) {
+  inline-size: min(48rem, 100vw - 2 * var(--nw-space-4));
+}
+
+.nw-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nw-space-4);
+  padding: var(--nw-space-5) var(--nw-space-6) var(--nw-space-2);
+}
+
+.nw-dialog__title {
+  font-size: var(--nw-text-size-xl);
+}
+
+.nw-dialog__body {
+  overflow-y: auto;
+  padding: var(--nw-space-2) var(--nw-space-6) var(--nw-space-4);
+  color: var(--nw-text-secondary);
+}
+
+.nw-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--nw-space-3);
+  padding: var(--nw-space-4) var(--nw-space-6) var(--nw-space-5);
+
+  &:empty {
+    display: none;
+  }
+}
+
+@keyframes nw-dialog-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
+  }
+}
+
+@media (forced-colors: active) {
+  :host {
+    border-color: CanvasText;
+  }
+}

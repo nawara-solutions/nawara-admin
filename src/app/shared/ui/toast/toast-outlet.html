@@ -1,0 +1,17 @@
+@for (region of regions(); track region.live) {
+  <div class="nw-toast-outlet__region" [attr.aria-live]="region.live">
+    @for (toast of region.toasts; track toast.id) {
+      <div class="nw-toast-outlet__toast" [attr.data-tone]="toast.tone">
+        <nw-icon class="nw-toast-outlet__icon" [name]="icons[toast.tone]" />
+        <p class="nw-toast-outlet__message">{{ toast.message }}</p>
+        <button
+          nw-icon-button
+          icon="x"
+          type="button"
+          [label]="dismissLabel()"
+          (click)="service.dismiss(toast.id)"
+        ></button>
+      </div>
+    }
+  </div>
+}

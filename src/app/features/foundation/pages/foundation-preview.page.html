@@ -1,0 +1,314 @@
+<adm-foundation-toolbar />
+
+<main class="foundation-preview__main">
+  <section class="foundation-preview__hero" aria-labelledby="foundation-title">
+    <p class="foundation-preview__eyebrow">{{ 'foundation.eyebrow' | transloco }}</p>
+    <h1 id="foundation-title" class="foundation-preview__title">
+      {{ 'foundation.title' | transloco }}
+      <span class="foundation-preview__emphasis">{{ 'foundation.titleEmphasis' | transloco }}</span>
+    </h1>
+    <p class="foundation-preview__intro">{{ 'foundation.intro' | transloco }}</p>
+    <div class="foundation-preview__row">
+      <button nw-button type="button">
+        <nw-icon name="plus" size="sm" />{{ 'foundation.actions.create' | transloco }}
+      </button>
+      <button nw-button variant="secondary" type="button">
+        {{ 'foundation.actions.export' | transloco }}
+      </button>
+    </div>
+  </section>
+
+  <section class="foundation-preview__card" aria-labelledby="palette-title">
+    <h2 id="palette-title" class="foundation-preview__heading">
+      {{ 'foundation.sections.palette' | transloco }}
+    </h2>
+    <ul class="foundation-preview__swatches" role="list">
+      @for (swatch of swatches; track swatch.token) {
+        <li class="foundation-preview__swatch">
+          <span
+            class="foundation-preview__chip"
+            [style.background]="'var(' + swatch.token + ')'"
+          ></span>
+          <span>{{ swatch.labelKey | transloco }}</span>
+          <code class="foundation-preview__token" translate="no" dir="ltr">{{ swatch.token }}</code>
+        </li>
+      }
+    </ul>
+    <h3 class="foundation-preview__subheading">
+      {{ 'foundation.sections.gradients' | transloco }}
+    </h3>
+    <ul class="foundation-preview__gradients" role="list">
+      @for (gradient of gradients; track gradient.token) {
+        <li class="foundation-preview__swatch">
+          <span
+            class="foundation-preview__bar-chip"
+            [style.background]="'var(' + gradient.token + ')'"
+          ></span>
+          <span>{{ gradient.labelKey | transloco }}</span>
+          <code class="foundation-preview__token" translate="no" dir="ltr">{{
+            gradient.token
+          }}</code>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <adm-brand-assets class="foundation-preview__card foundation-preview__card--wide" />
+
+  <section class="foundation-preview__card" aria-labelledby="type-title">
+    <h2 id="type-title" class="foundation-preview__heading">
+      {{ 'foundation.sections.typography' | transloco }}
+    </h2>
+    <dl class="foundation-preview__type">
+      <dt>{{ 'foundation.typography.display' | transloco }}</dt>
+      <dd class="foundation-preview__display">
+        <span lang="en" dir="ltr">{{ specimens.latin }}</span>
+        <span lang="ar" dir="rtl">{{ specimens.arabic }}</span>
+      </dd>
+      <dt>{{ 'foundation.typography.heading' | transloco }}</dt>
+      <dd class="foundation-preview__sample-heading">
+        {{ 'foundation.typography.headingSample' | transloco }}
+      </dd>
+      <dt>{{ 'foundation.typography.body' | transloco }}</dt>
+      <dd>{{ 'foundation.typography.bodySample' | transloco }}</dd>
+      <dt>{{ 'foundation.typography.secondary' | transloco }}</dt>
+      <dd class="foundation-preview__secondary">
+        {{ 'foundation.typography.secondarySample' | transloco }}
+      </dd>
+      <dt>{{ 'foundation.typography.mono' | transloco }}</dt>
+      <dd>
+        <code translate="no" dir="ltr">{{ specimens.mono }}</code>
+      </dd>
+    </dl>
+  </section>
+
+  <section class="foundation-preview__card" aria-labelledby="numbers-title">
+    <h2 id="numbers-title" class="foundation-preview__heading">
+      {{ 'foundation.sections.numbers' | transloco }}
+    </h2>
+    <dl class="foundation-preview__type">
+      <dt>{{ 'foundation.numbers.number' | transloco }}</dt>
+      <dd class="foundation-preview__number">{{ formatted().number }}</dd>
+      <dt>{{ 'foundation.numbers.date' | transloco }}</dt>
+      <dd class="foundation-preview__number">{{ formatted().date }}</dd>
+      <dt>{{ 'foundation.numbers.time' | transloco }}</dt>
+      <dd class="foundation-preview__number">{{ formatted().time }}</dd>
+      <dt>{{ 'foundation.numbers.formattingTag' | transloco }}</dt>
+      <dd>
+        <code translate="no" dir="ltr">{{ formatted().tag }}</code>
+      </dd>
+    </dl>
+    <p class="foundation-preview__secondary">{{ 'foundation.numbers.note' | transloco }}</p>
+  </section>
+
+  <section class="foundation-preview__card" aria-labelledby="actions-title">
+    <h2 id="actions-title" class="foundation-preview__heading">
+      {{ 'foundation.sections.actions' | transloco }}
+    </h2>
+    <div class="foundation-preview__row">
+      <button nw-button type="button">{{ 'foundation.actions.create' | transloco }}</button>
+      <button nw-button variant="secondary" type="button">
+        {{ 'foundation.actions.export' | transloco }}
+      </button>
+      <button nw-button variant="ghost" type="button">
+        {{ 'foundation.actions.cancel' | transloco }}
+      </button>
+      <button nw-button variant="danger" type="button">
+        {{ 'foundation.actions.revoke' | transloco }}
+      </button>
+      <button nw-button type="button" disabled>
+        {{ 'foundation.actions.unavailable' | transloco }}
+      </button>
+    </div>
+    <div class="foundation-preview__row">
+      <button nw-button variant="secondary" size="sm" type="button">
+        <nw-icon name="arrow-left" size="sm" />{{ 'foundation.actions.back' | transloco }}
+      </button>
+      <button nw-button size="sm" type="button">
+        {{ 'foundation.actions.next' | transloco }}<nw-icon name="chevron-right" size="sm" />
+      </button>
+      <button
+        nw-icon-button
+        icon="bell"
+        type="button"
+        [label]="'foundation.actions.notifications' | transloco"
+      ></button>
+      <button
+        nw-icon-button
+        icon="search"
+        type="button"
+        [label]="'foundation.actions.search' | transloco"
+      ></button>
+      <button
+        nw-icon-button
+        icon="settings"
+        type="button"
+        [label]="'foundation.actions.settings' | transloco"
+      ></button>
+    </div>
+  </section>
+
+  <section class="foundation-preview__card" aria-labelledby="icons-title">
+    <h2 id="icons-title" class="foundation-preview__heading">
+      {{ 'foundation.sections.icons' | transloco }}
+    </h2>
+    <ul class="foundation-preview__icons" role="list">
+      @for (icon of brandIcons; track icon) {
+        <li class="foundation-preview__icon">
+          <nw-icon [name]="icon" size="lg" />
+          <code class="foundation-preview__token" translate="no" dir="ltr">{{ icon }}</code>
+        </li>
+      }
+    </ul>
+    <p class="foundation-preview__secondary">
+      {{ 'foundation.icons.directionalNote' | transloco }}
+    </p>
+    <ul class="foundation-preview__icons" role="list">
+      @for (icon of directionalIcons; track icon) {
+        <li class="foundation-preview__icon">
+          <nw-icon [name]="icon" size="lg" />
+          <code class="foundation-preview__token" translate="no" dir="ltr">{{ icon }}</code>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="foundation-preview__card" aria-labelledby="status-title">
+    <h2 id="status-title" class="foundation-preview__heading">
+      {{ 'foundation.sections.status' | transloco }}
+    </h2>
+    <div class="foundation-preview__row">
+      @for (status of statuses; track status.tone) {
+        <nw-status-badge [tone]="status.tone">{{ status.labelKey | transloco }}</nw-status-badge>
+      }
+    </div>
+    <h3 class="foundation-preview__subheading">{{ 'foundation.sections.values' | transloco }}</h3>
+    <ul class="foundation-preview__values" role="list">
+      @for (value of values; track value.icon) {
+        <li class="foundation-preview__value">
+          <nw-icon class="foundation-preview__value-icon" [name]="value.icon" size="lg" />
+          <span>{{ value.labelKey | transloco }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+  <section
+    class="foundation-preview__card foundation-preview__card--wide"
+    aria-labelledby="forms-title"
+  >
+    <h2 id="forms-title" class="foundation-preview__heading">
+      {{ 'foundation.sections.forms' | transloco }}
+    </h2>
+    <div class="foundation-preview__form">
+      <nw-form-field
+        [label]="'foundation.forms.name' | transloco"
+        [hint]="'foundation.forms.nameHint' | transloco"
+        required
+      >
+        <input nwControl type="text" value="Nawara Academy" required />
+      </nw-form-field>
+      <nw-form-field
+        [label]="'foundation.forms.email' | transloco"
+        [error]="'foundation.forms.emailError' | transloco"
+      >
+        <input nwControl type="email" value="owner@" dir="ltr" />
+      </nw-form-field>
+      <nw-form-field [label]="'foundation.forms.role' | transloco">
+        <select nwControl>
+          <option value="owner">{{ 'foundation.forms.roleOwner' | transloco }}</option>
+          <option value="operator" selected>
+            {{ 'foundation.forms.roleOperator' | transloco }}
+          </option>
+          <option value="viewer">{{ 'foundation.forms.roleViewer' | transloco }}</option>
+        </select>
+      </nw-form-field>
+      <nw-form-field [label]="'foundation.forms.locked' | transloco">
+        <input nwControl type="text" value="org_01JD3K8Z9Q" dir="ltr" translate="no" disabled />
+      </nw-form-field>
+      <nw-form-field
+        class="foundation-preview__full"
+        [label]="'foundation.forms.notes' | transloco"
+      >
+        <textarea nwControl rows="3"></textarea>
+      </nw-form-field>
+      <div class="foundation-preview__row foundation-preview__full">
+        <nw-checkbox [checked]="true">{{ 'foundation.forms.notify' | transloco }}</nw-checkbox>
+        <nw-checkbox>{{ 'foundation.forms.terms' | transloco }}</nw-checkbox>
+      </div>
+    </div>
+  </section>
+
+  <section class="foundation-preview__card" aria-labelledby="overlays-title">
+    <h2 id="overlays-title" class="foundation-preview__heading">
+      {{ 'foundation.sections.overlays' | transloco }}
+    </h2>
+    <div class="foundation-preview__row">
+      <button nw-button variant="danger" type="button" (click)="openSuspendDialog()">
+        {{ 'foundation.overlays.openDialog' | transloco }}
+      </button>
+      <button nw-button variant="secondary" type="button" [nwMenuTriggerFor]="actionsMenu">
+        <nw-icon name="ellipsis-vertical" size="sm" />{{
+          'foundation.overlays.moreActions' | transloco
+        }}
+      </button>
+      <ng-template #actionsMenu>
+        <nw-menu>
+          <button nw-menu-item>
+            <nw-icon name="pencil" size="sm" />{{ 'foundation.overlays.edit' | transloco }}
+          </button>
+          <button nw-menu-item>
+            <nw-icon name="copy" size="sm" />{{ 'foundation.overlays.duplicate' | transloco }}
+          </button>
+          <button nw-menu-item danger>
+            <nw-icon name="trash" size="sm" />{{ 'foundation.overlays.delete' | transloco }}
+          </button>
+        </nw-menu>
+      </ng-template>
+    </div>
+    <p>
+      <a nw-link href="#palette-title">{{ 'foundation.actions.guidelines' | transloco }}</a>
+    </p>
+  </section>
+
+  <section class="foundation-preview__card" aria-labelledby="feedback-title">
+    <h2 id="feedback-title" class="foundation-preview__heading">
+      {{ 'foundation.sections.feedback' | transloco }}
+    </h2>
+    <div class="foundation-preview__row">
+      <button nw-button variant="secondary" size="sm" type="button" (click)="showToast('success')">
+        {{ 'foundation.feedback.showSuccess' | transloco }}
+      </button>
+      <button nw-button variant="secondary" size="sm" type="button" (click)="showToast('danger')">
+        {{ 'foundation.feedback.showError' | transloco }}
+      </button>
+    </div>
+    <nw-data-state state="loading" [title]="'foundation.feedback.loading' | transloco" />
+  </section>
+
+  <div class="foundation-preview__card foundation-preview__card--wide">
+    <div class="foundation-preview__states">
+      <nw-data-state
+        state="empty"
+        [title]="'foundation.feedback.emptyTitle' | transloco"
+        [description]="'foundation.feedback.emptyDescription' | transloco"
+      >
+        <div nwDataStateActions>
+          <button nw-button size="sm" type="button">
+            <nw-icon name="plus" size="sm" />{{ 'foundation.actions.create' | transloco }}
+          </button>
+        </div>
+      </nw-data-state>
+      <nw-data-state
+        state="error"
+        [title]="'foundation.feedback.errorTitle' | transloco"
+        [description]="'foundation.feedback.errorDescription' | transloco"
+      >
+        <div nwDataStateActions>
+          <button nw-button variant="secondary" size="sm" type="button">
+            <nw-icon name="refresh-cw" size="sm" />{{ 'foundation.feedback.retry' | transloco }}
+          </button>
+        </div>
+      </nw-data-state>
+    </div>
+  </div>
+</main>
