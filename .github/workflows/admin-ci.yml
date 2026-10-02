@@ -1,0 +1,64 @@
+name: Admin CI
+
+# Validates every pull request to main and every push to main: formatting, lint, styles, translations, contrast, unit
+# tests, the production build with its budgets, and the production/demo exclusion check; then builds the production
+# image and smoke-tests it. It never deploys, never pushes an image and uses no secret.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A newer push to the same ref supersedes an older CI run (deployment is a different workflow and is never cancelled).
+concurrency:
+  group: admin-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: pin npm to package.json "packageManager"
+        run: npm install -g "$(node -p "require('./package.json').packageManager")"
+      - run: npm ci --no-audit --no-fund
+        env:
+          HUSKY: '0'
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run lint:styles
+      - run: npm run check:i18n
+      - run: npm run check:contrast
+      - run: npm test
+      - run: npm run build
+      - name: production bundle contains no demo session, mock adapter or fixture
+        run: npm run check:production
+
+  image:
+    name: production image smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: build (no push)
+        run: docker build --build-arg REVISION="${{ github.sha }}" -t nawara-admin-web:ci .
+      - name: run hardened, as on the server
+        run: |
+          docker run -d --name admin-smoke -p 127.0.0.1:8080:8080 --read-only --tmpfs /tmp:rw,size=16m \
+            --cap-drop ALL --security-opt no-new-privileges nawara-admin-web:ci
+          for _ in $(seq 1 20); do
+            [ "$(docker inspect -f '{{.State.Health.Status}}' admin-smoke)" = healthy ] && break
+            sleep 2
+          done
+          [ "$(docker inspect -f '{{.State.Health.Status}}' admin-smoke)" = healthy ]
+      - name: routes, caching and production content
+        run: bash deploy/verify.sh http://127.0.0.1:8080 "${{ github.sha }}"
+      - if: failure()
+        run: docker logs admin-smoke || true

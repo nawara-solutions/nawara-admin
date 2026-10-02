@@ -214,6 +214,15 @@ none), operator scope.
 Evidence: [`review/a3-company-overview/`](review/a3-company-overview/README.md).
 
 
+## CI/CD and first production deployment (owner-authorized 2026-10-03)
+
+CI (`admin-ci.yml`) and production deployment (`admin-deploy.yml`) to `https://admin.nawara-solutions.com`, following Nawara
+Core's VPS, GHCR and Traefik conventions; details, secrets and rollback in [`DEPLOYMENT.md`](DEPLOYMENT.md). Production serves
+the frontend only and shows "sign-in not available": no mock authentication, demo account or simulated passkey ships. The
+stylesheet budget warnings were resolved by component decomposition (Platforms page header; sign-in brand panel and demo
+note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
+Policy (A14), and everything listed open for A4-S1 below.
+
 ## A4-S1: sign-in and owner MFA, demo adapter (owner-authorized 2026-10-02; alignment corrections 2026-10-02)
 
 **Status (owner review, 2026-10-02): reviewed mock-prototype slice.** The alignment corrections were accepted. A4-S1 is a
