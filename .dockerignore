@@ -1,0 +1,14 @@
+# Only what the production build needs enters the build context.
+.git
+.github
+.angular
+.claude
+.husky
+.vscode
+node_modules
+dist
+out-tsc
+coverage
+screenshot
+docs
+*.md

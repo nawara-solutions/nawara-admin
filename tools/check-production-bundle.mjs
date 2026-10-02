@@ -9,6 +9,7 @@ const DIST = 'dist/nawara-admin/browser';
 const MARKERS = [
   'demo.nawara.invalid', // demo account emails (src/app/core/auth/auth.fixtures.ts)
   'nawara-demo-2026', // demo password (auth.fixtures.ts)
+  'simulated-passkey', // simulated passkey assertion (auth.mock.ts)
   '0c2f4e3a-5d1b-4b8e-9a51-7f0d2c9e1a01', // demo Company id (scope-directory.fixtures.ts)
   'demo-activity-1', // activity fixture (company-overview.fixtures.ts)
   'DEMO_LATENCY_MS', // mock adapter token (scope-directory.mock.ts)

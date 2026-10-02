@@ -1,0 +1,167 @@
+// The page header card of the owner design ("Platforms Screen"): titles, the demo disclosure and Create platform.
+:host {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-4) var(--nw-space-6);
+  padding: 1.125rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: 1.125rem;
+  background: var(--nw-hero-background);
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
+    z-index: -1;
+    inline-size: min(26.25rem, 45%);
+    border-start-end-radius: inherit;
+    border-end-end-radius: inherit;
+    background: url('/illustrations/hero-flora.svg') no-repeat right top / 26.25rem auto;
+    opacity: var(--nw-sidebar-illustration-opacity);
+    mask-image: var(--nw-hero-illustration-mask);
+    pointer-events: none;
+  }
+
+  &:dir(rtl)::before {
+    transform: scaleX(-1);
+  }
+}
+
+.platforms-header__titles {
+  display: grid;
+  flex: 1 1 16.25rem;
+  gap: var(--nw-space-2);
+}
+
+.platforms-header__title {
+  font-size: 1.625rem;
+  font-weight: var(--nw-font-weight-bold);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+
+  &:lang(ar) {
+    letter-spacing: 0;
+  }
+}
+
+.platforms-header__subtitle {
+  color: var(--nw-text-label);
+  font-size: 0.90625rem;
+}
+
+.platforms-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-2);
+}
+
+.platforms-header__demo,
+.platforms-header__create {
+  position: relative;
+  display: inline-flex;
+}
+
+.platforms-header__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  block-size: 2.5rem;
+  padding-inline: var(--nw-space-3);
+  border: 1px solid var(--nw-accent-orange-bg);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-status-warning-bg);
+  color: var(--nw-status-warning-fg);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: var(--nw-font-weight-semibold);
+  cursor: pointer;
+
+  &:hover,
+  &[aria-expanded='true'] {
+    border-color: var(--nw-status-warning-fg);
+  }
+}
+
+.platforms-header__panel {
+  position: absolute;
+  inset-block-start: calc(100% + var(--nw-space-2));
+  inset-inline-start: 0;
+  z-index: var(--nw-z-dropdown);
+  display: grid;
+  gap: var(--nw-space-2);
+  inline-size: min(22rem, 80vw);
+  padding: var(--nw-space-3) var(--nw-space-4);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-overlay);
+  box-shadow: var(--nw-shadow-md);
+  font-size: var(--nw-text-size-sm);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+// Disabled but focusable (aria-disabled), so keyboard users reach the explanation.
+.platforms-header__create-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  block-size: 2.5rem;
+  padding-inline: 0.875rem;
+  border: 0;
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-inverse-disabled);
+  color: var(--nw-text-inverse);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: var(--nw-font-weight-semibold);
+  cursor: not-allowed;
+}
+
+.platforms-header__tooltip {
+  position: absolute;
+  inset-block-start: calc(100% + var(--nw-space-2));
+  inset-inline-end: 0;
+  z-index: var(--nw-z-dropdown);
+  inline-size: max-content;
+  max-inline-size: 16rem;
+  padding: var(--nw-space-2) var(--nw-space-3);
+  border-radius: var(--nw-radius-sm);
+  background-color: var(--nw-surface-inverse);
+  color: var(--nw-text-inverse);
+  font-size: 0.78125rem;
+  line-height: 1.4;
+  box-shadow: var(--nw-shadow-md);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--nw-duration-fast) var(--nw-ease-standard);
+
+  .platforms-header__create:hover &,
+  .platforms-header__create:focus-within & {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+// Wider page (the page is the query container, ARCHITECTURE §15): roomier card and a larger title.
+@container (min-width: 37.5rem) {
+  :host {
+    padding: 1.375rem 1.75rem;
+  }
+
+  .platforms-header__title {
+    font-size: 2.125rem;
+  }
+}
+
+@media (forced-colors: active) {
+  :host::before {
+    display: none;
+  }
+}

@@ -5,10 +5,12 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { ADAPTER_UNAVAILABLE } from '../../../core/errors/app-error';
 import { LocaleService } from '../../../core/i18n/locale.service';
+import { NwButton } from '../../../shared/ui/button/button';
 import { NwSkeleton } from '../../../shared/ui/skeleton/skeleton';
 import { NwIcon } from '../../../shared/ui/icon/icon';
 import { PlatformDirectoryFacade } from '../application/platform-directory.facade';
 import { PlatformCard } from '../components/platform-card/platform-card';
+import { PlatformsHeader } from '../components/platforms-header/platforms-header';
 
 const PRODUCT_KEYS = {
   school: 'platforms.product.school',
@@ -34,11 +36,19 @@ const COUNT_KEYS = {
  */
 @Component({
   selector: 'adm-platforms-page',
-  imports: [NgTemplateOutlet, TranslocoPipe, NwIcon, NwSkeleton, PlatformCard],
+  imports: [
+    NgTemplateOutlet,
+    TranslocoPipe,
+    NwButton,
+    NwIcon,
+    NwSkeleton,
+    PlatformCard,
+    PlatformsHeader,
+  ],
   templateUrl: './platforms.page.html',
   styleUrl: './platforms.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'platforms', '(keydown.escape)': 'demoInfoOpen.set(false)' },
+  host: { class: 'platforms' },
 })
 export class PlatformsPage {
   protected readonly facade = inject(PlatformDirectoryFacade);
@@ -50,7 +60,6 @@ export class PlatformsPage {
   });
 
   protected readonly adapterUnavailable = ADAPTER_UNAVAILABLE;
-  protected readonly demoInfoOpen = signal(false);
   protected readonly query = signal('');
   protected readonly skeletons = [0, 1];
 

@@ -1,0 +1,40 @@
+// Demo builds only: the fictional accounts a reviewer can sign in with, and what is simulated.
+:host {
+  display: grid;
+  gap: var(--nw-space-2);
+  inline-size: 100%;
+  max-inline-size: 27.5rem;
+  padding: var(--nw-space-3) 0.875rem;
+  border: 1px dashed var(--nw-border-default);
+  border-radius: 0.75rem;
+  color: var(--nw-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.auth-demo-note__title {
+  color: var(--nw-text-label);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.auth-demo-note__list {
+  display: grid;
+  gap: var(--nw-space-1);
+  margin: 0;
+}
+
+.auth-demo-note__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 var(--nw-space-3);
+
+  dd {
+    margin: 0;
+    color: var(--nw-text-primary);
+    font-family: var(--nw-font-mono);
+  }
+
+  .auth-demo-note__text {
+    font-family: inherit;
+  }
+}

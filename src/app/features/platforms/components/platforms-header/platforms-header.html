@@ -1,0 +1,49 @@
+<div class="platforms-header__titles">
+  <h1 class="platforms-header__title">{{ 'platforms.title' | transloco }}</h1>
+  <p class="platforms-header__subtitle">{{ 'platforms.subtitle' | transloco }}</p>
+</div>
+<div class="platforms-header__actions">
+  @if (isDemo()) {
+    <div class="platforms-header__demo">
+      <button
+        type="button"
+        class="platforms-header__chip"
+        aria-controls="platforms-demo-information"
+        [attr.aria-expanded]="demoInfoOpen()"
+        (click)="demoInfoOpen.set(!demoInfoOpen())"
+      >
+        <nw-icon name="flask-conical" size="sm" />
+        {{ 'shell.demo.badge' | transloco }}
+        <span class="nw-visually-hidden">{{ 'shell.demo.about' | transloco }}</span>
+      </button>
+      <div
+        id="platforms-demo-information"
+        class="platforms-header__panel"
+        role="region"
+        [attr.aria-label]="'shell.demo.about' | transloco"
+        [hidden]="!demoInfoOpen()"
+      >
+        <p>{{ 'shell.demo.explanation' | transloco }}</p>
+        @if (canCreate()) {
+          <p>{{ 'companyOverview.createUnavailable' | transloco }}</p>
+        }
+      </div>
+    </div>
+  }
+  @if (canCreate()) {
+    <span class="platforms-header__create">
+      <button
+        type="button"
+        class="platforms-header__create-button"
+        aria-disabled="true"
+        aria-describedby="platforms-create-note"
+      >
+        <nw-icon name="plus" size="sm" />
+        {{ 'companyOverview.create' | transloco }}
+      </button>
+      <span id="platforms-create-note" class="platforms-header__tooltip" role="tooltip">{{
+        'companyOverview.createUnavailable' | transloco
+      }}</span>
+    </span>
+  }
+</div>

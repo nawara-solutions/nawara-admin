@@ -606,6 +606,9 @@ type ViewState<T> =
 
 ## 24. Configuration, environments and observability
 
+- **Deployment (2026-10-03):** CI, the production image, Traefik routing and rollback are described in
+  [`DEPLOYMENT.md`](DEPLOYMENT.md). Production has no runtime configuration file and no secret: the bundle is public.
+
 - **Runtime config** `config.json`, loaded before bootstrap (`provideAppInitializer`) and validated into a typed `AppConfig`:
   `environment` (`local | development | staging | production`), Core base URL(s), per-domain adapter (`http | mock`), build info. One
   build is promoted across environments.
