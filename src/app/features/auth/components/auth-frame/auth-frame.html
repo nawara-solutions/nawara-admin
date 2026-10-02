@@ -1,18 +1,4 @@
-<div class="auth-frame__panel">
-  <div class="auth-frame__decor" aria-hidden="true">
-    <span class="auth-frame__flora"></span>
-    <span class="auth-frame__hero-flora"></span>
-    <span class="auth-frame__orbit"></span>
-    <span class="auth-frame__orbit auth-frame__orbit--inner"></span>
-  </div>
-  <nw-brand-mark class="auth-frame__panel-logo" [label]="'brand.logoLabel' | transloco" lockup />
-  <div class="auth-frame__intro">
-    <p class="auth-frame__eyebrow">{{ 'auth.brand.product' | transloco }}</p>
-    <p class="auth-frame__tagline">{{ 'auth.brand.tagline' | transloco }}</p>
-    <p class="auth-frame__line">{{ 'auth.brand.line' | transloco }}</p>
-  </div>
-  <p class="auth-frame__copyright">{{ 'auth.brand.copyright' | transloco }}</p>
-</div>
+<adm-auth-brand-panel />
 
 <div class="auth-frame__column">
   <span class="auth-frame__corner-flora" aria-hidden="true"></span>
@@ -43,35 +29,11 @@
     </div>
 
     @if (demo(); as hint) {
-      <aside class="auth-frame__demo" [attr.aria-label]="'auth.demo.title' | transloco">
-        <p class="auth-frame__demo-title">{{ 'auth.demo.title' | transloco }}</p>
-        <dl class="auth-frame__demo-list">
-          @for (account of hint.accounts; track account.email) {
-            <div class="auth-frame__demo-row">
-              <dt>{{ account.roleKey | transloco }}</dt>
-              <dd>
-                <bdi dir="ltr">{{ account.email }}</bdi>
-              </dd>
-            </div>
-          }
-          <div class="auth-frame__demo-row">
-            <dt>{{ 'auth.demo.password' | transloco }}</dt>
-            <dd>
-              <bdi dir="ltr">{{ hint.password }}</bdi>
-            </dd>
-          </div>
-          <div class="auth-frame__demo-row">
-            <dt>{{ 'auth.demo.code' | transloco }}</dt>
-            <dd>
-              <bdi dir="ltr">{{ hint.code }}</bdi>
-            </dd>
-          </div>
-          <div class="auth-frame__demo-row">
-            <dt>{{ 'auth.demo.passkey' | transloco }}</dt>
-            <dd class="auth-frame__demo-text">{{ 'auth.demo.passkeySimulated' | transloco }}</dd>
-          </div>
-        </dl>
-      </aside>
+      <aside
+        adm-auth-demo-note
+        [hint]="hint"
+        [attr.aria-label]="'auth.demo.title' | transloco"
+      ></aside>
     }
 
     <div class="auth-frame__footer">

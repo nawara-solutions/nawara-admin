@@ -1,0 +1,126 @@
+@use 'abstracts' as nw;
+
+// The brand panel of the sign-in pages (desktop only): lockup, product line and decoration (A4 design).
+:host {
+  position: sticky;
+  inset-block-start: 0;
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--nw-space-7);
+  block-size: 100dvh;
+  padding: var(--nw-space-8) var(--nw-space-9);
+  overflow: hidden;
+  border-inline-end: 1px solid var(--nw-border-subtle);
+  background: var(--nw-auth-panel-background);
+  isolation: isolate;
+
+  @include nw.from(desktop) {
+    display: flex;
+  }
+}
+
+// Decoration: physical positions, mirrored as one layer in RTL so it always grows from the inline-end corner.
+.auth-brand-panel__decor {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+:host(:dir(rtl)) .auth-brand-panel__decor {
+  transform: scaleX(-1);
+}
+
+.auth-brand-panel__flora {
+  position: absolute;
+  inset-block-end: -2rem;
+  right: -2rem;
+  inline-size: 82%;
+  block-size: 70%;
+  background: url('/illustrations/sidebar-flora.svg') no-repeat right bottom / contain;
+  opacity: var(--nw-sidebar-illustration-opacity);
+}
+
+.auth-brand-panel__hero-flora {
+  position: absolute;
+  inset-block-start: 0;
+  right: 0;
+  inline-size: 26rem;
+  block-size: 14rem;
+  background: url('/illustrations/hero-flora.svg') no-repeat right top / 26rem auto;
+  opacity: var(--nw-sidebar-illustration-opacity);
+  mask-image: var(--nw-auth-flora-mask);
+}
+
+.auth-brand-panel__orbit {
+  position: absolute;
+  inset-block-end: 6%;
+  right: -18%;
+  inline-size: 78%;
+  aspect-ratio: 1.6;
+  border: 1px solid var(--nw-orbit);
+  border-radius: 50%;
+  transform: rotate(-16deg);
+
+  &--inner {
+    inset-block-end: 14%;
+    right: -8%;
+    inline-size: 56%;
+    opacity: 0.7;
+  }
+}
+
+.auth-brand-panel__logo {
+  --nw-brand-mark-size: 4.25rem;
+
+  align-self: flex-start;
+}
+
+.auth-brand-panel__intro {
+  display: grid;
+  gap: var(--nw-space-3);
+  max-inline-size: 26rem;
+  margin-block-end: 18vh;
+}
+
+.auth-brand-panel__eyebrow {
+  color: var(--nw-text-brand);
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-bold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+
+  &:lang(ar) {
+    letter-spacing: 0;
+    text-transform: none;
+  }
+}
+
+.auth-brand-panel__tagline {
+  font-size: 2.125rem;
+  font-weight: var(--nw-font-weight-bold);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+
+  &:lang(ar) {
+    letter-spacing: 0;
+  }
+}
+
+.auth-brand-panel__line {
+  color: var(--nw-text-label);
+  font-size: 0.9375rem;
+}
+
+.auth-brand-panel__copyright {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+}
+
+@media (forced-colors: active) {
+  .auth-brand-panel__decor {
+    display: none;
+  }
+}

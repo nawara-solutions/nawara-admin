@@ -12,126 +12,6 @@
   }
 }
 
-// Brand panel (desktop)
-.auth-frame__panel {
-  position: sticky;
-  inset-block-start: 0;
-  display: none;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: var(--nw-space-7);
-  block-size: 100dvh;
-  padding: var(--nw-space-8) var(--nw-space-9);
-  overflow: hidden;
-  border-inline-end: 1px solid var(--nw-border-subtle);
-  background: var(--nw-auth-panel-background);
-  isolation: isolate;
-
-  @include nw.from(desktop) {
-    display: flex;
-  }
-}
-
-// Decoration: physical positions, mirrored as one layer in RTL so it always grows from the inline-end corner.
-.auth-frame__decor {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-}
-
-:host(:dir(rtl)) .auth-frame__decor,
-:host(:dir(rtl)) .auth-frame__corner-flora {
-  transform: scaleX(-1);
-}
-
-.auth-frame__flora {
-  position: absolute;
-  inset-block-end: -2rem;
-  right: -2rem;
-  inline-size: 82%;
-  block-size: 70%;
-  background: url('/illustrations/sidebar-flora.svg') no-repeat right bottom / contain;
-  opacity: var(--nw-sidebar-illustration-opacity);
-}
-
-.auth-frame__hero-flora {
-  position: absolute;
-  inset-block-start: 0;
-  right: 0;
-  inline-size: 26rem;
-  block-size: 14rem;
-  background: url('/illustrations/hero-flora.svg') no-repeat right top / 26rem auto;
-  opacity: var(--nw-sidebar-illustration-opacity);
-  mask-image: var(--nw-auth-flora-mask);
-}
-
-.auth-frame__orbit {
-  position: absolute;
-  inset-block-end: 6%;
-  right: -18%;
-  inline-size: 78%;
-  aspect-ratio: 1.6;
-  border: 1px solid var(--nw-orbit);
-  border-radius: 50%;
-  transform: rotate(-16deg);
-
-  &--inner {
-    inset-block-end: 14%;
-    right: -8%;
-    inline-size: 56%;
-    opacity: 0.7;
-  }
-}
-
-.auth-frame__panel-logo {
-  --nw-brand-mark-size: 4.25rem;
-
-  align-self: flex-start;
-}
-
-.auth-frame__intro {
-  display: grid;
-  gap: var(--nw-space-3);
-  max-inline-size: 26rem;
-  margin-block-end: 18vh;
-}
-
-.auth-frame__eyebrow {
-  color: var(--nw-text-brand);
-  font-size: var(--nw-text-size-xs);
-  font-weight: var(--nw-font-weight-bold);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-
-  &:lang(ar) {
-    letter-spacing: 0;
-    text-transform: none;
-  }
-}
-
-.auth-frame__tagline {
-  font-size: 2.125rem;
-  font-weight: var(--nw-font-weight-bold);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  text-wrap: balance;
-
-  &:lang(ar) {
-    letter-spacing: 0;
-  }
-}
-
-.auth-frame__line {
-  color: var(--nw-text-label);
-  font-size: 0.9375rem;
-}
-
-.auth-frame__copyright {
-  color: var(--nw-text-secondary);
-  font-size: var(--nw-text-size-xs);
-}
-
 // Form column
 .auth-frame__column {
   position: relative;
@@ -161,6 +41,11 @@
   @include nw.from(desktop) {
     display: none;
   }
+}
+
+// Mirrored in RTL so the drawing always grows from the inline-end corner.
+:host(:dir(rtl)) .auth-frame__corner-flora {
+  transform: scaleX(-1);
 }
 
 .auth-frame__header {
@@ -226,47 +111,6 @@
   color: var(--nw-color-primary);
 }
 
-// Demo builds only: the fictional accounts a reviewer can sign in with, and what is simulated.
-.auth-frame__demo {
-  display: grid;
-  gap: var(--nw-space-2);
-  inline-size: 100%;
-  max-inline-size: 27.5rem;
-  padding: var(--nw-space-3) 0.875rem;
-  border: 1px dashed var(--nw-border-default);
-  border-radius: 0.75rem;
-  color: var(--nw-text-secondary);
-  font-size: 0.8125rem;
-}
-
-.auth-frame__demo-title {
-  color: var(--nw-text-label);
-  font-weight: var(--nw-font-weight-semibold);
-}
-
-.auth-frame__demo-list {
-  display: grid;
-  gap: var(--nw-space-1);
-  margin: 0;
-}
-
-.auth-frame__demo-row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0 var(--nw-space-3);
-
-  dd {
-    margin: 0;
-    color: var(--nw-text-primary);
-    font-family: var(--nw-font-mono);
-  }
-
-  .auth-frame__demo-text {
-    font-family: inherit;
-  }
-}
-
 .auth-frame__footer {
   display: grid;
   justify-items: center;
@@ -290,7 +134,6 @@
 }
 
 @media (forced-colors: active) {
-  .auth-frame__decor,
   .auth-frame__corner-flora {
     display: none;
   }

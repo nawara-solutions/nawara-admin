@@ -1,55 +1,9 @@
 @let state = facade.state();
-<header class="platforms__header">
-  <div class="platforms__titles">
-    <h1 class="platforms__title">{{ 'platforms.title' | transloco }}</h1>
-    <p class="platforms__subtitle">{{ 'platforms.subtitle' | transloco }}</p>
-  </div>
-  <div class="platforms__actions">
-    @if (isDemo()) {
-      <div class="platforms__demo">
-        <button
-          type="button"
-          class="platforms__chip"
-          aria-controls="platforms-demo-information"
-          [attr.aria-expanded]="demoInfoOpen()"
-          (click)="demoInfoOpen.set(!demoInfoOpen())"
-        >
-          <nw-icon name="flask-conical" size="sm" />
-          {{ 'shell.demo.badge' | transloco }}
-          <span class="nw-visually-hidden">{{ 'shell.demo.about' | transloco }}</span>
-        </button>
-        <div
-          id="platforms-demo-information"
-          class="platforms__panel"
-          role="region"
-          [attr.aria-label]="'shell.demo.about' | transloco"
-          [hidden]="!demoInfoOpen()"
-        >
-          <p>{{ 'shell.demo.explanation' | transloco }}</p>
-          @if (facade.canSeeCreatePlatform()) {
-            <p>{{ 'companyOverview.createUnavailable' | transloco }}</p>
-          }
-        </div>
-      </div>
-    }
-    @if (facade.canSeeCreatePlatform()) {
-      <span class="platforms__create">
-        <button
-          type="button"
-          class="platforms__create-button"
-          aria-disabled="true"
-          aria-describedby="platforms-create-note"
-        >
-          <nw-icon name="plus" size="sm" />
-          {{ 'companyOverview.create' | transloco }}
-        </button>
-        <span id="platforms-create-note" class="platforms__tooltip" role="tooltip">{{
-          'companyOverview.createUnavailable' | transloco
-        }}</span>
-      </span>
-    }
-  </div>
-</header>
+<header
+  adm-platforms-header
+  [isDemo]="isDemo()"
+  [canCreate]="facade.canSeeCreatePlatform()"
+></header>
 
 @if (state.status !== 'empty' && state.status !== 'error' && state.status !== 'forbidden') {
   <div class="platforms__toolbar" role="search">
@@ -195,11 +149,23 @@
       <p class="platforms__message-description">{{ description }}</p>
     </div>
     @if (action === 'clear') {
-      <button type="button" class="platforms__message-action" (click)="query.set('')">
+      <button
+        nw-button
+        variant="secondary"
+        type="button"
+        class="platforms__message-action"
+        (click)="query.set('')"
+      >
         <nw-icon name="x" size="sm" />{{ 'platforms.clear' | transloco }}
       </button>
     } @else if (action === 'retry') {
-      <button type="button" class="platforms__message-action" (click)="facade.reload()">
+      <button
+        nw-button
+        variant="secondary"
+        type="button"
+        class="platforms__message-action"
+        (click)="facade.reload()"
+      >
         <nw-icon name="refresh-cw" size="sm" />{{ 'platforms.retry' | transloco }}
       </button>
     }

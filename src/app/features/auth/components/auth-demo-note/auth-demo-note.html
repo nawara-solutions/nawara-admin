@@ -1,0 +1,27 @@
+<p class="auth-demo-note__title">{{ 'auth.demo.title' | transloco }}</p>
+<dl class="auth-demo-note__list">
+  @for (account of hint().accounts; track account.email) {
+    <div class="auth-demo-note__row">
+      <dt>{{ account.roleKey | transloco }}</dt>
+      <dd>
+        <bdi dir="ltr">{{ account.email }}</bdi>
+      </dd>
+    </div>
+  }
+  <div class="auth-demo-note__row">
+    <dt>{{ 'auth.demo.password' | transloco }}</dt>
+    <dd>
+      <bdi dir="ltr">{{ hint().password }}</bdi>
+    </dd>
+  </div>
+  <div class="auth-demo-note__row">
+    <dt>{{ 'auth.demo.code' | transloco }}</dt>
+    <dd>
+      <bdi dir="ltr">{{ hint().code }}</bdi>
+    </dd>
+  </div>
+  <div class="auth-demo-note__row">
+    <dt>{{ 'auth.demo.passkey' | transloco }}</dt>
+    <dd class="auth-demo-note__text">{{ 'auth.demo.passkeySimulated' | transloco }}</dd>
+  </div>
+</dl>

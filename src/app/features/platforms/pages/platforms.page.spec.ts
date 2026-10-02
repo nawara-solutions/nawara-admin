@@ -138,7 +138,7 @@ describe('PlatformsPage', () => {
 
   it('keeps Create platform focusable but disabled, with its explanation', async () => {
     const { page } = await render(owner);
-    const button = page.querySelector<HTMLButtonElement>('.platforms__create-button');
+    const button = page.querySelector<HTMLButtonElement>('.platforms-header__create-button');
     expect(button?.disabled).toBe(false);
     expect(button?.getAttribute('aria-disabled')).toBe('true');
     const note = page.querySelector(`#${button?.getAttribute('aria-describedby')}`);

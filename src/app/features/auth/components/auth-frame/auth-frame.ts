@@ -6,7 +6,9 @@ import { PreferenceMenus } from '../../../../layout/preference-menus/preference-
 import { NwBrandMark } from '../../../../shared/ui/brand-mark/brand-mark';
 import { NwSpinner } from '../../../../shared/ui/spinner/spinner';
 import { AuthFlowFacade } from '../../application/auth-flow.facade';
+import { AuthBrandPanel } from '../auth-brand-panel/auth-brand-panel';
 import { AuthCard } from '../auth-card/auth-card';
+import { AuthDemoNote } from '../auth-demo-note/auth-demo-note';
 
 /**
  * The frame of every sign-in page (A4 design), outside the authenticated shell: no navigation, no scope, no profile.
@@ -18,7 +20,16 @@ import { AuthCard } from '../auth-card/auth-card';
  */
 @Component({
   selector: 'adm-auth-frame',
-  imports: [RouterOutlet, TranslocoPipe, NwBrandMark, NwSpinner, PreferenceMenus, AuthCard],
+  imports: [
+    RouterOutlet,
+    TranslocoPipe,
+    NwBrandMark,
+    NwSpinner,
+    PreferenceMenus,
+    AuthBrandPanel,
+    AuthCard,
+    AuthDemoNote,
+  ],
   templateUrl: './auth-frame.html',
   styleUrl: './auth-frame.scss',
   providers: [AuthFlowFacade],
