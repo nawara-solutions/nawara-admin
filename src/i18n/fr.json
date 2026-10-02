@@ -151,7 +151,12 @@
     "forbidden": "Non disponible",
     "notFound": "Page introuvable",
     "sessionUnavailable": "Connexion indisponible",
-    "foundation": "Fondation du design"
+    "foundation": "Fondation du design",
+    "platforms": "Plateformes",
+    "signIn": "Connexion",
+    "verify": "Vérifiez votre connexion",
+    "noAccess": "Accès administratif indisponible",
+    "platformChoice": "Choisissez une plateforme"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -164,7 +169,8 @@
       "home": "Vue d’ensemble de l’entreprise",
       "company": "Entreprise",
       "overview": "Vue d’ensemble",
-      "platform": "Plateforme"
+      "platform": "Plateforme",
+      "platforms": "Plateformes"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -368,6 +374,145 @@
     "key": "Identifiant de la plateforme :",
     "loading": "Chargement de la plateforme",
     "notFoundTitle": "Plateforme introuvable ou inaccessible",
-    "notFoundDescription": "Elle n’existe peut-être pas, ou elle est hors de votre périmètre d’administration."
+    "notFoundDescription": "Elle n’existe peut-être pas, ou elle est hors de votre périmètre d’administration.",
+    "backToPlatforms": "Retour aux plateformes"
+  },
+  "platforms": {
+    "title": "Plateformes",
+    "subtitle": "Gérez les plateformes de votre entreprise et ouvrez leur espace d’administration.",
+    "searchLabel": "Rechercher des plateformes",
+    "searchPlaceholder": "Rechercher des plateformes…",
+    "clear": "Effacer la recherche",
+    "product": {
+      "school": "Plateforme éducative",
+      "drive": "Plateforme d’auto-école",
+      "unknown": "Plateforme"
+    },
+    "organizations": "Organisations",
+    "memberships": "Adhésions",
+    "assignments": "Affectations d’opérateurs",
+    "unavailable": "Non disponible",
+    "open": "Ouvrir la plateforme",
+    "openLabel": "Ouvrir la plateforme {{name}}",
+    "listLabel": "Annuaire des plateformes",
+    "footnote": "Les adhésions sont comptées au sein de chaque plateforme et peuvent se recouper d’une plateforme à l’autre.",
+    "count": {
+      "zero": "{{count}} plateforme",
+      "one": "{{count}} plateforme",
+      "two": "{{count}} plateformes",
+      "few": "{{count}} plateformes",
+      "many": "{{count}} plateformes",
+      "other": "{{count}} plateformes"
+    },
+    "noResultsTitle": "Aucune plateforme ne correspond à « {{query}} »",
+    "noResultsDescription": "Vérifiez l’orthographe ou cherchez un autre nom de plateforme.",
+    "emptyTitle": "Aucune plateforme pour l’instant",
+    "emptyDescription": "Votre entreprise n’a pas encore de plateforme. La création commence par « Créer une plateforme ».",
+    "loading": "Chargement des plateformes",
+    "errorTitle": "Les informations des plateformes n’ont pas pu être chargées",
+    "errorDescription": "Cela ne signifie pas que votre entreprise n’a aucune plateforme. Réessayez dans un instant.",
+    "retry": "Réessayer",
+    "unavailableTitle": "Non disponible dans cette version",
+    "unavailableDescription": "Aucun contrat Nawara Core ne liste encore vos plateformes."
+  },
+  "auth": {
+    "brand": {
+      "product": "Nawara Admin",
+      "tagline": "Des solutions intelligentes propulsées par l’IA.",
+      "line": "L’espace d’administration de Nawara Solutions.",
+      "copyright": "© 2026 Nawara Solutions"
+    },
+    "signIn": {
+      "title": "Connexion à Nawara Admin",
+      "subtitle": "Accédez à votre espace d’administration.",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe",
+      "submit": "Se connecter",
+      "submitting": "Connexion…",
+      "errors": {
+        "emailRequired": "Saisissez votre adresse e-mail.",
+        "emailFormat": "Saisissez une adresse e-mail au format nom@exemple.com.",
+        "passwordRequired": "Saisissez votre mot de passe."
+      },
+      "or": "ou",
+      "workingCode": "Se connecter avec un code de travail",
+      "workingCodeUnavailable": "La connexion par code de travail n’est pas disponible dans ce prototype. Nawara Core la prend en charge ; ses écrans arrivent dans une prochaine étape.",
+      "recover": "Récupérer l’accès propriétaire",
+      "recoverUnavailable": "La récupération de l’accès propriétaire n’est pas disponible dans ce prototype. Nawara Core la prend en charge ; ses écrans arrivent dans une prochaine étape."
+    },
+    "banner": {
+      "failed": "La connexion a échoué. Vérifiez vos informations et réessayez.",
+      "unavailable": "La connexion est momentanément indisponible. Vos informations n’ont pas été vérifiées. Réessayez dans un instant.",
+      "retry": "Réessayer",
+      "rateLimited": "Trop de tentatives de connexion. Patientez un instant avant de réessayer.",
+      "sessionExpired": "Votre session a pris fin. Reconnectez-vous pour continuer.",
+      "returnTo": "Connectez-vous pour continuer. Si votre compte peut ouvrir la page demandée, vous y reviendrez.",
+      "shiftEnded": "Votre session de travail a pris fin. Reconnectez-vous avec un nouveau code de travail.",
+      "signedOut": "Vous êtes déconnecté.",
+      "enrollmentRequired": "Ce compte doit configurer une deuxième étape de connexion avant de continuer. Cette configuration n’est pas disponible dans ce prototype.",
+      "recoveryRequired": "Ce compte doit terminer la récupération de l’accès propriétaire avant de continuer. La récupération n’est pas disponible dans ce prototype.",
+      "stepNotAvailable": "La deuxième étape de connexion utilisée par ce compte n’est pas disponible dans ce prototype."
+    },
+    "mfa": {
+      "title": "Vérifiez votre connexion",
+      "subtitle": "Effectuez la vérification supplémentaire pour continuer.",
+      "codeLabel": "Code d’authentification",
+      "codeHint": "Saisissez le code actuel de votre application d’authentification.",
+      "verify": "Vérifier",
+      "verifying": "Vérification…",
+      "codeRequired": "Saisissez le code d’authentification.",
+      "codeInvalid": "Ce code n’a pas été accepté. Saisissez le code actuel de votre application d’authentification.",
+      "usePasskey": "Utiliser plutôt une clé d’accès",
+      "useTotp": "Utiliser plutôt un code d’authentification",
+      "passkeyText": "Votre navigateur ou votre appareil vous demandera de confirmer avec une clé d’accès. Suivez ses instructions pour continuer.",
+      "passkeyContinue": "Continuer avec une clé d’accès",
+      "passkeyRetry": "Réessayer la clé d’accès",
+      "passkeyWaiting": "En attente de votre navigateur ou appareil…",
+      "passkeyNote": "Cette invite provient de votre navigateur, pas de Nawara Admin.",
+      "passkeyFailed": "L’invite de la clé d’accès a été annulée ou n’a pas abouti. Vous pouvez réessayer.",
+      "rateLimited": "Trop de tentatives de vérification. Patientez un instant avant de réessayer.",
+      "unavailable": "La vérification est momentanément indisponible. Rien n’a été vérifié. Réessayez dans un instant.",
+      "accepted": "Vérification acceptée — résolution de l’accès administratif.",
+      "expiredTitle": "La vérification doit être reprise",
+      "expiredSubtitle": "Cette vérification n’est plus valide. Revenez à la connexion et recommencez.",
+      "backToSignIn": "Retour à la connexion"
+    },
+    "checking": {
+      "title": "Vérification de votre accès",
+      "subtitle": "Nawara Core confirme les espaces que votre compte peut ouvrir.",
+      "announce": "Connecté. Vérification de votre accès."
+    },
+    "noAccess": {
+      "title": "Accès administratif indisponible",
+      "subtitle": "Vous êtes connecté, mais ce compte ne peut pas utiliser Nawara Admin.",
+      "help": "Si vous pensiez avoir accès, contactez la personne qui gère les accès à Nawara Admin dans votre entreprise.",
+      "signedInAs": "Connecté en tant que"
+    },
+    "signOut": "Se déconnecter",
+    "platform": {
+      "title": "Choisissez une plateforme",
+      "subtitle": "Votre compte peut administrer ces plateformes.",
+      "operator": "Opérateur",
+      "open": "Ouvrir",
+      "openLabel": "Ouvrir {{name}}",
+      "note": "Seules les plateformes attribuées à votre compte sont affichées.",
+      "school": "Plateforme éducative",
+      "drive": "Plateforme d’auto-école",
+      "unavailable": "Les noms de vos plateformes ne sont pas disponibles pour le moment. Réessayez dans un instant."
+    },
+    "demo": {
+      "title": "Comptes de démonstration (fictifs, versions de développement uniquement)",
+      "owner": "Propriétaire",
+      "member": "Compte de démonstration — sans accès administratif",
+      "password": "Mot de passe",
+      "code": "Code d’authentification",
+      "passkeyPrompt": "Invite de clé d’accès SIMULÉE (démonstration uniquement). Ce n’est ni une clé d’accès ni une vérification WebAuthn. OK simule une invite terminée ; Annuler, une invite annulée.",
+      "enrollment": "Propriétaire, configuration requise",
+      "recovery": "Propriétaire, récupération requise",
+      "passkey": "Clé d’accès",
+      "passkeySimulated": "Simulée : une boîte de dialogue OK / Annuler du navigateur, pas une invite de clé d’accès ni une vérification WebAuthn"
+    }
   }
 }

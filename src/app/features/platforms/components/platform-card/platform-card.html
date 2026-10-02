@@ -1,0 +1,44 @@
+<div class="platform-card__identity">
+  <span class="platform-card__tile" aria-hidden="true">
+    @if (entry().platform.product === 'drive') {
+      <nw-icon name="car" size="lg" />
+    } @else {
+      <img
+        class="platform-card__mark"
+        src="brand/nawara-mark.png"
+        alt=""
+        width="324"
+        height="324"
+      />
+    }
+  </span>
+  <div class="platform-card__names">
+    <h3 class="platform-card__name">
+      <bdi>{{ entry().platform.name }}</bdi>
+    </h3>
+    <p class="platform-card__product">{{ productKey() | transloco }}</p>
+  </div>
+</div>
+<dl class="platform-card__stats">
+  @for (stat of stats(); track stat.labelKey) {
+    <div class="platform-card__stat">
+      <dt class="platform-card__stat-label">{{ stat.labelKey | transloco }}</dt>
+      <dd class="platform-card__stat-value">
+        @if (stat.metric.status === 'available') {
+          {{ stat.metric.value | nwNumber }}
+        } @else {
+          <span class="platform-card__missing" aria-hidden="true">—</span>
+          <span class="nw-visually-hidden">{{ 'platforms.unavailable' | transloco }}</span>
+        }
+      </dd>
+    </div>
+  }
+</dl>
+<a
+  class="platform-card__open"
+  [routerLink]="path()"
+  [attr.aria-label]="'platforms.openLabel' | transloco: { name: entry().platform.name }"
+>
+  {{ 'platforms.open' | transloco }}
+  <nw-icon name="arrow-right" size="sm" />
+</a>

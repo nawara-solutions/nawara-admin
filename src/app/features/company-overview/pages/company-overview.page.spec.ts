@@ -34,10 +34,12 @@ const operator: Actor = {
   platformAssignments: [platformId('school')],
 };
 const DEMO: DemoBindings = {
-  owner,
+  signIn: { accounts: [], password: 'p', code: 'c' },
   providers: {
+    auth: [],
     scopeDirectory: [],
     notificationSummary: [],
+    platformDirectory: [],
     companyOverview: [],
     commercialSummary: [],
     serviceHealth: [],
@@ -68,7 +70,7 @@ async function render(actor: Actor, scenario: CompanyOverviewDemoScenario = 'nor
       CompanyOverviewFacade,
     ],
   });
-  TestBed.inject(AuthSession).startDemo(actor);
+  TestBed.inject(AuthSession).establish(actor);
   const fixture = TestBed.createComponent(CompanyOverviewPage);
   // First render subscribes the facade; then let the zero-latency mocks (`delay(0)`) answer.
   await fixture.whenStable();
@@ -156,8 +158,9 @@ describe('CompanyOverviewPage', () => {
 
   it('shows actions without a destination disabled, saying so', async () => {
     const { page } = await render(owner);
-    const links = Array.from(page.querySelectorAll<HTMLButtonElement>('.card-link__button'));
+    const links = Array.from(page.querySelectorAll<HTMLButtonElement>('button.card-link__button'));
     expect(links.length).toBeGreaterThan(0);
+    expect(page.querySelector('a.card-link__button')?.getAttribute('href')).toBe('/platforms');
     expect(links.every((b) => b.disabled && b.title === en.shell.notAvailableYet)).toBe(true);
     expect(page.querySelector('.attention-list__item a, .attention-list__item button')).toBeNull();
   });

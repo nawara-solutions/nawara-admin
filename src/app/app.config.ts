@@ -6,7 +6,6 @@ import {
 import { TitleStrategy, provideRouter } from '@angular/router';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
-import { provideSession } from './core/auth/provide-session';
 import { APP_ENVIRONMENT, assertEnvironment } from './core/config/app-environment';
 import { LocalizedTitleStrategy } from './core/i18n/localized-title.strategy';
 import { provideI18n } from './core/i18n/provide-i18n';
@@ -23,6 +22,5 @@ export const appConfig: ApplicationConfig = {
     { provide: TitleStrategy, useClass: LocalizedTitleStrategy },
     provideI18n(),
     provideTheme(),
-    provideSession(),
   ],
 };

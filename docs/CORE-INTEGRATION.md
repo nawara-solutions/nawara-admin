@@ -251,6 +251,7 @@ Admin strategy and the decision required before A4.
 | Commercial: active licenses, expiring soon (+ attention item) | Billing | 🟡 | no `License` entity; entitlement read is service-token only, per organization, `{ valid, expiresAt }`; no staff API; not in production | Separate `CommercialSummaryGateway`, mock in demo builds; "license" is a view-model term (§6) |
 | Commercial: payment issues | Payment / Billing | 🟡 | payer-only human routes; no staff API; not in production | Same gateway, mock |
 | Services & health (Auth, Organization, Release, Billing, Payment, File, Notification, Audit) | all / observability | 🟡 (CF-06, V2 A12) | each service: unauthenticated `/health` → `{status:'ok'}`, `/ready` → `ready \| unavailable` (service kit); no aggregation, no "delayed" state, not an operator API; billing, payment, file, notification, release not in production | Separate `ServiceHealthGateway`, mock in demo builds; the card says "Illustrative statuses of Nawara Core services, not live health" beside the "n of 8 operational" count; never presented as live health, readiness or deployment |
+| Platform directory (`/platforms`): Platforms with organizations, memberships, operator assignments | Organization / Auth | 🔴 | no human route lists a Company's Platforms or their counts (CF-02, CF-03, CF-11) | `PlatformDirectoryGateway`, mock in demo builds; "unavailable" otherwise |
 | Unread notification count (sidebar badge, top-bar bell) | Notification | 🟡 | delivery only; no human inbox or unread-count route (CF-14) | `NotificationSummaryGateway`, mock in demo builds; no badge or bell when unavailable |
 | Releases (navigation) | Release | 🟢 actions (not prod) · 🔴 catalog (CF-05) | `release/admin/...` withdraw / compatibility policy (`OwnerGuard`) | Sidebar entry only, not a link |
 
@@ -392,6 +393,22 @@ Admin requirement: an unread count for the signed-in owner/operator (shell badge
 Classification:   🟡 (the service exists; the human read model does not).
 V1 or V2:         V2.
 Recommended checkpoint: with the Notifications page (Admin stage to be planned).
+
+CF-15  Owner sign-in contract details (verify before the auth HTTP adapter)
+Service:          auth-service
+Current behavior: 🟢 routes exist (login, owner verify, WebAuthn options, me, grants, platform-access, logout); Admin A4-S1
+                  uses a mock only, with a simulated passkey prompt (no WebAuthn).
+Admin requirement: exact login request fields and accepted identifier formats; stable `code` per outcome (invalid credentials,
+                  invalid factor, expired challenge, rate limited, unavailable), so Admin stops falling back on HTTP status;
+                  `methods` values and order, and whether they list only enrolled factors; TOTP format, validity and
+                  challenge-token lifetime; whether a refused code keeps the challenge; the WebAuthn login options request and
+                  how a cancelled prompt differs from a failed one; whether verify returns the session or another next state;
+                  which accounts are authenticated but have no Admin access; that `GET /auth/platform-access/:platformId`
+                  answers 200 / collapsed 404 for the owner and assigned operators, as Admin uses it to authorize return
+                  navigation into a Platform scope.
+Classification:   🟢 contract to read from Auth's OpenAPI and source (not re-inspected for this slice).
+V1 or V2:         V1.
+Recommended checkpoint: before the auth HTTP adapter (rest of Admin A4).
 ```
 
 ## 10. Undefined architectural decisions (Core side)

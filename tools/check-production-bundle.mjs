@@ -7,7 +7,8 @@ import { join } from 'node:path';
 const DIST = 'dist/nawara-admin/browser';
 // Strings that exist only in demo modules: fixture ids, the demo owner, and mock adapter internals.
 const MARKERS = [
-  'demo.nawara.invalid', // demo owner email (src/app/demo/demo-bindings.ts)
+  'demo.nawara.invalid', // demo account emails (src/app/core/auth/auth.fixtures.ts)
+  'nawara-demo-2026', // demo password (auth.fixtures.ts)
   '0c2f4e3a-5d1b-4b8e-9a51-7f0d2c9e1a01', // demo Company id (scope-directory.fixtures.ts)
   'demo-activity-1', // activity fixture (company-overview.fixtures.ts)
   'DEMO_LATENCY_MS', // mock adapter token (scope-directory.mock.ts)

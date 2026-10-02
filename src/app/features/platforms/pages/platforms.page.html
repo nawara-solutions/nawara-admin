@@ -1,0 +1,207 @@
+@let state = facade.state();
+<header class="platforms__header">
+  <div class="platforms__titles">
+    <h1 class="platforms__title">{{ 'platforms.title' | transloco }}</h1>
+    <p class="platforms__subtitle">{{ 'platforms.subtitle' | transloco }}</p>
+  </div>
+  <div class="platforms__actions">
+    @if (isDemo()) {
+      <div class="platforms__demo">
+        <button
+          type="button"
+          class="platforms__chip"
+          aria-controls="platforms-demo-information"
+          [attr.aria-expanded]="demoInfoOpen()"
+          (click)="demoInfoOpen.set(!demoInfoOpen())"
+        >
+          <nw-icon name="flask-conical" size="sm" />
+          {{ 'shell.demo.badge' | transloco }}
+          <span class="nw-visually-hidden">{{ 'shell.demo.about' | transloco }}</span>
+        </button>
+        <div
+          id="platforms-demo-information"
+          class="platforms__panel"
+          role="region"
+          [attr.aria-label]="'shell.demo.about' | transloco"
+          [hidden]="!demoInfoOpen()"
+        >
+          <p>{{ 'shell.demo.explanation' | transloco }}</p>
+          @if (facade.canSeeCreatePlatform()) {
+            <p>{{ 'companyOverview.createUnavailable' | transloco }}</p>
+          }
+        </div>
+      </div>
+    }
+    @if (facade.canSeeCreatePlatform()) {
+      <span class="platforms__create">
+        <button
+          type="button"
+          class="platforms__create-button"
+          aria-disabled="true"
+          aria-describedby="platforms-create-note"
+        >
+          <nw-icon name="plus" size="sm" />
+          {{ 'companyOverview.create' | transloco }}
+        </button>
+        <span id="platforms-create-note" class="platforms__tooltip" role="tooltip">{{
+          'companyOverview.createUnavailable' | transloco
+        }}</span>
+      </span>
+    }
+  </div>
+</header>
+
+@if (state.status !== 'empty' && state.status !== 'error' && state.status !== 'forbidden') {
+  <div class="platforms__toolbar" role="search">
+    <label class="platforms__search">
+      <nw-icon name="search" size="sm" />
+      <span class="nw-visually-hidden">{{ 'platforms.searchLabel' | transloco }}</span>
+      <input
+        class="platforms__search-input"
+        type="search"
+        aria-controls="platform-directory"
+        [placeholder]="'platforms.searchPlaceholder' | transloco"
+        [value]="query()"
+        [disabled]="state.status !== 'success'"
+        (input)="onQuery($event)"
+      />
+      @if (query()) {
+        <button
+          type="button"
+          class="platforms__clear"
+          [attr.aria-label]="'platforms.clear' | transloco"
+          (click)="query.set('')"
+        >
+          <nw-icon name="x" size="sm" />
+        </button>
+      }
+    </label>
+    <p class="platforms__count" role="status" aria-live="polite">
+      @if (state.status === 'success') {
+        {{ countKey() | transloco: { count: matches().length } }}
+      } @else {
+        {{ 'platforms.loading' | transloco }}
+      }
+    </p>
+  </div>
+}
+
+@switch (state.status) {
+  @case ('success') {
+    @if (matches().length > 0) {
+      <section class="platforms__directory" aria-labelledby="platforms-directory-label">
+        <h2 id="platforms-directory-label" class="nw-visually-hidden">
+          {{ 'platforms.listLabel' | transloco }}
+        </h2>
+        <ul id="platform-directory" class="platforms__list" role="list">
+          @for (entry of matches(); track entry.platform.id) {
+            <li class="platforms__item"><adm-platform-card [entry]="entry" /></li>
+          }
+        </ul>
+        <p class="platforms__footnote">
+          <nw-icon name="info" size="sm" />
+          {{ 'platforms.footnote' | transloco }}
+        </p>
+      </section>
+    } @else {
+      <ng-container
+        [ngTemplateOutlet]="message"
+        [ngTemplateOutletContext]="{
+          role: 'status',
+          icon: 'search',
+          title: 'platforms.noResultsTitle' | transloco: { query: query().trim() },
+          description: 'platforms.noResultsDescription' | transloco,
+          action: 'clear',
+        }"
+      />
+    }
+  }
+  @case ('empty') {
+    <ng-container
+      [ngTemplateOutlet]="message"
+      [ngTemplateOutletContext]="{
+        role: 'status',
+        icon: 'inbox',
+        title: 'platforms.emptyTitle' | transloco,
+        description: 'platforms.emptyDescription' | transloco,
+      }"
+    />
+  }
+  @case ('error') {
+    @if (state.error.kind === 'unavailable' && state.error.code === adapterUnavailable) {
+      <ng-container
+        [ngTemplateOutlet]="message"
+        [ngTemplateOutletContext]="{
+          role: 'status',
+          icon: 'info',
+          title: 'platforms.unavailableTitle' | transloco,
+          description: 'platforms.unavailableDescription' | transloco,
+        }"
+      />
+    } @else {
+      <ng-container
+        [ngTemplateOutlet]="message"
+        [ngTemplateOutletContext]="{
+          role: 'alert',
+          icon: 'circle-alert',
+          danger: true,
+          title: 'platforms.errorTitle' | transloco,
+          description: 'platforms.errorDescription' | transloco,
+          action: 'retry',
+        }"
+      />
+    }
+  }
+  @case ('forbidden') {
+    <ng-container
+      [ngTemplateOutlet]="message"
+      [ngTemplateOutletContext]="{
+        role: 'status',
+        icon: 'shield-check',
+        title: 'companyOverview.states.forbiddenTitle' | transloco,
+        description: 'companyOverview.states.forbiddenDescription' | transloco,
+      }"
+    />
+  }
+  @default {
+    <div class="platforms__list" role="status">
+      <span class="nw-visually-hidden">{{ 'platforms.loading' | transloco }}</span>
+      @for (s of skeletons; track s) {
+        <div class="platforms__skeleton" aria-hidden="true">
+          <nw-skeleton shape="block" class="platforms__skeleton-head" />
+          <nw-skeleton [lines]="2" />
+          <nw-skeleton shape="block" class="platforms__skeleton-stats" />
+        </div>
+      }
+    </div>
+  }
+}
+
+<ng-template
+  #message
+  let-role="role"
+  let-icon="icon"
+  let-danger="danger"
+  let-title="title"
+  let-description="description"
+  let-action="action"
+>
+  <div class="platforms__message">
+    <div class="platforms__message-text" [attr.role]="role">
+      <span class="platforms__message-icon" [class.platforms__message-icon--danger]="danger">
+        <nw-icon [name]="icon" size="lg" />
+      </span>
+      <h2 class="platforms__message-title">{{ title }}</h2>
+      <p class="platforms__message-description">{{ description }}</p>
+    </div>
+    @if (action === 'clear') {
+      <button type="button" class="platforms__message-action" (click)="query.set('')">
+        <nw-icon name="x" size="sm" />{{ 'platforms.clear' | transloco }}
+      </button>
+    } @else if (action === 'retry') {
+      <button type="button" class="platforms__message-action" (click)="facade.reload()">
+        <nw-icon name="refresh-cw" size="sm" />{{ 'platforms.retry' | transloco }}
+      </button>
+    }
+  </div>
+</ng-template>

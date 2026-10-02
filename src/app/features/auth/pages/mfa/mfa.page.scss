@@ -1,0 +1,79 @@
+:host {
+  display: contents;
+}
+
+.mfa__form {
+  display: grid;
+  gap: var(--nw-space-4);
+}
+
+// One free-length code field: monospaced, spaced digits, left-to-right; in RTL it sits on the reading side.
+.mfa__code {
+  min-block-size: 3rem;
+  font-family: var(--nw-font-mono);
+  font-size: var(--nw-text-size-xl);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2em;
+}
+
+:host(:dir(rtl)) .mfa__code {
+  text-align: right;
+}
+
+.mfa__text {
+  color: var(--nw-text-label);
+  font-size: var(--nw-text-size-sm);
+}
+
+.mfa__waiting {
+  display: grid;
+  justify-items: center;
+  gap: var(--nw-space-3);
+  padding: var(--nw-space-5) var(--nw-space-4);
+  border: 1px dashed var(--nw-border-default);
+  border-radius: 0.75rem;
+  background-color: var(--nw-surface-inset);
+  color: var(--nw-color-primary);
+  text-align: center;
+}
+
+.mfa__waiting-title {
+  color: var(--nw-text-primary);
+  font-size: 0.9375rem;
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.mfa__waiting-note {
+  color: var(--nw-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.mfa__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--nw-space-1) var(--nw-space-5);
+  font-size: 0.8125rem;
+}
+
+// Actions in this step, styled as the design's text links.
+.mfa__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nw-space-1);
+  min-block-size: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--nw-radius-sm);
+  background: transparent;
+  color: var(--nw-text-link);
+  font: inherit;
+  font-weight: var(--nw-font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration-thickness: 2px;
+  }
+}

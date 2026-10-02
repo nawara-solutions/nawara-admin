@@ -28,7 +28,7 @@ export class PlatformPlaceholderPage {
   private readonly context = inject(ScopeContext);
 
   protected readonly canOpenCompany = computed(() =>
-    can(this.session.actor(), 'company.overview.view'),
+    can(this.session.actor(), 'company.platforms.view'),
   );
 
   protected readonly platform = computed<ViewState<PlatformRef>>(() => {

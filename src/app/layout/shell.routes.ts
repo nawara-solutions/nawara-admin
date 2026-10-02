@@ -61,6 +61,19 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
           },
         },
         {
+          path: 'platforms',
+          pathMatch: 'full',
+          title: 'titles.platforms',
+          data: { [BREADCRUMB_DATA]: 'shell.breadcrumb.platforms' },
+          canActivate: [capabilityGuard('company.platforms.view')],
+          loadChildren: () => {
+            const env = inject(APP_ENVIRONMENT);
+            return import('../features/platforms/platforms.routes').then((m) =>
+              m.loadPlatformsRoutes(env),
+            );
+          },
+        },
+        {
           path: 'platforms/:platformId',
           title: 'titles.platform',
           loadComponent: () =>

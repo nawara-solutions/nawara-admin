@@ -88,6 +88,14 @@
   }
 }
 
+// Comfortable size of focused single-task forms (sign-in, verification).
+.nw-control--lg {
+  min-block-size: 2.75rem;
+  padding-block: 0;
+  padding-inline: 0.875rem;
+  font-size: 0.9375rem;
+}
+
 textarea.nw-control {
   min-block-size: 6rem;
   resize: vertical;

@@ -5,10 +5,12 @@ import { Actor } from './actor';
 import { AuthSession } from './auth-session';
 
 const DEMO_BINDINGS_STUB: DemoBindings = {
-  owner: { kind: 'owner', userId: 'o', email: 'o@x.invalid', companyId: companyId('c') },
+  signIn: { accounts: [], password: 'p', code: 'c' },
   providers: {
+    auth: [],
     scopeDirectory: [],
     notificationSummary: [],
+    platformDirectory: [],
     companyOverview: [],
     commercialSummary: [],
     serviceHealth: [],
@@ -37,16 +39,19 @@ describe('AuthSession', () => {
     expect(s.isDemo()).toBe(false);
   });
 
-  it('refuses the demo session in a build without demo data', () => {
+  it('refuses a session in a build without sign-in', () => {
     const s = session({ production: true, demo: null });
-    expect(() => s.startDemo(owner)).toThrow(/not available in this build/);
+    expect(() => s.establish(owner)).toThrow(/not available in this build/);
     expect(s.actor()).toBeNull();
   });
 
-  it('signs in the demo owner in a demo build and marks the session as demo', () => {
+  it('establishes the resolved actor in a demo build, marked as demo, and signs out', () => {
     const s = session({ production: false, demo: { load: async () => DEMO_BINDINGS_STUB } });
-    s.startDemo(owner);
+    s.establish(owner);
     expect(s.actor()).toEqual(owner);
     expect(s.isDemo()).toBe(true);
+    s.signOut();
+    expect(s.actor()).toBeNull();
+    expect(s.isDemo()).toBe(false);
   });
 });

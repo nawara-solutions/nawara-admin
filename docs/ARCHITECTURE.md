@@ -166,6 +166,8 @@ Lazy-loaded feature routes. Titles are localized through a custom `TitleStrategy
 ```text
 /login                         owner (password → factor) and operator (working code) entry
 /login/verify                  owner second factor (TOTP / passkey)
+/login/no-access               authenticated, but not an Admin user (after the access check)
+/login/platform                operator with several assigned Platforms chooses one
 /enroll                        owner first-factor enrollment (enrollment token)
 /recovery                      owner recovery (start / complete)
 

@@ -1,0 +1,78 @@
+@use 'abstracts' as nw;
+
+:host {
+  display: grid;
+  gap: var(--nw-space-5);
+  inline-size: 100%;
+  max-inline-size: 27.5rem;
+  padding: 1.375rem var(--nw-space-5);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: 1.125rem;
+  background-color: var(--nw-surface-raised);
+  box-shadow: var(--nw-shadow-auth-card);
+
+  @include nw.from(tablet) {
+    padding: var(--nw-space-7) var(--nw-space-7) 1.75rem;
+  }
+}
+
+:host(.auth-card--wide) {
+  max-inline-size: 34rem;
+}
+
+.auth-card__head {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.auth-card__badge {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  margin-block-end: 0.375rem;
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-surface-brand-subtle);
+  color: var(--nw-text-brand);
+
+  &--purple {
+    background-color: var(--nw-accent-purple-bg);
+    color: var(--nw-accent-purple-fg);
+  }
+
+  &--danger {
+    background-color: var(--nw-status-danger-bg);
+    color: var(--nw-status-danger-fg);
+  }
+}
+
+.auth-card__title {
+  font-size: 1.4375rem;
+  font-weight: var(--nw-font-weight-bold);
+  line-height: var(--nw-line-height-tight);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:lang(ar) {
+    letter-spacing: 0;
+  }
+
+  @include nw.from(tablet) {
+    font-size: 1.625rem;
+  }
+}
+
+.auth-card__subtitle {
+  color: var(--nw-text-label);
+  font-size: 0.9375rem;
+}
+
+@media (forced-colors: active) {
+  :host {
+    border-color: CanvasText;
+  }
+}

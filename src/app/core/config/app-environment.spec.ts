@@ -1,5 +1,4 @@
 import { Provider } from '@angular/core';
-import { companyId } from '../context/scope.model';
 import { environment as development } from '../../../environments/environment.development';
 import {
   AppEnvironment,
@@ -21,10 +20,12 @@ const production: AppEnvironment = { production: true, demo: null };
 
 const UNAVAILABLE: Provider[] = [{ provide: Gateway, useClass: Unavailable }];
 const bindings: DemoBindings = {
-  owner: { kind: 'owner', userId: 'u', email: 'e', companyId: companyId('c') },
+  signIn: { accounts: [], password: 'p', code: 'c' },
   providers: {
+    auth: [],
     scopeDirectory: [],
     notificationSummary: [],
+    platformDirectory: [],
     companyOverview: [{ provide: Gateway, useClass: Mock }],
     commercialSummary: [],
     serviceHealth: [],

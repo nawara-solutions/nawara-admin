@@ -1,0 +1,107 @@
+@if (expired()) {
+  <adm-auth-card
+    icon="timer-off"
+    [step]="step()"
+    [title]="'auth.mfa.expiredTitle' | transloco"
+    [subtitle]="'auth.mfa.expiredSubtitle' | transloco"
+  >
+    <button nw-button size="lg" type="button" (click)="back()">
+      {{ 'auth.mfa.backToSignIn' | transloco }}
+    </button>
+  </adm-auth-card>
+} @else {
+  @let passkey = flow.method() === 'passkey';
+  <adm-auth-card
+    [icon]="passkey ? 'fingerprint' : 'shield-check'"
+    [tone]="passkey ? 'purple' : 'brand'"
+    [step]="step()"
+    [title]="'auth.mfa.title' | transloco"
+    [subtitle]="'auth.mfa.subtitle' | transloco"
+  >
+    @if (banner(); as b) {
+      <nw-inline-alert
+        [tone]="b.tone"
+        [icon]="b.icon"
+        [actionLabel]="b.retry ? ('auth.banner.retry' | transloco) : undefined"
+        actionIcon="refresh-cw"
+        (action)="retry()"
+        >{{ b.key | transloco }}</nw-inline-alert
+      >
+    }
+
+    @if (!flow.accepted()) {
+      @if (passkey) {
+        @if (waiting()) {
+          <div class="mfa__waiting">
+            <nw-spinner size="lg" />
+            <p class="mfa__waiting-title">{{ 'auth.mfa.passkeyWaiting' | transloco }}</p>
+            <p class="mfa__waiting-note">{{ 'auth.mfa.passkeyNote' | transloco }}</p>
+          </div>
+        } @else {
+          <p class="mfa__text">{{ 'auth.mfa.passkeyText' | transloco }}</p>
+          <button nw-button size="lg" type="button" (click)="flow.startPasskey()">
+            <nw-icon name="fingerprint" />
+            <span>{{
+              (flow.verifyProblem() === 'passkeyFailed'
+                ? 'auth.mfa.passkeyRetry'
+                : 'auth.mfa.passkeyContinue'
+              ) | transloco
+            }}</span>
+          </button>
+        }
+      } @else {
+        <form
+          class="mfa__form"
+          novalidate
+          [attr.aria-busy]="verifying()"
+          (submit)="submitCode($event)"
+        >
+          @let errorKey = codeError();
+          <nw-form-field
+            [label]="'auth.mfa.codeLabel' | transloco"
+            [hint]="'auth.mfa.codeHint' | transloco"
+            [error]="errorKey ? (errorKey | transloco) : undefined"
+          >
+            <input
+              nwControl
+              class="nw-control--lg mfa__code"
+              type="text"
+              name="totp"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              spellcheck="false"
+              dir="ltr"
+              [value]="code()"
+              [readOnly]="verifying()"
+              (input)="onCode($event)"
+            />
+          </nw-form-field>
+          <button
+            nw-button
+            size="lg"
+            type="submit"
+            [busy]="verifying()"
+            [attr.aria-disabled]="verifying() || null"
+          >
+            @if (verifying()) {
+              <nw-spinner />
+            }
+            <span>{{ (verifying() ? 'auth.mfa.verifying' : 'auth.mfa.verify') | transloco }}</span>
+          </button>
+        </form>
+      }
+
+      <div class="mfa__links">
+        @if (flow.alternative(); as other) {
+          <button type="button" class="mfa__link" (click)="useAlternative()">
+            {{ (other === 'passkey' ? 'auth.mfa.usePasskey' : 'auth.mfa.useTotp') | transloco }}
+          </button>
+        }
+        <button type="button" class="mfa__link" (click)="back()">
+          <nw-icon name="arrow-left" size="sm" />
+          <span>{{ 'auth.mfa.backToSignIn' | transloco }}</span>
+        </button>
+      </div>
+    }
+  </adm-auth-card>
+}

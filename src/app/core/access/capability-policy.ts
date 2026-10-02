@@ -8,6 +8,8 @@ import { PlatformId } from '../context/scope.model';
 export type Capability =
   /** Company-wide administration ("All platforms"): the owner of the Company only. */
   | 'company.overview.view'
+  /** The Company's Platform directory (`/platforms`): company scope, so the owner only. */
+  | 'company.platforms.view'
   /**
    * Creating a Platform: Core `POST /organization/admin/platforms` allows only the owner of the Company
    * (`canCreatePlatform`), with step-up `platform.create` and an `Idempotency-Key`.
@@ -16,6 +18,7 @@ export type Capability =
 
 const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.overview.view',
+  'company.platforms.view',
   'platform.create',
 ]);
 const NONE: ReadonlySet<Capability> = new Set<Capability>();

@@ -3,6 +3,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { filter, map, startWith } from 'rxjs';
+import { can } from '../../core/access/capability-policy';
+import { AuthSession } from '../../core/auth/auth-session';
 import { ScopeContext } from '../../core/context/scope-context';
 import { NwIcon } from '../../shared/ui/icon/icon';
 
@@ -17,7 +19,7 @@ interface Crumb {
 
 /**
  * Breadcrumbs follow the hierarchy Company → Platform (docs/ARCHITECTURE.md §7): "Company › Overview" in company
- * scope, "Company › Nawara School" in platform scope. The last item is the current page.
+ * scope, "Company › Platforms › Nawara School" in platform scope (Platforms only for an owner, who has the directory). The last item is the current page.
  */
 @Component({
   selector: 'adm-breadcrumbs',
@@ -31,6 +33,7 @@ export class Breadcrumbs {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly context = inject(ScopeContext);
+  private readonly session = inject(AuthSession);
 
   private readonly pageKey = toSignal(
     this.router.events.pipe(
@@ -59,8 +62,12 @@ export class Breadcrumbs {
         directory.status === 'success'
           ? directory.data.platforms.find((p) => p.id === scope.platformId)?.name
           : undefined;
+      const platforms: Crumb[] = can(this.session.actor(), 'company.platforms.view')
+        ? [{ label: 'shell.breadcrumb.platforms', translate: true, link: '/platforms' }]
+        : [];
       return [
         company,
+        ...platforms,
         name
           ? { label: name, translate: false }
           : { label: 'shell.breadcrumb.platform', translate: true },

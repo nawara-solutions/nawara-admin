@@ -117,6 +117,38 @@
   --nw-chart-area: rgb(230 66 139 / 18%);
   --nw-chart-grid: var(--nw-ref-neutral-200);
 
+  // Inline alerts (nw-inline-alert): text, background, border and icon per tone (A4 design, 2026-10-02).
+  // Text and icon pairs are checked by `npm run check:contrast`.
+  --nw-alert-danger-bg: var(--nw-ref-red-50);
+  --nw-alert-danger-fg: var(--nw-ref-red-800);
+  --nw-alert-danger-border: var(--nw-ref-red-150);
+  --nw-alert-danger-icon: var(--nw-ref-red-700);
+  --nw-alert-warning-bg: var(--nw-ref-amber-50);
+  --nw-alert-warning-fg: var(--nw-ref-amber-850);
+  --nw-alert-warning-border: var(--nw-ref-amber-200);
+  --nw-alert-warning-icon: var(--nw-ref-amber-800);
+  --nw-alert-info-bg: var(--nw-ref-purple-50);
+  --nw-alert-info-fg: var(--nw-ref-lilac-850);
+  --nw-alert-info-border: var(--nw-ref-purple-150);
+  --nw-alert-info-icon: var(--nw-ref-purple-600);
+  --nw-alert-success-bg: var(--nw-ref-green-50);
+  --nw-alert-success-fg: var(--nw-ref-green-800);
+  --nw-alert-success-border: var(--nw-ref-green-150);
+  --nw-alert-success-icon: var(--nw-ref-green-750);
+
+  // Sign-in pages (features/auth): the brand panel wash, its gold orbit lines (decorative CSS ellipses, not brand
+  // artwork) and the corner flora of the compact layouts. Values from the A4 design, not brand values.
+  --nw-auth-panel-background: linear-gradient(
+    160deg,
+    var(--nw-ref-neutral-0) 0%,
+    var(--nw-ref-blush-25) 40%,
+    var(--nw-ref-blush-75) 72%,
+    var(--nw-ref-peach-50) 100%
+  );
+  --nw-orbit: rgb(201 151 54 / 38%);
+  --nw-compact-flora-opacity: 0.75;
+  --nw-shadow-auth-card: 0 1px 2px rgb(27 27 36 / 4%), 0 12px 32px rgb(122 72 40 / 7%);
+
   // Elevation
   --nw-shadow-sm: 0 1px 2px rgb(27 27 36 / 6%);
   // Cards on the warm workspace: a hairline lift plus a wide, faint warm shadow

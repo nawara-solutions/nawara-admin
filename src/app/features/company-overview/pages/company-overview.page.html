@@ -59,7 +59,11 @@
         headingId="overview-platforms"
         [heading]="'companyOverview.platforms.title' | transloco"
       >
-        <adm-card-link cardActions [label]="'companyOverview.platforms.manage' | transloco" />
+        <adm-card-link
+          cardActions
+          link="/platforms"
+          [label]="'companyOverview.platforms.manage' | transloco"
+        />
         <adm-platform-list [platforms]="overview.platforms" />
       </adm-overview-card>
 

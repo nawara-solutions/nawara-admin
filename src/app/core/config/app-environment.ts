@@ -1,17 +1,25 @@
 import { InjectionToken, Provider } from '@angular/core';
-import { Actor } from '../auth/actor';
 
 /** Domains that can be served by a demo (mock) adapter. Each has an `unavailable` adapter for every other build. */
 export type DemoDomain =
+  | 'auth'
   | 'scopeDirectory'
   | 'notificationSummary'
   | 'companyOverview'
+  | 'platformDirectory'
   | 'commercialSummary'
   | 'serviceHealth';
 
-/** What a demo build adds: a fictional signed-in owner and the mock adapter bindings (src/app/demo/demo-bindings.ts). */
+/** The fictional accounts a demo build's sign-in page lists, so a reviewer can sign in (catalog keys for roles). */
+export interface DemoSignInHint {
+  readonly accounts: readonly { readonly email: string; readonly roleKey: string }[];
+  readonly password: string;
+  readonly code: string;
+}
+
+/** What a demo build adds: the mock adapter bindings and the demo sign-in accounts (src/app/demo/demo-bindings.ts). */
 export interface DemoBindings {
-  readonly owner: Actor;
+  readonly signIn: DemoSignInHint;
   readonly providers: Readonly<Record<DemoDomain, readonly Provider[]>>;
 }
 

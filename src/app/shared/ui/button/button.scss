@@ -89,6 +89,31 @@
   font-size: var(--nw-text-size-xs);
 }
 
+:host(.nw-button--lg) {
+  min-block-size: 2.875rem;
+  padding-inline: var(--nw-space-5);
+  font-size: 0.9375rem;
+}
+
+// Busy keeps the variant's colours (it is not "unavailable"); only the cursor says the action is in progress.
+:host(.nw-button--busy[aria-disabled='true']) {
+  --nw-button-bg: var(--nw-color-primary);
+  --nw-button-bg-hover: var(--nw-color-primary);
+  --nw-button-bg-active: var(--nw-color-primary);
+  --nw-button-fg: var(--nw-text-on-primary);
+  --nw-button-border: transparent;
+
+  cursor: progress;
+}
+
+:host(.nw-button--busy.nw-button--secondary[aria-disabled='true']) {
+  --nw-button-bg: var(--nw-surface-raised);
+  --nw-button-bg-hover: var(--nw-surface-raised);
+  --nw-button-bg-active: var(--nw-surface-raised);
+  --nw-button-fg: var(--nw-text-primary);
+  --nw-button-border: var(--nw-border-default);
+}
+
 @media (forced-colors: active) {
   :host {
     border-color: ButtonText;

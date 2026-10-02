@@ -1,0 +1,65 @@
+<adm-auth-card
+  wide
+  [title]="'auth.platform.title' | transloco"
+  [subtitle]="'auth.platform.subtitle' | transloco"
+>
+  @if (actor(); as person) {
+    <adm-identity-row
+      [label]="'auth.noAccess.signedInAs' | transloco"
+      [email]="person.email"
+      [role]="'auth.platform.operator' | transloco"
+    />
+  }
+
+  @let list = platforms();
+  @if (list.status === 'success') {
+    <nav class="platform-choice__nav" [attr.aria-label]="'auth.platform.title' | transloco">
+      <ul class="platform-choice__list" role="list">
+        @for (platform of list.data; track platform.id) {
+          <li>
+            <a
+              class="platform-choice__card"
+              [class.platform-choice__card--drive]="platform.product === 'drive'"
+              [routerLink]="['/platforms', platform.id]"
+              [attr.aria-label]="'auth.platform.openLabel' | transloco: { name: platform.name }"
+            >
+              <span class="platform-choice__tile" aria-hidden="true">
+                @if (platform.product === 'drive') {
+                  <nw-icon name="car" />
+                } @else {
+                  <img src="brand/nawara-mark.png" alt="" width="324" height="324" />
+                }
+              </span>
+              <span class="platform-choice__text">
+                <bdi class="platform-choice__name">{{ platform.name }}</bdi>
+                @if (platform.product; as product) {
+                  <span class="platform-choice__product">{{
+                    productKeys[product] | transloco
+                  }}</span>
+                }
+              </span>
+              <span class="platform-choice__open" aria-hidden="true">
+                {{ 'auth.platform.open' | transloco }}
+                <nw-icon name="arrow-right" size="sm" />
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+  } @else if (list.status === 'loading') {
+    <nw-skeleton [lines]="2" />
+  } @else {
+    <nw-inline-alert tone="warning" icon="cloud-off">{{
+      'auth.platform.unavailable' | transloco
+    }}</nw-inline-alert>
+  }
+
+  <div class="platform-choice__footer">
+    <p class="platform-choice__note">{{ 'auth.platform.note' | transloco }}</p>
+    <button nw-button variant="ghost" size="sm" type="button" (click)="flow.signOut()">
+      <nw-icon name="log-out" size="sm" />
+      <span>{{ 'auth.signOut' | transloco }}</span>
+    </button>
+  </div>
+</adm-auth-card>

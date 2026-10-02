@@ -1,0 +1,84 @@
+:host {
+  --nw-inline-alert-bg: var(--nw-alert-info-bg);
+  --nw-inline-alert-fg: var(--nw-alert-info-fg);
+  --nw-inline-alert-border: var(--nw-alert-info-border);
+  --nw-inline-alert-icon: var(--nw-alert-info-icon);
+
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: var(--nw-space-3) 0.875rem;
+  border: 1px solid var(--nw-inline-alert-border);
+  border-radius: 0.75rem;
+  background-color: var(--nw-inline-alert-bg);
+  color: var(--nw-inline-alert-fg);
+  font-size: var(--nw-text-size-sm);
+  line-height: 1.45;
+}
+
+:host(.nw-inline-alert--danger) {
+  --nw-inline-alert-bg: var(--nw-alert-danger-bg);
+  --nw-inline-alert-fg: var(--nw-alert-danger-fg);
+  --nw-inline-alert-border: var(--nw-alert-danger-border);
+  --nw-inline-alert-icon: var(--nw-alert-danger-icon);
+}
+
+:host(.nw-inline-alert--warning) {
+  --nw-inline-alert-bg: var(--nw-alert-warning-bg);
+  --nw-inline-alert-fg: var(--nw-alert-warning-fg);
+  --nw-inline-alert-border: var(--nw-alert-warning-border);
+  --nw-inline-alert-icon: var(--nw-alert-warning-icon);
+}
+
+:host(.nw-inline-alert--success) {
+  --nw-inline-alert-bg: var(--nw-alert-success-bg);
+  --nw-inline-alert-fg: var(--nw-alert-success-fg);
+  --nw-inline-alert-border: var(--nw-alert-success-border);
+  --nw-inline-alert-icon: var(--nw-alert-success-icon);
+}
+
+.nw-inline-alert__icon {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+  margin-block-start: 0.0625rem;
+  color: var(--nw-inline-alert-icon);
+}
+
+.nw-inline-alert__body {
+  display: grid;
+  flex: 1;
+  gap: var(--nw-space-2);
+  min-inline-size: 0;
+}
+
+.nw-inline-alert__message {
+  text-wrap: pretty;
+}
+
+.nw-inline-alert__action {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 0.375rem;
+  min-block-size: 2.25rem;
+  padding-inline: var(--nw-space-3);
+  border: 1px solid currentColor;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: var(--nw-font-weight-semibold);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--nw-color-neutral-hover);
+    color: var(--nw-text-primary);
+  }
+}
+
+@media (forced-colors: active) {
+  :host {
+    border-color: CanvasText;
+  }
+}
