@@ -42,9 +42,15 @@ A14). `/healthz` (container health) and `/version.txt` (the deployed commit) are
 
 | Name | Kind | Where | Purpose |
 |---|---|---|---|
-| `DEPLOY_SSH_HOST`, `DEPLOY_SSH_USER`, `DEPLOY_SSH_PASSWORD`, `DEPLOY_SSH_PORT` | CI/CD secret (VPS access) | GitHub **organization** secrets, shared with Nawara Core | SSH to the VPS (the Core workflows' method) |
+| `DEPLOY_SSH_HOST`, `DEPLOY_SSH_USER`, `DEPLOY_SSH_PASSWORD`, `DEPLOY_SSH_PORT` (optional, default 22) | CI/CD secret (VPS access) | **repository** secrets of `nawara-admin` (see below) | SSH to the VPS (the Core workflows' method) |
 | `GITHUB_TOKEN` | automatic | GitHub | push the image to GHCR; the server pulls with it during the run |
 | `DEPLOY_NETWORK`, `ADMIN_HOST`, `KEEP_PREVIOUS` | optional script variables | the deploy command | defaults `deploy_edge`, `admin.nawara-solutions.com`, `2` |
+
+**Why repository secrets:** the same names exist as organization secrets, which Nawara Core (a public repository) uses. The
+organization is on GitHub Free, where organization secrets are not available to private repositories, so `nawara-admin` (private)
+receives them empty (the first deployment run failed with "missing server host" before any connection). Set the four names as
+repository secrets of `nawara-admin` (Settings → Secrets and variables → Actions, or `gh secret set NAME -R
+nawara-solutions/nawara-admin` in your own terminal). Never paste their values anywhere else.
 
 The frontend has **no** secret and **no** runtime configuration: everything in the bundle is public. Never put SSH credentials,
 tokens, private keys or Core service credentials into `src/environments/` or any served file. Future Core integration settings
