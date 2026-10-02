@@ -5,7 +5,14 @@
   [attr.aria-label]="('preferences.language.label' | transloco) + ': ' + currentLanguage()"
 >
   <nw-icon name="globe" />
-  <span class="preference-menus__value" aria-hidden="true">{{ locale.locale() | uppercase }}</span>
+  @if (framed()) {
+    <span class="preference-menus__value" aria-hidden="true">{{ currentLanguage() }}</span>
+    <nw-icon class="preference-menus__chevron" name="chevron-down" size="sm" />
+  } @else {
+    <span class="preference-menus__value" aria-hidden="true">{{
+      locale.locale() | uppercase
+    }}</span>
+  }
 </button>
 <ng-template #languages>
   <nw-menu>

@@ -6,7 +6,6 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--nw-space-4) var(--nw-space-6);
-  overflow: hidden;
   padding: 1.125rem;
   border: 1px solid var(--nw-border-subtle);
   border-radius: 1.125rem;
@@ -20,6 +19,9 @@
     inset-inline-end: 0;
     z-index: -1;
     inline-size: min(26.25rem, 45%);
+    // Rounded with the card instead of clipping the card, so the demo panel can overflow it.
+    border-start-end-radius: inherit;
+    border-end-end-radius: inherit;
     background: url('/illustrations/hero-flora.svg') no-repeat right top / 26.25rem auto;
     opacity: var(--nw-sidebar-illustration-opacity);
     // Fades toward the text, which it reaches on narrow cards.

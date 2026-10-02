@@ -32,7 +32,11 @@
   --nw-ref-amber-50: #fff9eb;
   --nw-ref-amber-500: #ffc857; // brand: Accent
   --nw-ref-amber-600: #c27803; // derived: amber icon on its pale tile (3:1 for graphics)
+  --nw-ref-amber-200: #f3dca6; // derived (A4 design): warning alert border
+  --nw-ref-amber-300: #ffd98a; // derived (A4 design): warning alert text, dark
   --nw-ref-amber-800: #7c4a03;
+  --nw-ref-amber-850: #6a3f02; // derived (A4 design): warning alert text
+  --nw-ref-amber-870: #4a3b14; // derived (A4 design): warning alert border, dark
   --nw-ref-amber-900: #2a2210;
 
   // Purple: brand purple
@@ -40,7 +44,9 @@
   --nw-ref-purple-300: #c49bea;
   --nw-ref-purple-400: #b07be0;
   --nw-ref-purple-600: #7b2cbf; // brand: Purple
+  --nw-ref-purple-150: #e4d4f5; // derived (A4 design): info alert border
   --nw-ref-purple-700: #62219a;
+  --nw-ref-purple-800: #3a2a52; // derived (A4 design): info alert border, dark
   --nw-ref-purple-900: #22172f;
 
   // Neutral: warm surfaces (brand Surface) with cool ink (brand Dark, Muted)
@@ -96,17 +102,25 @@
   --nw-ref-night-950: #100e1c;
   --nw-ref-night-hero-pink: #2a1432;
   --nw-ref-night-hero-peach: #2a1c1c;
+  --nw-ref-night-auth-plum: #24132e; // sign-in brand panel wash (A4 design)
 
   // Functional status hues (not brand)
   --nw-ref-green-50: #ecf8f1;
+  --nw-ref-green-150: #bfe5cf; // A4 design: success alert border
+  --nw-ref-green-250: #9be0bb; // A4 design: success alert text, dark
   --nw-ref-green-300: #6fcf9a;
   --nw-ref-green-700: #1e7f4f;
+  --nw-ref-green-750: #1d6b43; // A4 design: success alert icon
+  --nw-ref-green-800: #17573a; // A4 design: success alert text
+  --nw-ref-green-850: #1f4a33; // A4 design: success alert border, dark
   --nw-ref-green-900: #10261b;
   --nw-ref-red-50: #fdecec;
+  --nw-ref-red-150: #f5c2c2; // A4 design: danger alert border
   --nw-ref-red-200: #f7b1ab;
   --nw-ref-red-300: #f28b82;
   --nw-ref-red-700: #c62828;
   --nw-ref-red-800: #a12020;
+  --nw-ref-red-850: #5a2424; // A4 design: danger alert border, dark
   --nw-ref-red-900: #2d1414;
 
   // Brand gradients. The board shows two gradient bars but prints NO stop values, so these are APPROXIMATIONS built

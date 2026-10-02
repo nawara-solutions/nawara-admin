@@ -151,7 +151,12 @@
     "forbidden": "Not available",
     "notFound": "Page not found",
     "sessionUnavailable": "Sign-in not available",
-    "foundation": "Design foundation"
+    "foundation": "Design foundation",
+    "platforms": "Platforms",
+    "signIn": "Sign in",
+    "verify": "Verify your sign-in",
+    "noAccess": "Administrative access unavailable",
+    "platformChoice": "Choose a platform"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -164,7 +169,8 @@
       "home": "Company overview",
       "company": "Company",
       "overview": "Overview",
-      "platform": "Platform"
+      "platform": "Platform",
+      "platforms": "Platforms"
     },
     "context": {
       "label": "Administration scope",
@@ -368,6 +374,145 @@
     "key": "Platform identifier:",
     "loading": "Loading the platform",
     "notFoundTitle": "Platform not found or not accessible",
-    "notFoundDescription": "It may not exist, or it is outside your administration scope."
+    "notFoundDescription": "It may not exist, or it is outside your administration scope.",
+    "backToPlatforms": "Back to Platforms"
+  },
+  "platforms": {
+    "title": "Platforms",
+    "subtitle": "Manage your company’s platforms and open their administrative workspace.",
+    "searchLabel": "Search platforms",
+    "searchPlaceholder": "Search platforms…",
+    "clear": "Clear search",
+    "product": {
+      "school": "Education platform",
+      "drive": "Driving school platform",
+      "unknown": "Platform"
+    },
+    "organizations": "Organizations",
+    "memberships": "Memberships",
+    "assignments": "Operator assignments",
+    "unavailable": "Not available",
+    "open": "Open platform",
+    "openLabel": "Open platform {{name}}",
+    "listLabel": "Platform directory",
+    "footnote": "Memberships are counted within each platform and may overlap across platforms.",
+    "count": {
+      "zero": "{{count}} platforms",
+      "one": "{{count}} platform",
+      "two": "{{count}} platforms",
+      "few": "{{count}} platforms",
+      "many": "{{count}} platforms",
+      "other": "{{count}} platforms"
+    },
+    "noResultsTitle": "No platforms match “{{query}}”",
+    "noResultsDescription": "Check the spelling, or search by another platform name.",
+    "emptyTitle": "No platforms yet",
+    "emptyDescription": "Your company has no platforms yet. Platform creation starts with Create platform.",
+    "loading": "Loading platforms",
+    "errorTitle": "Platform information could not be loaded",
+    "errorDescription": "This does not mean your company has no platforms. Try again in a moment.",
+    "retry": "Try again",
+    "unavailableTitle": "Not available in this build",
+    "unavailableDescription": "No Nawara Core contract lists your platforms yet."
+  },
+  "auth": {
+    "brand": {
+      "product": "Nawara Admin",
+      "tagline": "Smart solutions powered by AI.",
+      "line": "The administrative workspace of Nawara Solutions.",
+      "copyright": "© 2026 Nawara Solutions"
+    },
+    "signIn": {
+      "title": "Sign in to Nawara Admin",
+      "subtitle": "Access your administrative workspace.",
+      "email": "Email address",
+      "password": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "errors": {
+        "emailRequired": "Enter your email address.",
+        "emailFormat": "Enter an email address in the format name@example.com.",
+        "passwordRequired": "Enter your password."
+      },
+      "or": "or",
+      "workingCode": "Sign in with a working code",
+      "workingCodeUnavailable": "Working-code sign-in is not available in this prototype. Nawara Core supports it; its screens come in a later slice.",
+      "recover": "Recover owner access",
+      "recoverUnavailable": "Owner recovery is not available in this prototype. Nawara Core supports it; its screens come in a later slice."
+    },
+    "banner": {
+      "failed": "Sign-in failed. Check your details and try again.",
+      "unavailable": "Sign-in is temporarily unavailable. Your details were not checked. Try again in a moment.",
+      "retry": "Try again",
+      "rateLimited": "Too many sign-in attempts. Wait a moment before trying again.",
+      "sessionExpired": "Your session has ended. Sign in again to continue.",
+      "returnTo": "Sign in to continue. If your account can open the page you requested, you will return to it.",
+      "shiftEnded": "Your working session has ended. Sign in again with a new working code.",
+      "signedOut": "You have signed out.",
+      "enrollmentRequired": "This account must set up a second sign-in step before it can continue. Setting it up is not available in this prototype.",
+      "recoveryRequired": "This account must complete owner recovery before it can continue. Recovery is not available in this prototype.",
+      "stepNotAvailable": "The second sign-in step this account uses is not available in this prototype."
+    },
+    "mfa": {
+      "title": "Verify your sign-in",
+      "subtitle": "Complete the additional verification to continue.",
+      "codeLabel": "Authenticator code",
+      "codeHint": "Enter the current code from your authenticator app.",
+      "verify": "Verify",
+      "verifying": "Verifying…",
+      "codeRequired": "Enter the authentication code.",
+      "codeInvalid": "That code was not accepted. Enter the current code from your authenticator app.",
+      "usePasskey": "Use a passkey instead",
+      "useTotp": "Use an authenticator code instead",
+      "passkeyText": "Your browser or device will ask you to confirm with a passkey. Follow its prompt to continue.",
+      "passkeyContinue": "Continue with a passkey",
+      "passkeyRetry": "Try the passkey again",
+      "passkeyWaiting": "Waiting for your browser or device…",
+      "passkeyNote": "That prompt comes from your browser, not from Nawara Admin.",
+      "passkeyFailed": "The passkey prompt was cancelled or did not complete. You can try again.",
+      "rateLimited": "Too many verification attempts. Wait a moment before trying again.",
+      "unavailable": "Verification is temporarily unavailable. Nothing was checked. Try again in a moment.",
+      "accepted": "Verification accepted — resolving administrative access.",
+      "expiredTitle": "Verification needs to restart",
+      "expiredSubtitle": "This verification is no longer valid. Return to sign-in and start again.",
+      "backToSignIn": "Back to sign in"
+    },
+    "checking": {
+      "title": "Checking your access",
+      "subtitle": "Nawara Core is confirming which workspaces your account can open.",
+      "announce": "Signed in. Checking your access."
+    },
+    "noAccess": {
+      "title": "Administrative access unavailable",
+      "subtitle": "You are signed in, but this account cannot use Nawara Admin.",
+      "help": "If you expected access, contact the person who manages Nawara Admin access at your company.",
+      "signedInAs": "Signed in as"
+    },
+    "signOut": "Sign out",
+    "platform": {
+      "title": "Choose a platform",
+      "subtitle": "Your account can administer these platforms.",
+      "operator": "Operator",
+      "open": "Open",
+      "openLabel": "Open {{name}}",
+      "note": "Only platforms assigned to your account are shown.",
+      "school": "Education platform",
+      "drive": "Driving school platform",
+      "unavailable": "The names of your platforms are not available right now. Try again in a moment."
+    },
+    "demo": {
+      "title": "Demo accounts (fictional, development builds only)",
+      "owner": "Owner",
+      "member": "Demo account — no administrative access",
+      "password": "Password",
+      "code": "Authenticator code",
+      "passkeyPrompt": "SIMULATED passkey prompt (demo only). This is not a passkey or WebAuthn check. OK simulates a completed prompt; Cancel simulates a cancelled one.",
+      "enrollment": "Owner, enrollment required",
+      "recovery": "Owner, recovery required",
+      "passkey": "Passkey",
+      "passkeySimulated": "Simulated: a browser OK / Cancel dialog, not a passkey prompt and no WebAuthn check"
+    }
   }
 }

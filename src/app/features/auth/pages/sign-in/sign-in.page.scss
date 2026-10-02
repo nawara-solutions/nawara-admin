@@ -1,0 +1,128 @@
+:host {
+  display: contents;
+}
+
+.sign-in__form {
+  display: grid;
+  gap: var(--nw-space-4);
+}
+
+// Email and password are machine text, kept left-to-right; in RTL they sit on the reading side.
+:host(:dir(rtl)) .sign-in__ltr {
+  text-align: right;
+}
+
+// The field itself is left-to-right, so its padding follows the page direction explicitly, toward the toggle.
+.sign-in__password {
+  padding-inline-end: var(--nw-space-9);
+}
+
+:host(:dir(rtl)) .sign-in__password {
+  padding-inline: var(--nw-space-9) 0.875rem;
+}
+
+.sign-in__toggle {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: var(--nw-space-1);
+  display: inline-grid;
+  place-items: center;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  margin-block: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--nw-text-secondary);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--nw-color-neutral-hover);
+    color: var(--nw-text-primary);
+  }
+}
+
+.sign-in__submit {
+  margin-block-start: var(--nw-space-1);
+}
+
+.sign-in__divider {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-3);
+  color: var(--nw-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.sign-in__rule {
+  flex: 1;
+  block-size: 1px;
+  background-color: var(--nw-border-default);
+}
+
+// Deferred entries: the explanation shows on hover and keyboard focus, and is the control's description.
+.sign-in__deferred {
+  position: relative;
+  display: grid;
+}
+
+.sign-in__working-code {
+  min-block-size: 2.75rem;
+}
+
+.sign-in__recover {
+  display: flex;
+  justify-content: center;
+  font-size: 0.8125rem;
+
+  .sign-in__deferred {
+    display: inline-grid;
+  }
+}
+
+.sign-in__link {
+  min-block-size: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--nw-radius-sm);
+  background: transparent;
+  color: var(--nw-text-link);
+  font: inherit;
+  font-weight: var(--nw-font-weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: not-allowed;
+}
+
+.sign-in__tooltip {
+  position: absolute;
+  inset-block-end: calc(100% + var(--nw-space-2));
+  inset-inline-start: 50%;
+  z-index: var(--nw-z-dropdown);
+  inline-size: max-content;
+  max-inline-size: 18rem;
+  padding: var(--nw-space-2) var(--nw-space-3);
+  border-radius: var(--nw-radius-sm);
+  background-color: var(--nw-surface-inverse);
+  color: var(--nw-text-inverse);
+  font-size: 0.78125rem;
+  font-weight: var(--nw-font-weight-regular);
+  line-height: 1.4;
+  text-align: center;
+  box-shadow: var(--nw-shadow-md);
+  opacity: 0;
+  visibility: hidden;
+  translate: -50% 0;
+  transition: opacity var(--nw-duration-fast) var(--nw-ease-standard);
+
+  .sign-in__deferred:hover &,
+  .sign-in__deferred:focus-within & {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+:host(:dir(rtl)) .sign-in__tooltip {
+  translate: 50% 0;
+}

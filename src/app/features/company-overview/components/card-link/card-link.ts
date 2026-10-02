@@ -1,26 +1,35 @@
 import { ChangeDetectionStrategy, Component, booleanAttribute, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
 
 /**
- * A link-styled action of the owner design ("Manage →", "Audit log →", "Account security ›") whose destination is not
- * built yet: rendered disabled, with "Not available yet" as its tooltip and accessible description.
+ * A link-styled action of the owner design ("Manage →", "Audit log →", "Account security ›"). With `link` it is a
+ * working link; without, its destination is not built yet: rendered disabled, with "Not available yet" as its tooltip
+ * and accessible description.
  */
 @Component({
   selector: 'adm-card-link',
-  imports: [TranslocoPipe, NwIcon],
+  imports: [RouterLink, TranslocoPipe, NwIcon],
   template: `
-    <button
-      type="button"
-      class="card-link__button"
-      disabled
-      [class.card-link__button--row]="chevron()"
-      [title]="'shell.notAvailableYet' | transloco"
-    >
-      {{ label() }}
-      <nw-icon [name]="chevron() ? 'chevron-right' : 'arrow-right'" size="sm" />
-      <span class="nw-visually-hidden">({{ 'shell.notAvailableYet' | transloco }})</span>
-    </button>
+    @if (link(); as path) {
+      <a class="card-link__button card-link__button--live" [routerLink]="path">
+        {{ label() }}
+        <nw-icon name="arrow-right" size="sm" />
+      </a>
+    } @else {
+      <button
+        type="button"
+        class="card-link__button"
+        disabled
+        [class.card-link__button--row]="chevron()"
+        [title]="'shell.notAvailableYet' | transloco"
+      >
+        {{ label() }}
+        <nw-icon [name]="chevron() ? 'chevron-right' : 'arrow-right'" size="sm" />
+        <span class="nw-visually-hidden">({{ 'shell.notAvailableYet' | transloco }})</span>
+      </button>
+    }
   `,
   styles: `
     :host {
@@ -41,6 +50,16 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
       white-space: nowrap;
       opacity: 0.72;
       cursor: not-allowed;
+      text-decoration: none;
+
+      &--live {
+        opacity: 1;
+        cursor: pointer;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
 
       &--row {
         justify-content: space-between;
@@ -58,4 +77,6 @@ export class CardLink {
   readonly label = input.required<string>();
   /** A full-width row with a chevron (tile footers) rather than an inline arrow link (card headers). */
   readonly chevron = input(false, { transform: booleanAttribute });
+  /** A built destination: renders a working link instead of the disabled action. */
+  readonly link = input<string | null>(null);
 }

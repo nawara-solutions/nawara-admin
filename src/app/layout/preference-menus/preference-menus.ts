@@ -1,5 +1,12 @@
 import { UpperCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  booleanAttribute,
+  computed,
+  inject,
+  input,
+} from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LOCALES, LOCALE_ENDONYMS, Locale } from '../../core/i18n/locale';
 import { LocaleService } from '../../core/i18n/locale.service';
@@ -17,6 +24,7 @@ const THEME_OPTIONS = {
 /**
  * Language and theme controls of the top bar (owner design), over the A2 locale and theme services. The language shows
  * its code (a machine value); the theme is a segmented control that keeps the system preference beside light and dark.
+ * `framed` is the larger, outlined variant of the sign-in pages (A4 design): the language is named, with a chevron.
  */
 @Component({
   selector: 'adm-preference-menus',
@@ -24,9 +32,11 @@ const THEME_OPTIONS = {
   templateUrl: './preference-menus.html',
   styleUrl: './preference-menus.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'preference-menus' },
+  host: { class: 'preference-menus', '[class.preference-menus--framed]': 'framed()' },
 })
 export class PreferenceMenus {
+  readonly framed = input(false, { transform: booleanAttribute });
+
   protected readonly theme = inject(ThemeService);
   protected readonly locale = inject(LocaleService);
 

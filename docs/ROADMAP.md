@@ -14,7 +14,7 @@ A1  Workspace & tooling                               ✅ COMPLETE (owner review
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
 A3  Application shell & infrastructure                🟡 bounded slice implemented (A3-S1 Company Overview), rest ⏳ ┘
     ── Frontend-kit review FK-1 ──
-A4  Authentication & session                 🟢       ⏳
+A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
 A6  Authorization-aware UI                   🟢 facts ⏳
 A7  Identity & access administration         🟢       ⏳
@@ -200,7 +200,89 @@ sampled from the design ([`BRAND.md`](BRAND.md)). Left out on purpose: the desig
 field), the active-licenses usage bar (no total), ⌘K hint (no shortcut), attention-row chevrons (no destination); the
 plural sentence form "7 invitations awaiting acceptance" stays "7 · Invitations awaiting acceptance" (no plural support).
 
+**A3-S2 Platforms directory (owner-authorized 2026-10-02, claude.ai design "Platforms Screen"):** `/platforms`
+(owner only, capability `company.platforms.view`), reached from the overview's "Manage" link and the breadcrumbs. Header
+card with Demo data and Create platform (focusable `aria-disabled` with its explanation as a tooltip); search over the loaded
+list by name or product type with a polite live count (CLDR plural forms in en/fr/ar); platform cards with organizations,
+memberships and operator **assignments**, "—" + "Not available" for a missing figure; loading skeletons, no results (Clear
+search), empty (no retry) and error (Try again; "does not mean your company has no platforms") as separate states; faint
+workspace flora. New `PlatformDirectoryGateway` (🔴 CF-02/CF-03/CF-11), mock in demo builds with `partial` / `empty` /
+`error` scenarios. Platform scope: breadcrumbs Company › Platforms › name, "Back to Platforms". Sidebar spacing tightened so
+the full navigation fits a 900 px tall window at the 110% scale. Not done: a sidebar entry for Platforms (the design has
+none), operator scope.
+
 Evidence: [`review/a3-company-overview/`](review/a3-company-overview/README.md).
+
+
+## A4-S1: sign-in and owner MFA, demo adapter (owner-authorized 2026-10-02; alignment corrections 2026-10-02)
+
+**Status (owner review, 2026-10-02): reviewed mock-prototype slice.** The alignment corrections were accepted. A4-S1 is a
+prototype against a mock adapter: it is **not** production authentication and **not** an independently verified Core
+integration. Changes stay local (not committed). A4 is not closed. **Open, carried forward:**
+
+- the real session and refresh strategy (D-A4, CF-01; D-A4-1 for the demo session);
+- the exact Core contracts and error-code mappings (CF-15);
+- the platform-access contract used to authorize return navigation (CF-15);
+- real WebAuthn validation (the passkey is simulated);
+- a sign-out entry in the main application;
+- the full operator journey (working-code sign-in, then landing or platform choice).
+
+**Next:** review of the operator working-code request and verification design. No implementation until it is authorized.
+
+**Scope (authorized):** the accepted sign-in page and the owner MFA slice (A4-2) of the claude.ai design "Sign-in Journey
+Board", plus the in-flow access check, the no-access page and the operator platform choice, on branch
+`feat/admin-a4-authentication` (local; not committed). **No Core request is made and no real authentication runs:** the only
+`AuthGateway` is a demo mock, and the passkey prompt is simulated. Working code, enrollment, recovery and step-up screens are
+not built (concepts the owner has not reviewed).
+
+**Delivered (implemented and verified against the mock, owner review pending):**
+
+- `/login` (outside the shell): brand panel at inline start on desktop, compact header below it, framed language and theme
+  controls; email and password with client checks only; banners for failed, unavailable (Try again), rate limited, session
+  expired, operator shift ended, signed out and "return to the requested page". A failed attempt clears the password and keeps
+  the email. "Sign in with a working code" and "Recover owner access" stay on the page as the design shows them: established
+  Core methods whose screens are deferred, focusable but unavailable, with a "not available in this prototype" description.
+- `enrollment_required` and `recovery_required` are distinct next states, each with its own "not available in this
+  prototype" banner. The flow stops there: no session is established and nothing navigates into Admin.
+- `/login/verify`: the first method Core offers, the other one only when offered; one free-length TOTP field; invalid, rate
+  limited, unavailable, expired (restart), passkey cancelled and "verification accepted" states.
+- **Passkey is simulated.** Demo builds bind `SimulatedWebAuthnClient`: a browser OK / Cancel confirmation dialog, which is
+  not a passkey prompt; it never calls WebAuthn, and the mock accepts its fake assertion unchecked. `BrowserWebAuthnClient`
+  (`navigator.credentials.get`) is written but has never run against an authenticator or Core.
+- In-flow "Checking your access": `/auth/me` + `/auth/grants` → pure `resolveLanding` (owner → `/overview`; operator → the
+  single assigned Platform or the platform choice; anyone else → no access). The session is established only then.
+- **Return navigation is authorized, not only safe:** `safeReturnUrl` keeps internal, path-only routes; `authorizedReturn`
+  then follows only known routes the actor may open (`/overview`, `/platforms`: owner only; `/platforms/:id`: an operator only
+  if assigned), and a Platform scope is confirmed with Core's platform-access check (`AuthGateway.platformAccess`, mirroring
+  `GET /auth/platform-access/:platformId`; mocked) before navigating. Anything else falls back to the default landing.
+- `/login/no-access` and `/login/platform` (names from the scope directory, CF-02); `sessionGuard` → `/login?returnUrl=…`,
+  `guestGuard`, `AuthSession.establish/signOut`.
+- Primitives: `nw-inline-alert` (four tones, alert tokens checked by `check:contrast`), `nw-spinner`, `nw-button` `size="lg"`
+  and `busy`, `.nw-control--lg`; seven Lucide icons; en/fr/ar catalog `auth.*`.
+
+**Reachable and tested** (unit specs, plus a scripted browser run against the dev server):
+
+| Journey | Reachable in a demo build | Tested |
+|---|---|---|
+| Owner: password → TOTP (invalid, accepted) → access check → landing, incl. return to a requested page | yes | facade + page specs; browser |
+| Owner: password → simulated passkey (cancelled, completed) | yes (simulation only) | facade + page specs; browser |
+| Demo account with no administrative access → no-access → sign out → "signed out" banner | yes | facade spec; browser |
+| `enrollment_required` / `recovery_required` stops | yes (demo accounts) | facade + page specs |
+| Validation, failed, unavailable/Try again, reason banners | yes | page specs; browser (validation, failed) |
+| Expired challenge, rate limited | no demo trigger | facade + page specs |
+| Operator single-Platform landing; operator return-URL rules | **no** (operators sign in with a working code, not built) | landing + facade specs only |
+| Operator platform choice | **no** | page spec with an operator session set directly, and a guard spec; never reached through sign-in |
+
+The complete operator journey is **not** validated.
+
+**Demo session (unresolved, D-A4-1):** demo builds no longer start signed in as the demo owner; they open on `/login`, which
+lists the fictional accounts and says what is simulated (development builds only). The demo session lives in memory, so a
+reload ends it. That is demo-only behaviour, not Admin's session strategy and not a Core contract: reload behaviour for real
+sessions is decision D-A4 (CF-01), where memory-only is an unapproved proposal. Production builds still show "sign-in not
+available".
+
+**Not delivered:** the auth HTTP adapter and interceptors (CF-15, D-A4), real WebAuthn, refresh and logout broadcast,
+working-code sign-in, enrollment and recovery screens, step-up, a sign-out entry in the shell.
 
 ## Decisions required later (before the named stage)
 
@@ -212,6 +294,8 @@ Evidence: [`review/a3-company-overview/`](review/a3-company-overview/README.md).
 | D-A2-8 | A2 review | Stylelint logical-properties rule (physical `left`/`right` ban): not added in the conservative configuration; currently no violations exist |
 | D-A3-2 | A3 | CI pipeline (GitHub Actions running `npm run validate`), Playwright, Testing Library |
 | D-A4 | A4 (dev) / A14 (prod) | Refresh-token strategy: memory (dev) → token-handler BFF **or** Core V2 cookie mode (CF-01) |
+| D-A4-1 | A4-S1 review (**unresolved**) | Demo session: demo builds sign in through the mock (fictional accounts listed on `/login`) instead of starting as the demo owner, and a reload ends the demo session. Demo-only; it decides nothing about real sessions (D-A4). Confirm, or keep a direct demo entry |
+| D-A4-2 | A4-S1 review | Copy of the "not available in this prototype" states: the working-code and recovery entries, and the `enrollment_required` / `recovery_required` banners (not in the design) |
 | D-A3-1 | A3 | Response validation: hand-written decoders vs a schema library (Valibot/Zod) |
 | D-A3-3 | A3-S1 review | Company Overview in production: today a production build has no session, so it shows "sign-in not available" and never demo data. Confirm, or define what an owner sees before Core aggregates exist (CF-11 to CF-13) |
 | D-A3-4 | A3-S1 review | Provisional "pending invitations" definition (organization-admin invitations awaiting acceptance across the Company); Core decides the real one (CF-11) |

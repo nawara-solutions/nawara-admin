@@ -18,7 +18,16 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/foundation/foundation.routes').then((m) => m.FOUNDATION_ROUTES),
   },
-  // No session: every production build until A4 (sign-in) lands here.
+  // Sign-in (A4): outside the shell; available only where an auth adapter exists (demo builds in this slice).
+  {
+    path: 'login',
+    loadChildren: () => {
+      // Read in the router's injection context, before the lazy import resolves.
+      const environment = inject(APP_ENVIRONMENT);
+      return import('./features/auth/auth.routes').then((m) => m.loadAuthRoutes(environment));
+    },
+  },
+  // No sign-in in this build: every production build until the auth HTTP adapter lands here.
   {
     path: SESSION_UNAVAILABLE_PATH.slice(1),
     loadComponent: () => import('./layout/minimal-shell/minimal-shell').then((m) => m.MinimalShell),

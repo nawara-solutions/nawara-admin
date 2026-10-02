@@ -29,10 +29,12 @@ const operator: Actor = {
   platformAssignments: [platformId('school')],
 };
 const DEMO: DemoBindings = {
-  owner,
+  signIn: { accounts: [], password: 'p', code: 'c' },
   providers: {
+    auth: [],
     scopeDirectory: [],
     notificationSummary: [],
+    platformDirectory: [],
     companyOverview: [],
     commercialSummary: [],
     serviceHealth: [],
@@ -66,7 +68,7 @@ async function render(actor: Actor, notifications: 'demo' | 'unavailable' = 'dem
       },
     ],
   });
-  TestBed.inject(AuthSession).startDemo(actor);
+  TestBed.inject(AuthSession).establish(actor);
   const fixture = TestBed.createComponent(Sidebar);
   await fixture.whenStable();
   // Let the zero-latency notification mock (`delay(0)`) answer.

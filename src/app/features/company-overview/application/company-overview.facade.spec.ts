@@ -40,10 +40,12 @@ const operator: Actor = {
   platformAssignments: [platformId('school'), platformId('drive')],
 };
 const DEMO: DemoBindings = {
-  owner,
+  signIn: { accounts: [], password: 'p', code: 'c' },
   providers: {
+    auth: [],
     scopeDirectory: [],
     notificationSummary: [],
+    platformDirectory: [],
     companyOverview: [],
     commercialSummary: [],
     serviceHealth: [],
@@ -79,7 +81,7 @@ function setUp(
       CompanyOverviewFacade,
     ],
   });
-  TestBed.inject(AuthSession).startDemo(actor);
+  TestBed.inject(AuthSession).establish(actor);
   return TestBed.inject(CompanyOverviewFacade);
 }
 

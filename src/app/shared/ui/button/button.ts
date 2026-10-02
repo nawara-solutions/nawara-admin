@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  booleanAttribute,
   Component,
   DestroyRef,
   ElementRef,
@@ -8,7 +9,7 @@ import {
 } from '@angular/core';
 
 export type NwButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
-export type NwButtonSize = 'sm' | 'md';
+export type NwButtonSize = 'sm' | 'md' | 'lg';
 
 /**
  * Button styling on the native element, so semantics stay native: `<button nw-button>` for actions,
@@ -17,6 +18,9 @@ export type NwButtonSize = 'sm' | 'md';
  *
  * Disabled: use the native `disabled` attribute on a `<button>`. A link has no `disabled`, so set
  * `aria-disabled="true"`: it stays focusable (and is announced as unavailable) but neither click nor Enter activates it.
+ *
+ * Busy: set `busy` and `aria-disabled="true"` together, and put an `nw-spinner` and the busy label inside. The button
+ * keeps its colours and stays focusable, and repeated activation is ignored (docs/ARCHITECTURE.md §22).
  */
 @Component({
   selector: 'button[nw-button], a[nw-button]',
@@ -30,11 +34,14 @@ export type NwButtonSize = 'sm' | 'md';
     '[class.nw-button--ghost]': "variant() === 'ghost'",
     '[class.nw-button--danger]': "variant() === 'danger'",
     '[class.nw-button--sm]': "size() === 'sm'",
+    '[class.nw-button--lg]': "size() === 'lg'",
+    '[class.nw-button--busy]': 'busy()',
   },
 })
 export class NwButton {
   readonly variant = input<NwButtonVariant>('primary');
   readonly size = input<NwButtonSize>('md');
+  readonly busy = input(false, { transform: booleanAttribute });
 
   constructor() {
     const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;

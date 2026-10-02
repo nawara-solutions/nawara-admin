@@ -79,6 +79,11 @@ const PAIRS = [
   ]),
   ['--nw-text-inverse', '--nw-surface-inverse-hover', 4.5],
   ['--nw-text-secondary', '--nw-color-neutral-hover', 4.5],
+  // Inline alerts (A4): text on the tone background, and the tone icon as a graphic
+  ...['success', 'warning', 'danger', 'info'].flatMap((t) => [
+    [`--nw-alert-${t}-fg`, `--nw-alert-${t}-bg`, 4.5],
+    [`--nw-alert-${t}-icon`, `--nw-alert-${t}-bg`, 3],
+  ]),
 ];
 
 const declarations = (file) =>

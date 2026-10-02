@@ -1,0 +1,121 @@
+<adm-auth-card
+  [title]="'auth.signIn.title' | transloco"
+  [subtitle]="'auth.signIn.subtitle' | transloco"
+>
+  @if (banner(); as b) {
+    <nw-inline-alert
+      [tone]="b.tone"
+      [icon]="b.icon"
+      [actionLabel]="b.retry ? ('auth.banner.retry' | transloco) : undefined"
+      actionIcon="refresh-cw"
+      (action)="submit()"
+      >{{ b.key | transloco }}</nw-inline-alert
+    >
+  }
+
+  <form class="sign-in__form" novalidate [attr.aria-busy]="busy()" (submit)="submit($event)">
+    @let emailKey = emailError();
+    <nw-form-field
+      [label]="'auth.signIn.email' | transloco"
+      [error]="emailKey ? (emailKey | transloco) : undefined"
+    >
+      <input
+        nwControl
+        class="nw-control--lg sign-in__ltr"
+        type="email"
+        name="username"
+        inputmode="email"
+        autocomplete="username"
+        autocapitalize="none"
+        spellcheck="false"
+        dir="ltr"
+        [value]="email()"
+        [readOnly]="busy()"
+        (input)="onEmail($event)"
+      />
+    </nw-form-field>
+
+    @let passwordKey = passwordError();
+    <nw-form-field
+      #passwordField
+      [label]="'auth.signIn.password' | transloco"
+      [error]="passwordKey ? (passwordKey | transloco) : undefined"
+    >
+      <input
+        nwControl
+        class="nw-control--lg sign-in__ltr sign-in__password"
+        name="password"
+        autocomplete="current-password"
+        dir="ltr"
+        [type]="passwordVisible() ? 'text' : 'password'"
+        [value]="password()"
+        [readOnly]="busy()"
+        (input)="onPassword($event)"
+      />
+      <button
+        type="button"
+        class="sign-in__toggle"
+        [attr.aria-controls]="passwordField.controlId"
+        [attr.aria-pressed]="passwordVisible()"
+        [attr.aria-label]="
+          (passwordVisible() ? 'auth.signIn.hidePassword' : 'auth.signIn.showPassword') | transloco
+        "
+        (click)="passwordVisible.set(!passwordVisible())"
+      >
+        <nw-icon [name]="passwordVisible() ? 'eye-off' : 'eye'" />
+      </button>
+    </nw-form-field>
+
+    <button
+      nw-button
+      size="lg"
+      type="submit"
+      class="sign-in__submit"
+      [busy]="busy()"
+      [attr.aria-disabled]="busy() || null"
+    >
+      @if (busy()) {
+        <nw-spinner />
+      }
+      <span>{{ (busy() ? 'auth.signIn.submitting' : 'auth.signIn.submit') | transloco }}</span>
+    </button>
+  </form>
+
+  <!-- Established Core methods whose screens are deferred: shown, focusable, unavailable, and saying why. -->
+  <div class="sign-in__divider" aria-hidden="true">
+    <span class="sign-in__rule"></span>
+    <span>{{ 'auth.signIn.or' | transloco }}</span>
+    <span class="sign-in__rule"></span>
+  </div>
+  <span class="sign-in__deferred">
+    <button
+      nw-button
+      variant="secondary"
+      type="button"
+      class="sign-in__working-code"
+      aria-disabled="true"
+      aria-describedby="sign-in-working-code-note"
+    >
+      <nw-icon name="key-round" size="sm" />
+      <span>{{ 'auth.signIn.workingCode' | transloco }}</span>
+    </button>
+    <span id="sign-in-working-code-note" class="sign-in__tooltip" role="tooltip">{{
+      'auth.signIn.workingCodeUnavailable' | transloco
+    }}</span>
+  </span>
+  <p class="sign-in__recover">
+    <span class="sign-in__deferred">
+      <button
+        type="button"
+        class="sign-in__link"
+        aria-disabled="true"
+        aria-describedby="sign-in-recovery-note"
+      >
+        {{ 'auth.signIn.recover' | transloco }}
+      </button>
+      <span id="sign-in-recovery-note" class="sign-in__tooltip" role="tooltip">{{
+        'auth.signIn.recoverUnavailable' | transloco
+      }}</span>
+    </span>
+  </p>
+</adm-auth-card>

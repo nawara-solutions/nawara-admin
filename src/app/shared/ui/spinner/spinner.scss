@@ -1,0 +1,21 @@
+:host {
+  display: inline-block;
+  flex-shrink: 0;
+  inline-size: 1rem;
+  block-size: 1rem;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  animation: nw-spinner-rotate 0.8s linear infinite;
+}
+
+:host(.nw-spinner--lg) {
+  inline-size: 2rem;
+  block-size: 2rem;
+}
+
+@keyframes nw-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
