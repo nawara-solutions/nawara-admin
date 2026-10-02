@@ -1,0 +1,58 @@
+@use 'abstracts' as nw;
+
+.breadcrumbs__list {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  overflow: hidden;
+  color: var(--nw-text-secondary);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.breadcrumbs__item {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--nw-space-2);
+  min-inline-size: 0;
+
+  &:last-child {
+    flex-shrink: 1;
+  }
+
+  // Only the page itself is kept on narrower top bars (owner design): Home › Overview.
+  &--intermediate:not(:first-child) {
+    display: none;
+
+    @include nw.from(desktop) {
+      display: inline-flex;
+    }
+  }
+}
+
+.breadcrumbs__home,
+.breadcrumbs__link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.5rem;
+  border-radius: var(--nw-radius-sm);
+  color: var(--nw-text-secondary);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--nw-text-primary);
+    text-decoration: underline;
+  }
+}
+
+.breadcrumbs__separator {
+  color: var(--nw-icon-muted);
+}
+
+.breadcrumbs__current {
+  overflow: hidden;
+  color: var(--nw-text-primary);
+  font-weight: var(--nw-font-weight-semibold);
+  text-overflow: ellipsis;
+}

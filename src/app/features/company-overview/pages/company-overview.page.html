@@ -1,0 +1,210 @@
+@let state = facade.state();
+<adm-overview-header
+  [isDemo]="isDemo()"
+  [canCreate]="facade.canSeeCreatePlatform()"
+  [periodDays]="state.status === 'success' ? state.data.periodDays : null"
+/>
+
+@switch (state.status) {
+  @case ('success') {
+    @let overview = state.data;
+    @let commercial = facade.commercial();
+    @let health = facade.health();
+    @let attention = facade.attention();
+    @let trend = facade.organizationsTrend();
+    @let operational = health.status === 'success' ? operationalCount(health.data) : 0;
+    <section
+      class="company-overview__summary"
+      [attr.aria-label]="'companyOverview.summary.label' | transloco"
+    >
+      <adm-summary-card
+        icon="building-2"
+        [label]="'companyOverview.summary.platforms' | transloco"
+        [caption]="platformNames()"
+        [metric]="overview.summary.platforms"
+      />
+      <adm-summary-card
+        icon="users"
+        accent="orange"
+        [label]="'companyOverview.summary.organizations' | transloco"
+        [caption]="
+          trend === null
+            ? ('companyOverview.summary.acrossPlatforms' | transloco)
+            : ('companyOverview.summary.acrossPlatforms' | transloco) +
+              ' · ' +
+              ('companyOverview.summary.thisPeriod'
+                | transloco: { change: trend | nwNumber: 'signed' })
+        "
+        [metric]="overview.summary.organizations"
+        [trend]="trend"
+      />
+      <adm-summary-card
+        icon="fingerprint"
+        accent="purple"
+        [label]="'companyOverview.summary.uniqueIdentities' | transloco"
+        [caption]="'companyOverview.summary.distinctAccounts' | transloco"
+        [metric]="overview.summary.uniqueIdentities"
+      />
+      <adm-summary-card
+        icon="send"
+        accent="orange"
+        [label]="'companyOverview.summary.pendingInvitations' | transloco"
+        [caption]="'companyOverview.summary.awaitingAcceptance' | transloco"
+        [metric]="overview.summary.pendingAdminInvitations"
+      />
+    </section>
+
+    <div class="company-overview__row">
+      <adm-overview-card
+        headingId="overview-platforms"
+        [heading]="'companyOverview.platforms.title' | transloco"
+      >
+        <adm-card-link cardActions [label]="'companyOverview.platforms.manage' | transloco" />
+        <adm-platform-list [platforms]="overview.platforms" />
+      </adm-overview-card>
+
+      <adm-overview-card
+        headingId="overview-attention"
+        [heading]="'companyOverview.attention.title' | transloco"
+      >
+        @if (attention.status === 'available' && attention.data.length > 0) {
+          <span cardActions class="company-overview__pill">{{
+            'companyOverview.attention.open' | transloco: { count: attention.data.length }
+          }}</span>
+        }
+        @if (attention.status === 'available') {
+          <adm-attention-list [items]="attention.data" />
+        } @else {
+          <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+        }
+      </adm-overview-card>
+    </div>
+
+    <div class="company-overview__row">
+      <adm-overview-card
+        headingId="overview-growth"
+        [heading]="'companyOverview.growth.title' | transloco"
+        [subtitle]="'companyOverview.growth.subtitle' | transloco: { days: overview.periodDays }"
+      >
+        @if (overview.growth.status === 'available') {
+          <adm-growth-panel [growth]="overview.growth.data" [platforms]="platformRefs()" />
+        } @else {
+          <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+        }
+      </adm-overview-card>
+
+      <adm-overview-card
+        headingId="overview-activity"
+        [heading]="'companyOverview.activity.title' | transloco"
+      >
+        <adm-card-link cardActions [label]="'companyOverview.activity.auditLog' | transloco" />
+        @if (overview.activity.status === 'available') {
+          <adm-activity-list [entries]="overview.activity.data" />
+        } @else {
+          <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+        }
+      </adm-overview-card>
+    </div>
+
+    <div class="company-overview__row">
+      <adm-overview-card
+        headingId="overview-access"
+        [heading]="'companyOverview.access.title' | transloco"
+      >
+        <adm-access-summary
+          [access]="overview.access.status === 'available' ? overview.access.data : null"
+          [ownerName]="ownerName()"
+          [toReview]="facade.assignmentsToReview()"
+        />
+      </adm-overview-card>
+
+      <adm-overview-card
+        headingId="overview-commercial"
+        [heading]="'companyOverview.commercial.title' | transloco"
+      >
+        <adm-card-link cardActions [label]="'companyOverview.commercial.billing' | transloco" />
+        @if (commercial.status === 'success') {
+          <adm-commercial-summary [summary]="commercial.data" />
+        } @else if (commercial.status === 'idle' || commercial.status === 'loading') {
+          <nw-data-state state="loading" [title]="'companyOverview.states.loading' | transloco" />
+        } @else {
+          <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+        }
+      </adm-overview-card>
+    </div>
+
+    <adm-overview-card
+      headingId="overview-health"
+      [heading]="'companyOverview.health.title' | transloco"
+      [subtitle]="'companyOverview.health.subtitle' | transloco"
+    >
+      @if (health.status === 'success') {
+        <span
+          cardActions
+          class="company-overview__pill"
+          [class.company-overview__pill--warning]="operational < health.data.services.length"
+          [class.company-overview__pill--success]="operational === health.data.services.length"
+        >
+          <span class="company-overview__pill-dot"></span>
+          {{
+            'companyOverview.health.operationalCount'
+              | transloco: { count: operational, total: health.data.services.length }
+          }}
+        </span>
+      }
+      <adm-card-link cardActions [label]="'companyOverview.health.viewServices' | transloco" />
+      @if (health.status === 'success') {
+        <adm-service-health-strip [summary]="health.data" />
+      } @else if (health.status === 'idle' || health.status === 'loading') {
+        <nw-data-state state="loading" [title]="'companyOverview.states.loading' | transloco" />
+      } @else {
+        <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+      }
+    </adm-overview-card>
+  }
+  @case ('error') {
+    @if (state.error.kind === 'unavailable' && state.error.code === adapterUnavailable) {
+      <nw-data-state
+        state="empty"
+        [title]="'companyOverview.states.unavailableTitle' | transloco"
+        [description]="'companyOverview.states.unavailableDescription' | transloco"
+      />
+    } @else {
+      <nw-data-state
+        state="error"
+        [title]="'companyOverview.states.errorTitle' | transloco"
+        [description]="'companyOverview.states.errorDescription' | transloco"
+      >
+        <div nwDataStateActions>
+          <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+            <nw-icon name="refresh-cw" size="sm" />{{ 'companyOverview.states.retry' | transloco }}
+          </button>
+        </div>
+      </nw-data-state>
+    }
+  }
+  @case ('forbidden') {
+    <nw-data-state
+      state="empty"
+      [title]="'companyOverview.states.forbiddenTitle' | transloco"
+      [description]="'companyOverview.states.forbiddenDescription' | transloco"
+    />
+  }
+  @case ('empty') {
+    <nw-data-state
+      state="empty"
+      [title]="'companyOverview.states.emptyTitle' | transloco"
+      [description]="'companyOverview.states.emptyDescription' | transloco"
+    />
+  }
+  @default {
+    <nw-data-state state="loading" [title]="'companyOverview.states.loading' | transloco" />
+  }
+}
+
+<ng-template #sectionUnavailable>
+  <p class="company-overview__unavailable">
+    <nw-icon name="info" size="sm" />
+    {{ 'companyOverview.sectionUnavailable' | transloco }}
+  </p>
+</ng-template>

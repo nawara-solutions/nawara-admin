@@ -1,0 +1,107 @@
+@use 'abstracts' as nw;
+
+// Sidebar beside the content from `laptop` up; a drawer over the content below it (docs/ARCHITECTURE.md §15).
+:host {
+  display: grid;
+  grid-template-columns: var(--nw-shell-sidebar-width) minmax(0, 1fr);
+  min-block-size: 100dvh;
+  background-color: var(--nw-surface-page);
+}
+
+.shell__skip {
+  position: fixed;
+  inset-block-start: var(--nw-space-2);
+  inset-inline-start: var(--nw-space-2);
+  z-index: var(--nw-z-toast);
+  padding: var(--nw-space-2) var(--nw-space-4);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-raised);
+  box-shadow: var(--nw-shadow-md);
+  font-weight: var(--nw-font-weight-semibold);
+  transform: translateY(-200%);
+
+  &:focus-visible {
+    transform: none;
+  }
+}
+
+.shell__top-bar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--nw-z-sticky);
+}
+
+.shell__sidebar {
+  position: sticky;
+  inset-block-start: 0;
+  block-size: 100dvh;
+}
+
+.shell__column {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+
+.shell__main {
+  flex: 1;
+  inline-size: 100%;
+  // Capped at 1440 px (owner design) and centred, so wide screens keep equal space on both sides.
+  max-inline-size: 90rem;
+  margin-inline: auto;
+  // Workspace padding of the owner design: 16/14 px on phones, 24 px on tablets, 28/32 px on desktops.
+  padding: var(--nw-space-4) 0.875rem 1.75rem;
+
+  @include nw.from(tablet) {
+    padding: var(--nw-space-6) var(--nw-space-6) 2.25rem;
+  }
+
+  @include nw.from(laptop) {
+    padding: 1.75rem var(--nw-space-7) var(--nw-space-8);
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.shell__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--nw-z-overlay);
+  border: 0;
+  background-color: var(--nw-scrim);
+}
+
+:host(.shell--drawer) {
+  grid-template-columns: minmax(0, 1fr);
+
+  .shell__sidebar {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: var(--nw-z-modal);
+    inline-size: min(18.75rem, 86vw);
+    box-shadow: var(--nw-shadow-lg);
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition:
+      transform var(--nw-duration-base) var(--nw-ease-standard),
+      visibility var(--nw-duration-base);
+  }
+
+  .shell__sidebar:dir(rtl) {
+    transform: translateX(100%);
+  }
+}
+
+:host(.shell--drawer-open) .shell__sidebar {
+  transform: none;
+  visibility: visible;
+  // Visible at once when opening (so focus can move in); hidden only after the closing slide.
+  transition: transform var(--nw-duration-base) var(--nw-ease-standard);
+}
+
+:host(.shell--drawer-open) .shell__sidebar:dir(rtl) {
+  transform: none;
+}

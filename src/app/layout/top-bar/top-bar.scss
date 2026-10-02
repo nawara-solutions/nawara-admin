@@ -1,0 +1,133 @@
+@use 'abstracts' as nw;
+
+// One 64 px row (owner design). Narrow viewports drop the breadcrumbs, bell and avatar; search shows from `wide`.
+:host {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  block-size: 4rem;
+  padding-inline: 0.875rem;
+  border-block-end: 1px solid var(--nw-border-subtle);
+  background-color: var(--nw-topbar-background);
+  backdrop-filter: blur(10px);
+
+  @include nw.from(tablet) {
+    gap: 0.875rem;
+    padding-inline: var(--nw-space-6);
+  }
+
+  @include nw.from(laptop) {
+    padding-inline: var(--nw-space-7);
+  }
+}
+
+.top-bar__menu {
+  flex-shrink: 0;
+}
+
+.top-bar__breadcrumbs {
+  display: none;
+  // Keeps its full trail; the search field gives way instead.
+  flex: 1 0 auto;
+
+  @include nw.from(tablet) {
+    display: block;
+  }
+}
+
+// Without breadcrumbs the switcher leads and the controls sit at the far end.
+.top-bar__context {
+  min-inline-size: 0;
+  margin-inline-end: auto;
+
+  @include nw.from(tablet) {
+    margin-inline-end: 0;
+  }
+}
+
+.top-bar__search {
+  display: none;
+  // Shrinks before the breadcrumbs do.
+  flex: 0 1 17.5rem;
+  min-inline-size: 11rem;
+  align-items: center;
+  gap: var(--nw-space-2);
+  block-size: 2.25rem;
+  padding-inline: var(--nw-space-3);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-inset);
+  color: var(--nw-icon-muted);
+  cursor: not-allowed;
+
+  // At the 110% scale it fits beside the full breadcrumbs and switcher only from `wide`.
+  @include nw.from(wide) {
+    display: flex;
+  }
+}
+
+.top-bar__search-input {
+  flex: 1;
+  min-inline-size: 0;
+  border: 0;
+  background: transparent;
+  color: var(--nw-text-secondary);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-overflow: ellipsis;
+  cursor: not-allowed;
+
+  &::placeholder {
+    color: var(--nw-text-secondary);
+    opacity: 1;
+  }
+}
+
+.top-bar__bell {
+  position: relative;
+  display: none;
+  flex-shrink: 0;
+  place-items: center;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  color: var(--nw-text-primary);
+
+  @include nw.from(tablet) {
+    display: grid;
+  }
+}
+
+.top-bar__dot {
+  position: absolute;
+  inset-block-start: 0.4375rem;
+  inset-inline-end: 0.5rem;
+  inline-size: 0.4375rem;
+  block-size: 0.4375rem;
+  box-sizing: content-box;
+  border: 2px solid var(--nw-surface-raised);
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-color-primary);
+}
+
+.top-bar__avatar {
+  display: none;
+  flex-shrink: 0;
+  place-items: center;
+  inline-size: 2.125rem;
+  block-size: 2.125rem;
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-accent-purple-fg);
+  color: var(--nw-accent-purple-bg);
+  font-size: 0.78125rem;
+  font-weight: var(--nw-font-weight-bold);
+
+  @include nw.from(tablet) {
+    display: grid;
+  }
+}
+
+@media (forced-colors: active) {
+  .top-bar__dot {
+    background-color: CanvasText;
+  }
+}

@@ -1,0 +1,92 @@
+<figure class="growth-chart__figure">
+  <div class="growth-chart__frame" dir="ltr" aria-hidden="true">
+    <div class="growth-chart__axis">
+      @for (tick of ticks(); track tick.value) {
+        <span class="growth-chart__tick" [style.bottom.%]="tick.y">{{
+          tick.value | nwNumber
+        }}</span>
+      }
+    </div>
+    <div class="growth-chart__plot">
+      <svg
+        class="growth-chart__svg"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        focusable="false"
+      >
+        <defs>
+          <linearGradient id="growth-chart-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop class="growth-chart__fill-top" offset="0" />
+            <stop class="growth-chart__fill-bottom" offset="1" />
+          </linearGradient>
+          <linearGradient
+            id="growth-chart-stroke"
+            gradientUnits="userSpaceOnUse"
+            x1="0"
+            y1="0"
+            x2="100"
+            y2="0"
+          >
+            <stop class="growth-chart__stroke-start" offset="0" />
+            <stop class="growth-chart__stroke-end" offset="1" />
+          </linearGradient>
+        </defs>
+        @for (tick of ticks(); track tick.value) {
+          <line
+            class="growth-chart__grid"
+            x1="0"
+            x2="100"
+            [attr.y1]="100 - tick.y"
+            [attr.y2]="100 - tick.y"
+          />
+        }
+        <path class="growth-chart__area" [attr.d]="area()" fill="url(#growth-chart-fill)" />
+        <path class="growth-chart__line" [attr.d]="line()" />
+      </svg>
+      @for (point of points(); track point.day; let last = $last) {
+        <span
+          class="growth-chart__point"
+          [class.growth-chart__point--latest]="last"
+          [style.left.%]="point.x"
+          [style.bottom.%]="point.y"
+        ></span>
+        <span
+          class="growth-chart__value"
+          [class.growth-chart__value--latest]="last"
+          [style.left.%]="point.x"
+          [style.bottom.%]="point.y"
+          >{{ point.organizations | nwNumber }}</span
+        >
+      }
+    </div>
+    <ol class="growth-chart__days" role="list">
+      @for (point of points(); track point.day) {
+        <li>{{ point.day | nwDate: 'day-month' }}</li>
+      }
+    </ol>
+  </div>
+  <!-- A table sizes to its content, so the visually hidden wrapper (not the table) does the clipping. -->
+  <div class="nw-visually-hidden">
+    <table>
+      <caption>
+        {{
+          caption()
+        }}
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">{{ 'companyOverview.growth.date' | transloco }}</th>
+          <th scope="col">{{ 'companyOverview.growth.series' | transloco }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (point of points(); track point.day) {
+          <tr>
+            <th scope="row">{{ point.day | nwDate: 'day-month' }}</th>
+            <td>{{ point.organizations | nwNumber }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</figure>

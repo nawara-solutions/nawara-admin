@@ -1,0 +1,77 @@
+.service-health-strip__items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: 0.625rem;
+}
+
+.service-health-strip__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3);
+  border: 1px solid var(--nw-border-hairline);
+  border-radius: var(--nw-radius-md);
+}
+
+.service-health-strip__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nw-space-2);
+}
+
+.service-health-strip__name {
+  overflow: hidden;
+  font-size: 0.8125rem;
+  font-weight: var(--nw-font-weight-bold);
+  text-overflow: ellipsis;
+}
+
+// A dot with a soft ring; the status is always also written out (never colour alone).
+.service-health-strip__dot {
+  flex-shrink: 0;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-status-success-fg);
+  box-shadow: 0 0 0 3px var(--nw-status-success-bg);
+
+  &--delayed {
+    background-color: var(--nw-accent-orange-fg);
+    box-shadow: 0 0 0 3px var(--nw-accent-orange-bg);
+  }
+
+  &--unavailable {
+    background-color: var(--nw-status-danger-fg);
+    box-shadow: 0 0 0 3px var(--nw-status-danger-bg);
+  }
+
+  &--unknown {
+    background-color: var(--nw-border-strong);
+    box-shadow: 0 0 0 3px var(--nw-surface-sunken);
+  }
+}
+
+.service-health-strip__status {
+  font-size: 0.71875rem;
+  font-weight: var(--nw-font-weight-semibold);
+  color: var(--nw-status-success-fg);
+
+  &--delayed {
+    color: var(--nw-status-warning-fg);
+  }
+
+  &--unavailable {
+    color: var(--nw-status-danger-fg);
+  }
+
+  &--unknown {
+    color: var(--nw-text-secondary);
+  }
+}
+
+@media (forced-colors: active) {
+  .service-health-strip__dot {
+    border: 1px solid CanvasText;
+  }
+}

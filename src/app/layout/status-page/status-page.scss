@@ -1,0 +1,30 @@
+:host {
+  display: grid;
+  justify-items: center;
+  gap: var(--nw-space-4);
+  max-inline-size: 36rem;
+  margin: var(--nw-space-9) auto;
+  padding: var(--nw-space-8) var(--nw-space-6);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-xl);
+  background-color: var(--nw-surface-raised);
+  text-align: center;
+}
+
+.status-page__icon {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 3.5rem;
+  block-size: 3.5rem;
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-accent-pink-bg);
+  color: var(--nw-accent-pink-fg);
+}
+
+.status-page__title {
+  font-size: var(--nw-text-size-2xl);
+}
+
+.status-page__description {
+  color: var(--nw-text-secondary);
+}

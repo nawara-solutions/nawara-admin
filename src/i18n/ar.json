@@ -143,5 +143,231 @@
       "formattingTag": "لغة التنسيق",
       "note": "تستخدم العربية الأرقام اللاتينية 0–9."
     }
+  },
+  "titles": {
+    "app": "Nawara Admin",
+    "overview": "نظرة عامة على الشركة",
+    "platform": "المنصة",
+    "forbidden": "غير متاح",
+    "notFound": "الصفحة غير موجودة",
+    "sessionUnavailable": "تسجيل الدخول غير متاح",
+    "foundation": "أساس التصميم"
+  },
+  "shell": {
+    "skipToContent": "الانتقال إلى المحتوى",
+    "openNavigation": "فتح قائمة التنقل",
+    "closeNavigation": "إغلاق قائمة التنقل",
+    "mainNavigation": "التنقل الرئيسي",
+    "notAvailableYet": "غير متاح بعد",
+    "breadcrumb": {
+      "label": "مسار التنقل",
+      "home": "نظرة عامة على الشركة",
+      "company": "الشركة",
+      "overview": "نظرة عامة",
+      "platform": "المنصة"
+    },
+    "context": {
+      "label": "نطاق الإدارة",
+      "allPlatforms": "جميع المنصات",
+      "platforms": "المنصات",
+      "current": "الحالي",
+      "loading": "جارٍ التحميل…"
+    },
+    "role": {
+      "owner": "مالك الشركة",
+      "operator": "مشغّل المنصة"
+    },
+    "demo": {
+      "badge": "بيانات تجريبية",
+      "explanation": "بيانات تجريبية: أرقام وهمية وجلسة مالك تجريبية. لا شيء في هذه الشاشة مصدره Nawara Core.",
+      "about": "حول البيانات التجريبية"
+    },
+    "nav": {
+      "groups": {
+        "platform": "المنصة",
+        "commercial": "التجاري",
+        "operations": "العمليات"
+      },
+      "overview": "نظرة عامة",
+      "organizations": "المؤسسات",
+      "users": "المستخدمون والهوية",
+      "operators": "المشغّلون والوصول",
+      "licenses": "التراخيص والاستحقاقات",
+      "billing": "الفوترة والمدفوعات",
+      "audit": "سجل التدقيق",
+      "files": "الملفات",
+      "notifications": "الإشعارات",
+      "services": "الخدمات والحالة",
+      "monitoring": "المراقبة",
+      "settings": "الإعدادات",
+      "releases": "الإصدارات"
+    },
+    "pages": {
+      "backToOverview": "العودة إلى نظرة عامة على الشركة",
+      "sessionUnavailable": {
+        "title": "تسجيل الدخول غير متاح بعد",
+        "description": "لا يتضمن هذا الإصدار تسجيل الدخول: تأتي مصادقة Nawara Core في مرحلة لاحقة. البيانات التجريبية متوفرة فقط في إصدارات التطوير."
+      },
+      "forbidden": {
+        "title": "غير متاح لحسابك",
+        "description": "الإدارة على مستوى الشركة مقصورة على مالك الشركة. يحدد Nawara Core ما يمكن لكل حساب القيام به."
+      },
+      "notFound": {
+        "title": "الصفحة غير موجودة",
+        "description": "هذا العنوان لا يطابق أي صفحة."
+      }
+    },
+    "sidebarLabel": "الشريط الجانبي",
+    "search": {
+      "label": "بحث",
+      "placeholder": "ابحث عن المؤسسات والمستخدمين…"
+    },
+    "notifications": {
+      "unread": "الإشعارات غير المقروءة: {{count}}"
+    }
+  },
+  "companyOverview": {
+    "title": "نظرة عامة على الشركة",
+    "subtitle": "منصاتك ومؤسساتك وصلاحيات الوصول — في مكان واحد.",
+    "period": "آخر {{days}} يومًا",
+    "create": "إنشاء منصة",
+    "createUnavailable": "إنشاء المنصات غير متاح في هذا العرض التجريبي.",
+    "unavailable": "غير متاح",
+    "summary": {
+      "label": "أرقام الشركة",
+      "platforms": "المنصات",
+      "organizations": "المؤسسات",
+      "pendingInvitations": "الدعوات المعلّقة",
+      "awaitingAcceptance": "بانتظار القبول",
+      "uniqueIdentities": "الهويات الفريدة",
+      "distinctAccounts": "حسابات مختلفة",
+      "acrossPlatforms": "عبر جميع المنصات",
+      "thisPeriod": "{{change}} خلال الفترة"
+    },
+    "platforms": {
+      "title": "منصاتك",
+      "product": {
+        "school": "منصة تعليمية",
+        "drive": "منصة مدارس تعليم القيادة",
+        "unknown": "منصة"
+      },
+      "organizations": "المؤسسات",
+      "operators": "المشغّلون",
+      "open": "فتح المنصة",
+      "openLabel": "فتح المنصة {{name}}",
+      "footnote": "تُحتسب العضويات لكل منصة على حدة.",
+      "memberships": "العضويات",
+      "manage": "إدارة"
+    },
+    "attention": {
+      "title": "بحاجة إلى انتباه",
+      "adminInvitations": {
+        "title": "دعوات بانتظار القبول",
+        "description": "دعوات مسؤولي المؤسسات التي لم تُقبل بعد."
+      },
+      "empty": "لا شيء يتطلب انتباهك.",
+      "accessAssignments": {
+        "title": "تعيينات وصول للمراجعة",
+        "description": "عيّن أو عدّل وصول المشغّلين إلى المنصات."
+      },
+      "licensesExpiring": {
+        "title": "تراخيص تنتهي قريبًا",
+        "description": "جدّد خلال {{days}} يومًا لتجنّب أي انقطاع."
+      },
+      "open": "مفتوحة: {{count}}",
+      "urgent": "عاجل"
+    },
+    "growth": {
+      "title": "نمو المؤسسات",
+      "subtitle": "إجمالي المؤسسات، آخر {{days}} يومًا",
+      "caption": "إجمالي المؤسسات حسب التاريخ (سجل تجريبي)",
+      "date": "التاريخ",
+      "series": "المؤسسات",
+      "filter": "المنصة",
+      "all": "الكل",
+      "change": "{{change}} مقارنة بـ {{date}}"
+    },
+    "activity": {
+      "title": "النشاط الأخير",
+      "empty": "لا يوجد نشاط إداري حديث.",
+      "actions": {
+        "organizationCreated": "تم إنشاء مؤسسة",
+        "operatorAssigned": "تم تعيين مشغّل",
+        "invitationSent": "تم إرسال دعوة",
+        "licenseRenewed": "تم تجديد الترخيص"
+      },
+      "auditLog": "سجل التدقيق"
+    },
+    "states": {
+      "loading": "جارٍ تحميل نظرة عامة على الشركة",
+      "errorTitle": "تعذّر تحميل نظرة عامة على الشركة",
+      "errorDescription": "أعد المحاولة بعد قليل.",
+      "retry": "إعادة المحاولة",
+      "unavailableTitle": "غير متاح في هذا الإصدار",
+      "unavailableDescription": "لا يوفر أي عقد من Nawara Core هذه النظرة العامة بعد.",
+      "forbiddenTitle": "غير متاح لحسابك",
+      "forbiddenDescription": "الإدارة على مستوى الشركة مقصورة على مالك الشركة.",
+      "emptyTitle": "لا شيء لعرضه بعد",
+      "emptyDescription": "لا تملك شركتك أي منصة بعد."
+    },
+    "access": {
+      "title": "الوصول والأمان",
+      "owner": {
+        "title": "مالك الشركة",
+        "action": "أمان الحساب",
+        "scope": "على مستوى الشركة",
+        "twoFactor": "المصادقة الثنائية مفعّلة"
+      },
+      "operators": {
+        "title": "تعيينات المشغّلين",
+        "assignments": "التعيينات",
+        "uniqueOperators": "المشغّلون الفريدون",
+        "platforms": "المنصات",
+        "action": "إدارة الوصول",
+        "toReview": "بانتظار المراجعة: {{count}}"
+      }
+    },
+    "commercial": {
+      "title": "النظرة التجارية",
+      "activeLicenses": "التراخيص النشطة",
+      "expiringSoon": "تنتهي قريبًا",
+      "withinDays": "خلال {{days}} يومًا",
+      "paymentIssues": "مشكلات الدفع",
+      "followUp": "تحتاج إلى متابعة",
+      "billing": "الفوترة"
+    },
+    "health": {
+      "title": "الخدمات والحالة",
+      "subtitle": "حالات توضيحية لخدمات Nawara Core، وليست الحالة الفعلية.",
+      "viewServices": "عرض الخدمات",
+      "services": {
+        "auth": "Auth",
+        "organization": "المؤسسات",
+        "release": "الإصدارات",
+        "billing": "الفوترة",
+        "payment": "الدفع",
+        "file": "الملفات",
+        "notification": "الإشعارات",
+        "audit": "التدقيق"
+      },
+      "status": {
+        "operational": "تعمل",
+        "delayed": "متأخرة",
+        "unavailable": "غير متاحة",
+        "unknown": "غير معروفة"
+      },
+      "operationalCount": "{{count}} من {{total}} تعمل"
+    },
+    "sectionUnavailable": "غير متاح بعد: لا يوفر Nawara Core هذه المعلومات.",
+    "periodUnavailable": "الفترات الأخرى غير متاحة بعد."
+  },
+  "platformScope": {
+    "eyebrow": "نطاق المنصة",
+    "placeholderTitle": "إدارة المنصة لم تُبنَ بعد",
+    "placeholderDescription": "أنت الآن في نطاق المنصة {{name}}. تأتي صفحات إدارتها في مراحل لاحقة.",
+    "key": "معرّف المنصة:",
+    "loading": "جارٍ تحميل المنصة",
+    "notFoundTitle": "المنصة غير موجودة أو غير متاحة",
+    "notFoundDescription": "ربما لا توجد، أو أنها خارج نطاق إدارتك."
   }
 }

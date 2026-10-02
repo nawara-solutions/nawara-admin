@@ -143,5 +143,231 @@
       "formattingTag": "Formatting locale",
       "note": "Arabic uses Latin digits 0–9."
     }
+  },
+  "titles": {
+    "app": "Nawara Admin",
+    "overview": "Company overview",
+    "platform": "Platform",
+    "forbidden": "Not available",
+    "notFound": "Page not found",
+    "sessionUnavailable": "Sign-in not available",
+    "foundation": "Design foundation"
+  },
+  "shell": {
+    "skipToContent": "Skip to content",
+    "openNavigation": "Open navigation",
+    "closeNavigation": "Close navigation",
+    "mainNavigation": "Main navigation",
+    "notAvailableYet": "Not available yet",
+    "breadcrumb": {
+      "label": "Breadcrumb",
+      "home": "Company overview",
+      "company": "Company",
+      "overview": "Overview",
+      "platform": "Platform"
+    },
+    "context": {
+      "label": "Administration scope",
+      "allPlatforms": "All platforms",
+      "platforms": "Platforms",
+      "current": "current",
+      "loading": "Loading…"
+    },
+    "role": {
+      "owner": "Company owner",
+      "operator": "Platform operator"
+    },
+    "demo": {
+      "badge": "Demo data",
+      "explanation": "Demo data: fictional figures and a demo owner session. Nothing on this screen comes from Nawara Core.",
+      "about": "About the demo data"
+    },
+    "nav": {
+      "groups": {
+        "platform": "Platform",
+        "commercial": "Commercial",
+        "operations": "Operations"
+      },
+      "overview": "Overview",
+      "organizations": "Organizations",
+      "users": "Users & identity",
+      "operators": "Operators & access",
+      "licenses": "Licenses & entitlements",
+      "billing": "Billing & payments",
+      "audit": "Audit log",
+      "files": "Files",
+      "notifications": "Notifications",
+      "services": "Services & health",
+      "monitoring": "Monitoring",
+      "settings": "Settings",
+      "releases": "Releases"
+    },
+    "pages": {
+      "backToOverview": "Back to Company overview",
+      "sessionUnavailable": {
+        "title": "Sign-in is not available yet",
+        "description": "This build has no sign-in: Nawara Core authentication arrives in a later stage. Demo data exists only in development builds."
+      },
+      "forbidden": {
+        "title": "Not available for your account",
+        "description": "Company-wide administration is reserved for the Company owner. Nawara Core decides what each account may do."
+      },
+      "notFound": {
+        "title": "Page not found",
+        "description": "This address does not match any page."
+      }
+    },
+    "sidebarLabel": "Sidebar",
+    "search": {
+      "label": "Search",
+      "placeholder": "Search organizations, users…"
+    },
+    "notifications": {
+      "unread": "Unread notifications: {{count}}"
+    }
+  },
+  "companyOverview": {
+    "title": "Company overview",
+    "subtitle": "Your platforms, organizations and access — in one place.",
+    "period": "Last {{days}} days",
+    "create": "Create platform",
+    "createUnavailable": "Platform creation is not available in this demo.",
+    "unavailable": "Not available",
+    "summary": {
+      "label": "Company figures",
+      "platforms": "Platforms",
+      "organizations": "Organizations",
+      "pendingInvitations": "Pending invitations",
+      "awaitingAcceptance": "Awaiting acceptance",
+      "uniqueIdentities": "Unique identities",
+      "distinctAccounts": "Distinct accounts",
+      "acrossPlatforms": "Across all platforms",
+      "thisPeriod": "{{change}} this period"
+    },
+    "platforms": {
+      "title": "Your platforms",
+      "product": {
+        "school": "Education platform",
+        "drive": "Driving school platform",
+        "unknown": "Platform"
+      },
+      "organizations": "Organizations",
+      "operators": "Operators",
+      "open": "Open platform",
+      "openLabel": "Open platform {{name}}",
+      "footnote": "Memberships are counted per platform.",
+      "memberships": "Memberships",
+      "manage": "Manage"
+    },
+    "attention": {
+      "title": "Needs attention",
+      "adminInvitations": {
+        "title": "Invitations awaiting acceptance",
+        "description": "Organization-admin invitations not yet accepted."
+      },
+      "empty": "Nothing needs your attention.",
+      "accessAssignments": {
+        "title": "Access assignments to review",
+        "description": "Assign or adjust platform operator access."
+      },
+      "licensesExpiring": {
+        "title": "Licenses expiring soon",
+        "description": "Renew within {{days}} days to avoid disruption."
+      },
+      "open": "{{count}} open",
+      "urgent": "Urgent"
+    },
+    "growth": {
+      "title": "Organization growth",
+      "subtitle": "Total organizations, last {{days}} days",
+      "caption": "Total organizations by date (sample history)",
+      "date": "Date",
+      "series": "Organizations",
+      "filter": "Platform",
+      "all": "All",
+      "change": "{{change}} vs. {{date}}"
+    },
+    "activity": {
+      "title": "Recent activity",
+      "empty": "No recent administrative activity.",
+      "actions": {
+        "organizationCreated": "Organization created",
+        "operatorAssigned": "Operator assigned",
+        "invitationSent": "Invitation sent",
+        "licenseRenewed": "License renewed"
+      },
+      "auditLog": "Audit log"
+    },
+    "states": {
+      "loading": "Loading the company overview",
+      "errorTitle": "The company overview could not be loaded",
+      "errorDescription": "Try again in a moment.",
+      "retry": "Try again",
+      "unavailableTitle": "Not available in this build",
+      "unavailableDescription": "No Nawara Core contract provides this overview yet.",
+      "forbiddenTitle": "Not available for your account",
+      "forbiddenDescription": "Company-wide administration is reserved for the Company owner.",
+      "emptyTitle": "Nothing to show yet",
+      "emptyDescription": "Your Company has no platforms yet."
+    },
+    "access": {
+      "title": "Access & security",
+      "owner": {
+        "title": "Company owner",
+        "action": "Account security",
+        "scope": "Company-wide",
+        "twoFactor": "2FA enabled"
+      },
+      "operators": {
+        "title": "Operator assignments",
+        "assignments": "Assignments",
+        "uniqueOperators": "Unique operators",
+        "platforms": "Platforms",
+        "action": "Manage access",
+        "toReview": "Pending review: {{count}}"
+      }
+    },
+    "commercial": {
+      "title": "Commercial overview",
+      "activeLicenses": "Active licenses",
+      "expiringSoon": "Expiring soon",
+      "withinDays": "Within {{days}} days",
+      "paymentIssues": "Payment issues",
+      "followUp": "Needs follow-up",
+      "billing": "Billing"
+    },
+    "health": {
+      "title": "Services & health",
+      "subtitle": "Illustrative statuses of Nawara Core services, not live health.",
+      "viewServices": "View services",
+      "services": {
+        "auth": "Auth",
+        "organization": "Organization",
+        "release": "Release",
+        "billing": "Billing",
+        "payment": "Payment",
+        "file": "Files",
+        "notification": "Notification",
+        "audit": "Audit"
+      },
+      "status": {
+        "operational": "Operational",
+        "delayed": "Delayed",
+        "unavailable": "Unavailable",
+        "unknown": "Unknown"
+      },
+      "operationalCount": "{{count}} of {{total}} operational"
+    },
+    "sectionUnavailable": "Not available yet: Nawara Core does not provide this information.",
+    "periodUnavailable": "Other periods are not available yet."
+  },
+  "platformScope": {
+    "eyebrow": "Platform scope",
+    "placeholderTitle": "Platform administration is not built yet",
+    "placeholderDescription": "You are now in the {{name}} platform scope. Its administration pages arrive in later stages.",
+    "key": "Platform identifier:",
+    "loading": "Loading the platform",
+    "notFoundTitle": "Platform not found or not accessible",
+    "notFoundDescription": "It may not exist, or it is outside your administration scope."
   }
 }

@@ -1,0 +1,75 @@
+// Layout of the owner design, driven by the page's own width (container queries, docs/ARCHITECTURE.md §15):
+// header card · 4 figures · platforms + attention · growth + activity · access + commercial · services.
+// Each row holds two cards of at least 27.5rem, so they stack on narrower pages.
+:host {
+  display: grid;
+  gap: 0.875rem;
+  container-type: inline-size;
+}
+
+.company-overview__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 3px 0.5625rem;
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-surface-brand-subtle);
+  color: var(--nw-text-brand);
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-bold);
+  white-space: nowrap;
+
+  &--warning {
+    background-color: var(--nw-status-warning-bg);
+    color: var(--nw-status-warning-fg);
+  }
+
+  &--success {
+    background-color: var(--nw-status-success-bg);
+    color: var(--nw-status-success-fg);
+  }
+}
+
+.company-overview__pill-dot {
+  inline-size: 0.375rem;
+  block-size: 0.375rem;
+  border-radius: var(--nw-radius-pill);
+  background-color: currentcolor;
+}
+
+.company-overview__summary {
+  display: grid;
+  // Two by two, then one row of four: never three and an orphan.
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+
+.company-overview__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 27.5rem), 1fr));
+  gap: var(--nw-space-4);
+}
+
+.company-overview__unavailable {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+@container (min-width: 37.5rem) {
+  :host {
+    gap: var(--nw-space-5);
+  }
+
+  .company-overview__summary {
+    gap: var(--nw-space-4);
+  }
+}
+
+@container (min-width: 50rem) {
+  .company-overview__summary {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

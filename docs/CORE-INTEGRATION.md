@@ -2,8 +2,12 @@
 
 - **Status:** A0 discovery record. Re-verify before each Admin stage that integrates a contract: Core is the authority, this file is a
   map.
-- **Evidence baseline:** `../nawara-core`, read-only, 2026-10-01. Core `origin/main` = `8628616`. The Core roadmap
-  (`docs/CORE-ROADMAP.md`) is on branch `docs/core-v1-v2-admin-context` (`925e830`, pushed, **not yet merged to `main`**).
+- **Evidence baseline:** `../nawara-core`, read-only. A0: 2026-10-01, Core `origin/main` = `8628616`. **Refreshed 2026-10-02**
+  (Company Overview slice): Core `origin/main` = `03e10a0`, re-checked at `0954566` (only a two-line release-service type
+  cleanup since; no contract change). Between the two, `apps/auth-service/src`,
+  `apps/organization-service/src` and `apps/audit-service/src` are **unchanged** (`git diff --stat` empty), so every contract
+  below still holds. The Core roadmap (`docs/CORE-ROADMAP.md`) is now **merged to `main`** (CF-10 resolved); localization
+  R6 (all services) and R7 are closed, R8 is next.
 - **Precedence:** a service's OpenAPI (`GET /<service>/docs`) and Core ADRs win over this document. Report differences to Core.
 
 ---
@@ -29,10 +33,9 @@ Two accepted Core decisions govern Admin directly:
 **Core V1 is current and real.** Its capability set is closed (ADR-0052). The localization refactor (ADR-0054) is active:
 
 ```text
-R0–R5            ✅ CLOSED
-R6  Remaining    🔵 ACTIVE   R6.1 Audit ✅ · R6.2 Organization ✅ · R6.3 Release ✅ (+ Audit timing stabilization ✅)
-                             R6.4 File ⏳ NEXT · R6.5 Payment ⏳ · R6.6 Billing ⏳ · R6.7 Notification ⏳
-R7–R11           ⏳
+R0–R7            ✅ CLOSED   (as of 2026-10-02: R6 all services, R7 shared cleanup)
+R8  Legacy/type cleanup  ⏳ NEXT
+R9–R11           ⏳
 Final Core Validation (Stage 22)  🔒 ABSOLUTE LAST
 ```
 
@@ -102,6 +105,17 @@ Admin strategy and the decision required before A4.
 - **No human route lists Companies, Platforms or Organizations.** All list/read routes of organization-service are service-token
   only. Admin cannot build an organization directory on V1 contracts (CF-02).
 - Organization lifecycle (suspend/archive/delete) is undecided (BD-5). No `status` exists.
+
+- **Create platform, verified 2026-10-02** (`apps/organization-service/src/admin/admin.controller.ts` `createPlatform`):
+  body `{ companyId, name }` (name 1–200); `HumanAuthGuard` (the owner's own bearer, grants from Auth); authority
+  `canCreatePlatform`: **owner of that Company only** (operators never); header **`x-step-up-token`** for purpose
+  **`platform.create`** (accepted factors TOTP, WebAuthn, secret key: `auth-service/src/owner/step-up.service.ts`), verified
+  through `POST /auth/step-up/verify`; **`Idempotency-Key` required** (replay → `200` + `Idempotent-Replayed: true`, first
+  success `201`); `404 company_not_found` before authority; `403 admin_forbidden` / `step_up_required`. **Audit:** the
+  success is written in the same transaction (`platform.created` hierarchy audit + actor record); every refusal writes
+  `hierarchy.admin_operation_denied`. **Cutover:** the repository calls `OwnershipService.assertWritable`, so until the
+  ownership phase is `ACTIVE` every create answers **`409 not_authoritative`**. Admin must reuse this contract and must not
+  build a second creation flow.
 
 ### Memberships, users and access (Auth)
 
@@ -219,6 +233,26 @@ Admin strategy and the decision required before A4.
 | Service health | per service | 🔴 | `/health`, `/ready` probes only | Placeholder; **CF-06** (V2 A12) |
 | Monitoring / metrics | Observability | 🟡 | V2 A12 | Mock (A13) |
 | Error contract | all | 🟢 | ADR-0054; kit filter | Shared `CoreError` mapping (A3) |
+| **Company Overview (2026-10-02 slice)** | | | | |
+| Actor's Company id (owner) / assignments (operator) | Auth | 🟢 Prod | `GET /auth/grants` (`grants.service.ts` `forUser`) | `Actor` model mirrors it; demo session until A4 |
+| Owner identity for the profile | Auth | 🟢 Prod (email, phone only) | `GET /auth/me` (`auth.service.ts` `me`) | Display name 🔴: none in Core; UI falls back to the email |
+| Company name; list of the Company's Platforms with names | Organization / Auth | 🔴 | no human route (CF-02) | `ScopeDirectoryGateway`, mock in demo builds |
+| Platform access check | Auth | 🟢 Prod | `GET /auth/platform-access/:platformId` (200 / collapsed 404) | Mirrored by `canEnterPlatform` (UX); not yet called |
+| Counts: platforms, organizations, per-platform memberships, per-platform operators | Organization / Auth | 🔴 | no aggregate or list route (CF-02, CF-03, CF-11) | `CompanyOverviewGateway`, mock in demo builds |
+| Unique identities (distinct accounts) across the Company | Auth | 🔴 | none; must never be a sum of memberships (CF-03, CF-11) | Mock |
+| Pending invitations, company-wide | Auth | 🔴 aggregate (🟢 per organization) | `GET /auth/organizations/:id/admin-invitations` lists one organization, derived `active` status | **Provisional demo definition:** organization-admin invitations with status `active` across the Company's organizations (CF-11) |
+| Organization growth history | Organization | 🔴 | no history or time-series route (CF-12) | Mock, fictional history |
+| "Needs attention" signals | Auth / Organization | 🔴 | none (CF-13) | Mock, fictional items |
+| Recent administrative activity, company-wide | Audit | 🔴 | owner reads one organization per request, ≤ 31 days; platform-level records service-only (CF-04) | Mock, fictional entries |
+| Create platform | Organization | 🟢 contract · ⚠ not authoritative | `POST /organization/admin/platforms` (see §5) | Shown to the owner, disabled with an explanation; real flow later (A4 step-up + cutover) |
+| Access & security: owner account security | Auth | 🟢 Prod (page not built) | `GET /auth/admin/factors`, factor add/remove, `secret-key/rotate`, `password/change` (owner only) | Overview row only, action disabled; no score or rating is computed |
+| Access & security: operator assignments vs unique operators | Auth | 🔴 | assignments readable only per operator (`GET /auth/admin/operators/:id/platform-assignments`); no operator directory (CF-03) | Mock; assignments and unique operators kept as separate figures |
+| Attention: access assignments to review | Auth | 🔴 | none (CF-13) | Mock |
+| Commercial: active licenses, expiring soon (+ attention item) | Billing | 🟡 | no `License` entity; entitlement read is service-token only, per organization, `{ valid, expiresAt }`; no staff API; not in production | Separate `CommercialSummaryGateway`, mock in demo builds; "license" is a view-model term (§6) |
+| Commercial: payment issues | Payment / Billing | 🟡 | payer-only human routes; no staff API; not in production | Same gateway, mock |
+| Services & health (Auth, Organization, Release, Billing, Payment, File, Notification, Audit) | all / observability | 🟡 (CF-06, V2 A12) | each service: unauthenticated `/health` → `{status:'ok'}`, `/ready` → `ready \| unavailable` (service kit); no aggregation, no "delayed" state, not an operator API; billing, payment, file, notification, release not in production | Separate `ServiceHealthGateway`, mock in demo builds; the card says "Illustrative statuses of Nawara Core services, not live health" beside the "n of 8 operational" count; never presented as live health, readiness or deployment |
+| Unread notification count (sidebar badge, top-bar bell) | Notification | 🟡 | delivery only; no human inbox or unread-count route (CF-14) | `NotificationSummaryGateway`, mock in demo builds; no badge or bell when unavailable |
+| Releases (navigation) | Release | 🟢 actions (not prod) · 🔴 catalog (CF-05) | `release/admin/...` withdraw / compatibility policy (`OwnerGuard`) | Sidebar entry only, not a link |
 
 ## 8. Transport rules Admin must follow
 
@@ -314,12 +348,50 @@ Classification:   🔴
 V1 or V2:         V2 A5.
 Recommended checkpoint: Core V2 A5.
 
-CF-10  Merge the Core roadmap
+CF-10  Merge the Core roadmap                                         RESOLVED 2026-10-02
 Service:          documentation
-Current behavior: docs/CORE-ROADMAP.md exists only on docs/core-v1-v2-admin-context (925e830).
+Current behavior: docs/CORE-ROADMAP.md is on Core main (verified at 03e10a0).
 Admin requirement: a stable, merged reference.
 Classification:   n/a
-Recommended checkpoint: next Core documentation merge (owner).
+Recommended checkpoint: none (done).
+
+CF-11  Owner-scoped Company summary aggregates
+Service:          organization-service (hierarchy counts) and auth-service (identities, memberships, operators, invitations)
+Current behavior: no aggregate exists. Lists are per organization (memberships, admin invitations) or service-token only
+                  (Platforms, Organizations); there is no count of operators, and no identity directory (CF-03).
+Admin requirement: for the owner's Company: number of Platforms and Organizations; DISTINCT user identities (one person with
+                  memberships in several Platforms counts once, never a sum of memberships); per-Platform membership and
+                  active-operator counts; organization-admin invitations awaiting acceptance across the Company's
+                  organizations (the Admin demo's provisional definition; Core decides the real one).
+Classification:   🔴 (needs a domain decision on what "user identity" and "pending invitation" mean at Company scope).
+V1 or V2:         V2 A5/A6.
+Recommended checkpoint: Core V2 A5, together with CF-02/CF-03.
+
+CF-12  Organization growth history
+Service:          organization-service (after cutover)
+Current behavior: Organizations have createdAt; no history, time series or per-period count is exposed to humans.
+Admin requirement: total organizations of the Company per day/week over a bounded period (e.g. 30/90 days), for a chart.
+Classification:   🔴 (could also be derived from an owner-readable organization list with createdAt, CF-02, if lifecycle
+                  CF-09 never removes organizations; otherwise a history is needed).
+V1 or V2:         V2 A5.
+Recommended checkpoint: Core V2 A5.
+
+CF-13  Administrative attention signals
+Service:          auth-service (invitations, memberships, assignments) / organization-service
+Current behavior: none. Pending memberships and admin invitations can only be listed per organization.
+Admin requirement: a small owner-scoped summary of items needing review (invitations awaiting acceptance, pending membership
+                  requests, operator assignments to review), each with a count and a link target.
+Classification:   🔴 (what counts as "needs attention" is a product/domain decision).
+V1 or V2:         V2 (A5/A6/A7).
+Recommended checkpoint: owner decision; default V2.
+
+CF-14  Signed-in person's notification summary
+Service:          notification-service
+Current behavior: delivers notifications; no human route reads a person's inbox or an unread count.
+Admin requirement: an unread count for the signed-in owner/operator (shell badge and bell), later the inbox itself.
+Classification:   🟡 (the service exists; the human read model does not).
+V1 or V2:         V2.
+Recommended checkpoint: with the Notifications page (Admin stage to be planned).
 ```
 
 ## 10. Undefined architectural decisions (Core side)

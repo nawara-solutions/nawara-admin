@@ -1,0 +1,156 @@
+// Platform tiles wrap to the card's width (owner design: at least about 300 px each).
+:host {
+  display: grid;
+  gap: var(--nw-space-4);
+  container-type: inline-size;
+}
+
+.platform-list__items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18.75rem), 1fr));
+  gap: 0.875rem;
+}
+
+.platform-list__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: var(--nw-space-4);
+  border: 1px solid var(--nw-border-hairline);
+  border-radius: 0.875rem;
+  background: linear-gradient(
+    180deg,
+    var(--nw-surface-brand-subtle) 0%,
+    var(--nw-surface-raised) 60%
+  );
+
+  &--drive {
+    background: linear-gradient(
+      180deg,
+      var(--nw-accent-orange-bg) 0%,
+      var(--nw-surface-raised) 60%
+    );
+  }
+}
+
+.platform-list__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-3);
+}
+
+.platform-list__tile {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  overflow: hidden;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-raised);
+
+  &--drive {
+    border-color: transparent;
+    background-color: var(--nw-accent-orange-bg);
+    color: var(--nw-accent-orange-fg);
+  }
+}
+
+.platform-list__symbol {
+  inline-size: 1.875rem;
+  block-size: 1.875rem;
+}
+
+.platform-list__names {
+  display: grid;
+  gap: 2px;
+  min-inline-size: 0;
+  line-height: var(--nw-line-height-snug);
+}
+
+.platform-list__name {
+  font-size: 0.90625rem;
+  font-weight: var(--nw-font-weight-bold);
+}
+
+.platform-list__product {
+  color: var(--nw-text-secondary);
+  font-size: 0.78125rem;
+}
+
+.platform-list__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--nw-space-2);
+}
+
+.platform-list__stat {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: space-between;
+  gap: 2px;
+  min-inline-size: 0;
+  padding: 0.625rem;
+  border: 1px solid var(--nw-border-hairline);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-raised);
+}
+
+.platform-list__stat-label {
+  color: var(--nw-text-secondary);
+  font-size: 0.71875rem;
+  line-height: 1.25;
+}
+
+.platform-list__stat-value {
+  font-size: var(--nw-text-size-lg);
+  font-weight: var(--nw-font-weight-bold);
+}
+
+.platform-list__open {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  block-size: 2.25rem;
+  border: 1px solid var(--nw-border-brand);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-raised);
+  color: var(--nw-text-brand);
+  font-size: 0.8125rem;
+  font-weight: var(--nw-font-weight-bold);
+  text-decoration: none;
+
+  &:hover {
+    background-color: var(--nw-surface-brand-subtle);
+  }
+}
+
+.platform-list__footnote {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+}
+
+// Phone-width tiles: each figure on its own row, value at the end (owner design).
+@container (max-width: 22rem) {
+  .platform-list__stats {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.375rem;
+  }
+
+  .platform-list__stat {
+    flex-direction: row;
+    align-items: center;
+    padding: var(--nw-space-2) var(--nw-space-3);
+  }
+}
+
+@media (forced-colors: active) {
+  .platform-list__open {
+    border-color: LinkText;
+  }
+}

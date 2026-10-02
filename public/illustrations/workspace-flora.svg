@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" fill="none">
+  <!--
+    Decorative workspace illustration (docs/BRAND.md): a restrained fan of translucent petals in pink, lilac and peach
+    near the upper inline-end of the workspace heading, with a few delicate gold curves and beads. Drawn by Admin in the
+    approved reference's direction; it is NOT brand artwork and never a logo. Rendered on an aria-hidden layer behind the
+    content; the fade toward the heading and the cards is part of the drawing.
+  -->
+  <defs>
+    <linearGradient id="pink" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="-300">
+      <stop offset="0" stop-color="#F5B6D2" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#F5B6D2" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#F08DB8" stop-opacity="0.55"/>
+    </linearGradient>
+    <linearGradient id="lilac" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="-300">
+      <stop offset="0" stop-color="#E6D5F7" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#DCC3F4" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#C49BEA" stop-opacity="0.5"/>
+    </linearGradient>
+    <linearGradient id="peach" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="-300">
+      <stop offset="0" stop-color="#FFE1CB" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#FFCFAE" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#FFB27E" stop-opacity="0.5"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FFC857" stop-opacity="0.1"/>
+      <stop offset="0.45" stop-color="#F5A94B"/>
+      <stop offset="1" stop-color="#FF8A3D" stop-opacity="0.35"/>
+    </linearGradient>
+    <radialGradient id="bead" cx="0.35" cy="0.35" r="0.75">
+      <stop offset="0" stop-color="#FFE3A6"/>
+      <stop offset="0.55" stop-color="#FDB24F"/>
+      <stop offset="1" stop-color="#FF8A3D"/>
+    </radialGradient>
+    <radialGradient id="reach" gradientUnits="userSpaceOnUse" cx="500" cy="10" r="420" gradientTransform="translate(500 10) scale(1 0.7) translate(-500 -10)">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="0.5" stop-color="#fff"/>
+      <stop offset="1" stop-color="#000"/>
+    </radialGradient>
+    <mask id="fade" maskUnits="userSpaceOnUse" x="0" y="0" width="760" height="340">
+      <rect width="760" height="340" fill="url(#reach)"/>
+    </mask>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.1"/>
+    </filter>
+    <path id="petal" d="M0 0 C -74 -78 -72 -222 20 -300 C 54 -198 40 -82 0 0 Z"/>
+    <path id="vein" d="M0 0 Q -16 -150 20 -300"/>
+  </defs>
+
+  <g mask="url(#fade)">
+    <g filter="url(#soft)">
+      <!-- An open, uneven fan rising from below the heading line and leaning toward the inline-end. -->
+      <g transform="translate(384 232) rotate(-74) scale(0.6)">
+        <use href="#petal" fill="url(#lilac)"/>
+      </g>
+      <g transform="translate(392 234) rotate(-47) scale(0.86)">
+        <use href="#petal" fill="url(#pink)"/>
+        <use href="#vein" stroke="#fff" stroke-opacity="0.55" stroke-width="1"/>
+      </g>
+      <g transform="translate(402 236) rotate(-20) scale(1.08)">
+        <use href="#petal" fill="url(#peach)"/>
+      </g>
+      <g transform="translate(414 236) rotate(9) scale(-1.2 1.2)">
+        <use href="#petal" fill="url(#pink)"/>
+        <use href="#vein" stroke="#fff" stroke-opacity="0.55" stroke-width="0.9"/>
+      </g>
+      <g transform="translate(426 234) rotate(35) scale(-1.02 1.02)">
+        <use href="#petal" fill="url(#lilac)"/>
+        <use href="#vein" stroke="#fff" stroke-opacity="0.45" stroke-width="1"/>
+      </g>
+      <g transform="translate(436 230) rotate(61) scale(-1.18 1.18)">
+        <use href="#petal" fill="url(#peach)"/>
+      </g>
+    </g>
+
+    <!-- Gold curves with beads. -->
+    <path d="M168 26 C 250 40 336 100 404 224" stroke="url(#gold)" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M250 -6 C 330 70 470 96 640 18" stroke="url(#gold)" stroke-width="0.9" stroke-linecap="round" opacity="0.85"/>
+    <path d="M420 226 C 486 160 580 126 730 140" stroke="url(#gold)" stroke-width="0.9" stroke-linecap="round" opacity="0.7"/>
+    <circle cx="186" cy="30" r="5.5" fill="url(#bead)"/>
+    <circle cx="276" cy="70" r="4.5" fill="url(#bead)"/>
+    <circle cx="560" cy="48" r="4" fill="url(#bead)"/>
+  </g>
+</svg>

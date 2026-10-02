@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slice implemented (A3-S1 Company Overview), rest ⏳ ┘
     ── Frontend-kit review FK-1 ──
 A4  Authentication & session                 🟢       ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -153,6 +153,55 @@ The nine below were built beyond that list. They are kept, unchanged in API, pen
 styles. If dialog and menu are deferred, CDK's only remaining use is `Directionality`, which could also be deferred with them.
 Angular Material is not installed.
 
+## A3-S1: bounded A3 shell + Company Overview slice (owner-authorized 2026-10-02)
+
+**Scope (authorized):** only the infrastructure the approved Company Overview needs, with explicit mock adapters and a mock owner
+session, on branch `feat/admin-a3-company-overview` (local; not committed). A2's open decisions (D-A2-6 logo vectors, D-A2-7
+primitive scope, D-A2-8) **stay open**: PR #1 merged the A2 checkpoint, which does not close A2.
+
+**Delivered (implemented and verified, owner review pending):**
+
+- Shell (`layout/`): illustrated ivory sidebar with the board-pixel lockup and "ADMIN", navigation (only Overview is a page;
+  the other approved destinations are shown as "not available yet", not links), owner profile, top bar with breadcrumbs,
+  Company/Platform scope switcher, language and theme menus, skip link, responsive drawer below `laptop`, localized titles.
+- Company/platform scope model and routes (ARCHITECTURE §6, §7 amendment): `/overview` (owner only), `/platforms/:platformId`
+  (labelled placeholder), `/forbidden`, not-found, `/session-unavailable`; the A2 gallery moved to `/foundation`.
+- `AppError`, `ViewState`, `CapabilityPolicy` + guards (UX only), `AuthSession` boundary with a demo owner (development
+  builds only), build-time environments with a production barrier (ARCHITECTURE §24 interim, `npm run check:production`).
+- Company Overview feature: model (metrics that can be unavailable, distinct identities separate from memberships,
+  provisional invitation definition), gateway, mock adapter + fictional fixtures, facade, page and components (summary cards,
+  platforms, needs attention, accessible SVG growth chart, activity), "Demo data" labelling, Create platform shown to the owner
+  and disabled with an explanation.
+- `nwNumber` / `nwDate` formatting pipes; `nw-brand-mark` `lockup` option; shell and chart tokens.
+
+**Not delivered (deferred, still A3 or later):** Core HTTP infrastructure (interceptors, runtime config), `nw-data-table`,
+Playwright/axe as project tooling (D-A2-5, D-A3-2), collapsible rail at `laptop`, notifications bell and account menu, every
+other page, the real platform-creation flow (A4 step-up + organization-service cutover), operator scope overview.
+
+**Refinement (owner-authorized 2026-10-02, latest reference):** layout matched in light mode at 1536 × 1024, then the dark
+variant; workspace fills the available width; five-row grid (summary · platforms + attention · access & security + activity ·
+growth + commercial · full-width services & health); KPI sparklines and trends removed; "Unique identities / Distinct accounts";
+"memberships" throughout; Releases first under Operations (not a link); one "Demo data" disclosure; "Sample history" on the
+chart and "Demo status" on health; softer curved sidebar petals with a theme mask, measured text contrast passing. New
+demo-only summaries sit behind separate gateways: `CommercialSummaryGateway` (🟡 Billing/Payment) and `ServiceHealthGateway`
+(🟡 CF-06), each with `unavailable` adapters outside demo builds. Operator assignments and unique operators are separate
+figures; Auth is included in the health strip; no security score.
+
+**Owner design (2026-10-02):** the shell and the page were rebuilt to the owner's claude.ai design ("Nawara Owner
+Dashboard", responsive showcase at 820 / 390 px). Owner decisions for it: keep IBM Plex (add weight 700), keep Lucide, use the
+design's lockup artwork, and show controls without a backend **disabled and saying so** (search, period selector, Create
+platform, card links, account card); filters work on loaded demo data only (growth: All / per platform). Changes: blush
+sidebar with the design lockup (no "ADMIN"), unread badge and bell from a new `NotificationSummaryGateway` (🟡 CF-14, mock in
+demo builds), 64 px sticky top bar with search, two-letter language code and a light / system / dark segmented control;
+header card with illustration; KPI cards with the organizations trend derived from the growth history; platform tiles;
+growth panel with platform filter and change since the first day; activity with relative times and a "License renewed"
+entry; access and commercial tiles; services as status cards with an "n of 8 operational" count. Lilac / night neutrals
+sampled from the design ([`BRAND.md`](BRAND.md)). Left out on purpose: the design's "Live" platform status (no such Core
+field), the active-licenses usage bar (no total), ⌘K hint (no shortcut), attention-row chevrons (no destination); the
+plural sentence form "7 invitations awaiting acceptance" stays "7 · Invitations awaiting acceptance" (no plural support).
+
+Evidence: [`review/a3-company-overview/`](review/a3-company-overview/README.md).
+
 ## Decisions required later (before the named stage)
 
 | Id | Before | Decision |
@@ -164,6 +213,8 @@ Angular Material is not installed.
 | D-A3-2 | A3 | CI pipeline (GitHub Actions running `npm run validate`), Playwright, Testing Library |
 | D-A4 | A4 (dev) / A14 (prod) | Refresh-token strategy: memory (dev) → token-handler BFF **or** Core V2 cookie mode (CF-01) |
 | D-A3-1 | A3 | Response validation: hand-written decoders vs a schema library (Valibot/Zod) |
+| D-A3-3 | A3-S1 review | Company Overview in production: today a production build has no session, so it shows "sign-in not available" and never demo data. Confirm, or define what an owner sees before Core aggregates exist (CF-11 to CF-13) |
+| D-A3-4 | A3-S1 review | Provisional "pending invitations" definition (organization-admin invitations awaiting acceptance across the Company); Core decides the real one (CF-11) |
 | D-A8 | A8 | Whether organization-admin members are ever Admin users (default: no) |
 | D-A14 | A14 | Hosting (static host + headers), staging origins, Tauri packaging (not planned) |
 

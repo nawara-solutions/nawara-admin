@@ -1,0 +1,62 @@
+<ul class="access-summary__items" role="list">
+  <li class="access-summary__item">
+    <div class="access-summary__head">
+      <span class="access-summary__tile access-summary__tile--owner"><nw-icon name="award" /></span>
+      <span class="access-summary__text">
+        <span class="access-summary__title">{{
+          'companyOverview.access.owner.title' | transloco
+        }}</span>
+        <span class="access-summary__description">
+          @if (ownerName(); as name) {
+            <bdi>{{ name }}</bdi> ·
+          }
+          {{ 'companyOverview.access.owner.scope' | transloco }}
+        </span>
+      </span>
+    </div>
+    <p class="access-summary__status access-summary__status--ok">
+      <nw-icon name="circle-check" size="sm" />
+      {{ 'companyOverview.access.owner.twoFactor' | transloco }}
+    </p>
+    <adm-card-link chevron [label]="'companyOverview.access.owner.action' | transloco" />
+  </li>
+  <li class="access-summary__item">
+    <div class="access-summary__head">
+      <span class="access-summary__tile access-summary__tile--operators"
+        ><nw-icon name="id-card"
+      /></span>
+      <span class="access-summary__text">
+        <span class="access-summary__title">{{
+          'companyOverview.access.operators.title' | transloco
+        }}</span>
+        @if (access(); as figures) {
+          <span class="access-summary__figures">
+            <span>
+              {{ 'companyOverview.access.operators.assignments' | transloco }}
+              <strong><adm-metric-value [metric]="figures.operatorAssignments" /></strong>
+            </span>
+            <span>
+              {{ 'companyOverview.access.operators.uniqueOperators' | transloco }}
+              <strong><adm-metric-value [metric]="figures.uniqueOperators" /></strong>
+            </span>
+            <span>
+              {{ 'companyOverview.access.operators.platforms' | transloco }}
+              <strong><adm-metric-value [metric]="figures.platformsWithOperators" /></strong>
+            </span>
+          </span>
+        } @else {
+          <span class="access-summary__description">{{
+            'companyOverview.unavailable' | transloco
+          }}</span>
+        }
+      </span>
+    </div>
+    @if (toReview(); as count) {
+      <p class="access-summary__status access-summary__status--pending">
+        <nw-icon name="clock" size="sm" />
+        {{ 'companyOverview.access.operators.toReview' | transloco: { count: count } }}
+      </p>
+    }
+    <adm-card-link chevron [label]="'companyOverview.access.operators.action' | transloco" />
+  </li>
+</ul>

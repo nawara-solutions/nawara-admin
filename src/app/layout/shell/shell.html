@@ -1,0 +1,32 @@
+<a class="shell__skip" href="#main">{{ 'shell.skipToContent' | transloco }}</a>
+
+<adm-sidebar
+  id="shell-navigation"
+  class="shell__sidebar"
+  [drawer]="drawerMode()"
+  [attr.aria-hidden]="drawerMode() && !drawerOpen() ? 'true' : null"
+  [attr.inert]="drawerMode() && !drawerOpen() ? '' : null"
+  (closeRequested)="closeDrawer()"
+/>
+
+@if (drawerMode() && drawerOpen()) {
+  <button
+    class="shell__scrim"
+    type="button"
+    tabindex="-1"
+    [attr.aria-label]="'shell.closeNavigation' | transloco"
+    (click)="closeDrawer()"
+  ></button>
+}
+
+<div class="shell__column" [attr.inert]="drawerMode() && drawerOpen() ? '' : null">
+  <adm-top-bar
+    class="shell__top-bar"
+    [showMenuButton]="drawerMode()"
+    [menuExpanded]="drawerOpen()"
+    (menuRequested)="openDrawer()"
+  />
+  <main #main id="main" class="shell__main" tabindex="-1">
+    <router-outlet />
+  </main>
+</div>

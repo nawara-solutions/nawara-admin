@@ -1,0 +1,47 @@
+@if (showMenuButton()) {
+  <button
+    #menuButton
+    nw-icon-button
+    type="button"
+    icon="menu"
+    class="top-bar__menu"
+    aria-controls="shell-navigation"
+    [attr.aria-expanded]="menuExpanded()"
+    [label]="'shell.openNavigation' | transloco"
+    (click)="menuRequested.emit()"
+  ></button>
+}
+<adm-breadcrumbs class="top-bar__breadcrumbs" />
+
+<!-- Search is not built yet: the field is shown, disabled, and says so. -->
+<label class="top-bar__search" [title]="'shell.notAvailableYet' | transloco">
+  <nw-icon name="search" size="sm" />
+  <span class="nw-visually-hidden">{{ 'shell.search.label' | transloco }}</span>
+  <input
+    class="top-bar__search-input"
+    type="search"
+    disabled
+    aria-describedby="top-bar-search-note"
+    [placeholder]="'shell.search.placeholder' | transloco"
+  />
+  <span id="top-bar-search-note" class="nw-visually-hidden">{{
+    'shell.notAvailableYet' | transloco
+  }}</span>
+</label>
+
+<adm-context-switcher class="top-bar__context" />
+<adm-preference-menus />
+
+@if (unread(); as count) {
+  <span
+    class="top-bar__bell"
+    role="img"
+    [attr.aria-label]="'shell.notifications.unread' | transloco: { count: count }"
+  >
+    <nw-icon name="bell" />
+    <span class="top-bar__dot"></span>
+  </span>
+}
+@if (profile(); as person) {
+  <span class="top-bar__avatar" aria-hidden="true">{{ person.initials }}</span>
+}

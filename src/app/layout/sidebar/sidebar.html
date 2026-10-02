@@ -1,0 +1,86 @@
+<div class="sidebar__brand">
+  <nw-brand-mark class="sidebar__logo" [label]="'brand.logoLabel' | transloco" lockup />
+  @if (drawer()) {
+    <button
+      nw-icon-button
+      type="button"
+      icon="x"
+      class="sidebar__close"
+      [label]="'shell.closeNavigation' | transloco"
+      (click)="closeRequested.emit()"
+    ></button>
+  }
+</div>
+
+<nav class="sidebar__nav" [attr.aria-label]="'shell.mainNavigation' | transloco">
+  @for (group of groups(); track group.labelKey; let g = $index) {
+    <p class="sidebar__group-label" [id]="'sidebar-group-' + g">{{ group.labelKey | transloco }}</p>
+    <ul class="sidebar__list" role="list" [attr.aria-labelledby]="'sidebar-group-' + g">
+      @for (item of group.items; track item.labelKey) {
+        <li>
+          <ng-container
+            [ngTemplateOutlet]="entry"
+            [ngTemplateOutletContext]="{ $implicit: item }"
+          />
+        </li>
+      }
+    </ul>
+  }
+</nav>
+
+<div class="sidebar__footer">
+  <ul class="sidebar__list" role="list">
+    <li>
+      <ng-container
+        [ngTemplateOutlet]="entry"
+        [ngTemplateOutletContext]="{ $implicit: settings }"
+      />
+    </li>
+  </ul>
+  @if (profile(); as person) {
+    <!-- The account menu is not built yet: the card is shown, disabled, and says so. -->
+    <button
+      type="button"
+      class="sidebar__profile"
+      disabled
+      [title]="'shell.notAvailableYet' | transloco"
+    >
+      <span class="sidebar__avatar" aria-hidden="true">{{ person.initials }}</span>
+      <span class="sidebar__person">
+        <bdi class="sidebar__name">{{ person.name }}</bdi>
+        <span class="sidebar__role">{{ person.roleKey | transloco }}</span>
+      </span>
+      <nw-icon class="sidebar__profile-icon" name="chevrons-up-down" size="sm" />
+      <span class="nw-visually-hidden">({{ 'shell.notAvailableYet' | transloco }})</span>
+    </button>
+  }
+</div>
+
+<ng-template #entry let-item>
+  @if (item.path) {
+    <a
+      class="sidebar__item"
+      [routerLink]="item.path"
+      routerLinkActive="sidebar__item--active"
+      ariaCurrentWhenActive="page"
+    >
+      <nw-icon class="sidebar__icon" [name]="item.icon" size="lg" />
+      <span class="sidebar__label">{{ item.labelKey | transloco }}</span>
+    </a>
+  } @else {
+    <span
+      class="sidebar__item sidebar__item--unavailable"
+      [title]="'shell.notAvailableYet' | transloco"
+    >
+      <nw-icon class="sidebar__icon" [name]="item.icon" size="lg" />
+      <span class="sidebar__label">{{ item.labelKey | transloco }}</span>
+      @if (item.unreadBadge && unread(); as count) {
+        <span class="sidebar__badge" aria-hidden="true">{{ count | nwNumber }}</span>
+        <span class="nw-visually-hidden">{{
+          'shell.notifications.unread' | transloco: { count: count }
+        }}</span>
+      }
+      <span class="nw-visually-hidden">({{ 'shell.notAvailableYet' | transloco }})</span>
+    </span>
+  }
+</ng-template>

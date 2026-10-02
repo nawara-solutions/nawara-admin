@@ -31,9 +31,11 @@
   --nw-font-weight-regular: 400;
   --nw-font-weight-medium: 500;
   --nw-font-weight-semibold: 600;
+  --nw-font-weight-bold: 700; // headings and key figures (owner design, 2026-10-02)
 
   --nw-text-size-xs: 0.75rem;
   --nw-text-size-sm: 0.875rem;
+  --nw-text-size-nav: 0.9375rem; // shell navigation labels
   --nw-text-size-md: 1rem;
   --nw-text-size-lg: 1.125rem;
   --nw-text-size-xl: 1.25rem;
@@ -69,6 +71,13 @@
   --nw-control-height-md: 2.5rem;
   --nw-focus-ring-width: 2px;
   --nw-focus-ring-offset: 2px;
+
+  // Illustration masks (alpha only, not colours): the sidebar drawing fades in from its top and stays at 40% behind
+  // the text column (two layers, intersected); the header-card drawing fades toward the title.
+  --nw-sidebar-illustration-mask:
+    linear-gradient(to bottom, transparent, #000 30%),
+    linear-gradient(to left, #000 15%, rgb(0 0 0 / 40%) 60%);
+  --nw-hero-illustration-mask: linear-gradient(to left, #000 35%, rgb(0 0 0 / 25%) 100%);
 
   // Layout
   --nw-shell-sidebar-width: 16rem;

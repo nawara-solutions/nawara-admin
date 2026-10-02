@@ -1,0 +1,41 @@
+<button
+  class="preference-menus__trigger"
+  type="button"
+  [nwMenuTriggerFor]="languages"
+  [attr.aria-label]="('preferences.language.label' | transloco) + ': ' + currentLanguage()"
+>
+  <nw-icon name="globe" />
+  <span class="preference-menus__value" aria-hidden="true">{{ locale.locale() | uppercase }}</span>
+</button>
+<ng-template #languages>
+  <nw-menu>
+    @for (option of locales; track option.value) {
+      <button nw-menu-item [attr.lang]="option.value" (triggered)="setLocale(option.value)">
+        <span class="preference-menus__option">{{ option.name }}</span>
+        @if (locale.locale() === option.value) {
+          <nw-icon name="check" size="sm" />
+        }
+      </button>
+    }
+  </nw-menu>
+</ng-template>
+
+<div
+  class="preference-menus__themes"
+  role="group"
+  [attr.aria-label]="'preferences.theme.label' | transloco"
+>
+  @for (option of themes; track option.value) {
+    <button
+      type="button"
+      class="preference-menus__theme"
+      [class.preference-menus__theme--sun]="option.value === 'light'"
+      [attr.aria-pressed]="theme.preference() === option.value"
+      [title]="option.labelKey | transloco"
+      (click)="setTheme(option.value)"
+    >
+      <nw-icon [name]="option.icon" size="sm" />
+      <span class="nw-visually-hidden">{{ option.labelKey | transloco }}</span>
+    </button>
+  }
+</div>

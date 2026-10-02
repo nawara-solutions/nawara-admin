@@ -1,0 +1,29 @@
+<nav [attr.aria-label]="'shell.breadcrumb.label' | transloco">
+  <ol class="breadcrumbs__list" role="list">
+    <li class="breadcrumbs__item">
+      <a
+        class="breadcrumbs__home"
+        routerLink="/overview"
+        [attr.aria-label]="'shell.breadcrumb.home' | transloco"
+      >
+        <nw-icon name="house" size="sm" />
+      </a>
+    </li>
+    @for (crumb of crumbs(); track $index; let last = $last) {
+      <li class="breadcrumbs__item" [class.breadcrumbs__item--intermediate]="!last">
+        <nw-icon class="breadcrumbs__separator" name="chevron-right" size="sm" />
+        @if (last) {
+          <span class="breadcrumbs__current" aria-current="page">
+            @if (crumb.translate) {
+              {{ crumb.label | transloco }}
+            } @else {
+              <bdi>{{ crumb.label }}</bdi>
+            }
+          </span>
+        } @else {
+          <a class="breadcrumbs__link" [routerLink]="crumb.link">{{ crumb.label | transloco }}</a>
+        }
+      </li>
+    }
+  </ol>
+</nav>

@@ -2,7 +2,10 @@
 
 html {
   font-family: var(--nw-font-sans);
-  font-size: 100%;
+  // 10% above the browser default (owner request, 2026-10-02): every rem-based size scales with it. A percentage, so a
+  // larger browser font setting still applies. Breakpoints are in em, which media queries resolve against the browser
+  // default, so the layout switches at the same screen widths.
+  font-size: 110%;
   line-height: var(--nw-line-height-normal);
   color: var(--nw-text-primary);
   background-color: var(--nw-surface-page);

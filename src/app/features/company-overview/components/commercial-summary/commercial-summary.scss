@@ -1,0 +1,51 @@
+.commercial-summary__figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: var(--nw-space-3);
+}
+
+.commercial-summary__figure {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-inline-size: 0;
+  padding: 0.875rem;
+  border: 1px solid var(--nw-border-hairline);
+  border-radius: var(--nw-radius-md);
+  line-height: var(--nw-line-height-snug);
+
+  &--warning {
+    border-color: var(--nw-accent-orange-bg);
+    background-color: var(--nw-status-warning-bg);
+
+    .commercial-summary__label,
+    .commercial-summary__caption {
+      color: var(--nw-status-warning-fg);
+    }
+  }
+
+  &--danger {
+    border-color: var(--nw-border-brand);
+    background-color: var(--nw-surface-brand-subtle);
+
+    .commercial-summary__label,
+    .commercial-summary__caption {
+      color: var(--nw-text-brand);
+    }
+  }
+}
+
+.commercial-summary__label {
+  color: var(--nw-text-label);
+  font-size: 0.78125rem;
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.commercial-summary__value {
+  font-size: var(--nw-text-size-2xl);
+  font-weight: var(--nw-font-weight-bold);
+}
+
+.commercial-summary__caption {
+  font-size: 0.71875rem;
+}

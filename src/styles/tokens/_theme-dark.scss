@@ -5,34 +5,43 @@
   color-scheme: dark;
 
   // Surfaces
-  --nw-surface-page: var(--nw-ref-neutral-900);
-  --nw-surface-raised: var(--nw-ref-neutral-850);
-  --nw-surface-sunken: var(--nw-ref-neutral-950);
-  --nw-surface-overlay: var(--nw-ref-neutral-800);
-  --nw-surface-inverse: var(--nw-ref-neutral-50);
+  --nw-surface-page: var(--nw-ref-night-950);
+  --nw-surface-raised: var(--nw-ref-night-900);
+  --nw-surface-sunken: var(--nw-ref-night-850);
+  --nw-surface-inset: var(--nw-ref-night-925); // sub-cards and rows inside a raised card
+  --nw-surface-overlay: var(--nw-ref-night-800);
+  --nw-surface-inverse: var(--nw-ref-night-ink);
+  --nw-surface-inverse-hover: var(--nw-ref-night-300);
+  --nw-surface-inverse-disabled: var(
+    --nw-ref-night-400
+  ); // ink action, disabled (solid, so nothing shows through)
   --nw-surface-brand-subtle: var(--nw-ref-pink-900);
 
   // Text
-  --nw-text-primary: var(--nw-ref-neutral-ink-inverse);
-  --nw-text-secondary: var(--nw-ref-neutral-350);
+  --nw-text-primary: var(--nw-ref-night-ink);
+  --nw-text-secondary: var(--nw-ref-night-350);
+  --nw-text-label: var(--nw-ref-night-300); // card and figure labels
   --nw-text-disabled: var(--nw-ref-neutral-500);
-  --nw-text-inverse: var(--nw-ref-neutral-850);
+  --nw-text-inverse: var(--nw-ref-night-950);
   --nw-text-brand: var(--nw-ref-pink-300);
   --nw-text-link: var(--nw-ref-pink-300);
   --nw-text-on-primary: var(--nw-ref-neutral-850);
 
   // Borders
-  --nw-border-subtle: var(--nw-ref-neutral-750);
-  --nw-border-default: var(--nw-ref-neutral-700);
+  --nw-border-hairline: var(--nw-ref-night-750); // inner rows and tiles (decorative separation)
+  --nw-border-subtle: var(--nw-ref-night-750);
+  --nw-border-default: var(--nw-ref-night-700);
   --nw-border-strong: var(--nw-ref-neutral-400);
+  --nw-border-brand: var(--nw-ref-pink-800); // brand outlines (Open platform, urgent rows)
 
   // Actions
   --nw-color-primary: var(--nw-ref-pink-400);
   --nw-color-primary-hover: var(--nw-ref-pink-300);
   --nw-color-primary-active: var(--nw-ref-pink-200);
   --nw-color-primary-subtle: var(--nw-ref-pink-900);
-  --nw-color-neutral-hover: var(--nw-ref-neutral-800);
-  --nw-color-neutral-active: var(--nw-ref-neutral-750);
+  --nw-color-neutral-hover: var(--nw-ref-night-800);
+  --nw-color-neutral-active: var(--nw-ref-night-750);
+  --nw-icon-muted: var(--nw-ref-night-400); // inactive navigation and control icons
 
   // Destructive action states (solid on hover, stronger on press)
   --nw-color-danger-hover: var(--nw-ref-red-300);
@@ -60,8 +69,54 @@
   --nw-brand-wordmark-on-light-display: none;
   --nw-brand-wordmark-on-dark-display: block;
 
+  // Shell (layout/): the sidebar sits one step below the page; the illustrations and washes are quieter
+  // The wash's lightest stop: what contrast is checked against
+  --nw-surface-sidebar: var(--nw-ref-night-875);
+  --nw-sidebar-background: linear-gradient(
+    180deg,
+    var(--nw-ref-night-900) 0%,
+    var(--nw-ref-night-925) 45%,
+    var(--nw-ref-night-875) 100%
+  );
+  --nw-surface-glass: rgb(34 30 56 / 72%); // the sidebar profile over the illustration
+  --nw-border-glass: rgb(255 255 255 / 8%);
+  --nw-topbar-background: rgb(18 15 32 / 82%);
+  --nw-hero-background: linear-gradient(
+    105deg,
+    var(--nw-ref-night-900) 0%,
+    var(--nw-ref-night-900) 52%,
+    var(--nw-ref-night-hero-pink) 78%,
+    var(--nw-ref-night-hero-peach) 100%
+  );
+  --nw-sidebar-illustration-opacity: 0.34;
+  --nw-sidebar-atmosphere:
+    radial-gradient(18rem 13rem at 50% -2rem, rgb(255 138 61 / 9%), transparent 72%),
+    radial-gradient(20rem 26rem at 110% 100%, rgb(230 66 139 / 12%), transparent 70%),
+    radial-gradient(18rem 22rem at -10% 104%, rgb(123 44 191 / 12%), transparent 70%);
+  --nw-workspace-illustration-opacity: 0.3;
+  --nw-workspace-atmosphere:
+    radial-gradient(44rem 22rem at 84% -3rem, rgb(255 138 61 / 9%), transparent 72%),
+    radial-gradient(38rem 20rem at 56% -5rem, rgb(230 66 139 / 9%), transparent 70%),
+    radial-gradient(40rem 30rem at 104% 22rem, rgb(123 44 191 / 11%), transparent 70%);
+
+  // Accent tiles (graphics, 3:1)
+  --nw-accent-pink-bg: var(--nw-ref-pink-900);
+  --nw-accent-pink-fg: var(--nw-ref-pink-300);
+  --nw-accent-orange-bg: var(--nw-ref-orange-900);
+  --nw-accent-orange-fg: var(--nw-ref-orange-300);
+  --nw-accent-amber-bg: var(--nw-ref-amber-900);
+  --nw-accent-amber-fg: var(--nw-ref-amber-500);
+  --nw-accent-purple-bg: var(--nw-ref-purple-900);
+  --nw-accent-purple-fg: var(--nw-ref-purple-300);
+
+  // Charts
+  --nw-chart-line: var(--nw-ref-pink-400);
+  --nw-chart-area: rgb(235 102 161 / 24%);
+  --nw-chart-grid: var(--nw-ref-night-750);
+
   // Elevation: darker shadows plus a hairline highlight carried by borders
   --nw-shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
+  --nw-shadow-card: 0 1px 2px rgb(0 0 0 / 40%);
   --nw-shadow-md: 0 4px 16px rgb(0 0 0 / 45%);
   --nw-shadow-lg: 0 12px 40px rgb(0 0 0 / 55%);
   --nw-scrim: rgb(0 0 0 / 64%);

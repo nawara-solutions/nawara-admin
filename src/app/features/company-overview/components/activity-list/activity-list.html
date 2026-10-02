@@ -1,0 +1,26 @@
+@if (entries().length === 0) {
+  <p class="activity-list__empty">{{ 'companyOverview.activity.empty' | transloco }}</p>
+} @else {
+  <ol class="activity-list__items" role="list">
+    @for (entry of entries(); track entry.id) {
+      @let action = actions[entry.action];
+      <li class="activity-list__item">
+        <span class="activity-list__icon" [class]="'activity-list__icon--' + action.accent">
+          <nw-icon [name]="action.icon" size="sm" />
+        </span>
+        <span class="activity-list__text">
+          <span class="activity-list__action">{{ action.labelKey | transloco }}</span>
+          <span class="activity-list__subject">
+            @if (entry.organizationName; as organization) {
+              <bdi>{{ organization }}</bdi> ·
+            }
+            <bdi>{{ entry.platformName }}</bdi>
+          </span>
+        </span>
+        <time class="activity-list__time" [attr.datetime]="entry.occurredAt">{{
+          entry.occurredAt | nwDate: 'relative'
+        }}</time>
+      </li>
+    }
+  </ol>
+}

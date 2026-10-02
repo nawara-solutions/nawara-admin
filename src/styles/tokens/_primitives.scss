@@ -26,10 +26,12 @@
   --nw-ref-orange-300: #ffb27e;
   --nw-ref-orange-500: #ff8a3d; // brand: Secondary
   --nw-ref-orange-700: #c2410c;
+  --nw-ref-orange-900: #2e1a0e;
 
   // Amber: brand accent
   --nw-ref-amber-50: #fff9eb;
   --nw-ref-amber-500: #ffc857; // brand: Accent
+  --nw-ref-amber-600: #c27803; // derived: amber icon on its pale tile (3:1 for graphics)
   --nw-ref-amber-800: #7c4a03;
   --nw-ref-amber-900: #2a2210;
 
@@ -43,8 +45,11 @@
 
   // Neutral: warm surfaces (brand Surface) with cool ink (brand Dark, Muted)
   --nw-ref-neutral-0: #ffffff; // brand: White
+  --nw-ref-neutral-25: #fcfaf8; // derived: faint warm inset inside white cards (approved Company Overview)
   --nw-ref-neutral-50: #faf7f4; // brand: Surface
+  --nw-ref-neutral-ivory: #fcf5ef; // warm ivory of the shell sidebar (sampled from the approved Company Overview)
   --nw-ref-neutral-100: #f2ede8;
+  --nw-ref-neutral-150: #eee9e3; // derived: hairline of cards and rows
   --nw-ref-neutral-200: #e5dfd8;
   --nw-ref-neutral-300: #cfc8c0;
   --nw-ref-neutral-350: #a9abb8;
@@ -58,6 +63,39 @@
   --nw-ref-neutral-900: #13131a;
   --nw-ref-neutral-950: #0d0d12;
   --nw-ref-neutral-ink-inverse: #f5f1ec;
+
+  // Lilac neutrals (light) and night neutrals (dark): SAMPLED from the owner's Company Overview design
+  // (claude.ai design "Nawara Owner Dashboard", 2026-10-02). They give the shell its cool lilac tint; not brand values.
+  --nw-ref-lilac-25: #faf8fa;
+  --nw-ref-lilac-50: #f6f3f6;
+  --nw-ref-lilac-75: #f5f1f5;
+  --nw-ref-lilac-90: #f7f4f8; // navigation hover
+  --nw-ref-lilac-100: #f0e9f0;
+  --nw-ref-lilac-150: #eee7ee;
+  --nw-ref-lilac-200: #e6e0e8;
+  --nw-ref-lilac-400: #7a7690; // muted icons (graphics)
+  --nw-ref-lilac-500: #6b6880;
+  --nw-ref-lilac-600: #5d5a72;
+  --nw-ref-lilac-800: #2e2a55; // ink, hovered
+  --nw-ref-lilac-850: #1b1838; // ink
+  --nw-ref-blush-25: #fffafa; // sidebar wash, middle
+  --nw-ref-blush-50: #fdf3f4; // sidebar wash, bottom
+  --nw-ref-blush-75: #fdf1f6; // header card wash, pink
+  --nw-ref-peach-50: #fff4ea; // header card wash, peach
+  --nw-ref-night-ink: #f1eef8;
+  --nw-ref-night-300: #b3aec6;
+  --nw-ref-night-350: #a19cb6;
+  --nw-ref-night-400: #8f8aa6;
+  --nw-ref-night-700: #302b48;
+  --nw-ref-night-750: #2a2640;
+  --nw-ref-night-800: #231f3a;
+  --nw-ref-night-850: #211d36;
+  --nw-ref-night-875: #1f1430; // sidebar wash, bottom
+  --nw-ref-night-900: #1a1730;
+  --nw-ref-night-925: #16132a;
+  --nw-ref-night-950: #100e1c;
+  --nw-ref-night-hero-pink: #2a1432;
+  --nw-ref-night-hero-peach: #2a1c1c;
 
   // Functional status hues (not brand)
   --nw-ref-green-50: #ecf8f1;

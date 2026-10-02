@@ -1,0 +1,100 @@
+
+> nawara-admin@0.0.0 validate
+> npm run format:check && npm run lint && npm run lint:styles && npm run check:i18n && npm run check:contrast && npm run test && npm run build && npm run check:production
+
+
+> nawara-admin@0.0.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> nawara-admin@0.0.0 lint
+> ng lint
+
+✔ Console Ninja extension is connected to Angular, see https://tinyurl.com/2vt8jxzw
+
+Linting "nawara-admin"...
+
+/home/anwar/Desktop/nawara-solutions/nawara-admin/src/main.ts
+  5:53  warning  Unused eslint-disable directive (no problems were reported)
+
+✖ 1 problem (0 errors, 1 warning)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+
+Lint warnings found in the listed files.
+
+
+> nawara-admin@0.0.0 lint:styles
+> stylelint "src/**/*.scss"
+
+
+> nawara-admin@0.0.0 check:i18n
+> node tools/check-i18n.mjs
+
+✔ i18n: 255 keys complete in en, fr, ar; 281 static references resolve
+  note: 1 key(s) have no static reference: common.loading
+
+> nawara-admin@0.0.0 check:contrast
+> node tools/check-contrast.mjs
+
+✔ contrast: 69 token pairs × 2 themes meet the WCAG 2.2 AA ratios
+
+> nawara-admin@0.0.0 test
+> ng test --watch=false
+
+✔ Console Ninja extension is connected to Angular, see https://tinyurl.com/2vt8jxzw
+❯ Building...
+✔ Building...
+Application bundle generation complete. [2.418 seconds] - 2026-10-02T11:38:45.230Z
+
+
+ RUN  v5.0.3 /home/anwar/Desktop/nawara-solutions/nawara-admin
+
+
+ Test Files  29 passed (29)
+      Tests  98 passed (98)
+   Start at  12:38:45
+   Duration  3.91s (environment 60%, import 15%, setup 10%, tests 7%, transform 7%)
+
+
+> nawara-admin@0.0.0 build
+> ng build
+
+❯ Building...
+✔ Building...
+Initial chunk files | Names                     |  Raw size | Estimated transfer size
+chunk-D9A4wG25.js   | -                         | 156.42 kB |                46.38 kB
+main-AWBM63PQ.js    | main                      |  90.36 kB |                23.21 kB
+chunk-CuSCWrmg.js   | -                         |  46.46 kB |                13.60 kB
+styles-XUWZIR74.css | styles                    |  25.90 kB |                 3.69 kB
+
+                    | Initial total             | 319.14 kB |                86.88 kB
+
+Lazy chunk files    | Names                     |  Raw size | Estimated transfer size
+chunk-iT7QSfAk.js   | -                         |  83.25 kB |                19.56 kB
+chunk-LyJj04hY.js   | foundation-preview-page   |  61.50 kB |                13.99 kB
+chunk-AYmvaCdm.js   | company-overview-page     |  51.83 kB |                10.17 kB
+chunk-DhcRs5MY.js   | shell                     |  20.65 kB |                 5.24 kB
+chunk-349wcGPo.js   | ar-json                   |  12.54 kB |                 3.65 kB
+chunk-BzmrK-XC.js   | fr-json                   |  11.04 kB |                 3.73 kB
+chunk-FPUnkWjv.js   | en-json                   |   9.37 kB |                 2.94 kB
+chunk-CCqsG3Hb.js   | -                         |   5.30 kB |                 1.68 kB
+chunk-FWG8KZdE.js   | shell-routes              |   4.57 kB |                 1.73 kB
+chunk-O7OUnY6P.js   | platform-placeholder-page |   4.37 kB |                 1.58 kB
+chunk-DirJKnEs.js   | -                         |   4.14 kB |                 1.45 kB
+chunk-Cka9_ATK.js   | -                         |   4.02 kB |                 1.02 kB
+chunk-avLDeMoV.js   | status-page               |   2.07 kB |               907 bytes
+chunk-DYlt1gbK.js   | -                         |   2.03 kB |               899 bytes
+chunk-Cz0L3S27.js   | company-overview-routes   |   1.90 kB |               830 bytes
+...and 4 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [3.787 seconds] - 2026-10-02T11:38:53.894Z
+
+Output location: /home/anwar/Desktop/nawara-solutions/nawara-admin/dist/nawara-admin
+
+
+> nawara-admin@0.0.0 check:production
+> node tools/check-production-bundle.mjs
+
+✔ production bundle: 23 files, no demo session, mock adapter or fixture

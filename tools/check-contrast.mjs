@@ -13,6 +13,7 @@ const TEXT_SURFACES = [
   '--nw-surface-raised',
   '--nw-surface-sunken',
   '--nw-surface-overlay',
+  '--nw-surface-inset',
 ];
 const PAIRS = [
   ...['--nw-text-primary', '--nw-text-secondary', '--nw-text-link', '--nw-text-brand'].flatMap(
@@ -52,6 +53,32 @@ const PAIRS = [
   ...TEXT_SURFACES.map((bg) => ['--nw-border-strong', bg, 3]), // input and checkbox boundary (WCAG 1.4.11)
   ...TEXT_SURFACES.map((bg) => ['--nw-focus-ring', bg, 3]),
   ...TEXT_SURFACES.map((bg) => ['--nw-color-primary', bg, 3]),
+  // Shell sidebar (layout/): navigation text, group labels, active item, focus
+  ...['--nw-text-primary', '--nw-text-secondary', '--nw-text-brand'].map((fg) => [
+    fg,
+    '--nw-surface-sidebar',
+    4.5,
+  ]),
+  ['--nw-focus-ring', '--nw-surface-sidebar', 3],
+  // Accent icon tiles and charts (graphics, WCAG 1.4.11)
+  ...['pink', 'orange', 'amber', 'purple'].map((a) => [
+    `--nw-accent-${a}-fg`,
+    `--nw-accent-${a}-bg`,
+    3,
+  ]),
+  ['--nw-accent-purple-bg', '--nw-accent-purple-fg', 4.5], // top-bar avatar: initials on the solid accent
+  ['--nw-chart-line', '--nw-surface-raised', 3],
+  // Owner design (2026-10-02): figure labels, muted control icons, the ink action and the sidebar wash
+  ...['--nw-surface-raised', '--nw-surface-inset', '--nw-surface-page', '--nw-surface-sidebar'].map(
+    (bg) => ['--nw-text-label', bg, 4.5],
+  ),
+  ...['--nw-surface-raised', '--nw-surface-sidebar', '--nw-color-neutral-hover'].map((bg) => [
+    '--nw-icon-muted',
+    bg,
+    3,
+  ]),
+  ['--nw-text-inverse', '--nw-surface-inverse-hover', 4.5],
+  ['--nw-text-secondary', '--nw-color-neutral-hover', 4.5],
 ];
 
 const declarations = (file) =>

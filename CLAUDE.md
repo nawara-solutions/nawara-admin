@@ -39,7 +39,7 @@ owned here. The symlinks need the sibling layout (`ai-standard/`, `nawara-core/`
 A0  Discovery / Architecture          ✅ COMPLETE
 A1  Workspace / Tooling               ✅ COMPLETE (awaiting owner review)
 A2  Design-system foundation          🟡 IMPLEMENTED + VERIFIED — owner review and scope decision pending (not closed)
-A3  Application shell                 ⏸️ NOT STARTED — requires separate owner authorization
+A3  Application shell                 🟡 bounded slice A3-S1 (shell + Company Overview, demo data) implemented — owner review pending; rest not started
 A4  Authentication                    ⏸️
 A5… see docs/ROADMAP.md               ⏸️
 ```

@@ -1,0 +1,66 @@
+<div class="overview-header__titles">
+  <h1 class="overview-header__title">{{ 'companyOverview.title' | transloco }}</h1>
+  <p class="overview-header__subtitle">{{ 'companyOverview.subtitle' | transloco }}</p>
+</div>
+<div class="overview-header__actions">
+  @if (isDemo()) {
+    <div class="overview-header__demo">
+      <button
+        type="button"
+        class="overview-header__chip overview-header__chip--demo"
+        aria-controls="demo-information"
+        [attr.aria-expanded]="demoInfoOpen()"
+        (click)="demoInfoOpen.set(!demoInfoOpen())"
+      >
+        <nw-icon name="flask-conical" size="sm" />
+        {{ 'shell.demo.badge' | transloco }}
+        <span class="nw-visually-hidden">{{ 'shell.demo.about' | transloco }}</span>
+      </button>
+      <div
+        id="demo-information"
+        class="overview-header__demo-panel"
+        role="region"
+        [attr.aria-label]="'shell.demo.about' | transloco"
+        [hidden]="!demoInfoOpen()"
+      >
+        <p>{{ 'shell.demo.explanation' | transloco }}</p>
+        @if (canCreate()) {
+          <p>{{ 'companyOverview.createUnavailable' | transloco }}</p>
+        }
+      </div>
+    </div>
+  }
+  @if (periodDays(); as days) {
+    <!-- One period exists (Core offers no period selection): the selector is shown, disabled, and says so. -->
+    <button
+      type="button"
+      class="overview-header__chip overview-header__chip--period"
+      disabled
+      aria-describedby="period-note"
+      [title]="'shell.notAvailableYet' | transloco"
+    >
+      <nw-icon name="calendar" size="sm" />
+      {{ 'companyOverview.period' | transloco: { days: days } }}
+      <nw-icon name="chevron-down" size="sm" />
+    </button>
+    <span id="period-note" class="nw-visually-hidden">{{
+      'companyOverview.periodUnavailable' | transloco
+    }}</span>
+  }
+  @if (canCreate()) {
+    <span class="overview-header__create" [title]="'companyOverview.createUnavailable' | transloco">
+      <button
+        type="button"
+        class="overview-header__create-button"
+        disabled
+        aria-describedby="create-platform-note"
+      >
+        <nw-icon name="plus" size="sm" />
+        {{ 'companyOverview.create' | transloco }}
+      </button>
+    </span>
+    <span id="create-platform-note" class="nw-visually-hidden">{{
+      'companyOverview.createUnavailable' | transloco
+    }}</span>
+  }
+</div>

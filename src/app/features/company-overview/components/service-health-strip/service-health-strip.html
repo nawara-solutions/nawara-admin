@@ -1,0 +1,18 @@
+<ul class="service-health-strip__items" role="list">
+  @for (entry of summary().services; track entry.service) {
+    <li class="service-health-strip__item">
+      <span class="service-health-strip__head">
+        <span class="service-health-strip__name">{{ labelKeys[entry.service] | transloco }}</span>
+        <span
+          class="service-health-strip__dot"
+          [class]="'service-health-strip__dot--' + entry.status"
+        ></span>
+      </span>
+      <span
+        class="service-health-strip__status"
+        [class]="'service-health-strip__status--' + entry.status"
+        >{{ statusKeys[entry.status] | transloco }}</span
+      >
+    </li>
+  }
+</ul>

@@ -1,0 +1,30 @@
+@if (items().length === 0) {
+  <p class="attention-list__empty">
+    <nw-icon name="circle-check" size="sm" />{{ 'companyOverview.attention.empty' | transloco }}
+  </p>
+} @else {
+  <ul class="attention-list__items" role="list">
+    @for (item of items(); track item.kind) {
+      @let kind = kinds[item.kind];
+      <li class="attention-list__item" [class.attention-list__item--urgent]="kind.urgent">
+        <span class="attention-list__tile" [class]="'attention-list__tile--' + kind.accent">
+          <nw-icon [name]="kind.icon" />
+        </span>
+        <span class="attention-list__text">
+          <span class="attention-list__title">
+            <span class="attention-list__count">{{ item.count | nwNumber }}</span>
+            {{ kind.titleKey | transloco }}
+            @if (kind.urgent) {
+              <span class="attention-list__urgent">{{
+                'companyOverview.attention.urgent' | transloco
+              }}</span>
+            }
+          </span>
+          <span class="attention-list__description">{{
+            kind.descriptionKey | transloco: { days: item.withinDays }
+          }}</span>
+        </span>
+      </li>
+    }
+  </ul>
+}

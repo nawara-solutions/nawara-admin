@@ -1,0 +1,128 @@
+// The chart is laid out left to right on purpose (time axis; `dir="ltr"` on the frame), so `left`/`bottom` are physical.
+.growth-chart__frame {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: 8.5rem auto;
+  column-gap: var(--nw-space-3);
+}
+
+.growth-chart__axis {
+  position: relative;
+  inline-size: 1.5rem;
+  margin-block-start: 1.75rem;
+}
+
+.growth-chart__tick {
+  position: absolute;
+  inset-inline-end: 0;
+  color: var(--nw-text-secondary);
+  font-size: 0.6875rem;
+  transform: translateY(50%);
+}
+
+.growth-chart__plot {
+  position: relative;
+  margin-block-start: 1.75rem;
+  margin-inline: var(--nw-space-4);
+}
+
+.growth-chart__svg {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+}
+
+.growth-chart__grid {
+  stroke: var(--nw-chart-grid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.growth-chart__fill-top {
+  stop-color: var(--nw-chart-line);
+  stop-opacity: 0.22;
+}
+
+.growth-chart__fill-bottom {
+  stop-color: var(--nw-chart-line);
+  stop-opacity: 0;
+}
+
+// Brand gradient along the line, orange to pink (owner design).
+.growth-chart__stroke-start {
+  stop-color: var(--nw-accent-orange-fg);
+}
+
+.growth-chart__stroke-end {
+  stop-color: var(--nw-chart-line);
+}
+
+.growth-chart__line {
+  fill: none;
+  stroke: url('#growth-chart-stroke');
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+// Hollow points; the latest is filled, with a soft halo.
+.growth-chart__point {
+  position: absolute;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  box-sizing: content-box;
+  border: 2px solid var(--nw-chart-line);
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-surface-raised);
+  transform: translate(-50%, 50%);
+
+  &--latest {
+    border-color: transparent;
+    background-color: var(--nw-chart-line);
+    box-shadow: 0 0 0 5px var(--nw-accent-pink-bg);
+  }
+}
+
+// Value label above each point; the latest sits in a dark marker.
+.growth-chart__value {
+  position: absolute;
+  margin-block-end: 0.625rem;
+  color: var(--nw-text-label);
+  font-size: 0.6875rem;
+  font-weight: var(--nw-font-weight-bold);
+  transform: translateX(-50%);
+
+  &--latest {
+    margin-block-end: 1rem;
+    padding: 2px var(--nw-space-2);
+    border-radius: var(--nw-radius-sm);
+    background-color: var(--nw-surface-inverse);
+    color: var(--nw-text-inverse);
+  }
+}
+
+.growth-chart__days {
+  display: flex;
+  grid-column: 2;
+  justify-content: space-between;
+  padding-block-start: var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: 0.6875rem;
+}
+
+@media (forced-colors: active) {
+  .growth-chart__line {
+    stroke: CanvasText;
+  }
+
+  .growth-chart__point {
+    border-color: CanvasText;
+  }
+
+  .growth-chart__point--latest {
+    background-color: CanvasText;
+  }
+}

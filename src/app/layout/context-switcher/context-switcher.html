@@ -1,0 +1,61 @@
+<button
+  class="context-switcher__trigger"
+  type="button"
+  [nwMenuTriggerFor]="scopes"
+  [attr.aria-label]="
+    ('shell.context.label' | transloco) +
+    ': ' +
+    (companyName() ?? '') +
+    ', ' +
+    (currentPlatform()?.name ?? ('shell.context.allPlatforms' | transloco))
+  "
+>
+  <img
+    class="context-switcher__symbol"
+    src="brand/nawara-mark.png"
+    alt=""
+    width="324"
+    height="324"
+  />
+  <span class="context-switcher__text">
+    <bdi class="context-switcher__company">{{
+      companyName() ?? ('shell.context.loading' | transloco)
+    }}</bdi>
+    <span class="context-switcher__scope">
+      @if (currentPlatform(); as platform) {
+        <bdi>{{ platform.name }}</bdi>
+      } @else {
+        {{ 'shell.context.allPlatforms' | transloco }}
+      }
+    </span>
+  </span>
+  <nw-icon class="context-switcher__chevron" name="chevron-down" size="sm" />
+</button>
+
+<ng-template #scopes>
+  <nw-menu class="context-switcher__menu">
+    <button nw-menu-item (triggered)="selectCompany()">
+      <nw-icon name="building-2" size="sm" />
+      <span class="context-switcher__option">{{ 'shell.context.allPlatforms' | transloco }}</span>
+      @if (context.scope().kind === 'company') {
+        <nw-icon name="check" size="sm" />
+        <span class="nw-visually-hidden">({{ 'shell.context.current' | transloco }})</span>
+      }
+    </button>
+    @if (platforms().length > 0) {
+      <p class="context-switcher__group" aria-hidden="true">
+        {{ 'shell.context.platforms' | transloco }}
+      </p>
+    }
+    @for (platform of platforms(); track platform.id) {
+      <button nw-menu-item (triggered)="selectPlatform(platform)">
+        <nw-icon [name]="platform.product === 'drive' ? 'car' : 'hexagon'" size="sm" />
+        <bdi class="context-switcher__option">{{ platform.name }}</bdi>
+        @if (currentPlatform()?.id === platform.id) {
+          <nw-icon name="check" size="sm" />
+          <span class="nw-visually-hidden">({{ 'shell.context.current' | transloco }})</span>
+        }
+      </button>
+    }
+  </nw-menu>
+</ng-template>
