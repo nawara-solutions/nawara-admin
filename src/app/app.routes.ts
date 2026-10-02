@@ -1,10 +1,43 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
+import { SESSION_UNAVAILABLE_PATH } from './core/access/access.guards';
+import { APP_ENVIRONMENT } from './core/config/app-environment';
+import { StatusPageData } from './layout/status-page/status-page';
+
+const SESSION_UNAVAILABLE: StatusPageData = {
+  icon: 'shield-check',
+  titleKey: 'shell.pages.sessionUnavailable.title',
+  descriptionKey: 'shell.pages.sessionUnavailable.description',
+};
 
 export const routes: Routes = [
-  // A2 design-foundation preview. A3 replaces the root route with the application shell (docs/ROADMAP.md).
+  // A2 design-foundation gallery, kept as the token and primitive verification surface.
   {
-    path: '',
+    path: 'foundation',
+    title: 'titles.foundation',
     loadChildren: () =>
       import('./features/foundation/foundation.routes').then((m) => m.FOUNDATION_ROUTES),
+  },
+  // No session: every production build until A4 (sign-in) lands here.
+  {
+    path: SESSION_UNAVAILABLE_PATH.slice(1),
+    loadComponent: () => import('./layout/minimal-shell/minimal-shell').then((m) => m.MinimalShell),
+    children: [
+      {
+        path: '',
+        title: 'titles.sessionUnavailable',
+        data: SESSION_UNAVAILABLE,
+        loadComponent: () => import('./layout/status-page/status-page').then((m) => m.StatusPage),
+      },
+    ],
+  },
+  // The signed-in application: shell, company scope and platform scope (docs/ARCHITECTURE.md §6).
+  {
+    path: '',
+    loadChildren: () => {
+      // Read in the router's injection context, before the lazy import resolves.
+      const environment = inject(APP_ENVIRONMENT);
+      return import('./layout/shell.routes').then((m) => m.loadShellRoutes(environment));
+    },
   },
 ];

@@ -1,0 +1,99 @@
+# Rendered checks: raw output (2026-10-02, refinement to the latest reference; headless Chrome via puppeteer-core 24 + axe-core 4, run ad hoc from outside the project)
+
+## Demo build (ng serve, development): theme x language x viewport (desktop 1536x1024, laptop 1280x800, mobile 390x844)
+
+name: desktop-light-en lang: en dir: ltr theme: light overflow: false broken: [] title: Company overview · Nawara Admin axe: [] errors: []
+name: desktop-light-fr lang: fr dir: ltr theme: light overflow: false broken: [] title: Vue d’ensemble de l’entreprise · Nawara Admin axe: [] errors: []
+name: desktop-light-ar lang: ar dir: rtl theme: light overflow: false broken: [] title: نظرة عامة على الشركة · Nawara Admin axe: [] errors: []
+name: desktop-dark-en lang: en dir: ltr theme: dark overflow: false broken: [] title: Company overview · Nawara Admin axe: [] errors: []
+name: desktop-dark-fr lang: fr dir: ltr theme: dark overflow: false broken: [] title: Vue d’ensemble de l’entreprise · Nawara Admin axe: [] errors: []
+name: desktop-dark-ar lang: ar dir: rtl theme: dark overflow: false broken: [] title: نظرة عامة على الشركة · Nawara Admin axe: [] errors: []
+name: laptop-light-en lang: en dir: ltr theme: light overflow: false broken: [] title: Company overview · Nawara Admin axe: [] errors: []
+name: laptop-light-fr lang: fr dir: ltr theme: light overflow: false broken: [] title: Vue d’ensemble de l’entreprise · Nawara Admin axe: [] errors: []
+name: laptop-light-ar lang: ar dir: rtl theme: light overflow: false broken: [] title: نظرة عامة على الشركة · Nawara Admin axe: [] errors: []
+name: laptop-dark-en lang: en dir: ltr theme: dark overflow: false broken: [] title: Company overview · Nawara Admin axe: [] errors: []
+name: laptop-dark-fr lang: fr dir: ltr theme: dark overflow: false broken: [] title: Vue d’ensemble de l’entreprise · Nawara Admin axe: [] errors: []
+name: laptop-dark-ar lang: ar dir: rtl theme: dark overflow: false broken: [] title: نظرة عامة على الشركة · Nawara Admin axe: [] errors: []
+name: mobile-light-en lang: en dir: ltr theme: light overflow: false broken: [] title: Company overview · Nawara Admin axe: [] errors: []
+name: mobile-light-fr lang: fr dir: ltr theme: light overflow: false broken: [] title: Vue d’ensemble de l’entreprise · Nawara Admin axe: [] errors: []
+name: mobile-light-ar lang: ar dir: rtl theme: light overflow: false broken: [] title: نظرة عامة على الشركة · Nawara Admin axe: [] errors: []
+name: mobile-dark-en lang: en dir: ltr theme: dark overflow: false broken: [] title: Company overview · Nawara Admin axe: [] errors: []
+name: mobile-dark-fr lang: fr dir: ltr theme: dark overflow: false broken: [] title: Vue d’ensemble de l’entreprise · Nawara Admin axe: [] errors: []
+name: mobile-dark-ar lang: ar dir: rtl theme: dark overflow: false broken: [] title: نظرة عامة على الشركة · Nawara Admin axe: [] errors: []
+
+## Sidebar text contrast over the illustration, measured on the rendered background
+Method: each sidebar label's computed colour against every pixel of its glyph box, captured with all sidebar text hidden (surface + illustration as rendered). Required: 4.5 (3 for large text).
+
+desktop 1536x1024 light en       19 texts | worst 4.85 ("Overview") | failing 0
+desktop 1536x1024 light ar       19 texts | worst 4.85 ("نظرة عامة") | failing 0
+desktop 1536x1024 dark en        19 texts | worst 5.61 ("Company owner") | failing 0
+desktop 1536x1024 dark ar        19 texts | worst 7.02 ("مالك الشركة") | failing 0
+laptop 1280x720 light en         15 texts | worst 4.85 ("Overview") | failing 0
+laptop 1280x720 light ar         14 texts | worst 4.85 ("نظرة عامة") | failing 0
+laptop 1280x720 dark en          15 texts | worst 6.26 ("Operations") | failing 0
+laptop 1280x720 dark ar          14 texts | worst 7.03 ("نظرة عامة") | failing 0
+mobile drawer 390x844 light en   17 texts | worst 4.85 ("Overview") | failing 0
+mobile drawer 390x844 light ar   17 texts | worst 4.85 ("نظرة عامة") | failing 0
+mobile drawer 390x844 dark en    17 texts | worst 7.03 ("Overview") | failing 0
+mobile drawer 390x844 dark ar    17 texts | worst 7.03 ("نظرة عامة") | failing 0
+
+Below the required ratio (min over every background pixel of the text box):
+  none
+
+## Keyboard, scope switching, platform scope, not found, mobile drawer
+
+tab order (20)                     
+  a:Skip to content
+  a:Overview
+  a:Company overview
+  a:Company
+  button:Administration scope: Nawara Solutions, 
+  button:Language: English
+  button:Theme: System
+  button:Demo data About the demo data
+  a:Open platform Nawara School
+  a:Open platform Nawara Drive
+  body:Skip to contentAdminPlatformOverviewOrga [NO RING]
+  a:Skip to content
+  a:Overview
+  a:Company overview
+  a:Company
+  button:Administration scope: Nawara Solutions, 
+  button:Language: English
+  button:Theme: System
+  button:Demo data About the demo data
+  a:Open platform Nawara School
+disabled Create platform focusable false
+unbuilt sidebar items focusable    false
+first tab stop                     Skip to content
+switcher items                     ["All platforms(current)","Nawara School","Nawara Drive"]
+after choosing a platform →        http://localhost:4302/platforms/5b8d2a10-3c4e-4f61-8a2b-9d0e1f2a3b01
+breadcrumb                         Company Nawara School
+switcher label                     Administration scope: Nawara Solutions, Nawara School
+placeholder h1                     Nawara School
+focus moved to main                main
+placeholder axe                    []
+unknown platform                   Platform not found or not accessible Platform not found or not accessible It may not exist
+Open platform →                    http://localhost:4302/platforms/5b8d2a10-3c4e-4f61-8a2b-9d0e1f2a3b01
+/organizations (unbuilt)           Page not found
+drawer hidden: sidebar inert       true
+drawer open: expanded              true
+drawer open: focus                 Overview
+drawer open: content inert         true
+Escape: drawer closed, focus       Open navigation
+
+Note: the final 'body [NO RING]' stop is Tab leaving the document after the last control, not an element.
+
+## Demo data disclosure
+
+demo disclosure reachable by Tab    true
+Enter: expanded / panel visible     ["true",true]
+Escape: expanded / focus kept       ["false","demo-information"]
+
+## Production build (ng build, served statically)
+
+production /overview →             http://localhost:4301/session-unavailable
+production page h1                 Sign-in is not available yet
+production shows demo data         true
+production axe                     []
+Note: 'shows demo data: true' matches only the page's own sentence "Demo data exists only in development builds"; npm run check:production confirms no demo module is bundled.

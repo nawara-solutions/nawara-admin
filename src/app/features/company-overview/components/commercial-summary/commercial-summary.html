@@ -1,0 +1,32 @@
+<ul class="commercial-summary__figures" role="list">
+  <li class="commercial-summary__figure">
+    <span class="commercial-summary__label">{{
+      'companyOverview.commercial.activeLicenses' | transloco
+    }}</span>
+    <span class="commercial-summary__value"
+      ><adm-metric-value [metric]="summary().activeLicenses"
+    /></span>
+  </li>
+  <li class="commercial-summary__figure commercial-summary__figure--warning">
+    <span class="commercial-summary__label">{{
+      'companyOverview.commercial.expiringSoon' | transloco
+    }}</span>
+    <span class="commercial-summary__value"
+      ><adm-metric-value [metric]="summary().expiringSoon"
+    /></span>
+    <span class="commercial-summary__caption">{{
+      'companyOverview.commercial.withinDays' | transloco: { days: summary().expiringWithinDays }
+    }}</span>
+  </li>
+  <li class="commercial-summary__figure commercial-summary__figure--danger">
+    <span class="commercial-summary__label">{{
+      'companyOverview.commercial.paymentIssues' | transloco
+    }}</span>
+    <span class="commercial-summary__value"
+      ><adm-metric-value [metric]="summary().paymentIssues"
+    /></span>
+    <span class="commercial-summary__caption">{{
+      'companyOverview.commercial.followUp' | transloco
+    }}</span>
+  </li>
+</ul>

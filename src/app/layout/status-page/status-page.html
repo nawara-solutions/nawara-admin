@@ -1,0 +1,8 @@
+<span class="status-page__icon"><nw-icon [name]="page().icon" size="lg" /></span>
+<h1 class="status-page__title">{{ page().titleKey | transloco }}</h1>
+<p class="status-page__description">{{ page().descriptionKey | transloco }}</p>
+@if (canGoBack()) {
+  <a nw-button variant="secondary" routerLink="/overview">{{
+    'shell.pages.backToOverview' | transloco
+  }}</a>
+}

@@ -1,0 +1,47 @@
+<div
+  class="growth-panel__filters"
+  role="group"
+  [attr.aria-label]="'companyOverview.growth.filter' | transloco"
+>
+  <button
+    type="button"
+    class="growth-panel__filter"
+    [attr.aria-pressed]="selected() === null"
+    (click)="selected.set(null)"
+  >
+    {{ 'companyOverview.growth.all' | transloco }}
+  </button>
+  @for (filter of filters(); track filter.id) {
+    <button
+      type="button"
+      class="growth-panel__filter"
+      [attr.aria-pressed]="selected() === filter.id"
+      (click)="selected.set(filter.id)"
+    >
+      <bdi>{{ filter.name }}</bdi>
+    </button>
+  }
+</div>
+
+@if (latest(); as latest) {
+  @let delta = change();
+  <p class="growth-panel__headline">
+    <span class="growth-panel__value">{{ latest.organizations | nwNumber }}</span>
+    @if (delta !== null && first(); as first) {
+      <span class="growth-panel__change" [class.growth-panel__change--flat]="delta <= 0">{{
+        'companyOverview.growth.change'
+          | transloco
+            : {
+                change: delta | nwNumber: 'signed-percent',
+                date: first.day | nwDate: 'day-month',
+              }
+      }}</span>
+    }
+  </p>
+}
+
+<adm-growth-chart
+  class="growth-panel__chart"
+  [series]="points()"
+  [caption]="'companyOverview.growth.caption' | transloco"
+/>

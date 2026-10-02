@@ -1,0 +1,40 @@
+@let state = platform();
+@switch (state.status) {
+  @case ('success') {
+    <p class="platform-placeholder__eyebrow">{{ 'platformScope.eyebrow' | transloco }}</p>
+    <h1 class="platform-placeholder__title">
+      <bdi>{{ state.data.name }}</bdi>
+    </h1>
+    <div class="platform-placeholder__panel">
+      <span class="platform-placeholder__icon"><nw-icon name="hexagon" size="lg" /></span>
+      <h2 class="platform-placeholder__heading">
+        {{ 'platformScope.placeholderTitle' | transloco }}
+      </h2>
+      <p class="platform-placeholder__text">
+        {{ 'platformScope.placeholderDescription' | transloco: { name: state.data.name } }}
+      </p>
+      @if (state.data.key; as key) {
+        <p class="platform-placeholder__key">
+          {{ 'platformScope.key' | transloco }}
+          <code translate="no" dir="ltr">{{ key }}</code>
+        </p>
+      }
+      @if (canOpenCompany()) {
+        <a nw-button variant="secondary" routerLink="/overview">
+          <nw-icon name="arrow-left" size="sm" />{{ 'shell.pages.backToOverview' | transloco }}
+        </a>
+      }
+    </div>
+  }
+  @case ('loading') {
+    <nw-data-state state="loading" [title]="'platformScope.loading' | transloco" />
+  }
+  @default {
+    <h1 class="nw-visually-hidden">{{ 'platformScope.notFoundTitle' | transloco }}</h1>
+    <nw-data-state
+      state="empty"
+      [title]="'platformScope.notFoundTitle' | transloco"
+      [description]="'platformScope.notFoundDescription' | transloco"
+    />
+  }
+}

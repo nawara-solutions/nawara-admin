@@ -1,0 +1,67 @@
+:host {
+  display: grid;
+  gap: var(--nw-space-3);
+}
+
+// Segmented filter (owner design): the total, then one Platform at a time.
+.growth-panel__filters {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-self: start;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+}
+
+.growth-panel__filter {
+  padding: 0.3125rem 0.625rem;
+  border: 0;
+  border-radius: var(--nw-radius-sm);
+  background: transparent;
+  color: var(--nw-text-secondary);
+  font: inherit;
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-semibold);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--nw-text-primary);
+  }
+
+  &[aria-pressed='true'] {
+    background-color: var(--nw-surface-raised);
+    box-shadow: var(--nw-shadow-sm);
+    color: var(--nw-text-primary);
+  }
+}
+
+.growth-panel__headline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.625rem;
+}
+
+.growth-panel__value {
+  font-size: 1.625rem;
+  font-weight: var(--nw-font-weight-bold);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.growth-panel__change {
+  color: var(--nw-status-success-fg);
+  font-size: 0.78125rem;
+  font-weight: var(--nw-font-weight-bold);
+
+  &--flat {
+    color: var(--nw-text-secondary);
+  }
+}
+
+@media (forced-colors: active) {
+  .growth-panel__filter[aria-pressed='true'] {
+    outline: 2px solid Highlight;
+  }
+}

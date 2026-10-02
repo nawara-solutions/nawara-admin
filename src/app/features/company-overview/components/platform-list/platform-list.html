@@ -1,0 +1,66 @@
+<ul class="platform-list__items" role="list">
+  @for (item of platforms(); track item.platform.id) {
+    @let drive = item.platform.product === 'drive';
+    <li class="platform-list__item" [class.platform-list__item--drive]="drive">
+      <div class="platform-list__identity">
+        <span class="platform-list__tile" [class.platform-list__tile--drive]="drive">
+          @if (drive) {
+            <nw-icon name="car" size="lg" />
+          } @else {
+            <img
+              class="platform-list__symbol"
+              src="brand/nawara-mark.png"
+              alt=""
+              width="324"
+              height="324"
+            />
+          }
+        </span>
+        <div class="platform-list__names">
+          <h3 class="platform-list__name">
+            <bdi>{{ item.platform.name }}</bdi>
+          </h3>
+          <p class="platform-list__product">{{ productKey(item.platform.product) | transloco }}</p>
+        </div>
+      </div>
+      <dl class="platform-list__stats">
+        <div class="platform-list__stat">
+          <dt class="platform-list__stat-label">
+            {{ 'companyOverview.platforms.organizations' | transloco }}
+          </dt>
+          <dd class="platform-list__stat-value">
+            <adm-metric-value [metric]="item.organizations" />
+          </dd>
+        </div>
+        <div class="platform-list__stat">
+          <dt class="platform-list__stat-label">
+            {{ 'companyOverview.platforms.memberships' | transloco }}
+          </dt>
+          <dd class="platform-list__stat-value">
+            <adm-metric-value [metric]="item.memberships" />
+          </dd>
+        </div>
+        <div class="platform-list__stat">
+          <dt class="platform-list__stat-label">
+            {{ 'companyOverview.platforms.operators' | transloco }}
+          </dt>
+          <dd class="platform-list__stat-value"><adm-metric-value [metric]="item.operators" /></dd>
+        </div>
+      </dl>
+      <a
+        class="platform-list__open"
+        [routerLink]="path(item.platform.id)"
+        [attr.aria-label]="
+          'companyOverview.platforms.openLabel' | transloco: { name: item.platform.name }
+        "
+      >
+        {{ 'companyOverview.platforms.open' | transloco }}
+        <nw-icon name="arrow-right" size="sm" />
+      </a>
+    </li>
+  }
+</ul>
+<p class="platform-list__footnote">
+  <nw-icon name="info" size="sm" />
+  {{ 'companyOverview.platforms.footnote' | transloco }}
+</p>

@@ -1,17 +1,34 @@
-<img class="nw-brand-mark__symbol" src="brand/nawara-symbol.svg" alt="" />
-@if (wordmark()) {
+@if (lockup()) {
   <img
-    class="nw-brand-mark__wordmark nw-brand-mark__wordmark--on-light"
-    src="brand/nawara-wordmark.png"
+    class="nw-brand-mark__lockup nw-brand-mark__wordmark--on-light"
+    src="brand/nawara-lockup.png"
     alt=""
-    width="251"
-    height="64"
+    width="800"
+    height="247"
   />
   <img
-    class="nw-brand-mark__wordmark nw-brand-mark__wordmark--on-dark"
-    src="brand/nawara-wordmark-on-dark.png"
+    class="nw-brand-mark__lockup nw-brand-mark__wordmark--on-dark"
+    src="brand/nawara-lockup-on-dark.png"
     alt=""
-    width="219"
-    height="61"
+    width="800"
+    height="246"
   />
+} @else {
+  <img class="nw-brand-mark__symbol" src="brand/nawara-mark.png" alt="" width="324" height="324" />
+  @if (wordmark()) {
+    <img
+      class="nw-brand-mark__wordmark nw-brand-mark__wordmark--on-light"
+      src="brand/nawara-wordmark.png"
+      alt=""
+      width="251"
+      height="64"
+    />
+    <img
+      class="nw-brand-mark__wordmark nw-brand-mark__wordmark--on-dark"
+      src="brand/nawara-wordmark-on-dark.png"
+      alt=""
+      width="219"
+      height="61"
+    />
+  }
 }

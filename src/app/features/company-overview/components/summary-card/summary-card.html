@@ -1,0 +1,17 @@
+<div class="summary-card__head">
+  <p class="summary-card__label">{{ label() }}</p>
+  <span class="summary-card__tile"><nw-icon [name]="icon()" /></span>
+</div>
+<p class="summary-card__value">
+  <adm-metric-value [metric]="metric()" />
+  @if (trend(); as change) {
+    <span class="summary-card__trend" [class.summary-card__trend--down]="change < 0">
+      <nw-icon [name]="change > 0 ? 'arrow-up' : 'trending-down'" size="sm" />
+      <span aria-hidden="true">{{ change | nwNumber }}</span>
+      <span class="nw-visually-hidden">{{ change | nwNumber: 'signed' }}</span>
+    </span>
+  }
+</p>
+@if (caption(); as text) {
+  <p class="summary-card__caption">{{ text }}</p>
+}

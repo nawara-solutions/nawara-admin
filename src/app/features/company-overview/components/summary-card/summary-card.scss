@@ -1,0 +1,80 @@
+// Accent colours come from the accent tile tokens; the pink accent is the default.
+:host {
+  --summary-card-bg: var(--nw-accent-pink-bg);
+  --summary-card-fg: var(--nw-accent-pink-fg);
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  min-inline-size: 0;
+  padding: 1.125rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: 0.875rem;
+  background-color: var(--nw-surface-raised);
+}
+
+:host(.summary-card--orange) {
+  --summary-card-bg: var(--nw-accent-orange-bg);
+  --summary-card-fg: var(--nw-accent-orange-fg);
+}
+
+:host(.summary-card--purple) {
+  --summary-card-bg: var(--nw-accent-purple-bg);
+  --summary-card-fg: var(--nw-accent-purple-fg);
+}
+
+.summary-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nw-space-2);
+}
+
+.summary-card__label {
+  color: var(--nw-text-label);
+  font-size: 0.8125rem;
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.summary-card__tile {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  border-radius: var(--nw-radius-md);
+  background-color: var(--summary-card-bg);
+  color: var(--summary-card-fg);
+}
+
+.summary-card__value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625rem;
+  font-size: 1.875rem;
+  font-weight: var(--nw-font-weight-bold);
+  letter-spacing: -0.02em;
+  line-height: var(--nw-line-height-tight);
+}
+
+.summary-card__trend {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 0.375rem;
+  border-radius: var(--nw-radius-sm);
+  background-color: var(--nw-status-success-bg);
+  color: var(--nw-status-success-fg);
+  font-size: var(--nw-text-size-xs);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+
+  &--down {
+    background-color: var(--nw-surface-sunken);
+    color: var(--nw-text-secondary);
+  }
+}
+
+.summary-card__caption {
+  color: var(--nw-text-secondary);
+  font-size: 0.78125rem;
+}

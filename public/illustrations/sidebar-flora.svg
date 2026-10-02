@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 600" fill="none">
+  <!--
+    Decorative sidebar illustration (docs/BRAND.md): translucent petals in pink, lilac and peach with thin gold orbit
+    arcs and beads, redrawn from the owner's Company Overview design (claude.ai design, 2026-10-02). NOT brand artwork
+    and never a logo. Anchored to the sidebar's lower outer corner on an aria-hidden layer.
+  -->
+  <defs><linearGradient id="p0" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgb(236 72 153)" stop-opacity="0.55"/><stop offset="1" stop-color="rgb(250 190 220)" stop-opacity="0.15"/></linearGradient><linearGradient id="p1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgb(190 110 240)" stop-opacity="0.45"/><stop offset="1" stop-color="rgb(250 200 230)" stop-opacity="0.1"/></linearGradient><linearGradient id="p2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgb(255 170 130)" stop-opacity="0.55"/><stop offset="1" stop-color="rgb(245 120 180)" stop-opacity="0.25"/></linearGradient><linearGradient id="p3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgb(245 120 180)" stop-opacity="0.45"/><stop offset="1" stop-color="rgb(255 220 200)" stop-opacity="0.1"/></linearGradient><linearGradient id="p4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgb(250 170 210)" stop-opacity="0.45"/><stop offset="1" stop-color="rgb(255 235 225)" stop-opacity="0"/></linearGradient><linearGradient id="p5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgb(255 190 160)" stop-opacity="0.4"/><stop offset="1" stop-color="rgb(255 235 225)" stop-opacity="0"/></linearGradient><radialGradient id="bead" cx="0.35" cy="0.35" r="0.65"><stop offset="0" stop-color="#ffd39a"/><stop offset="1" stop-color="#f08a24"/></radialGradient><filter id="glow" x="-1" y="-1" width="3" height="3"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#f08a24" flood-opacity="0.5"/></filter></defs>
+  <path d="M0 200A200 200 0 0 1 200 0A200 200 0 0 1 0 200Z" transform="translate(126 150) rotate(8 100.0 100.0)" fill="url(#p0)" opacity="0.55"/>
+  <path d="M0 170A170 170 0 0 1 170 0A170 170 0 0 1 0 170Z" transform="translate(56 310) rotate(-28 85.0 85.0)" fill="url(#p1)" opacity="0.55"/>
+  <path d="M0 230A230 230 0 0 1 230 0A230 230 0 0 1 0 230Z" transform="translate(116 410) rotate(30 115.0 115.0)" fill="url(#p2)" opacity="0.5"/>
+  <path d="M0 160A160 160 0 0 1 160 0A160 160 0 0 1 0 160Z" transform="translate(-60 430) rotate(-50 80.0 80.0)" fill="url(#p3)" opacity="0.5"/>
+  <path d="M0 120A120 120 0 0 1 120 0A120 120 0 0 1 0 120Z" transform="translate(66 100) rotate(-12 60.0 60.0)" fill="url(#p4)" opacity="0.5"/>
+  <path d="M0 140A140 140 0 0 1 140 0A140 140 0 0 1 0 140Z" transform="translate(10 310) rotate(-70 70.0 70.0)" fill="url(#p5)" opacity="0.45"/>
+  <path d="M327.9 317.9A399 399 0 0 0 327.9 882.1" stroke="rgb(240 138 36 / 0.6)" stroke-width="1.5"/>
+  <path d="M420.7 -144.3A699 699 0 0 0 420.7 844.3" stroke="rgb(240 138 36 / 0.5)" stroke-width="1.5"/>
+  <circle cx="215" cy="540" r="5" fill="url(#bead)" filter="url(#glow)"/>
+  <circle cx="248" cy="430" r="5" fill="url(#bead)" filter="url(#glow)"/>
+  <circle cx="215" cy="350" r="5" fill="url(#bead)" filter="url(#glow)"/>
+  <circle cx="231" cy="200" r="5" fill="url(#bead)" filter="url(#glow)"/>
+</svg>

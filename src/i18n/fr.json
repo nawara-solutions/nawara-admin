@@ -143,5 +143,231 @@
       "formattingTag": "Locale de formatage",
       "note": "L’arabe utilise les chiffres latins 0–9."
     }
+  },
+  "titles": {
+    "app": "Nawara Admin",
+    "overview": "Vue d’ensemble de l’entreprise",
+    "platform": "Plateforme",
+    "forbidden": "Non disponible",
+    "notFound": "Page introuvable",
+    "sessionUnavailable": "Connexion indisponible",
+    "foundation": "Fondation du design"
+  },
+  "shell": {
+    "skipToContent": "Aller au contenu",
+    "openNavigation": "Ouvrir la navigation",
+    "closeNavigation": "Fermer la navigation",
+    "mainNavigation": "Navigation principale",
+    "notAvailableYet": "Pas encore disponible",
+    "breadcrumb": {
+      "label": "Fil d’Ariane",
+      "home": "Vue d’ensemble de l’entreprise",
+      "company": "Entreprise",
+      "overview": "Vue d’ensemble",
+      "platform": "Plateforme"
+    },
+    "context": {
+      "label": "Périmètre d’administration",
+      "allPlatforms": "Toutes les plateformes",
+      "platforms": "Plateformes",
+      "current": "actuel",
+      "loading": "Chargement…"
+    },
+    "role": {
+      "owner": "Propriétaire de l’entreprise",
+      "operator": "Opérateur de plateforme"
+    },
+    "demo": {
+      "badge": "Données fictives",
+      "explanation": "Données de démonstration : chiffres fictifs et session de propriétaire de démonstration. Rien sur cet écran ne provient de Nawara Core.",
+      "about": "À propos des données fictives"
+    },
+    "nav": {
+      "groups": {
+        "platform": "Plateforme",
+        "commercial": "Commercial",
+        "operations": "Opérations"
+      },
+      "overview": "Vue d’ensemble",
+      "organizations": "Organisations",
+      "users": "Utilisateurs et identité",
+      "operators": "Opérateurs et accès",
+      "licenses": "Licences et droits",
+      "billing": "Facturation et paiements",
+      "audit": "Journal d’audit",
+      "files": "Fichiers",
+      "notifications": "Notifications",
+      "services": "Services et santé",
+      "monitoring": "Supervision",
+      "settings": "Paramètres",
+      "releases": "Versions"
+    },
+    "pages": {
+      "backToOverview": "Retour à la vue d’ensemble de l’entreprise",
+      "sessionUnavailable": {
+        "title": "La connexion n’est pas encore disponible",
+        "description": "Cette version n’a pas de connexion : l’authentification Nawara Core arrive dans une étape ultérieure. Les données de démonstration n’existent que dans les versions de développement."
+      },
+      "forbidden": {
+        "title": "Non disponible pour votre compte",
+        "description": "L’administration à l’échelle de l’entreprise est réservée à son propriétaire. Nawara Core décide de ce que chaque compte peut faire."
+      },
+      "notFound": {
+        "title": "Page introuvable",
+        "description": "Cette adresse ne correspond à aucune page."
+      }
+    },
+    "sidebarLabel": "Barre latérale",
+    "search": {
+      "label": "Rechercher",
+      "placeholder": "Rechercher des organisations, des utilisateurs…"
+    },
+    "notifications": {
+      "unread": "Notifications non lues : {{count}}"
+    }
+  },
+  "companyOverview": {
+    "title": "Vue d’ensemble de l’entreprise",
+    "subtitle": "Vos plateformes, organisations et accès — au même endroit.",
+    "period": "{{days}} derniers jours",
+    "create": "Créer une plateforme",
+    "createUnavailable": "La création de plateforme n’est pas disponible dans cette démonstration.",
+    "unavailable": "Non disponible",
+    "summary": {
+      "label": "Chiffres de l’entreprise",
+      "platforms": "Plateformes",
+      "organizations": "Organisations",
+      "pendingInvitations": "Invitations en attente",
+      "awaitingAcceptance": "En attente d’acceptation",
+      "uniqueIdentities": "Identités uniques",
+      "distinctAccounts": "Comptes distincts",
+      "acrossPlatforms": "Sur toutes les plateformes",
+      "thisPeriod": "{{change}} sur la période"
+    },
+    "platforms": {
+      "title": "Vos plateformes",
+      "product": {
+        "school": "Plateforme éducative",
+        "drive": "Plateforme d’auto-école",
+        "unknown": "Plateforme"
+      },
+      "organizations": "Organisations",
+      "operators": "Opérateurs",
+      "open": "Ouvrir la plateforme",
+      "openLabel": "Ouvrir la plateforme {{name}}",
+      "footnote": "Les adhésions sont comptées par plateforme.",
+      "memberships": "Adhésions",
+      "manage": "Gérer"
+    },
+    "attention": {
+      "title": "À traiter",
+      "adminInvitations": {
+        "title": "Invitations en attente d’acceptation",
+        "description": "Invitations d’administrateur d’organisation pas encore acceptées."
+      },
+      "empty": "Rien à traiter.",
+      "accessAssignments": {
+        "title": "Affectations d’accès à vérifier",
+        "description": "Attribuez ou ajustez l’accès des opérateurs aux plateformes."
+      },
+      "licensesExpiring": {
+        "title": "Licences arrivant à échéance",
+        "description": "Renouvelez sous {{days}} jours pour éviter toute interruption."
+      },
+      "open": "Ouverts : {{count}}",
+      "urgent": "Urgent"
+    },
+    "growth": {
+      "title": "Croissance des organisations",
+      "subtitle": "Total des organisations, {{days}} derniers jours",
+      "caption": "Nombre total d’organisations par date (historique fictif)",
+      "date": "Date",
+      "series": "Organisations",
+      "filter": "Plateforme",
+      "all": "Toutes",
+      "change": "{{change}} depuis le {{date}}"
+    },
+    "activity": {
+      "title": "Activité récente",
+      "empty": "Aucune activité administrative récente.",
+      "actions": {
+        "organizationCreated": "Organisation créée",
+        "operatorAssigned": "Opérateur affecté",
+        "invitationSent": "Invitation envoyée",
+        "licenseRenewed": "Licence renouvelée"
+      },
+      "auditLog": "Journal d’audit"
+    },
+    "states": {
+      "loading": "Chargement de la vue d’ensemble de l’entreprise",
+      "errorTitle": "La vue d’ensemble de l’entreprise n’a pas pu être chargée",
+      "errorDescription": "Réessayez dans un instant.",
+      "retry": "Réessayer",
+      "unavailableTitle": "Non disponible dans cette version",
+      "unavailableDescription": "Aucun contrat Nawara Core ne fournit encore cette vue d’ensemble.",
+      "forbiddenTitle": "Non disponible pour votre compte",
+      "forbiddenDescription": "L’administration à l’échelle de l’entreprise est réservée à son propriétaire.",
+      "emptyTitle": "Rien à afficher pour le moment",
+      "emptyDescription": "Votre entreprise n’a pas encore de plateforme."
+    },
+    "access": {
+      "title": "Accès et sécurité",
+      "owner": {
+        "title": "Propriétaire de l’entreprise",
+        "action": "Sécurité du compte",
+        "scope": "Toute l’entreprise",
+        "twoFactor": "Double authentification activée"
+      },
+      "operators": {
+        "title": "Affectations d’opérateurs",
+        "assignments": "Affectations",
+        "uniqueOperators": "Opérateurs uniques",
+        "platforms": "Plateformes",
+        "action": "Gérer les accès",
+        "toReview": "À examiner : {{count}}"
+      }
+    },
+    "commercial": {
+      "title": "Vue commerciale",
+      "activeLicenses": "Licences actives",
+      "expiringSoon": "Échéance proche",
+      "withinDays": "Sous {{days}} jours",
+      "paymentIssues": "Problèmes de paiement",
+      "followUp": "À suivre",
+      "billing": "Facturation"
+    },
+    "health": {
+      "title": "Services et santé",
+      "subtitle": "Statuts indicatifs des services Nawara Core, pas leur état réel.",
+      "viewServices": "Voir les services",
+      "services": {
+        "auth": "Auth",
+        "organization": "Organisation",
+        "release": "Versions",
+        "billing": "Facturation",
+        "payment": "Paiement",
+        "file": "Fichiers",
+        "notification": "Notifications",
+        "audit": "Audit"
+      },
+      "status": {
+        "operational": "Opérationnel",
+        "delayed": "Retardé",
+        "unavailable": "Indisponible",
+        "unknown": "Inconnu"
+      },
+      "operationalCount": "{{count}} sur {{total}} opérationnels"
+    },
+    "sectionUnavailable": "Pas encore disponible : Nawara Core ne fournit pas cette information.",
+    "periodUnavailable": "Les autres périodes ne sont pas encore disponibles."
+  },
+  "platformScope": {
+    "eyebrow": "Périmètre de la plateforme",
+    "placeholderTitle": "L’administration de la plateforme n’est pas encore construite",
+    "placeholderDescription": "Vous êtes maintenant dans le périmètre de la plateforme {{name}}. Ses pages d’administration arrivent dans des étapes ultérieures.",
+    "key": "Identifiant de la plateforme :",
+    "loading": "Chargement de la plateforme",
+    "notFoundTitle": "Plateforme introuvable ou inaccessible",
+    "notFoundDescription": "Elle n’existe peut-être pas, ou elle est hors de votre périmètre d’administration."
   }
 }

@@ -50,14 +50,16 @@ src/
 │   │   ├── errors/               AppError model, Core error mapping, global ErrorHandler
 │   │   ├── auth/                 session, token refresh, auth guard, step-up service
 │   │   ├── access/               capability policy (UX authorization)
-│   │   ├── context/              organization context
+│   │   ├── context/              company/platform scope (URL), scope directory gateway, organization context
+│   │   ├── state/                ViewState and the load → view-state helper
 │   │   ├── i18n/                 locale, direction, formatting services
 │   │   ├── theme/                theme preference and application
 │   │   └── preferences/          the single registry of browser-stored preferences
 │   ├── shared/                   reusable, product-independent UI (kit-ready)
 │   │   ├── ui/                   nw-button, nw-icon, nw-dialog, nw-form-field, nw-data-table, nw-data-state, …
 │   │   └── format/               nwDate, nwDateTime, nwNumber, nwMachineValue pipes
-│   ├── layout/                   shell, sidebar, top bar, organization switcher (Admin-specific)
+│   ├── layout/                   shell, sidebar, top bar, breadcrumbs, scope switcher, status pages (Admin-specific)
+│   ├── demo/                     demo composition root (mock adapters + demo owner); development builds only
 │   └── features/
 │       └── <domain>/
 │           ├── data-access/      <domain>.gateway.ts · .http.ts · .mock.ts · .dto.ts · .mapper.ts · .fixtures.ts
@@ -168,7 +170,11 @@ Lazy-loaded feature routes. Titles are localized through a custom `TitleStrategy
 /recovery                      owner recovery (start / complete)
 
 /                              → /overview
-/overview                      scope overview (owner: Company; operator: assigned Platforms)
+/overview                      Company overview: company scope, owner only            🔴 aggregates (mock in demo builds)
+/platforms/:platformId         platform scope entry (placeholder until platform pages) 🟢 access check · 🔴 names
+/forbidden  /** (in the shell) "not available to your account" / "page not found"
+/session-unavailable           no session in this build (every production build until A4)
+/foundation                    A2 design-foundation gallery (verification surface)
 
 /organizations                 directory                                      🔴 mock until CF-02
 /organizations/:organizationId                                                 organization context
@@ -183,7 +189,7 @@ Lazy-loaded feature routes. Titles are localized through a custom `TitleStrategy
     /audit                     owner audit read (≤ 31 days per query)          🟢
     /settings                  metadata edit                                   🟢 contract · ⚠ cutover
 
-/platforms                     owner's Platforms                              🔴 list · 🟢 create/edit (⚠ cutover)
+/platforms                     owner's Platforms (list page, later)          🔴 list · 🟢 create/edit (⚠ cutover)
 /operators                     owner: operators, block, assignments           🟢 actions · 🔴 directory
 /operators/:operatorId
 /members/:userId               member security: suspend / restore             🟢 (reached from memberships)
@@ -207,6 +213,28 @@ Lazy-loaded feature routes. Titles are localized through a custom `TitleStrategy
 
 **Global context** is the actor's scope: the owner's Company, or the operator's assigned Platforms (`GET /auth/grants`). Global pages
 never read an organization context.
+
+### Company scope and platform scope (amendment, 2026-10-02)
+
+The hierarchy is **Company → Platforms → Organizations → users and memberships**. Admin has two administrative scopes above the
+organization context, both derived from the URL (`scopeFromUrl` in `core/context/scope-context.ts`):
+
+| Scope | URL | Who | Meaning |
+|---|---|---|---|
+| **Company** ("All platforms") | `/overview` and other non-platform shell pages | **owner only** (`company.overview.view`) | company-wide administration across all the Company's Platforms |
+| **Platform** | `/platforms/:platformId/…` | the owner (any Platform of their Company) or an operator **assigned** to that Platform | administration of one Platform |
+
+- The **scope switcher** in the top bar shows the Company and "All platforms" or the selected Platform. Choosing an entry is
+  **navigation**: "All platforms" → `/overview`, a Platform → `/platforms/:platformId`. "Open platform" on the Company overview
+  does the same. No token changes; Core authorizes each request.
+- **An operator's active Platform assignment never implies company-wide access.** `CapabilityPolicy` gives operators no
+  company capability; the Company overview route guard sends them to `/forbidden`, and its facade never calls the gateway
+  for them.
+- Entering a Platform mirrors Core's `GET /auth/platform-access/:platformId`: unknown and not-yours are one
+  "not found or not accessible" state (collapsed `404`).
+- The Company's name and Platform list come from `ScopeDirectoryGateway` (🔴 no human Core route, CF-02; mock in demo builds),
+  bound by the shell route; `ScopeContext` (shell-scoped) exposes the scope and the directory as signals.
+- Platform administration pages are later stages; until then the platform scope shows a labelled placeholder.
 
 **Organization context** is entered by URL (`/organizations/:organizationId/…`):
 
@@ -579,6 +607,14 @@ type ViewState<T> =
 - **Runtime config** `config.json`, loaded before bootstrap (`provideAppInitializer`) and validated into a typed `AppConfig`:
   `environment` (`local | development | staging | production`), Core base URL(s), per-domain adapter (`http | mock`), build info. One
   build is promoted across environments.
+- **Interim (A3 Company Overview slice, 2026-10-02): build-time environments.** Until runtime config is needed (Core base
+  URLs, A4), `src/environments/environment.ts` (production, the default `ng build`) and `environment.development.ts` (swapped
+  by `fileReplacements` for `ng serve` and `--configuration development`) are typed `AppEnvironment` values. The production
+  file sets `demo: null` and imports nothing from `src/app/demo/`, so **no demo session, mock adapter or fixture is bundled**;
+  `assertEnvironment` refuses `production` with demo data at startup, and `npm run check:production` fails the validation if
+  any demo marker appears in the production bundle. Domains without a Core contract bind an **unavailable** adapter outside
+  demo builds (never mock data). When runtime config arrives, the per-domain adapter choice moves into it and production
+  still refuses `mock`.
 - **Everything shipped to the browser is public.** Config contains no secrets.
 - **Diagnostics:** the global `ErrorHandler` and failed requests produce a redacted record (`requestId`, `code`, status, route,
   build version, time) shown in the error UI as a copyable reference. It is sent to no external vendor until Core V2 A12 defines the

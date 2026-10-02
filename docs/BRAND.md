@@ -78,6 +78,11 @@ and red, the focus ring, shadows. `npm run check:contrast` checks the token pair
 | `nawara-symbol.png` | 105 × 113 | board, light lockup flower | light backgrounds |
 | `nawara-symbol-on-dark.png` | 98 × 113 | board, dark lockup flower (glow with real transparency) | dark backgrounds, transparent icons |
 | `nawara-symbol.svg` | vector | **reconstruction, provisional** | in-app symbol, large icons |
+| `nawara-logo-sidebar.png` | 368 × 111 | **board pixels**: the light horizontal lockup with the divider and tagline made transparent (lettering columns only) | superseded 2026-10-02 (kept, unused) |
+| `nawara-logo-sidebar-on-dark.png` | 335 × 112 | **board pixels**: the dark horizontal lockup, same treatment | superseded 2026-10-02 (kept, unused) |
+| `nawara-lockup.png` | 800 × 247 | **owner-supplied** ("Light-mode Nawara flower logo.png", 2172 × 724, 2026-10-02): flower with orbit rings + dark NAWARA SOLUTIONS, transparent; cropped to its artwork and downscaled, not redrawn | shell sidebar, light theme |
+| `nawara-lockup-on-dark.png` | 800 × 246 | **owner-supplied** ("Nawara Solutions transparent logo (1).png", 2172 × 724): same artwork with light lettering, same treatment. The source has white speckle noise around the lettering, not visible at sidebar size but visible if enlarged | shell sidebar, dark theme |
+| `nawara-mark.png` | 324 × 324 | **owner-supplied** ("Six-petal gradient flower with orbit lines.png", 1254 × 1254, 2026-10-02): the flower with orbit rings, transparent; centred on a square and downscaled, not redrawn | every in-app flower: `nw-brand-mark` symbol mode, scope switcher, Nawara School card. Also the source of the favicon (`favicon.ico` 16/32/48, `icons/icon-16…512.png`) and of the touch and maskable icons (white background, flower at 86% / 72% for the maskable safe zone) |
 
 - The PNGs are **the board's own pixels**, cut out with transparency by `tools/brand/extract_board_assets.py`; nothing is
   redrawn. They are at the board's native resolution and must not be enlarged.
@@ -95,6 +100,52 @@ midrib, running cream → amber → coral → pink → magenta (tips sampled at 
 printed palette), with a warm white centre glow. It matches the board's separated petals, central negative space, midrib
 highlight and tip colour; it does **not** reproduce the board's fine brush-like highlights, and its colours are samples.
 It is close, **not exact**. The design-foundation gallery shows it beside the board raster on light and dark panels.
+
+### Sidebar lockup (Company Overview slice, 2026-10-02)
+
+The approved Company Overview shows the horizontal lockup (flower, NAWARA with the dotted A's, SOLUTIONS) without divider and
+tagline, plus an "ADMIN" label. `tools/brand/derive_sidebar_logo.py` derives `nawara-logo-sidebar*.png` from the board's own
+lockup rasters: it only makes the divider and tagline rows transparent in the lettering columns and crops; **no pixel is
+redrawn or recoloured**, and the provisional vector reconstruction is **not** used. `nw-brand-mark` renders it with the
+`lockup` option (light or dark artwork chosen by the theme tokens). Limits:
+
+- **Resolution:** about 368 px wide; shown at about 200 CSS px it is roughly 1.8× density. Sharp on standard and 2× screens at
+  that size; it must not be enlarged. The official vector artwork (D-A2-6) replaces both files with no consumer change.
+- **Flower rendition:** the board's lockup uses the slim flower without orbit rings; the mockup's small orbit dots beside the
+  sidebar logo are not on the board's lockup and are not invented.
+- "ADMIN" is UI text in IBM Plex (a product label, not logo lettering).
+- The small flower in the scope switcher and on the Nawara School card is the board raster `nawara-symbol.png` (105 × 113).
+
+The **sidebar illustration** (`public/illustrations/sidebar-flora.svg`) is a decorative drawing made by Admin in the reference's
+direction (redrawn 2026-10-02): soft almond petals with curved sides fanning from the lower outer corner, white midribs and a thin
+orbit with dots, in the brand palette. It is **not brand artwork** and never a logo. It is applied as a CSS background
+(invisible to assistive technology, removed in forced-colours mode), mirrored in RTL, and faded under the text column by a
+theme mask (`--nw-sidebar-illustration-mask`, with `--nw-sidebar-illustration-opacity`). Text contrast over it is **measured on
+the rendered background** (every pixel behind each label, light and dark, LTR and RTL, desktop, laptop and the mobile drawer)
+and passes WCAG AA; see `docs/review/a3-company-overview/rendered-checks.txt`.
+
+### Owner design (2026-10-02)
+
+The owner supplied a Company Overview design (claude.ai design project, files `Nawara Owner Dashboard.dc.html` and
+`Nawara Responsive Showcase.dc.html`). Admin implemented it with these brand-relevant consequences:
+
+- **Logo:** the sidebar uses lockup artwork (`nawara-lockup*.png`, above; replaced the same day by the owner's own
+  light and dark lockups), not font lettering (the design
+  page draws "NAWARA / SOLUTIONS" as text next to the flower; Admin uses the design's lockup image instead). The "ADMIN"
+  label under the lockup is removed, as in the design. The files are rasters (800 px wide, shown at about 182 CSS px); their
+  embedded provenance metadata says they were produced in claude.ai. They are **not** the official vector files: D-A2-6 stays
+  open, and the board's own rasters remain in `public/brand/`.
+- **Neutrals:** the design's cool lilac neutrals (light) and night-purple neutrals (dark) are added as primitives
+  `--nw-ref-lilac-*`, `--nw-ref-blush-*`, `--nw-ref-peach-50` and `--nw-ref-night-*`, **sampled from the design file**, not
+  brand values. The brand hues (pink, orange, amber, purple) are unchanged: the design's own pinks and oranges (`#d4146e`,
+  `#e07812` …) were not adopted where the board's ramp gives the same role at AA contrast.
+- **Typography:** IBM Plex stays (owner decision, 2026-10-02); the design's Plus Jakarta Sans is not used. Plex **700** (Latin
+  and Arabic) is added for headings and key figures (`--nw-font-weight-bold`).
+- **Icons:** Lucide stays (D-A2-2); each Material Symbol of the design is mapped to its Lucide equivalent.
+- **Illustrations:** `sidebar-flora.svg` and the new `hero-flora.svg` (header card) are redrawn by Admin from the design's CSS
+  geometry (leaf-shaped petals, gold orbit arcs and beads). Not brand artwork. Both are masked toward the text
+  (`--nw-sidebar-illustration-mask`, `--nw-hero-illustration-mask`), mirrored in RTL, removed in forced colours; text over
+  them is measured on renders (lowest 4.85:1, the active navigation item on its own pink background).
 
 ### In the application
 
@@ -120,7 +171,8 @@ logo, never a UI icon set.
 ## 6. Open items for the owner
 
 1. **Official vector artwork** (symbol, wordmark, lockups, light and dark): replaces the reconstruction and the rasters with no
-   consumer change (D-A2-6).
+   consumer change (D-A2-6). The owner rejected the provisional reconstruction as the logo; the shell therefore uses the
+   board-pixel lockup above, which is faithful but raster.
 2. Which flower rendition is canonical (with or without orbits).
 3. Confirm the compact toolbar usage (symbol + wordmark, no tagline).
 4. Exact gradient stops and angle, if the brand defines them.
