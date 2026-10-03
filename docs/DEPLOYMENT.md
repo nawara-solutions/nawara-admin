@@ -1,7 +1,8 @@
 # Nawara Admin — CI, deployment and rollback
 
-- **Status:** established 2026-10-03. Production serves the frontend only; sign-in is not available in production (A4-S1 is a
-  reviewed mock prototype, development builds only).
+- **Status:** established 2026-10-03; **first production deployment succeeded on 2026-10-03** (see "Initial deployment
+  record"). Production serves the frontend only. **Production authentication remains unavailable** and stage A4 stays open:
+  A4-S1 is a reviewed mock prototype that exists in development builds only.
 - **Model:** the Nawara Core convention, applied to a static frontend: an image in GHCR, deployed over SSH by a script that
   travels inside the image, routed by the existing Traefik on the VPS. No Admin backend, no BFF, no runtime secret.
 
@@ -46,6 +47,14 @@ A14). `/healthz` (container health) and `/version.txt` (the deployed commit) are
 | `GITHUB_TOKEN` | automatic | GitHub | push the image to GHCR; the server pulls with it during the run |
 | `DEPLOY_NETWORK`, `ADMIN_HOST`, `KEEP_PREVIOUS` | optional script variables | the deploy command | defaults `deploy_edge`, `admin.nawara-solutions.com`, `2` |
 
+**Organization secrets and repository visibility.** Deployment uses the existing organization-level `DEPLOY_SSH_*` secrets
+(policy: all repositories). They are not duplicated as repository secrets. The organization is on **GitHub Free**, where
+organization secrets are passed only to **public** repositories. `nawara-admin` is currently **public**, which is why they reach
+its workflows. While it was private, the first deployment attempt received them empty and stopped with "missing server host"
+before any connection. **Making the repository private again will break deployment** unless either the organization moves to a
+plan that supports organization secrets for private repositories (GitHub Team or Enterprise), or a change to secret management
+(for example repository secrets) is separately approved by the owner. Neither is to be done as a side effect of other work.
+
 The frontend has **no** secret and **no** runtime configuration: everything in the bundle is public. Never put SSH credentials,
 tokens, private keys or Core service credentials into `src/environments/` or any served file. Future Core integration settings
 (Core origins, WebAuthn) are public browser configuration and are decided with the HTTP adapter (CF-15, D-A4); none exists yet.
@@ -71,3 +80,33 @@ simulated passkey). It runs in CI against the image and after every deployment a
    This stops the current container (kept as `nawara-admin-web-failed-<time>`) and starts the newest previous one.
 
 The script only ever touches containers named `nawara-admin-web*`; it never creates networks and never stops other services.
+
+## Initial deployment record (2026-10-03)
+
+| Item | Value |
+|---|---|
+| Workflow run | <https://github.com/nawara-solutions/nawara-admin/actions/runs/37079263924> (attempt 1 failed: secrets empty while the repository was private; attempt 2 succeeded) |
+| Trigger | tag `admin-deploy-initial` (the workflow was not yet on `main` when it was created) |
+| Deployed commit | `43f267285d9dc9e1546c5fba20fce7ca76d28929`, file-for-file identical to `main` at `3264ba6` |
+| Image | `ghcr.io/nawara-solutions/nawara-admin-web:sha-43f267285d9dc9e1546c5fba20fce7ca76d28929` |
+| Container | `nawara-admin-web`, running/healthy; no previous container existed |
+
+**Live verification** (workflow `deploy/verify.sh`, repeated from a workstation, plus a Chrome run):
+
+- HTTPS: valid Let's Encrypt certificate for `*.nawara-solutions.com` (expires 2026-12-20); plain HTTP redirects to HTTPS.
+- `/`, `/login`, `/login/verify`, `/overview`, `/platforms`, `/platforms/x` load directly and all show "Sign-in is not available
+  yet": no sign-in form, no demo panel.
+- 131 assets loaded; no console errors; no failed requests; a missing file is a real 404; `/version.txt` returns the commit.
+- All 40 JavaScript files reachable from `main`: no demo account, demo credential, mock adapter or simulated passkey.
+- `https://core-api.nawara-solutions.com/auth/health` returned 200 before and after the deployment. Core was not modified.
+
+**Unverified observations (no cause established):** `https://core-api.nawara-solutions.com/organization/health` and
+`…/audit/health` returned 404 from outside after the deployment. They were not checked before it, so nothing is known about their
+earlier state; these services may simply not expose a public health route. The Admin deployment touches only its own
+`nawara-admin-web` container, and there is no evidence that it caused these responses. Likewise `https://nawara-solutions.com`
+(a different address from the VPS) did not answer over HTTPS during the session; its earlier state is unknown.
+
+**Still open:** a Content-Security-Policy (ARCHITECTURE §21, A14); the real session and refresh strategy, exact Core contracts and
+error mappings, the platform-access contract, real WebAuthn validation, main-app sign-out and the full operator journey (A4).
+
+Later deployments run from `main`: `gh workflow run admin-deploy.yml --ref main`.
