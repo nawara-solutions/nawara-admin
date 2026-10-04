@@ -48,64 +48,61 @@
   isolation: isolate;
 }
 
-// The botanical sprig at the top end of the content (Workspace design), behind the cards, mirrored in RTL.
+// The workspace decoration: one layer fixed to the visible workspace, i.e. the viewport minus the top bar (4rem, above)
+// and the sidebar (inline-start, none in drawer mode); `position: fixed` uses the viewport without its scrollbar. The
+// document scrolls, this layer does not, so its artwork stays put while content moves over it. It is a child of the
+// content column's stacking context at z-index -1: cards, the top bar and the sidebar always cover it, it never takes
+// pointer events and it is hidden from assistive technology (aria-hidden) and in forced colours. Not on sign-in pages
+// (they do not use the shell).
+.shell__decor {
+  position: fixed;
+  inset-block: 4rem 0;
+  inset-inline: var(--nw-shell-sidebar-width) 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+
+  @media (forced-colors: active) {
+    display: none;
+  }
+}
+
+// The botanical sprig at the top end of the workspace (Workspace design); mirrored in RTL.
 .shell__botanical {
   position: absolute;
-  inset-block-start: 4rem;
-  right: 0;
-  z-index: -1;
+  inset-block-start: 0;
+  inset-inline-end: 0;
   inline-size: min(9.75rem, 20%);
   aspect-ratio: 172 / 560;
   background: var(--nw-illustration-botanical-corner) no-repeat right top / contain;
   mask-image: var(--nw-auth-corner-mask);
-  pointer-events: none;
-
-  @media (forced-colors: active) {
-    display: none;
-  }
 }
 
-// The workspace flower: the botanical drawing at the bottom end corner of the visible workspace (accepted on the Platforms
-// page, 2026-10-04), fixed to the viewport so it shows from the first screen and stays while the content scrolls. It
-// sits under the content column's stacking context, so cards, the top bar and the sidebar always cover it; its width is
-// a share of the workspace beside the sidebar, and its height never reaches the top bar. Smaller and softer on tablets
-// and phones; decorative only (aria-hidden, no pointer events), mirrored in RTL, hidden in forced colours.
+// The flower at the bottom end corner of the workspace (accepted 2026-10-04). Its width is a share of the workspace
+// and its height never exceeds it; smaller and softer on tablets and phones; mirrored in RTL.
 .shell__flora {
-  --shell-flora-workspace: calc(100vw - var(--nw-shell-sidebar-width));
-
-  position: fixed;
+  position: absolute;
   inset-block-end: 0;
   inset-inline-end: 0;
-  z-index: -1;
-  inline-size: min(14rem, 55vw);
-  max-block-size: calc(100dvh - 6rem);
+  inline-size: min(14rem, 55%);
+  max-block-size: 100%;
   aspect-ratio: 836 / 941;
   background: var(--nw-illustration-botanical) no-repeat right bottom / contain;
   opacity: calc(var(--nw-workspace-illustration-opacity) * 0.7);
   mask-image: var(--nw-workspace-illustration-mask);
-  pointer-events: none;
 
   @include nw.from(tablet) {
-    inline-size: min(24rem, 50vw);
+    inline-size: min(24rem, 50%);
   }
 
   @include nw.from(laptop) {
-    inline-size: min(34rem, calc(var(--shell-flora-workspace) * 0.55));
+    inline-size: min(34rem, 55%);
     opacity: var(--nw-workspace-illustration-opacity);
   }
-
-  @media (forced-colors: active) {
-    display: none;
-  }
 }
 
-:host(:dir(rtl)) .shell__flora {
-  transform: scaleX(-1);
-}
-
+:host(:dir(rtl)) .shell__flora,
 :host(:dir(rtl)) .shell__botanical {
-  right: auto;
-  left: 0;
   transform: scaleX(-1);
 }
 
@@ -142,8 +139,8 @@
 :host(.shell--drawer) {
   grid-template-columns: minmax(0, 1fr);
 
-  .shell__flora {
-    --shell-flora-workspace: 100vw;
+  .shell__decor {
+    inset-inline-start: 0;
   }
 
   .shell__sidebar {

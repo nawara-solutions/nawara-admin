@@ -75,8 +75,7 @@
   // Illustration masks (alpha only, not colours): the sidebar drawing fades in from its top and stays at 40% behind
   // the text column (two layers, intersected); the header-card drawing fades toward the title.
   --nw-sidebar-illustration-mask: linear-gradient(to bottom, transparent, #000 45%);
-  // Header cards: the botanical fades toward the title; the Platforms page drawing fades in from its top-start corner.
-  --nw-hero-illustration-mask: linear-gradient(to left, #000 40%, transparent 100%);
+  // The workspace flower fades in from its top-start corner.
   --nw-workspace-illustration-mask: radial-gradient(
     120% 110% at 100% 100%,
     #000 45%,

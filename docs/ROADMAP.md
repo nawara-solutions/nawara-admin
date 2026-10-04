@@ -214,6 +214,13 @@ none), operator scope.
 Evidence: [`review/a3-company-overview/`](review/a3-company-overview/README.md).
 
 
+## Clean page headers and fixed workspace artwork (owner-authorized 2026-10-04)
+
+On `feat/admin-clean-headers`, on top of `feat/admin-appearance-fixes` (PR #9). Company overview and Platforms headers
+lose their banner card (background, border, radius, `::before` artwork) and sit on the workspace background, aligned
+with the content; the unused `--nw-hero-*` tokens are removed. The shell's corner sprig and flower move into one fixed
+decoration layer sized to the visible workspace.
+
 ## Appearance fixes (owner-authorized 2026-10-04)
 
 On `feat/admin-appearance-fixes`, on top of `feat/admin-palette-artwork` (PR #8). The favicon follows the palette;

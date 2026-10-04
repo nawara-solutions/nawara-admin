@@ -471,8 +471,10 @@ src/styles/
 - **Favicon, workspace tint, flower (2026-10-04):** one `<link id="nw-favicon">` whose file follows the palette (set by
   `index.html` before paint, then by `ThemeService`; an external SVG cannot read page CSS variables). The authenticated
   shell's background is `--nw-workspace-background`, the neutral page washed toward `--nw-color-primary` with
-  `color-mix()`; the header-card gradients end in the same tint; cards stay neutral. The workspace flower is fixed to
-  the bottom end corner of the viewport, under the content column, so it shows on every screen without scroll script.
+  `color-mix()`; cards stay neutral. Workspace page headers have no banner (no background, border or artwork): title and
+  actions sit on the workspace background. The shell's single decoration layer (`.shell__decor`: corner sprig and
+  flower) is `position: fixed` to the visible workspace (below the top bar, beside the sidebar, inside the scrollbar),
+  under the content column, so it stays put while the document scrolls, without scroll script.
 - **One appearance state, three entry points:** `ThemeService` holds mode and accent; the Appearance popover (beside the
   language control on the sign-in pages and in the top bar) and Settings → Appearance edit the same state. It is
   browser-local (`nw.theme`, `nw.accent` in the preference registry), validated on read, applied before first paint by
