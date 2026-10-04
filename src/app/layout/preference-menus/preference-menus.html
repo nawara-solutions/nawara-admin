@@ -36,7 +36,6 @@
     <button
       type="button"
       class="preference-menus__theme"
-      [class.preference-menus__theme--sun]="option.value === 'light'"
       [attr.aria-pressed]="theme.preference() === option.value"
       [title]="option.labelKey | transloco"
       (click)="setTheme(option.value)"

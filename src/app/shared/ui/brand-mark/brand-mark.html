@@ -1,34 +1,45 @@
-@if (lockup()) {
+<ng-template #bloom>
   <img
-    class="nw-brand-mark__lockup nw-brand-mark__wordmark--on-light"
-    src="brand/nawara-lockup.png"
+    class="nw-brand-mark__bloom nw-brand-mark__bloom--on-light"
+    src="brand/nawara-bloom-coral.svg"
     alt=""
-    width="800"
-    height="247"
+    width="480"
+    height="580"
   />
   <img
-    class="nw-brand-mark__lockup nw-brand-mark__wordmark--on-dark"
-    src="brand/nawara-lockup-on-dark.png"
+    class="nw-brand-mark__bloom nw-brand-mark__bloom--on-dark"
+    src="brand/nawara-bloom-glow.svg"
     alt=""
-    width="800"
-    height="246"
+    width="480"
+    height="580"
   />
-} @else {
-  <img class="nw-brand-mark__symbol" src="brand/nawara-mark.png" alt="" width="324" height="324" />
-  @if (wordmark()) {
-    <img
-      class="nw-brand-mark__wordmark nw-brand-mark__wordmark--on-light"
-      src="brand/nawara-wordmark.png"
-      alt=""
-      width="251"
-      height="64"
-    />
-    <img
-      class="nw-brand-mark__wordmark nw-brand-mark__wordmark--on-dark"
-      src="brand/nawara-wordmark-on-dark.png"
-      alt=""
-      width="219"
-      height="61"
-    />
+</ng-template>
+
+@if (lettered()) {
+  <span class="nw-brand-mark__word" aria-hidden="true">
+    <span>nawa</span>
+    <ng-container [ngTemplateOutlet]="bloom" />
+    <span>a</span>
+  </span>
+  @if (full()) {
+    <span class="nw-brand-mark__solutions" aria-hidden="true">
+      <span class="nw-brand-mark__solutions-text">SOLUTIONS</span>
+      <img
+        class="nw-brand-mark__flourish nw-brand-mark__flourish--on-light"
+        src="brand/nawara-solutions-flourish.svg"
+        alt=""
+        width="185"
+        height="28"
+      />
+      <img
+        class="nw-brand-mark__flourish nw-brand-mark__flourish--on-dark"
+        src="brand/nawara-solutions-flourish-glow.svg"
+        alt=""
+        width="185"
+        height="28"
+      />
+    </span>
   }
+} @else {
+  <ng-container [ngTemplateOutlet]="bloom" />
 }

@@ -1,18 +1,28 @@
-import { ChangeDetectionStrategy, Component, booleanAttribute, input } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  booleanAttribute,
+  computed,
+  input,
+} from '@angular/core';
 
 /**
- * The Nawara logo (docs/BRAND.md): the flower symbol, optionally with the "NAWARA SOLUTIONS" wordmark.
+ * The Nawara logo of the coral + ink theme (owner decision 2026-10-04, docs/BRAND.md): the lowercase wordmark
+ * "nawara" set in Readex Pro, with the bloom mark standing in for the "r", and optionally "SOLUTIONS" beneath it.
  *
- * Both are artwork files in `public/brand/`, never font lettering:
- * - the symbol is the owner's flower with orbit rings (`nawara-mark.png`, supplied 2026-10-02; raster until the official
- *   vector is supplied);
- * - the wordmark is the brand board's own lettering, extracted as a raster in a light- and a dark-background version;
- * - `lockup` renders the horizontal lockup (flower + lettering) as one raster per background, from the owner's
- *   Company Overview design (2026-10-02, docs/BRAND.md), so the flower is artwork rather than the reconstruction.
- * Replacing those files changes no consumer. The kit owns no copy, so the accessible name is an input.
+ * - Without an option: the bloom mark alone (an artwork file).
+ * - `wordmark` (or `lockup`, the earlier name of the same thing): the wordmark with the bloom.
+ * - `full`: the wordmark with the "SOLUTIONS" line and its flourish (sign-in brand panel).
+ *
+ * The bloom and the flourish are artwork files in `public/brand/`; the lettering is live text in the brand typeface,
+ * as the owner's design draws it. The size follows `--nw-brand-mark-size` (the wordmark's font size). The logo never
+ * mirrors in RTL. The kit owns no copy, so the accessible name is an input; the lettering itself is hidden from
+ * assistive technology, so the name is announced once.
  */
 @Component({
   selector: 'nw-brand-mark',
+  imports: [NgTemplateOutlet],
   templateUrl: './brand-mark.html',
   styleUrl: './brand-mark.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,15 +30,19 @@ import { ChangeDetectionStrategy, Component, booleanAttribute, input } from '@an
     class: 'nw-brand-mark',
     role: 'img',
     '[attr.aria-label]': 'label()',
-    '[class.nw-brand-mark--symbol]': '!wordmark() && !lockup()',
-    '[class.nw-brand-mark--lockup]': 'lockup()',
+    '[class.nw-brand-mark--symbol]': '!lettered()',
+    '[class.nw-brand-mark--full]': 'full()',
   },
 })
 export class NwBrandMark {
   /** Accessible name of the logo, for example "Nawara Solutions". */
   readonly label = input.required<string>();
-  /** Shows the wordmark beside the symbol; without it only the symbol is rendered. */
+  /** Shows the wordmark; without it (and without `lockup` or `full`) only the bloom mark is rendered. */
   readonly wordmark = input(false, { transform: booleanAttribute });
-  /** Shows the horizontal lockup artwork (flower and lettering in one raster); `wordmark` is then ignored. */
+  /** Same as `wordmark` (kept for the existing call sites). */
   readonly lockup = input(false, { transform: booleanAttribute });
+  /** The wordmark with the "SOLUTIONS" line beneath it. */
+  readonly full = input(false, { transform: booleanAttribute });
+
+  protected readonly lettered = computed(() => this.wordmark() || this.lockup() || this.full());
 }

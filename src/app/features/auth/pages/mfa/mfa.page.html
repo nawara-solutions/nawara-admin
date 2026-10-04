@@ -97,7 +97,7 @@
             {{ (other === 'passkey' ? 'auth.mfa.usePasskey' : 'auth.mfa.useTotp') | transloco }}
           </button>
         }
-        <button type="button" class="mfa__link" (click)="back()">
+        <button type="button" class="mfa__link mfa__link--back" (click)="back()">
           <nw-icon name="arrow-left" size="sm" />
           <span>{{ 'auth.mfa.backToSignIn' | transloco }}</span>
         </button>

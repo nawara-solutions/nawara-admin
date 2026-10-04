@@ -50,8 +50,8 @@
       "inverse": "Surface inversée"
     },
     "gradients": {
-      "sunrise": "Aurore",
-      "dusk": "Crépuscule"
+      "sunrise": "Dégradé de marque",
+      "dusk": "Dégradé d’accent"
     },
     "typography": {
       "display": "Affichage",
@@ -128,13 +128,11 @@
       "toastError": "L’organisation n’a pas pu être mise à jour."
     },
     "brand": {
-      "boardSymbol": "Planche de marque (image matricielle)",
-      "reconstruction": "Reconstruction vectorielle (provisoire)",
-      "note": "Le symbole vectoriel est redessiné d’après la planche de marque ; il reste provisoire tant que le fichier officiel n’est pas fourni. Les logos et la signature ci-dessous proviennent directement de la planche.",
-      "lockupLight": "Logo horizontal sur fond clair",
-      "lockupDark": "Logo horizontal sur fond sombre",
-      "stacked": "Logo vertical",
-      "favicons": "Favicon en 16, 32 et 48 pixels"
+      "note": "Le kit logo du thème corail et encre : le logotype est du texte en Readex Pro, avec la fleur à la place du « r » ; la fleur, le symbole et le favicon sont des fichiers d’illustration.",
+      "full": "Logo complet (connexion, documents)",
+      "wordmark": "Logotype (en-têtes, barre latérale)",
+      "symbol": "Symbole",
+      "favicons": "Favicon (cercle encre) en 16, 32, 48 et 64 pixels"
     },
     "numbers": {
       "number": "Nombre",

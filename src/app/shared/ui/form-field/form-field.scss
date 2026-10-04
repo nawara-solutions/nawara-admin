@@ -6,8 +6,8 @@
 }
 
 .nw-form-field__label {
-  color: var(--nw-text-primary);
-  font-size: var(--nw-text-size-sm);
+  color: var(--nw-text-label);
+  font-size: 0.75rem;
   font-weight: var(--nw-font-weight-medium);
 }
 
@@ -70,10 +70,11 @@
     border-color: var(--nw-text-secondary);
   }
 
+  // Focus: the border takes the action colour and a soft halo surrounds the field (coral + ink theme).
   &:focus-visible {
     border-color: var(--nw-color-primary);
-    outline: var(--nw-focus-ring-width) solid var(--nw-focus-ring);
-    outline-offset: 0;
+    outline: none;
+    box-shadow: 0 0 0 3px var(--nw-focus-halo);
   }
 
   &[aria-invalid='true'] {
@@ -93,7 +94,7 @@
   min-block-size: 2.75rem;
   padding-block: 0;
   padding-inline: 0.875rem;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
 }
 
 textarea.nw-control {
@@ -110,5 +111,10 @@ textarea.nw-control {
 @media (forced-colors: active) {
   .nw-control {
     border-color: FieldText;
+  }
+
+  // Shadows are dropped in forced colours: keep a real outline for focus.
+  .nw-control:focus-visible {
+    outline: 2px solid Highlight;
   }
 }

@@ -53,10 +53,11 @@ report. Never start the next stage on your own, even if it looks small or obviou
 - **Framework:** Angular (standalone, strict templates, lazy feature routes, Signals for state, RxJS for streams and HTTP).
 - **Styling:** SCSS with `@use`/`@forward` (never `@import`), component styles colocated, **BEM** naming. **Forbidden:** Bootstrap,
   Tailwind, or any general-purpose utility CSS framework, unless the owner explicitly authorizes it.
-- **Design:** semantic design tokens only; no raw colours in components; tokens come from the Nawara brand board
-  (`src/styles/tokens/`). [`docs/BRAND.md`](docs/BRAND.md) records which values are printed on the board, sampled or
-  proposed; never present a sampled or proposed value as a brand value. The logo is artwork from `public/brand/` (never font
-  lettering); its vector symbol is a provisional reconstruction. A third-party library never defines the brand.
+- **Design:** semantic design tokens only; no raw colours in components; tokens come from the owner's coral + ink theme
+  (`src/styles/tokens/`, 2026-10-04). [`docs/BRAND.md`](docs/BRAND.md) §0 records which values the design states and which
+  are derived; never present a derived value as a brand value. The logo is the `nw-brand-mark` wordmark: "nawara" as live
+  text in Readex Pro with the bloom artwork from `public/brand/` (owner decision; it replaces the earlier "never font
+  lettering" rule for this logo). Typefaces: Readex Pro and JetBrains Mono. A third-party library never defines the brand.
 - **Themes:** light, dark and system preference, from the first component.
 - **Languages:** English, French, Arabic from the first component; no hard-coded user-facing copy. Machine values (ids, codes, enums)
   are never translated.

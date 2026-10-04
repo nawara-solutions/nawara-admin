@@ -90,9 +90,9 @@
 }
 
 :host(.nw-button--lg) {
-  min-block-size: 2.875rem;
+  min-block-size: 2.75rem;
   padding-inline: var(--nw-space-5);
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
 }
 
 // Busy keeps the variant's colours (it is not "unavailable"); only the cursor says the action is in progress.

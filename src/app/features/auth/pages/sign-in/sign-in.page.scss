@@ -24,11 +24,11 @@
 .sign-in__toggle {
   position: absolute;
   inset-block: 0;
-  inset-inline-end: var(--nw-space-1);
+  inset-inline-end: 0.375rem;
   display: inline-grid;
   place-items: center;
-  inline-size: 2.5rem;
-  block-size: 2.5rem;
+  inline-size: 2.0625rem;
+  block-size: 2.0625rem;
   margin-block: auto;
   padding: 0;
   border: 0;
@@ -38,13 +38,13 @@
   cursor: pointer;
 
   &:hover {
-    background-color: var(--nw-color-neutral-hover);
+    background-color: var(--nw-surface-sunken);
     color: var(--nw-text-primary);
   }
 }
 
 .sign-in__submit {
-  margin-block-start: var(--nw-space-1);
+  box-shadow: var(--nw-shadow-sm);
 }
 
 .sign-in__divider {
@@ -52,13 +52,18 @@
   align-items: center;
   gap: var(--nw-space-3);
   color: var(--nw-text-secondary);
-  font-size: 0.8125rem;
+  font-size: 0.6875rem;
 }
 
+// The rules fade out toward the card edges.
 .sign-in__rule {
   flex: 1;
   block-size: 1px;
-  background-color: var(--nw-border-default);
+  background: linear-gradient(to right, transparent, var(--nw-border-default) 40%);
+
+  &:last-child {
+    background: linear-gradient(to left, transparent, var(--nw-border-default) 40%);
+  }
 }
 
 // Deferred entries: the explanation shows on hover and keyboard focus, and is the control's description.
@@ -68,13 +73,16 @@
 }
 
 .sign-in__working-code {
-  min-block-size: 2.75rem;
+  min-block-size: 2.5rem;
+  color: var(--nw-text-label);
+  font-size: 0.8125rem;
+  font-weight: var(--nw-font-weight-medium);
 }
 
 .sign-in__recover {
   display: flex;
   justify-content: center;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
 
   .sign-in__deferred {
     display: inline-grid;
@@ -91,7 +99,8 @@
   font: inherit;
   font-weight: var(--nw-font-weight-medium);
   text-decoration: underline;
-  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  text-underline-offset: 3px;
   cursor: not-allowed;
 }
 

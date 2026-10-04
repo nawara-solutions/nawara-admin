@@ -214,6 +214,22 @@ none), operator scope.
 Evidence: [`review/a3-company-overview/`](review/a3-company-overview/README.md).
 
 
+## Coral + ink theme (owner-authorized 2026-10-04)
+
+The owner's "Nawara Sign-in Coral Ink Theme" design, implemented on `feat/admin-coral-ink-sign-in` (local; not committed).
+Owner decisions: the palette applies to the **whole application**; Readex Pro and JetBrains Mono replace IBM Plex (new
+dependencies approved); the logo is the wordmark with the bloom, as designed (rule change recorded in
+[`BRAND.md`](BRAND.md) §0).
+
+- Tokens: coral and ink primitives, light and dark themes rewritten on the same semantic names; `check:contrast` passes
+  unchanged (two design values were replaced by the nearest passing ink, see BRAND §0).
+- Sign-in pages restyled to the design ("Botanical" panel, restrained decoration): brand panel, corner illustration, card,
+  fields, buttons, language and theme controls, MFA, checking, no-access and platform-choice screens. Behaviour, copy and
+  the A4-S1 limits are unchanged; no new flow.
+- Logo Kit (2026-10-04): ink-circle favicon and app icons, flower symbol, dark-theme flourish; `/foundation` brand gallery shows the kit.
+- Signed-in shell: botanical artwork in the sidebar, the content corner, the header cards and at the foot of the Platforms page; the earlier flower drawings are gone. Its layout is unchanged (the Workspace design's structural changes are not implemented).
+- **Open:** production is not redeployed with this theme.
+
 ## CI/CD and first production deployment (owner-authorized 2026-10-03)
 
 CI (`admin-ci.yml`) and production deployment (`admin-deploy.yml`) to `https://admin.nawara-solutions.com`, following Nawara

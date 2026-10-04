@@ -11,17 +11,19 @@
   background: var(--nw-hero-background);
   isolation: isolate;
 
+  // The botanical illustration at the inline-end side, cropped to the card and fading toward the title; mirrored in RTL.
   &::before {
     content: '';
     position: absolute;
     inset-block: 0;
     inset-inline-end: 0;
     z-index: -1;
-    inline-size: min(26.25rem, 45%);
+    inline-size: min(26rem, 45%);
+    // Rounded with the card instead of clipping the card, so the demo panel can overflow it.
     border-start-end-radius: inherit;
     border-end-end-radius: inherit;
-    background: url('/illustrations/hero-flora.svg') no-repeat right top / 26.25rem auto;
-    opacity: var(--nw-sidebar-illustration-opacity);
+    background: var(--nw-illustration-botanical) no-repeat right center / 22rem auto;
+    opacity: var(--nw-hero-illustration-opacity);
     mask-image: var(--nw-hero-illustration-mask);
     pointer-events: none;
   }

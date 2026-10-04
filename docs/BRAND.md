@@ -7,6 +7,24 @@
 - **Status of the logo:** board rasters are faithful but small; the vector symbol is a **provisional reconstruction**.
   **An official vector source (symbol, wordmark, lockups) is still needed** (D-A2-6).
 
+## 0. Current theme: coral + ink (owner decision, 2026-10-04)
+
+The owner's claude.ai designs "Nawara Sign-in Coral Ink Theme" and "Nawara Admin Workspace" (2026-10-04) replace the earlier
+brand-board palette, typefaces and logo across the whole application. Sections 2 to 4 below describe the **earlier** brand
+board and are kept as history; where they disagree with this section, this section is current.
+
+| Item | Current | Source |
+|---|---|---|
+| Palette | **Coral** (50 `#FFF1F1` … 500 `#E5383B` … 600 `#C42427` … 900 `#5C1517`) and **Ink** (paper `#FAF8F7` … ink `#17131F`); actions use Coral 600 on light and Coral 400 on dark | design files; `src/styles/tokens/_primitives.scss` marks each value `design` or `derived` |
+| Derived values | field border and muted icons use ink `#8D8694` (light) / `#817A88` (dark) instead of the design's `#9C95A3` / `#6B6372`, which are below 3:1 as control boundaries; the dark tinted fills are solid equivalents of the design's translucent ones | computed, a proposal (`check:contrast`) |
+| Typefaces | **Readex Pro** (Latin and Arabic, 400 / 500 / 600) and **JetBrains Mono** (400 / 500), self-hosted from `@fontsource`; IBM Plex is no longer used | owner approval 2026-10-04 (new dependencies) |
+| Logo | the lowercase wordmark "nawara" set in Readex Pro 500, with the **bloom** mark standing in for the "r", optionally with "SOLUTIONS" (coral gradient) and its flourish beneath | owner approval 2026-10-04 |
+| Logo rule | the lettering is **live text in the brand typeface** (`nw-brand-mark`); this replaces "the logo is artwork, never font lettering" for this logo. The bloom and the flourish remain artwork files | owner decision 2026-10-04 |
+| Artwork files | `public/brand/nawara-bloom-coral.svg` (light grounds), `nawara-bloom-glow.svg` (dark grounds), `nawara-solutions-flourish.svg`; `public/illustrations/nawara-botanical-{coral,dark}.png` (sign-in brand panel, 836 × 941) and `nawara-botanical-corner-{coral,dark}.png` | design project (the panel illustrations from the owner's export of 2026-10-04); the SVGs are the design's drawings without their embedded provenance metadata |
+| Favicon and app icons | the **ink circle** favicon of the Logo Kit (the flower, no stem, on an ink `#17131F` disc): `public/favicon.svg` (preferred by browsers), `favicon.ico` (16/32/48), `icons/icon-{16,32,48,192,512}.png`; the maskable and Apple touch icons use the same flower on a full ink square. PNGs and the ICO are rendered from the SVG | Logo Kit design 2026-10-04; owner choice "ink circle" |
+| Symbol | `public/brand/nawara-flower-{coral,glow}.svg` (the bloom without its stem); the `/foundation` gallery shows the kit | Logo Kit design |
+| Signed-in shell | the Workspace design's artwork: the full botanical illustration at the foot of the sidebar and the corner sprig at the top end of the content; the header cards (Company overview, Platforms) show the botanical at their inline-end side, and the Platforms page shows it rising from its bottom end (owner request, 2026-10-04). The earlier `sidebar-flora`, `hero-flora` and `workspace-flora` drawings and the earlier logo rasters are no longer used (files kept in `public/` for history) | Workspace design 2026-10-04 |
+
 ## 1. Provenance classes
 
 | Class | Meaning | Where |

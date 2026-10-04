@@ -1,136 +1,76 @@
 // Primitive tokens (--nw-ref-*): raw colour ramps. Used ONLY by the theme files, never by components (docs/ARCHITECTURE.md §13).
-// Source: official Nawara Solutions brand board (owner, 2026-10-01). The brand defines one anchor value per hue,
-// marked `brand` below; the other steps of each ramp are derived from it for states and contrast. The brand pink
-// (#E6428B) fails WCAG AA with white body text (3.81:1), so solid actions use step 600 in light mode
-// and step 400 in dark mode; the anchor value stays for gradients, illustration and large display text.
-// Status hues (green, red) are not part of the brand board and are functional only.
-// Provenance of every value here (docs/BRAND.md):
-//   `brand`   printed as a hex code on the board (8 values); authoritative
-//   unmarked  DERIVED for UI use (ramp steps, dark surfaces, status hues); a proposal, not a brand value
+// Source: the owner's "Coral + ink" theme (claude.ai design "Nawara Sign-in Coral Ink Theme" and "Nawara Admin
+// Workspace", 2026-10-04), which replaces the earlier pink / lilac palette (docs/BRAND.md).
+// Provenance of every value here:
+//   `design`   a value the design files state; authoritative for this theme
+//   `derived`  computed for a UI need the design leaves open (noted with the reason); a proposal
 
 @mixin tokens {
-  // Pink: brand primary
-  --nw-ref-pink-50: #fdf0f6;
-  --nw-ref-pink-100: #fadce9;
-  --nw-ref-pink-200: #f5b6d2;
-  --nw-ref-pink-300: #f08db8;
-  --nw-ref-pink-400: #eb66a1;
-  --nw-ref-pink-500: #e6428b; // brand: Primary
-  --nw-ref-pink-600: #c42a6f;
-  --nw-ref-pink-700: #a1215b;
-  --nw-ref-pink-800: #7a1945;
-  --nw-ref-pink-900: #3a1428;
+  // Coral: brand primary. 600 carries actions on light grounds, 400 on dark ones.
+  --nw-ref-coral-50: #fff1f1; // design
+  --nw-ref-coral-100: #ffe0e0; // design
+  --nw-ref-coral-200: #ffc2c3; // design
+  --nw-ref-coral-300: #ff9597; // design
+  --nw-ref-coral-350: #ff7a7d; // design (gradient end)
+  --nw-ref-coral-400: #ff5c5f; // design
+  --nw-ref-coral-500: #e5383b; // design
+  --nw-ref-coral-600: #c42427; // design
+  --nw-ref-coral-700: #a01c1f; // design
+  --nw-ref-coral-800: #7e1a1d; // design
+  --nw-ref-coral-900: #5c1517; // design
+  --nw-ref-coral-950: #3d2532; // derived: coral 400 at 12% over ink 800 (dark tinted fill), made solid for contrast checks
 
-  // Orange: brand secondary
-  --nw-ref-orange-50: #fff4ec;
-  --nw-ref-orange-300: #ffb27e;
-  --nw-ref-orange-500: #ff8a3d; // brand: Secondary
-  --nw-ref-orange-700: #c2410c;
-  --nw-ref-orange-900: #2e1a0e;
+  // Ink: neutrals, from paper to the ink ground.
+  --nw-ref-ink-0: #ffffff; // design
+  --nw-ref-ink-25: #fdf8f6; // design (warm paper of panels and the sidebar)
+  --nw-ref-ink-50: #faf8f7; // design (paper)
+  --nw-ref-ink-100: #f3efef; // design
+  --nw-ref-ink-200: #e4dfe3; // design
+  --nw-ref-ink-300: #c9c3cc; // design
+  --nw-ref-ink-400: #9c95a3; // design
+  --nw-ref-ink-450: #8d8694; // derived: the design's field border (ink 400) is 2.9:1 on white; this is the nearest ink at 3:1 on every light surface (WCAG 1.4.11)
+  --nw-ref-ink-475: #817a88; // derived: the design's dark field border (ink 500) is under 3:1 on dark cards; nearest ink at 3:1 on every dark surface
+  --nw-ref-ink-500: #6b6372; // design
+  --nw-ref-ink-600: #4a4352; // design
+  --nw-ref-ink-700: #352f3f; // design
+  --nw-ref-ink-750: #2b2537; // design (dark hover)
+  --nw-ref-ink-800: #231e2c; // design (dark raised)
+  --nw-ref-ink-850: #1c1825; // design (dark inset)
+  --nw-ref-ink-875: #1b1724; // design (dark sidebar)
+  --nw-ref-ink-900: #17131f; // design (ink ground)
+  --nw-ref-ink-plum: #2a1720; // design (dark panel wash end)
 
-  // Amber: brand accent
-  --nw-ref-amber-50: #fff9eb;
-  --nw-ref-amber-500: #ffc857; // brand: Accent
-  --nw-ref-amber-600: #c27803; // derived: amber icon on its pale tile (3:1 for graphics)
-  --nw-ref-amber-200: #f3dca6; // derived (A4 design): warning alert border
-  --nw-ref-amber-300: #ffd98a; // derived (A4 design): warning alert text, dark
-  --nw-ref-amber-800: #7c4a03;
-  --nw-ref-amber-850: #6a3f02; // derived (A4 design): warning alert text
-  --nw-ref-amber-870: #4a3b14; // derived (A4 design): warning alert border, dark
-  --nw-ref-amber-900: #2a2210;
+  // Functional status hues (design values; not brand colours).
+  --nw-ref-green-50: #eef7f1;
+  --nw-ref-green-200: #bfe3cb;
+  --nw-ref-green-300: #86d9a3;
+  --nw-ref-green-700: #15803d;
+  --nw-ref-green-850: #1f4a2e;
+  --nw-ref-green-900: #13281c;
+  --nw-ref-amber-50: #fef4e6;
+  --nw-ref-amber-200: #f5cf9c;
+  --nw-ref-amber-300: #f5b66b;
+  --nw-ref-amber-700: #b45309;
+  --nw-ref-amber-850: #6b4a2a; // derived: warning border on dark
+  --nw-ref-amber-900: #3d2826; // derived: amber 700 at 18% over ink 800, made solid
+  --nw-ref-blue-50: #edf1fc;
+  --nw-ref-blue-200: #c9d6f7; // derived: info border
+  --nw-ref-blue-300: #9db5f5;
+  --nw-ref-blue-600: #2f5bd3;
+  --nw-ref-blue-850: #3a4580; // derived: info border on dark
+  --nw-ref-blue-900: #252a4d; // derived: blue 600 at 20% over ink 800, made solid
 
-  // Purple: brand purple
-  --nw-ref-purple-50: #f5eefb;
-  --nw-ref-purple-300: #c49bea;
-  --nw-ref-purple-400: #b07be0;
-  --nw-ref-purple-600: #7b2cbf; // brand: Purple
-  --nw-ref-purple-150: #e4d4f5; // derived (A4 design): info alert border
-  --nw-ref-purple-700: #62219a;
-  --nw-ref-purple-800: #3a2a52; // derived (A4 design): info alert border, dark
-  --nw-ref-purple-900: #22172f;
-
-  // Neutral: warm surfaces (brand Surface) with cool ink (brand Dark, Muted)
-  --nw-ref-neutral-0: #ffffff; // brand: White
-  --nw-ref-neutral-25: #fcfaf8; // derived: faint warm inset inside white cards (approved Company Overview)
-  --nw-ref-neutral-50: #faf7f4; // brand: Surface
-  --nw-ref-neutral-ivory: #fcf5ef; // warm ivory of the shell sidebar (sampled from the approved Company Overview)
-  --nw-ref-neutral-100: #f2ede8;
-  --nw-ref-neutral-150: #eee9e3; // derived: hairline of cards and rows
-  --nw-ref-neutral-200: #e5dfd8;
-  --nw-ref-neutral-300: #cfc8c0;
-  --nw-ref-neutral-350: #a9abb8;
-  --nw-ref-neutral-400: #7a7d8c;
-  --nw-ref-neutral-500: #6b7280; // brand: Muted
-  --nw-ref-neutral-600: #535866;
-  --nw-ref-neutral-700: #3a3b48;
-  --nw-ref-neutral-750: #2c2c38;
-  --nw-ref-neutral-800: #24242f;
-  --nw-ref-neutral-850: #1b1b24; // brand: Dark
-  --nw-ref-neutral-900: #13131a;
-  --nw-ref-neutral-950: #0d0d12;
-  --nw-ref-neutral-ink-inverse: #f5f1ec;
-
-  // Lilac neutrals (light) and night neutrals (dark): SAMPLED from the owner's Company Overview design
-  // (claude.ai design "Nawara Owner Dashboard", 2026-10-02). They give the shell its cool lilac tint; not brand values.
-  --nw-ref-lilac-25: #faf8fa;
-  --nw-ref-lilac-50: #f6f3f6;
-  --nw-ref-lilac-75: #f5f1f5;
-  --nw-ref-lilac-90: #f7f4f8; // navigation hover
-  --nw-ref-lilac-100: #f0e9f0;
-  --nw-ref-lilac-150: #eee7ee;
-  --nw-ref-lilac-200: #e6e0e8;
-  --nw-ref-lilac-400: #7a7690; // muted icons (graphics)
-  --nw-ref-lilac-500: #6b6880;
-  --nw-ref-lilac-600: #5d5a72;
-  --nw-ref-lilac-800: #2e2a55; // ink, hovered
-  --nw-ref-lilac-850: #1b1838; // ink
-  --nw-ref-blush-25: #fffafa; // sidebar wash, middle
-  --nw-ref-blush-50: #fdf3f4; // sidebar wash, bottom
-  --nw-ref-blush-75: #fdf1f6; // header card wash, pink
-  --nw-ref-peach-50: #fff4ea; // header card wash, peach
-  --nw-ref-night-ink: #f1eef8;
-  --nw-ref-night-300: #b3aec6;
-  --nw-ref-night-350: #a19cb6;
-  --nw-ref-night-400: #8f8aa6;
-  --nw-ref-night-700: #302b48;
-  --nw-ref-night-750: #2a2640;
-  --nw-ref-night-800: #231f3a;
-  --nw-ref-night-850: #211d36;
-  --nw-ref-night-875: #1f1430; // sidebar wash, bottom
-  --nw-ref-night-900: #1a1730;
-  --nw-ref-night-925: #16132a;
-  --nw-ref-night-950: #100e1c;
-  --nw-ref-night-hero-pink: #2a1432;
-  --nw-ref-night-hero-peach: #2a1c1c;
-  --nw-ref-night-auth-plum: #24132e; // sign-in brand panel wash (A4 design)
-
-  // Functional status hues (not brand)
-  --nw-ref-green-50: #ecf8f1;
-  --nw-ref-green-150: #bfe5cf; // A4 design: success alert border
-  --nw-ref-green-250: #9be0bb; // A4 design: success alert text, dark
-  --nw-ref-green-300: #6fcf9a;
-  --nw-ref-green-700: #1e7f4f;
-  --nw-ref-green-750: #1d6b43; // A4 design: success alert icon
-  --nw-ref-green-800: #17573a; // A4 design: success alert text
-  --nw-ref-green-850: #1f4a33; // A4 design: success alert border, dark
-  --nw-ref-green-900: #10261b;
-  --nw-ref-red-50: #fdecec;
-  --nw-ref-red-150: #f5c2c2; // A4 design: danger alert border
-  --nw-ref-red-200: #f7b1ab;
-  --nw-ref-red-300: #f28b82;
-  --nw-ref-red-700: #c62828;
-  --nw-ref-red-800: #a12020;
-  --nw-ref-red-850: #5a2424; // A4 design: danger alert border, dark
-  --nw-ref-red-900: #2d1414;
-
-  // Brand gradients. The board shows two gradient bars but prints NO stop values, so these are APPROXIMATIONS built
-  // from the printed palette. Pixel samples of the board (approximate, raster): bar 1 runs #DB1863 -> #F64D66 ->
-  // #FEBD5A, bar 2 runs #6429B4 -> #C033AF -> #FE71A6, both left to right with a slight downward tilt (about 100deg).
-  --nw-ref-gradient-sunrise: linear-gradient(
+  // Brand gradient: the "SOLUTIONS" lettering and accent lines.
+  --nw-ref-gradient-coral: linear-gradient(
     90deg,
-    var(--nw-ref-pink-500),
-    var(--nw-ref-orange-500),
-    var(--nw-ref-amber-500)
+    var(--nw-ref-coral-700) 0%,
+    var(--nw-ref-coral-500) 45%,
+    var(--nw-ref-coral-350) 100%
   );
-  --nw-ref-gradient-dusk: linear-gradient(90deg, var(--nw-ref-purple-600), var(--nw-ref-pink-400));
+  --nw-ref-gradient-coral-on-dark: linear-gradient(
+    90deg,
+    var(--nw-ref-coral-500) 0%,
+    var(--nw-ref-coral-400) 45%,
+    var(--nw-ref-coral-200) 100%
+  );
 }

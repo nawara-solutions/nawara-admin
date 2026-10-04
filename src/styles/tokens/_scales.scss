@@ -21,17 +21,17 @@
   --nw-radius-xl: 1.5rem;
   --nw-radius-pill: 999px;
 
-  // Typography (brand board: IBM Plex Sans / Sans Arabic / Mono)
-  --nw-font-latin: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --nw-font-arabic: 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, sans-serif;
-  --nw-font-sans:
-    'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --nw-font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  // Typography (coral + ink theme, owner decision 2026-10-04): Readex Pro for Latin and Arabic, JetBrains Mono for
+  // codes and machine values. Readex Pro covers both scripts, so one family serves every locale.
+  --nw-font-latin: 'Readex Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --nw-font-arabic: 'Readex Pro', system-ui, sans-serif;
+  --nw-font-sans: 'Readex Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --nw-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
   --nw-font-weight-regular: 400;
   --nw-font-weight-medium: 500;
   --nw-font-weight-semibold: 600;
-  --nw-font-weight-bold: 700; // headings and key figures (owner design, 2026-10-02)
+  --nw-font-weight-bold: 600; // headings and key figures: the theme's heaviest weight (Readex Pro 600)
 
   --nw-text-size-xs: 0.75rem;
   --nw-text-size-sm: 0.875rem;
@@ -74,13 +74,16 @@
 
   // Illustration masks (alpha only, not colours): the sidebar drawing fades in from its top and stays at 40% behind
   // the text column (two layers, intersected); the header-card drawing fades toward the title.
-  --nw-sidebar-illustration-mask:
-    linear-gradient(to bottom, transparent, #000 30%),
-    linear-gradient(to left, #000 15%, rgb(0 0 0 / 40%) 60%);
-  --nw-hero-illustration-mask: linear-gradient(to left, #000 35%, rgb(0 0 0 / 25%) 100%);
-  // Sign-in pages: the panel's top flora fades toward the text; the compact corner flora fades downward.
-  --nw-auth-flora-mask: linear-gradient(to left, #000 30%, transparent 100%);
-  --nw-auth-corner-flora-mask: linear-gradient(to bottom, #000 30%, transparent 100%);
+  --nw-sidebar-illustration-mask: linear-gradient(to bottom, transparent, #000 45%);
+  // Header cards: the botanical fades toward the title; the Platforms page drawing fades in from its top-start corner.
+  --nw-hero-illustration-mask: linear-gradient(to left, #000 40%, transparent 100%);
+  --nw-workspace-illustration-mask: radial-gradient(
+    120% 110% at 100% 100%,
+    #000 45%,
+    transparent 80%
+  );
+  // The corner botanical (sign-in pages and the shell's content column) fades toward the page.
+  --nw-auth-corner-mask: radial-gradient(130% 55% at 100% 45%, #000 30%, transparent 72%);
 
   // Layout
   --nw-shell-sidebar-width: 16rem;

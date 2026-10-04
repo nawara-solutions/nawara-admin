@@ -14,53 +14,40 @@
   display: flex;
   align-items: center;
   gap: 0.875rem;
-  min-block-size: 4.25rem;
-  padding: var(--nw-space-3) var(--nw-space-4);
-  border: 1px solid var(--nw-border-subtle);
+  padding: 0.875rem;
+  border: 1px solid var(--nw-border-default);
   border-radius: 0.875rem;
-  background: linear-gradient(
-    180deg,
-    var(--nw-surface-brand-subtle) 0%,
-    var(--nw-surface-raised) 85%
-  );
-  box-shadow: var(--nw-shadow-sm);
+  background-color: var(--nw-surface-raised);
   color: var(--nw-text-primary);
   text-decoration: none;
-  transition: border-color var(--nw-duration-fast) var(--nw-ease-standard);
+  transition:
+    border-color var(--nw-duration-fast) var(--nw-ease-standard),
+    background-color var(--nw-duration-fast) var(--nw-ease-standard);
 
   &:hover {
     border-color: var(--nw-border-brand);
-  }
-
-  &--drive {
-    background: linear-gradient(
-      180deg,
-      var(--nw-accent-orange-bg) 0%,
-      var(--nw-surface-raised) 85%
-    );
+    background-color: var(--nw-color-primary-subtle);
   }
 }
 
+// The platform's tile: the bloom for School, an ink icon for Drive.
 .platform-choice__tile {
   display: inline-grid;
   flex-shrink: 0;
   place-items: center;
-  inline-size: 2.75rem;
-  block-size: 2.75rem;
-  overflow: hidden;
-  border: 1px solid var(--nw-border-subtle);
-  border-radius: 0.75rem;
-  background-color: var(--nw-surface-raised);
-  color: var(--nw-accent-orange-fg);
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: 0.6875rem;
+  background-color: var(--nw-surface-inset);
+  color: var(--nw-text-label);
 
   img {
-    inline-size: 1.875rem;
-    block-size: 1.875rem;
+    inline-size: 1.25rem;
+    block-size: auto;
   }
 
   .platform-choice__card--drive & {
-    border-color: transparent;
-    background-color: var(--nw-accent-orange-bg);
+    background-color: var(--nw-surface-sunken);
   }
 }
 
@@ -72,22 +59,22 @@
 }
 
 .platform-choice__name {
-  font-size: var(--nw-text-size-md);
-  font-weight: var(--nw-font-weight-bold);
+  font-size: 0.875rem;
+  font-weight: var(--nw-font-weight-semibold);
 }
 
 .platform-choice__product {
   color: var(--nw-text-secondary);
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
 }
 
 .platform-choice__open {
   display: inline-flex;
   align-items: center;
   gap: var(--nw-space-1);
-  color: var(--nw-text-brand);
-  font-size: 0.8125rem;
-  font-weight: var(--nw-font-weight-bold);
+  color: var(--nw-text-link);
+  font-size: 0.75rem;
+  font-weight: var(--nw-font-weight-semibold);
 }
 
 .platform-choice__footer {
@@ -96,7 +83,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--nw-space-2) var(--nw-space-4);
-  font-size: 0.8125rem;
+  font-size: 0.6875rem;
 }
 
 .platform-choice__note {

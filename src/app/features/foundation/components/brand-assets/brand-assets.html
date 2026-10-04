@@ -3,46 +3,40 @@
 </h2>
 <p class="brand-assets__note">{{ 'foundation.brand.note' | transloco }}</p>
 <div class="brand-assets__panels">
-  @for (panel of panels; track panel.theme) {
-    <div class="brand-assets__panel" [attr.data-theme]="panel.theme">
-      <figure class="brand-assets__figure">
-        <img [src]="panel.symbol" alt="" [width]="panel.symbolWidth" height="113" />
-        <figcaption>{{ 'foundation.brand.boardSymbol' | transloco }}</figcaption>
+  @for (theme of themes; track theme) {
+    <div class="brand-assets__panel" [attr.data-theme]="theme">
+      <figure class="brand-assets__figure brand-assets__figure--wide">
+        <nw-brand-mark class="brand-assets__full" [label]="'brand.logoLabel' | transloco" full />
+        <figcaption>{{ 'foundation.brand.full' | transloco }}</figcaption>
       </figure>
       <figure class="brand-assets__figure">
-        <img src="brand/nawara-symbol.svg" alt="" width="113" height="113" />
-        <figcaption>{{ 'foundation.brand.reconstruction' | transloco }}</figcaption>
+        <nw-brand-mark
+          class="brand-assets__wordmark"
+          [label]="'brand.logoLabel' | transloco"
+          wordmark
+        />
+        <figcaption>{{ 'foundation.brand.wordmark' | transloco }}</figcaption>
+      </figure>
+      <figure class="brand-assets__figure">
+        <img
+          class="brand-assets__symbol"
+          [src]="
+            theme === 'light' ? 'brand/nawara-flower-coral.svg' : 'brand/nawara-flower-glow.svg'
+          "
+          alt=""
+          width="480"
+          height="300"
+        />
+        <figcaption>{{ 'foundation.brand.symbol' | transloco }}</figcaption>
       </figure>
       <figure class="brand-assets__figure">
         <span class="brand-assets__favicons">
           @for (size of faviconSizes; track size) {
-            <img [src]="'icons/icon-' + size + '.png'" alt="" [width]="size" [height]="size" />
+            <img src="favicon.svg" alt="" [width]="size" [height]="size" />
           }
         </span>
         <figcaption>{{ 'foundation.brand.favicons' | transloco }}</figcaption>
       </figure>
-      <figure class="brand-assets__figure brand-assets__figure--wide">
-        <img
-          class="brand-assets__artwork"
-          [src]="panel.lockup"
-          [alt]="'brand.logoLabel' | transloco"
-          [width]="panel.width"
-          [height]="panel.height"
-        />
-        <figcaption>{{ panel.lockupKey | transloco }}</figcaption>
-      </figure>
-      @if (panel.theme === 'light') {
-        <figure class="brand-assets__figure brand-assets__figure--wide">
-          <img
-            class="brand-assets__artwork"
-            src="brand/nawara-logo-stacked.png"
-            [alt]="'brand.logoLabel' | transloco"
-            width="388"
-            height="433"
-          />
-          <figcaption>{{ 'foundation.brand.stacked' | transloco }}</figcaption>
-        </figure>
-      }
     </div>
   }
 </div>

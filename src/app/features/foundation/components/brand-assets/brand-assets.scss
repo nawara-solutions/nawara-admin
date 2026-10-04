@@ -45,8 +45,16 @@
   flex-basis: 100%;
 }
 
-.brand-assets__artwork {
-  max-inline-size: 100%;
+.brand-assets__full {
+  --nw-brand-mark-size: 3rem;
+}
+
+.brand-assets__wordmark {
+  --nw-brand-mark-size: 2rem;
+}
+
+.brand-assets__symbol {
+  inline-size: 4rem;
   block-size: auto;
 }
 

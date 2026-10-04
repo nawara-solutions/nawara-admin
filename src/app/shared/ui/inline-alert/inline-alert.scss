@@ -7,9 +7,9 @@
   display: flex;
   align-items: flex-start;
   gap: 0.625rem;
-  padding: var(--nw-space-3) 0.875rem;
+  padding: 0.625rem var(--nw-space-3);
   border: 1px solid var(--nw-inline-alert-border);
-  border-radius: 0.75rem;
+  border-radius: var(--nw-radius-md);
   background-color: var(--nw-inline-alert-bg);
   color: var(--nw-inline-alert-fg);
   font-size: var(--nw-text-size-sm);
