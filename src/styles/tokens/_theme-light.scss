@@ -87,26 +87,28 @@
   --nw-surface-glass: rgb(255 255 255 / 72%); // the sidebar profile over the illustration
   --nw-border-glass: rgb(228 223 227 / 90%);
   --nw-topbar-background: rgb(250 248 247 / 82%);
-  --nw-hero-background: linear-gradient(
-    160deg,
-    var(--nw-ref-ink-0) 0%,
-    var(--nw-ref-ink-50) 55%,
-    var(--nw-ref-coral-50) 100%
-  );
   // Logo colours (--nw-logo-*) and botanical artwork (--nw-illustration-botanical, -corner) of coral, the default palette;
   // the other palettes override them (tokens/_accents.scss, generated values in tokens/_brand-artwork.scss)
   @include brand-artwork.coral-light;
-  --nw-hero-illustration-opacity: 0.85; // header cards
   --nw-sidebar-illustration-opacity: 0.5;
   --nw-sidebar-atmosphere: radial-gradient(
     20rem 26rem at 110% 100%,
-    rgb(229 56 59 / 6%),
+    color-mix(in srgb, var(--nw-color-primary) 6%, transparent),
     transparent 70%
   );
+  // The authenticated workspace background (layout/shell): the neutral page washed very lightly toward the selected
+  // palette, with the soft glow at the top end. Cards keep their neutral surfaces.
+  --nw-workspace-background:
+    var(--nw-workspace-atmosphere),
+    linear-gradient(
+      180deg,
+      var(--nw-surface-page) 0%,
+      color-mix(in oklab, var(--nw-color-primary) 4%, var(--nw-surface-page)) 100%
+    );
   --nw-workspace-illustration-opacity: 1;
   --nw-workspace-atmosphere: radial-gradient(
     48rem 26rem at 96% -6rem,
-    rgb(229 56 59 / 6%),
+    color-mix(in srgb, var(--nw-color-primary) 6%, transparent),
     transparent 70%
   );
 
@@ -120,6 +122,10 @@
   --nw-accent-amber-fg: var(--nw-ref-amber-700);
   --nw-accent-purple-bg: var(--nw-ref-ink-100);
   --nw-accent-purple-fg: var(--nw-ref-ink-700);
+
+  // The signed-in person's avatar circle (top bar, sidebar); the Create platform buttons use the same colours (owner).
+  --nw-avatar-background: var(--nw-accent-purple-fg);
+  --nw-avatar-text: var(--nw-accent-purple-bg);
 
   // Accent palette swatches (Appearance settings): each preset's sample colour, with an ink-white check mark on it.
   --nw-swatch-coral: var(--nw-ref-swatch-coral);

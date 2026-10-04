@@ -28,6 +28,8 @@ import { AppearancePanel } from '../../../layout/appearance/appearance-panel';
       align-content: start;
       gap: var(--nw-space-5);
       max-inline-size: 40rem;
+      min-inline-size: 0;
+      container-type: inline-size;
     }
 
     .appearance-settings__header {
@@ -58,11 +60,18 @@ import { AppearancePanel } from '../../../layout/appearance/appearance-panel';
     }
 
     .appearance-settings__card {
-      padding: var(--nw-space-6);
+      min-inline-size: 0;
+      padding: var(--nw-space-4);
       border: 1px solid var(--nw-border-subtle);
       border-radius: 1.125rem;
       background-color: var(--nw-surface-raised);
       box-shadow: var(--nw-shadow-card);
+    }
+
+    @container (min-width: 30rem) {
+      .appearance-settings__card {
+        padding: var(--nw-space-6);
+      }
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

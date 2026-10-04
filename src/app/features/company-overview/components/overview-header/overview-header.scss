@@ -1,42 +1,20 @@
-// The header card of the owner design: title and actions over a white-to-blush wash, with a floral illustration at
-// its end. Sized by the page's width (the page is the container).
+// The Company overview page header. Sized by the page's width (the page is the container).
+// The page header: title, description and actions sit directly on the workspace background (owner review, 2026-10-04:
+// no banner card, border or artwork), aligned with the content grid below.
 :host {
-  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--nw-space-4) var(--nw-space-6);
-  padding: 1.125rem;
-  border: 1px solid var(--nw-border-subtle);
-  border-radius: 1.125rem;
-  background: var(--nw-hero-background);
-  isolation: isolate;
-
-  // The botanical illustration at the inline-end side, cropped to the card and fading toward the title; mirrored in RTL.
-  &::before {
-    content: '';
-    position: absolute;
-    inset-block: 0;
-    inset-inline-end: 0;
-    z-index: -1;
-    inline-size: min(26rem, 45%);
-    // Rounded with the card instead of clipping the card, so the demo panel can overflow it.
-    border-start-end-radius: inherit;
-    border-end-end-radius: inherit;
-    background: var(--nw-illustration-botanical) no-repeat right center / 22rem auto;
-    opacity: var(--nw-hero-illustration-opacity);
-    mask-image: var(--nw-hero-illustration-mask);
-    pointer-events: none;
-  }
-
-  &:dir(rtl)::before {
-    transform: scaleX(-1);
-  }
+  padding-block: var(--nw-space-1) var(--nw-space-2);
 }
 
 .overview-header__titles {
   display: grid;
-  flex: 1 1 16.25rem;
+  // Its natural width (capped at the row): when the actions do not fit beside it they wrap below, rather than
+  // squeezing the title onto two lines.
+  flex: 1 1 auto;
+  max-inline-size: 100%;
   gap: var(--nw-space-2);
 }
 
@@ -124,30 +102,20 @@
   padding-inline: 0.875rem;
   border: 0;
   border-radius: var(--nw-radius-md);
-  background-color: var(--nw-surface-inverse);
-  color: var(--nw-text-inverse);
+  // The avatar circle's colours (owner request), also while unavailable: disabled, the title and the cursor say so.
+  background-color: var(--nw-avatar-background);
+  color: var(--nw-avatar-text);
   font: inherit;
   font-size: 0.8125rem;
   font-weight: var(--nw-font-weight-semibold);
 
   &:disabled {
-    background-color: var(--nw-surface-inverse-disabled);
     cursor: not-allowed;
   }
 }
 
 @container (min-width: 37.5rem) {
-  :host {
-    padding: 1.375rem 1.75rem;
-  }
-
   .overview-header__title {
     font-size: 2.125rem;
-  }
-}
-
-@media (forced-colors: active) {
-  :host::before {
-    display: none;
   }
 }

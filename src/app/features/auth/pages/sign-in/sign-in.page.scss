@@ -110,7 +110,8 @@
   inset-inline-start: 50%;
   z-index: var(--nw-z-dropdown);
   inline-size: max-content;
-  max-inline-size: 18rem;
+  // Never wider than a 320 px screen (it is centred on its button).
+  max-inline-size: min(18rem, calc(100vw - 2rem));
   padding: var(--nw-space-2) var(--nw-space-3);
   border-radius: var(--nw-radius-sm);
   background-color: var(--nw-surface-inverse);
