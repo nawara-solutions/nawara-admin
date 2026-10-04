@@ -10,13 +10,8 @@
     (currentPlatform()?.name ?? ('shell.context.allPlatforms' | transloco))
   "
 >
-  <img
-    class="context-switcher__symbol"
-    src="brand/nawara-bloom-coral.svg"
-    alt=""
-    width="480"
-    height="580"
-  />
+  <!-- The company's logo symbol, in the palette's colours; decorative (the button's label names the scope). -->
+  <nw-brand-mark class="context-switcher__symbol" label="" aria-hidden="true" />
   <span class="context-switcher__text">
     <bdi class="context-switcher__company">{{
       companyName() ?? ('shell.context.loading' | transloco)

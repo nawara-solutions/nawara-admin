@@ -1,6 +1,8 @@
 // Light theme (coral + ink): defines every semantic token intentionally (docs/ARCHITECTURE.md §13, §14).
 // Every text/surface pair is checked to WCAG 2.2 AA by `npm run check:contrast`.
 
+@use 'brand-artwork';
+
 @mixin tokens {
   color-scheme: light;
 
@@ -62,14 +64,16 @@
   --nw-focus-ring: var(--nw-ref-coral-500);
 
   // Brand expression
-  --nw-gradient-brand: var(--nw-ref-gradient-coral);
+  --nw-gradient-brand: linear-gradient(
+    90deg,
+    var(--nw-logo-sol-1) 0%,
+    var(--nw-logo-sol-2) 45%,
+    var(--nw-logo-sol-3) 100%
+  ); // "SOLUTIONS": follows the palette
   --nw-gradient-brand-cool: var(
     --nw-ref-gradient-coral-on-dark
   ); // the other tone of the coral gradient
   --nw-brand-glow: var(--nw-ref-coral-50);
-  // Which bloom artwork shows (nw-brand-mark): coral on light surfaces, the glow version on dark ones
-  --nw-brand-wordmark-on-light-display: block;
-  --nw-brand-wordmark-on-dark-display: none;
 
   // Shell (layout/): sidebar, translucent top bar and header card. The atmospheres are decorative washes painted on
   // aria-hidden layers behind the content (never on cards); their positions are physical and the layers mirror in RTL.
@@ -89,9 +93,9 @@
     var(--nw-ref-ink-50) 55%,
     var(--nw-ref-coral-50) 100%
   );
-  // Botanical artwork of this theme (Workspace design): the full drawing (sidebar) and the corner sprig (content)
-  --nw-illustration-botanical: url('/illustrations/nawara-botanical-coral.png');
-  --nw-illustration-botanical-corner: url('/illustrations/nawara-botanical-corner-coral.png');
+  // Logo colours (--nw-logo-*) and botanical artwork (--nw-illustration-botanical, -corner) of coral, the default palette;
+  // the other palettes override them (tokens/_accents.scss, generated values in tokens/_brand-artwork.scss)
+  @include brand-artwork.coral-light;
   --nw-hero-illustration-opacity: 0.85; // header cards
   --nw-sidebar-illustration-opacity: 0.5;
   --nw-sidebar-atmosphere: radial-gradient(

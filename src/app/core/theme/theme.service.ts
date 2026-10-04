@@ -1,5 +1,6 @@
 import { DOCUMENT, DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
 import { PreferenceStore } from '../preferences/preference-store';
+import { PALETTE_ARTWORK } from './palette-artwork';
 
 export const THEME_PREFERENCES = ['system', 'light', 'dark'] as const;
 /**
@@ -18,6 +19,9 @@ const isThemePreference = (value: string | null): value is ThemePreference =>
 
 const isAccentPalette = (value: string | null): value is AccentPalette =>
   ACCENT_PALETTES.some((accent) => accent === value);
+
+/** How long a switch waits for the new artwork before applying anyway (a slow network never blocks the change). */
+const PRELOAD_TIMEOUT_MS = 1500;
 
 /**
  * The browser's appearance preferences (docs/ARCHITECTURE.md §14): the theme mode as `data-theme` on <html> (with
@@ -78,15 +82,38 @@ export class ThemeService {
     this.store.write('theme', preference);
   }
 
-  setAccent(accent: AccentPalette): void {
-    this.accent.set(accent);
+  /**
+   * Switches the palette once its artwork (both themes, from PALETTE_ARTWORK) is loaded, so the controls, the logo and
+   * the illustrations change together and no artwork shows blank in between. The choice is stored at once.
+   */
+  async setAccent(accent: AccentPalette): Promise<void> {
     if (accent === DEFAULT_ACCENT) this.store.remove('accent');
     else this.store.write('accent', accent);
+    this.pendingAccent = accent;
+    await this.preload(accent);
+    // A later choice made while this one was loading wins.
+    if (this.pendingAccent === accent) this.accent.set(accent);
+  }
+
+  private pendingAccent: AccentPalette | null = null;
+
+  private preload(accent: AccentPalette): Promise<void> {
+    const view = this.document.defaultView;
+    if (!view?.Image) return Promise.resolve();
+    const urls = Object.values(PALETTE_ARTWORK[accent]).flatMap((art) => [art.full, art.corner]);
+    const loads = urls.map((url) => {
+      const image = new view.Image();
+      image.src = url;
+      return typeof image.decode === 'function' ? image.decode().catch(() => undefined) : undefined;
+    });
+    const timeout = new Promise<void>((resolve) => view.setTimeout(resolve, PRELOAD_TIMEOUT_MS));
+    return Promise.race([Promise.all(loads).then(() => undefined), timeout]);
   }
 
   /** Back to the Nawara defaults: system mode, coral accent. */
   reset(): void {
     this.preference.set(DEFAULT_THEME);
+    this.pendingAccent = DEFAULT_ACCENT;
     this.accent.set(DEFAULT_ACCENT);
     this.store.remove('theme');
     this.store.remove('accent');

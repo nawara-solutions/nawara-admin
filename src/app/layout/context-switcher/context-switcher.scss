@@ -30,10 +30,9 @@
 }
 
 .context-switcher__symbol {
+  --nw-brand-mark-size: 1.625rem;
+
   flex-shrink: 0;
-  inline-size: 1.625rem;
-  block-size: 1.625rem;
-  object-fit: contain;
 }
 
 .context-switcher__text {
