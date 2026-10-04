@@ -11,7 +11,10 @@
 
 .platforms-header__titles {
   display: grid;
-  flex: 1 1 16.25rem;
+  // Its natural width (capped at the row): when the actions do not fit beside it they wrap below, rather than
+  // squeezing the title onto two lines.
+  flex: 1 1 auto;
+  max-inline-size: 100%;
   gap: var(--nw-space-2);
 }
 

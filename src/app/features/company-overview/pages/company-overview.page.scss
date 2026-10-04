@@ -58,6 +58,13 @@
   font-size: var(--nw-text-size-sm);
 }
 
+// Very narrow pages (320 px phones): one figure per row, so the cards' icon tiles are never clipped.
+@container (max-width: 18rem) {
+  .company-overview__summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @container (min-width: 37.5rem) {
   :host {
     gap: var(--nw-space-5);
