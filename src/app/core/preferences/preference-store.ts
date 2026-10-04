@@ -8,6 +8,7 @@ import { Injectable } from '@angular/core';
 export const PREFERENCE_KEYS = {
   theme: 'nw.theme',
   locale: 'nw.locale',
+  accent: 'nw.accent',
 } as const;
 
 export type PreferenceName = keyof typeof PREFERENCE_KEYS;
@@ -19,6 +20,14 @@ export class PreferenceStore {
       return globalThis.localStorage.getItem(PREFERENCE_KEYS[name]);
     } catch {
       return null; // storage blocked (private mode, policy): fall back to defaults
+    }
+  }
+
+  remove(name: PreferenceName): void {
+    try {
+      globalThis.localStorage.removeItem(PREFERENCE_KEYS[name]);
+    } catch {
+      // storage blocked: nothing was stored
     }
   }
 

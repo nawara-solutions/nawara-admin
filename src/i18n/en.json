@@ -16,6 +16,21 @@
     },
     "language": {
       "label": "Language"
+    },
+    "accent": {
+      "coral": "Coral",
+      "rose": "Rose",
+      "plum": "Plum",
+      "indigo": "Indigo",
+      "teal": "Teal",
+      "amber": "Amber"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "mode": "Mode",
+      "accent": "Accent colour",
+      "note": "Saved in this browser only. It is not part of your account and is not shared with other devices.",
+      "reset": "Reset to Nawara default"
     }
   },
   "foundation": {
@@ -154,7 +169,8 @@
     "signIn": "Sign in",
     "verify": "Verify your sign-in",
     "noAccess": "Administrative access unavailable",
-    "platformChoice": "Choose a platform"
+    "platformChoice": "Choose a platform",
+    "settingsAppearance": "Appearance"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -168,7 +184,8 @@
       "company": "Company",
       "overview": "Overview",
       "platform": "Platform",
-      "platforms": "Platforms"
+      "platforms": "Platforms",
+      "appearance": "Appearance"
     },
     "context": {
       "label": "Administration scope",
@@ -511,6 +528,13 @@
       "recovery": "Owner, recovery required",
       "passkey": "Passkey",
       "passkeySimulated": "Simulated: a browser OK / Cancel dialog, not a passkey prompt and no WebAuthn check"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": {
+      "title": "Appearance",
+      "subtitle": "Choose how Nawara Admin looks in this browser."
     }
   }
 }

@@ -1,0 +1,63 @@
+<fieldset class="appearance-panel__group">
+  <legend class="appearance-panel__legend">{{ 'preferences.appearance.mode' | transloco }}</legend>
+  <div class="appearance-panel__modes">
+    @for (mode of modes; track mode.value) {
+      <label class="appearance-panel__mode">
+        <input
+          class="appearance-panel__input"
+          type="radio"
+          [name]="id + '-mode'"
+          [value]="mode.value"
+          [checked]="theme.preference() === mode.value"
+          (change)="theme.setPreference(mode.value)"
+        />
+        <nw-icon [name]="mode.icon" size="sm" />
+        <span>{{ mode.labelKey | transloco }}</span>
+      </label>
+    }
+  </div>
+</fieldset>
+
+<fieldset class="appearance-panel__group">
+  <legend class="appearance-panel__legend">
+    {{ 'preferences.appearance.accent' | transloco }}
+  </legend>
+  <div class="appearance-panel__accents">
+    @for (accent of accents; track accent.value) {
+      <label class="appearance-panel__accent">
+        <input
+          class="appearance-panel__input"
+          type="radio"
+          [name]="id + '-accent'"
+          [value]="accent.value"
+          [checked]="theme.accent() === accent.value"
+          (change)="theme.setAccent(accent.value)"
+        />
+        <span
+          class="appearance-panel__swatch"
+          [class]="'appearance-panel__swatch--' + accent.value"
+          aria-hidden="true"
+        >
+          <nw-icon class="appearance-panel__check" name="check" size="sm" />
+        </span>
+        <span class="appearance-panel__accent-name">{{ accent.labelKey | transloco }}</span>
+      </label>
+    }
+  </div>
+</fieldset>
+
+<div class="appearance-panel__footer">
+  <p class="appearance-panel__note">{{ 'preferences.appearance.note' | transloco }}</p>
+  <button
+    nw-button
+    variant="ghost"
+    size="sm"
+    type="button"
+    class="appearance-panel__reset"
+    [disabled]="!theme.customized()"
+    (click)="theme.reset()"
+  >
+    <nw-icon name="rotate-ccw" size="sm" />
+    <span>{{ 'preferences.appearance.reset' | transloco }}</span>
+  </button>
+</div>

@@ -60,6 +60,14 @@
   --nw-ref-blue-850: #3a4580; // derived: info border on dark
   --nw-ref-blue-900: #252a4d; // derived: blue 600 at 20% over ink 800, made solid
 
+  // Accent palette swatches (Settings and the Appearance popover): each preset's light primary, shown as a sample.
+  --nw-ref-swatch-coral: #c42427;
+  --nw-ref-swatch-rose: #be185d;
+  --nw-ref-swatch-plum: #7e22ce;
+  --nw-ref-swatch-indigo: #4338ca;
+  --nw-ref-swatch-teal: #0f766e;
+  --nw-ref-swatch-amber: #d97706;
+
   // Brand gradient: the "SOLUTIONS" lettering and accent lines.
   --nw-ref-gradient-coral: linear-gradient(
     90deg,

@@ -1,5 +1,5 @@
 // The Platform directory of the owner design, sized by the page's own width (container queries, ARCHITECTURE §15):
-// header card · search and count · two-column directory (one column when narrow) · botanical drawing at the bottom end.
+// header card · search and count · two-column directory (one column when narrow). The workspace flower is the shell's.
 :host {
   position: relative;
   display: grid;
@@ -8,26 +8,6 @@
   min-block-size: 100%;
   container-type: inline-size;
   isolation: isolate;
-
-  // The botanical drawing rising from the bottom end corner of the workspace (coral or dark artwork per theme): pushed
-  // out through the shell's padding so it touches the corner; mirrored in RTL.
-  &::after {
-    content: '';
-    position: absolute;
-    inset-block-end: calc(-1 * var(--nw-main-padding-block-end, 0px));
-    inset-inline-end: calc(-1 * var(--nw-main-padding-inline, 0px));
-    z-index: -1;
-    inline-size: min(34rem, 55%);
-    aspect-ratio: 836 / 941;
-    background: var(--nw-illustration-botanical) no-repeat right bottom / contain;
-    opacity: var(--nw-workspace-illustration-opacity);
-    mask-image: var(--nw-workspace-illustration-mask);
-    pointer-events: none;
-  }
-
-  &:dir(rtl)::after {
-    transform: scaleX(-1);
-  }
 }
 
 .platforms__toolbar {
@@ -200,11 +180,5 @@
 
   .platforms__list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (forced-colors: active) {
-  :host::after {
-    display: none;
   }
 }

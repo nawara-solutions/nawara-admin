@@ -11,9 +11,10 @@
   border: 1px solid var(--nw-border-hairline);
   border-radius: var(--nw-radius-md);
 
+  // Severity, not brand: fixed colours that the accent palettes do not change.
   &--urgent {
-    border-color: var(--nw-border-brand);
-    background-color: var(--nw-surface-brand-subtle);
+    border-color: var(--nw-urgent-border);
+    background-color: var(--nw-urgent-bg);
   }
 }
 
@@ -44,6 +45,7 @@
 // The urgent row's tile sits on the pale pink row: a raised tile keeps it distinct.
 .attention-list__item--urgent .attention-list__tile--pink {
   background-color: var(--nw-surface-raised);
+  color: var(--nw-urgent-fg);
 }
 
 .attention-list__text {
@@ -63,7 +65,7 @@
   font-weight: var(--nw-font-weight-bold);
 
   .attention-list__item--urgent & {
-    color: var(--nw-text-brand);
+    color: var(--nw-urgent-fg);
   }
 }
 
@@ -80,8 +82,8 @@
   margin-inline-start: var(--nw-space-1);
   padding: 1px 0.375rem;
   border-radius: var(--nw-radius-sm);
-  background-color: var(--nw-color-primary);
-  color: var(--nw-text-on-primary);
+  background-color: var(--nw-urgent-solid);
+  color: var(--nw-urgent-on-solid);
   font-size: 0.65625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;

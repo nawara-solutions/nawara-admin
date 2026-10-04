@@ -79,6 +79,15 @@ const PAIRS = [
   ]),
   ['--nw-text-inverse', '--nw-surface-inverse-hover', 4.5],
   ['--nw-text-secondary', '--nw-color-neutral-hover', 4.5],
+  // Urgent attention items (fixed colours, not recoloured by accent palettes)
+  ['--nw-urgent-fg', '--nw-urgent-bg', 4.5],
+  ['--nw-urgent-on-solid', '--nw-urgent-solid', 4.5],
+  // Appearance swatches: the check mark on each sample colour (a graphic, 3:1)
+  ...['coral', 'rose', 'plum', 'indigo', 'teal', 'amber'].map((n) => [
+    '--nw-swatch-check',
+    `--nw-swatch-${n}`,
+    3,
+  ]),
   // Inline alerts (A4): text on the tone background, and the tone icon as a graphic
   ...['success', 'warning', 'danger', 'info'].flatMap((t) => [
     [`--nw-alert-${t}-fg`, `--nw-alert-${t}-bg`, 4.5],
@@ -121,14 +130,33 @@ const ratio = (a, b) => {
   return (hi + 0.05) / (lo + 0.05);
 };
 
+// Accent palettes (tokens/_accents.scss): each `@mixin <accent>-<theme>` block overrides the theme's accent tokens and
+// is checked with the same pairs as the default palette.
+const accentSource = readFileSync(`${TOKENS}/_accents.scss`, 'utf8');
+const accents = [...accentSource.matchAll(/@mixin ([a-z]+)-(light|dark) \{([^}]*)\}/g)].map(
+  (m) => ({
+    name: m[1],
+    theme: m[2],
+    overrides: Object.fromEntries(
+      [...m[3].matchAll(/(--nw-[\w-]+):\s*([^;]+);/g)].map((d) => [d[1], d[2].trim()]),
+    ),
+  }),
+);
+const scopes = [
+  ...Object.entries(THEMES).map(([theme, file]) => ({ label: theme, scope: declarations(file) })),
+  ...accents.map((a) => ({
+    label: `${a.name}/${a.theme}`,
+    scope: { ...declarations(THEMES[a.theme]), ...a.overrides },
+  })),
+];
+
 let failures = 0;
-for (const [theme, file] of Object.entries(THEMES)) {
-  const scope = declarations(file);
+for (const { label, scope } of scopes) {
   for (const [fg, bg, min] of PAIRS) {
     const value = ratio(resolve(scope, fg), resolve(scope, bg));
     if (value < min) {
       failures++;
-      console.error(`✖ ${theme}: ${fg} on ${bg} = ${value.toFixed(2)} (needs ${min})`);
+      console.error(`✖ ${label}: ${fg} on ${bg} = ${value.toFixed(2)} (needs ${min})`);
     }
   }
 }
@@ -138,5 +166,5 @@ if (failures > 0) {
   process.exit(1);
 }
 console.log(
-  `✔ contrast: ${PAIRS.length} token pairs × ${Object.keys(THEMES).length} themes meet the WCAG 2.2 AA ratios`,
+  `✔ contrast: ${PAIRS.length} token pairs × ${scopes.length} theme/palette combinations meet the WCAG 2.2 AA ratios`,
 );

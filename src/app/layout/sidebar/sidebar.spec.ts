@@ -78,12 +78,13 @@ async function render(actor: Actor, notifications: 'demo' | 'unavailable' = 'dem
 }
 
 describe('Sidebar', () => {
-  it('links only the built page; the other approved destinations are not links', async () => {
+  it('links only the built pages; the other approved destinations are not links', async () => {
     const sidebar = await render(owner);
     const links = Array.from(sidebar.querySelectorAll('nav a'));
     expect(links.map((a) => a.getAttribute('href'))).toEqual(['/overview']);
+    expect(sidebar.querySelector('.sidebar__footer a')?.getAttribute('href')).toBe('/settings');
     const inert = sidebar.querySelectorAll('.sidebar__item--unavailable');
-    expect(inert.length).toBe(12);
+    expect(inert.length).toBe(11);
     expect(Array.from(inert).every((item) => item.tagName === 'SPAN')).toBe(true);
     expect(inert[0]?.textContent).toContain(en.shell.notAvailableYet);
   });
@@ -97,6 +98,8 @@ describe('Sidebar', () => {
   it('hides the company-wide Overview from an operator and falls back to their email', async () => {
     const sidebar = await render(operator);
     expect(sidebar.querySelector('nav a')).toBeNull();
+    // Personal settings (Appearance) are open to operators too: they grant no administrative capability.
+    expect(sidebar.querySelector('.sidebar__footer a')?.getAttribute('href')).toBe('/settings');
     expect(sidebar.querySelector('.sidebar__name')?.textContent).toBe('operator@x.invalid');
   });
 

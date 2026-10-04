@@ -1,0 +1,76 @@
+:host {
+  display: inline-flex;
+}
+
+.appearance-menu__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  block-size: 2.25rem;
+  padding-inline: var(--nw-space-2);
+  border: 0;
+  border-radius: var(--nw-radius-md);
+  background: transparent;
+  color: var(--nw-text-primary);
+  cursor: pointer;
+
+  &:hover,
+  &[aria-expanded='true'] {
+    background-color: var(--nw-color-neutral-hover);
+  }
+}
+
+// Sign-in pages: outlined, like the language control beside it.
+:host(.appearance-menu--framed) .appearance-menu__trigger {
+  block-size: 2.0625rem;
+  padding-inline: 0.625rem;
+  border: 1px solid var(--nw-border-default);
+  background-color: var(--nw-surface-raised);
+  color: var(--nw-text-label);
+
+  &:hover,
+  &[aria-expanded='true'] {
+    background-color: var(--nw-surface-sunken);
+  }
+}
+
+// The current accent, as a small dot (decorative: the accessible name is "Appearance").
+.appearance-menu__swatch {
+  inline-size: 0.625rem;
+  block-size: 0.625rem;
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-color-primary);
+}
+
+.appearance-menu__chevron {
+  inline-size: 0.875rem;
+  block-size: 0.875rem;
+  color: var(--nw-text-secondary);
+}
+
+.appearance-menu__popover {
+  display: grid;
+  gap: var(--nw-space-3);
+  inline-size: min(22rem, calc(100vw - 2rem));
+  padding: var(--nw-space-4);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-lg);
+  background-color: var(--nw-surface-overlay);
+  box-shadow: var(--nw-shadow-md);
+  color: var(--nw-text-primary);
+}
+
+.appearance-menu__title {
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+@media (forced-colors: active) {
+  .appearance-menu__popover {
+    border-color: CanvasText;
+  }
+
+  .appearance-menu__swatch {
+    forced-color-adjust: none;
+  }
+}

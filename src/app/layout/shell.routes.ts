@@ -82,6 +82,11 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
             ),
         },
         {
+          path: 'settings',
+          loadChildren: () =>
+            import('../features/settings/settings.routes').then((m) => m.SETTINGS_ROUTES),
+        },
+        {
           path: 'forbidden',
           title: 'titles.forbidden',
           data: FORBIDDEN,

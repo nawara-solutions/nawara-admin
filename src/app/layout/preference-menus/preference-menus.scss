@@ -35,37 +35,6 @@
   }
 }
 
-.preference-menus__themes {
-  display: inline-flex;
-  gap: 2px;
-  padding: 3px;
-  border-radius: var(--nw-radius-md);
-  background-color: var(--nw-surface-sunken);
-  direction: ltr;
-}
-
-.preference-menus__theme {
-  display: inline-grid;
-  place-items: center;
-  inline-size: 1.875rem;
-  block-size: 1.75rem;
-  border: 0;
-  border-radius: var(--nw-radius-sm);
-  background: transparent;
-  color: var(--nw-icon-muted);
-  cursor: pointer;
-
-  &:hover {
-    color: var(--nw-text-primary);
-  }
-
-  // The chosen theme: a coral tint (coral + ink theme).
-  &[aria-pressed='true'] {
-    background-color: var(--nw-color-primary-subtle);
-    color: var(--nw-text-brand);
-  }
-}
-
 // Sign-in pages: outlined controls on the open workspace, the language named in itself.
 :host(.preference-menus--framed) {
   .preference-menus__trigger {
@@ -84,22 +53,6 @@
       background-color: var(--nw-surface-sunken);
     }
   }
-
-  .preference-menus__themes {
-    border: 1px solid var(--nw-border-default);
-    background-color: var(--nw-surface-raised);
-  }
-
-  .preference-menus__theme {
-    inline-size: 1.6875rem;
-    block-size: 1.5625rem;
-    border-radius: 0.4375rem;
-    color: var(--nw-text-secondary);
-
-    &[aria-pressed='true'] {
-      color: var(--nw-text-brand);
-    }
-  }
 }
 
 .preference-menus__chevron {
@@ -109,10 +62,4 @@
 
 .preference-menus__option {
   flex: 1;
-}
-
-@media (forced-colors: active) {
-  .preference-menus__theme[aria-pressed='true'] {
-    outline: 2px solid Highlight;
-  }
 }
