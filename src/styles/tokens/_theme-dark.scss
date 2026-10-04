@@ -84,16 +84,9 @@
   --nw-surface-glass: rgb(35 30 44 / 70%); // the sidebar profile over the illustration
   --nw-border-glass: rgb(255 255 255 / 8%);
   --nw-topbar-background: rgb(23 19 31 / 82%);
-  --nw-hero-background: linear-gradient(
-    160deg,
-    var(--nw-ref-ink-800) 0%,
-    var(--nw-ref-ink-800) 60%,
-    color-mix(in oklab, var(--nw-color-primary) 12%, var(--nw-ref-ink-800)) 100%
-  ); // ends in a tint of the selected palette
   // Logo colours (--nw-logo-*) and botanical artwork (--nw-illustration-botanical, -corner) of coral, the default palette;
   // the other palettes override them (tokens/_accents.scss, generated values in tokens/_brand-artwork.scss)
   @include brand-artwork.coral-dark;
-  --nw-hero-illustration-opacity: 0.6; // header cards
   --nw-sidebar-illustration-opacity: 0.45;
   --nw-sidebar-atmosphere: radial-gradient(
     20rem 26rem at 110% 100%,
