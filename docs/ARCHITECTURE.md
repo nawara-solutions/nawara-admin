@@ -518,10 +518,11 @@ Consequences to honour in A2, because Transloco checks translations at runtime r
 
 ## 18. Typography
 
-- **Brand pairing (brand board):** **IBM Plex Sans** + **IBM Plex Sans Arabic** (designed as one family, SIL OFL), and
-  **IBM Plex Mono** for ids and codes. Served from `@fontsource/*` packages through `angular.json` (weights 400/500/600).
-  Plex Sans uses the range-declared entry files, so each subset (`latin`, `latin-ext`, …) is fetched only when a character
-  needs it; the per-subset files declare no `unicode-range` and would all download.
+- **Brand typefaces (coral + ink theme, owner decision 2026-10-04):** **Readex Pro** for Latin and Arabic (one family for
+  every locale, SIL OFL) and **JetBrains Mono** for ids and codes. Served from `@fontsource/*` packages through
+  `angular.json` (weights 400/500/600; mono 400/500). Readex Pro uses the range-declared entry files (`400.css` …), so each
+  subset (`latin`, `arabic`, …) is fetched only when a character needs it; the per-subset files declare no `unicode-range`
+  and would all download. IBM Plex (the earlier brand board) is no longer used.
 - **Self-hosted** WOFF2 with `font-display: swap`, subset per script. No third-party font CDN (CSP and privacy).
 - `--nw-font-sans` resolves per language (`:lang(ar)` switches to the Arabic family first). Arabic gets a slightly larger line height,
   **never letter-spacing**, and no `text-transform: uppercase` anywhere (it has no meaning in Arabic).

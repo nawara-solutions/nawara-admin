@@ -50,6 +50,7 @@ let nextId = 0;
     role: 'region',
     '[attr.aria-labelledby]': 'titleId',
     '[class.auth-card--wide]': 'wide()',
+    '[class.auth-card--centered]': 'centered()',
   },
 })
 export class AuthCard {
@@ -59,6 +60,8 @@ export class AuthCard {
   readonly tone = input<AuthCardTone>('brand');
   /** The platform choice uses a wider card. */
   readonly wide = input(false, { transform: booleanAttribute });
+  /** Centres the heading and the content (a step with nothing to act on). */
+  readonly centered = input(false, { transform: booleanAttribute });
   /** A change of value is a step change: focus returns to the heading. */
   readonly step = input<string>('');
 

@@ -22,30 +22,34 @@
   isolation: isolate;
 }
 
-.auth-frame__corner-flora {
+.auth-frame__corner {
   position: absolute;
-  inset-block-start: 0;
+  inset-block-start: 4rem;
   right: 0;
   z-index: -1;
-  inline-size: 14rem;
-  block-size: 12rem;
-  background: url('/illustrations/hero-flora.svg') no-repeat right top / contain;
-  opacity: var(--nw-compact-flora-opacity);
-  mask-image: var(--nw-auth-corner-flora-mask);
+  inline-size: min(9.75rem, 22%);
+  aspect-ratio: 172 / 560;
+  background: no-repeat right top / contain;
+  mask-image: var(--nw-auth-corner-mask);
   pointer-events: none;
 
-  @include nw.from(tablet) {
-    inline-size: 24rem;
+  &--on-light {
+    display: var(--nw-brand-wordmark-on-light-display);
+    background-image: url('/illustrations/nawara-botanical-corner-coral.png');
   }
 
-  @include nw.from(desktop) {
-    display: none;
+  &--on-dark {
+    display: var(--nw-brand-wordmark-on-dark-display);
+    background-image: url('/illustrations/nawara-botanical-corner-dark.png');
   }
 }
 
-// Mirrored in RTL so the drawing always grows from the inline-end corner.
-:host(:dir(rtl)) .auth-frame__corner-flora {
+// Mirrored in RTL so the drawing always grows from the inline-end edge.
+:host(:dir(rtl)) .auth-frame__corner {
   transform: scaleX(-1);
+  transform-origin: center;
+  right: auto;
+  left: 0;
 }
 
 .auth-frame__header {
@@ -65,13 +69,9 @@
 }
 
 .auth-frame__header-logo {
-  --nw-brand-mark-size: 2.25rem;
+  --nw-brand-mark-size: 1.6875rem;
 
   min-inline-size: 0;
-
-  @include nw.from(tablet) {
-    --nw-brand-mark-size: 2.75rem;
-  }
 
   @include nw.from(desktop) {
     display: none;
@@ -107,7 +107,6 @@
 .auth-frame__checking {
   display: grid;
   justify-items: center;
-  padding-block: var(--nw-space-2);
   color: var(--nw-color-primary);
 }
 
@@ -134,7 +133,7 @@
 }
 
 @media (forced-colors: active) {
-  .auth-frame__corner-flora {
+  .auth-frame__corner {
     display: none;
   }
 }

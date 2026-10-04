@@ -38,9 +38,34 @@
 }
 
 .shell__column {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-inline-size: 0;
+  isolation: isolate;
+}
+
+// The botanical sprig at the top end of the content (Workspace design), behind the cards, mirrored in RTL.
+.shell__botanical {
+  position: absolute;
+  inset-block-start: 4rem;
+  right: 0;
+  z-index: -1;
+  inline-size: min(9.75rem, 20%);
+  aspect-ratio: 172 / 560;
+  background: var(--nw-illustration-botanical-corner) no-repeat right top / contain;
+  mask-image: var(--nw-auth-corner-mask);
+  pointer-events: none;
+
+  @media (forced-colors: active) {
+    display: none;
+  }
+}
+
+:host(:dir(rtl)) .shell__botanical {
+  right: auto;
+  left: 0;
+  transform: scaleX(-1);
 }
 
 .shell__main {
@@ -49,15 +74,25 @@
   // Capped at 1440 px (owner design) and centred, so wide screens keep equal space on both sides.
   max-inline-size: 90rem;
   margin-inline: auto;
-  // Workspace padding of the owner design: 16/14 px on phones, 24 px on tablets, 28/32 px on desktops.
-  padding: var(--nw-space-4) 0.875rem 1.75rem;
+  // Workspace padding of the owner design: 16/14 px on phones, 24 px on tablets, 28/32 px on desktops. The inline and
+  // bottom values are exposed so page decoration can reach the workspace corner (Platforms page botanical).
+  --nw-main-padding-inline: 0.875rem;
+  --nw-main-padding-block-end: 1.75rem;
+
+  padding: var(--nw-space-4) var(--nw-main-padding-inline) var(--nw-main-padding-block-end);
 
   @include nw.from(tablet) {
-    padding: var(--nw-space-6) var(--nw-space-6) 2.25rem;
+    --nw-main-padding-inline: var(--nw-space-6);
+    --nw-main-padding-block-end: 2.25rem;
+
+    padding-block-start: var(--nw-space-6);
   }
 
   @include nw.from(laptop) {
-    padding: 1.75rem var(--nw-space-7) var(--nw-space-8);
+    --nw-main-padding-inline: var(--nw-space-7);
+    --nw-main-padding-block-end: var(--nw-space-8);
+
+    padding-block-start: 1.75rem;
   }
 
   &:focus {

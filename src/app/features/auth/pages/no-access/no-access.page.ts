@@ -45,11 +45,15 @@ import { IdentityRow } from '../../components/identity-row/identity-row';
 
     .no-access__help {
       color: var(--nw-text-secondary);
-      font-size: var(--nw-text-size-sm);
+      font-size: 0.8125rem;
+      line-height: 1.55;
     }
 
     .no-access__sign-out {
-      min-block-size: 2.75rem;
+      min-block-size: 2.5rem;
+      color: var(--nw-text-label);
+      font-size: 0.8125rem;
+      font-weight: var(--nw-font-weight-medium);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

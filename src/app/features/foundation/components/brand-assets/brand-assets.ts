@@ -1,38 +1,20 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { NwBrandMark } from '../../../../shared/ui/brand-mark/brand-mark';
 
 /**
- * Brand artwork review for the A2 preview (docs/BRAND.md): the brand board's raster symbol next to its vector
- * reconstruction, the favicon sizes and the board's logos, each on a fixed light and a fixed dark panel.
+ * The Logo Kit (claude.ai design "Nawara Logo Kit", 2026-10-04; docs/BRAND.md §0) on a fixed light and a fixed dark
+ * panel: the full logo, the wordmark, the flower symbol and the ink-circle favicon at real pixel sizes.
  */
 @Component({
   selector: 'adm-brand-assets',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, NwBrandMark],
   templateUrl: './brand-assets.html',
   styleUrl: './brand-assets.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'brand-assets', role: 'region', 'aria-labelledby': 'brand-title' },
 })
 export class BrandAssets {
-  protected readonly panels = [
-    {
-      theme: 'light',
-      symbol: 'brand/nawara-symbol.png',
-      symbolWidth: 105,
-      lockup: 'brand/nawara-logo-horizontal.png',
-      lockupKey: 'foundation.brand.lockupLight',
-      width: 370,
-      height: 113,
-    },
-    {
-      theme: 'dark',
-      symbol: 'brand/nawara-symbol-on-dark.png',
-      symbolWidth: 98,
-      lockup: 'brand/nawara-logo-horizontal-on-dark.png',
-      lockupKey: 'foundation.brand.lockupDark',
-      width: 347,
-      height: 114,
-    },
-  ] as const;
-  protected readonly faviconSizes = [16, 32, 48] as const;
+  protected readonly themes = ['light', 'dark'] as const;
+  protected readonly faviconSizes = [16, 32, 48, 64] as const;
 }

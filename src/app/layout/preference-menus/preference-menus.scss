@@ -59,14 +59,10 @@
     color: var(--nw-text-primary);
   }
 
+  // The chosen theme: a coral tint (coral + ink theme).
   &[aria-pressed='true'] {
-    background-color: var(--nw-surface-raised);
-    box-shadow: var(--nw-shadow-sm);
-    color: var(--nw-accent-purple-fg);
-  }
-
-  &--sun[aria-pressed='true'] {
-    color: var(--nw-accent-orange-fg);
+    background-color: var(--nw-color-primary-subtle);
+    color: var(--nw-text-brand);
   }
 }
 
@@ -74,22 +70,35 @@
 :host(.preference-menus--framed) {
   .preference-menus__trigger {
     justify-content: center;
-    block-size: 2.5rem;
-    min-inline-size: 2.5rem;
-    border: 1px solid var(--nw-border-subtle);
+    block-size: 2.0625rem;
+    min-inline-size: 2.0625rem;
+    padding-inline: 0.625rem;
+    border: 1px solid var(--nw-border-default);
     background-color: var(--nw-surface-raised);
+    color: var(--nw-text-label);
+    font-size: 0.75rem;
+    font-weight: var(--nw-font-weight-medium);
 
     &:hover,
     &[aria-expanded='true'] {
-      border-color: var(--nw-border-default);
-      background-color: var(--nw-color-neutral-hover);
+      background-color: var(--nw-surface-sunken);
     }
   }
 
+  .preference-menus__themes {
+    border: 1px solid var(--nw-border-default);
+    background-color: var(--nw-surface-raised);
+  }
+
   .preference-menus__theme {
-    inline-size: 2.125rem;
-    block-size: 2.125rem;
+    inline-size: 1.6875rem;
+    block-size: 1.5625rem;
     border-radius: 0.4375rem;
+    color: var(--nw-text-secondary);
+
+    &[aria-pressed='true'] {
+      color: var(--nw-text-brand);
+    }
   }
 }
 

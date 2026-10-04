@@ -1,159 +1,161 @@
-// Light theme: defines every semantic token intentionally (docs/ARCHITECTURE.md §13, §14).
+// Light theme (coral + ink): defines every semantic token intentionally (docs/ARCHITECTURE.md §13, §14).
 // Every text/surface pair is checked to WCAG 2.2 AA by `npm run check:contrast`.
 
 @mixin tokens {
   color-scheme: light;
 
   // Surfaces
-  --nw-surface-page: var(--nw-ref-lilac-50);
-  --nw-surface-raised: var(--nw-ref-neutral-0);
-  --nw-surface-sunken: var(--nw-ref-lilac-75);
-  --nw-surface-inset: var(--nw-ref-lilac-25); // sub-cards and rows inside a raised card
-  --nw-surface-overlay: var(--nw-ref-neutral-0);
-  --nw-surface-inverse: var(--nw-ref-lilac-850);
-  --nw-surface-inverse-hover: var(--nw-ref-lilac-800);
+  --nw-surface-page: var(--nw-ref-ink-50);
+  --nw-surface-raised: var(--nw-ref-ink-0);
+  --nw-surface-sunken: var(--nw-ref-ink-100);
+  --nw-surface-inset: var(--nw-ref-ink-50); // sub-cards and rows inside a raised card
+  --nw-surface-overlay: var(--nw-ref-ink-0);
+  --nw-surface-inverse: var(--nw-ref-ink-700); // the ink chip and tooltips
+  --nw-surface-inverse-hover: var(--nw-ref-ink-600);
   --nw-surface-inverse-disabled: var(
-    --nw-ref-lilac-400
+    --nw-ref-ink-400
   ); // ink action, disabled (solid, so nothing shows through)
-  --nw-surface-brand-subtle: var(--nw-ref-pink-50);
+  --nw-surface-brand-subtle: var(--nw-ref-coral-50);
 
   // Text
-  --nw-text-primary: var(--nw-ref-lilac-850);
-  --nw-text-secondary: var(--nw-ref-lilac-500);
-  --nw-text-label: var(--nw-ref-lilac-600); // card and figure labels
-  --nw-text-disabled: var(--nw-ref-neutral-400);
-  --nw-text-inverse: var(--nw-ref-neutral-ink-inverse);
-  --nw-text-brand: var(--nw-ref-pink-600);
-  --nw-text-link: var(--nw-ref-pink-700);
-  --nw-text-on-primary: var(--nw-ref-neutral-0);
+  --nw-text-primary: var(--nw-ref-ink-900);
+  --nw-text-secondary: var(--nw-ref-ink-500);
+  --nw-text-label: var(--nw-ref-ink-600); // field, card and figure labels
+  --nw-text-disabled: var(--nw-ref-ink-400);
+  --nw-text-inverse: var(--nw-ref-ink-0);
+  --nw-text-brand: var(--nw-ref-coral-600);
+  --nw-text-link: var(--nw-ref-coral-600);
+  --nw-text-on-primary: var(--nw-ref-ink-0);
 
   // Borders
-  --nw-border-hairline: var(--nw-ref-lilac-100); // inner rows and tiles (decorative separation)
-  --nw-border-subtle: var(--nw-ref-lilac-150);
-  --nw-border-default: var(--nw-ref-lilac-200);
-  --nw-border-strong: var(--nw-ref-neutral-500);
-  --nw-border-brand: var(--nw-ref-pink-200); // brand outlines (Open platform, urgent rows)
+  --nw-border-hairline: var(--nw-ref-ink-200); // inner rows and tiles (decorative separation)
+  --nw-border-subtle: var(--nw-ref-ink-200); // card hairline
+  --nw-border-default: var(--nw-ref-ink-300); // secondary buttons, menus
+  --nw-border-strong: var(--nw-ref-ink-450); // field boundary (3:1)
+  --nw-border-brand: var(--nw-ref-coral-200);
 
   // Actions
-  --nw-color-primary: var(--nw-ref-pink-600);
-  --nw-color-primary-hover: var(--nw-ref-pink-700);
-  --nw-color-primary-active: var(--nw-ref-pink-800);
-  --nw-color-primary-subtle: var(--nw-ref-pink-50);
-  --nw-color-neutral-hover: var(--nw-ref-lilac-90);
-  --nw-color-neutral-active: var(--nw-ref-lilac-100);
-  --nw-icon-muted: var(--nw-ref-lilac-400); // inactive navigation and control icons
+  --nw-color-primary: var(--nw-ref-coral-600);
+  --nw-color-primary-hover: var(--nw-ref-coral-700);
+  --nw-color-primary-active: var(--nw-ref-coral-800);
+  --nw-color-primary-subtle: var(--nw-ref-coral-50);
+  --nw-color-neutral-hover: var(--nw-ref-ink-100);
+  --nw-color-neutral-active: var(--nw-ref-ink-200);
+  --nw-icon-muted: var(--nw-ref-ink-450); // inactive navigation and control icons (3:1)
 
   // Destructive action states (solid on hover, stronger on press)
-  --nw-color-danger-hover: var(--nw-ref-red-700);
-  --nw-color-danger-active: var(--nw-ref-red-800);
-  --nw-text-on-danger: var(--nw-ref-neutral-0);
+  --nw-color-danger-hover: var(--nw-ref-coral-700);
+  --nw-color-danger-active: var(--nw-ref-coral-800);
+  --nw-text-on-danger: var(--nw-ref-ink-0);
 
   // Status: text + background + border, never colour alone (§25)
   --nw-status-success-fg: var(--nw-ref-green-700);
   --nw-status-success-bg: var(--nw-ref-green-50);
-  --nw-status-warning-fg: var(--nw-ref-amber-800);
+  --nw-status-warning-fg: var(--nw-ref-amber-700);
   --nw-status-warning-bg: var(--nw-ref-amber-50);
-  --nw-status-danger-fg: var(--nw-ref-red-700);
-  --nw-status-danger-bg: var(--nw-ref-red-50);
-  --nw-status-info-fg: var(--nw-ref-purple-700);
-  --nw-status-info-bg: var(--nw-ref-purple-50);
+  --nw-status-danger-fg: var(--nw-ref-coral-700);
+  --nw-status-danger-bg: var(--nw-ref-coral-100);
+  --nw-status-info-fg: var(--nw-ref-blue-600);
+  --nw-status-info-bg: var(--nw-ref-blue-50);
 
   // Focus
-  --nw-focus-ring: var(--nw-ref-purple-600);
+  --nw-focus-ring: var(--nw-ref-coral-500);
 
   // Brand expression
-  --nw-gradient-brand: var(--nw-ref-gradient-sunrise);
-  --nw-gradient-brand-cool: var(--nw-ref-gradient-dusk);
-  --nw-brand-glow: var(--nw-ref-amber-50);
-  // Which wordmark artwork shows (nw-brand-mark): dark lettering on light surfaces, light lettering on dark ones
+  --nw-gradient-brand: var(--nw-ref-gradient-coral);
+  --nw-gradient-brand-cool: var(
+    --nw-ref-gradient-coral-on-dark
+  ); // the other tone of the coral gradient
+  --nw-brand-glow: var(--nw-ref-coral-50);
+  // Which bloom artwork shows (nw-brand-mark): coral on light surfaces, the glow version on dark ones
   --nw-brand-wordmark-on-light-display: block;
   --nw-brand-wordmark-on-dark-display: none;
 
-  // Shell (layout/): the blush, illustrated sidebar, the translucent top bar and the header card of the owner design.
-  // The atmospheres are decorative washes painted on aria-hidden layers behind the content (never on cards); their
-  // positions are physical and the layers mirror in RTL. Sampled from the approved reference, not brand values.
+  // Shell (layout/): sidebar, translucent top bar and header card. The atmospheres are decorative washes painted on
+  // aria-hidden layers behind the content (never on cards); their positions are physical and the layers mirror in RTL.
   // The wash's darkest stop: what contrast is checked against
-  --nw-surface-sidebar: var(--nw-ref-blush-50);
+  --nw-surface-sidebar: var(--nw-ref-ink-25);
   --nw-sidebar-background: linear-gradient(
     180deg,
-    var(--nw-ref-neutral-0) 0%,
-    var(--nw-ref-blush-25) 45%,
-    var(--nw-ref-blush-50) 100%
+    var(--nw-ref-ink-0) 0%,
+    var(--nw-ref-ink-25) 100%
   );
   --nw-surface-glass: rgb(255 255 255 / 72%); // the sidebar profile over the illustration
-  --nw-border-glass: rgb(240 225 235 / 90%);
-  --nw-topbar-background: rgb(255 255 255 / 82%);
+  --nw-border-glass: rgb(228 223 227 / 90%);
+  --nw-topbar-background: rgb(250 248 247 / 82%);
   --nw-hero-background: linear-gradient(
-    105deg,
-    var(--nw-ref-neutral-0) 0%,
-    var(--nw-ref-neutral-0) 52%,
-    var(--nw-ref-blush-75) 78%,
-    var(--nw-ref-peach-50) 100%
+    160deg,
+    var(--nw-ref-ink-0) 0%,
+    var(--nw-ref-ink-50) 55%,
+    var(--nw-ref-coral-50) 100%
   );
-  --nw-sidebar-illustration-opacity: 1;
-  --nw-sidebar-atmosphere:
-    radial-gradient(18rem 13rem at 50% -2rem, rgb(255 178 126 / 16%), transparent 72%),
-    radial-gradient(20rem 26rem at 110% 100%, rgb(240 141 184 / 16%), transparent 70%),
-    radial-gradient(18rem 22rem at -10% 104%, rgb(196 155 234 / 12%), transparent 70%);
+  // Botanical artwork of this theme (Workspace design): the full drawing (sidebar) and the corner sprig (content)
+  --nw-illustration-botanical: url('/illustrations/nawara-botanical-coral.png');
+  --nw-illustration-botanical-corner: url('/illustrations/nawara-botanical-corner-coral.png');
+  --nw-hero-illustration-opacity: 0.85; // header cards
+  --nw-sidebar-illustration-opacity: 0.5;
+  --nw-sidebar-atmosphere: radial-gradient(
+    20rem 26rem at 110% 100%,
+    rgb(229 56 59 / 6%),
+    transparent 70%
+  );
   --nw-workspace-illustration-opacity: 1;
-  --nw-workspace-atmosphere:
-    radial-gradient(44rem 22rem at 84% -3rem, rgb(255 178 126 / 20%), transparent 72%),
-    radial-gradient(38rem 20rem at 56% -5rem, rgb(240 141 184 / 13%), transparent 70%),
-    radial-gradient(40rem 30rem at 104% 22rem, rgb(196 155 234 / 12%), transparent 70%),
-    radial-gradient(52rem 34rem at -6% 100%, rgb(255 200 87 / 7%), transparent 70%);
+  --nw-workspace-atmosphere: radial-gradient(
+    48rem 26rem at 96% -6rem,
+    rgb(229 56 59 / 6%),
+    transparent 70%
+  );
 
-  // Accent tiles: decorative icon tiles of cards (graphics, WCAG 1.4.11: 3:1)
-  --nw-accent-pink-bg: var(--nw-ref-pink-50);
-  --nw-accent-pink-fg: var(--nw-ref-pink-600);
-  --nw-accent-orange-bg: var(--nw-ref-orange-50);
-  --nw-accent-orange-fg: var(--nw-ref-orange-700);
+  // Accent tiles: decorative icon tiles of cards (graphics, WCAG 1.4.11: 3:1). The theme has one hue: coral for brand
+  // emphasis, amber for the warm accent, ink ("quiet") where the earlier palette used purple.
+  --nw-accent-pink-bg: var(--nw-ref-coral-50);
+  --nw-accent-pink-fg: var(--nw-ref-coral-600);
+  --nw-accent-orange-bg: var(--nw-ref-amber-50);
+  --nw-accent-orange-fg: var(--nw-ref-amber-700);
   --nw-accent-amber-bg: var(--nw-ref-amber-50);
-  --nw-accent-amber-fg: var(--nw-ref-amber-600);
-  --nw-accent-purple-bg: var(--nw-ref-purple-50);
-  --nw-accent-purple-fg: var(--nw-ref-purple-600);
+  --nw-accent-amber-fg: var(--nw-ref-amber-700);
+  --nw-accent-purple-bg: var(--nw-ref-ink-100);
+  --nw-accent-purple-fg: var(--nw-ref-ink-700);
 
   // Charts
-  --nw-chart-line: var(--nw-ref-pink-500);
-  --nw-chart-area: rgb(230 66 139 / 18%);
-  --nw-chart-grid: var(--nw-ref-neutral-200);
+  --nw-chart-line: var(--nw-ref-coral-500);
+  --nw-chart-area: rgb(229 56 59 / 14%);
+  --nw-chart-grid: var(--nw-ref-ink-200);
 
-  // Inline alerts (nw-inline-alert): text, background, border and icon per tone (A4 design, 2026-10-02).
+  // Inline alerts (nw-inline-alert): text, background, border and icon per tone.
   // Text and icon pairs are checked by `npm run check:contrast`.
-  --nw-alert-danger-bg: var(--nw-ref-red-50);
-  --nw-alert-danger-fg: var(--nw-ref-red-800);
-  --nw-alert-danger-border: var(--nw-ref-red-150);
-  --nw-alert-danger-icon: var(--nw-ref-red-700);
+  --nw-alert-danger-bg: var(--nw-ref-coral-100);
+  --nw-alert-danger-fg: var(--nw-ref-coral-700);
+  --nw-alert-danger-border: var(--nw-ref-coral-200);
+  --nw-alert-danger-icon: var(--nw-ref-coral-600);
   --nw-alert-warning-bg: var(--nw-ref-amber-50);
-  --nw-alert-warning-fg: var(--nw-ref-amber-850);
+  --nw-alert-warning-fg: var(--nw-ref-amber-700);
   --nw-alert-warning-border: var(--nw-ref-amber-200);
-  --nw-alert-warning-icon: var(--nw-ref-amber-800);
-  --nw-alert-info-bg: var(--nw-ref-purple-50);
-  --nw-alert-info-fg: var(--nw-ref-lilac-850);
-  --nw-alert-info-border: var(--nw-ref-purple-150);
-  --nw-alert-info-icon: var(--nw-ref-purple-600);
+  --nw-alert-warning-icon: var(--nw-ref-amber-700);
+  --nw-alert-info-bg: var(--nw-ref-blue-50);
+  --nw-alert-info-fg: var(--nw-ref-ink-900);
+  --nw-alert-info-border: var(--nw-ref-blue-200);
+  --nw-alert-info-icon: var(--nw-ref-blue-600);
   --nw-alert-success-bg: var(--nw-ref-green-50);
-  --nw-alert-success-fg: var(--nw-ref-green-800);
-  --nw-alert-success-border: var(--nw-ref-green-150);
-  --nw-alert-success-icon: var(--nw-ref-green-750);
+  --nw-alert-success-fg: var(--nw-ref-green-700);
+  --nw-alert-success-border: var(--nw-ref-green-200);
+  --nw-alert-success-icon: var(--nw-ref-green-700);
 
-  // Sign-in pages (features/auth): the brand panel wash, its gold orbit lines (decorative CSS ellipses, not brand
-  // artwork) and the corner flora of the compact layouts. Values from the A4 design, not brand values.
+  // Sign-in pages (features/auth): the "Botanical" brand panel wash and its illustration.
   --nw-auth-panel-background: linear-gradient(
-    160deg,
-    var(--nw-ref-neutral-0) 0%,
-    var(--nw-ref-blush-25) 40%,
-    var(--nw-ref-blush-75) 72%,
-    var(--nw-ref-peach-50) 100%
+    165deg,
+    #fefcfb 0%,
+    var(--nw-ref-ink-25) 55%,
+    #fcf2ee 100%
   );
-  --nw-orbit: rgb(201 151 54 / 38%);
-  --nw-compact-flora-opacity: 0.75;
-  --nw-shadow-auth-card: 0 1px 2px rgb(27 27 36 / 4%), 0 12px 32px rgb(122 72 40 / 7%);
+  --nw-botanical-opacity: 1;
+  --nw-shadow-auth-card: 0 1px 2px rgb(23 19 31 / 6%), 0 8px 24px rgb(23 19 31 / 6%);
+  --nw-focus-halo: rgb(229 56 59 / 22%); // soft ring around a focused field
 
   // Elevation
-  --nw-shadow-sm: 0 1px 2px rgb(27 27 36 / 6%);
-  // Cards on the warm workspace: a hairline lift plus a wide, faint warm shadow
-  --nw-shadow-card: 0 1px 2px rgb(27 27 36 / 4%), 0 8px 24px rgb(122 72 40 / 5%);
-  --nw-shadow-md: 0 4px 16px rgb(27 27 36 / 8%);
-  --nw-shadow-lg: 0 12px 40px rgb(27 27 36 / 14%);
-  --nw-scrim: rgb(27 27 36 / 48%);
+  --nw-shadow-sm: 0 1px 2px rgb(23 19 31 / 6%);
+  --nw-shadow-card: 0 1px 2px rgb(23 19 31 / 5%), 0 8px 24px rgb(23 19 31 / 5%);
+  --nw-shadow-md: 0 10px 30px rgb(23 19 31 / 14%);
+  --nw-shadow-lg: 0 12px 40px rgb(23 19 31 / 18%);
+  --nw-scrim: rgb(23 19 31 / 48%);
 }

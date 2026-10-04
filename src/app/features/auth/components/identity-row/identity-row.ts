@@ -30,8 +30,8 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
       display: inline-grid;
       flex-shrink: 0;
       place-items: center;
-      inline-size: 2.25rem;
-      block-size: 2.25rem;
+      inline-size: 2.0625rem;
+      block-size: 2.0625rem;
       border-radius: var(--nw-radius-pill);
       background-color: var(--nw-accent-purple-bg);
       color: var(--nw-accent-purple-fg);
@@ -47,12 +47,12 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
 
     .identity-row__label {
       color: var(--nw-text-secondary);
-      font-size: var(--nw-text-size-xs);
+      font-size: 0.6875rem;
     }
 
     .identity-row__email {
       overflow: hidden;
-      font-size: var(--nw-text-size-sm);
+      font-size: 0.8125rem;
       font-weight: var(--nw-font-weight-semibold);
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -68,7 +68,7 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
       border-radius: var(--nw-radius-pill);
       background-color: var(--nw-surface-sunken);
       color: var(--nw-text-label);
-      font-size: var(--nw-text-size-xs);
+      font-size: 0.6875rem;
       font-weight: var(--nw-font-weight-semibold);
     }
   `,

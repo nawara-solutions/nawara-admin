@@ -50,8 +50,8 @@
       "inverse": "Inverse surface"
     },
     "gradients": {
-      "sunrise": "Sunrise",
-      "dusk": "Dusk"
+      "sunrise": "Brand gradient",
+      "dusk": "Accent gradient"
     },
     "typography": {
       "display": "Display",
@@ -128,13 +128,11 @@
       "toastError": "The organization could not be updated."
     },
     "brand": {
-      "boardSymbol": "Brand board (raster)",
-      "reconstruction": "Vector reconstruction (provisional)",
-      "note": "The vector symbol is redrawn from the brand board and is provisional until the official artwork is supplied. Logos and wordmarks below are the board’s own artwork.",
-      "lockupLight": "Horizontal logo on a light surface",
-      "lockupDark": "Horizontal logo on a dark surface",
-      "stacked": "Stacked logo",
-      "favicons": "Favicon at 16, 32 and 48 pixels"
+      "note": "The Logo Kit of the coral + ink theme: the wordmark is live text in Readex Pro with the bloom as its “r”; the bloom, the flower and the favicon are artwork files.",
+      "full": "Full logo (sign-in, documents)",
+      "wordmark": "Wordmark (headers, sidebar)",
+      "symbol": "Symbol",
+      "favicons": "Favicon (ink circle) at 16, 32, 48 and 64 pixels"
     },
     "numbers": {
       "number": "Number",

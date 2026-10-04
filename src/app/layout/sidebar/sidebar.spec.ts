@@ -100,13 +100,14 @@ describe('Sidebar', () => {
     expect(sidebar.querySelector('.sidebar__name')?.textContent).toBe('operator@x.invalid');
   });
 
-  it('renders the lockup artwork, not the provisional reconstruction', async () => {
+  it('renders the wordmark with the bloom artwork (coral + ink theme)', async () => {
     const sidebar = await render(owner);
-    const sources = Array.from(sidebar.querySelectorAll('nw-brand-mark img')).map((i) =>
+    const mark = sidebar.querySelector('nw-brand-mark');
+    const sources = Array.from(mark?.querySelectorAll('img') ?? []).map((i) =>
       i.getAttribute('src'),
     );
-    expect(sources).not.toContain('brand/nawara-symbol.svg');
-    expect(sources).toContain('brand/nawara-lockup.png');
+    expect(sources).toEqual(['brand/nawara-bloom-coral.svg', 'brand/nawara-bloom-glow.svg']);
+    expect(mark?.querySelector('.nw-brand-mark__word')).not.toBeNull();
   });
 
   it('badges Notifications with the unread count, and shows no badge without a count', async () => {

@@ -1,62 +1,108 @@
-// Proportions follow the brand board's horizontal lockup: the wordmark block is 0.57 of the symbol height and sits
-// 0.24 of it away. The logo is artwork: it never mirrors in RTL and keeps its own colours in every theme.
+// Proportions follow the owner's design: at a 52px wordmark the bloom is 33 x 40px and overlaps its neighbours
+// slightly; "SOLUTIONS" is 20px. Everything is in em, so `--nw-brand-mark-size` scales the whole logo.
+// The logo is artwork: it never mirrors in RTL and keeps its own typeface in every locale.
 :host {
-  --nw-brand-mark-size: 2.5rem;
+  --nw-brand-mark-size: 2rem;
 
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: calc(var(--nw-brand-mark-size) * 0.24);
+  gap: 0.154em;
   direction: ltr;
+  color: var(--nw-text-primary);
+  font-family: var(--nw-font-latin);
+  font-size: var(--nw-brand-mark-size);
+  line-height: 1;
 }
 
-.nw-brand-mark__symbol {
-  inline-size: var(--nw-brand-mark-size);
-  block-size: var(--nw-brand-mark-size);
-  flex-shrink: 0;
+.nw-brand-mark__word {
+  display: flex;
+  align-items: baseline;
+  gap: 0.02em;
+  font-weight: var(--nw-font-weight-medium);
+  letter-spacing: -0.03em;
 }
 
-.nw-brand-mark__wordmark {
-  inline-size: auto;
-  block-size: calc(var(--nw-brand-mark-size) * 0.57);
+.nw-brand-mark__bloom {
+  inline-size: 0.635em;
+  block-size: 0.77em;
+  margin: 0 -0.104em -0.027em -0.079em;
 }
 
-// Each theme says which lettering shows (tokens/_theme-*.scss), so this follows scoped themes and the system preference.
-.nw-brand-mark__wordmark--on-light {
+// The bloom alone: the symbol at the mark size.
+:host(.nw-brand-mark--symbol) {
+  flex-direction: row;
+
+  .nw-brand-mark__bloom {
+    inline-size: auto;
+    block-size: 1em;
+    margin: 0;
+  }
+}
+
+// Each theme says which artwork shows (tokens/_theme-*.scss), so this follows scoped themes and the system preference.
+.nw-brand-mark__bloom--on-light,
+.nw-brand-mark__flourish--on-light {
   display: var(--nw-brand-wordmark-on-light-display);
 }
 
-// The dark-background lettering is drawn slightly smaller on the board; scaled so both versions match optically.
-.nw-brand-mark__wordmark--on-dark {
+.nw-brand-mark__bloom--on-dark,
+.nw-brand-mark__flourish--on-dark {
   display: var(--nw-brand-wordmark-on-dark-display);
-  block-size: calc(var(--nw-brand-mark-size) * 0.61);
 }
 
-// The board's lockup raster is never enlarged beyond its native width (docs/BRAND.md §4).
-// Declared after the lettering rules so its size wins over the dark lettering's optical correction.
-.nw-brand-mark__lockup {
-  inline-size: auto;
-  max-inline-size: 100%;
-  block-size: var(--nw-brand-mark-size);
+.nw-brand-mark__solutions {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.115em;
 }
 
-// Forced colours replace the page background, so the app theme no longer says which lettering is readable:
-// follow the forced palette's own light/dark scheme instead.
+.nw-brand-mark__solutions-text {
+  // The tracking adds a trailing gap after the last letter; pull it back so the word stays centred.
+  margin-inline-end: -0.18em;
+  background: var(--nw-gradient-brand);
+  background-clip: text;
+  color: transparent;
+  font-size: 0.385em;
+  font-weight: var(--nw-font-weight-semibold);
+  letter-spacing: 0.18em;
+}
+
+.nw-brand-mark__flourish {
+  inline-size: 100%;
+  block-size: auto;
+}
+
+// Forced colours replace backgrounds, so the gradient lettering would vanish: use the system text colour, and follow
+// the forced palette's own scheme for the bloom.
+@media (forced-colors: active) {
+  .nw-brand-mark__solutions-text {
+    background: none;
+    color: CanvasText;
+  }
+}
+
 @media (forced-colors: active) and (prefers-color-scheme: dark) {
-  .nw-brand-mark__wordmark--on-light {
+  .nw-brand-mark__bloom--on-light,
+  .nw-brand-mark__flourish--on-light {
     display: none;
   }
 
-  .nw-brand-mark__wordmark--on-dark {
+  .nw-brand-mark__bloom--on-dark,
+  .nw-brand-mark__flourish--on-dark {
     display: block;
   }
 }
 
 @media (forced-colors: active) and (prefers-color-scheme: light) {
-  .nw-brand-mark__wordmark--on-light {
+  .nw-brand-mark__bloom--on-light,
+  .nw-brand-mark__flourish--on-light {
     display: block;
   }
 
-  .nw-brand-mark__wordmark--on-dark {
+  .nw-brand-mark__bloom--on-dark,
+  .nw-brand-mark__flourish--on-dark {
     display: none;
   }
 }

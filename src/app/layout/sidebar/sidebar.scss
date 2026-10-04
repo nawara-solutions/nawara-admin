@@ -1,6 +1,6 @@
 @use 'abstracts' as nw;
 
-// Soft blush wash with a floral illustration rising from the lower outer corner (owner design, 2026-10-02).
+// Warm paper with the botanical illustration rising from the lower outer corner (Workspace design, 2026-10-04).
 :host {
   position: relative;
   display: flex;
@@ -11,19 +11,18 @@
   background: var(--nw-sidebar-background);
   isolation: isolate;
 
-  // Bottom 55% (at most 37.5rem) of the sidebar, anchored to the outer corner. The mask fades it in from the top and
-  // keeps it at 40% behind the text column, so labels stay at AA contrast over the petals (measured on renders).
+  // Bottom 55% (at most 35rem) of the sidebar, anchored to the outer corner, faded in from the top and drawn at the
+  // theme's illustration opacity (Workspace design).
   &::before {
     content: '';
     position: absolute;
     inset-block-end: 0;
     inset-inline: 0;
     z-index: -1;
-    block-size: min(37.5rem, 55%);
-    background: url('/illustrations/sidebar-flora.svg') no-repeat right bottom / 100% auto;
+    block-size: min(35rem, 55%);
+    background: var(--nw-illustration-botanical) no-repeat right bottom / auto 100%;
     opacity: var(--nw-sidebar-illustration-opacity);
     mask-image: var(--nw-sidebar-illustration-mask);
-    mask-composite: intersect;
     pointer-events: none;
   }
 
@@ -42,7 +41,7 @@
 }
 
 .sidebar__logo {
-  --nw-brand-mark-size: 3.25rem;
+  --nw-brand-mark-size: 1.9375rem;
 }
 
 .sidebar__nav {

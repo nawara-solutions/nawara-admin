@@ -1,17 +1,17 @@
 @use 'abstracts' as nw;
 
-// The brand panel of the sign-in pages (desktop only): lockup, product line and decoration (A4 design).
+// The "Botanical" brand panel of the sign-in pages (coral + ink theme, desktop only): logo, product line and the
+// botanical illustration rising from the inline-end corner.
 :host {
   position: sticky;
   inset-block-start: 0;
   display: none;
   flex-direction: column;
   justify-content: space-between;
-  gap: var(--nw-space-7);
+  gap: var(--nw-space-8);
   block-size: 100dvh;
   padding: var(--nw-space-8) var(--nw-space-9);
   overflow: hidden;
-  border-inline-end: 1px solid var(--nw-border-subtle);
   background: var(--nw-auth-panel-background);
   isolation: isolate;
 
@@ -32,47 +32,26 @@
   transform: scaleX(-1);
 }
 
-.auth-brand-panel__flora {
+// Full panel height, anchored to the bottom end; each theme has its own artwork.
+.auth-brand-panel__botanical {
   position: absolute;
-  inset-block-end: -2rem;
-  right: -2rem;
-  inline-size: 82%;
-  block-size: 70%;
-  background: url('/illustrations/sidebar-flora.svg') no-repeat right bottom / contain;
-  opacity: var(--nw-sidebar-illustration-opacity);
-}
+  inset: 0;
+  background: no-repeat right bottom / auto 100%;
+  opacity: var(--nw-botanical-opacity);
 
-.auth-brand-panel__hero-flora {
-  position: absolute;
-  inset-block-start: 0;
-  right: 0;
-  inline-size: 26rem;
-  block-size: 14rem;
-  background: url('/illustrations/hero-flora.svg') no-repeat right top / 26rem auto;
-  opacity: var(--nw-sidebar-illustration-opacity);
-  mask-image: var(--nw-auth-flora-mask);
-}
+  &--on-light {
+    display: var(--nw-brand-wordmark-on-light-display);
+    background-image: url('/illustrations/nawara-botanical-coral.png');
+  }
 
-.auth-brand-panel__orbit {
-  position: absolute;
-  inset-block-end: 6%;
-  right: -18%;
-  inline-size: 78%;
-  aspect-ratio: 1.6;
-  border: 1px solid var(--nw-orbit);
-  border-radius: 50%;
-  transform: rotate(-16deg);
-
-  &--inner {
-    inset-block-end: 14%;
-    right: -8%;
-    inline-size: 56%;
-    opacity: 0.7;
+  &--on-dark {
+    display: var(--nw-brand-wordmark-on-dark-display);
+    background-image: url('/illustrations/nawara-botanical-dark.png');
   }
 }
 
 .auth-brand-panel__logo {
-  --nw-brand-mark-size: 4.25rem;
+  --nw-brand-mark-size: 2.9375rem;
 
   align-self: flex-start;
 }
@@ -80,27 +59,29 @@
 .auth-brand-panel__intro {
   display: grid;
   gap: var(--nw-space-3);
-  max-inline-size: 26rem;
-  margin-block-end: 18vh;
+  max-inline-size: 22.75rem;
+  margin-block-end: 16vh;
 }
 
 .auth-brand-panel__eyebrow {
   color: var(--nw-text-brand);
-  font-size: var(--nw-text-size-xs);
-  font-weight: var(--nw-font-weight-bold);
+  font-family: var(--nw-font-mono);
+  font-size: 0.6875rem;
+  font-weight: var(--nw-font-weight-medium);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 
   &:lang(ar) {
+    font-family: inherit;
     letter-spacing: 0;
     text-transform: none;
   }
 }
 
 .auth-brand-panel__tagline {
-  font-size: 2.125rem;
-  font-weight: var(--nw-font-weight-bold);
-  line-height: 1.15;
+  font-size: 1.9375rem;
+  font-weight: var(--nw-font-weight-medium);
+  line-height: 1.18;
   letter-spacing: -0.02em;
   text-wrap: balance;
 
@@ -111,12 +92,12 @@
 
 .auth-brand-panel__line {
   color: var(--nw-text-label);
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
 }
 
 .auth-brand-panel__copyright {
   color: var(--nw-text-secondary);
-  font-size: var(--nw-text-size-xs);
+  font-size: 0.6875rem;
 }
 
 @media (forced-colors: active) {

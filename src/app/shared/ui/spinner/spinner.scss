@@ -9,9 +9,12 @@
   animation: nw-spinner-rotate 0.8s linear infinite;
 }
 
+// Large: a tinted track with the moving arc in the current colour.
 :host(.nw-spinner--lg) {
-  inline-size: 2rem;
-  block-size: 2rem;
+  inline-size: 1.8125rem;
+  block-size: 1.8125rem;
+  border: 3px solid var(--nw-color-primary-subtle);
+  border-block-start-color: currentColor;
 }
 
 @keyframes nw-spinner-rotate {

@@ -11,9 +11,9 @@
 .mfa__code {
   min-block-size: 3rem;
   font-family: var(--nw-font-mono);
-  font-size: var(--nw-text-size-xl);
+  font-size: 1.125rem;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.3em;
 }
 
 :host(:dir(rtl)) .mfa__code {
@@ -22,7 +22,8 @@
 
 .mfa__text {
   color: var(--nw-text-label);
-  font-size: var(--nw-text-size-sm);
+  font-size: 0.8125rem;
+  line-height: 1.55;
 }
 
 .mfa__waiting {
@@ -51,9 +52,9 @@
 .mfa__links {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--nw-space-1) var(--nw-space-5);
-  font-size: 0.8125rem;
+  justify-content: space-between;
+  gap: var(--nw-space-2);
+  font-size: 0.75rem;
 }
 
 // Actions in this step, styled as the design's text links.
@@ -69,11 +70,20 @@
   color: var(--nw-text-link);
   font: inherit;
   font-weight: var(--nw-font-weight-medium);
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
+  text-underline-offset: 3px;
   cursor: pointer;
 
   &:hover {
-    text-decoration-thickness: 2px;
+    text-decoration: underline;
+  }
+
+  // "Back to sign in": a quiet action beside the method link.
+  &--back {
+    color: var(--nw-text-secondary);
+
+    &:hover {
+      color: var(--nw-text-primary);
+      text-decoration: none;
+    }
   }
 }
