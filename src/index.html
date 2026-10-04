@@ -9,9 +9,12 @@
     <!-- Brand icons (docs/BRAND.md). theme-color mirrors --nw-surface-page of each theme. -->
     <meta name="theme-color" content="#faf8f7" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#17131f" media="(prefers-color-scheme: dark)" />
-    <!-- Favicon: the ink-circle bloom of the Logo Kit (2026-10-04); readable on light and dark browser chrome. -->
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48" />
+    <!--
+      Favicon: the ink-circle bloom of the Logo Kit, readable on light and dark browser chrome. One icon link only, so
+      no other icon competes with it; its file follows the accent palette (set below, then by ThemeService). Browsers
+      without SVG favicons still request /favicon.ico by convention.
+    -->
+    <link id="nw-favicon" rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <!--
@@ -26,8 +29,10 @@
           var theme = localStorage.getItem('nw.theme');
           if (theme === 'light' || theme === 'dark') root.setAttribute('data-theme', theme);
           var accent = localStorage.getItem('nw.accent');
-          if (/^(rose|plum|indigo|teal|amber)$/.test(accent || ''))
+          if (/^(rose|plum|indigo|teal|amber)$/.test(accent || '')) {
             root.setAttribute('data-accent', accent);
+            document.getElementById('nw-favicon').href = 'icons/favicon-' + accent + '.svg';
+          }
           var locale = localStorage.getItem('nw.locale');
           if (locale === 'en' || locale === 'fr' || locale === 'ar') {
             root.lang = locale;

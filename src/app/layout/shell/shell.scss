@@ -6,6 +6,9 @@
   grid-template-columns: var(--nw-shell-sidebar-width) minmax(0, 1fr);
   min-block-size: 100dvh;
   background-color: var(--nw-surface-page);
+  // Follows the palette; fixed to the viewport so the wash does not stretch with long pages.
+  background-image: var(--nw-workspace-background);
+  background-attachment: fixed;
 }
 
 .shell__skip {
@@ -62,15 +65,20 @@
   }
 }
 
-// The workspace flower: the botanical drawing rising from the bottom end corner of the content column, behind every
-// workspace page (accepted on the Platforms page, 2026-10-04). Smaller and softer on tablets and phones so it never
-// competes with content; decorative only (aria-hidden, no pointer events), mirrored in RTL, hidden in forced colours.
+// The workspace flower: the botanical drawing at the bottom end corner of the visible workspace (accepted on the Platforms
+// page, 2026-10-04), fixed to the viewport so it shows from the first screen and stays while the content scrolls. It
+// sits under the content column's stacking context, so cards, the top bar and the sidebar always cover it; its width is
+// a share of the workspace beside the sidebar, and its height never reaches the top bar. Smaller and softer on tablets
+// and phones; decorative only (aria-hidden, no pointer events), mirrored in RTL, hidden in forced colours.
 .shell__flora {
-  position: absolute;
+  --shell-flora-workspace: calc(100vw - var(--nw-shell-sidebar-width));
+
+  position: fixed;
   inset-block-end: 0;
   inset-inline-end: 0;
   z-index: -1;
-  inline-size: min(14rem, 55%);
+  inline-size: min(14rem, 55vw);
+  max-block-size: calc(100dvh - 6rem);
   aspect-ratio: 836 / 941;
   background: var(--nw-illustration-botanical) no-repeat right bottom / contain;
   opacity: calc(var(--nw-workspace-illustration-opacity) * 0.7);
@@ -78,11 +86,11 @@
   pointer-events: none;
 
   @include nw.from(tablet) {
-    inline-size: min(24rem, 50%);
+    inline-size: min(24rem, 50vw);
   }
 
   @include nw.from(laptop) {
-    inline-size: min(34rem, 55%);
+    inline-size: min(34rem, calc(var(--shell-flora-workspace) * 0.55));
     opacity: var(--nw-workspace-illustration-opacity);
   }
 
@@ -133,6 +141,10 @@
 
 :host(.shell--drawer) {
   grid-template-columns: minmax(0, 1fr);
+
+  .shell__flora {
+    --shell-flora-workspace: 100vw;
+  }
 
   .shell__sidebar {
     position: fixed;
