@@ -24,6 +24,7 @@
 }
 
 .nw-brand-mark__bloom {
+  flex-shrink: 0;
   inline-size: 0.635em;
   block-size: 0.77em;
   margin: 0 -0.104em -0.027em -0.079em;
@@ -34,21 +35,10 @@
   flex-direction: row;
 
   .nw-brand-mark__bloom {
-    inline-size: auto;
+    inline-size: 0.83em;
     block-size: 1em;
     margin: 0;
   }
-}
-
-// Each theme says which artwork shows (tokens/_theme-*.scss), so this follows scoped themes and the system preference.
-.nw-brand-mark__bloom--on-light,
-.nw-brand-mark__flourish--on-light {
-  display: var(--nw-brand-wordmark-on-light-display);
-}
-
-.nw-brand-mark__bloom--on-dark,
-.nw-brand-mark__flourish--on-dark {
-  display: var(--nw-brand-wordmark-on-dark-display);
 }
 
 .nw-brand-mark__solutions {
@@ -80,29 +70,5 @@
   .nw-brand-mark__solutions-text {
     background: none;
     color: CanvasText;
-  }
-}
-
-@media (forced-colors: active) and (prefers-color-scheme: dark) {
-  .nw-brand-mark__bloom--on-light,
-  .nw-brand-mark__flourish--on-light {
-    display: none;
-  }
-
-  .nw-brand-mark__bloom--on-dark,
-  .nw-brand-mark__flourish--on-dark {
-    display: block;
-  }
-}
-
-@media (forced-colors: active) and (prefers-color-scheme: light) {
-  .nw-brand-mark__bloom--on-light,
-  .nw-brand-mark__flourish--on-light {
-    display: block;
-  }
-
-  .nw-brand-mark__bloom--on-dark,
-  .nw-brand-mark__flourish--on-dark {
-    display: none;
   }
 }

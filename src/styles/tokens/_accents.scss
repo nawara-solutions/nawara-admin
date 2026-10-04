@@ -1,13 +1,16 @@
 // Accent palettes (personal appearance preference, 2026-10-04): curated presets that recolour ONLY the brand-accent
-// semantic tokens. Coral is the Nawara default and has no override. Status colours (danger, success, warning, info),
-// chart categories, product tiles and the logo artwork are deliberately untouched.
+// semantic tokens, the logo colours and the botanical artwork. Coral is the Nawara default and has no override. Status colours (danger, success, warning, info),
+// chart categories and product tiles are deliberately untouched. The logo keeps its shape and lettering.
 // Selected with `data-accent` on <html> (ThemeService; index.html applies it before first paint).
 // Every pair is checked by `npm run check:contrast` (tools/check-contrast.mjs reads the `@mixin <accent>-<theme>` blocks).
 // Values are the presets' own scales (proposals, not brand values; docs/BRAND.md §0). Amber's light text uses its
 // darker step: the primary itself is 4.4:1 on the sunken surface.
 
+@use 'brand-artwork';
+
 // Rose
 @mixin rose-light {
+  @include brand-artwork.rose-light;
   --nw-color-primary: #be185d;
   --nw-color-primary-hover: #9d174d;
   --nw-color-primary-active: #831843;
@@ -25,6 +28,7 @@
 }
 
 @mixin rose-dark {
+  @include brand-artwork.rose-dark;
   --nw-color-primary: #f472b6;
   --nw-color-primary-hover: #f9a8d4;
   --nw-color-primary-active: #fbcfe8;
@@ -43,6 +47,7 @@
 
 // Plum
 @mixin plum-light {
+  @include brand-artwork.plum-light;
   --nw-color-primary: #7e22ce;
   --nw-color-primary-hover: #6b21a8;
   --nw-color-primary-active: #581c87;
@@ -60,6 +65,7 @@
 }
 
 @mixin plum-dark {
+  @include brand-artwork.plum-dark;
   --nw-color-primary: #c084fc;
   --nw-color-primary-hover: #d8b4fe;
   --nw-color-primary-active: #e9d5ff;
@@ -78,6 +84,7 @@
 
 // Indigo
 @mixin indigo-light {
+  @include brand-artwork.indigo-light;
   --nw-color-primary: #4338ca;
   --nw-color-primary-hover: #3730a3;
   --nw-color-primary-active: #312e81;
@@ -95,6 +102,7 @@
 }
 
 @mixin indigo-dark {
+  @include brand-artwork.indigo-dark;
   --nw-color-primary: #818cf8;
   --nw-color-primary-hover: #a5b4fc;
   --nw-color-primary-active: #c7d2fe;
@@ -113,6 +121,7 @@
 
 // Teal
 @mixin teal-light {
+  @include brand-artwork.teal-light;
   --nw-color-primary: #0f766e;
   --nw-color-primary-hover: #115e59;
   --nw-color-primary-active: #134e4a;
@@ -130,6 +139,7 @@
 }
 
 @mixin teal-dark {
+  @include brand-artwork.teal-dark;
   --nw-color-primary: #2dd4bf;
   --nw-color-primary-hover: #5eead4;
   --nw-color-primary-active: #99f6e4;
@@ -148,6 +158,7 @@
 
 // Amber
 @mixin amber-light {
+  @include brand-artwork.amber-light;
   --nw-color-primary: #b45309;
   --nw-color-primary-hover: #92400e;
   --nw-color-primary-active: #78350f;
@@ -165,6 +176,7 @@
 }
 
 @mixin amber-dark {
+  @include brand-artwork.amber-dark;
   --nw-color-primary: #fbbf24;
   --nw-color-primary-hover: #fcd34d;
   --nw-color-primary-active: #fde68a;

@@ -461,8 +461,13 @@ src/styles/
 - **Accent palettes (2026-10-04):** a curated set (Coral, the Nawara default, plus Rose, Plum, Indigo, Teal, Amber) recolours
   only the brand-accent semantic tokens (primary action and its states, brand text and links, brand borders, subtle brand
   surfaces, focus ring and halo) through `data-accent` on `<html>` (`src/styles/tokens/_accents.scss`). Status colours,
-  urgency, chart categories, product identity (School's coral, Drive's orange) and the logo artwork never change.
+  urgency, chart categories and product identity (School's coral, Drive's orange) never change.
   Every preset is checked by `check:contrast` in light and dark. No free colour picker.
+- **Palette artwork (2026-10-04):** the logo's bloom, flourish and "SOLUTIONS" gradient (`--nw-logo-*`) and the botanical
+  artwork (`--nw-illustration-botanical`, `-corner`) also follow the palette. Their values are generated from the coral
+  master by `tools/brand/recolor_artwork.py` (`tokens/_brand-artwork.scss`, and `core/theme/palette-artwork.ts`, the
+  single palette-to-artwork mapping); no route maps colours. `ThemeService.setAccent` preloads the new palette's artwork
+  (bounded wait) before switching, so controls, logo and illustrations change together without blank artwork.
 - **One appearance state, three entry points:** `ThemeService` holds mode and accent; the Appearance popover (beside the
   language control on the sign-in pages and in the top bar) and Settings → Appearance edit the same state. It is
   browser-local (`nw.theme`, `nw.accent` in the preference registry), validated on read, applied before first paint by

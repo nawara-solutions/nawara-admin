@@ -32,22 +32,12 @@
   transform: scaleX(-1);
 }
 
-// Full panel height, anchored to the bottom end; each theme has its own artwork.
+// Full panel height, anchored to the bottom end; the artwork follows the theme and the accent palette (token).
 .auth-brand-panel__botanical {
   position: absolute;
   inset: 0;
-  background: no-repeat right bottom / auto 100%;
+  background: var(--nw-illustration-botanical) no-repeat right bottom / auto 100%;
   opacity: var(--nw-botanical-opacity);
-
-  &--on-light {
-    display: var(--nw-brand-wordmark-on-light-display);
-    background-image: url('/illustrations/nawara-botanical-coral.png');
-  }
-
-  &--on-dark {
-    display: var(--nw-brand-wordmark-on-dark-display);
-    background-image: url('/illustrations/nawara-botanical-dark.png');
-  }
 }
 
 .auth-brand-panel__logo {

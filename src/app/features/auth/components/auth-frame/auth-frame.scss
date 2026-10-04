@@ -29,19 +29,9 @@
   z-index: -1;
   inline-size: min(9.75rem, 22%);
   aspect-ratio: 172 / 560;
-  background: no-repeat right top / contain;
+  background: var(--nw-illustration-botanical-corner) no-repeat right top / contain;
   mask-image: var(--nw-auth-corner-mask);
   pointer-events: none;
-
-  &--on-light {
-    display: var(--nw-brand-wordmark-on-light-display);
-    background-image: url('/illustrations/nawara-botanical-corner-coral.png');
-  }
-
-  &--on-dark {
-    display: var(--nw-brand-wordmark-on-dark-display);
-    background-image: url('/illustrations/nawara-botanical-corner-dark.png');
-  }
 }
 
 // Mirrored in RTL so the drawing always grows from the inline-end edge.

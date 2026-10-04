@@ -103,13 +103,10 @@ describe('Sidebar', () => {
     expect(sidebar.querySelector('.sidebar__name')?.textContent).toBe('operator@x.invalid');
   });
 
-  it('renders the wordmark with the bloom artwork (coral + ink theme)', async () => {
+  it('renders the wordmark with the palette-coloured bloom', async () => {
     const sidebar = await render(owner);
     const mark = sidebar.querySelector('nw-brand-mark');
-    const sources = Array.from(mark?.querySelectorAll('img') ?? []).map((i) =>
-      i.getAttribute('src'),
-    );
-    expect(sources).toEqual(['brand/nawara-bloom-coral.svg', 'brand/nawara-bloom-glow.svg']);
+    expect(mark?.querySelector('svg.nw-brand-mark__bloom')).not.toBeNull();
     expect(mark?.querySelector('.nw-brand-mark__word')).not.toBeNull();
   });
 

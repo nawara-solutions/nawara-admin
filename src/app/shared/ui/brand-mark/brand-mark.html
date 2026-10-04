@@ -1,18 +1,85 @@
+<!--
+  The bloom and the flourish: the exact paths of public/brand/nawara-bloom-coral.svg and nawara-solutions-flourish.svg,
+  drawn inline so their colours follow the --nw-logo-* tokens (theme and accent palette). Gradient ids are per instance.
+-->
 <ng-template #bloom>
-  <img
-    class="nw-brand-mark__bloom nw-brand-mark__bloom--on-light"
-    src="brand/nawara-bloom-coral.svg"
-    alt=""
+  <svg
+    class="nw-brand-mark__bloom"
+    viewBox="-2 0 48 58"
     width="480"
     height="580"
-  />
-  <img
-    class="nw-brand-mark__bloom nw-brand-mark__bloom--on-dark"
-    src="brand/nawara-bloom-glow.svg"
-    alt=""
-    width="480"
-    height="580"
-  />
+    focusable="false"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient
+        [attr.id]="ids.right"
+        x1="20"
+        y1="28"
+        x2="43"
+        y2="2"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" style="stop-color: var(--nw-logo-deep)" />
+        <stop offset=".5" style="stop-color: var(--nw-logo-mid)" />
+        <stop offset="1" style="stop-color: var(--nw-logo-light)" />
+      </linearGradient>
+      <linearGradient
+        [attr.id]="ids.left"
+        x1="19.5"
+        y1="28"
+        x2="0"
+        y2="13"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" style="stop-color: var(--nw-logo-deep)" />
+        <stop offset=".55" style="stop-color: var(--nw-logo-mid)" />
+        <stop offset="1" style="stop-color: var(--nw-logo-light)" />
+      </linearGradient>
+      <linearGradient
+        [attr.id]="ids.back"
+        x1="20"
+        y1="28"
+        x2="46"
+        y2="15"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" style="stop-color: var(--nw-logo-petal); stop-opacity: 0.9" />
+        <stop offset="1" style="stop-color: var(--nw-logo-petal); stop-opacity: 0.6" />
+      </linearGradient>
+    </defs>
+    <path
+      d="M19.5 27 C13 14 14 6 21 2.5"
+      fill="none"
+      style="stroke: var(--nw-logo-stem)"
+      stroke-width=".8"
+      stroke-linecap="round"
+    />
+    <circle cx="21" cy="2.5" r="1.7" style="fill: var(--nw-logo-mid)" />
+    <path d="M20 28 C26 20 35 15.5 46 16 C40 23.5 31 28.5 20 28Z" [attr.fill]="ref(ids.back)" />
+    <path d="M20 28 C21 16 30.5 6.5 43 2 C42.5 13.5 35 24 20 28Z" [attr.fill]="ref(ids.right)" />
+    <path
+      d="M19.5 28 C16.5 20 9.5 14 0 13 C2.5 21.5 10 27.5 19.5 28Z"
+      [attr.fill]="ref(ids.left)"
+    />
+    <path
+      d="M21.5 26 C26 17.5 32.5 9.5 40.5 4.5"
+      fill="none"
+      style="stroke: var(--nw-logo-highlight)"
+      stroke-width=".7"
+      stroke-linecap="round"
+      stroke-opacity=".8"
+    />
+    <path
+      d="M18 26.3 C14 20.5 8.5 16.5 2.5 14.5"
+      fill="none"
+      style="stroke: var(--nw-logo-highlight)"
+      stroke-width=".7"
+      stroke-linecap="round"
+      stroke-opacity=".8"
+    />
+    <rect x="16" y="29" width="7.5" height="27" rx="3.75" style="fill: var(--nw-logo-mid)" />
+  </svg>
 </ng-template>
 
 @if (lettered()) {
@@ -24,20 +91,57 @@
   @if (full()) {
     <span class="nw-brand-mark__solutions" aria-hidden="true">
       <span class="nw-brand-mark__solutions-text">SOLUTIONS</span>
-      <img
-        class="nw-brand-mark__flourish nw-brand-mark__flourish--on-light"
-        src="brand/nawara-solutions-flourish.svg"
-        alt=""
+      <svg
+        class="nw-brand-mark__flourish"
+        viewBox="0 0 185 28"
         width="185"
         height="28"
-      />
-      <img
-        class="nw-brand-mark__flourish nw-brand-mark__flourish--on-dark"
-        src="brand/nawara-solutions-flourish-glow.svg"
-        alt=""
-        width="185"
-        height="28"
-      />
+        focusable="false"
+        aria-hidden="true"
+      >
+        <defs>
+          <radialGradient [attr.id]="ids.beadMain" cx="35%" cy="30%" r="70%">
+            <stop offset="0" style="stop-color: var(--nw-logo-bead-hi)" />
+            <stop offset=".5" style="stop-color: var(--nw-logo-bead-mid)" />
+            <stop offset="1" style="stop-color: var(--nw-logo-deep)" />
+          </radialGradient>
+          <radialGradient [attr.id]="ids.beadSide" cx="35%" cy="30%" r="70%">
+            <stop offset="0" style="stop-color: var(--nw-logo-highlight)" />
+            <stop offset="1" style="stop-color: var(--nw-logo-bead-pale)" />
+          </radialGradient>
+          <linearGradient [attr.id]="ids.leaf" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" style="stop-color: var(--nw-logo-leaf); stop-opacity: 0.5" />
+            <stop offset="1" style="stop-color: var(--nw-logo-leaf-pale); stop-opacity: 0.3" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M31.45 18.48 C37 8.96 51.8 7.84 55.5 11.76 C48.1 15.68 40.7 18.48 31.45 18.48 Z"
+          [attr.fill]="ref(ids.leaf)"
+        />
+        <path
+          d="M153.55 18.48 C148 8.96 133.2 7.84 129.5 11.76 C136.9 15.68 144.3 18.48 153.55 18.48 Z"
+          [attr.fill]="ref(ids.leaf)"
+        />
+        <path
+          d="M92.5 17.36 C86.95 7 66.6 .56 51.8 5.6"
+          fill="none"
+          style="stroke: var(--nw-logo-line)"
+          stroke-width=".75"
+          stroke-linecap="round"
+          opacity=".75"
+        />
+        <path
+          d="M92.5 17.36 C98.05 7 118.4 .56 133.2 5.6"
+          fill="none"
+          style="stroke: var(--nw-logo-line)"
+          stroke-width=".75"
+          stroke-linecap="round"
+          opacity=".75"
+        />
+        <circle cx="51.8" cy="5.6" r="1.875" [attr.fill]="ref(ids.beadSide)" />
+        <circle cx="133.2" cy="5.6" r="1.875" [attr.fill]="ref(ids.beadSide)" />
+        <circle cx="92.5" cy="17.36" r="2.7" [attr.fill]="ref(ids.beadMain)" />
+      </svg>
     </span>
   }
 } @else {

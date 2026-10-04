@@ -214,6 +214,14 @@ none), operator scope.
 Evidence: [`review/a3-company-overview/`](review/a3-company-overview/README.md).
 
 
+## Palette-following artwork and logo accents (owner-authorized 2026-10-04)
+
+On `feat/admin-palette-artwork`, from `main` after PR #7. The botanical artwork (sign-in panel, sign-in corner, sidebar,
+header sprig, shared workspace flower) and the logo's coloured parts follow the accent palette in light and dark; the
+"nawara" lettering stays neutral. Variants are a per-pixel OKLCH hue rotation of the coral masters (all transparent,
+single-hue rasters), not regenerated drawings. Favicon, app icons and the School product mark stay coral. Supersedes the
+"artwork not tinted" limitation below.
+
 ## Shared workspace flower and personal appearance (owner-authorized 2026-10-04)
 
 On `feat/admin-appearance-preferences`, from `main` after PR #6.

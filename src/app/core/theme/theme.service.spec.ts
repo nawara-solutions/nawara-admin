@@ -64,14 +64,14 @@ describe('ThemeService', () => {
     expect(service.customized()).toBe(false);
   });
 
-  it('applies and persists an accent palette, and stores nothing for the default', () => {
+  it('applies and persists an accent palette, and stores nothing for the default', async () => {
     stubSystemTheme(false);
     const service = TestBed.inject(ThemeService);
-    service.setAccent('teal');
+    await service.setAccent('teal');
     TestBed.tick();
     expect(document.documentElement.dataset['accent']).toBe('teal');
     expect(localStorage.getItem('nw.accent')).toBe('teal');
-    service.setAccent('coral');
+    await service.setAccent('coral');
     TestBed.tick();
     expect(document.documentElement.dataset['accent']).toBeUndefined();
     expect(localStorage.getItem('nw.accent')).toBeNull();
@@ -86,11 +86,11 @@ describe('ThemeService', () => {
     expect(TestBed.inject(ThemeService).accent()).toBe('coral');
   });
 
-  it('resets mode and accent to the Nawara defaults and forgets them', () => {
+  it('resets mode and accent to the Nawara defaults and forgets them', async () => {
     stubSystemTheme(false);
     const service = TestBed.inject(ThemeService);
     service.setPreference('dark');
-    service.setAccent('amber');
+    await service.setAccent('amber');
     expect(service.customized()).toBe(true);
     service.reset();
     TestBed.tick();
@@ -101,7 +101,7 @@ describe('ThemeService', () => {
     expect(document.documentElement.dataset['accent']).toBeUndefined();
   });
 
-  it('still applies preferences when browser storage is unavailable', () => {
+  it('still applies preferences when browser storage is unavailable', async () => {
     stubSystemTheme(false);
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
       throw new Error('blocked');
@@ -111,9 +111,27 @@ describe('ThemeService', () => {
     });
     const service = TestBed.inject(ThemeService);
     expect(service.accent()).toBe('coral');
-    service.setAccent('plum');
+    await service.setAccent('plum');
     TestBed.tick();
     expect(document.documentElement.dataset['accent']).toBe('plum');
     vi.restoreAllMocks();
+  });
+
+  it('waits for the palette artwork before switching, and the last choice wins', async () => {
+    stubSystemTheme(false);
+    const decodes: (() => void)[] = [];
+    // jsdom has no image decoding: provide one that resolves only when the test says so.
+    Object.defineProperty(HTMLImageElement.prototype, 'decode', {
+      configurable: true,
+      value: () => new Promise<void>((resolve) => decodes.push(resolve)),
+    });
+    const service = TestBed.inject(ThemeService);
+    const first = service.setAccent('teal');
+    expect(service.accent()).toBe('coral'); // still the old palette while teal's artwork loads
+    const second = service.setAccent('indigo');
+    decodes.forEach((resolve) => resolve());
+    await Promise.all([first, second]);
+    expect(service.accent()).toBe('indigo');
+    delete (HTMLImageElement.prototype as { decode?: unknown }).decode;
   });
 });
