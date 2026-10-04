@@ -214,6 +214,13 @@ none), operator scope.
 Evidence: [`review/a3-company-overview/`](review/a3-company-overview/README.md).
 
 
+## Appearance fixes (owner-authorized 2026-10-04)
+
+On `feat/admin-appearance-fixes`, on top of `feat/admin-palette-artwork` (PR #8). The favicon follows the palette;
+the workspace background and header cards take a subtle palette tint; the workspace flower stays at the bottom end of
+the visible workspace while content scrolls; Create platform uses the avatar's colours (`--nw-avatar-*`), still
+unavailable.
+
 ## Palette-following artwork and logo accents (owner-authorized 2026-10-04)
 
 On `feat/admin-palette-artwork`, from `main` after PR #7. The botanical artwork (sign-in panel, sign-in corner, sidebar,

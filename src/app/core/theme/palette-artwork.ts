@@ -5,9 +5,15 @@ import type { AccentPalette, ResolvedTheme } from './theme.service';
  * The botanical artwork of each accent palette and theme: the single palette-to-artwork mapping. The CSS tokens
  * (tokens/_brand-artwork.scss) are generated from the same data; ThemeService preloads these files before a switch.
  */
-export const PALETTE_ARTWORK: Readonly<
-  Record<AccentPalette, Record<ResolvedTheme, { readonly full: string; readonly corner: string }>>
-> = {
+export interface PaletteArtwork extends Record<
+  ResolvedTheme,
+  { readonly full: string; readonly corner: string }
+> {
+  /** The browser-tab icon: the ink-circle bloom in the palette's colours (one file serves light and dark tabs). */
+  readonly favicon: string;
+}
+
+export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = {
   coral: {
     light: {
       full: '/illustrations/nawara-botanical-coral.png',
@@ -17,6 +23,7 @@ export const PALETTE_ARTWORK: Readonly<
       full: '/illustrations/nawara-botanical-dark.png',
       corner: '/illustrations/nawara-botanical-corner-dark.png',
     },
+    favicon: 'favicon.svg',
   },
   rose: {
     light: {
@@ -27,6 +34,7 @@ export const PALETTE_ARTWORK: Readonly<
       full: '/illustrations/nawara-botanical-rose-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-rose-dark.webp',
     },
+    favicon: 'icons/favicon-rose.svg',
   },
   plum: {
     light: {
@@ -37,6 +45,7 @@ export const PALETTE_ARTWORK: Readonly<
       full: '/illustrations/nawara-botanical-plum-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-plum-dark.webp',
     },
+    favicon: 'icons/favicon-plum.svg',
   },
   indigo: {
     light: {
@@ -47,6 +56,7 @@ export const PALETTE_ARTWORK: Readonly<
       full: '/illustrations/nawara-botanical-indigo-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-indigo-dark.webp',
     },
+    favicon: 'icons/favicon-indigo.svg',
   },
   teal: {
     light: {
@@ -57,6 +67,7 @@ export const PALETTE_ARTWORK: Readonly<
       full: '/illustrations/nawara-botanical-teal-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-teal-dark.webp',
     },
+    favicon: 'icons/favicon-teal.svg',
   },
   amber: {
     light: {
@@ -67,5 +78,6 @@ export const PALETTE_ARTWORK: Readonly<
       full: '/illustrations/nawara-botanical-amber-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-amber-dark.webp',
     },
+    favicon: 'icons/favicon-amber.svg',
   },
 };

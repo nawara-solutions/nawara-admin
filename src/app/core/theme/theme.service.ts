@@ -74,6 +74,11 @@ export class ThemeService {
       const root = this.document.documentElement;
       if (accent === DEFAULT_ACCENT) delete root.dataset['accent'];
       else root.dataset['accent'] = accent;
+      // The browser-tab icon follows the palette: an external SVG cannot read the page's CSS variables, so each
+      // palette has its own file (one per palette: distinct URLs, never a stale cached icon).
+      const favicon = this.document.querySelector<HTMLLinkElement>('link#nw-favicon');
+      const href = PALETTE_ARTWORK[accent].favicon;
+      if (favicon && favicon.getAttribute('href') !== href) favicon.setAttribute('href', href);
     });
   }
 
@@ -100,8 +105,9 @@ export class ThemeService {
   private preload(accent: AccentPalette): Promise<void> {
     const view = this.document.defaultView;
     if (!view?.Image) return Promise.resolve();
-    const urls = Object.values(PALETTE_ARTWORK[accent]).flatMap((art) => [art.full, art.corner]);
-    const loads = urls.map((url) => {
+    const { light, dark } = PALETTE_ARTWORK[accent];
+    const urls = [light, dark].flatMap((art) => [art.full, art.corner]);
+    const loads = [...urls, PALETTE_ARTWORK[accent].favicon].map((url) => {
       const image = new view.Image();
       image.src = url;
       return typeof image.decode === 'function' ? image.decode().catch(() => undefined) : undefined;

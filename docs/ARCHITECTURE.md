@@ -468,6 +468,11 @@ src/styles/
   master by `tools/brand/recolor_artwork.py` (`tokens/_brand-artwork.scss`, and `core/theme/palette-artwork.ts`, the
   single palette-to-artwork mapping); no route maps colours. `ThemeService.setAccent` preloads the new palette's artwork
   (bounded wait) before switching, so controls, logo and illustrations change together without blank artwork.
+- **Favicon, workspace tint, flower (2026-10-04):** one `<link id="nw-favicon">` whose file follows the palette (set by
+  `index.html` before paint, then by `ThemeService`; an external SVG cannot read page CSS variables). The authenticated
+  shell's background is `--nw-workspace-background`, the neutral page washed toward `--nw-color-primary` with
+  `color-mix()`; the header-card gradients end in the same tint; cards stay neutral. The workspace flower is fixed to
+  the bottom end corner of the viewport, under the content column, so it shows on every screen without scroll script.
 - **One appearance state, three entry points:** `ThemeService` holds mode and accent; the Appearance popover (beside the
   language control on the sign-in pages and in the top bar) and Settings → Appearance edit the same state. It is
   browser-local (`nw.theme`, `nw.accent` in the preference registry), validated on read, applied before first paint by

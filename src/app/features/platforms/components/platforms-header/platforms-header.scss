@@ -118,8 +118,9 @@
   padding-inline: 0.875rem;
   border: 0;
   border-radius: var(--nw-radius-md);
-  background-color: var(--nw-surface-inverse-disabled);
-  color: var(--nw-text-inverse);
+  // The avatar circle's colours (owner request); still unavailable: aria-disabled, the tooltip and the cursor say so.
+  background-color: var(--nw-avatar-background);
+  color: var(--nw-avatar-text);
   font: inherit;
   font-size: 0.8125rem;
   font-weight: var(--nw-font-weight-semibold);

@@ -134,4 +134,22 @@ describe('ThemeService', () => {
     expect(service.accent()).toBe('indigo');
     delete (HTMLImageElement.prototype as { decode?: unknown }).decode;
   });
+
+  it("points the single favicon link at the palette's icon, and back to the default", async () => {
+    stubSystemTheme(false);
+    const link = document.createElement('link');
+    link.id = 'nw-favicon';
+    link.rel = 'icon';
+    link.setAttribute('href', 'favicon.svg');
+    document.head.append(link);
+    const service = TestBed.inject(ThemeService);
+    await service.setAccent('teal');
+    TestBed.tick();
+    expect(link.getAttribute('href')).toBe('icons/favicon-teal.svg');
+    service.reset();
+    TestBed.tick();
+    expect(link.getAttribute('href')).toBe('favicon.svg');
+    expect(document.querySelectorAll('link[rel~="icon"]').length).toBe(1);
+    link.remove();
+  });
 });
