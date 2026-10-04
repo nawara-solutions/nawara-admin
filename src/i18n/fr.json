@@ -16,6 +16,21 @@
     },
     "language": {
       "label": "Langue"
+    },
+    "accent": {
+      "coral": "Corail",
+      "rose": "Rose",
+      "plum": "Prune",
+      "indigo": "Indigo",
+      "teal": "Sarcelle",
+      "amber": "Ambre"
+    },
+    "appearance": {
+      "title": "Apparence",
+      "mode": "Mode",
+      "accent": "Couleur d’accent",
+      "note": "Enregistré uniquement dans ce navigateur. Ce réglage ne fait pas partie de votre compte et n’est pas partagé avec vos autres appareils.",
+      "reset": "Rétablir les valeurs Nawara"
     }
   },
   "foundation": {
@@ -154,7 +169,8 @@
     "signIn": "Connexion",
     "verify": "Vérifiez votre connexion",
     "noAccess": "Accès administratif indisponible",
-    "platformChoice": "Choisissez une plateforme"
+    "platformChoice": "Choisissez une plateforme",
+    "settingsAppearance": "Apparence"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -168,7 +184,8 @@
       "company": "Entreprise",
       "overview": "Vue d’ensemble",
       "platform": "Plateforme",
-      "platforms": "Plateformes"
+      "platforms": "Plateformes",
+      "appearance": "Apparence"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -511,6 +528,13 @@
       "recovery": "Propriétaire, récupération requise",
       "passkey": "Clé d’accès",
       "passkeySimulated": "Simulée : une boîte de dialogue OK / Annuler du navigateur, pas une invite de clé d’accès ni une vérification WebAuthn"
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "appearance": {
+      "title": "Apparence",
+      "subtitle": "Choisissez l’apparence de Nawara Admin dans ce navigateur."
     }
   }
 }

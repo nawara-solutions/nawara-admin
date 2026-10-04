@@ -458,6 +458,16 @@ src/styles/
 - **No flash:** a few-line script in `index.html` reads `nw.theme` and sets `data-theme` before first paint. It is allowed by a CSP
   hash, not `unsafe-inline` (§21).
 - Both themes are designed and reviewed for every component from A2. A component is not done until it is verified in both.
+- **Accent palettes (2026-10-04):** a curated set (Coral, the Nawara default, plus Rose, Plum, Indigo, Teal, Amber) recolours
+  only the brand-accent semantic tokens (primary action and its states, brand text and links, brand borders, subtle brand
+  surfaces, focus ring and halo) through `data-accent` on `<html>` (`src/styles/tokens/_accents.scss`). Status colours,
+  urgency, chart categories, product identity (School's coral, Drive's orange) and the logo artwork never change.
+  Every preset is checked by `check:contrast` in light and dark. No free colour picker.
+- **One appearance state, three entry points:** `ThemeService` holds mode and accent; the Appearance popover (beside the
+  language control on the sign-in pages and in the top bar) and Settings → Appearance edit the same state. It is
+  browser-local (`nw.theme`, `nw.accent` in the preference registry), validated on read, applied before first paint by
+  `index.html`, and independent of the session, role and scope: sign-in, sign-out, reload and scope changes keep it.
+  It is not synchronized with a Core account.
 
 ## 15. Responsive layout
 

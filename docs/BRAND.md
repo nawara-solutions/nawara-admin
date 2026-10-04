@@ -24,6 +24,7 @@ board and are kept as history; where they disagree with this section, this secti
 | Favicon and app icons | the **ink circle** favicon of the Logo Kit (the flower, no stem, on an ink `#17131F` disc): `public/favicon.svg` (preferred by browsers), `favicon.ico` (16/32/48), `icons/icon-{16,32,48,192,512}.png`; the maskable and Apple touch icons use the same flower on a full ink square. PNGs and the ICO are rendered from the SVG | Logo Kit design 2026-10-04; owner choice "ink circle" |
 | Symbol | `public/brand/nawara-flower-{coral,glow}.svg` (the bloom without its stem); the `/foundation` gallery shows the kit | Logo Kit design |
 | Signed-in shell | the Workspace design's artwork: the full botanical illustration at the foot of the sidebar and the corner sprig at the top end of the content; the header cards (Company overview, Platforms) show the botanical at their inline-end side, and the Platforms page shows it rising from its bottom end (owner request, 2026-10-04). The earlier `sidebar-flora`, `hero-flora` and `workspace-flora` drawings and the earlier logo rasters are no longer used (files kept in `public/` for history) | Workspace design 2026-10-04 |
+| Accent palettes | Coral is the brand default. The optional personal presets (Rose, Plum, Indigo, Teal, Amber, `tokens/_accents.scss`) are UI proposals, not brand colours; they never change the logo, the botanical artwork, product identity or status colours | owner decision 2026-10-04 |
 
 ## 1. Provenance classes
 

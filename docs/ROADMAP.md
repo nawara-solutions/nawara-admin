@@ -214,6 +214,20 @@ none), operator scope.
 Evidence: [`review/a3-company-overview/`](review/a3-company-overview/README.md).
 
 
+## Shared workspace flower and personal appearance (owner-authorized 2026-10-04)
+
+On `feat/admin-appearance-preferences`, from `main` after PR #6.
+
+- **Workspace flower:** the Platforms page's bottom-end botanical moved into the authenticated shell (`layout/shell`), so
+  every workspace page shows it (Company overview, Platforms, platform scope, Settings); the page-specific copy is gone.
+  Not on the sign-in pages. Smaller and softer on tablets and phones; mirrored in RTL; decorative only.
+- **Appearance:** Light / Dark / System and six curated accent palettes, reset to the Nawara default; one panel reused by a
+  popover (sign-in pages and top bar) and by Settings → Appearance (`/settings/appearance`, owners and operators, no
+  capability). Browser-local, validated, applied before first paint; not synchronized with Core (no endpoint exists or is
+  assumed). Details in ARCHITECTURE §14.
+- **Limitation:** the botanical artwork is a raster painted in coral (PNG); it is not tinted by the accent palette, because
+  a filter would distort it. Per-palette artwork would need separately prepared files.
+
 ## Coral + ink theme (owner-authorized 2026-10-04)
 
 The owner's "Nawara Sign-in Coral Ink Theme" design, implemented on `feat/admin-coral-ink-sign-in` (local; not committed).

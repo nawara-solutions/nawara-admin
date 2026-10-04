@@ -113,6 +113,24 @@
   --nw-accent-purple-bg: var(--nw-ref-ink-700);
   --nw-accent-purple-fg: var(--nw-ref-ink-200);
 
+  // Accent palette swatches (Appearance settings): each preset's sample colour, with an ink-white check mark on it.
+  --nw-swatch-coral: var(--nw-ref-swatch-coral);
+  --nw-swatch-rose: var(--nw-ref-swatch-rose);
+  --nw-swatch-plum: var(--nw-ref-swatch-plum);
+  --nw-swatch-indigo: var(--nw-ref-swatch-indigo);
+  --nw-swatch-teal: var(--nw-ref-swatch-teal);
+  --nw-swatch-amber: var(--nw-ref-swatch-amber);
+  --nw-swatch-check: var(--nw-ref-ink-0);
+
+  // Fixed meanings the accent palettes never recolour (tokens/_accents.scss): an urgent attention item keeps its
+  // severity colour, and the School product keeps its coral identity (its bloom tile).
+  --nw-urgent-bg: var(--nw-ref-coral-950);
+  --nw-urgent-border: var(--nw-ref-coral-800);
+  --nw-urgent-fg: var(--nw-ref-coral-300);
+  --nw-urgent-solid: var(--nw-ref-coral-400); // the URGENT badge
+  --nw-urgent-on-solid: var(--nw-ref-ink-900);
+  --nw-product-school-bg: var(--nw-ref-coral-950);
+
   // Charts
   --nw-chart-line: var(--nw-ref-coral-400);
   --nw-chart-area: rgb(255 92 95 / 20%);

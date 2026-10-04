@@ -1,0 +1,39 @@
+<button
+  #trigger
+  type="button"
+  class="appearance-menu__trigger"
+  cdkOverlayOrigin
+  #origin="cdkOverlayOrigin"
+  aria-haspopup="dialog"
+  [attr.aria-expanded]="open()"
+  [attr.aria-label]="'preferences.appearance.title' | transloco"
+  [title]="'preferences.appearance.title' | transloco"
+  (click)="toggle()"
+>
+  <nw-icon [name]="modeIcon()" size="sm" />
+  <span class="appearance-menu__swatch" aria-hidden="true"></span>
+  <nw-icon class="appearance-menu__chevron" name="chevron-down" size="sm" />
+</button>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="origin"
+  [cdkConnectedOverlayOpen]="open()"
+  [cdkConnectedOverlayPositions]="positions"
+  (overlayOutsideClick)="onOutsideClick($event, trigger)"
+  (overlayKeydown)="$event.key === 'Escape' && close()"
+  (detach)="close()"
+>
+  <div
+    class="appearance-menu__popover"
+    role="dialog"
+    [attr.aria-label]="'preferences.appearance.title' | transloco"
+    cdkTrapFocus
+    [cdkTrapFocusAutoCapture]="true"
+  >
+    <p class="appearance-menu__title" aria-hidden="true">
+      {{ 'preferences.appearance.title' | transloco }}
+    </p>
+    <adm-appearance-panel />
+  </div>
+</ng-template>

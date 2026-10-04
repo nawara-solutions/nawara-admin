@@ -15,7 +15,8 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <!--
-      No-flash preferences (docs/ARCHITECTURE.md §14): applies the stored theme and locale direction before first paint.
+      No-flash preferences (docs/ARCHITECTURE.md §14): applies the stored theme, accent palette and locale direction
+      before first paint.
       Keys mirror src/app/core/preferences/preference-store.ts. Allowed by a CSP hash, never 'unsafe-inline' (§21, A14).
     -->
     <script>
@@ -24,6 +25,9 @@
         try {
           var theme = localStorage.getItem('nw.theme');
           if (theme === 'light' || theme === 'dark') root.setAttribute('data-theme', theme);
+          var accent = localStorage.getItem('nw.accent');
+          if (/^(rose|plum|indigo|teal|amber)$/.test(accent || ''))
+            root.setAttribute('data-accent', accent);
           var locale = localStorage.getItem('nw.locale');
           if (locale === 'en' || locale === 'fr' || locale === 'ar') {
             root.lang = locale;

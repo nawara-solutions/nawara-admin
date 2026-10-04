@@ -27,21 +27,4 @@
   </nw-menu>
 </ng-template>
 
-<div
-  class="preference-menus__themes"
-  role="group"
-  [attr.aria-label]="'preferences.theme.label' | transloco"
->
-  @for (option of themes; track option.value) {
-    <button
-      type="button"
-      class="preference-menus__theme"
-      [attr.aria-pressed]="theme.preference() === option.value"
-      [title]="option.labelKey | transloco"
-      (click)="setTheme(option.value)"
-    >
-      <nw-icon [name]="option.icon" size="sm" />
-      <span class="nw-visually-hidden">{{ option.labelKey | transloco }}</span>
-    </button>
-  }
-</div>
+<adm-appearance-menu [framed]="framed()" />

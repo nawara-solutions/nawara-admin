@@ -1,0 +1,185 @@
+// Accent palettes (personal appearance preference, 2026-10-04): curated presets that recolour ONLY the brand-accent
+// semantic tokens. Coral is the Nawara default and has no override. Status colours (danger, success, warning, info),
+// chart categories, product tiles and the logo artwork are deliberately untouched.
+// Selected with `data-accent` on <html> (ThemeService; index.html applies it before first paint).
+// Every pair is checked by `npm run check:contrast` (tools/check-contrast.mjs reads the `@mixin <accent>-<theme>` blocks).
+// Values are the presets' own scales (proposals, not brand values; docs/BRAND.md §0). Amber's light text uses its
+// darker step: the primary itself is 4.4:1 on the sunken surface.
+
+// Rose
+@mixin rose-light {
+  --nw-color-primary: #be185d;
+  --nw-color-primary-hover: #9d174d;
+  --nw-color-primary-active: #831843;
+  --nw-color-primary-subtle: #fdf2f8;
+  --nw-surface-brand-subtle: #fdf2f8;
+  --nw-text-on-primary: #ffffff;
+  --nw-text-brand: #be185d;
+  --nw-text-link: #be185d;
+  --nw-border-brand: #fbcfe8;
+  --nw-focus-ring: #db2777;
+  --nw-focus-halo: rgb(219 39 119 / 22%);
+  --nw-accent-pink-bg: #fdf2f8;
+  --nw-accent-pink-fg: #be185d;
+  --nw-brand-glow: #fdf2f8;
+}
+
+@mixin rose-dark {
+  --nw-color-primary: #f472b6;
+  --nw-color-primary-hover: #f9a8d4;
+  --nw-color-primary-active: #fbcfe8;
+  --nw-color-primary-subtle: #402a3f;
+  --nw-surface-brand-subtle: #402a3f;
+  --nw-text-on-primary: #17131f;
+  --nw-text-brand: #f9a8d4;
+  --nw-text-link: #f9a8d4;
+  --nw-border-brand: #9d174d;
+  --nw-focus-ring: #f472b6;
+  --nw-focus-halo: rgb(244 114 182 / 30%);
+  --nw-accent-pink-bg: #402a3f;
+  --nw-accent-pink-fg: #f9a8d4;
+  --nw-brand-glow: #402a3f;
+}
+
+// Plum
+@mixin plum-light {
+  --nw-color-primary: #7e22ce;
+  --nw-color-primary-hover: #6b21a8;
+  --nw-color-primary-active: #581c87;
+  --nw-color-primary-subtle: #faf5ff;
+  --nw-surface-brand-subtle: #faf5ff;
+  --nw-text-on-primary: #ffffff;
+  --nw-text-brand: #7e22ce;
+  --nw-text-link: #7e22ce;
+  --nw-border-brand: #e9d5ff;
+  --nw-focus-ring: #9333ea;
+  --nw-focus-halo: rgb(147 51 234 / 22%);
+  --nw-accent-pink-bg: #faf5ff;
+  --nw-accent-pink-fg: #7e22ce;
+  --nw-brand-glow: #faf5ff;
+}
+
+@mixin plum-dark {
+  --nw-color-primary: #c084fc;
+  --nw-color-primary-hover: #d8b4fe;
+  --nw-color-primary-active: #e9d5ff;
+  --nw-color-primary-subtle: #392c49;
+  --nw-surface-brand-subtle: #392c49;
+  --nw-text-on-primary: #17131f;
+  --nw-text-brand: #d8b4fe;
+  --nw-text-link: #d8b4fe;
+  --nw-border-brand: #6b21a8;
+  --nw-focus-ring: #c084fc;
+  --nw-focus-halo: rgb(192 132 252 / 30%);
+  --nw-accent-pink-bg: #392c49;
+  --nw-accent-pink-fg: #d8b4fe;
+  --nw-brand-glow: #392c49;
+}
+
+// Indigo
+@mixin indigo-light {
+  --nw-color-primary: #4338ca;
+  --nw-color-primary-hover: #3730a3;
+  --nw-color-primary-active: #312e81;
+  --nw-color-primary-subtle: #eef2ff;
+  --nw-surface-brand-subtle: #eef2ff;
+  --nw-text-on-primary: #ffffff;
+  --nw-text-brand: #4338ca;
+  --nw-text-link: #4338ca;
+  --nw-border-brand: #c7d2fe;
+  --nw-focus-ring: #6366f1;
+  --nw-focus-halo: rgb(99 102 241 / 22%);
+  --nw-accent-pink-bg: #eef2ff;
+  --nw-accent-pink-fg: #4338ca;
+  --nw-brand-glow: #eef2ff;
+}
+
+@mixin indigo-dark {
+  --nw-color-primary: #818cf8;
+  --nw-color-primary-hover: #a5b4fc;
+  --nw-color-primary-active: #c7d2fe;
+  --nw-color-primary-subtle: #302d49;
+  --nw-surface-brand-subtle: #302d49;
+  --nw-text-on-primary: #17131f;
+  --nw-text-brand: #a5b4fc;
+  --nw-text-link: #a5b4fc;
+  --nw-border-brand: #3730a3;
+  --nw-focus-ring: #818cf8;
+  --nw-focus-halo: rgb(129 140 248 / 30%);
+  --nw-accent-pink-bg: #302d49;
+  --nw-accent-pink-fg: #a5b4fc;
+  --nw-brand-glow: #302d49;
+}
+
+// Teal
+@mixin teal-light {
+  --nw-color-primary: #0f766e;
+  --nw-color-primary-hover: #115e59;
+  --nw-color-primary-active: #134e4a;
+  --nw-color-primary-subtle: #f0fdfa;
+  --nw-surface-brand-subtle: #f0fdfa;
+  --nw-text-on-primary: #ffffff;
+  --nw-text-brand: #0f766e;
+  --nw-text-link: #0f766e;
+  --nw-border-brand: #99f6e4;
+  --nw-focus-ring: #0d9488;
+  --nw-focus-halo: rgb(13 148 136 / 22%);
+  --nw-accent-pink-bg: #f0fdfa;
+  --nw-accent-pink-fg: #0f766e;
+  --nw-brand-glow: #f0fdfa;
+}
+
+@mixin teal-dark {
+  --nw-color-primary: #2dd4bf;
+  --nw-color-primary-hover: #5eead4;
+  --nw-color-primary-active: #99f6e4;
+  --nw-color-primary-subtle: #243741;
+  --nw-surface-brand-subtle: #243741;
+  --nw-text-on-primary: #17131f;
+  --nw-text-brand: #5eead4;
+  --nw-text-link: #5eead4;
+  --nw-border-brand: #115e59;
+  --nw-focus-ring: #2dd4bf;
+  --nw-focus-halo: rgb(45 212 191 / 30%);
+  --nw-accent-pink-bg: #243741;
+  --nw-accent-pink-fg: #5eead4;
+  --nw-brand-glow: #243741;
+}
+
+// Amber
+@mixin amber-light {
+  --nw-color-primary: #b45309;
+  --nw-color-primary-hover: #92400e;
+  --nw-color-primary-active: #78350f;
+  --nw-color-primary-subtle: #fffbeb;
+  --nw-surface-brand-subtle: #fffbeb;
+  --nw-text-on-primary: #ffffff;
+  --nw-text-brand: #92400e;
+  --nw-text-link: #92400e;
+  --nw-border-brand: #fde68a;
+  --nw-focus-ring: #c2410c;
+  --nw-focus-halo: rgb(194 65 12 / 22%);
+  --nw-accent-pink-bg: #fffbeb;
+  --nw-accent-pink-fg: #b45309;
+  --nw-brand-glow: #fffbeb;
+}
+
+@mixin amber-dark {
+  --nw-color-primary: #fbbf24;
+  --nw-color-primary-hover: #fcd34d;
+  --nw-color-primary-active: #fde68a;
+  --nw-color-primary-subtle: #41352b;
+  --nw-surface-brand-subtle: #41352b;
+  --nw-text-on-primary: #17131f;
+  --nw-text-brand: #fcd34d;
+  --nw-text-link: #fcd34d;
+  --nw-border-brand: #92400e;
+  --nw-focus-ring: #fbbf24;
+  --nw-focus-halo: rgb(251 191 36 / 30%);
+  --nw-accent-pink-bg: #41352b;
+  --nw-accent-pink-fg: #fcd34d;
+  --nw-brand-glow: #41352b;
+}
+
+/// The accent names, in display order after the default (coral). Mirrors ACCENT_PALETTES in core/theme/theme.service.ts.
+$names: 'rose', 'plum', 'indigo', 'teal', 'amber';

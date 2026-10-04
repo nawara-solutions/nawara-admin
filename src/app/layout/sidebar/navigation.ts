@@ -55,4 +55,9 @@ export const NAVIGATION: readonly NavigationGroup[] = [
   },
 ];
 
-export const SETTINGS_ITEM: NavigationItem = { labelKey: 'shell.nav.settings', icon: 'settings' };
+/** Personal settings (Appearance in this slice): for every signed-in actor, so it requires no capability. */
+export const SETTINGS_ITEM: NavigationItem = {
+  labelKey: 'shell.nav.settings',
+  icon: 'settings',
+  path: '/settings',
+};

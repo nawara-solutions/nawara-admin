@@ -62,6 +62,39 @@
   }
 }
 
+// The workspace flower: the botanical drawing rising from the bottom end corner of the content column, behind every
+// workspace page (accepted on the Platforms page, 2026-10-04). Smaller and softer on tablets and phones so it never
+// competes with content; decorative only (aria-hidden, no pointer events), mirrored in RTL, hidden in forced colours.
+.shell__flora {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  z-index: -1;
+  inline-size: min(14rem, 55%);
+  aspect-ratio: 836 / 941;
+  background: var(--nw-illustration-botanical) no-repeat right bottom / contain;
+  opacity: calc(var(--nw-workspace-illustration-opacity) * 0.7);
+  mask-image: var(--nw-workspace-illustration-mask);
+  pointer-events: none;
+
+  @include nw.from(tablet) {
+    inline-size: min(24rem, 50%);
+  }
+
+  @include nw.from(laptop) {
+    inline-size: min(34rem, 55%);
+    opacity: var(--nw-workspace-illustration-opacity);
+  }
+
+  @media (forced-colors: active) {
+    display: none;
+  }
+}
+
+:host(:dir(rtl)) .shell__flora {
+  transform: scaleX(-1);
+}
+
 :host(:dir(rtl)) .shell__botanical {
   right: auto;
   left: 0;
@@ -74,25 +107,15 @@
   // Capped at 1440 px (owner design) and centred, so wide screens keep equal space on both sides.
   max-inline-size: 90rem;
   margin-inline: auto;
-  // Workspace padding of the owner design: 16/14 px on phones, 24 px on tablets, 28/32 px on desktops. The inline and
-  // bottom values are exposed so page decoration can reach the workspace corner (Platforms page botanical).
-  --nw-main-padding-inline: 0.875rem;
-  --nw-main-padding-block-end: 1.75rem;
-
-  padding: var(--nw-space-4) var(--nw-main-padding-inline) var(--nw-main-padding-block-end);
+  // Workspace padding of the owner design: 16/14 px on phones, 24 px on tablets, 28/32 px on desktops.
+  padding: var(--nw-space-4) 0.875rem 1.75rem;
 
   @include nw.from(tablet) {
-    --nw-main-padding-inline: var(--nw-space-6);
-    --nw-main-padding-block-end: 2.25rem;
-
-    padding-block-start: var(--nw-space-6);
+    padding: var(--nw-space-6) var(--nw-space-6) 2.25rem;
   }
 
   @include nw.from(laptop) {
-    --nw-main-padding-inline: var(--nw-space-7);
-    --nw-main-padding-block-end: var(--nw-space-8);
-
-    padding-block-start: 1.75rem;
+    padding: 1.75rem var(--nw-space-7) var(--nw-space-8);
   }
 
   &:focus {

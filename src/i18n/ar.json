@@ -16,6 +16,21 @@
     },
     "language": {
       "label": "اللغة"
+    },
+    "accent": {
+      "coral": "مرجاني",
+      "rose": "وردي",
+      "plum": "برقوقي",
+      "indigo": "نيلي",
+      "teal": "فيروزي",
+      "amber": "كهرماني"
+    },
+    "appearance": {
+      "title": "المظهر",
+      "mode": "الوضع",
+      "accent": "لون التمييز",
+      "note": "يُحفَظ في هذا المتصفح فقط. لا يرتبط بحسابك ولا يُشارَك مع أجهزتك الأخرى.",
+      "reset": "استعادة الإعدادات الافتراضية لنوارة"
     }
   },
   "foundation": {
@@ -154,7 +169,8 @@
     "signIn": "تسجيل الدخول",
     "verify": "تحقّق من تسجيل دخولك",
     "noAccess": "الوصول الإداري غير متاح",
-    "platformChoice": "اختر منصة"
+    "platformChoice": "اختر منصة",
+    "settingsAppearance": "المظهر"
   },
   "shell": {
     "skipToContent": "الانتقال إلى المحتوى",
@@ -168,7 +184,8 @@
       "company": "الشركة",
       "overview": "نظرة عامة",
       "platform": "المنصة",
-      "platforms": "المنصات"
+      "platforms": "المنصات",
+      "appearance": "المظهر"
     },
     "context": {
       "label": "نطاق الإدارة",
@@ -511,6 +528,13 @@
       "recovery": "مالك، الاستعادة مطلوبة",
       "passkey": "مفتاح المرور",
       "passkeySimulated": "محاكاة: نافذة موافقة / إلغاء من المتصفح، وليست نافذة مفتاح مرور ولا تحققًا عبر WebAuthn"
+    }
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "appearance": {
+      "title": "المظهر",
+      "subtitle": "اختر مظهر Nawara Admin في هذا المتصفح."
     }
   }
 }

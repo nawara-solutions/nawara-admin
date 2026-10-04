@@ -7,11 +7,7 @@
   padding: var(--nw-space-4);
   border: 1px solid var(--nw-border-subtle);
   border-radius: var(--nw-radius-lg);
-  background: linear-gradient(
-    180deg,
-    var(--nw-surface-brand-subtle) 0%,
-    var(--nw-surface-raised) 60%
-  );
+  background: linear-gradient(180deg, var(--nw-product-school-bg) 0%, var(--nw-surface-raised) 60%);
   box-shadow: var(--nw-shadow-card);
   container-type: inline-size;
 }

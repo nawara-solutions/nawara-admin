@@ -1,0 +1,178 @@
+@use 'abstracts' as nw;
+
+:host {
+  display: grid;
+  gap: var(--nw-space-4);
+  min-inline-size: 0;
+}
+
+.appearance-panel__group {
+  display: grid;
+  gap: var(--nw-space-2);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.appearance-panel__legend {
+  margin-block-end: var(--nw-space-2);
+  padding: 0;
+  color: var(--nw-text-label);
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+// The native radio stays in the accessibility tree and takes the keyboard; the label is the visible control.
+.appearance-panel__input {
+  @include nw.visually-hidden;
+}
+
+// Mode: a three-way segmented control.
+.appearance-panel__modes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+}
+
+.appearance-panel__mode {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-block-size: 2.125rem;
+  padding-inline: var(--nw-space-2);
+  border-radius: 0.4375rem;
+  color: var(--nw-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: var(--nw-font-weight-medium);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--nw-text-primary);
+  }
+
+  &:has(:checked) {
+    background-color: var(--nw-surface-raised);
+    box-shadow: var(--nw-shadow-sm);
+    color: var(--nw-text-brand);
+  }
+
+  &:has(:focus-visible) {
+    @include nw.focus-ring;
+  }
+}
+
+// Accent: named swatches, two or three per row.
+.appearance-panel__accents {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6.25rem, 1fr));
+  gap: var(--nw-space-2);
+}
+
+.appearance-panel__accent {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  min-block-size: 2.5rem;
+  padding: 0.375rem var(--nw-space-2);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-raised);
+  color: var(--nw-text-primary);
+  font-size: 0.8125rem;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--nw-border-default);
+  }
+
+  // Selected: a thicker accent border plus the check mark (never colour alone).
+  &:has(:checked) {
+    border-color: var(--nw-color-primary);
+    box-shadow: inset 0 0 0 1px var(--nw-color-primary);
+    font-weight: var(--nw-font-weight-semibold);
+
+    .appearance-panel__check {
+      visibility: visible;
+    }
+  }
+
+  &:has(:focus-visible) {
+    @include nw.focus-ring;
+  }
+}
+
+.appearance-panel__swatch {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  inline-size: 1.375rem;
+  block-size: 1.375rem;
+  border-radius: var(--nw-radius-pill);
+  color: var(--nw-swatch-check);
+
+  &--coral {
+    background-color: var(--nw-swatch-coral);
+  }
+
+  &--rose {
+    background-color: var(--nw-swatch-rose);
+  }
+
+  &--plum {
+    background-color: var(--nw-swatch-plum);
+  }
+
+  &--indigo {
+    background-color: var(--nw-swatch-indigo);
+  }
+
+  &--teal {
+    background-color: var(--nw-swatch-teal);
+  }
+
+  &--amber {
+    background-color: var(--nw-swatch-amber);
+  }
+}
+
+.appearance-panel__check {
+  visibility: hidden;
+}
+
+.appearance-panel__accent-name {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appearance-panel__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nw-space-2) var(--nw-space-3);
+}
+
+.appearance-panel__note {
+  flex: 1 1 12rem;
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+}
+
+@media (forced-colors: active) {
+  .appearance-panel__mode:has(:checked),
+  .appearance-panel__accent:has(:checked) {
+    outline: 2px solid Highlight;
+  }
+
+  .appearance-panel__swatch {
+    forced-color-adjust: none;
+  }
+}

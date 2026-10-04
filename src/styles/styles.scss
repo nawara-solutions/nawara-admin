@@ -6,6 +6,8 @@
 @use 'tokens/scales';
 @use 'tokens/theme-light';
 @use 'tokens/theme-dark';
+@use 'tokens/accents';
+@use 'sass:meta';
 @use 'base';
 
 :root {
@@ -25,5 +27,24 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     @include theme-dark.tokens;
+  }
+}
+
+// Accent palettes (personal preference): after the themes, so they override only the accent tokens. Light values for
+// an explicit or default light theme; dark values for an explicit dark theme and for the system dark preference.
+@each $name in accents.$names {
+  :root[data-accent='#{$name}'],
+  [data-theme='light'][data-accent='#{$name}'] {
+    @include meta.apply(meta.get-mixin('#{$name}-light', 'accents'));
+  }
+
+  [data-theme='dark'][data-accent='#{$name}'] {
+    @include meta.apply(meta.get-mixin('#{$name}-dark', 'accents'));
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme])[data-accent='#{$name}'] {
+      @include meta.apply(meta.get-mixin('#{$name}-dark', 'accents'));
+    }
   }
 }
