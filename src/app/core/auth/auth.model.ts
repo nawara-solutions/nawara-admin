@@ -39,10 +39,15 @@ export type FactorProof =
   | { readonly method: 'totp'; readonly code: string }
   | { readonly method: 'passkey'; readonly assertion: PasskeyAssertion };
 
-/** `GET /auth/me`: who is signed in. `adminTier` is `null` for an account that is not an Admin user. */
+/**
+ * `GET /auth/me`: who is signed in, mirroring Core's response (the Auth service's `me`). `adminTier` is `null` for an
+ * account that is not an Admin user. Core always returns both `email` and `phone`, each nullable (a phone-only
+ * operator has `email: null`), so both are required here and `null` is the only "absent" value.
+ */
 export interface Identity {
   readonly userId: string;
-  readonly email: string;
+  readonly email: string | null;
+  readonly phone: string | null;
   readonly adminTier: 'owner' | 'operator' | null;
   /** Core returns no name (email and phone only); only demo fixtures set one. */
   readonly displayName?: string;

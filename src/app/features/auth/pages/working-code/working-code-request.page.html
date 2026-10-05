@@ -1,0 +1,53 @@
+<adm-auth-card
+  icon="key-round"
+  [title]="'auth.workingCode.requestTitle' | transloco"
+  [subtitle]="'auth.workingCode.requestSubtitle' | transloco"
+>
+  @if (banner(); as b) {
+    <nw-inline-alert
+      [tone]="b.tone"
+      [icon]="b.icon"
+      [actionLabel]="b.retry ? ('auth.banner.retry' | transloco) : undefined"
+      actionIcon="refresh-cw"
+      (action)="submit()"
+      >{{ b.key | transloco }}</nw-inline-alert
+    >
+  }
+
+  <form class="working-code__form" novalidate [attr.aria-busy]="busy()" (submit)="submit($event)">
+    @let errorKey = identifierError();
+    <nw-form-field
+      [label]="'auth.workingCode.identifier' | transloco"
+      [hint]="'auth.workingCode.identifierHint' | transloco"
+      [error]="errorKey ? (errorKey | transloco) : undefined"
+    >
+      <input
+        nwControl
+        class="nw-control--lg working-code__ltr"
+        type="text"
+        name="username"
+        autocomplete="username"
+        autocapitalize="none"
+        spellcheck="false"
+        dir="ltr"
+        [value]="identifier()"
+        [readOnly]="busy()"
+        (input)="onIdentifier($event)"
+      />
+    </nw-form-field>
+
+    <button nw-button size="lg" type="submit" [busy]="busy()" [attr.aria-disabled]="busy() || null">
+      @if (busy()) {
+        <nw-spinner />
+      }
+      <span>{{
+        (busy() ? 'auth.workingCode.requesting' : 'auth.workingCode.request') | transloco
+      }}</span>
+    </button>
+  </form>
+
+  <button type="button" class="working-code__back" (click)="back()">
+    <nw-icon name="arrow-left" size="sm" />
+    <span>{{ 'auth.workingCode.backToSignIn' | transloco }}</span>
+  </button>
+</adm-auth-card>

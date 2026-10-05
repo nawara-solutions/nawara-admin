@@ -1,4 +1,4 @@
-import { Actor } from '../../core/auth/actor';
+import { Actor, actorLabel } from '../../core/auth/actor';
 
 const ROLE_KEYS = {
   owner: 'shell.role.owner',
@@ -14,9 +14,11 @@ export interface Profile {
 /** The signed-in person as the shell shows them (sidebar card, top-bar avatar); `null` without a session. */
 export function profileOf(actor: Actor | null): Profile | null {
   if (actor === null) return null;
-  const name = actor.displayName ?? actor.email;
+  const name = actorLabel(actor);
+  // Letters and digits only: a phone-only operator is named by a number starting with "+".
   const initials = name
     .split(/[\s@.]+/)
+    .map((part) => part.replace(/[^\p{L}\p{N}]/gu, ''))
     .filter((part) => part !== '')
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())

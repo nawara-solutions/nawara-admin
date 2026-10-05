@@ -4,6 +4,7 @@ import { Observable, firstValueFrom, forkJoin, of, timer } from 'rxjs';
 import { AuthGateway } from '../../../core/auth/auth.gateway';
 import { FactorProof, MfaMethod } from '../../../core/auth/auth.model';
 import { AuthSession } from '../../../core/auth/auth-session';
+import { OperatorIdentifier } from '../../../core/auth/operator-identifier';
 import {
   RETURN_URL_PARAM,
   SIGN_IN_PATH,
@@ -25,10 +26,13 @@ export const AUTH_ACCEPTED_PAUSE_MS = new InjectionToken<number>('AUTH_ACCEPTED_
 });
 
 export const MFA_PATH = '/login/verify';
+export const WORKING_CODE_PATH = '/login/code';
+export const WORKING_CODE_VERIFY_PATH = '/login/code/verify';
 
 /** `password` → (`mfa`) → `checking` → `resolved` (the landing page, or the no-access page). */
 export type AuthStep = 'password' | 'mfa' | 'checking' | 'resolved';
-export type BusyAction = 'signIn' | 'verify' | 'passkey';
+export type BusyAction =
+  'signIn' | 'verify' | 'passkey' | 'requestCode' | 'resendCode' | 'verifyWorkingCode';
 /**
  * Banner states of the password step. `enrollmentRequired` and `recoveryRequired` are Core's established next states
  * (`enrollment_required`, `recovery_required`), kept distinct; their screens are not in this prototype, so the flow
@@ -43,6 +47,15 @@ export type SignInProblem =
   | 'stepNotAvailable';
 export type VerifyProblem =
   'invalidCode' | 'rateLimited' | 'unavailable' | 'expired' | 'passkeyFailed';
+/** Problems of the working-code request (`invalid`: Core refused the identifier's shape, `400`). */
+export type CodeRequestProblem = 'invalid' | 'rateLimited' | 'unavailable';
+/**
+ * Problems of the working-code verification. Every refusal of a code is Core's one generic `401
+ * operator_code_invalid`: `invalidCode` never says why (wrong, used, replaced, locked, out of shift or unknown).
+ */
+export type WorkingCodeProblem = 'invalidCode' | 'rateLimited' | 'unavailable';
+/** What the verify page says about the last request: neither confirms eligibility nor delivery. */
+export type WorkingCodeNotice = 'requested' | 'requestedAgain';
 
 /**
  * Core's stable auth error codes are not verified yet (docs/CORE-INTEGRATION.md §9), so these map by error kind, the
@@ -56,6 +69,31 @@ export function signInProblemOf(error: AppError): SignInProblem {
     case 'forbidden':
     case 'not_found':
       return 'failed';
+    case 'rate_limited':
+      return 'rateLimited';
+    default:
+      return 'unavailable';
+  }
+}
+
+export function codeRequestProblemOf(error: AppError): CodeRequestProblem {
+  switch (error.kind) {
+    case 'validation':
+      return 'invalid';
+    case 'rate_limited':
+      return 'rateLimited';
+    default:
+      return 'unavailable';
+  }
+}
+
+export function workingCodeProblemOf(error: AppError): WorkingCodeProblem {
+  switch (error.kind) {
+    case 'unauthenticated':
+    case 'validation':
+    case 'forbidden':
+    case 'not_found':
+      return 'invalidCode';
     case 'rate_limited':
       return 'rateLimited';
     default:
@@ -81,8 +119,8 @@ export function verifyProblemOf(error: AppError): VerifyProblem {
 }
 
 /**
- * The sign-in journey (docs/ARCHITECTURE.md §5, §11): password, the owner's second step, then the access check and the
- * landing. Scoped to the sign-in frame component, so its state ends when the user leaves the sign-in pages.
+ * The sign-in journey (docs/ARCHITECTURE.md §5, §11): password and the owner's second step, or an operator's working
+ * code (a separate method, never an owner factor), then the same access check and landing. Scoped to the sign-in frame component, so its state ends when the user leaves the sign-in pages.
  *
  * Authentication never grants access by itself: the session is established only after `/auth/me` and `/auth/grants`
  * have been resolved by `resolveLanding`. The challenge token stays in this facade's memory only, and is dropped on
@@ -112,8 +150,16 @@ export class AuthFlowFacade {
   readonly accepted = signal(false);
   /** The email of the last attempt, kept when going back to the password step (never the password). */
   readonly email = signal('');
-  /** The authenticated account that has no administrative access (no-access page). */
-  readonly noAccessEmail = signal<string | null>(null);
+  /** The authenticated account (email, or phone for a phone-only identity) that has no administrative access. */
+  readonly noAccessContact = signal<string | null>(null);
+
+  /** The text last typed on the working-code request page, kept when coming back to change it (never a code). */
+  readonly identifierText = signal('');
+  /** The identifier a working code was requested for; set only after Core answered the request. */
+  readonly workingCodeIdentifier = signal<OperatorIdentifier | null>(null);
+  readonly codeRequestProblem = signal<CodeRequestProblem | null>(null);
+  readonly workingCodeProblem = signal<WorkingCodeProblem | null>(null);
+  readonly workingCodeNotice = signal<WorkingCodeNotice | null>(null);
 
   readonly methods = this.offered.asReadonly();
   readonly method = signal<MfaMethod>('totp');
@@ -121,6 +167,11 @@ export class AuthFlowFacade {
   readonly alternative = computed(() => this.offered().find((m) => m !== this.method()) ?? null);
   /** A protected page was requested before sign-in (the "return to it" banner). */
   readonly hasReturnUrl = computed(() => this.returnUrl() !== null);
+  /** The requested page as query parameters, so links between sign-in pages keep it (already checked as internal). */
+  readonly returnQueryParams = computed(() => {
+    const returnUrl = this.returnUrl();
+    return returnUrl === null ? {} : { [RETURN_URL_PARAM]: returnUrl };
+  });
 
   /** The polite live-region text (catalog key) for the current busy state or step. */
   readonly announcement = computed(() => {
@@ -132,6 +183,12 @@ export class AuthFlowFacade {
         return 'auth.mfa.verifying';
       case 'passkey':
         return 'auth.mfa.passkeyWaiting';
+      case 'requestCode':
+        return 'auth.workingCode.requesting';
+      case 'resendCode':
+        return 'auth.workingCode.requestingAgain';
+      case 'verifyWorkingCode':
+        return 'auth.workingCode.verifying';
       default:
         return null;
     }
@@ -207,6 +264,80 @@ export class AuthFlowFacade {
     }
   }
 
+  /**
+   * Requests a working code. One request at a time (a pending one blocks another). Core's 204 says nothing about the
+   * account, so the next page only says a code is sent *if* the account is eligible.
+   */
+  async requestWorkingCode(text: string, identifier: OperatorIdentifier): Promise<void> {
+    if (this.currentBusy() !== null) return;
+    this.identifierText.set(text);
+    this.codeRequestProblem.set(null);
+    this.currentBusy.set('requestCode');
+    try {
+      await firstValueFrom(this.gateway.requestWorkingCode(identifier));
+      if (this.destroyed) return;
+      this.workingCodeIdentifier.set(identifier);
+      this.workingCodeProblem.set(null);
+      this.workingCodeNotice.set('requested');
+      this.accepted.set(false);
+      await this.router.navigate([WORKING_CODE_VERIFY_PATH], this.signInQuery());
+    } catch (error: unknown) {
+      this.codeRequestProblem.set(codeRequestProblemOf(toAppError(error)));
+    } finally {
+      this.currentBusy.set(null);
+    }
+  }
+
+  /** Requests another code for the same identifier; Core replaces the previous one. No cooldown is invented. */
+  async requestWorkingCodeAgain(): Promise<void> {
+    const identifier = this.workingCodeIdentifier();
+    if (this.currentBusy() !== null || identifier === null) return;
+    this.workingCodeProblem.set(null);
+    this.workingCodeNotice.set(null);
+    this.currentBusy.set('resendCode');
+    try {
+      await firstValueFrom(this.gateway.requestWorkingCode(identifier));
+      if (this.destroyed) return;
+      this.workingCodeNotice.set('requestedAgain');
+    } catch (error: unknown) {
+      const problem = codeRequestProblemOf(toAppError(error));
+      this.workingCodeProblem.set(problem === 'rateLimited' ? 'rateLimited' : 'unavailable');
+    } finally {
+      this.currentBusy.set(null);
+    }
+  }
+
+  /** Redeems a working code (a string: leading zeroes kept), then the same access check as every sign-in. */
+  async verifyWorkingCode(code: string): Promise<void> {
+    const identifier = this.workingCodeIdentifier();
+    if (this.currentBusy() !== null || identifier === null) return;
+    this.workingCodeProblem.set(null);
+    this.currentBusy.set('verifyWorkingCode');
+    try {
+      try {
+        await firstValueFrom(this.gateway.verifyWorkingCode(identifier, code));
+      } catch (error: unknown) {
+        this.workingCodeNotice.set(null);
+        this.workingCodeProblem.set(workingCodeProblemOf(toAppError(error)));
+        return;
+      }
+      this.workingCodeNotice.set(null);
+      this.accepted.set(true);
+      await firstValueFrom(timer(this.acceptedPause));
+      if (this.destroyed) return;
+      await this.resolveAccess();
+    } finally {
+      this.currentBusy.set(null);
+    }
+  }
+
+  /** Back to the request page to correct the identifier (kept as typed). */
+  async changeIdentifier(): Promise<void> {
+    if (this.currentBusy() !== null) return;
+    this.forgetWorkingCode();
+    await this.router.navigate([WORKING_CODE_PATH], this.signInQuery());
+  }
+
   useMethod(method: MfaMethod): void {
     if (this.currentBusy() !== null || !this.offered().includes(method)) return;
     this.method.set(method);
@@ -217,6 +348,8 @@ export class AuthFlowFacade {
   dismissProblems(): void {
     this.signInProblem.set(null);
     this.verifyProblem.set(null);
+    this.codeRequestProblem.set(null);
+    this.workingCodeProblem.set(null);
   }
 
   /** Back to the password step. The challenge is dropped; the email is kept. */
@@ -235,8 +368,9 @@ export class AuthFlowFacade {
     }
     this.session.signOut();
     this.forgetChallenge();
-    this.noAccessEmail.set(null);
+    this.noAccessContact.set(null);
     this.email.set('');
+    this.identifierText.set('');
     this.currentStep.set('password');
     const reason: SignInReason = 'signed-out';
     await this.router.navigate([SIGN_IN_PATH], {
@@ -285,7 +419,7 @@ export class AuthFlowFacade {
       if (landing.kind === 'noAccess') {
         this.currentStep.set('resolved');
         this.forgetChallenge();
-        this.noAccessEmail.set(landing.email);
+        this.noAccessContact.set(landing.contact);
         await this.router.navigateByUrl(NO_ACCESS_PATH);
         return;
       }
@@ -329,6 +463,14 @@ export class AuthFlowFacade {
     this.offered.set([]);
     this.verifyProblem.set(null);
     this.accepted.set(false);
+    this.forgetWorkingCode();
+  }
+
+  private forgetWorkingCode(): void {
+    this.workingCodeIdentifier.set(null);
+    this.codeRequestProblem.set(null);
+    this.workingCodeProblem.set(null);
+    this.workingCodeNotice.set(null);
   }
 
   private signInQuery() {

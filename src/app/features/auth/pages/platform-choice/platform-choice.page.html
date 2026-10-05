@@ -6,7 +6,7 @@
   @if (actor(); as person) {
     <adm-identity-row
       [label]="'auth.noAccess.signedInAs' | transloco"
-      [email]="person.email"
+      [email]="person.email ?? person.phone ?? person.userId"
       [role]="'auth.platform.operator' | transloco"
     />
   }

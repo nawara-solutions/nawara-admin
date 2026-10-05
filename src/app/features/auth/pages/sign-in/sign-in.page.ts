@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
   RETURN_URL_PARAM,
@@ -14,7 +14,11 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
 import { NwIconName } from '../../../../shared/ui/icon/icon.registry';
 import { NwInlineAlert, NwInlineAlertTone } from '../../../../shared/ui/inline-alert/inline-alert';
 import { NwSpinner } from '../../../../shared/ui/spinner/spinner';
-import { AuthFlowFacade, SignInProblem } from '../../application/auth-flow.facade';
+import {
+  AuthFlowFacade,
+  SignInProblem,
+  WORKING_CODE_PATH,
+} from '../../application/auth-flow.facade';
 import { AuthCard } from '../../components/auth-card/auth-card';
 
 interface Banner {
@@ -52,9 +56,9 @@ const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /**
  * Sign in (`/login`), the accepted A4 design: email and password, client checks for empty and malformed fields only,
  * and one banner at a time (a problem first, then why the page was opened). A failed attempt clears the password and
- * keeps the email. "Sign in with a working code" (operators) and "Recover owner access" are established Core methods
- * whose screens are not built yet: they stay on the page, focusable but unavailable, described by a "not available in
- * this prototype" note (owner review, 2026-10-02).
+ * keeps the email. "Sign in with a working code" opens the operators' method (A4-S2); "Recover owner access" is an
+ * established Core method whose screens are not built yet: it stays on the page, focusable but unavailable, described
+ * by a "not available in this prototype" tooltip (owner review, 2026-10-02).
  */
 @Component({
   selector: 'adm-sign-in-page',
@@ -67,6 +71,7 @@ const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     NwInlineAlert,
     NwSpinner,
     AuthCard,
+    RouterLink,
   ],
   templateUrl: './sign-in.page.html',
   styleUrl: './sign-in.page.scss',
@@ -75,6 +80,7 @@ const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 })
 export class SignInPage {
   protected readonly flow = inject(AuthFlowFacade);
+  protected readonly workingCodePath = WORKING_CODE_PATH;
   private readonly query = toSignal(inject(ActivatedRoute).queryParamMap, { requireSync: true });
 
   protected readonly email = signal(this.flow.email());

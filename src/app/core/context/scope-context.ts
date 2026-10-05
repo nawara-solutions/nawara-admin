@@ -5,7 +5,7 @@ import { filter, map, of, shareReplay, startWith, switchMap } from 'rxjs';
 import { AuthSession } from '../auth/auth-session';
 import { ViewState, toViewState } from '../state/view-state';
 import { ScopeDirectoryGateway } from './scope-directory.gateway';
-import { AdminScope, CompanyDirectory, PlatformId, platformId } from './scope.model';
+import { AdminScope, CompanyDirectory, PlatformId, PlatformRef, platformId } from './scope.model';
 
 /** Route prefix of the platform scope (docs/ARCHITECTURE.md §6, §7). */
 export const PLATFORM_SCOPE_SEGMENT = 'platforms';
@@ -27,7 +27,9 @@ export function scopeFromUrl(url: string): AdminScope {
 /**
  * The current administrative scope and the Company directory behind the context switcher (docs/ARCHITECTURE.md §7).
  * The URL is the source of truth, so refresh and deep links rebuild the scope. Provided by the shell route, where the
- * directory gateway is bound. Only an owner has a Company directory; an operator's scope is their assignments.
+ * directory gateway is bound. Only an owner has a Company directory; an operator's scope is their assignments, so
+ * `platforms` is the one list of Platforms the actor may see: the Company's for an owner, the assigned ones (named
+ * through the scope directory) for an operator.
  */
 @Injectable()
 export class ScopeContext {
@@ -61,5 +63,24 @@ export class ScopeContext {
 
   readonly directory = toSignal(this.directory$, {
     initialValue: { status: 'idle' } as ViewState<CompanyDirectory>,
+  });
+
+  /** The Platforms the signed-in actor may see; loaded once per actor. */
+  readonly platforms$ = toObservable(this.session.actor).pipe(
+    switchMap((actor) => {
+      if (actor?.kind === 'operator') {
+        return toViewState(this.gateway.assignedPlatforms(actor.platformAssignments));
+      }
+      return this.directory$.pipe(
+        map((state): ViewState<readonly PlatformRef[]> =>
+          state.status === 'success' ? { status: 'success', data: state.data.platforms } : state,
+        ),
+      );
+    }),
+    shareReplay({ bufferSize: 1, refCount: false }),
+  );
+
+  readonly platforms = toSignal(this.platforms$, {
+    initialValue: { status: 'idle' } as ViewState<readonly PlatformRef[]>,
   });
 }

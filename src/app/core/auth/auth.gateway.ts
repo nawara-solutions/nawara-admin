@@ -2,11 +2,13 @@ import { Observable, throwError } from 'rxjs';
 import { adapterUnavailable } from '../errors/app-error';
 import { PlatformId } from '../context/scope.model';
 import { FactorProof, Grants, Identity, LoginOutcome, PasskeyRequest } from './auth.model';
+import { OperatorIdentifier } from './operator-identifier';
 
 /**
  * Frontend contract for Core authentication (docs/ARCHITECTURE.md §3, §11). Every error is an `AppError`.
  *
- * Core status 🟢 (docs/CORE-INTEGRATION.md §7): `POST /auth/login`, `/auth/admin/login/owner/verify`, the WebAuthn
+ * Core status 🟢 (docs/CORE-INTEGRATION.md §7): `POST /auth/login`, `/auth/admin/login/owner/verify`,
+ * `/auth/admin/login/operator/request-code` and `/verify-code`, the WebAuthn
  * options route, `GET /auth/me`, `GET /auth/grants`, `GET /auth/platform-access/:platformId`, `POST /auth/logout`. The HTTP adapter is not written in this slice:
  * request fields, error codes and the session strategy (D-A4) are still to verify. Until then only the demo mock
  * exists, and every other build is unavailable.
@@ -16,6 +18,16 @@ export abstract class AuthGateway {
   /** Completes an owner `mfa_required` challenge; on success Core issues the session. */
   abstract verifyOwnerFactor(challenge: string, proof: FactorProof): Observable<void>;
   abstract passkeyRequest(challenge: string): Observable<PasskeyRequest>;
+  /**
+   * Asks Core for an operator working code. Core always answers 204 for a well-formed request: the answer says nothing
+   * about the account, its eligibility or any delivery (Core sends to the account's stored contact, if anything).
+   */
+  abstract requestWorkingCode(identifier: OperatorIdentifier): Observable<void>;
+  /**
+   * Redeems a working code (a 6-character string: leading zeroes kept). On success Core issues the session; every
+   * refusal is the same generic 401 `operator_code_invalid`. Separate from the owner's second factor.
+   */
+  abstract verifyWorkingCode(identifier: OperatorIdentifier, code: string): Observable<void>;
   abstract me(): Observable<Identity>;
   abstract grants(): Observable<Grants>;
   /** Whether the signed-in account may enter this Platform's scope (Core answers 200, or a collapsed 404 → `false`). */
@@ -34,6 +46,14 @@ export class UnavailableAuthGateway extends AuthGateway {
   }
 
   passkeyRequest(): Observable<PasskeyRequest> {
+    return throwError(adapterUnavailable);
+  }
+
+  requestWorkingCode(): Observable<void> {
+    return throwError(adapterUnavailable);
+  }
+
+  verifyWorkingCode(): Observable<void> {
     return throwError(adapterUnavailable);
   }
 

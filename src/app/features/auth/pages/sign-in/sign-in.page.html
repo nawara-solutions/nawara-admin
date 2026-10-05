@@ -81,28 +81,22 @@
     </button>
   </form>
 
-  <!-- Established Core methods whose screens are deferred: shown, focusable, unavailable, and saying why. -->
+  <!-- Other sign-in methods: the working code (operators); owner recovery stays deferred, focusable and saying why. -->
   <div class="sign-in__divider" aria-hidden="true">
     <span class="sign-in__rule"></span>
     <span>{{ 'auth.signIn.or' | transloco }}</span>
     <span class="sign-in__rule"></span>
   </div>
-  <span class="sign-in__deferred">
-    <button
-      nw-button
-      variant="secondary"
-      type="button"
-      class="sign-in__working-code"
-      aria-disabled="true"
-      aria-describedby="sign-in-working-code-note"
-    >
-      <nw-icon name="key-round" size="sm" />
-      <span>{{ 'auth.signIn.workingCode' | transloco }}</span>
-    </button>
-    <span id="sign-in-working-code-note" class="sign-in__tooltip" role="tooltip">{{
-      'auth.signIn.workingCodeUnavailable' | transloco
-    }}</span>
-  </span>
+  <a
+    nw-button
+    variant="secondary"
+    class="sign-in__working-code"
+    [routerLink]="workingCodePath"
+    [queryParams]="flow.returnQueryParams()"
+  >
+    <nw-icon name="key-round" size="sm" />
+    <span>{{ 'auth.signIn.workingCode' | transloco }}</span>
+  </a>
   <p class="sign-in__recover">
     <span class="sign-in__deferred">
       <button

@@ -3,8 +3,8 @@
     <li class="breadcrumbs__item">
       <a
         class="breadcrumbs__home"
-        routerLink="/overview"
-        [attr.aria-label]="'shell.breadcrumb.home' | transloco"
+        [routerLink]="home()"
+        [attr.aria-label]="homeLabel() | transloco"
       >
         <nw-icon name="house" size="sm" />
       </a>
@@ -20,8 +20,10 @@
               <bdi>{{ crumb.label }}</bdi>
             }
           </span>
-        } @else {
+        } @else if (crumb.link) {
           <a class="breadcrumbs__link" [routerLink]="crumb.link">{{ crumb.label | transloco }}</a>
+        } @else {
+          <span class="breadcrumbs__text">{{ crumb.label | transloco }}</span>
         }
       </li>
     }

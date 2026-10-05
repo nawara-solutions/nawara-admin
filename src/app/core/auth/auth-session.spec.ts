@@ -5,7 +5,7 @@ import { Actor } from './actor';
 import { AuthSession } from './auth-session';
 
 const DEMO_BINDINGS_STUB: DemoBindings = {
-  signIn: { accounts: [], password: 'p', code: 'c' },
+  signIn: { accounts: [], password: 'p', code: 'c', operators: [], workingCode: 'w' },
   providers: {
     auth: [],
     scopeDirectory: [],

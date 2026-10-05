@@ -1,6 +1,8 @@
 import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import { capabilityGuard, sessionGuard } from '../core/access/access.guards';
+import { homePath } from '../core/access/home-path';
+import { AuthSession } from '../core/auth/auth-session';
 import { APP_ENVIRONMENT, AppEnvironment, adapterProviders } from '../core/config/app-environment';
 import { ScopeContext } from '../core/context/scope-context';
 import {
@@ -46,7 +48,12 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
       providers: [...directory, ...notifications, ScopeContext, NotificationIndicator],
       loadComponent: () => import('./shell/shell').then((m) => m.Shell),
       children: [
-        { path: '', pathMatch: 'full', redirectTo: 'overview' },
+        // Home depends on the actor: an operator never has the Company overview.
+        {
+          path: '',
+          pathMatch: 'full',
+          redirectTo: () => homePath(inject(AuthSession).actor()),
+        },
         {
           path: 'overview',
           title: 'titles.overview',

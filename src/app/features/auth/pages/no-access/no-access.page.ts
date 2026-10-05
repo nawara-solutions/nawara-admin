@@ -16,7 +16,7 @@ import { IdentityRow } from '../../components/identity-row/identity-row';
   selector: 'adm-no-access-page',
   imports: [TranslocoPipe, NwButton, NwIcon, AuthCard, IdentityRow],
   template: `
-    @if (flow.noAccessEmail(); as email) {
+    @if (flow.noAccessContact(); as email) {
       <adm-auth-card
         icon="shield-off"
         tone="danger"
@@ -63,7 +63,7 @@ export class NoAccessPage {
   protected readonly flow = inject(AuthFlowFacade);
 
   constructor() {
-    if (this.flow.noAccessEmail() === null) {
+    if (this.flow.noAccessContact() === null) {
       void inject(Router).navigate([SIGN_IN_PATH], { replaceUrl: true });
     }
   }

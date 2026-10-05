@@ -9,6 +9,7 @@ const DRIVE = platformId('drive-id');
 const identity = (adminTier: Identity['adminTier']): Identity => ({
   userId: 'u',
   email: 'person@x.invalid',
+  phone: null,
   adminTier,
 });
 const grants = (patch: Partial<Grants> = {}): Grants => ({
@@ -48,7 +49,37 @@ describe('resolveLanding (default landing)', () => {
   it('gives an owner without a Company no access', () => {
     expect(resolveLanding(identity('owner'), grants())).toEqual({
       kind: 'noAccess',
-      email: 'person@x.invalid',
+      contact: 'person@x.invalid',
+    });
+  });
+
+  it('names a phone-only identity without access by its phone', () => {
+    expect(
+      resolveLanding({ ...identity('operator'), email: null, phone: '+99900000001' }, grants()),
+    ).toEqual({ kind: 'noAccess', contact: '+99900000001' });
+  });
+
+  it('maps Core’s null phone to an actor without a phone, and keeps a null email as null', () => {
+    const landing = resolveLanding(identity('owner'), {
+      companyId: companyId('c'),
+      platformAssignments: [],
+    });
+    expect(landing.kind === 'enter' && 'phone' in landing.actor).toBe(false);
+    const phoneOnly = resolveLanding(
+      { ...identity('operator'), email: null, phone: '+99900000001' },
+      { companyId: null, platformAssignments: [platformId('school')] },
+    );
+    expect(phoneOnly.kind === 'enter' && phoneOnly.actor.email).toBeNull();
+  });
+
+  it('keeps the phone of a phone-only operator on the actor', () => {
+    const landing = resolveLanding(
+      { ...identity('operator'), email: null, phone: '+99900000001' },
+      { companyId: null, platformAssignments: [platformId('school')] },
+    );
+    expect(landing.kind === 'enter' && landing.actor).toMatchObject({
+      email: null,
+      phone: '+99900000001',
     });
   });
 
@@ -82,7 +113,7 @@ describe('resolveLanding (default landing)', () => {
         identity(null),
         grants({ companyId: companyId('company'), platformAssignments: [SCHOOL] }),
       ),
-    ).toEqual({ kind: 'noAccess', email: 'person@x.invalid' });
+    ).toEqual({ kind: 'noAccess', contact: 'person@x.invalid' });
   });
 });
 

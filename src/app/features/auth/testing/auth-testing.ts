@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angul
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { Observable, of, throwError } from 'rxjs';
 import en from '../../../../i18n/en.json';
+import { OperatorIdentifier } from '../../../core/auth/operator-identifier';
 import { AuthGateway } from '../../../core/auth/auth.gateway';
 import {
   Grants,
@@ -25,7 +26,7 @@ import { AppError } from '../../../core/errors/app-error';
 import { AUTH_ACCEPTED_PAUSE_MS, AuthFlowFacade } from '../application/auth-flow.facade';
 
 const DEMO: DemoBindings = {
-  signIn: { accounts: [], password: 'p', code: 'c' },
+  signIn: { accounts: [], password: 'p', code: 'c', operators: [], workingCode: 'w' },
   providers: {
     auth: [],
     scopeDirectory: [],
@@ -44,7 +45,11 @@ export class ScriptedAuthGateway extends AuthGateway {
   methods: readonly MfaMethod[] = ['totp', 'passkey'];
   loginAnswer: Observable<LoginOutcome> | null = null;
   verifyAnswer: Observable<void> = of(undefined);
-  identity: Identity = { userId: 'o', email: 'owner@x.invalid', adminTier: 'owner' };
+  requestCodeAnswer: Observable<void> = of(undefined);
+  verifyCodeAnswer: Observable<void> = of(undefined);
+  /** What the page sent, to check codes stay strings. */
+  readonly codeCalls: { identifier: OperatorIdentifier; code?: string }[] = [];
+  identity: Identity = { userId: 'o', email: 'owner@x.invalid', phone: null, adminTier: 'owner' };
   grantsAnswer: Grants = { companyId: companyId('company'), platformAssignments: [] };
   platformAllowed = true;
 
@@ -59,6 +64,14 @@ export class ScriptedAuthGateway extends AuthGateway {
   }
   passkeyRequest(): Observable<PasskeyRequest> {
     return of({ publicKey: { challenge: new Uint8Array(1) } });
+  }
+  requestWorkingCode(identifier: OperatorIdentifier): Observable<void> {
+    this.codeCalls.push({ identifier });
+    return this.requestCodeAnswer;
+  }
+  verifyWorkingCode(identifier: OperatorIdentifier, code: string): Observable<void> {
+    this.codeCalls.push({ identifier, code });
+    return this.verifyCodeAnswer;
   }
   me(): Observable<Identity> {
     return of(this.identity);

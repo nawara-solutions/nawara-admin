@@ -5,7 +5,7 @@
   [attr.aria-label]="
     ('shell.context.label' | transloco) +
     ': ' +
-    (companyName() ?? '') +
+    (companyName() ?? (titleKey() | transloco)) +
     ', ' +
     (currentPlatform()?.name ?? ('shell.context.allPlatforms' | transloco))
   "
@@ -13,9 +13,7 @@
   <!-- The company's logo symbol, in the palette's colours; decorative (the button's label names the scope). -->
   <nw-brand-mark class="context-switcher__symbol" label="" aria-hidden="true" />
   <span class="context-switcher__text">
-    <bdi class="context-switcher__company">{{
-      companyName() ?? ('shell.context.loading' | transloco)
-    }}</bdi>
+    <bdi class="context-switcher__company">{{ companyName() ?? (titleKey() | transloco) }}</bdi>
     <span class="context-switcher__scope">
       @if (currentPlatform(); as platform) {
         <bdi>{{ platform.name }}</bdi>
@@ -29,14 +27,16 @@
 
 <ng-template #scopes>
   <nw-menu class="context-switcher__menu">
-    <button nw-menu-item (triggered)="selectCompany()">
-      <nw-icon name="building-2" size="sm" />
-      <span class="context-switcher__option">{{ 'shell.context.allPlatforms' | transloco }}</span>
-      @if (context.scope().kind === 'company') {
-        <nw-icon name="check" size="sm" />
-        <span class="nw-visually-hidden">({{ 'shell.context.current' | transloco }})</span>
-      }
-    </button>
+    @if (hasCompanyScope()) {
+      <button nw-menu-item (triggered)="selectCompany()">
+        <nw-icon name="building-2" size="sm" />
+        <span class="context-switcher__option">{{ 'shell.context.allPlatforms' | transloco }}</span>
+        @if (context.scope().kind === 'company') {
+          <nw-icon name="check" size="sm" />
+          <span class="nw-visually-hidden">({{ 'shell.context.current' | transloco }})</span>
+        }
+      </button>
+    }
     @if (platforms().length > 0) {
       <p class="context-switcher__group" aria-hidden="true">
         {{ 'shell.context.platforms' | transloco }}

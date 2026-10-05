@@ -20,7 +20,7 @@ const production: AppEnvironment = { production: true, demo: null };
 
 const UNAVAILABLE: Provider[] = [{ provide: Gateway, useClass: Unavailable }];
 const bindings: DemoBindings = {
-  signIn: { accounts: [], password: 'p', code: 'c' },
+  signIn: { accounts: [], password: 'p', code: 'c', operators: [], workingCode: 'w' },
   providers: {
     auth: [],
     scopeDirectory: [],

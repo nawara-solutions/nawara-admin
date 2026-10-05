@@ -1,0 +1,112 @@
+<adm-auth-card
+  icon="key-round"
+  [step]="step()"
+  [title]="'auth.workingCode.verifyTitle' | transloco"
+  [subtitle]="'auth.workingCode.verifySubtitle' | transloco"
+>
+  @if (banner(); as b) {
+    <nw-inline-alert
+      [id]="bannerId"
+      [tone]="b.tone"
+      [icon]="b.icon"
+      [actionLabel]="b.retry ? ('auth.banner.retry' | transloco) : undefined"
+      actionIcon="refresh-cw"
+      (action)="retry()"
+      >{{ b.key | transloco }}</nw-inline-alert
+    >
+  }
+
+  @if (!flow.accepted()) {
+    <div class="working-code__identity">
+      <adm-identity-row
+        class="working-code__identity-row"
+        [label]="'auth.workingCode.requestedFor' | transloco"
+        [email]="identifier()"
+      />
+      <button
+        type="button"
+        class="working-code__link"
+        [attr.aria-disabled]="pending() || null"
+        (click)="change()"
+      >
+        {{ 'auth.workingCode.change' | transloco }}
+      </button>
+    </div>
+
+    <form
+      class="working-code__form"
+      novalidate
+      [attr.aria-busy]="verifying()"
+      (submit)="submit($event)"
+    >
+      @let errorKey = codeError();
+      <nw-form-field
+        [label]="'auth.workingCode.codeLabel' | transloco"
+        [hint]="'auth.workingCode.codeHint' | transloco"
+        [error]="errorKey ? (errorKey | transloco) : undefined"
+        [errorRef]="invalidRef()"
+      >
+        <input
+          nwControl
+          class="nw-control--lg working-code__code"
+          type="text"
+          name="working-code"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          spellcheck="false"
+          dir="ltr"
+          [value]="code()"
+          [readOnly]="verifying()"
+          (input)="onCode($event)"
+        />
+      </nw-form-field>
+      <button
+        nw-button
+        size="lg"
+        type="submit"
+        [busy]="verifying()"
+        [attr.aria-disabled]="pending() || null"
+      >
+        @if (verifying()) {
+          <nw-spinner />
+        }
+        <span>{{
+          (verifying() ? 'auth.workingCode.verifying' : 'auth.workingCode.verify') | transloco
+        }}</span>
+      </button>
+    </form>
+
+    <div class="working-code__again">
+      <div class="working-code__again-row">
+        <p class="working-code__again-question">
+          {{ 'auth.workingCode.againQuestion' | transloco }}
+        </p>
+        <button
+          nw-button
+          variant="secondary"
+          size="sm"
+          type="button"
+          [busy]="requestingAgain()"
+          [attr.aria-disabled]="pending() || null"
+          (click)="requestAgain()"
+        >
+          @if (requestingAgain()) {
+            <nw-spinner />
+          } @else {
+            <nw-icon name="refresh-cw" size="sm" />
+          }
+          <span>{{
+            (requestingAgain() ? 'auth.workingCode.requestingShort' : 'auth.workingCode.again')
+              | transloco
+          }}</span>
+        </button>
+      </div>
+      <p class="working-code__note">{{ 'auth.workingCode.replaces' | transloco }}</p>
+    </div>
+
+    <button type="button" class="working-code__back" (click)="back()">
+      <nw-icon name="arrow-left" size="sm" />
+      <span>{{ 'auth.workingCode.backToSignIn' | transloco }}</span>
+    </button>
+  }
+</adm-auth-card>

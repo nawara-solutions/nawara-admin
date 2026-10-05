@@ -36,6 +36,11 @@ export class NwFormField {
   readonly hint = input<string>();
   /** Localized error message; when set, the control is marked invalid. */
   readonly error = input<string>();
+  /**
+   * The id of an error shown outside the field (for example a page banner about the value): the control is then marked
+   * invalid and described by it, without repeating the message under the field.
+   */
+  readonly errorRef = input<string>();
   /** Shows the required marker and sets `aria-required`; validation itself stays with the forms API. */
   readonly required = input(false, { transform: booleanAttribute });
 
@@ -43,11 +48,13 @@ export class NwFormField {
   protected readonly hintId = `${this.controlId}-hint`;
   protected readonly errorId = `${this.controlId}-error`;
 
-  readonly invalid = computed(() => Boolean(this.error()));
+  readonly invalid = computed(() => Boolean(this.error() || this.errorRef()));
   readonly describedBy = computed(() => {
-    const ids = [this.hint() ? this.hintId : null, this.error() ? this.errorId : null].filter(
-      Boolean,
-    );
+    const ids = [
+      this.errorRef() ?? null,
+      this.hint() ? this.hintId : null,
+      this.error() ? this.errorId : null,
+    ].filter(Boolean);
     return ids.length > 0 ? ids.join(' ') : null;
   });
 

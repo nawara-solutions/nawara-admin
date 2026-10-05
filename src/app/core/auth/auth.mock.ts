@@ -5,7 +5,15 @@ import { DEMO_COMPANY_DIRECTORY } from '../context/scope-directory.fixtures';
 import { DEMO_LATENCY_MS } from '../context/scope-directory.mock';
 import { PlatformId } from '../context/scope.model';
 import { AppError } from '../errors/app-error';
-import { DEMO_ACCOUNTS, DEMO_PASSWORD, DEMO_TOTP_CODE, DemoAccount } from './auth.fixtures';
+import {
+  DEMO_ACCOUNTS,
+  DEMO_OPERATORS,
+  DEMO_PASSWORD,
+  DEMO_TOTP_CODE,
+  DEMO_WORKING_CODE,
+  DemoAccount,
+  DemoOperator,
+} from './auth.fixtures';
 import { AuthGateway } from './auth.gateway';
 import {
   FactorProof,
@@ -15,10 +23,26 @@ import {
   PasskeyAssertion,
   PasskeyRequest,
 } from './auth.model';
+import { OperatorIdentifier } from './operator-identifier';
 import { PasskeyPromptError, WebAuthnClient } from './webauthn-client';
 
 /** How long a demo challenge stays valid. Core's real lifetime is still to verify (docs/CORE-INTEGRATION.md §9). */
 const CHALLENGE_LIFETIME_MS = 5 * 60_000;
+
+/** Core's `MAX_CODE_ATTEMPTS`: five wrong guesses kill a working code (`operator-code.service.ts`). */
+const WORKING_CODE_ATTEMPTS = 5;
+
+/** Core's one answer to every refused working code (wrong, used, replaced, locked, unknown, out of shift). */
+const CODE_INVALID: AppError = {
+  kind: 'unauthenticated',
+  code: 'operator_code_invalid',
+  status: 401,
+};
+
+const sameIdentifier = (a: OperatorIdentifier, b: OperatorIdentifier): boolean =>
+  a.kind === 'email'
+    ? b.kind === 'email' && a.email === b.email
+    : b.kind === 'phone' && a.phone === b.phone;
 
 /**
  * Mock adapter (demo builds only). Its answers follow Auth's documented outcomes; its errors use HTTP status only,
@@ -29,7 +53,9 @@ const CHALLENGE_LIFETIME_MS = 5 * 60_000;
 export class MockAuthGateway extends AuthGateway {
   private readonly latency = inject(DEMO_LATENCY_MS);
   private readonly challenges = new Map<string, { account: DemoAccount; expiresAt: number }>();
-  private signedIn: DemoAccount | null = null;
+  /** The live working code per operator (by user id): wrong guesses left. Issuing replaces; success consumes. */
+  private readonly workingCodes = new Map<string, number>();
+  private signedIn: { readonly identity: Identity; readonly grants: Grants } | null = null;
 
   login(email: string, password: string): Observable<LoginOutcome> {
     const account = DEMO_ACCOUNTS.find(
@@ -81,6 +107,32 @@ export class MockAuthGateway extends AuthGateway {
     });
   }
 
+  /** Always 204, like Core: nothing says whether the account exists or a code was sent. */
+  requestWorkingCode(identifier: OperatorIdentifier): Observable<void> {
+    const found = this.operator(identifier);
+    if (found?.scenario === 'requestLimited')
+      return this.fail({ kind: 'rate_limited', status: 429 });
+    if (found) this.workingCodes.set(found.identity.userId, WORKING_CODE_ATTEMPTS);
+    return this.answer(undefined);
+  }
+
+  verifyWorkingCode(identifier: OperatorIdentifier, code: string): Observable<void> {
+    const found = this.operator(identifier);
+    if (found?.scenario === 'verifyLimited')
+      return this.fail({ kind: 'rate_limited', status: 429 });
+    if (found?.scenario === 'verifyUnavailable')
+      return this.fail({ kind: 'unavailable', status: 503 });
+    const left = found ? this.workingCodes.get(found.identity.userId) : undefined;
+    if (!found || left === undefined || left <= 0) return this.fail(CODE_INVALID);
+    if (code !== DEMO_WORKING_CODE) {
+      this.workingCodes.set(found.identity.userId, left - 1);
+      return this.fail(CODE_INVALID);
+    }
+    this.workingCodes.delete(found.identity.userId);
+    this.signedIn = found;
+    return this.answer(undefined);
+  }
+
   me(): Observable<Identity> {
     return this.signedIn
       ? this.answer(this.signedIn.identity)
@@ -109,6 +161,10 @@ export class MockAuthGateway extends AuthGateway {
   logout(): Observable<void> {
     this.signedIn = null;
     return this.answer(undefined);
+  }
+
+  private operator(identifier: OperatorIdentifier): DemoOperator | undefined {
+    return DEMO_OPERATORS.find((candidate) => sameIdentifier(candidate.identifier, identifier));
   }
 
   private live(challenge: string) {
