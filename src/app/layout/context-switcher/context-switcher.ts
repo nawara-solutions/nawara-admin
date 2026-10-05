@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { can } from '../../core/access/capability-policy';
+import { AuthSession } from '../../core/auth/auth-session';
 import { ScopeContext, platformPath } from '../../core/context/scope-context';
 import { PlatformRef } from '../../core/context/scope.model';
 import { NwBrandMark } from '../../shared/ui/brand-mark/brand-mark';
@@ -23,14 +25,26 @@ export class ContextSwitcher {
   private readonly router = inject(Router);
   protected readonly context = inject(ScopeContext);
 
+  private readonly session = inject(AuthSession);
+
+  /** Only an owner has a Company scope; an operator's scope is their assigned Platforms. */
+  protected readonly hasCompanyScope = computed(() =>
+    can(this.session.actor(), 'company.overview.view'),
+  );
+
   protected readonly companyName = computed(() => {
     const directory = this.context.directory();
     return directory.status === 'success' ? directory.data.company.name : null;
   });
 
+  /** The switcher's title: the Company's name, "Your platforms" for an operator, else "Loading…". */
+  protected readonly titleKey = computed(() =>
+    this.session.actor()?.kind === 'operator' ? 'shell.context.assigned' : 'shell.context.loading',
+  );
+
   protected readonly platforms = computed<readonly PlatformRef[]>(() => {
-    const directory = this.context.directory();
-    return directory.status === 'success' ? directory.data.platforms : [];
+    const platforms = this.context.platforms();
+    return platforms.status === 'success' ? platforms.data : [];
   });
 
   /** The selected Platform, or `null` in company scope ("All platforms"). */

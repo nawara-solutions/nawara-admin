@@ -11,6 +11,7 @@ import {
   PasskeyRequest,
 } from '../../../core/auth/auth.model';
 import { AuthSession } from '../../../core/auth/auth-session';
+import { OperatorIdentifier } from '../../../core/auth/operator-identifier';
 import { PasskeyPromptError, WebAuthnClient } from '../../../core/auth/webauthn-client';
 import {
   APP_ENVIRONMENT,
@@ -26,12 +27,15 @@ import { AppError } from '../../../core/errors/app-error';
 import {
   AUTH_ACCEPTED_PAUSE_MS,
   AuthFlowFacade,
+  WORKING_CODE_PATH,
+  WORKING_CODE_VERIFY_PATH,
   signInProblemOf,
   verifyProblemOf,
+  workingCodeProblemOf,
 } from './auth-flow.facade';
 
 const DEMO: DemoBindings = {
-  signIn: { accounts: [], password: 'p', code: 'c' },
+  signIn: { accounts: [], password: 'p', code: 'c', operators: [], workingCode: 'w' },
   providers: {
     auth: [],
     scopeDirectory: [],
@@ -44,9 +48,9 @@ const DEMO: DemoBindings = {
 };
 const DEMO_BUILD: AppEnvironment = { production: false, demo: { load: async () => DEMO } };
 
-const OWNER: Identity = { userId: 'o', email: 'owner@x.invalid', adminTier: 'owner' };
+const OWNER: Identity = { userId: 'o', email: 'owner@x.invalid', phone: null, adminTier: 'owner' };
 const OWNER_GRANTS: Grants = { companyId: companyId('company'), platformAssignments: [] };
-const MEMBER: Identity = { userId: 'm', email: 'member@x.invalid', adminTier: null };
+const MEMBER: Identity = { userId: 'm', email: 'member@x.invalid', phone: null, adminTier: null };
 const NO_GRANTS: Grants = { companyId: null, platformAssignments: [] };
 
 const fail = <T>(error: AppError): Observable<T> => throwError(() => error);
@@ -61,6 +65,10 @@ class FakeGateway extends AuthGateway {
   identity: Identity = OWNER;
   grantsAnswer: Grants = OWNER_GRANTS;
   readonly proofs: { challenge: string; proof: FactorProof }[] = [];
+  requestCodeAnswer: Observable<void> = of(undefined);
+  verifyCodeAnswer: Observable<void> = of(undefined);
+  readonly codeRequests: OperatorIdentifier[] = [];
+  readonly codeVerifications: { identifier: OperatorIdentifier; code: string }[] = [];
   logouts = 0;
   platformAllowed = true;
 
@@ -73,6 +81,14 @@ class FakeGateway extends AuthGateway {
   }
   passkeyRequest(): Observable<PasskeyRequest> {
     return of({ publicKey: { challenge: new Uint8Array(1) } });
+  }
+  requestWorkingCode(identifier: OperatorIdentifier): Observable<void> {
+    this.codeRequests.push(identifier);
+    return this.requestCodeAnswer;
+  }
+  verifyWorkingCode(identifier: OperatorIdentifier, code: string): Observable<void> {
+    this.codeVerifications.push({ identifier, code });
+    return this.verifyCodeAnswer;
   }
   me(): Observable<Identity> {
     return of(this.identity);
@@ -215,7 +231,12 @@ describe('AuthFlowFacade', () => {
       const ctx = setUp();
       if (returnUrl !== null) ctx.flow.setReturnUrl(returnUrl);
       ctx.gateway.loginAnswer = of({ kind: 'session' });
-      ctx.gateway.identity = { userId: 'p', email: 'op@x.invalid', adminTier: 'operator' };
+      ctx.gateway.identity = {
+        userId: 'p',
+        email: 'op@x.invalid',
+        phone: null,
+        adminTier: 'operator',
+      };
       ctx.gateway.grantsAnswer = {
         companyId: null,
         platformAssignments: assignments.map(platformId),
@@ -294,7 +315,7 @@ describe('AuthFlowFacade', () => {
     gateway.grantsAnswer = NO_GRANTS;
     await flow.signIn('member@x.invalid', 'secret');
     expect(session.actor()).toBeNull();
-    expect(flow.noAccessEmail()).toBe('member@x.invalid');
+    expect(flow.noAccessContact()).toBe('member@x.invalid');
     expect(navigations.at(-1)).toBe('/login/no-access');
   });
 
@@ -341,5 +362,209 @@ describe('auth error mapping (HTTP-status fallback until Core codes are verified
     expect(verifyProblemOf({ kind: 'not_found', status: 404 })).toBe('expired');
     expect(verifyProblemOf({ kind: 'rate_limited', status: 429 })).toBe('rateLimited');
     expect(verifyProblemOf({ kind: 'unavailable', status: 503 })).toBe('unavailable');
+  });
+
+  describe('working code (operators)', () => {
+    const SCHOOL = platformId('school');
+    const DRIVE = platformId('drive');
+    const EMAIL: OperatorIdentifier = { kind: 'email', email: 'operator@x.invalid' };
+    const PHONE: OperatorIdentifier = { kind: 'phone', phone: '+99900000001' };
+    const operator = (identity: Partial<Identity> = {}): Identity => ({
+      userId: 'op',
+      email: 'operator@x.invalid',
+      phone: null,
+      adminTier: 'operator',
+      ...identity,
+    });
+
+    async function requested(identifier: OperatorIdentifier = EMAIL) {
+      const setup = setUp();
+      await setup.flow.requestWorkingCode('typed text', identifier);
+      return setup;
+    }
+
+    it('requests a code, then opens the verify page with a neutral notice and no session', async () => {
+      const { flow, gateway, session, navigations } = await requested();
+      expect(gateway.codeRequests).toEqual([EMAIL]);
+      expect(flow.workingCodeIdentifier()).toEqual(EMAIL);
+      expect(flow.workingCodeNotice()).toBe('requested');
+      expect(flow.identifierText()).toBe('typed text');
+      expect(session.actor()).toBeNull();
+      expect(navigations).toEqual([WORKING_CODE_VERIFY_PATH]);
+    });
+
+    it('keeps the requested page through the working-code pages', async () => {
+      const { flow, navigations } = setUp();
+      flow.setReturnUrl('/platforms/school');
+      await flow.requestWorkingCode('x', EMAIL);
+      expect(navigations).toEqual([`${WORKING_CODE_VERIFY_PATH}?returnUrl=%2Fplatforms%2Fschool`]);
+    });
+
+    it('never sends a second request while one is pending', async () => {
+      const { flow, gateway } = setUp();
+      gateway.requestCodeAnswer = new Observable<void>(() => undefined);
+      void flow.requestWorkingCode('x', EMAIL);
+      void flow.requestWorkingCode('x', EMAIL);
+      await flow.requestWorkingCodeAgain();
+      expect(gateway.codeRequests).toEqual([EMAIL]);
+      expect(flow.busy()).toBe('requestCode');
+    });
+
+    it.each([
+      [{ kind: 'rate_limited', status: 429 } as AppError, 'rateLimited'],
+      [{ kind: 'validation', messages: [], status: 400 } as AppError, 'invalid'],
+      [{ kind: 'unavailable', status: 503 } as AppError, 'unavailable'],
+      [{ kind: 'network', status: 0 } as AppError, 'unavailable'],
+    ])('stays on the request page after %o: %s', async (error, problem) => {
+      const { flow, gateway, navigations } = setUp();
+      gateway.requestCodeAnswer = fail(error);
+      await flow.requestWorkingCode('x', EMAIL);
+      expect(flow.codeRequestProblem()).toBe(problem);
+      expect(flow.workingCodeIdentifier()).toBeNull();
+      expect(flow.busy()).toBeNull();
+      expect(navigations).toEqual([]);
+    });
+
+    it('sends the code as typed, a string with its leading zero', async () => {
+      const { flow, gateway } = await requested();
+      gateway.identity = operator();
+      gateway.grantsAnswer = { companyId: null, platformAssignments: [SCHOOL] };
+      await flow.verifyWorkingCode('042917');
+      expect(gateway.codeVerifications).toEqual([{ identifier: EMAIL, code: '042917' }]);
+    });
+
+    it('shows one generic state for every refused code, keeping the identifier', async () => {
+      const { flow, gateway, session, navigations } = await requested();
+      for (const error of [
+        { kind: 'unauthenticated', code: 'operator_code_invalid', status: 401 },
+        { kind: 'unauthenticated', status: 401 },
+        { kind: 'validation', messages: [], status: 400 },
+      ] as AppError[]) {
+        gateway.verifyCodeAnswer = fail(error);
+        await flow.verifyWorkingCode('000000');
+        expect(flow.workingCodeProblem()).toBe('invalidCode');
+        expect(flow.workingCodeNotice()).toBeNull();
+      }
+      expect(flow.workingCodeIdentifier()).toEqual(EMAIL);
+      expect(session.actor()).toBeNull();
+      expect(navigations).toEqual([WORKING_CODE_VERIFY_PATH]);
+    });
+
+    it('maps verification errors by kind: generic invalid, rate limited, unavailable', () => {
+      expect(workingCodeProblemOf({ kind: 'forbidden', status: 403 })).toBe('invalidCode');
+      expect(workingCodeProblemOf({ kind: 'rate_limited', status: 429 })).toBe('rateLimited');
+      expect(workingCodeProblemOf({ kind: 'unavailable', status: 503 })).toBe('unavailable');
+      expect(workingCodeProblemOf({ kind: 'unexpected', status: 500 })).toBe('unavailable');
+    });
+
+    it('enters the only assigned Platform after Core identity and grants, never before', async () => {
+      const { flow, gateway, session, navigations } = await requested();
+      gateway.identity = operator();
+      gateway.grantsAnswer = { companyId: null, platformAssignments: [SCHOOL] };
+      await flow.verifyWorkingCode('042917');
+      expect(session.actor()).toEqual({
+        kind: 'operator',
+        userId: 'op',
+        email: 'operator@x.invalid',
+        platformAssignments: [SCHOOL],
+      });
+      expect(navigations.at(-1)).toBe('/platforms/school');
+      expect(flow.workingCodeIdentifier()).toBeNull();
+    });
+
+    it('offers the platform choice to an operator with several Platforms', async () => {
+      const { flow, gateway, navigations } = await requested();
+      gateway.identity = operator();
+      gateway.grantsAnswer = { companyId: null, platformAssignments: [SCHOOL, DRIVE] };
+      await flow.verifyWorkingCode('042917');
+      expect(navigations.at(-1)).toBe('/login/platform');
+    });
+
+    it('signs in a phone-only operator (no email) and names them by phone', async () => {
+      const { flow, gateway, session } = await requested(PHONE);
+      gateway.identity = operator({ email: null, phone: '+99900000001' });
+      gateway.grantsAnswer = { companyId: null, platformAssignments: [DRIVE] };
+      await flow.verifyWorkingCode('042917');
+      expect(gateway.codeVerifications[0]?.identifier).toEqual(PHONE);
+      expect(session.actor()).toMatchObject({ email: null, phone: '+99900000001' });
+    });
+
+    it('lands an operator without assignments on "no access", named by their contact', async () => {
+      const { flow, gateway, session, navigations } = await requested(PHONE);
+      gateway.identity = operator({ email: null, phone: '+99900000001' });
+      gateway.grantsAnswer = NO_GRANTS;
+      await flow.verifyWorkingCode('042917');
+      expect(session.actor()).toBeNull();
+      expect(flow.noAccessContact()).toBe('+99900000001');
+      expect(navigations.at(-1)).toBe('/login/no-access');
+    });
+
+    it('lets Core identity decide, whatever the method: an owner identity lands as an owner', async () => {
+      const { flow, gateway, session, navigations } = await requested();
+      gateway.identity = OWNER;
+      gateway.grantsAnswer = OWNER_GRANTS;
+      await flow.verifyWorkingCode('042917');
+      expect(session.actor()?.kind).toBe('owner');
+      expect(navigations.at(-1)).toBe('/overview');
+    });
+
+    it.each([
+      ['/overview', [SCHOOL], true, '/platforms/school'],
+      ['/platforms', [SCHOOL, DRIVE], true, '/login/platform'],
+      ['/platforms/drive', [SCHOOL], true, '/platforms/school'],
+      ['/platforms/drive', [SCHOOL, DRIVE], false, '/login/platform'],
+      ['/platforms/drive', [SCHOOL, DRIVE], true, '/platforms/drive'],
+    ])(
+      'returns an operator to %s only when assigned and allowed by Core',
+      async (returnUrl, assignments, allowed, expected) => {
+        const { flow, gateway, navigations } = setUp();
+        flow.setReturnUrl(returnUrl);
+        await flow.requestWorkingCode('x', EMAIL);
+        gateway.identity = operator();
+        gateway.grantsAnswer = { companyId: null, platformAssignments: assignments };
+        gateway.platformAllowed = allowed;
+        await flow.verifyWorkingCode('042917');
+        expect(navigations.at(-1)).toBe(expected);
+      },
+    );
+
+    it('requests another code for the same identifier, with a neutral notice', async () => {
+      const { flow, gateway } = await requested();
+      gateway.verifyCodeAnswer = fail({ kind: 'unauthenticated', status: 401 });
+      await flow.verifyWorkingCode('111111');
+      await flow.requestWorkingCodeAgain();
+      expect(gateway.codeRequests).toEqual([EMAIL, EMAIL]);
+      expect(flow.workingCodeProblem()).toBeNull();
+      expect(flow.workingCodeNotice()).toBe('requestedAgain');
+    });
+
+    it('shows a rate limit on requesting again, and keeps the page usable', async () => {
+      const { flow, gateway } = await requested();
+      gateway.requestCodeAnswer = fail({ kind: 'rate_limited', status: 429 });
+      await flow.requestWorkingCodeAgain();
+      expect(flow.workingCodeProblem()).toBe('rateLimited');
+      expect(flow.busy()).toBeNull();
+      gateway.identity = operator();
+      gateway.grantsAnswer = { companyId: null, platformAssignments: [SCHOOL] };
+      await flow.verifyWorkingCode('042917');
+      expect(flow.workingCodeProblem()).toBeNull();
+    });
+
+    it('goes back to change the identifier, keeping what was typed', async () => {
+      const { flow, navigations } = await requested();
+      await flow.changeIdentifier();
+      expect(flow.workingCodeIdentifier()).toBeNull();
+      expect(flow.identifierText()).toBe('typed text');
+      expect(navigations.at(-1)).toBe(WORKING_CODE_PATH);
+    });
+
+    it('never touches the owner second step', async () => {
+      const { flow, gateway } = await requested();
+      gateway.identity = operator();
+      gateway.grantsAnswer = { companyId: null, platformAssignments: [SCHOOL] };
+      await flow.verifyWorkingCode('042917');
+      expect(gateway.proofs).toEqual([]);
+      expect(flow.methods()).toEqual([]);
+    });
   });
 });

@@ -29,7 +29,7 @@ const operator: Actor = {
   platformAssignments: [platformId('school')],
 };
 const DEMO: DemoBindings = {
-  signIn: { accounts: [], password: 'p', code: 'c' },
+  signIn: { accounts: [], password: 'p', code: 'c', operators: [], workingCode: 'w' },
   providers: {
     auth: [],
     scopeDirectory: [],

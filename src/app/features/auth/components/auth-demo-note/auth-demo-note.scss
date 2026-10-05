@@ -1,6 +1,7 @@
 // Demo builds only: the fictional accounts a reviewer can sign in with, and what is simulated.
 :host {
   display: grid;
+  min-inline-size: 0;
   gap: var(--nw-space-2);
   inline-size: 100%;
   max-inline-size: 25rem;
@@ -14,6 +15,13 @@
 .auth-demo-note__title {
   color: var(--nw-text-label);
   font-weight: var(--nw-font-weight-semibold);
+
+  // The operators' list starts a second section.
+  &--section {
+    margin-block-start: var(--nw-space-2);
+    padding-block-start: var(--nw-space-2);
+    border-block-start: 1px dashed var(--nw-border-default);
+  }
 }
 
 .auth-demo-note__list {
@@ -29,9 +37,12 @@
   gap: 0 var(--nw-space-3);
 
   dd {
+    min-inline-size: 0;
     margin: 0;
     color: var(--nw-text-primary);
     font-family: var(--nw-font-mono);
+    // Long fictional identifiers wrap instead of widening the page on a 320 px screen.
+    overflow-wrap: anywhere;
   }
 
   .auth-demo-note__text {

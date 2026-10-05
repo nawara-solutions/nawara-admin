@@ -33,14 +33,14 @@ export class PlatformPlaceholderPage {
 
   protected readonly platform = computed<ViewState<PlatformRef>>(() => {
     const scope = this.context.scope();
-    const directory = this.context.directory();
+    const platforms = this.context.platforms();
     if (scope.kind !== 'platform') return { status: 'empty' };
-    if (directory.status !== 'success') {
-      return directory.status === 'idle' || directory.status === 'loading'
+    if (platforms.status !== 'success') {
+      return platforms.status === 'idle' || platforms.status === 'loading'
         ? { status: 'loading' }
         : { status: 'empty' };
     }
-    const known = directory.data.platforms;
+    const known = platforms.data;
     const platform = known.find((p) => p.id === scope.platformId);
     const allowed = canEnterPlatform(
       this.session.actor(),

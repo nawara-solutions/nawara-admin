@@ -49,6 +49,24 @@ export async function loadAuthRoutes(environment: AppEnvironment): Promise<Route
           loadComponent: () => import('./pages/mfa/mfa.page').then((m) => m.MfaPage),
         },
         {
+          path: 'code',
+          title: 'titles.workingCode',
+          canActivate: [guestGuard],
+          loadComponent: () =>
+            import('./pages/working-code/working-code-request.page').then(
+              (m) => m.WorkingCodeRequestPage,
+            ),
+        },
+        {
+          path: 'code/verify',
+          title: 'titles.workingCodeVerify',
+          canActivate: [guestGuard],
+          loadComponent: () =>
+            import('./pages/working-code/working-code-verify.page').then(
+              (m) => m.WorkingCodeVerifyPage,
+            ),
+        },
+        {
           path: 'no-access',
           title: 'titles.noAccess',
           loadComponent: () =>

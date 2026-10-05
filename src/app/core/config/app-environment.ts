@@ -15,6 +15,9 @@ export interface DemoSignInHint {
   readonly accounts: readonly { readonly email: string; readonly roleKey: string }[];
   readonly password: string;
   readonly code: string;
+  /** Operator scenarios (working-code sign-in): an email or phone identifier each, and the one demo working code. */
+  readonly operators: readonly { readonly identifier: string; readonly roleKey: string }[];
+  readonly workingCode: string;
 }
 
 /** What a demo build adds: the mock adapter bindings and the demo sign-in accounts (src/app/demo/demo-bindings.ts). */

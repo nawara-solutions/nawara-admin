@@ -50,6 +50,14 @@
   color: var(--nw-icon-muted);
 }
 
+// A crumb the actor cannot open (the Company, for an operator): the same quiet text, not a link.
+.breadcrumbs__text {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 1.5rem;
+  color: var(--nw-text-secondary);
+}
+
 .breadcrumbs__current {
   overflow: hidden;
   color: var(--nw-text-primary);

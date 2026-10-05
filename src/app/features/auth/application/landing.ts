@@ -11,7 +11,7 @@ export const NO_ACCESS_PATH = '/login/no-access';
 export type Landing =
   | { readonly kind: 'enter'; readonly actor: Actor; readonly url: string }
   | { readonly kind: 'choosePlatform'; readonly actor: OperatorActor }
-  | { readonly kind: 'noAccess'; readonly email: string };
+  | { readonly kind: 'noAccess'; readonly contact: string };
 
 /**
  * The default landing (A4 design; frontend proposals until reconciled with grants, docs/ROADMAP.md):
@@ -26,6 +26,8 @@ export function resolveLanding(identity: Identity, grants: Grants): Landing {
   const person = {
     userId: identity.userId,
     email: identity.email,
+    // Core's `phone: null` maps to an absent phone on the actor (Actor has one representation of "no phone").
+    ...(identity.phone !== null ? { phone: identity.phone } : {}),
     ...(identity.displayName ? { displayName: identity.displayName } : {}),
   };
 
@@ -47,7 +49,7 @@ export function resolveLanding(identity: Identity, grants: Grants): Landing {
     return { kind: 'choosePlatform', actor };
   }
 
-  return { kind: 'noAccess', email: identity.email };
+  return { kind: 'noAccess', contact: identity.email ?? identity.phone ?? identity.userId };
 }
 
 /** A requested page this actor may open: a company page, or a Platform scope still to confirm with Core. */

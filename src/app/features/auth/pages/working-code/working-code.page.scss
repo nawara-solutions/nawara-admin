@@ -1,0 +1,100 @@
+// The two working-code pages (A4-S2 design): request, then verify. Laid out inside the shared sign-in card.
+:host {
+  display: contents;
+}
+
+.working-code__form {
+  display: grid;
+  gap: var(--nw-space-4);
+}
+
+// Email, phone and code are machine values, kept left-to-right; in RTL they sit on the reading side.
+:host(:dir(rtl)) .working-code__ltr,
+:host(:dir(rtl)) .working-code__code {
+  text-align: right;
+}
+
+// One code field: monospaced, spaced digits.
+.working-code__code {
+  min-block-size: 3rem;
+  font-family: var(--nw-font-mono);
+  font-size: 1.125rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.3em;
+}
+
+.working-code__identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-2) var(--nw-space-3);
+}
+
+.working-code__identity-row {
+  flex: 1 1 14rem;
+  min-inline-size: 0;
+}
+
+.working-code__again {
+  display: grid;
+  gap: var(--nw-space-2);
+  padding-block-start: var(--nw-space-4);
+  border-block-start: 1px solid var(--nw-border-subtle);
+}
+
+.working-code__again-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nw-space-2) var(--nw-space-3);
+}
+
+.working-code__again-question {
+  color: var(--nw-text-label);
+  font-size: 0.8125rem;
+}
+
+.working-code__note {
+  color: var(--nw-text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+// Text actions of these pages, styled as the design's links.
+.working-code__link,
+.working-code__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nw-space-1);
+  min-block-size: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--nw-radius-sm);
+  background: transparent;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: var(--nw-font-weight-medium);
+  cursor: pointer;
+}
+
+.working-code__link {
+  color: var(--nw-text-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+
+  &[aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+}
+
+// "Back to sign-in": a quiet action, centred under the card's content.
+.working-code__back {
+  justify-self: center;
+  min-block-size: 2.75rem;
+  color: var(--nw-text-secondary);
+
+  &:hover {
+    color: var(--nw-text-primary);
+  }
+}

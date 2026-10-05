@@ -100,29 +100,27 @@ describe('SignInPage', () => {
     expect(alert?.getAttribute('role')).toBe(role);
   });
 
-  it('keeps the working-code and recovery entries, unavailable and saying why', async () => {
-    const { page } = await render();
-    const entries = [
-      [
-        page.querySelector('.sign-in__working-code'),
-        en.auth.signIn.workingCode,
-        en.auth.signIn.workingCodeUnavailable,
-      ],
-      [
-        page.querySelector('.sign-in__link'),
-        en.auth.signIn.recover,
-        en.auth.signIn.recoverUnavailable,
-      ],
-    ] as const;
-    for (const [button, label, note] of entries) {
-      expect(button?.tagName).toBe('BUTTON');
-      expect(text(button)).toBe(label);
-      expect(button?.getAttribute('aria-disabled')).toBe('true');
-      expect(text(page.querySelector(`#${button?.getAttribute('aria-describedby')}`))).toBe(note);
-    }
+  it('links "Sign in with a working code" to its own page, keeping the requested page', async () => {
+    const { page } = await render({ returnUrl: '/platforms' });
+    const link = page.querySelector<HTMLAnchorElement>('a.sign-in__working-code');
+    expect(text(link)).toBe(en.auth.signIn.workingCode);
+    expect(link?.getAttribute('href')).toBe('/login/code?returnUrl=%2Fplatforms');
+    expect(link?.hasAttribute('aria-disabled')).toBe(false);
+    expect(link?.closest('form')).toBeNull();
   });
 
-  it('does nothing when an unavailable entry is activated, and keeps it reachable by keyboard', async () => {
+  it('keeps the recovery entry unavailable, saying why in a tooltip', async () => {
+    const { page } = await render();
+    const button = page.querySelector<HTMLButtonElement>('.sign-in__link');
+    expect(button?.tagName).toBe('BUTTON');
+    expect(text(button)).toBe(en.auth.signIn.recover);
+    expect(button?.getAttribute('aria-disabled')).toBe('true');
+    const note = page.querySelector(`#${button?.getAttribute('aria-describedby')}`);
+    expect(note?.getAttribute('role')).toBe('tooltip');
+    expect(text(note)).toBe(en.auth.signIn.recoverUnavailable);
+  });
+
+  it('does nothing when the unavailable recovery entry is activated, and keeps it reachable by keyboard', async () => {
     const { fixture, page, navigations, gateway } = await render();
     let logins = 0;
     const login = gateway.login.bind(gateway);
@@ -130,20 +128,15 @@ describe('SignInPage', () => {
       logins++;
       return login();
     };
-    for (const selector of ['.sign-in__working-code', '.sign-in__link']) {
-      const button = page.querySelector<HTMLButtonElement>(selector);
-      expect(button?.type).toBe('button'); // never submits the sign-in form
-      expect(button?.closest('form')).toBeNull();
-      expect(button?.disabled).toBe(false); // focusable, announced as unavailable
-      expect(button?.hasAttribute('href')).toBe(false);
-      const note = page.querySelector(`#${button?.getAttribute('aria-describedby')}`);
-      expect(note?.getAttribute('role')).toBe('tooltip');
-      button?.focus();
-      expect(document.activeElement).toBe(button);
-      button?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
-      button?.click(); // what Enter and Space do on a native button
-      await settle(fixture);
-    }
+    const button = page.querySelector<HTMLButtonElement>('.sign-in__link');
+    expect(button?.type).toBe('button'); // never submits the sign-in form
+    expect(button?.closest('form')).toBeNull();
+    expect(button?.disabled).toBe(false); // focusable, announced as unavailable
+    button?.focus();
+    expect(document.activeElement).toBe(button);
+    button?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    button?.click(); // what Enter and Space do on a native button
+    await settle(fixture);
     expect(navigations).toEqual([]);
     expect(logins).toBe(0);
     expect(page.querySelector('nw-inline-alert')).toBeNull();

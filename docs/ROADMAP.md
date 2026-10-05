@@ -14,7 +14,7 @@ A1  Workspace & tooling                               ✅ COMPLETE (owner review
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
 A3  Application shell & infrastructure                🟡 bounded slice implemented (A3-S1 Company Overview), rest ⏳ ┘
     ── Frontend-kit review FK-1 ──
-A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); rest ⏳
+A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
 A6  Authorization-aware UI                   🟢 facts ⏳
 A7  Identity & access administration         🟢       ⏳
@@ -275,6 +275,35 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## A4-S2: operator working-code sign-in, demo adapter (owner-authorized 2026-10-04; approved 2026-10-05)
+
+**Status (owner review, 2026-10-05): complete as a development-only mock-prototype slice.** Not production authentication:
+real integration (HTTP adapter) and the dependencies below remain open. Design: the A4-S2 canvas
+(local copy and screenshots under `screenshot/a4-s2-canvas-2026-10-04/`, not in git). Core contract: inventoried read-only
+from `auth-service` (`operator.controller.ts`, `operator-code.service.ts`); no Core change, no HTTP adapter.
+
+- `/login/code` (request) and `/login/code/verify` (verify); the sign-in page's "Sign in with a working code" is now a
+  link (the requested page is kept). Recovery stays unavailable with its tooltip. Separate from the owner's TOTP/passkey.
+- Identifier: email or phone, checked in the browser by Core's own normalization (`core/auth/operator-identifier.ts`).
+  Neutral acknowledgement after the 204; one generic `operator_code_invalid` state; no expiry timer, no resend cooldown;
+  the code is a string (leading zeroes kept); no autofocus; rate-limited fields stay editable; one pending request at a
+  time.
+- After a code is accepted, the existing access check (`/auth/me` + `/auth/grants`), landing, platform choice and
+  return-URL rules decide; the method decides nothing. `Identity`/`Actor` email is nullable with an optional phone
+  (phone-only operators); the shell names them by phone.
+- Operator scope in the shell: `ScopeContext.platforms` (assigned Platforms for an operator); an actor-aware home
+  (`core/access/home-path.ts`: one Platform → it, several → the platform choice, none → access denied, never the owner
+  overview); no Company option, overview link or "Company" crumb for an operator ("Your platforms").
+- Identity model: `Identity` mirrors Core's `/auth/me` (`email` and `phone` always present, each nullable); `Actor` keeps
+  `email: string | null` and has `phone` only when Core has one. Authentication can succeed while Admin still refuses
+  workspace entry (no usable access → the no-access page, no workspace session).
+- Fictional scenarios (demo builds only, listed on the sign-in pages): one platform, two platforms, phone only (`+999`),
+  no assignment, request rate-limited, verify rate-limited, service unavailable. Working code `042917`.
+
+Open (unchanged by this slice): Notification delivery in production (unverified), platform display names for real
+operators (CF-02), first-time operator contact confirmation, code-message locale, browser reachability of
+`/auth/admin/login/operator/*`, the session/refresh strategy (D-A4). Production sign-in stays unavailable.
+
 ## A4-S1: sign-in and owner MFA, demo adapter (owner-authorized 2026-10-02; alignment corrections 2026-10-02)
 
 **Status (owner review, 2026-10-02): reviewed mock-prototype slice.** The alignment corrections were accepted. A4-S1 is a
@@ -331,7 +360,7 @@ not built (concepts the owner has not reviewed).
 | `enrollment_required` / `recovery_required` stops | yes (demo accounts) | facade + page specs |
 | Validation, failed, unavailable/Try again, reason banners | yes | page specs; browser (validation, failed) |
 | Expired challenge, rate limited | no demo trigger | facade + page specs |
-| Operator single-Platform landing; operator return-URL rules | **no** (operators sign in with a working code, not built) | landing + facade specs only |
+| Operator single-Platform landing; operator return-URL rules | **yes, in A4-S2** (working-code mock) | landing + facade specs; A4-S2 browser journey |
 | Operator platform choice | **no** | page spec with an operator session set directly, and a guard spec; never reached through sign-in |
 
 The complete operator journey is **not** validated.

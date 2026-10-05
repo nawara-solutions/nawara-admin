@@ -1,6 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { actorLabel } from '../../../core/auth/actor';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { PlatformRef } from '../../../core/context/scope.model';
 import { ADAPTER_UNAVAILABLE } from '../../../core/errors/app-error';
@@ -74,7 +75,7 @@ export class CompanyOverviewPage {
 
   protected readonly ownerName = computed(() => {
     const actor = this.session.actor();
-    return actor ? (actor.displayName ?? actor.email) : null;
+    return actor ? actorLabel(actor) : null;
   });
 
   protected readonly operationalCount = (summary: ServiceHealthSummary): number =>

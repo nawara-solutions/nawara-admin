@@ -170,7 +170,9 @@
     "verify": "Verify your sign-in",
     "noAccess": "Administrative access unavailable",
     "platformChoice": "Choose a platform",
-    "settingsAppearance": "Appearance"
+    "settingsAppearance": "Appearance",
+    "workingCode": "Sign in with a working code",
+    "workingCodeVerify": "Enter your working code"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -192,7 +194,8 @@
       "allPlatforms": "All platforms",
       "platforms": "Platforms",
       "current": "current",
-      "loading": "Loading…"
+      "loading": "Loading…",
+      "assigned": "Your platforms"
     },
     "role": {
       "owner": "Company owner",
@@ -453,7 +456,6 @@
       },
       "or": "or",
       "workingCode": "Sign in with a working code",
-      "workingCodeUnavailable": "Working-code sign-in is not available in this prototype. Nawara Core supports it; its screens come in a later slice.",
       "recover": "Recover owner access",
       "recoverUnavailable": "Owner recovery is not available in this prototype. Nawara Core supports it; its screens come in a later slice."
     },
@@ -527,7 +529,47 @@
       "enrollment": "Owner, enrollment required",
       "recovery": "Owner, recovery required",
       "passkey": "Passkey",
-      "passkeySimulated": "Simulated: a browser OK / Cancel dialog, not a passkey prompt and no WebAuthn check"
+      "passkeySimulated": "Simulated: a browser OK / Cancel dialog, not a passkey prompt and no WebAuthn check",
+      "operators": "Operators (working code)",
+      "workingCode": "Working code",
+      "operatorSingle": "Operator, one platform",
+      "operatorMulti": "Operator, two platforms",
+      "operatorPhone": "Operator, phone only (fictional +999 number)",
+      "operatorUnassigned": "Operator, no platform assigned",
+      "operatorRequestLimited": "Simulates too many requests",
+      "operatorVerifyLimited": "Simulates too many attempts",
+      "operatorUnavailable": "Simulates an unavailable service"
+    },
+    "workingCode": {
+      "requestTitle": "Sign in with a working code",
+      "requestSubtitle": "Enter your email address or phone number to request a working code.",
+      "identifier": "Email address or phone number",
+      "identifierHint": "A phone number has 8 to 15 digits and may start with +. Spaces, brackets and dashes are fine.",
+      "identifierRequired": "Enter your email address or phone number.",
+      "identifierInvalid": "Enter a valid email address, or a phone number of 8 to 15 digits (spaces, brackets and dashes are fine).",
+      "request": "Request code",
+      "requesting": "Requesting a code…",
+      "requestRateLimited": "Too many requests. Wait a while, then try again.",
+      "backToSignIn": "Back to sign-in",
+      "verifyTitle": "Enter your working code",
+      "verifySubtitle": "Enter the 6-digit working code.",
+      "requested": "If this account is eligible to sign in, a code will be sent to its registered contact.",
+      "requestedAgain": "If this account is eligible to sign in, a new code will be sent to its registered contact. The previous code no longer works.",
+      "requestingAgain": "Requesting a new code…",
+      "requestingShort": "Requesting…",
+      "requestedFor": "Code requested for",
+      "change": "Change",
+      "codeLabel": "Working code",
+      "codeHint": "6 digits",
+      "codeRequired": "Enter the working code.",
+      "codeFormat": "Enter the 6 digits of the working code.",
+      "verify": "Verify and sign in",
+      "verifying": "Verifying…",
+      "invalid": "We couldn’t verify this code. Check it or request a new code.",
+      "verifyRateLimited": "Too many attempts. Wait a while, then try again.",
+      "againQuestion": "Need another code?",
+      "again": "Request a new code",
+      "replaces": "Requesting a new code replaces the previous one."
     }
   },
   "settings": {

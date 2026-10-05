@@ -9,10 +9,15 @@ import { NwControl, NwFormField } from './form-field';
       <input nwControl type="email" />
     </nw-form-field>
     <nw-form-field label="Role"><select nwControl></select></nw-form-field>
+    <p id="page-error">Banner about the code</p>
+    <nw-form-field label="Code" hint="6 digits" [errorRef]="errorRef()">
+      <input nwControl class="code" />
+    </nw-form-field>
   `,
 })
 class Host {
   readonly error = signal<string | undefined>(undefined);
+  readonly errorRef = signal<string | undefined>(undefined);
 }
 
 describe('NwFormField', () => {
@@ -46,5 +51,21 @@ describe('NwFormField', () => {
     expect(root.querySelector('input')!.id).not.toBe(root.querySelector('select')!.id);
     expect(root.querySelector('select')?.classList).toContain('nw-control--select');
     expect(root.querySelectorAll('.nw-form-field__chevron').length).toBe(1);
+  });
+
+  it('marks the control invalid and described by an error shown elsewhere, without repeating it', async () => {
+    const fixture = TestBed.createComponent(Host);
+    await fixture.whenStable();
+    const root = fixture.nativeElement as HTMLElement;
+    const input = root.querySelector<HTMLInputElement>('input.code')!;
+    expect(input.getAttribute('aria-invalid')).toBeNull();
+
+    fixture.componentInstance.errorRef.set('page-error');
+    await fixture.whenStable();
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    const described = input.getAttribute('aria-describedby')!.split(' ');
+    expect(described[0]).toBe('page-error');
+    expect(described.length).toBe(2);
+    expect(input.closest('nw-form-field')?.querySelector('.nw-form-field__error')).toBeNull();
   });
 });

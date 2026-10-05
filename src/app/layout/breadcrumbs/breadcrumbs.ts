@@ -4,6 +4,7 @@ import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/rout
 import { TranslocoPipe } from '@jsverse/transloco';
 import { filter, map, startWith } from 'rxjs';
 import { can } from '../../core/access/capability-policy';
+import { homePath } from '../../core/access/home-path';
 import { AuthSession } from '../../core/auth/auth-session';
 import { ScopeContext } from '../../core/context/scope-context';
 import { NwIcon } from '../../shared/ui/icon/icon';
@@ -49,18 +50,28 @@ export class Breadcrumbs {
     { initialValue: null },
   );
 
+  private readonly companyScope = computed(() =>
+    can(this.session.actor(), 'company.overview.view'),
+  );
+
+  /** The home icon goes to the actor's home, and is named for it: never the Company overview for an operator. */
+  protected readonly home = computed(() => homePath(this.session.actor()));
+  protected readonly homeLabel = computed(() =>
+    this.companyScope() ? 'shell.breadcrumb.home' : 'shell.context.assigned',
+  );
+
   protected readonly crumbs = computed<readonly Crumb[]>(() => {
-    const company: Crumb = {
-      label: 'shell.breadcrumb.company',
-      translate: true,
-      link: '/overview',
-    };
+    // The scope crumb: the Company for an owner; for an operator, their assigned Platforms (the switcher's wording),
+    // never "Company", which would imply company-wide scope. Not a link for an operator.
+    const company: Crumb = this.companyScope()
+      ? { label: 'shell.breadcrumb.company', translate: true, link: '/overview' }
+      : { label: 'shell.context.assigned', translate: true };
     const scope = this.context.scope();
     if (scope.kind === 'platform') {
-      const directory = this.context.directory();
+      const visible = this.context.platforms();
       const name =
-        directory.status === 'success'
-          ? directory.data.platforms.find((p) => p.id === scope.platformId)?.name
+        visible.status === 'success'
+          ? visible.data.find((p) => p.id === scope.platformId)?.name
           : undefined;
       const platforms: Crumb[] = can(this.session.actor(), 'company.platforms.view')
         ? [{ label: 'shell.breadcrumb.platforms', translate: true, link: '/platforms' }]

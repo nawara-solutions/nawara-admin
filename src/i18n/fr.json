@@ -170,7 +170,9 @@
     "verify": "Vérifiez votre connexion",
     "noAccess": "Accès administratif indisponible",
     "platformChoice": "Choisissez une plateforme",
-    "settingsAppearance": "Apparence"
+    "settingsAppearance": "Apparence",
+    "workingCode": "Connexion avec un code de travail",
+    "workingCodeVerify": "Saisissez votre code de travail"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -192,7 +194,8 @@
       "allPlatforms": "Toutes les plateformes",
       "platforms": "Plateformes",
       "current": "actuel",
-      "loading": "Chargement…"
+      "loading": "Chargement…",
+      "assigned": "Vos plateformes"
     },
     "role": {
       "owner": "Propriétaire de l’entreprise",
@@ -453,7 +456,6 @@
       },
       "or": "ou",
       "workingCode": "Se connecter avec un code de travail",
-      "workingCodeUnavailable": "La connexion par code de travail n’est pas disponible dans ce prototype. Nawara Core la prend en charge ; ses écrans arrivent dans une prochaine étape.",
       "recover": "Récupérer l’accès propriétaire",
       "recoverUnavailable": "La récupération de l’accès propriétaire n’est pas disponible dans ce prototype. Nawara Core la prend en charge ; ses écrans arrivent dans une prochaine étape."
     },
@@ -527,7 +529,47 @@
       "enrollment": "Propriétaire, configuration requise",
       "recovery": "Propriétaire, récupération requise",
       "passkey": "Clé d’accès",
-      "passkeySimulated": "Simulée : une boîte de dialogue OK / Annuler du navigateur, pas une invite de clé d’accès ni une vérification WebAuthn"
+      "passkeySimulated": "Simulée : une boîte de dialogue OK / Annuler du navigateur, pas une invite de clé d’accès ni une vérification WebAuthn",
+      "operators": "Opérateurs (code de travail)",
+      "workingCode": "Code de travail",
+      "operatorSingle": "Opérateur, une plateforme",
+      "operatorMulti": "Opérateur, deux plateformes",
+      "operatorPhone": "Opérateur, téléphone uniquement (numéro fictif +999)",
+      "operatorUnassigned": "Opérateur, aucune plateforme attribuée",
+      "operatorRequestLimited": "Simule trop de demandes",
+      "operatorVerifyLimited": "Simule trop de tentatives",
+      "operatorUnavailable": "Simule un service indisponible"
+    },
+    "workingCode": {
+      "requestTitle": "Connexion avec un code de travail",
+      "requestSubtitle": "Saisissez votre adresse e-mail ou votre numéro de téléphone pour demander un code de travail.",
+      "identifier": "Adresse e-mail ou numéro de téléphone",
+      "identifierHint": "Un numéro de téléphone compte 8 à 15 chiffres et peut commencer par +. Les espaces, parenthèses et tirets sont acceptés.",
+      "identifierRequired": "Saisissez votre adresse e-mail ou votre numéro de téléphone.",
+      "identifierInvalid": "Saisissez une adresse e-mail valide, ou un numéro de téléphone de 8 à 15 chiffres (espaces, parenthèses et tirets acceptés).",
+      "request": "Demander un code",
+      "requesting": "Demande du code…",
+      "requestRateLimited": "Trop de demandes. Patientez un moment, puis réessayez.",
+      "backToSignIn": "Retour à la connexion",
+      "verifyTitle": "Saisissez votre code de travail",
+      "verifySubtitle": "Saisissez le code de travail à 6 chiffres.",
+      "requested": "Si ce compte peut se connecter, un code sera envoyé à son contact enregistré.",
+      "requestedAgain": "Si ce compte peut se connecter, un nouveau code sera envoyé à son contact enregistré. L’ancien code ne fonctionne plus.",
+      "requestingAgain": "Demande d’un nouveau code…",
+      "requestingShort": "Demande…",
+      "requestedFor": "Code demandé pour",
+      "change": "Modifier",
+      "codeLabel": "Code de travail",
+      "codeHint": "6 chiffres",
+      "codeRequired": "Saisissez le code de travail.",
+      "codeFormat": "Saisissez les 6 chiffres du code de travail.",
+      "verify": "Vérifier et se connecter",
+      "verifying": "Vérification…",
+      "invalid": "Nous n’avons pas pu vérifier ce code. Vérifiez-le ou demandez un nouveau code.",
+      "verifyRateLimited": "Trop de tentatives. Patientez un moment, puis réessayez.",
+      "againQuestion": "Besoin d’un autre code ?",
+      "again": "Demander un nouveau code",
+      "replaces": "Demander un nouveau code remplace le précédent."
     }
   },
   "settings": {
