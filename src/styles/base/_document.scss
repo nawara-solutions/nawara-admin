@@ -14,13 +14,11 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
-// Arabic: its own family first, a little more line height, never letter-spacing (§18).
-:lang(ar) {
-  --nw-font-sans: var(--nw-font-arabic);
-  --nw-letter-spacing-label: 0;
-}
-
+// Arabic: its own family first, a little more line height, never letter-spacing (§18). Set as properties, never by
+// redefining a foundation token (`--nw-font-sans`, `--nw-letter-spacing-label` belong to @nawara-solutions/design-tokens);
+// labels that use the tracking token reset it in their own `:lang(ar)` rule.
 html:lang(ar) {
+  font-family: var(--nw-font-arabic);
   line-height: 1.7;
 }
 

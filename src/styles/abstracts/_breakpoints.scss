@@ -1,22 +1,5 @@
-// The only viewport breakpoints (docs/ARCHITECTURE.md §15). Media queries cannot read CSS variables, so they live here.
-// A3 mirrors them as CDK BreakpointObserver queries for shell logic.
-
-@use 'sass:map';
-
-// tablet 600px · laptop 900px · desktop 1200px · wide 1600px (in em, so they follow the user's font size)
-$breakpoints: (
-  tablet: 37.5em,
-  laptop: 56.25em,
-  desktop: 75em,
-  wide: 100em,
-);
-
-/// Applies from the named breakpoint upwards. Below `tablet` is the narrow (default) layout.
-@mixin from($name) {
-  @if not map.has-key($breakpoints, $name) {
-    @error 'Unknown breakpoint `#{$name}`. Use one of: #{map.keys($breakpoints)}.';
-  }
-  @media (min-width: map.get($breakpoints, $name)) {
-    @content;
-  }
-}
+// The only viewport breakpoints (docs/ARCHITECTURE.md §15): tablet 600px · laptop 900px · desktop 1200px · wide 1600px,
+// in em so they follow the user's font size. They are owned by @nawara-solutions/design-tokens and forwarded unchanged
+// (`$breakpoints` and `from($name)`), so components keep `@use 'abstracts' as nw;` and `@include nw.from(tablet)`.
+// Media queries cannot read CSS variables, so they live in Sass. A3 mirrors them as CDK BreakpointObserver queries.
+@forward 'pkg:@nawara-solutions/design-tokens/breakpoints';

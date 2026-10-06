@@ -1,76 +1,12 @@
-// Theme-independent scales (docs/ARCHITECTURE.md §13, §18). Raw numbers for spacing, radius, z-index and motion live here only.
+// Admin's own theme-independent scales (docs/ARCHITECTURE.md §13, §18). The shared scales (spacing, radius, typography,
+// weights, sizes, line heights, tracking, z-index, motion with its reduced-motion values, control sizing and focus ring)
+// come from @nawara-solutions/design-tokens (loaded first by styles.scss); this file holds only Admin's additions and
+// never redefines a foundation name (`npm run check:tokens`).
 
 @mixin tokens {
-  // Spacing: 4px-based rem scale
-  --nw-space-0: 0;
-  --nw-space-1: 0.25rem;
-  --nw-space-2: 0.5rem;
-  --nw-space-3: 0.75rem;
-  --nw-space-4: 1rem;
-  --nw-space-5: 1.25rem;
-  --nw-space-6: 1.5rem;
-  --nw-space-7: 2rem;
-  --nw-space-8: 2.5rem;
-  --nw-space-9: 3rem;
-  --nw-space-10: 4rem;
-
-  // Radius: the brand favours soft, rounded shapes
-  --nw-radius-sm: 0.375rem;
-  --nw-radius-md: 0.625rem;
-  --nw-radius-lg: 1rem;
-  --nw-radius-xl: 1.5rem;
-  --nw-radius-pill: 999px;
-
-  // Typography (coral + ink theme, owner decision 2026-10-04): Readex Pro for Latin and Arabic, JetBrains Mono for
-  // codes and machine values. Readex Pro covers both scripts, so one family serves every locale.
-  --nw-font-latin: 'Readex Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --nw-font-arabic: 'Readex Pro', system-ui, sans-serif;
-  --nw-font-sans: 'Readex Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --nw-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
-
-  --nw-font-weight-regular: 400;
-  --nw-font-weight-medium: 500;
-  --nw-font-weight-semibold: 600;
-  --nw-font-weight-bold: 600; // headings and key figures: the theme's heaviest weight (Readex Pro 600)
-
-  --nw-text-size-xs: 0.75rem;
-  --nw-text-size-sm: 0.875rem;
+  // Typography: Admin-only sizes.
   --nw-text-size-nav: 0.9375rem; // shell navigation labels
-  --nw-text-size-md: 1rem;
-  --nw-text-size-lg: 1.125rem;
-  --nw-text-size-xl: 1.25rem;
-  --nw-text-size-2xl: 1.5rem;
-  --nw-text-size-3xl: 1.875rem;
-  --nw-text-size-4xl: 2.25rem;
   --nw-text-size-display: clamp(2.25rem, 1.5rem + 3vw, 3.5rem);
-
-  --nw-line-height-tight: 1.2;
-  --nw-line-height-snug: 1.35;
-  --nw-line-height-normal: 1.5;
-
-  // Latin-only tracking for small labels; reset to 0 for Arabic (base/_document.scss)
-  --nw-letter-spacing-label: 0.08em;
-
-  // Z-index (CDK overlays are configured onto this scale)
-  --nw-z-base: 0;
-  --nw-z-sticky: 100;
-  --nw-z-dropdown: 200;
-  --nw-z-overlay: 300;
-  --nw-z-modal: 400;
-  --nw-z-toast: 500;
-
-  // Motion
-  --nw-duration-fast: 120ms;
-  --nw-duration-base: 200ms;
-  --nw-duration-slow: 320ms;
-  --nw-ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --nw-ease-emphasized: cubic-bezier(0.3, 0, 0, 1.2);
-
-  // Sizing
-  --nw-control-height-sm: 2rem;
-  --nw-control-height-md: 2.5rem;
-  --nw-focus-ring-width: 2px;
-  --nw-focus-ring-offset: 2px;
 
   // Illustration masks (alpha only, not colours): the sidebar drawing fades in from its top and stays at 40% behind
   // the text column (two layers, intersected); the header-card drawing fades toward the title.
@@ -87,10 +23,4 @@
   // Layout
   --nw-shell-sidebar-width: 16rem;
   --nw-content-max: 80rem;
-
-  @media (prefers-reduced-motion: reduce) {
-    --nw-duration-fast: 1ms;
-    --nw-duration-base: 1ms;
-    --nw-duration-slow: 1ms;
-  }
 }

@@ -2,7 +2,9 @@ name: Admin CI
 
 # Validates every pull request to main and every push to main: formatting, lint, styles, translations, contrast, unit
 # tests, the production build with its budgets, and the production/demo exclusion check; then builds the production
-# image and smoke-tests it. It never deploys, never pushes an image and uses no secret.
+# image and smoke-tests it. It never deploys, never pushes an image and uses no stored secret: the private
+# @nawara-solutions/design-tokens package is installed with the job's own GITHUB_TOKEN (packages: read), which the package
+# grants nawara-admin read access to; the image build receives it as a BuildKit secret, never in a layer.
 on:
   pull_request:
     branches: [main]
@@ -21,6 +23,9 @@ jobs:
   validate:
     name: validate
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -32,10 +37,12 @@ jobs:
       - run: npm ci --no-audit --no-fund
         env:
           HUSKY: '0'
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run format:check
       - run: npm run lint
       - run: npm run lint:styles
       - run: npm run check:i18n
+      - run: npm run check:tokens
       - run: npm run check:contrast
       - run: npm test
       - run: npm run build
@@ -45,10 +52,17 @@ jobs:
   image:
     name: production image smoke test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: actions/checkout@v7
       - name: build (no push)
-        run: docker build --build-arg REVISION="${{ github.sha }}" -t nawara-admin-web:ci .
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker build --secret id=npm_token,env=NODE_AUTH_TOKEN \
+            --build-arg REVISION="${{ github.sha }}" -t nawara-admin-web:ci .
       - name: run hardened, as on the server
         run: |
           docker run -d --name admin-smoke -p 127.0.0.1:8080:8080 --read-only --tmpfs /tmp:rw,size=16m \

@@ -1,4 +1,7 @@
-// Primitive tokens (--nw-ref-*): raw colour ramps. Used ONLY by the theme files, never by components (docs/ARCHITECTURE.md §13).
+// Admin's own primitive tokens (--nw-ref-*): raw colour values. Used ONLY by the theme files, never by components
+// (docs/ARCHITECTURE.md §13). The shared ramps (coral, ink and the status hues) come from @nawara-solutions/design-tokens
+// (loaded first by styles.scss); this file holds only what Admin adds and never redefines a foundation name
+// (`npm run check:tokens`).
 // Source: the owner's "Coral + ink" theme (claude.ai design "Nawara Sign-in Coral Ink Theme" and "Nawara Admin
 // Workspace", 2026-10-04), which replaces the earlier pink / lilac palette (docs/BRAND.md).
 // Provenance of every value here:
@@ -6,59 +9,13 @@
 //   `derived`  computed for a UI need the design leaves open (noted with the reason); a proposal
 
 @mixin tokens {
-  // Coral: brand primary. 600 carries actions on light grounds, 400 on dark ones.
-  --nw-ref-coral-50: #fff1f1; // design
-  --nw-ref-coral-100: #ffe0e0; // design
-  --nw-ref-coral-200: #ffc2c3; // design
-  --nw-ref-coral-300: #ff9597; // design
+  // Coral: the gradient end the foundation ramp does not include.
   --nw-ref-coral-350: #ff7a7d; // design (gradient end)
-  --nw-ref-coral-400: #ff5c5f; // design
-  --nw-ref-coral-500: #e5383b; // design
-  --nw-ref-coral-600: #c42427; // design
-  --nw-ref-coral-700: #a01c1f; // design
-  --nw-ref-coral-800: #7e1a1d; // design
-  --nw-ref-coral-900: #5c1517; // design
-  --nw-ref-coral-950: #3d2532; // derived: coral 400 at 12% over ink 800 (dark tinted fill), made solid for contrast checks
 
-  // Ink: neutrals, from paper to the ink ground.
-  --nw-ref-ink-0: #ffffff; // design
+  // Ink: Admin's panel and sidebar grounds.
   --nw-ref-ink-25: #fdf8f6; // design (warm paper of panels and the sidebar)
-  --nw-ref-ink-50: #faf8f7; // design (paper)
-  --nw-ref-ink-100: #f3efef; // design
-  --nw-ref-ink-200: #e4dfe3; // design
-  --nw-ref-ink-300: #c9c3cc; // design
-  --nw-ref-ink-400: #9c95a3; // design
-  --nw-ref-ink-450: #8d8694; // derived: the design's field border (ink 400) is 2.9:1 on white; this is the nearest ink at 3:1 on every light surface (WCAG 1.4.11)
-  --nw-ref-ink-475: #817a88; // derived: the design's dark field border (ink 500) is under 3:1 on dark cards; nearest ink at 3:1 on every dark surface
-  --nw-ref-ink-500: #6b6372; // design
-  --nw-ref-ink-600: #4a4352; // design
-  --nw-ref-ink-700: #352f3f; // design
-  --nw-ref-ink-750: #2b2537; // design (dark hover)
-  --nw-ref-ink-800: #231e2c; // design (dark raised)
-  --nw-ref-ink-850: #1c1825; // design (dark inset)
   --nw-ref-ink-875: #1b1724; // design (dark sidebar)
-  --nw-ref-ink-900: #17131f; // design (ink ground)
   --nw-ref-ink-plum: #2a1720; // design (dark panel wash end)
-
-  // Functional status hues (design values; not brand colours).
-  --nw-ref-green-50: #eef7f1;
-  --nw-ref-green-200: #bfe3cb;
-  --nw-ref-green-300: #86d9a3;
-  --nw-ref-green-700: #15803d;
-  --nw-ref-green-850: #1f4a2e;
-  --nw-ref-green-900: #13281c;
-  --nw-ref-amber-50: #fef4e6;
-  --nw-ref-amber-200: #f5cf9c;
-  --nw-ref-amber-300: #f5b66b;
-  --nw-ref-amber-700: #b45309;
-  --nw-ref-amber-850: #6b4a2a; // derived: warning border on dark
-  --nw-ref-amber-900: #3d2826; // derived: amber 700 at 18% over ink 800, made solid
-  --nw-ref-blue-50: #edf1fc;
-  --nw-ref-blue-200: #c9d6f7; // derived: info border
-  --nw-ref-blue-300: #9db5f5;
-  --nw-ref-blue-600: #2f5bd3;
-  --nw-ref-blue-850: #3a4580; // derived: info border on dark
-  --nw-ref-blue-900: #252a4d; // derived: blue 600 at 20% over ink 800, made solid
 
   // Accent palette swatches (Settings and the Appearance popover): each preset's light primary, shown as a sample.
   --nw-ref-swatch-coral: #c42427;

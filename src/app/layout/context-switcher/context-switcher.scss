@@ -78,6 +78,7 @@
   text-transform: uppercase;
 
   &:lang(ar) {
+    letter-spacing: 0;
     text-transform: none;
   }
 }
