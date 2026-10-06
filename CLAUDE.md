@@ -44,6 +44,10 @@ A4  Authentication                    🟡 A4-S1 + A4-S2 complete as mock protot
 A5… see docs/ROADMAP.md               ⏸️
 ```
 
+**Current priorities (owner, 2026-10-06; [`docs/ROADMAP.md`](docs/ROADMAP.md#current-priorities-owner-2026-10-06)):**
+(1) shared frontend distribution and deliberate adoption, (2) Nawara Drive discovery may begin in parallel, (3) the remaining Admin
+business features are deferred until needed. Each is still a separately authorized task.
+
 **Stage discipline:** work only inside the stage the owner has authorized. When an authorized stage is complete, **STOP** and
 report. Never start the next stage on your own, even if it looks small or obvious. Update the stage table here and in
 `docs/ROADMAP.md` when the owner closes a stage.
@@ -80,8 +84,9 @@ report. Never start the next stage on your own, even if it looks small or obviou
 - **Core is the authority.** Frontend permission handling is UX. Behaviour branches on HTTP status and Core `code`, **never** on a
   Core human `message`.
 - **Security:** no tokens or secrets in browser storage, URLs or logs; no service tokens in the browser, ever.
-- **Future sharing:** `@nawara/frontend-kit` is planned, **not created**. Do not create or extract it prematurely. Classify reusable
-  work as **LOCAL / CANDIDATE / SHARED** (`docs/ARCHITECTURE.md` §31, register in `docs/ROADMAP.md`).
+- **Sharing:** shared frontend code lives in `nawara-frontend` (`@nawara-solutions/*`; see "Shared frontend platform" below),
+  never extracted from an Admin task. Classify reusable work as **LOCAL / CANDIDATE / SHARED** (`docs/ARCHITECTURE.md` §31,
+  register in `docs/ROADMAP.md`).
 - **Quality:** clean architecture from the beginning, **without** speculative over-engineering (no empty folder trees, no custom
   frameworks, no state library without a demonstrated problem).
 - **Dependencies:** no major dependency (UI library, state, i18n, icons, schema validation, testing frameworks) without owner
@@ -103,6 +108,29 @@ Planned Core V2 behaviour is not evidence that an API exists.
 `../ai-standard` is used through the symlinks above and is **not** modified while working on Admin, including through the
 symlinked files in `.claude/`, `.husky/`, `docs/<type>/template.md` and `CONTRIBUTING.md`. If a shared change seems necessary,
 STOP and report the proposal separately.
+
+## Shared frontend platform (nawara-frontend)
+
+`../nawara-frontend` holds the shared Nawara frontend foundation: framework-independent packages (`foundation`) and, later,
+Angular-shared packages (`angular`), published as `@nawara-solutions/*`. Its policy is
+`../nawara-frontend/docs/SHARED-CONTRIBUTION-POLICY.md`; its architecture and ADRs are in `../nawara-frontend/docs/`.
+
+- **Read-only during ordinary Admin work.** An Admin task never edits `nawara-frontend` (no files, branches, commits, PRs or
+  publication). **This is not a permanent prohibition:** after separate owner authorization, this agent may contribute to
+  `nawara-frontend` through a dedicated `nawara-frontend` task and branch, validated there, with a separately authorized PR that
+  the owner merges; Admin then adopts the result in its own branch and PR.
+- **Reuse first.** Before building a generic web frontend capability here, check `nawara-frontend` for a compatible one and reuse
+  it. Admin business and domain UI (shell, navigation, layouts, workflows, permissions presentation, scope, auth flows) stays here.
+- **A missing generic capability is its own contribution.** Stop and propose a separate `nawara-frontend` task; it merges there
+  first, and Admin adopts it afterwards in its own branch, validation and PR. No change spans repositories.
+- **Admin owns its theme and visual identity** (coral + ink, accent palettes, artwork, shadows, Admin-shell tokens). Never
+  repurpose status/danger tokens as branding. Once Admin consumes `@nawara-solutions/design-tokens`, its tokens must not
+  redefine a name the package exports (see its `manifest.json`), except through a supported customization point (today: the
+  `accentControlled` tokens under `[data-accent='<name>']`).
+- **Token adoption is pending and separately authorized.** Today `@nawara-solutions/design-tokens` 0.1.0 is private and
+  unpublished (no registry or release yet; ADR-0002 recommends GitHub Packages), and Admin still defines every token itself
+  (`src/styles/tokens/`); the foundation's 147 names and values currently match Admin's. Adoption, publication/distribution and any token namespace change are separate tasks
+  (`docs/ARCHITECTURE.md` §31, `docs/ROADMAP.md`).
 
 ## Commands and validation
 

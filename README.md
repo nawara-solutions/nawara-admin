@@ -50,10 +50,10 @@ npm run validate       # format:check → lint → lint:styles → check:i18n �
 
 | Document | Answers |
 |---|---|
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | The frontend engineering constitution: layers, Angular baseline, state, routing, design system, theming, i18n/RTL, accessibility, security, testing, frontend-kit model |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | The frontend engineering constitution: layers, Angular baseline, state, routing, design system, theming, i18n/RTL, accessibility, security, testing, shared-frontend (`nawara-frontend`) model |
 | [`docs/BRAND.md`](docs/BRAND.md) | What the brand board states, what was sampled, what is proposed; logo and icon asset inventory |
 | [`docs/CORE-INTEGRATION.md`](docs/CORE-INTEGRATION.md) | What Core actually offers today (V1), what is planned (V2), the 🟢/🟡/🔴 contract matrix, and Core follow-ups |
-| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Admin milestones, M1 definition, decisions required before each stage, frontend-kit review points |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Admin milestones, M1 definition, decisions required before each stage, current priorities, shared-frontend review points |
 
 ## Non-negotiables (summary)
 

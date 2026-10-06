@@ -13,7 +13,7 @@ A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
 A3  Application shell & infrastructure                🟡 bounded slice implemented (A3-S1 Company Overview), rest ⏳ ┘
-    ── Frontend-kit review FK-1 ──
+    ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
 A6  Authorization-aware UI                   🟢 facts ⏳
@@ -24,10 +24,20 @@ A10 Release administration                   🟢/🔴    ⏳
 A11 Licenses / Billing / Payments            🟡       ⏳
 A12 Files / Notifications                    🟡       ⏳
 A13 Services / Health / Monitoring           🟡/🔴    ⏳
-    ── Frontend-kit review FK-2 (or earlier, on trigger) ──
+    ── Shared-frontend review FK-2 (or earlier, on trigger) ──
 A14 Integration hardening (mock → HTTP as Core V2 lands; production session model; CSP; origins)  ⏳
 A15 Admin release certification                       ⏳
 ```
+
+### Current priorities (owner, 2026-10-06)
+
+1. **Shared frontend distribution and deliberate adoption.** Make `nawara-frontend` packages installable reproducibly
+   (publication, starting with `@nawara-solutions/design-tokens`), then adopt them in Admin on purpose, each step a separately
+   authorized task (see [Shared-frontend review points](#shared-frontend-review-points)).
+2. **Nawara Drive discovery can begin in parallel.** It is a separate product and repository; Drive is also the likely second
+   consumer that triggers FK-2.
+3. **Remaining Admin business features (A5–A13) are deferred until needed.** The stage order below still applies when they
+   resume; nothing here starts a stage.
 
 ### Why this order differs from the initial sketch
 
@@ -70,7 +80,7 @@ session; real flows are A4) · organization-context **boundary** (route shape an
 navigation **boundary** (capability-tagged navigation items) · lint, format, unit, E2E and accessibility tooling.
 
 **Does not contain:** real Core calls beyond configuration · feature screens · a BFF · a state library · an observability vendor ·
-charts · the frontend-kit package.
+charts · adoption of `nawara-frontend` packages (separately authorized; see FK review points).
 
 ## A1 decisions (resolved by the owner, 2026-10-01)
 
@@ -471,14 +481,16 @@ working-code sign-in, enrollment and recovery screens, step-up, a sign-out entry
 ## Safe to postpone
 
 State library · observability vendor · OpenAPI codegen · visual regression · virtual scrolling · charts library · Tauri/desktop
-packaging · offline support · product accent tokens · W3C design-token build pipeline · frontend-kit repository.
+packaging · offline support · product accent tokens · W3C design-token build pipeline (owned by `nawara-frontend` since its ADR-0003) ·
+adoption of `@nawara-solutions/design-tokens` (pending a separately authorized task).
 
 ## Not to build yet
 
 Any screen whose backend is 🔴 beyond a placeholder · permanent backend schemas for licenses, billing or monitoring · a BFF in M1 ·
-an admin "god" API layer (forbidden by ADR-0041/0050) · a component library ahead of real screens · the frontend-kit package.
+an admin "god" API layer (forbidden by ADR-0041/0050) · a component library ahead of real screens · shared code inside Admin
+tasks (a generic capability is a separate `nawara-frontend` contribution).
 
-## Frontend-kit review points
+## Shared-frontend review points
 
 ```text
 FK-1  after A3 (design foundation + shell primitives proven)
@@ -492,16 +504,27 @@ TRIGGER  a second Nawara frontend needs the same foundation
         ▼
 FK-2  extraction review: package boundaries, versioning, release process, Drive + Admin adoption plan
         │
-        └── extraction only with owner approval; creates nawara-frontend-kit (NOT CREATED)
+        └── extraction only with owner approval, as separate `nawara-frontend` tasks (its SHARED-CONTRIBUTION-POLICY);
+            Admin adopts each package afterwards in its own branch, validation and PR
 
 FK-3  before A15: confirm no Admin-specific code leaked into CANDIDATE folders
 ```
 
-### Kit register (maintained from A2)
+`nawara-frontend` exists (2026-10-05). Verified 2026-10-06 at its `main` `87bf10a` (re-checked read-only after PR #13: remote
+`main` unchanged): one package, `@nawara-solutions/design-tokens` 0.1.0, `private: true` and unpublished, consumed by no product;
+no release, registry or publish workflow exists yet; ADR-0002 recommends GitHub Packages (`npm.pkg.github.com`), and until
+publication a product can only consume a local tarball (its `docs/CONSUMPTION.md`). Its tokens and breakpoints match Admin's
+names and values; Admin's palettes conform to its `accentControlled` customization point. **Token adoption is pending:** it needs
+a reproducible install for Admin's CI and Docker build (publication, or an owner decision), a manifest-based collision check in
+Admin's validation, and the split of Admin-only tokens into an extension stylesheet. Shared shadows (DT2b) are deferred there;
+Admin keeps its own. Updates to `nawara-frontend`'s own documents (its consumption status and its Admin extraction inventory, taken
+before A4-S2) are `nawara-frontend` tasks, not Admin's.
+
+### Shared-frontend register (maintained from A2)
 
 | Item | Class | Notes |
 |---|---|---|
-| tokens, themes, typography, breakpoints | CANDIDATE (from A2) | product-independent by construction; delivered A2 |
+| tokens, themes, typography, breakpoints | SHARED equivalent exists (`@nawara-solutions/design-tokens` 0.1.0, private); Admin adoption pending | same names and values (verified 2026-10-06); Admin-only tokens, palettes, artwork and shadows stay LOCAL |
 | `nw-*` primitives | CANDIDATE (from A2) | labels injected, never owned; 5 approved + 9 pending the scope decision (D-A2-7) |
 | HTTP interceptors, `AppError`, Core error mapping | CANDIDATE (from A3) | Core contract is shared by all products |
 | i18n/direction, preference registry, theme service | CANDIDATE (from A2) | delivered early: A2 needed them for themes and RTL |
