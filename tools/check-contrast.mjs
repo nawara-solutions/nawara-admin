@@ -1,8 +1,12 @@
 // WCAG 2.2 AA contrast check for the semantic colour tokens (docs/ARCHITECTURE.md §13).
 // It checks the token pairs the primitives combine. It is necessary, not sufficient: passing here does not prove WCAG
 // conformance of a screen (text over gradients or images, real focus order, zoom and reflow need rendered checks).
-// Reads the SCSS token sources directly, so the check always tests what ships. Run: `npm run check:contrast`.
+// Reads what ships: the foundation values from the installed @nawara-solutions/design-tokens manifest (resolved per
+// theme), then Admin's own SCSS token sources (primitives, theme extensions and accent palettes) on top. Admin never
+// redefines a foundation name except the accent-controlled ones in a palette (`npm run check:tokens`).
+// Run: `npm run check:contrast`.
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 
 const TOKENS = 'src/styles/tokens';
 const THEMES = { light: `${TOKENS}/_theme-light.scss`, dark: `${TOKENS}/_theme-dark.scss` };
@@ -106,6 +110,16 @@ const declarations = (file) =>
 
 const primitives = declarations(`${TOKENS}/_primitives.scss`);
 
+// The published foundation: every token's resolved value per theme context (manifest `values.light` / `values.dark`).
+const manifest = JSON.parse(
+  readFileSync(
+    createRequire(import.meta.url).resolve('@nawara-solutions/design-tokens/manifest.json'),
+    'utf8',
+  ),
+);
+const foundation = (theme) =>
+  Object.fromEntries(manifest.tokens.map((t) => [t.name, t.values[theme]]));
+
 const resolve = (scope, name, seen = new Set()) => {
   if (seen.has(name)) throw new Error(`circular token ${name}`);
   seen.add(name);
@@ -144,10 +158,13 @@ const accents = [...accentSource.matchAll(/@mixin ([a-z]+)-(light|dark) \{([^}]*
   }),
 );
 const scopes = [
-  ...Object.entries(THEMES).map(([theme, file]) => ({ label: theme, scope: declarations(file) })),
+  ...Object.entries(THEMES).map(([theme, file]) => ({
+    label: theme,
+    scope: { ...foundation(theme), ...declarations(file) },
+  })),
   ...accents.map((a) => ({
     label: `${a.name}/${a.theme}`,
-    scope: { ...declarations(THEMES[a.theme]), ...a.overrides },
+    scope: { ...foundation(a.theme), ...declarations(THEMES[a.theme]), ...a.overrides },
   })),
 ];
 
@@ -167,5 +184,5 @@ if (failures > 0) {
   process.exit(1);
 }
 console.log(
-  `✔ contrast: ${PAIRS.length} token pairs × ${scopes.length} theme/palette combinations meet the WCAG 2.2 AA ratios`,
+  `✔ contrast: ${PAIRS.length} token pairs × ${scopes.length} theme/palette combinations meet the WCAG 2.2 AA ratios (foundation ${manifest.package}@${manifest.version} + Admin extension)`,
 );

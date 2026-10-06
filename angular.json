@@ -36,6 +36,7 @@
               "@fontsource/readex-pro/600.css",
               "@fontsource/jetbrains-mono/latin-400.css",
               "@fontsource/jetbrains-mono/latin-500.css",
+              "@nawara-solutions/design-tokens/tokens.css",
               "src/styles/styles.scss"
             ],
             "stylePreprocessorOptions": {

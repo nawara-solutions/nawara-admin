@@ -41,6 +41,10 @@
   font-size: var(--nw-text-size-xs);
   font-weight: var(--nw-font-weight-medium);
   letter-spacing: var(--nw-letter-spacing-label);
+
+  &:lang(ar) {
+    letter-spacing: 0;
+  }
 }
 
 .foundation-preview__title {

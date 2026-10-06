@@ -514,9 +514,12 @@ FK-3  before A15: confirm no Admin-specific code leaked into CANDIDATE folders
 `main` unchanged): one package, `@nawara-solutions/design-tokens` 0.1.0, `private: true` and unpublished, consumed by no product;
 no release, registry or publish workflow exists yet; ADR-0002 recommends GitHub Packages (`npm.pkg.github.com`), and until
 publication a product can only consume a local tarball (its `docs/CONSUMPTION.md`). Its tokens and breakpoints match Admin's
-names and values; Admin's palettes conform to its `accentControlled` customization point. **Token adoption is pending:** it needs
-a reproducible install for Admin's CI and Docker build (publication, or an owner decision), a manifest-based collision check in
-Admin's validation, and the split of Admin-only tokens into an extension stylesheet. Shared shadows (DT2b) are deferred there;
+names and values; Admin's palettes conform to its `accentControlled` customization point. **Adopted 2026-10-06** (0.1.0,
+released to GitHub Packages, private): exact pin; installs with `NODE_AUTH_TOKEN` (developers), the job `GITHUB_TOKEN`
+with `packages: read` (CI) and a BuildKit secret (Docker); `npm run check:tokens` (manifest-based collision check);
+`src/styles/tokens/` is now Admin's extension only. Representative visual comparison against `main`: identical computed
+tokens and pixels (8 scenarios; `screenshot/tokens-adoption-*`, not in git). Possible shared follow-up: a locale
+customization point in the foundation (Admin's Arabic font and label tracking are applied as properties meanwhile). Shared shadows (DT2b) are deferred there;
 Admin keeps its own. Updates to `nawara-frontend`'s own documents (its consumption status and its Admin extraction inventory, taken
 before A4-S2) are `nawara-frontend` tasks, not Admin's.
 
@@ -524,7 +527,7 @@ before A4-S2) are `nawara-frontend` tasks, not Admin's.
 
 | Item | Class | Notes |
 |---|---|---|
-| tokens, themes, typography, breakpoints | SHARED equivalent exists (`@nawara-solutions/design-tokens` 0.1.0, private); Admin adoption pending | same names and values (verified 2026-10-06); Admin-only tokens, palettes, artwork and shadows stay LOCAL |
+| tokens, themes, typography, breakpoints | SHARED: `@nawara-solutions/design-tokens` 0.1.0 adopted 2026-10-06 (exact pin, `check:tokens`) | same names and values (verified 2026-10-06); Admin-only tokens, palettes, artwork and shadows stay LOCAL |
 | `nw-*` primitives | CANDIDATE (from A2) | labels injected, never owned; 5 approved + 9 pending the scope decision (D-A2-7) |
 | HTTP interceptors, `AppError`, Core error mapping | CANDIDATE (from A3) | Core contract is shared by all products |
 | i18n/direction, preference registry, theme service | CANDIDATE (from A2) | delivered early: A2 needed them for themes and RTL |

@@ -747,8 +747,16 @@ process is its `docs/SHARED-CONTRIBUTION-POLICY.md`; the operating rules for Adm
 0.1.0, **private and unpublished**; no product consumes it. Its 147 tokens (44 reference, 51 scale, 52 semantic) and its
 breakpoints currently have the same names and values as Admin's, and Admin's accent palettes override exactly its 11
 `accentControlled` tokens. Distribution: no release, registry or publish workflow exists yet; ADR-0002 recommends GitHub Packages (`npm.pkg.github.com`), and until
-publication a product can only consume a local tarball (its `docs/CONSUMPTION.md`). **Admin has not adopted it:** adoption, publication/distribution and any token namespace change are
-separate, owner-authorized tasks. Admin keeps its own shadows (the shared shadows, DT2b, are deferred) and every Admin-specific token.
+publication a product can only consume a local tarball (its `docs/CONSUMPTION.md`).
+
+**Adopted (2026-10-06):** 0.1.0 was released to GitHub Packages (private), and Admin consumes `@nawara-solutions/design-tokens` **0.1.0** (pinned exactly; GitHub Packages, private, with Read access granted to `nawara-admin`'s Actions).
+`angular.json` loads its `tokens.css` before `src/styles/styles.scss`; `abstracts/_breakpoints.scss` forwards its Sass
+breakpoints (`pkg:` import, resolved by Angular's builder); `src/styles/tokens/` is Admin's extension only (Admin-only
+references, scales, semantic and shell tokens, artwork, and the accent palettes, which override exactly the 11
+`accentControlled` tokens). `npm run check:tokens` enforces this against the installed manifest; `check:contrast` reads the
+foundation values from the manifest. Arabic typography is applied as properties (`html:lang(ar)` font family, label
+tracking reset per component), never by redefining a foundation token: the package has no locale customization point. Admin keeps its own shadows (the shared shadows, DT2b, are deferred) and every
+Admin-specific token; upgrades and any token namespace change are separate, owner-authorized tasks.
 
 **Classification** (recorded in ROADMAP's register):
 

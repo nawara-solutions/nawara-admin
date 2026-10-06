@@ -127,10 +127,14 @@ Angular-shared packages (`angular`), published as `@nawara-solutions/*`. Its pol
   repurpose status/danger tokens as branding. Once Admin consumes `@nawara-solutions/design-tokens`, its tokens must not
   redefine a name the package exports (see its `manifest.json`), except through a supported customization point (today: the
   `accentControlled` tokens under `[data-accent='<name>']`).
-- **Token adoption is pending and separately authorized.** Today `@nawara-solutions/design-tokens` 0.1.0 is private and
-  unpublished (no registry or release yet; ADR-0002 recommends GitHub Packages), and Admin still defines every token itself
-  (`src/styles/tokens/`); the foundation's 147 names and values currently match Admin's. Adoption, publication/distribution and any token namespace change are separate tasks
+- **Tokens come from the foundation package.** Admin consumes `@nawara-solutions/design-tokens` **0.1.0** (pinned exactly; GitHub Packages, private, with Read access granted to `nawara-admin`'s Actions). Its `tokens.css` loads before
+  `src/styles/styles.scss` (`angular.json`), its breakpoints are forwarded by `src/styles/abstracts/_breakpoints.scss`, and
+  `src/styles/tokens/` holds only Admin's extension. `npm run check:tokens` fails on any redefinition of a foundation name
+  outside the accent palettes. Upgrading the package or changing the token namespace is a separate, authorized task
   (`docs/ARCHITECTURE.md` §31, `docs/ROADMAP.md`).
+- **Installing needs a GitHub token with `read:packages`** (the committed `.npmrc` maps the scope and references
+  `${NODE_AUTH_TOKEN}`; never commit a token): export `NODE_AUTH_TOKEN` or put it in your user-level `~/.npmrc`. CI uses the
+  job's `GITHUB_TOKEN` (`packages: read`); the Docker build takes it as the BuildKit secret `npm_token` (see `Dockerfile`).
 
 ## Commands and validation
 
@@ -146,8 +150,9 @@ Project scripts (real, from `package.json`):
 | `npm run format` / `npm run format:check` | Prettier write / check (shared-standard files and Markdown are excluded in `.prettierignore`) |
 | `npm run build` | production build (strict TypeScript + strict templates, budgets) |
 | `npm run lint:styles` | Stylelint: no `@import`, no raw colours outside `src/styles/tokens/`, BEM-shaped class names |
-| `npm run check:i18n` / `npm run check:contrast` | en/fr/ar key parity and static key references / WCAG AA ratios of the token pairs the controls use |
-| `npm run validate` | **format:check → lint → lint:styles → check:i18n → check:contrast → test → build**: run before every commit and before reporting a stage complete |
+| `npm run check:i18n` / `npm run check:contrast` | en/fr/ar key parity and static key references / WCAG AA ratios of the token pairs the controls use (foundation values from the package manifest + Admin's extension and palettes) |
+| `npm run check:tokens` | no Admin stylesheet redefines a `@nawara-solutions/design-tokens` name (except the 11 accent-controlled tokens in the palettes); the package is pinned exactly and loads first |
+| `npm run validate` | **format:check → lint → lint:styles → check:i18n → check:tokens → check:contrast → test → build → check:production**: run before every commit and before reporting a stage complete |
 
 `validate` is a repository-local npm script, not a shared-standard command. Never run `prettier --write` (or any formatter or
 fixer) on the symlinked shared files: it would edit `../ai-standard`.

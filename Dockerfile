@@ -6,15 +6,21 @@
 # The build stage runs the production build and its demo-exclusion check, so an image with mock adapters, demo accounts
 # or the simulated passkey cannot be produced (src/environments/environment.ts, tools/check-production-bundle.mjs).
 #
-#   docker build --build-arg REVISION="$(git rev-parse HEAD)" -t nawara-admin-web .
+# The private @nawara-solutions/design-tokens package is installed from GitHub Packages with a token passed as a BuildKit
+# secret: it exists only during the `npm ci` step, never as a build argument, environment variable or layer. The
+# committed .npmrc holds only the scope mapping and a ${NODE_AUTH_TOKEN} reference.
+#
+#   NODE_AUTH_TOKEN=<token with read:packages> docker build --secret id=npm_token,env=NODE_AUTH_TOKEN \
+#     --build-arg REVISION="$(git rev-parse HEAD)" -t nawara-admin-web .
 
 FROM node:24.18.0-alpine AS build
 WORKDIR /app
 # npm is pinned by package.json "packageManager".
 RUN npm install -g npm@11.16.0 >/dev/null
-COPY package.json package-lock.json ./
-# HUSKY=0: no git hooks in an image build.
-RUN HUSKY=0 npm ci --no-audit --no-fund
+COPY package.json package-lock.json .npmrc ./
+# HUSKY=0: no git hooks in an image build. The token is mounted for this step only (required: the build fails without it).
+RUN --mount=type=secret,id=npm_token,env=NODE_AUTH_TOKEN,required=true \
+    HUSKY=0 npm ci --no-audit --no-fund
 COPY . .
 ARG REVISION=unknown
 RUN npm run build && npm run check:production \

@@ -36,14 +36,18 @@ Nawara Admin is used by Nawara Solutions staff only.
 Requires **Node 24.18+** (Angular 22.2.1 supports `^22.22.3 || ^24.15.0 || >=26.0.0`) and **npm 11**. The shared Husky
 `commit-msg` hook resolves through `../ai-standard`, so clone this repository next to it (see `CLAUDE.md`).
 
+Installing needs read access to the private `@nawara-solutions/design-tokens` package on GitHub Packages: a classic
+personal access token with `read:packages`, exported as `NODE_AUTH_TOKEN` or set in your user-level `~/.npmrc`
+(`//npm.pkg.github.com/:_authToken=…`). The committed `.npmrc` only maps the scope; never commit a token.
+
 ```bash
-npm ci                 # also activates the commit-msg hook (husky)
+npm ci                 # also activates the commit-msg hook (husky); needs NODE_AUTH_TOKEN (see above)
 npm start              # dev server on http://localhost:4200
 npm test               # unit tests once (Vitest); npm run test:watch to watch
 npm run lint           # ESLint (TypeScript + templates + accessibility); npm run lint:styles for Stylelint
 npm run format         # Prettier write;  npm run format:check to verify
 npm run build          # production build into dist/
-npm run validate       # format:check → lint → lint:styles → check:i18n → check:contrast → test → build
+npm run validate       # format:check → lint → lint:styles → check:i18n → check:tokens → check:contrast → test → build → check:production
 ```
 
 ## Documentation
