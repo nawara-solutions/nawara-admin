@@ -14,7 +14,7 @@ A1  Workspace & tooling                               ✅ COMPLETE (owner review
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
 A3  Application shell & infrastructure                🟡 bounded slice implemented (A3-S1 Company Overview), rest ⏳ ┘
     ── Frontend-kit review FK-1 ──
-A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); real integration and rest ⏳
+A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
 A6  Authorization-aware UI                   🟢 facts ⏳
 A7  Identity & access administration         🟢       ⏳
@@ -275,6 +275,82 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## A4-S3: operator contact confirmation (discovery 2026-10-05; design approved and mock implemented 2026-10-06)
+
+**Status: complete as a development-only mock prototype (mock adapter, no HTTP adapter), approved by the owner 2026-10-06.
+Not production authentication: production builds keep authentication unavailable and exclude the demo fixtures.** An operator created by the owner
+must confirm their contact (email or phone) with a confirmation code before Core issues them any working code.
+
+Core contract, verified in source at `nawara-core` `origin/main` `763e1a8` (Auth, `apps/auth-service/src/operator/`). Re-checked
+2026-10-06 at `272ab8d`: `apps/auth-service/src/operator/` and `src/config/` are unchanged between the two revisions, and the
+confirm route, `confirm()` and the throttle buckets were re-read there; the line citations below hold at both:
+
+- `POST /auth/admin/operators/confirm` (public; `operator.controller.ts:47`), body `{ email | phone, code }` with the same
+  identifier rules as the working code. `204`: the contact is confirmed; an operator already confirmed also gets `204`, without the
+  code being checked (`operator-code.service.ts:176`). Every refusal (wrong, expired, killed after 5 attempts, unknown, blocked) is
+  one generic `401 operator_code_invalid` (`:184`). Rate limits: `operator_confirm_ip` (30 per 15 min) and the per-identifier
+  bucket it shares with working-code verification (10 per 15 min; `app-config.ts:377`, `:381`), not reset by a confirmation.
+  Working-code verification hits the same `operator_verify_identifier` bucket and resets it only on success
+  (`operator-code.service.ts:147`, `:163`), so confirmation attempts and working-code attempts count against one limit.
+- The confirmation code is issued **only** when the owner creates the operator (`operator-admin.service.ts:31`), lifetime
+  `OPERATOR_CONFIRMATION_TTL_SEC` (default 8 h; `app-config.ts:359`). There is **no** route to resend or reissue it (CF-16).
+  Blocking cancels it (`operator-admin.service.ts:51`); unblocking issues none.
+- A successful confirmation only records the contact as confirmed (`operator-code.service.ts:169`–`184`): **no working code is
+  sent**; the operator then requests one (A4-S2). Core's ADR-0015, SDD and ADD describe an automatic first code and an
+  `admin.operator_contact_confirmed` event that the source does not implement (CF-17). Delivery is by Notification
+  (`identity.operator_confirmation_code`); production delivery and the message language are unverified.
+
+Design proposal (2026-10-06): the "A4-S3 Operator Contact Confirmation" design canvas,
+https://claude.ai/artifact/SLEDfjwHBoqNsmz4Rjk9a1 (private until shared): 10 screen frames and the shared component, built on
+the accepted A4-S2 sign-in component. Local copy and screenshots: `screenshot/a4-s3-canvas-2026-10-06/` (not in git). The entry
+point is a "First time signing in? Confirm your contact" link on the working-code request page. French copy is on the canvas, and
+two French frames (desktop and 320 px) check the wrapping of the longest copy.
+
+Design rules for the proposal (owner direction, 2026-10-06):
+
+- Separate from working-code sign-in and from owner MFA; it never authenticates and opens no session.
+- Fields: email address or phone number, and the 6-digit confirmation code (a string; leading zeroes kept).
+- States: idle, pending (one request at a time), generic failure, rate limited (field stays editable, no countdown), unavailable
+  (Try again), success. Success says the contact is confirmed and leads to **requesting a working code**; it never claims a code
+  was sent.
+- No resend, no countdown, no claim of automatic delivery. Help copy: "If your confirmation code no longer works, contact your
+  company owner for assistance." It names no resend screen and implies no owner reissue capability (none exists: CF-16).
+- Accepted sign-in layout, palettes, light/dark, EN/FR/AR, RTL and responsive behaviour, as in A4-S2.
+
+Design approval (owner, 2026-10-06): the corrected local review copy `screenshot/a4-s3-review-20261006-114027/` (12 frames, not in
+git), with one adjustment: on the sign-in brand panel the "nawara" word is `2rem` (the "SOLUTIONS" line keeps the panel size).
+
+Implementation (2026-10-06, development-only mock, owner-approved 2026-10-06):
+
+- `/login/confirm` (guest only), reached from "First time signing in? Confirm your contact" on `/login/code`. Fields: identifier
+  (same browser check as the working code) and the 6-digit code as a string; both `dir="ltr"`, no autofocus. States: pending (one
+  request at a time, fields read-only), generic failure, rate limited (fields editable, no countdown), unavailable (Try again),
+  success. Success shows "Request a working code", a link to `/login/code` with the identifier kept and a safe requested page kept;
+  it opens no session, runs no access check and requests nothing.
+- `AuthGateway.confirmOperatorContact`; non-demo builds use the unavailable gateway. The mock adapter follows Core's answers (204
+  for a right code or an already confirmed contact; one generic 401 otherwise; a code dies after 5 wrong guesses; no working code
+  until confirmed). Its rate limits are **simulated by scenario only**: it does not reproduce Core's shared
+  `operator_verify_identifier` bucket. Fictional new operators and the demo confirmation code exist in development builds only.
+- Logo: `nw-brand-mark` gained an optional `--nw-brand-mark-word-size` (unset: unchanged); the sign-in brand panel sets it to
+  `2rem`. Sidebar, phone header and other logos keep their sizes.
+- Brand fixes approved with the slice (owner, 2026-10-06):
+  - **Favicon** follows the accent palette **and** the resolved appearance (light, dark, and System live): the ink-circle bloom in
+    dark, the approved light flower on a paper circle in light (`public/icons/favicon-<palette>-light.svg`, generated by
+    `tools/brand/recolor_artwork.py`). One icon link, chosen before first paint (`src/index.html`) and replaced by `ThemeService`
+    on every change; each palette and appearance has its own URL, so no stale cached icon.
+  - **Sidebar logo:** the horizontal "nawara | SOLUTIONS" lockup (no "ADMIN" label), `nw-brand-mark`'s new `inline` option:
+    the approved wordmark and bloom, a thin separator, and "SOLUTIONS" in the palette gradient, semibold, its capitals about
+    the height of the lowercase (measured ≈ 92 %), optically centred. Desktop sidebar and phone drawer, RTL keeps the logo's
+    order; fits the 320 px drawer beside the close button. Sign-in logos unchanged.
+  - **Sign-in headline:** each locale sets its own line breaks in `auth.brand.tagline` (English "Smart / solutions / powered by
+    AI."), shown with `white-space: pre-line` and aligned with the eyebrow and supporting line; the phone footer shows it on one
+    line.
+- Browser evidence: `screenshot/a4-s3-implementation-20261006-120227/`, `screenshot/favicon-sidebar-20261006-150411/`,
+  `screenshot/sidebar-inline-logo-20261006-154406/`, `screenshot/auth-headline-20261006-154938/` (not in git).
+
+Open: CF-16 (reissue: none exists), CF-17 (Core documentation versus source), CF-18 (owner visibility of confirmation status),
+CF-19 (production delivery, unverified), CF-20 (code-message locale), the session strategy (D-A4) for the real integration.
+
 ## A4-S2: operator working-code sign-in, demo adapter (owner-authorized 2026-10-04; approved 2026-10-05)
 
 **Status (owner review, 2026-10-05): complete as a development-only mock-prototype slice.** Not production authentication:
@@ -300,8 +376,8 @@ from `auth-service` (`operator.controller.ts`, `operator-code.service.ts`); no C
 - Fictional scenarios (demo builds only, listed on the sign-in pages): one platform, two platforms, phone only (`+999`),
   no assignment, request rate-limited, verify rate-limited, service unavailable. Working code `042917`.
 
-Open (unchanged by this slice): Notification delivery in production (unverified), platform display names for real
-operators (CF-02), first-time operator contact confirmation, code-message locale, browser reachability of
+Open (unchanged by this slice): Notification delivery in production (unverified, CF-19), platform display names for real
+operators (CF-02), first-time operator contact confirmation (A4-S3), code-message locale (CF-20), browser reachability of
 `/auth/admin/login/operator/*`, the session/refresh strategy (D-A4). Production sign-in stays unavailable.
 
 ## A4-S1: sign-in and owner MFA, demo adapter (owner-authorized 2026-10-02; alignment corrections 2026-10-02)

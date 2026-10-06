@@ -40,7 +40,15 @@ describe('scope from the URL (the URL is the source of truth, docs/ARCHITECTURE.
 
 describe('ScopeContext: the Platforms the actor may see', () => {
   const DEMO: DemoBindings = {
-    signIn: { accounts: [], password: 'p', code: 'c', operators: [], workingCode: 'w' },
+    signIn: {
+      accounts: [],
+      password: 'p',
+      code: 'c',
+      operators: [],
+      workingCode: 'w',
+      newOperators: [],
+      confirmationCode: 'k',
+    },
     providers: {
       auth: [],
       scopeDirectory: [],

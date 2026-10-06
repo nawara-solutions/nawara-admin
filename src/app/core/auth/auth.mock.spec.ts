@@ -3,7 +3,7 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { DEMO_LATENCY_MS } from '../context/scope-directory.mock';
 import { DEMO_DRIVE_PLATFORM_ID } from '../context/scope-directory.fixtures';
 import { AppError } from '../errors/app-error';
-import { DEMO_WORKING_CODE } from './auth.fixtures';
+import { DEMO_CONFIRMATION_CODE, DEMO_WORKING_CODE } from './auth.fixtures';
 import { MockAuthGateway } from './auth.mock';
 import { OperatorIdentifier } from './operator-identifier';
 
@@ -92,5 +92,65 @@ describe('MockAuthGateway: working code (demo only)', () => {
     expect((await error(mock.verifyWorkingCode(at('offline'), DEMO_WORKING_CODE))).kind).toBe(
       'unavailable',
     );
+  });
+});
+
+describe('MockAuthGateway: contact confirmation (demo only)', () => {
+  const NEW: OperatorIdentifier = { kind: 'email', email: 'operator.new@demo.nawara.invalid' };
+  const at = (name: string): OperatorIdentifier => ({
+    kind: 'email',
+    email: `operator.new.${name}@demo.nawara.invalid`,
+  });
+
+  it('issues no working code before confirmation, then confirms without signing in', async () => {
+    const mock = gateway();
+    await firstValueFrom(mock.requestWorkingCode(NEW));
+    expect(await error(mock.verifyWorkingCode(NEW, DEMO_WORKING_CODE))).toMatchObject({
+      code: 'operator_code_invalid',
+    });
+    await expect(
+      firstValueFrom(mock.confirmOperatorContact(NEW, DEMO_CONFIRMATION_CODE)),
+    ).resolves.toBeUndefined();
+    expect((await error(mock.me())).status).toBe(401);
+    // Confirmation issues no working code: none is accepted until one is requested.
+    expect(await error(mock.verifyWorkingCode(NEW, DEMO_WORKING_CODE))).toMatchObject({
+      code: 'operator_code_invalid',
+    });
+    await firstValueFrom(mock.requestWorkingCode(NEW));
+    await expect(
+      firstValueFrom(mock.verifyWorkingCode(NEW, DEMO_WORKING_CODE)),
+    ).resolves.toBeUndefined();
+  });
+
+  it('answers a confirmed contact with 204 without checking the code, like Core', async () => {
+    const mock = gateway();
+    await expect(
+      firstValueFrom(mock.confirmOperatorContact(SCHOOL_OPERATOR, '999999')),
+    ).resolves.toBeUndefined();
+  });
+
+  it('refuses everything else with the one generic 401, and kills the code after five wrong guesses', async () => {
+    const mock = gateway();
+    const unknown: OperatorIdentifier = { kind: 'email', email: 'nobody@demo.nawara.invalid' };
+    expect(await error(mock.confirmOperatorContact(unknown, DEMO_CONFIRMATION_CODE))).toMatchObject(
+      { code: 'operator_code_invalid' },
+    );
+    expect(await error(mock.confirmOperatorContact(NEW, '5318'))).toMatchObject({
+      code: 'operator_code_invalid',
+    });
+    for (let i = 0; i < 4; i++) await error(mock.confirmOperatorContact(NEW, '000000'));
+    expect(await error(mock.confirmOperatorContact(NEW, DEMO_CONFIRMATION_CODE))).toMatchObject({
+      code: 'operator_code_invalid',
+    });
+  });
+
+  it('simulates the rate-limited and unavailable scenarios', async () => {
+    const mock = gateway();
+    expect(
+      (await error(mock.confirmOperatorContact(at('limited'), DEMO_CONFIRMATION_CODE))).kind,
+    ).toBe('rate_limited');
+    expect(
+      (await error(mock.confirmOperatorContact(at('offline'), DEMO_CONFIRMATION_CODE))).kind,
+    ).toBe('unavailable');
   });
 });

@@ -6,7 +6,8 @@ import { NwBrandMark } from './brand-mark';
   imports: [NwBrandMark],
   template: `<nw-brand-mark label="Nawara Solutions" wordmark />
     <nw-brand-mark label="Nawara Solutions" />
-    <nw-brand-mark label="Nawara Solutions" full />`,
+    <nw-brand-mark label="Nawara Solutions" full />
+    <nw-brand-mark label="Nawara Solutions" inline />`,
 })
 class Host {}
 
@@ -14,7 +15,7 @@ describe('NwBrandMark', () => {
   it('is one labelled image: lettering and artwork are hidden from assistive technology', async () => {
     const fixture = TestBed.createComponent(Host);
     await fixture.whenStable();
-    const [wordmark, symbol, full] = Array.from(
+    const [wordmark, symbol, full, inline] = Array.from(
       (fixture.nativeElement as HTMLElement).querySelectorAll('nw-brand-mark'),
     );
     expect(wordmark?.getAttribute('role')).toBe('img');
@@ -41,6 +42,15 @@ describe('NwBrandMark', () => {
       'true',
     );
     expect(full?.querySelector('svg.nw-brand-mark__flourish')).not.toBeNull();
+
+    // The inline logo: the wordmark, a separator and "SOLUTIONS" on one line, without the flourish.
+    expect(inline?.classList).toContain('nw-brand-mark--inline');
+    expect(inline?.querySelector('.nw-brand-mark__word')).not.toBeNull();
+    expect(inline?.querySelector('.nw-brand-mark__separator')?.getAttribute('aria-hidden')).toBe(
+      'true',
+    );
+    expect(inline?.querySelector('.nw-brand-mark__solutions-text')?.textContent).toBe('SOLUTIONS');
+    expect(inline?.querySelector('svg.nw-brand-mark__flourish')).toBeNull();
   });
 
   it('gives every logo its own gradient ids, so several can share a page', async () => {

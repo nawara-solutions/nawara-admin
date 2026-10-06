@@ -74,12 +74,11 @@ export class ThemeService {
       const root = this.document.documentElement;
       if (accent === DEFAULT_ACCENT) delete root.dataset['accent'];
       else root.dataset['accent'] = accent;
-      // The browser-tab icon follows the palette: an external SVG cannot read the page's CSS variables, so each
-      // palette has its own file (one per palette: distinct URLs, never a stale cached icon).
-      const favicon = this.document.querySelector<HTMLLinkElement>('link#nw-favicon');
-      const href = PALETTE_ARTWORK[accent].favicon;
-      if (favicon && favicon.getAttribute('href') !== href) favicon.setAttribute('href', href);
     });
+    // The browser-tab icon follows the palette AND the resolved appearance (system mode included, live): an external
+    // SVG cannot read the page's CSS variables, so each palette and appearance has its own file (distinct URLs, never a
+    // stale cached icon). The same choice is made before first paint by the script in index.html.
+    effect(() => this.showFavicon(PALETTE_ARTWORK[this.accent()].favicon[this.resolved()]));
   }
 
   setPreference(preference: ThemePreference): void {
@@ -102,12 +101,25 @@ export class ThemeService {
 
   private pendingAccent: AccentPalette | null = null;
 
+  /**
+   * Points the single icon link at `href`. The link is replaced rather than edited: browsers reliably repaint the tab
+   * icon for a new `<link rel="icon">`, while some ignore an `href` change on the existing one.
+   */
+  private showFavicon(href: string): void {
+    const current = this.document.querySelector<HTMLLinkElement>('link#nw-favicon');
+    if (!current || current.getAttribute('href') === href) return;
+    const next = current.cloneNode() as HTMLLinkElement;
+    next.setAttribute('href', href);
+    current.replaceWith(next);
+  }
+
   private preload(accent: AccentPalette): Promise<void> {
     const view = this.document.defaultView;
     if (!view?.Image) return Promise.resolve();
     const { light, dark } = PALETTE_ARTWORK[accent];
     const urls = [light, dark].flatMap((art) => [art.full, art.corner]);
-    const loads = [...urls, PALETTE_ARTWORK[accent].favicon].map((url) => {
+    const { favicon } = PALETTE_ARTWORK[accent];
+    const loads = [...urls, favicon.light, favicon.dark].map((url) => {
       const image = new view.Image();
       image.src = url;
       return typeof image.decode === 'function' ? image.decode().catch(() => undefined) : undefined;

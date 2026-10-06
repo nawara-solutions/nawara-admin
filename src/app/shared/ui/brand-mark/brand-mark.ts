@@ -14,10 +14,11 @@ import {
  * - Without an option: the bloom mark alone (an artwork file).
  * - `wordmark` (or `lockup`, the earlier name of the same thing): the wordmark with the bloom.
  * - `full`: the wordmark with the "SOLUTIONS" line and its flourish (sign-in brand panel).
+ * - `inline`: the wordmark, a thin separator and "SOLUTIONS" on one line, without the flourish (workspace sidebar).
  *
  * The bloom and the flourish are the exact paths of the artwork files in `public/brand/`, drawn inline so that their
  * colours follow the `--nw-logo-*` tokens: the theme and the accent palette (owner decision 2026-10-04). The lettering
- * is live text in the brand typeface, in the neutral text colour, as the owner's design draws it. The size follows `--nw-brand-mark-size` (the wordmark's font size). The logo never
+ * is live text in the brand typeface, in the neutral text colour, as the owner's design draws it. The size follows `--nw-brand-mark-size` (the wordmark's font size); `--nw-brand-mark-word-size` optionally sizes the word alone. The logo never
  * mirrors in RTL. The kit owns no copy, so the accessible name is an input; the lettering itself is hidden from
  * assistive technology, so the name is announced once.
  */
@@ -35,6 +36,7 @@ let nextId = 0;
     '[attr.aria-label]': 'label()',
     '[class.nw-brand-mark--symbol]': '!lettered()',
     '[class.nw-brand-mark--full]': 'full()',
+    '[class.nw-brand-mark--inline]': 'inline()',
   },
 })
 export class NwBrandMark {
@@ -46,8 +48,12 @@ export class NwBrandMark {
   readonly lockup = input(false, { transform: booleanAttribute });
   /** The wordmark with the "SOLUTIONS" line beneath it. */
   readonly full = input(false, { transform: booleanAttribute });
+  /** The wordmark with "SOLUTIONS" on the same line, after a thin separator (no flourish). */
+  readonly inline = input(false, { transform: booleanAttribute });
 
-  protected readonly lettered = computed(() => this.wordmark() || this.lockup() || this.full());
+  protected readonly lettered = computed(
+    () => this.wordmark() || this.lockup() || this.full() || this.inline(),
+  );
 
   /** Gradient ids, unique per instance: several logos can share a page. */
   private readonly uid = `nw-logo-${nextId++}`;

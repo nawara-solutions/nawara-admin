@@ -143,6 +143,9 @@
         <circle cx="92.5" cy="17.36" r="2.7" [attr.fill]="ref(ids.beadMain)" />
       </svg>
     </span>
+  } @else if (inline()) {
+    <span class="nw-brand-mark__separator" aria-hidden="true"></span>
+    <span class="nw-brand-mark__solutions-text" aria-hidden="true">SOLUTIONS</span>
   }
 } @else {
   <ng-container [ngTemplateOutlet]="bloom" />

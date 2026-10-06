@@ -7,6 +7,8 @@ import { PlatformId } from '../context/scope.model';
 import { AppError } from '../errors/app-error';
 import {
   DEMO_ACCOUNTS,
+  DEMO_CONFIRMATION_CODE,
+  DEMO_NEW_OPERATORS,
   DEMO_OPERATORS,
   DEMO_PASSWORD,
   DEMO_TOTP_CODE,
@@ -32,6 +34,9 @@ const CHALLENGE_LIFETIME_MS = 5 * 60_000;
 /** Core's `MAX_CODE_ATTEMPTS`: five wrong guesses kill a working code (`operator-code.service.ts`). */
 const WORKING_CODE_ATTEMPTS = 5;
 
+/** Every demo operator: the confirmed ones (working-code sign-in) and the new ones (contact confirmation first). */
+const ALL_OPERATORS: readonly DemoOperator[] = [...DEMO_OPERATORS, ...DEMO_NEW_OPERATORS];
+
 /** Core's one answer to every refused working code (wrong, used, replaced, locked, unknown, out of shift). */
 const CODE_INVALID: AppError = {
   kind: 'unauthenticated',
@@ -55,6 +60,17 @@ export class MockAuthGateway extends AuthGateway {
   private readonly challenges = new Map<string, { account: DemoAccount; expiresAt: number }>();
   /** The live working code per operator (by user id): wrong guesses left. Issuing replaces; success consumes. */
   private readonly workingCodes = new Map<string, number>();
+  /** Operators whose contact is confirmed (by user id). Core issues working codes only to them. */
+  private readonly confirmedOperators = new Set(
+    ALL_OPERATORS.filter((o) => o.confirmed).map((o) => o.identity.userId),
+  );
+  /** The confirmation code of each unconfirmed operator: wrong guesses left. Core never reissues it (CF-16). */
+  private readonly confirmationCodes = new Map(
+    ALL_OPERATORS.filter((o) => !o.confirmed).map((o) => [
+      o.identity.userId,
+      WORKING_CODE_ATTEMPTS,
+    ]),
+  );
   private signedIn: { readonly identity: Identity; readonly grants: Grants } | null = null;
 
   login(email: string, password: string): Observable<LoginOutcome> {
@@ -107,12 +123,13 @@ export class MockAuthGateway extends AuthGateway {
     });
   }
 
-  /** Always 204, like Core: nothing says whether the account exists or a code was sent. */
+  /** Always 204, like Core: nothing says whether the account exists or a code was sent (none, if unconfirmed). */
   requestWorkingCode(identifier: OperatorIdentifier): Observable<void> {
     const found = this.operator(identifier);
     if (found?.scenario === 'requestLimited')
       return this.fail({ kind: 'rate_limited', status: 429 });
-    if (found) this.workingCodes.set(found.identity.userId, WORKING_CODE_ATTEMPTS);
+    if (found && this.confirmedOperators.has(found.identity.userId))
+      this.workingCodes.set(found.identity.userId, WORKING_CODE_ATTEMPTS);
     return this.answer(undefined);
   }
 
@@ -130,6 +147,31 @@ export class MockAuthGateway extends AuthGateway {
     }
     this.workingCodes.delete(found.identity.userId);
     this.signedIn = found;
+    return this.answer(undefined);
+  }
+
+  /**
+   * Like Core's `operators/confirm`: an already confirmed contact answers 204 without checking the code; a right code
+   * confirms the contact (204); anything else is the generic 401. Never signs in and never issues a working code.
+   * Rate limits are only SIMULATED by scenario (`confirmLimited`): Core's real buckets (`operator_confirm_ip`, and
+   * `operator_verify_identifier`, shared with working-code verification and reset only by a successful verification)
+   * are not reproduced here.
+   */
+  confirmOperatorContact(identifier: OperatorIdentifier, code: string): Observable<void> {
+    const found = this.operator(identifier);
+    if (found?.scenario === 'confirmLimited')
+      return this.fail({ kind: 'rate_limited', status: 429 });
+    if (found?.scenario === 'confirmUnavailable')
+      return this.fail({ kind: 'unavailable', status: 503 });
+    if (found && this.confirmedOperators.has(found.identity.userId)) return this.answer(undefined);
+    const left = found ? this.confirmationCodes.get(found.identity.userId) : undefined;
+    if (!found || left === undefined || left <= 0) return this.fail(CODE_INVALID);
+    if (code !== DEMO_CONFIRMATION_CODE) {
+      this.confirmationCodes.set(found.identity.userId, left - 1);
+      return this.fail(CODE_INVALID);
+    }
+    this.confirmationCodes.delete(found.identity.userId);
+    this.confirmedOperators.add(found.identity.userId);
     return this.answer(undefined);
   }
 
@@ -164,7 +206,7 @@ export class MockAuthGateway extends AuthGateway {
   }
 
   private operator(identifier: OperatorIdentifier): DemoOperator | undefined {
-    return DEMO_OPERATORS.find((candidate) => sameIdentifier(candidate.identifier, identifier));
+    return ALL_OPERATORS.find((candidate) => sameIdentifier(candidate.identifier, identifier));
   }
 
   private live(challenge: string) {

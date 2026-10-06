@@ -9,8 +9,11 @@ export interface PaletteArtwork extends Record<
   ResolvedTheme,
   { readonly full: string; readonly corner: string }
 > {
-  /** The browser-tab icon: the ink-circle bloom in the palette's colours (one file serves light and dark tabs). */
-  readonly favicon: string;
+  /**
+   * The browser-tab icon in the palette's colours, per resolved appearance: the paper circle (light) and the ink
+   * circle (dark). One file per palette and appearance, so each switch is a new URL, never a stale cached icon.
+   */
+  readonly favicon: Readonly<Record<ResolvedTheme, string>>;
 }
 
 export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = {
@@ -23,7 +26,7 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       full: '/illustrations/nawara-botanical-dark.png',
       corner: '/illustrations/nawara-botanical-corner-dark.png',
     },
-    favicon: 'favicon.svg',
+    favicon: { light: 'icons/favicon-coral-light.svg', dark: 'favicon.svg' },
   },
   rose: {
     light: {
@@ -34,7 +37,7 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       full: '/illustrations/nawara-botanical-rose-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-rose-dark.webp',
     },
-    favicon: 'icons/favicon-rose.svg',
+    favicon: { light: 'icons/favicon-rose-light.svg', dark: 'icons/favicon-rose.svg' },
   },
   plum: {
     light: {
@@ -45,7 +48,7 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       full: '/illustrations/nawara-botanical-plum-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-plum-dark.webp',
     },
-    favicon: 'icons/favicon-plum.svg',
+    favicon: { light: 'icons/favicon-plum-light.svg', dark: 'icons/favicon-plum.svg' },
   },
   indigo: {
     light: {
@@ -56,7 +59,7 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       full: '/illustrations/nawara-botanical-indigo-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-indigo-dark.webp',
     },
-    favicon: 'icons/favicon-indigo.svg',
+    favicon: { light: 'icons/favicon-indigo-light.svg', dark: 'icons/favicon-indigo.svg' },
   },
   teal: {
     light: {
@@ -67,7 +70,7 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       full: '/illustrations/nawara-botanical-teal-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-teal-dark.webp',
     },
-    favicon: 'icons/favicon-teal.svg',
+    favicon: { light: 'icons/favicon-teal-light.svg', dark: 'icons/favicon-teal.svg' },
   },
   amber: {
     light: {
@@ -78,6 +81,6 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       full: '/illustrations/nawara-botanical-amber-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-amber-dark.webp',
     },
-    favicon: 'icons/favicon-amber.svg',
+    favicon: { light: 'icons/favicon-amber-light.svg', dark: 'icons/favicon-amber.svg' },
   },
 };

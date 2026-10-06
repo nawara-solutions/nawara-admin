@@ -12,7 +12,15 @@ import { companyId, platformId } from '../context/scope.model';
 import { capabilityGuard, guestGuard, sessionGuard } from './access.guards';
 
 const DEMO_BINDINGS_STUB: DemoBindings = {
-  signIn: { accounts: [], password: 'p', code: 'c', operators: [], workingCode: 'w' },
+  signIn: {
+    accounts: [],
+    password: 'p',
+    code: 'c',
+    operators: [],
+    workingCode: 'w',
+    newOperators: [],
+    confirmationCode: 'k',
+  },
   providers: {
     auth: [],
     scopeDirectory: [],

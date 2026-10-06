@@ -135,21 +135,37 @@ describe('ThemeService', () => {
     delete (HTMLImageElement.prototype as { decode?: unknown }).decode;
   });
 
-  it("points the single favicon link at the palette's icon, and back to the default", async () => {
-    stubSystemTheme(false);
-    const link = document.createElement('link');
-    link.id = 'nw-favicon';
-    link.rel = 'icon';
-    link.setAttribute('href', 'favicon.svg');
-    document.head.append(link);
+  it('shows the favicon of the palette and the resolved appearance, live, in a single fresh icon link', async () => {
+    const os = stubSystemTheme(false);
+    const initial = document.createElement('link');
+    initial.id = 'nw-favicon';
+    initial.rel = 'icon';
+    initial.setAttribute('href', 'favicon.svg');
+    document.head.append(initial);
+    const icon = () => {
+      const links = document.querySelectorAll('link[rel~="icon"]');
+      expect(links.length).toBe(1);
+      return links[0]?.getAttribute('href');
+    };
     const service = TestBed.inject(ThemeService);
+    TestBed.tick();
+    expect(icon()).toBe('icons/favicon-coral-light.svg'); // system mode, OS light
+    expect(document.getElementById('nw-favicon')).not.toBe(initial); // replaced, so the tab repaints
+    os.change(true);
+    TestBed.tick();
+    expect(icon()).toBe('favicon.svg'); // the OS turned dark
     await service.setAccent('teal');
     TestBed.tick();
-    expect(link.getAttribute('href')).toBe('icons/favicon-teal.svg');
-    service.reset();
+    expect(icon()).toBe('icons/favicon-teal.svg');
+    service.setPreference('light');
     TestBed.tick();
-    expect(link.getAttribute('href')).toBe('favicon.svg');
-    expect(document.querySelectorAll('link[rel~="icon"]').length).toBe(1);
-    link.remove();
+    expect(icon()).toBe('icons/favicon-teal-light.svg');
+    service.setPreference('dark');
+    TestBed.tick();
+    expect(icon()).toBe('icons/favicon-teal.svg');
+    service.reset(); // system mode again, OS still dark
+    TestBed.tick();
+    expect(icon()).toBe('favicon.svg');
+    document.getElementById('nw-favicon')?.remove();
   });
 });

@@ -172,7 +172,8 @@
     "platformChoice": "Choose a platform",
     "settingsAppearance": "Appearance",
     "workingCode": "Sign in with a working code",
-    "workingCodeVerify": "Enter your working code"
+    "workingCodeVerify": "Enter your working code",
+    "contactConfirmation": "Confirm your contact"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -436,7 +437,7 @@
   "auth": {
     "brand": {
       "product": "Nawara Admin",
-      "tagline": "Smart solutions powered by AI.",
+      "tagline": "Smart\nsolutions\npowered by AI.",
       "line": "The administrative workspace of Nawara Solutions.",
       "copyright": "© 2026 Nawara Solutions"
     },
@@ -538,7 +539,10 @@
       "operatorUnassigned": "Operator, no platform assigned",
       "operatorRequestLimited": "Simulates too many requests",
       "operatorVerifyLimited": "Simulates too many attempts",
-      "operatorUnavailable": "Simulates an unavailable service"
+      "operatorUnavailable": "Simulates an unavailable service",
+      "newOperators": "New operators (contact confirmation)",
+      "confirmationCode": "Confirmation code",
+      "operatorNew": "New operator, contact not confirmed"
     },
     "workingCode": {
       "requestTitle": "Sign in with a working code",
@@ -570,6 +574,22 @@
       "againQuestion": "Need another code?",
       "again": "Request a new code",
       "replaces": "Requesting a new code replaces the previous one."
+    },
+    "contactConfirmation": {
+      "title": "Confirm your contact",
+      "subtitle": "A one-time step for new operators: enter the email address or phone number your company owner registered, and the confirmation code you received.",
+      "codeLabel": "Confirmation code",
+      "codeRequired": "Enter the confirmation code.",
+      "codeFormat": "Enter the 6 digits of the confirmation code.",
+      "confirm": "Confirm contact",
+      "confirming": "Confirming…",
+      "invalid": "We couldn’t confirm this code. Check it and try again. If it still doesn’t work, contact your company owner for assistance.",
+      "unavailable": "Confirmation is temporarily unavailable. Your details were not checked. Try again in a moment.",
+      "confirmed": "Your contact is confirmed. You can now request a working code to sign in.",
+      "requestWorkingCode": "Request a working code",
+      "note": "Confirming does not sign you in. If your confirmation code no longer works, contact your company owner for assistance.",
+      "entryQuestion": "First time signing in?",
+      "entryLink": "Confirm your contact"
     }
   },
   "settings": {

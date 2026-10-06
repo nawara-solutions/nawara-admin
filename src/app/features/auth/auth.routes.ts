@@ -67,6 +67,15 @@ export async function loadAuthRoutes(environment: AppEnvironment): Promise<Route
             ),
         },
         {
+          path: 'confirm',
+          title: 'titles.contactConfirmation',
+          canActivate: [guestGuard],
+          loadComponent: () =>
+            import('./pages/contact-confirmation/contact-confirmation.page').then(
+              (m) => m.ContactConfirmationPage,
+            ),
+        },
+        {
           path: 'no-access',
           title: 'titles.noAccess',
           loadComponent: () =>

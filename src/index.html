@@ -10,9 +10,9 @@
     <meta name="theme-color" content="#faf8f7" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#17131f" media="(prefers-color-scheme: dark)" />
     <!--
-      Favicon: the ink-circle bloom of the Logo Kit, readable on light and dark browser chrome. One icon link only, so
-      no other icon competes with it; its file follows the accent palette (set below, then by ThemeService). Browsers
-      without SVG favicons still request /favicon.ico by convention.
+      Favicon: the bloom of the Logo Kit, the ink circle in dark appearance and the paper circle in light appearance.
+      One icon link only, so no other icon competes with it; its file follows the accent palette and the resolved
+      appearance (set below, then by ThemeService). Browsers without SVG favicons still request /favicon.ico.
     -->
     <link id="nw-favicon" rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
@@ -28,11 +28,18 @@
         try {
           var theme = localStorage.getItem('nw.theme');
           if (theme === 'light' || theme === 'dark') root.setAttribute('data-theme', theme);
+          var dark =
+            theme === 'dark' ||
+            (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
           var accent = localStorage.getItem('nw.accent');
-          if (/^(rose|plum|indigo|teal|amber)$/.test(accent || '')) {
+          if (/^(rose|plum|indigo|teal|amber)$/.test(accent || ''))
             root.setAttribute('data-accent', accent);
-            document.getElementById('nw-favicon').href = 'icons/favicon-' + accent + '.svg';
-          }
+          else accent = 'coral';
+          document.getElementById('nw-favicon').href = dark
+            ? accent === 'coral'
+              ? 'favicon.svg'
+              : 'icons/favicon-' + accent + '.svg'
+            : 'icons/favicon-' + accent + '-light.svg';
           var locale = localStorage.getItem('nw.locale');
           if (locale === 'en' || locale === 'fr' || locale === 'ar') {
             root.lang = locale;

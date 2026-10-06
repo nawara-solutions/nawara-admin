@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { RETURN_URL_PARAM } from '../../../../core/auth/return-url';
 import { parseOperatorIdentifier } from '../../../../core/auth/operator-identifier';
@@ -10,7 +10,11 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
 import { NwIconName } from '../../../../shared/ui/icon/icon.registry';
 import { NwInlineAlert, NwInlineAlertTone } from '../../../../shared/ui/inline-alert/inline-alert';
 import { NwSpinner } from '../../../../shared/ui/spinner/spinner';
-import { AuthFlowFacade, CodeRequestProblem } from '../../application/auth-flow.facade';
+import {
+  AuthFlowFacade,
+  CONTACT_CONFIRMATION_PATH,
+  CodeRequestProblem,
+} from '../../application/auth-flow.facade';
 import { AuthCard } from '../../components/auth-card/auth-card';
 
 interface Banner {
@@ -30,11 +34,13 @@ const BANNERS = {
  * Request a working code (`/login/code`, A4-S2 design): an operator's email address or phone number, checked in the
  * browser by Core's own rules (UX only), then Core's request. The field stays editable after any refusal, including a
  * rate limit (no lockout, no countdown); only a pending request makes it read-only and blocks a second one. No field
- * takes focus on arrival: the card's heading does, as on every sign-in page.
+ * takes focus on arrival: the card's heading does, as on every sign-in page. A new operator whose contact is not
+ * confirmed yet follows the "Confirm your contact" link (A4-S3) first.
  */
 @Component({
   selector: 'adm-working-code-request-page',
   imports: [
+    RouterLink,
     TranslocoPipe,
     NwButton,
     NwControl,
@@ -51,6 +57,7 @@ const BANNERS = {
 })
 export class WorkingCodeRequestPage {
   protected readonly flow = inject(AuthFlowFacade);
+  protected readonly confirmationPath = CONTACT_CONFIRMATION_PATH;
   private readonly query = toSignal(inject(ActivatedRoute).queryParamMap, { requireSync: true });
 
   protected readonly identifier = signal(this.flow.identifierText());

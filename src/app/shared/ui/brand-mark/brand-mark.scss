@@ -1,5 +1,7 @@
 // Proportions follow the owner's design: at a 52px wordmark the bloom is 33 x 40px and overlaps its neighbours
 // slightly; "SOLUTIONS" is 20px. Everything is in em, so `--nw-brand-mark-size` scales the whole logo.
+// `--nw-brand-mark-word-size` (optional, unset by default) sizes the "nawara" word alone, for a caller whose design
+// sets it apart from the "SOLUTIONS" line; unset, the word keeps the logo size (1em).
 // The logo is artwork: it never mirrors in RTL and keeps its own typeface in every locale.
 :host {
   --nw-brand-mark-size: 2rem;
@@ -17,6 +19,7 @@
 
 .nw-brand-mark__word {
   display: flex;
+  font-size: var(--nw-brand-mark-word-size, 1em);
   align-items: baseline;
   gap: 0.02em;
   font-weight: var(--nw-font-weight-medium);
@@ -64,11 +67,51 @@
   block-size: auto;
 }
 
+// One line: the wordmark, a thin separator and a smaller "SOLUTIONS". The separator spans about the lowercase height
+// plus a little, so it reads as a divider and not as a letter. Readex Pro's lowercase sits low in its line box, so the
+// separator and "SOLUTIONS" are nudged down (in logo em, measured from the rendered glyphs) to centre on the middle of
+// the lowercase letters rather than on the box; the nudge is visual only and never changes the layout.
+:host(.nw-brand-mark--inline) {
+  --nw-brand-mark-solutions-offset: 0.1em;
+  --nw-brand-mark-separator-offset: 0.09em;
+  // "SOLUTIONS" relative to the word: its capitals stand about as tall as the lowercase of "nawara" (owner request
+  // 2026-10-06), so it reads as part of the brand rather than as a subtitle.
+  --nw-brand-mark-inline-solutions: 0.68;
+
+  flex-direction: row;
+  gap: 0.26em;
+  white-space: nowrap;
+
+  // No pull-back of the trailing tracking here: the word ends the line, so it stays inside the logo's box.
+  .nw-brand-mark__solutions-text {
+    margin-inline-end: 0;
+    font-size: calc(var(--nw-brand-mark-inline-solutions) * 1em);
+    letter-spacing: 0.05em;
+    // The offset is in logo em; this text's own em is a fraction of it.
+    translate: 0 calc(var(--nw-brand-mark-solutions-offset) / var(--nw-brand-mark-inline-solutions));
+  }
+
+  .nw-brand-mark__separator {
+    translate: 0 var(--nw-brand-mark-separator-offset);
+  }
+}
+
+.nw-brand-mark__separator {
+  flex-shrink: 0;
+  inline-size: 1px;
+  block-size: 0.62em;
+  background-color: var(--nw-border-strong);
+}
+
 // Forced colours replace backgrounds, so the gradient lettering would vanish: use the system text colour, and follow
 // the forced palette's own scheme for the bloom.
 @media (forced-colors: active) {
   .nw-brand-mark__solutions-text {
     background: none;
     color: CanvasText;
+  }
+
+  .nw-brand-mark__separator {
+    background-color: CanvasText;
   }
 }

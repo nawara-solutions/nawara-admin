@@ -41,7 +41,10 @@
 }
 
 .auth-brand-panel__logo {
+  // Owner adjustment (A4-S3 review): on every sign-in page's panel the "nawara" word is 2rem, while the "SOLUTIONS"
+  // line and its flourish keep the panel size. Set here only, so other logos (sidebar, phone header) keep theirs.
   --nw-brand-mark-size: 2.9375rem;
+  --nw-brand-mark-word-size: 2rem;
 
   align-self: flex-start;
 }
@@ -68,8 +71,12 @@
   }
 }
 
+// Each locale sets its own deliberate line breaks in the translation ("\n"; owner layout 2026-10-06: "Smart /
+// solutions / powered by AI." in English); `pre-line` honours them and still wraps a line that is too long. Elsewhere
+// (the phone footer) the same text collapses to one line.
 .auth-brand-panel__tagline {
   font-size: 1.9375rem;
+  white-space: pre-line;
   font-weight: var(--nw-font-weight-medium);
   line-height: 1.18;
   letter-spacing: -0.02em;
