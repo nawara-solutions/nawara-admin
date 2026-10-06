@@ -15,8 +15,8 @@
 3. **No retrofits.** Themes, languages, RTL, responsiveness and accessibility exist from the first component.
 4. **Machine values drive behaviour, human text is presentation.** This applies to Core `code`s, enums and ids.
 5. **No speculative abstraction.** Extract when a second real use appears. Obvious design-system primitives are the exception.
-6. **Kit-ready, not kit-first.** Shared foundations are written product-independent so a future `@nawara/frontend-kit` extraction
-   is a move, not a rewrite.
+6. **Share-ready, not share-first.** Shared foundations are written product-independent so a move into `nawara-frontend`
+   (`@nawara-solutions/*`, §31) is a move, not a rewrite.
 
 ## 1. Angular baseline
 
@@ -55,7 +55,7 @@ src/
 │   │   ├── i18n/                 locale, direction, formatting services
 │   │   ├── theme/                theme preference and application
 │   │   └── preferences/          the single registry of browser-stored preferences
-│   ├── shared/                   reusable, product-independent UI (kit-ready)
+│   ├── shared/                   reusable, product-independent UI (share-ready)
 │   │   ├── ui/                   nw-button, nw-icon, nw-dialog, nw-form-field, nw-data-table, nw-data-state, …
 │   │   └── format/               nwDate, nwDateTime, nwNumber, nwMachineValue pipes
 │   ├── layout/                   shell, sidebar, top bar, breadcrumbs, scope switcher, status pages (Admin-specific)
@@ -443,7 +443,7 @@ src/styles/
 - **Prefer ARIA/state attributes over state modifiers** when a semantic state exists: `[aria-expanded='true']`,
   `[aria-current='page']`, `[aria-invalid='true']`, `:disabled`. Modifiers are for visual variants (`--compact`, `--danger`).
 - Nesting is limited to `&__element`, `&--modifier`, and state or pseudo selectors. There are no descendant chains.
-- **Prefixes:** shared, kit-ready primitives use selector and block `nw-*` (`<nw-button class="nw-button">`). Admin-specific
+- **Prefixes:** shared, share-ready primitives use selector and block `nw-*` (`<nw-button class="nw-button">`). Admin-specific
   components use selector prefix `adm-` and an unprefixed block (`<adm-organization-switcher class="organization-switcher">`).
 - Stylelint enforces BEM-shaped class names, the no-raw-colour rule outside `src/styles/tokens/` and the `@import` ban (§30).
 - A theme can be scoped to a subtree with `data-theme="light|dark"` on any element (for example a fixed dark panel).
@@ -519,8 +519,8 @@ Consequences to honour in A2, because Transloco checks translations at runtime r
 - Translation keys are stable and meaningful (`organizations.list.empty`) and never derived from English text.
 - The locale preference is explicit (a language switcher) with `navigator.languages` as the first-visit default. It is persisted in
   the preference registry. `Accept-Language` sent to Core always equals the UI locale.
-- **Shared (kit-ready) primitives own no copy.** Labels arrive through inputs or a provided `NwUiLabels` token, so a future kit never
-  ships its own catalog.
+- **Shared (share-ready) primitives own no copy.** Labels arrive through inputs or a provided `NwUiLabels` token, so a shared
+  package never ships its own catalog.
 - **Machine values are never translated:** ids, `code`s, enum values, request/correlation ids, service and product identifiers, audit
   `action`s. They render through `nwMachineValue`: monospace, `translate="no"`, LTR-isolated, copyable. Human labels for enums come
   from an exhaustive map (`satisfies Record<Enum, string>`), and unknown values render raw with an "unrecognized" marker.
@@ -732,35 +732,45 @@ automated axe tests as a project dependency (D-A2-5, with Playwright in A3). Fea
 `strictInputAccessModifiers`, `extendedDiagnostics` as errors. `any` requires a written justification. Casts that only silence the
 compiler are rejected. Prefer `unknown` + narrowing, discriminated unions, `readonly` and `satisfies`.
 
-## 31. Reuse and the future `@nawara/frontend-kit`
+## 31. Reuse and the shared frontend platform (`nawara-frontend`)
 
 **Reuse rule:** a first real implementation, then a second confirmed use, then a stable abstraction is identified, then it is
 extracted. Obvious design-system primitives (tokens, themes, typography, focus, button, icon, dialog, form field, data state) may be
 built up front because their responsibility is already clear.
 
-**Classification** (recorded in ROADMAP's kit register):
+**Where shared code lives.** The earlier plan for a single `@nawara/frontend-kit` is superseded. Shared frontend code lives in the
+`nawara-frontend` repository as layered packages named `@nawara-solutions/*` (its ADR-0001 to ADR-0003): `foundation`
+(framework-independent, e.g. `@nawara-solutions/design-tokens`) and, later, `angular` (`@nawara-solutions/angular-*`). Its
+process is its `docs/SHARED-CONTRIBUTION-POLICY.md`; the operating rules for Admin work are in [`CLAUDE.md`](../CLAUDE.md).
+
+**Status (verified 2026-10-06, `nawara-frontend` `main` `87bf10a`):** one package exists, `@nawara-solutions/design-tokens`
+0.1.0, **private and unpublished**; no product consumes it. Its 147 tokens (44 reference, 51 scale, 52 semantic) and its
+breakpoints currently have the same names and values as Admin's, and Admin's accent palettes override exactly its 11
+`accentControlled` tokens. Distribution: no release, registry or publish workflow exists yet; ADR-0002 recommends GitHub Packages (`npm.pkg.github.com`), and until
+publication a product can only consume a local tarball (its `docs/CONSUMPTION.md`). **Admin has not adopted it:** adoption, publication/distribution and any token namespace change are
+separate, owner-authorized tasks. Admin keeps its own shadows (the shared shadows, DT2b, are deferred) and every Admin-specific token.
+
+**Classification** (recorded in ROADMAP's register):
 
 | Class | Meaning | Location |
 |---|---|---|
-| **LOCAL** | Admin-specific (dashboard, navigation, organization switcher, operator workflows, every feature) | `layout/`, `features/` |
-| **CANDIDATE** | product-independent and kit-ready, but proven in Admin only | `shared/`, `styles/`, selected `core/` infrastructure (HTTP interceptors, i18n/direction, theme, preferences) |
-| **SHARED** | proven in ≥ 2 Nawara apps with a stable, product-independent API, docs, tests, a11y, RTL, both themes | `@nawara/frontend-kit` (**FUTURE — NOT CREATED**) |
+| **LOCAL** | Admin-specific (shell, navigation, scope, auth flows, operator workflows, every feature, Admin theme and artwork) | `layout/`, `features/`, Admin parts of `core/` and `styles/` |
+| **CANDIDATE** | product-independent and ready to share, but proven in Admin only | `shared/`, `styles/`, selected `core/` infrastructure (HTTP interceptors, i18n/direction, theme, preferences) |
+| **SHARED** | in `nawara-frontend`, with a stable, product-independent API, docs, tests, a11y, RTL, both themes | `@nawara-solutions/*` packages (consumed by Admin only after a separate adoption task) |
 
 ```text
-Proven Nawara UI foundations
-             │
-             ▼
-   @nawara/frontend-kit           FUTURE / NOT CREATED
-   brand · tokens · themes · typography · RTL · a11y primitives · layout primitives
-   buttons · inputs · dialogs · feedback · table primitives · i18n & API infrastructure
-             │
-      ┌──────┼──────┐
-      ▼      ▼      ▼
-    Admin  School  Drive          (Drive's desktop app is already Angular 22)
+                 nawara-frontend   (shared foundation; never depends on a product)
+   foundation: @nawara-solutions/design-tokens (0.1.0, private)   ·   angular: later
+                        │  versioned packages, adopted per product
+          ┌─────────────┼─────────────┐
+          ▼             ▼             ▼
+        Admin         Drive         School        independent consumers, each with its own theme and identity
 ```
 
-The kit **never** contains product business logic, product copy, or a "utils" bin. Product features stay in their applications.
-The extraction trigger and review points are in [`ROADMAP.md`](ROADMAP.md#frontend-kit-review-points).
+Shared code **never** contains product business logic, product copy, or a "utils" bin. Products may depend on `nawara-frontend`;
+it never depends on a product, and products never depend on each other. Core alone authorizes; frontend checks are UX. A missing
+generic capability is a separate `nawara-frontend` contribution, never a side effect of an Admin task. The review points are in
+[`ROADMAP.md`](ROADMAP.md#shared-frontend-review-points).
 
 ## 32. Naming
 
