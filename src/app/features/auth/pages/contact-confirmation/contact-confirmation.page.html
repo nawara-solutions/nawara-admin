@@ -1,0 +1,103 @@
+<adm-auth-card
+  icon="shield-check"
+  [step]="step()"
+  [title]="'auth.contactConfirmation.title' | transloco"
+  [subtitle]="'auth.contactConfirmation.subtitle' | transloco"
+>
+  @if (banner(); as b) {
+    <nw-inline-alert
+      [id]="bannerId"
+      [tone]="b.tone"
+      [icon]="b.icon"
+      [actionLabel]="b.retry ? ('auth.banner.retry' | transloco) : undefined"
+      actionIcon="refresh-cw"
+      (action)="submit()"
+      >{{ b.key | transloco }}</nw-inline-alert
+    >
+  }
+
+  @if (confirmed()) {
+    <a
+      nw-button
+      size="lg"
+      [routerLink]="workingCodePath"
+      [queryParams]="flow.returnQueryParams()"
+      >{{ 'auth.contactConfirmation.requestWorkingCode' | transloco }}</a
+    >
+  } @else {
+    <form
+      class="working-code__form"
+      novalidate
+      [attr.aria-busy]="confirming()"
+      (submit)="submit($event)"
+    >
+      @let identifierKey = identifierError();
+      <nw-form-field
+        [label]="'auth.workingCode.identifier' | transloco"
+        [hint]="'auth.workingCode.identifierHint' | transloco"
+        [error]="identifierKey ? (identifierKey | transloco) : undefined"
+      >
+        <input
+          nwControl
+          class="nw-control--lg working-code__ltr"
+          type="text"
+          name="username"
+          autocomplete="username"
+          autocapitalize="none"
+          spellcheck="false"
+          dir="ltr"
+          [value]="identifier()"
+          [readOnly]="confirming()"
+          (input)="onIdentifier($event)"
+        />
+      </nw-form-field>
+
+      @let codeKey = codeError();
+      <nw-form-field
+        [label]="'auth.contactConfirmation.codeLabel' | transloco"
+        [hint]="'auth.workingCode.codeHint' | transloco"
+        [error]="codeKey ? (codeKey | transloco) : undefined"
+        [errorRef]="invalidRef()"
+      >
+        <input
+          nwControl
+          class="nw-control--lg working-code__code"
+          type="text"
+          name="confirmation-code"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          spellcheck="false"
+          dir="ltr"
+          [value]="code()"
+          [readOnly]="confirming()"
+          (input)="onCode($event)"
+        />
+      </nw-form-field>
+
+      <button
+        nw-button
+        size="lg"
+        type="submit"
+        [busy]="confirming()"
+        [attr.aria-disabled]="confirming() || null"
+      >
+        @if (confirming()) {
+          <nw-spinner />
+        }
+        <span>{{
+          (confirming()
+            ? 'auth.contactConfirmation.confirming'
+            : 'auth.contactConfirmation.confirm'
+          ) | transloco
+        }}</span>
+      </button>
+    </form>
+
+    <p class="working-code__footnote">{{ 'auth.contactConfirmation.note' | transloco }}</p>
+  }
+
+  <button type="button" class="working-code__back" (click)="back()">
+    <nw-icon name="arrow-left" size="sm" />
+    <span>{{ 'auth.workingCode.backToSignIn' | transloco }}</span>
+  </button>
+</adm-auth-card>

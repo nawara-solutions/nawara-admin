@@ -12,7 +12,15 @@ import { companyId, platformId } from '../../core/context/scope.model';
 import { platformChoiceGuard } from './auth.routes';
 
 const DEMO: DemoBindings = {
-  signIn: { accounts: [], password: 'p', code: 'c', operators: [], workingCode: 'w' },
+  signIn: {
+    accounts: [],
+    password: 'p',
+    code: 'c',
+    operators: [],
+    workingCode: 'w',
+    newOperators: [],
+    confirmationCode: 'k',
+  },
   providers: {
     auth: [],
     scopeDirectory: [],

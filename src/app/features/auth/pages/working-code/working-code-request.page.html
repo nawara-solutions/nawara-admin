@@ -46,6 +46,16 @@
     </button>
   </form>
 
+  <p class="working-code__entry">
+    <span>{{ 'auth.contactConfirmation.entryQuestion' | transloco }}</span>
+    <a
+      class="working-code__link"
+      [routerLink]="confirmationPath"
+      [queryParams]="flow.returnQueryParams()"
+      >{{ 'auth.contactConfirmation.entryLink' | transloco }}</a
+    >
+  </p>
+
   <button type="button" class="working-code__back" (click)="back()">
     <nw-icon name="arrow-left" size="sm" />
     <span>{{ 'auth.workingCode.backToSignIn' | transloco }}</span>

@@ -29,7 +29,15 @@ const operator: Actor = {
   platformAssignments: [platformId('school')],
 };
 const DEMO: DemoBindings = {
-  signIn: { accounts: [], password: 'p', code: 'c', operators: [], workingCode: 'w' },
+  signIn: {
+    accounts: [],
+    password: 'p',
+    code: 'c',
+    operators: [],
+    workingCode: 'w',
+    newOperators: [],
+    confirmationCode: 'k',
+  },
   providers: {
     auth: [],
     scopeDirectory: [],
@@ -103,11 +111,14 @@ describe('Sidebar', () => {
     expect(sidebar.querySelector('.sidebar__name')?.textContent).toBe('operator@x.invalid');
   });
 
-  it('renders the wordmark with the palette-coloured bloom', async () => {
+  it('renders the wordmark with the palette-coloured bloom and SOLUTIONS on the same line', async () => {
     const sidebar = await render(owner);
     const mark = sidebar.querySelector('nw-brand-mark');
     expect(mark?.querySelector('svg.nw-brand-mark__bloom')).not.toBeNull();
     expect(mark?.querySelector('.nw-brand-mark__word')).not.toBeNull();
+    expect(mark?.querySelector('.nw-brand-mark__solutions-text')?.textContent).toBe('SOLUTIONS');
+    expect(mark?.querySelector('.nw-brand-mark__separator')).not.toBeNull();
+    expect(mark?.querySelector('svg.nw-brand-mark__flourish')).toBeNull();
   });
 
   it('badges Notifications with the unread count, and shows no badge without a count', async () => {

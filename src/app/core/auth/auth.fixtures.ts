@@ -86,19 +86,29 @@ export const DEMO_ACCOUNTS: readonly DemoAccount[] = [
 /** The one demo working code, a string with a leading zero (codes are never numbers). */
 export const DEMO_WORKING_CODE = '042917';
 
+/** The one demo confirmation code (contact confirmation of a new operator), a string with a leading zero. */
+export const DEMO_CONFIRMATION_CODE = '005318';
+
 /**
  * How the mock's operator routes answer for a scenario: `normal` follows Core (204, then 200 for the right code or the
- * generic 401); the others simulate Core's `429 rate_limited` on request or verify, and an unavailable service on
- * verify, so each banner can be reviewed.
+ * generic 401); the others simulate Core's `429 rate_limited` on request, verify or contact confirmation, and an
+ * unavailable service on verify or confirmation, so each banner can be reviewed.
  */
 export type DemoOperatorScenario =
-  'normal' | 'requestLimited' | 'verifyLimited' | 'verifyUnavailable';
+  | 'normal'
+  | 'requestLimited'
+  | 'verifyLimited'
+  | 'verifyUnavailable'
+  | 'confirmLimited'
+  | 'confirmUnavailable';
 
 export interface DemoOperator {
   readonly identifier: OperatorIdentifier;
   readonly identity: Identity;
   readonly grants: Grants;
   readonly scenario: DemoOperatorScenario;
+  /** Whether the contact starts confirmed. Core issues working codes only to confirmed operators. */
+  readonly confirmed: boolean;
 }
 
 const operator = (
@@ -106,6 +116,7 @@ const operator = (
   identifier: OperatorIdentifier,
   platforms: Grants['platformAssignments'],
   scenario: DemoOperatorScenario = 'normal',
+  confirmed = true,
 ): DemoOperator => ({
   identifier,
   identity: {
@@ -116,6 +127,7 @@ const operator = (
   },
   grants: { companyId: null, platformAssignments: platforms },
   scenario,
+  confirmed,
 });
 
 const email = (value: string): OperatorIdentifier => ({ kind: 'email', email: value });
@@ -152,6 +164,40 @@ export const DEMO_OPERATORS: readonly DemoOperator[] = [
   ),
 ];
 
+/**
+ * FICTIONAL new operators whose contact is not confirmed yet (development builds only): they confirm it with
+ * `DEMO_CONFIRMATION_CODE`, then request a working code like any operator.
+ */
+export const DEMO_NEW_OPERATORS: readonly DemoOperator[] = [
+  operator(
+    8,
+    email('operator.new@demo.nawara.invalid'),
+    [DEMO_SCHOOL_PLATFORM_ID],
+    'normal',
+    false,
+  ),
+  operator(
+    9,
+    email('operator.new.limited@demo.nawara.invalid'),
+    [DEMO_SCHOOL_PLATFORM_ID],
+    'confirmLimited',
+    false,
+  ),
+  operator(
+    10,
+    email('operator.new.offline@demo.nawara.invalid'),
+    [DEMO_SCHOOL_PLATFORM_ID],
+    'confirmUnavailable',
+    false,
+  ),
+];
+
+const NEW_OPERATOR_ROLE_KEYS = [
+  'auth.demo.operatorNew',
+  'auth.demo.operatorVerifyLimited',
+  'auth.demo.operatorUnavailable',
+] as const;
+
 const OPERATOR_ROLE_KEYS = [
   'auth.demo.operatorSingle',
   'auth.demo.operatorMulti',
@@ -177,4 +223,9 @@ export const DEMO_SIGN_IN_HINT: DemoSignInHint = {
     roleKey: OPERATOR_ROLE_KEYS[i] ?? 'auth.demo.operatorSingle',
   })),
   workingCode: DEMO_WORKING_CODE,
+  newOperators: DEMO_NEW_OPERATORS.map((o, i) => ({
+    identifier: o.identifier.kind === 'email' ? o.identifier.email : o.identifier.phone,
+    roleKey: NEW_OPERATOR_ROLE_KEYS[i] ?? 'auth.demo.operatorNew',
+  })),
+  confirmationCode: DEMO_CONFIRMATION_CODE,
 };

@@ -5,7 +5,15 @@ import { Actor } from './actor';
 import { AuthSession } from './auth-session';
 
 const DEMO_BINDINGS_STUB: DemoBindings = {
-  signIn: { accounts: [], password: 'p', code: 'c', operators: [], workingCode: 'w' },
+  signIn: {
+    accounts: [],
+    password: 'p',
+    code: 'c',
+    operators: [],
+    workingCode: 'w',
+    newOperators: [],
+    confirmationCode: 'k',
+  },
   providers: {
     auth: [],
     scopeDirectory: [],

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="#FAF8F7"/><svg x="8" y="15" width="48" height="30" viewBox="-1 0 48 30">
+<defs>
+<linearGradient id="fcoralcr" x1="20" y1="28" x2="43" y2="2" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#C42427"/><stop offset=".5" stop-color="#E5383B"/><stop offset="1" stop-color="#FF7A7D"/></linearGradient>
+<linearGradient id="fcoralcl" x1="19.5" y1="28" x2="0" y2="13" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#C42427"/><stop offset=".55" stop-color="#E5383B"/><stop offset="1" stop-color="#FF7A7D"/></linearGradient>
+<linearGradient id="fcoralcb" x1="20" y1="28" x2="46" y2="15" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FF9597" stop-opacity=".9"/><stop offset="1" stop-color="#FF9597" stop-opacity=".6"/></linearGradient>
+</defs>
+<path d="M19.5 27 C13 14 14 6 21 2.5" fill="none" stroke="#E0916A" stroke-width=".8" stroke-linecap="round"/>
+<circle cx="21" cy="2.5" r="1.7" fill="#E5383B"/>
+<path d="M20 28 C26 20 35 15.5 46 16 C40 23.5 31 28.5 20 28Z" fill="url(#fcoralcb)"/>
+<path d="M20 28 C21 16 30.5 6.5 43 2 C42.5 13.5 35 24 20 28Z" fill="url(#fcoralcr)"/>
+<path d="M19.5 28 C16.5 20 9.5 14 0 13 C2.5 21.5 10 27.5 19.5 28Z" fill="url(#fcoralcl)"/>
+<path d="M21.5 26 C26 17.5 32.5 9.5 40.5 4.5" fill="none" stroke="#FFFFFF" stroke-width=".7" stroke-linecap="round" stroke-opacity=".8"/>
+<path d="M18 26.3 C14 20.5 8.5 16.5 2.5 14.5" fill="none" stroke="#FFFFFF" stroke-width=".7" stroke-linecap="round" stroke-opacity=".8"/>
+</svg></svg>

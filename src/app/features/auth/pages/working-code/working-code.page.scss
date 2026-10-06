@@ -1,4 +1,5 @@
-// The two working-code pages (A4-S2 design): request, then verify. Laid out inside the shared sign-in card.
+// The working-code pages (A4-S2 design: request, then verify) and the contact confirmation (A4-S3 design), laid out
+// inside the shared sign-in card.
 :host {
   display: contents;
 }
@@ -59,6 +60,26 @@
   color: var(--nw-text-secondary);
   font-size: 0.75rem;
   line-height: 1.5;
+}
+
+// A short note under the form, separated by a rule (contact confirmation).
+.working-code__footnote {
+  padding-block-start: var(--nw-space-3);
+  border-block-start: 1px solid var(--nw-border-subtle);
+  color: var(--nw-text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+// "First time signing in? Confirm your contact": the entry to the contact confirmation, centred.
+.working-code__entry {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--nw-space-1) var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: 0.8125rem;
+  text-align: center;
 }
 
 // Text actions of these pages, styled as the design's links.

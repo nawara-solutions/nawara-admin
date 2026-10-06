@@ -40,7 +40,15 @@ const operator: Actor = {
   platformAssignments: [platformId('school'), platformId('drive')],
 };
 const DEMO: DemoBindings = {
-  signIn: { accounts: [], password: 'p', code: 'c', operators: [], workingCode: 'w' },
+  signIn: {
+    accounts: [],
+    password: 'p',
+    code: 'c',
+    operators: [],
+    workingCode: 'w',
+    newOperators: [],
+    confirmationCode: 'k',
+  },
   providers: {
     auth: [],
     scopeDirectory: [],

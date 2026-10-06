@@ -199,6 +199,7 @@ Admin strategy and the decision required before A4.
 | Owner first-factor enrollment | Auth | 🟢 Prod | `owner.controller.ts` `enroll/*` | HTTP (A4) |
 | Owner recovery | Auth | 🟢 Prod | `owner.controller.ts` `recovery/*` | HTTP (A4/A7) |
 | Operator login (working code) | Auth | 🟢 Prod | `operator.controller.ts` `login/operator/*` | HTTP (A4) |
+| Operator contact confirmation | Auth | 🟢 route; reissue 🔴 (CF-16); docs vs source 🟡 (CF-17) | `operator.controller.ts` `operators/confirm` | mock adapter (A4-S3, development only); HTTP later |
 | Session refresh / logout | Auth | 🟢 Prod | `auth.controller.ts` `refresh`, `logout` | HTTP; storage strategy = decision D-A4 |
 | Current user / grants | Auth | 🟢 Prod | `GET /auth/me`, `GET /auth/grants` | HTTP (A4/A6) |
 | MFA factor management | Auth | 🟢 Prod | `owner.controller.ts` `factors*` | HTTP (A7) |
@@ -409,6 +410,70 @@ Admin requirement: exact login request fields and accepted identifier formats; s
 Classification:   🟢 contract to read from Auth's OpenAPI and source (not re-inspected for this slice).
 V1 or V2:         V1.
 Recommended checkpoint: before the auth HTTP adapter (rest of Admin A4).
+
+CF-16  Operator confirmation-code reissue
+Service:          auth-service
+Current behavior: 🟢 (source, origin/main 763e1a8) the confirmation code is issued only when the owner creates the operator
+                  (operator-admin.service.ts:31; default lifetime 8 h, OPERATOR_CONFIRMATION_TTL_SEC). No route resends or
+                  reissues it; Core's ADD says a resend endpoint "is not designed". Blocking cancels it; unblocking issues none.
+                  An operator whose code expired, was killed by 5 wrong guesses, or was blocked before confirming has no path.
+Admin requirement: a way to obtain a new confirmation code (operator-requested and/or owner-triggered), with the same
+                  enumeration and rate-limit care as request-code. Whether re-creating the same identifier is refused is
+                  🟡 unverified.
+Classification:   🔴 missing capability.
+V1 or V2:         to decide by the Core owner.
+Recommended checkpoint: before the A4-S3 HTTP integration and A7 operator administration (the A4-S3 mock prototype is built
+without any reissue: it offers none and points to the company owner).
+
+CF-17  Operator confirmation: Core documentation versus source
+Service:          auth-service (documentation and source)
+Current behavior: recorded, not resolved here (origin/main 763e1a8):
+                  (a) ADR-0015, the SDD (operator confirm section) and the ADD say a successful confirmation publishes
+                      admin.operator_contact_confirmed and sends the first working code automatically; the source only sets
+                      contactVerifiedAt and writes an audit record (operator-code.service.ts:169–184), and Core's own e2e test
+                      requests the working code itself.
+                  (b) ADR-0015 and the TDD accept an enumeration side channel (204 for an already-confirmed operator whatever
+                      the code, 401 otherwise); the source comment and the security review say "no oracle".
+                  (c) GET /auth/me's contactVerified reads the user table, while operator confirmation sets the operator
+                      table, so it does not report an operator's confirmation.
+Admin requirement: Core states which behaviour is intended. Until then Admin follows the source: after confirmation the operator
+                  requests a working code; Admin never says one was sent and never reads /auth/me contactVerified as an
+                  operator's confirmation status.
+Classification:   🟡 documentation/source discrepancy.
+V1 or V2:         V1 (documentation or source fix, Core owner's choice).
+Recommended checkpoint: before the A4-S3 HTTP integration.
+
+CF-18  Owner visibility of operator confirmation status
+Service:          auth-service
+Current behavior: POST /auth/admin/operators answers { id, email, phone, isActive }; no owner route reports whether an
+                  operator has confirmed their contact (no operator directory: CF-03).
+Admin requirement: the owner sees "pending confirmation" for operators they created (minimized projection).
+Classification:   🔴 (with CF-03).
+V1 or V2:         V2 A4/A5 with CF-03.
+Recommended checkpoint: A7 operator administration.
+
+CF-19  Production delivery of operator codes
+Service:          notification-service (with auth-service events)
+Current behavior: 🟡 unverified. Auth emits admin.operator_code_issued and admin.operator_confirmation_code_issued
+                  (operator-code.service.ts:93, :104, origin/main 763e1a8) for Notification to deliver by email or SMS;
+                  Core's roadmap lists notification-service as "implemented, not in production" (docs/CORE-ROADMAP.md:50).
+                  A roadmap entry is not deployment evidence either way; nothing has been checked against production.
+Admin requirement: evidence that working and confirmation codes are delivered in production (email and SMS), before any Admin
+                  copy or flow relies on it. Until then Admin never claims a code was sent (A4-S2, A4-S3).
+Classification:   🟡 unverified (deployment, not a contract gap).
+V1 or V2:         to confirm with the Core owner.
+Recommended checkpoint: before the working-code and confirmation HTTP integration.
+
+CF-20  Locale of operator code messages
+Service:          auth-service, notification-service
+Current behavior: 🟢 (source, 763e1a8) the code events carry no locale (operator-code.service.ts:93, :104), and Notification
+                  resolves a missing locale to its configured default (notification-service intake/locale.ts). The message
+                  language is therefore independent of the language the operator uses in Admin.
+Admin requirement: code messages in the operator's language (EN/FR/AR), or an agreed source of the preferred locale (for
+                  example a request parameter or a stored preference); Admin's own copy stays separate from message content.
+Classification:   🟡 product decision and contract addition.
+V1 or V2:         to decide by the Core owner.
+Recommended checkpoint: before the working-code and confirmation HTTP integration.
 ```
 
 ## 10. Undefined architectural decisions (Core side)

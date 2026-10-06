@@ -172,7 +172,8 @@
     "platformChoice": "Choisissez une plateforme",
     "settingsAppearance": "Apparence",
     "workingCode": "Connexion avec un code de travail",
-    "workingCodeVerify": "Saisissez votre code de travail"
+    "workingCodeVerify": "Saisissez votre code de travail",
+    "contactConfirmation": "Confirmez votre contact"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -436,7 +437,7 @@
   "auth": {
     "brand": {
       "product": "Nawara Admin",
-      "tagline": "Des solutions intelligentes propulsées par l’IA.",
+      "tagline": "Des solutions intelligentes\npropulsées par l’IA.",
       "line": "L’espace d’administration de Nawara Solutions.",
       "copyright": "© 2026 Nawara Solutions"
     },
@@ -538,7 +539,10 @@
       "operatorUnassigned": "Opérateur, aucune plateforme attribuée",
       "operatorRequestLimited": "Simule trop de demandes",
       "operatorVerifyLimited": "Simule trop de tentatives",
-      "operatorUnavailable": "Simule un service indisponible"
+      "operatorUnavailable": "Simule un service indisponible",
+      "newOperators": "Nouveaux opérateurs (confirmation du contact)",
+      "confirmationCode": "Code de confirmation",
+      "operatorNew": "Nouvel opérateur, contact non confirmé"
     },
     "workingCode": {
       "requestTitle": "Connexion avec un code de travail",
@@ -570,6 +574,22 @@
       "againQuestion": "Besoin d’un autre code ?",
       "again": "Demander un nouveau code",
       "replaces": "Demander un nouveau code remplace le précédent."
+    },
+    "contactConfirmation": {
+      "title": "Confirmez votre contact",
+      "subtitle": "Étape unique pour les nouveaux opérateurs : saisissez l’adresse e-mail ou le numéro de téléphone enregistré par le propriétaire de votre société, et le code de confirmation reçu.",
+      "codeLabel": "Code de confirmation",
+      "codeRequired": "Saisissez le code de confirmation.",
+      "codeFormat": "Saisissez les 6 chiffres du code de confirmation.",
+      "confirm": "Confirmer le contact",
+      "confirming": "Confirmation…",
+      "invalid": "Nous n’avons pas pu confirmer ce code. Vérifiez-le et réessayez. Si le problème persiste, contactez le propriétaire de votre société pour obtenir de l’aide.",
+      "unavailable": "La confirmation est temporairement indisponible. Vos informations n’ont pas été vérifiées. Réessayez dans un instant.",
+      "confirmed": "Votre contact est confirmé. Vous pouvez maintenant demander un code de travail pour vous connecter.",
+      "requestWorkingCode": "Demander un code de travail",
+      "note": "La confirmation ne vous connecte pas. Si votre code de confirmation ne fonctionne plus, contactez le propriétaire de votre société pour obtenir de l’aide.",
+      "entryQuestion": "Première connexion ?",
+      "entryLink": "Confirmez votre contact"
     }
   },
   "settings": {

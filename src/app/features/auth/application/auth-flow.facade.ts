@@ -28,11 +28,18 @@ export const AUTH_ACCEPTED_PAUSE_MS = new InjectionToken<number>('AUTH_ACCEPTED_
 export const MFA_PATH = '/login/verify';
 export const WORKING_CODE_PATH = '/login/code';
 export const WORKING_CODE_VERIFY_PATH = '/login/code/verify';
+export const CONTACT_CONFIRMATION_PATH = '/login/confirm';
 
 /** `password` → (`mfa`) → `checking` → `resolved` (the landing page, or the no-access page). */
 export type AuthStep = 'password' | 'mfa' | 'checking' | 'resolved';
 export type BusyAction =
-  'signIn' | 'verify' | 'passkey' | 'requestCode' | 'resendCode' | 'verifyWorkingCode';
+  | 'signIn'
+  | 'verify'
+  | 'passkey'
+  | 'requestCode'
+  | 'resendCode'
+  | 'verifyWorkingCode'
+  | 'confirmContact';
 /**
  * Banner states of the password step. `enrollmentRequired` and `recoveryRequired` are Core's established next states
  * (`enrollment_required`, `recovery_required`), kept distinct; their screens are not in this prototype, so the flow
@@ -54,6 +61,11 @@ export type CodeRequestProblem = 'invalid' | 'rateLimited' | 'unavailable';
  * operator_code_invalid`: `invalidCode` never says why (wrong, used, replaced, locked, out of shift or unknown).
  */
 export type WorkingCodeProblem = 'invalidCode' | 'rateLimited' | 'unavailable';
+/**
+ * Problems of a new operator's contact confirmation. Every refused code is Core's one generic `401
+ * operator_code_invalid` (wrong, expired, used up, unknown or blocked): `invalidCode` never says why.
+ */
+export type ContactConfirmationProblem = 'invalidCode' | 'rateLimited' | 'unavailable';
 /** What the verify page says about the last request: neither confirms eligibility nor delivery. */
 export type WorkingCodeNotice = 'requested' | 'requestedAgain';
 
@@ -99,6 +111,11 @@ export function workingCodeProblemOf(error: AppError): WorkingCodeProblem {
     default:
       return 'unavailable';
   }
+}
+
+/** Same mapping as the working code: Core answers both with the same generic refusal and rate limits. */
+export function contactConfirmationProblemOf(error: AppError): ContactConfirmationProblem {
+  return workingCodeProblemOf(error);
 }
 
 /** A refused proof keeps the challenge; a challenge Core no longer knows (`403`/`404`/`409`) must restart. */
@@ -160,6 +177,9 @@ export class AuthFlowFacade {
   readonly codeRequestProblem = signal<CodeRequestProblem | null>(null);
   readonly workingCodeProblem = signal<WorkingCodeProblem | null>(null);
   readonly workingCodeNotice = signal<WorkingCodeNotice | null>(null);
+  /** Contact confirmation (a new operator, before any working code): its problem, or that it succeeded. */
+  readonly confirmationProblem = signal<ContactConfirmationProblem | null>(null);
+  readonly contactConfirmed = signal(false);
 
   readonly methods = this.offered.asReadonly();
   readonly method = signal<MfaMethod>('totp');
@@ -189,6 +209,8 @@ export class AuthFlowFacade {
         return 'auth.workingCode.requestingAgain';
       case 'verifyWorkingCode':
         return 'auth.workingCode.verifying';
+      case 'confirmContact':
+        return 'auth.contactConfirmation.confirming';
       default:
         return null;
     }
@@ -331,6 +353,32 @@ export class AuthFlowFacade {
     }
   }
 
+  /** A fresh confirmation form: no banner and no earlier success. */
+  startContactConfirmation(): void {
+    this.confirmationProblem.set(null);
+    this.contactConfirmed.set(false);
+  }
+
+  /**
+   * Confirms a new operator's contact (one request at a time). Success only records the contact as confirmed: no
+   * session and no access check, and no working code is sent; the operator then requests one. The code is not kept.
+   */
+  async confirmContact(text: string, identifier: OperatorIdentifier, code: string): Promise<void> {
+    if (this.currentBusy() !== null) return;
+    this.identifierText.set(text);
+    this.confirmationProblem.set(null);
+    this.currentBusy.set('confirmContact');
+    try {
+      await firstValueFrom(this.gateway.confirmOperatorContact(identifier, code));
+      if (this.destroyed) return;
+      this.contactConfirmed.set(true);
+    } catch (error: unknown) {
+      this.confirmationProblem.set(contactConfirmationProblemOf(toAppError(error)));
+    } finally {
+      this.currentBusy.set(null);
+    }
+  }
+
   /** Back to the request page to correct the identifier (kept as typed). */
   async changeIdentifier(): Promise<void> {
     if (this.currentBusy() !== null) return;
@@ -350,6 +398,7 @@ export class AuthFlowFacade {
     this.verifyProblem.set(null);
     this.codeRequestProblem.set(null);
     this.workingCodeProblem.set(null);
+    this.confirmationProblem.set(null);
   }
 
   /** Back to the password step. The challenge is dropped; the email is kept. */
@@ -471,6 +520,7 @@ export class AuthFlowFacade {
     this.codeRequestProblem.set(null);
     this.workingCodeProblem.set(null);
     this.workingCodeNotice.set(null);
+    this.startContactConfirmation();
   }
 
   private signInQuery() {

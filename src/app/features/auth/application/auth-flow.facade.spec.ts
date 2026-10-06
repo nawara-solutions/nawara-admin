@@ -32,10 +32,19 @@ import {
   signInProblemOf,
   verifyProblemOf,
   workingCodeProblemOf,
+  contactConfirmationProblemOf,
 } from './auth-flow.facade';
 
 const DEMO: DemoBindings = {
-  signIn: { accounts: [], password: 'p', code: 'c', operators: [], workingCode: 'w' },
+  signIn: {
+    accounts: [],
+    password: 'p',
+    code: 'c',
+    operators: [],
+    workingCode: 'w',
+    newOperators: [],
+    confirmationCode: 'k',
+  },
   providers: {
     auth: [],
     scopeDirectory: [],
@@ -69,7 +78,11 @@ class FakeGateway extends AuthGateway {
   verifyCodeAnswer: Observable<void> = of(undefined);
   readonly codeRequests: OperatorIdentifier[] = [];
   readonly codeVerifications: { identifier: OperatorIdentifier; code: string }[] = [];
+  confirmAnswer: Observable<void> = of(undefined);
+  readonly confirmations: { identifier: OperatorIdentifier; code: string }[] = [];
   logouts = 0;
+  /** Calls of the access check (`/auth/me`, `/auth/grants`). */
+  accessChecks = 0;
   platformAllowed = true;
 
   login(): Observable<LoginOutcome> {
@@ -90,10 +103,16 @@ class FakeGateway extends AuthGateway {
     this.codeVerifications.push({ identifier, code });
     return this.verifyCodeAnswer;
   }
+  confirmOperatorContact(identifier: OperatorIdentifier, code: string): Observable<void> {
+    this.confirmations.push({ identifier, code });
+    return this.confirmAnswer;
+  }
   me(): Observable<Identity> {
+    this.accessChecks++;
     return of(this.identity);
   }
   grants(): Observable<Grants> {
+    this.accessChecks++;
     return of(this.grantsAnswer);
   }
   platformAccess(): Observable<boolean> {
@@ -566,5 +585,71 @@ describe('auth error mapping (HTTP-status fallback until Core codes are verified
       expect(gateway.proofs).toEqual([]);
       expect(flow.methods()).toEqual([]);
     });
+  });
+});
+
+describe('contact confirmation (new operators)', () => {
+  const EMAIL: OperatorIdentifier = { kind: 'email', email: 'operator.new@x.invalid' };
+
+  it('confirms with the code as a string, then stays put: no session, no access check, no navigation', async () => {
+    const { flow, gateway, session, navigations } = setUp();
+    await flow.confirmContact('typed text', EMAIL, '005318');
+    expect(gateway.confirmations).toEqual([{ identifier: EMAIL, code: '005318' }]);
+    expect(flow.contactConfirmed()).toBe(true);
+    expect(flow.confirmationProblem()).toBeNull();
+    expect(flow.identifierText()).toBe('typed text');
+    expect(gateway.codeRequests).toEqual([]);
+    expect(gateway.accessChecks).toBe(0);
+    expect(session.actor()).toBeNull();
+    expect(navigations).toEqual([]);
+    expect(flow.busy()).toBeNull();
+  });
+
+  it('shows one generic state for every refused code', async () => {
+    const { flow, gateway, session } = setUp();
+    for (const error of [
+      { kind: 'unauthenticated', code: 'operator_code_invalid', status: 401 },
+      { kind: 'validation', messages: [], status: 400 },
+      { kind: 'forbidden', status: 403 },
+      { kind: 'not_found', status: 404 },
+    ] as AppError[]) {
+      gateway.confirmAnswer = fail(error);
+      await flow.confirmContact('x', EMAIL, '000000');
+      expect(flow.confirmationProblem()).toBe('invalidCode');
+      expect(flow.contactConfirmed()).toBe(false);
+    }
+    expect(session.actor()).toBeNull();
+  });
+
+  it('maps a rate limit and an unavailable service; nothing is retried by itself', async () => {
+    const { flow, gateway } = setUp();
+    gateway.confirmAnswer = fail({ kind: 'rate_limited', status: 429 });
+    await flow.confirmContact('x', EMAIL, '005318');
+    expect(flow.confirmationProblem()).toBe('rateLimited');
+    gateway.confirmAnswer = fail({ kind: 'network', status: 0 });
+    await flow.confirmContact('x', EMAIL, '005318');
+    expect(flow.confirmationProblem()).toBe('unavailable');
+    expect(gateway.confirmations).toHaveLength(2);
+    expect(contactConfirmationProblemOf({ kind: 'unexpected', status: 500 })).toBe('unavailable');
+  });
+
+  it('never sends a second confirmation while one is pending', async () => {
+    const { flow, gateway } = setUp();
+    gateway.confirmAnswer = new Observable<void>(() => undefined);
+    void flow.confirmContact('x', EMAIL, '005318');
+    void flow.confirmContact('x', EMAIL, '005318');
+    expect(gateway.confirmations).toHaveLength(1);
+    expect(flow.busy()).toBe('confirmContact');
+    expect(flow.announcement()).toBe('auth.contactConfirmation.confirming');
+  });
+
+  it('forgets a confirmation on a fresh form and on going back to sign-in', async () => {
+    const { flow } = setUp();
+    await flow.confirmContact('x', EMAIL, '005318');
+    flow.startContactConfirmation();
+    expect(flow.contactConfirmed()).toBe(false);
+    await flow.confirmContact('x', EMAIL, '005318');
+    await flow.backToSignIn();
+    expect(flow.contactConfirmed()).toBe(false);
   });
 });

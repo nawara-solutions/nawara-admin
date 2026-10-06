@@ -26,7 +26,15 @@ import { AppError } from '../../../core/errors/app-error';
 import { AUTH_ACCEPTED_PAUSE_MS, AuthFlowFacade } from '../application/auth-flow.facade';
 
 const DEMO: DemoBindings = {
-  signIn: { accounts: [], password: 'p', code: 'c', operators: [], workingCode: 'w' },
+  signIn: {
+    accounts: [],
+    password: 'p',
+    code: 'c',
+    operators: [],
+    workingCode: 'w',
+    newOperators: [],
+    confirmationCode: 'k',
+  },
   providers: {
     auth: [],
     scopeDirectory: [],
@@ -47,8 +55,10 @@ export class ScriptedAuthGateway extends AuthGateway {
   verifyAnswer: Observable<void> = of(undefined);
   requestCodeAnswer: Observable<void> = of(undefined);
   verifyCodeAnswer: Observable<void> = of(undefined);
+  confirmAnswer: Observable<void> = of(undefined);
   /** What the page sent, to check codes stay strings. */
   readonly codeCalls: { identifier: OperatorIdentifier; code?: string }[] = [];
+  readonly confirmCalls: { identifier: OperatorIdentifier; code: string }[] = [];
   identity: Identity = { userId: 'o', email: 'owner@x.invalid', phone: null, adminTier: 'owner' };
   grantsAnswer: Grants = { companyId: companyId('company'), platformAssignments: [] };
   platformAllowed = true;
@@ -72,6 +82,10 @@ export class ScriptedAuthGateway extends AuthGateway {
   verifyWorkingCode(identifier: OperatorIdentifier, code: string): Observable<void> {
     this.codeCalls.push({ identifier, code });
     return this.verifyCodeAnswer;
+  }
+  confirmOperatorContact(identifier: OperatorIdentifier, code: string): Observable<void> {
+    this.confirmCalls.push({ identifier, code });
+    return this.confirmAnswer;
   }
   me(): Observable<Identity> {
     return of(this.identity);

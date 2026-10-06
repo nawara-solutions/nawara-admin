@@ -46,3 +46,24 @@
     </div>
   </dl>
 }
+@if (hint().newOperators.length > 0) {
+  <p class="auth-demo-note__title auth-demo-note__title--section">
+    {{ 'auth.demo.newOperators' | transloco }}
+  </p>
+  <dl class="auth-demo-note__list">
+    @for (operator of hint().newOperators; track operator.identifier) {
+      <div class="auth-demo-note__row">
+        <dt>{{ operator.roleKey | transloco }}</dt>
+        <dd>
+          <bdi dir="ltr">{{ operator.identifier }}</bdi>
+        </dd>
+      </div>
+    }
+    <div class="auth-demo-note__row">
+      <dt>{{ 'auth.demo.confirmationCode' | transloco }}</dt>
+      <dd>
+        <bdi dir="ltr">{{ hint().confirmationCode }}</bdi>
+      </dd>
+    </div>
+  </dl>
+}

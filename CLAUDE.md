@@ -40,7 +40,7 @@ A0  Discovery / Architecture          ✅ COMPLETE
 A1  Workspace / Tooling               ✅ COMPLETE (awaiting owner review)
 A2  Design-system foundation          🟡 IMPLEMENTED + VERIFIED — owner review and scope decision pending (not closed)
 A3  Application shell                 🟡 bounded slice A3-S1 (shell + Company Overview, demo data) implemented — owner review pending; rest not started
-A4  Authentication                    🟡 A4-S1 + A4-S2 complete as mock prototypes (sign-in, owner MFA, operator working code; not production auth) — real integration open; not closed
+A4  Authentication                    🟡 A4-S1 + A4-S2 complete as mock prototypes (sign-in, owner MFA, operator working code; not production auth); A4-S3 contact confirmation complete as a mock prototype (owner-approved) — real integration open; not closed
 A5… see docs/ROADMAP.md               ⏸️
 ```
 
