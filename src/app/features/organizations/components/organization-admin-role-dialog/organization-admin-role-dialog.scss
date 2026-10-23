@@ -1,0 +1,91 @@
+// The organization-admin role dialog's content (P5-S3 design): the confirmation, the verification, pending, the result.
+.admin-role__body {
+  display: grid;
+  gap: var(--nw-space-4);
+}
+
+.admin-role__facts {
+  display: grid;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3) var(--nw-space-4);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  font-size: var(--nw-text-size-sm);
+
+  div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--nw-space-1) var(--nw-space-3);
+  }
+
+  dt {
+    color: var(--nw-text-secondary);
+  }
+
+  dd {
+    overflow-wrap: anywhere;
+  }
+}
+
+.admin-role__mono {
+  font-family: var(--nw-font-mono);
+}
+
+.admin-role__list {
+  margin: 0;
+  padding-inline-start: var(--nw-space-5);
+  font-size: var(--nw-text-size-sm);
+}
+
+.admin-role__purpose {
+  display: grid;
+  gap: 2px;
+  padding: var(--nw-space-3) var(--nw-space-4);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+
+  strong {
+    font-weight: var(--nw-font-weight-semibold);
+    overflow-wrap: anywhere;
+  }
+}
+
+.admin-role__purpose-label {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+}
+
+.admin-role__otp {
+  font-family: var(--nw-font-mono);
+  font-size: var(--nw-text-size-xl);
+  letter-spacing: 0.3em;
+  text-align: center;
+}
+
+.admin-role__demo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-accent-orange-bg);
+  color: var(--nw-accent-orange-fg);
+  font-size: var(--nw-text-size-sm);
+}
+
+.admin-role__note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.admin-role__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-2);
+}

@@ -8,7 +8,8 @@ import { organizationOf, platformViewerOf } from '../selectors';
  * Membership commands of the demo world (development builds only), applied through `DemoWorld.commit`. They follow the
  * source-verified Auth contract (P5-S0; auth-service `membership/membership.service.ts` `decide` and `revoke`,
  * `membership/organization.controller.ts`): pending → active (approve) or rejected (reject), active → revoked (revoke,
- * P5-S3a); one membership, nothing else. The audience is an opaque label: no rule here reads it.
+ * P5-S3a), the organization-admin role of an active membership (P5-S3b); one membership, nothing else. The audience
+ * is an opaque label: no rule here reads it.
  */
 
 export type MembershipDecision = 'approve' | 'reject';
@@ -153,6 +154,75 @@ export function revokeMembership(
           organizationId: organization.id,
           action: 'membership.revoked',
           occurredAt: at,
+        },
+      ],
+    },
+  };
+}
+
+export interface SetOrganizationAdminInput {
+  readonly organizationId: OrganizationId;
+  readonly membershipId: string;
+  /** The acting business identity: only the Company owner is authorized. */
+  readonly actor: AdminIdentityId;
+  /** The role wanted: `true` grants it, `false` removes it. */
+  readonly admin: boolean;
+  readonly now: number;
+}
+
+/** Whether the actor is the owner of the Company of this Organization's Platform (Core's `authority === 'owner'`). */
+export function ownsOrganization(
+  world: DemoWorldTables,
+  actor: AdminIdentityId,
+  organizationId: OrganizationId,
+): boolean {
+  const organization = organizationOf(world, organizationId);
+  return (
+    organization !== undefined &&
+    platformViewerOf(world, actor, organization.platformId) === 'owner'
+  );
+}
+
+/**
+ * Core's `setAdmin` (P5-S0, auth-service `membership.service.ts`): the Company owner only (an operator, like anyone
+ * else, gets the collapsed `404`); then one conditional change of the URL Organization's membership whose status is
+ * active AND whose role differs from the one wanted, else the same `404` (unknown, another Organization's, not active,
+ * already admin for a grant, not admin for a removal). Only `isOrganizationAdmin` changes: status, audience, the person
+ * and everything else stay as they are; an `organization.admin.granted` or `.revoked` activity record (no contact) is
+ * added. Core has no last-admin rule, so none is applied. The step-up is the gateway's (checked before, spent after).
+ */
+export function setOrganizationAdmin(
+  world: DemoWorldTables,
+  input: SetOrganizationAdminInput,
+): CommandOutcome<MembershipRecord> {
+  if (!ownsOrganization(world, input.actor, input.organizationId))
+    return { ok: false, error: NOT_FOUND };
+  const current = world.memberships.find(
+    (m) =>
+      m.id === input.membershipId &&
+      m.organizationId === input.organizationId &&
+      m.status === 'active' &&
+      m.isOrganizationAdmin !== input.admin,
+  );
+  if (current === undefined) return { ok: false, error: NOT_FOUND };
+  const organization = organizationOf(world, current.organizationId)!;
+  const changed: MembershipRecord = { ...current, isOrganizationAdmin: input.admin };
+  const sequence = world.sequence + 1;
+  return {
+    ok: true,
+    result: changed,
+    world: {
+      ...world,
+      sequence,
+      memberships: world.memberships.map((m) => (m.id === current.id ? changed : m)),
+      activity: [
+        ...world.activity,
+        {
+          id: `membership-activity-admin-${input.admin ? 'grant' : 'remove'}-${sequence}`,
+          platformId: organization.platformId,
+          organizationId: organization.id,
+          action: input.admin ? 'organization.admin.granted' : 'organization.admin.revoked',
+          occurredAt: new Date(input.now).toISOString(),
         },
       ],
     },

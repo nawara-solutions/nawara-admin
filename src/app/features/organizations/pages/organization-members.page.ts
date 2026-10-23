@@ -24,9 +24,10 @@ import { NwIcon } from '../../../shared/ui/icon/icon';
 import { isolated } from '../../platforms/domain/create-platform.model';
 import { MembershipDecisionAction } from '../application/membership-decision.action';
 import { MembershipRevokeAction } from '../application/membership-revoke.action';
+import { OrganizationAdminRoleAction } from '../application/organization-admin-role.action';
 import { publishOrganizationLabel } from '../application/organization-label';
 import { OrganizationMembersFacade } from '../application/organization-members.facade';
-import { DecisionRequest, MemberList } from '../components/member-list/member-list';
+import { DecisionRequest, MemberList, RoleRequest } from '../components/member-list/member-list';
 import { OrganizationStates } from '../components/organization-states/organization-states';
 import { OrganizationsHeader } from '../components/organizations-header/organizations-header';
 import {
@@ -65,7 +66,8 @@ const SORT_KEYS = {
  * Requests can be approved or rejected (P5-S2), and active memberships revoked (P5-S3a), by whoever may read them
  * here (Core decides): the row asks, the action confirms and sends. After a success the row leaves the tab and focus
  * moves to the same control of the next row, else to the count, else to the tab. Back from a revocation made on a
- * membership's details, focus starts on the count.
+ * membership's details, focus starts on the count. The owner also changes the organization-admin role (P5-S3b) from
+ * the row's "Actions" menu; the row stays, and focus returns to its "Actions" button once its badge has changed.
  */
 @Component({
   selector: 'adm-organization-members-page',
@@ -90,13 +92,16 @@ export class OrganizationMembersPage {
   protected readonly facade = inject(OrganizationMembersFacade);
   protected readonly decisions = inject(MembershipDecisionAction);
   protected readonly revocations = inject(MembershipRevokeAction);
+  protected readonly roles = inject(OrganizationAdminRoleAction);
   private readonly session = inject(AuthSession);
   private readonly document = inject(DOCUMENT);
   private readonly injector = inject(Injector);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   /** Where the row was, and which control it had, while its action (made on this page) is under way. */
   private decidedIndex: number | null = null;
-  private decidedControl: '[data-decide="approve"]' | '[data-revoke]' = '[data-decide="approve"]';
+  private decidedControl = '[data-decide="approve"]';
+  /** The row whose role change (made on this page) is under way, and the role wanted. */
+  private roleChange: { readonly membershipId: string; readonly admin: boolean } | null = null;
   protected readonly statuses = LISTABLE_STATUSES;
   protected readonly statusKeys = STATUS_KEYS;
   protected readonly emptyKeys = EMPTY_KEYS;
@@ -120,6 +125,7 @@ export class OrganizationMembersPage {
 
   protected readonly offers = (membership: Membership) => this.decisions.offers(membership);
   protected readonly revokeOffers = (membership: Membership) => this.revocations.offers(membership);
+  protected readonly roleOffers = (membership: Membership) => this.roles.offers(membership);
 
   protected readonly filtered = computed(
     () => this.facade.search().trim() !== '' || this.facade.query().admins,
@@ -156,6 +162,18 @@ export class OrganizationMembersPage {
       afterNextRender(() => this.focusAfterDecision(index), { injector: this.injector });
     });
 
+    // Once a role change made here succeeded and the reloaded row shows it, focus that row's "Actions" button.
+    effect(() => {
+      const done = this.roles.succeeded();
+      const change = this.roleChange;
+      if (done === null || change === null || done.membershipId !== change.membershipId) return;
+      const row = this.facade.rows().find((m) => m.id === change.membershipId);
+      if (row !== undefined && row.isOrganizationAdmin !== change.admin) return;
+      this.roleChange = null;
+      untracked(() => this.roles.succeeded.set(null));
+      afterNextRender(() => this.focusActionsOf(change.membershipId), { injector: this.injector });
+    });
+
     // Back from a revocation made on a membership's details: focus the count once the list is shown.
     effect(() => {
       if (!this.revocations.returnedFromDetails()) return;
@@ -173,7 +191,9 @@ export class OrganizationMembersPage {
     organizationName: string,
   ): void {
     this.decidedIndex = this.facade.rows().findIndex((m) => m.id === membership.id);
-    this.decidedControl = '[data-revoke]';
+    // The owner's rows carry an "Actions" menu (the role and Revoke); an operator's a direct "Revoke…".
+    this.decidedControl =
+      this.roles.offers(membership) !== null ? '[data-actions]' : '[data-revoke]';
     this.revocations.succeeded.set(null);
     this.revocations.open({ target: { platformId, organizationId, organizationName }, membership });
   }
@@ -194,13 +214,38 @@ export class OrganizationMembersPage {
     });
   }
 
-  private focusAfterDecision(index: number): void {
-    // Table and cards are both rendered, one of them hidden by the container query: use the displayed one.
-    const shown = [
+  protected changeRole(
+    request: RoleRequest,
+    platformId: PlatformId,
+    organizationId: OrganizationId,
+    organizationName: string,
+  ): void {
+    this.roleChange = { membershipId: request.membership.id, admin: request.admin };
+    this.roles.succeeded.set(null);
+    this.roles.open({
+      target: { platformId, organizationId, organizationName },
+      membership: request.membership,
+      admin: request.admin,
+    });
+  }
+
+  private focusActionsOf(membershipId: string): void {
+    this.shownList()
+      ?.querySelector<HTMLElement>(`[data-actions][data-membership="${CSS.escape(membershipId)}"]`)
+      ?.focus();
+  }
+
+  /** Table and cards are both rendered, one of them hidden by the container query: the displayed one. */
+  private shownList(): HTMLElement | undefined {
+    return [
       ...this.host.nativeElement.querySelectorAll<HTMLElement>(
         '.member-list__table, .member-list__cards',
       ),
     ].find((list) => getComputedStyle(list).display !== 'none');
+  }
+
+  private focusAfterDecision(index: number): void {
+    const shown = this.shownList();
     const controls = [...(shown?.querySelectorAll<HTMLElement>(this.decidedControl) ?? [])];
     const target =
       controls[Math.min(index, controls.length - 1)] ??

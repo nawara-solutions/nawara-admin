@@ -150,10 +150,12 @@
                 [pathOf]="pathOf()"
                 [offers]="offers"
                 [revokeOffers]="revokeOffers"
-                [sendingId]="decisions.sendingId() ?? revocations.sendingId()"
+                [roleOffers]="roleOffers"
+                [sendingId]="decisions.sendingId() ?? revocations.sendingId() ?? roles.sendingId()"
                 [sending]="decisions.sending()"
                 (decide)="decide($event, view.platform.id, organization.id, organization.name)"
                 (revoke)="revoke($event, view.platform.id, organization.id, organization.name)"
+                (role)="changeRole($event, view.platform.id, organization.id, organization.name)"
               />
             } @else {
               <div id="organization-members-list">

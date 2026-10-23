@@ -160,7 +160,9 @@ describe('Membership decisions (P5-S2)', { timeout: 15_000 }, () => {
   });
 
   it('sends one decision at a time: double clicks and other rows wait while it is pending', async () => {
-    const s = await setUp({ latency: 60 });
+    // A wide in-flight window (400 ms of simulated latency), so the checks below run while the request is pending
+    // even under the full suite's load.
+    const s = await setUp({ latency: 400 });
     s.controls('approve')[0]!.click();
     await s.settle();
     const confirm = s.button(D.approveConfirm)!;
@@ -175,7 +177,7 @@ describe('Membership decisions (P5-S2)', { timeout: 15_000 }, () => {
     others[0]!.click();
     await s.settle();
     expect(document.querySelectorAll('adm-membership-decision-dialog')).toHaveLength(1);
-    await s.settle(200);
+    await s.settle(600);
     expect(s.decide).toHaveBeenCalledTimes(1);
     expect(s.horizon('active')).toHaveLength(65);
   });

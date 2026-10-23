@@ -6,7 +6,9 @@ import { OrganizationId } from '../../../core/context/scope.model';
 import { AppError } from '../../../core/errors/app-error';
 import {
   decideMembership,
+  ownsOrganization,
   revokeMembership,
+  setOrganizationAdmin,
 } from '../../../demo/world/commands/membership.commands';
 import { DemoWorld } from '../../../demo/world/demo-world';
 import { organizationOf, platformViewerOf } from '../../../demo/world/selectors';
@@ -33,8 +35,10 @@ export const MEMBERSHIPS_DEMO_SCENARIO = new InjectionToken<MembershipsDemoScena
 );
 
 /**
- * Which answer a decision or a revocation gets (§3). Demo builds use `normal`, which SUCCEEDS. The others:
- * - `decidedElsewhere`: someone else acts on the membership just before (a competing decision or revocation): `409`;
+ * Which answer a decision, a revocation or a role change gets (§3). Demo builds use `normal`, which SUCCEEDS. The
+ * others:
+ * - `decidedElsewhere`: someone else acts on the membership just before: `409` for a decision or a revocation, Core's
+ *   collapsed `404` for a role change;
  * - `outcomeUnknown`: the decision is applied but its answer is lost (nothing replays it: no idempotency);
  * - `rateLimited`: the per-actor bucket is exhausted (`429 rate_limited`);
  * - `unavailable`: the service refuses before applying anything (`503`).
@@ -66,6 +70,11 @@ export const MEMBERSHIP_OP_LIMIT = { limit: 120, windowMs: 900_000 } as const;
  * Decisions and revocations follow Core's `decide` and `revoke`: the session (`401`), the throttle (`429`, every
  * attempt counts, one bucket for both), then the `decideMembership` or `revokeMembership` command, which owns authority,
  * the self rule and the status check (`404`/`409`).
+ *
+ * Organization-admin role changes follow Core's `setAdmin`: the session, the throttle (the same bucket), the owner's
+ * authority (anyone else: `404`), the step-up of the direction's purpose, checked WITHOUT being spent (`403
+ * step_up_required`: missing, wrong purpose, spent, expired or a secret-key grant), then `setOrganizationAdmin` (no
+ * row: `404`, which rolls back in Core, so the step-up stays unspent), and only then is the step-up spent.
  */
 export class MockMembershipGateway extends MembershipGateway {
   readonly available = true;
@@ -191,7 +200,40 @@ export class MockMembershipGateway extends MembershipGateway {
     });
   }
 
-  /** Core's per-actor bucket (`membership_op_actor`): every decision or revocation attempt counts, refused or not. */
+  setOrganizationAdmin(
+    organization: OrganizationId,
+    membershipId: string,
+    admin: boolean,
+    options: { readonly stepUpToken: string },
+  ): Observable<void> {
+    return defer((): Observable<void> => {
+      const signedIn = this.auth.signedIn();
+      if (signedIn === null) return this.fail({ kind: 'unauthenticated', status: 401 });
+      if (this.decisions === 'unavailable') return this.fail({ kind: 'unavailable', status: 503 });
+      const userId = signedIn.identity.userId;
+      const throttled = this.throttle(userId);
+      if (throttled) return this.fail(throttled);
+      const actor = signedIn.businessIdentityId;
+      const notFound: AppError = { kind: 'not_found', code: 'not_found', status: 404 };
+      if (actor === null || !ownsOrganization(this.world.snapshot(), actor, organization))
+        return this.fail(notFound);
+      const purpose = admin ? 'organization.admin.grant' : 'organization.admin.revoke';
+      const now = this.now();
+      if (!this.auth.checkStepUp(options.stepUpToken, purpose, userId, now))
+        return this.fail({ kind: 'forbidden', code: 'step_up_required', status: 403 });
+      const input = { organizationId: organization, membershipId, actor, admin, now };
+      if (this.decisions === 'decidedElsewhere')
+        this.world.commit((tables) => setOrganizationAdmin(tables, input));
+      const outcome = this.world.commit((tables) => setOrganizationAdmin(tables, input));
+      // Nothing changed: Core rolls back, so the step-up is not spent.
+      if (!outcome.ok) return this.fail(outcome.error);
+      this.auth.consumeStepUp(options.stepUpToken, purpose, userId, now);
+      if (this.decisions === 'outcomeUnknown') return this.fail({ kind: 'network', status: 0 });
+      return of(undefined).pipe(delay(this.latency));
+    });
+  }
+
+  /** Core's per-actor bucket (`membership_op_actor`): every decision, revocation or role-change attempt counts. */
   private throttle(userId: string): AppError | null {
     if (this.decisions === 'rateLimited') return { kind: 'rate_limited', status: 429 };
     const now = this.now();

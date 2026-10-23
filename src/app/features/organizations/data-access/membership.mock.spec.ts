@@ -306,3 +306,125 @@ describe('MockMembershipGateway: revocation (P5-S3a)', () => {
     }
   });
 });
+
+describe('MockMembershipGateway: the organization-admin role (P5-S3b)', () => {
+  function roles(
+    scenario: MembershipDecisionsDemoScenario = 'normal',
+    actor = DEMO_OWNER_ID,
+    tier: 'owner' | 'operator' = 'owner',
+  ) {
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: DEMO_LATENCY_MS, useValue: 0 },
+        { provide: NW_CLOCK, useValue: () => NOW },
+        { provide: MEMBERSHIP_DECISIONS_DEMO_SCENARIO, useValue: scenario },
+        MockMembershipGateway,
+      ],
+    });
+    const auth = TestBed.inject(DemoAuthState);
+    const userId = `u-${actor}`;
+    auth.signedIn.set({
+      identity: { userId, email: null, phone: null, adminTier: tier },
+      businessIdentityId: actor,
+    });
+    const gateway = TestBed.inject(MockMembershipGateway);
+    const world = TestBed.inject(DemoWorld);
+    const active = (admin: boolean, skip = 0) =>
+      world
+        .snapshot()
+        .memberships.filter(
+          (m) =>
+            m.organizationId === HORIZON &&
+            m.status === 'active' &&
+            m.isOrganizationAdmin === admin,
+        )[skip]!;
+    /** A grant as the step-up gateway would issue it (`secret_key` only to prove Core's refusal). */
+    const grant = (purpose: string, method: 'totp' | 'webauthn' | 'secret_key' = 'totp') =>
+      auth.issueStepUp(purpose, userId, NOW + 60_000, method);
+    return {
+      world,
+      active,
+      grant,
+      flag: (id: string) =>
+        world.snapshot().memberships.find((m) => m.id === id)?.isOrganizationAdmin,
+      set: (id: string, admin: boolean, stepUpToken: string, organization = HORIZON) =>
+        firstValueFrom(gateway.setOrganizationAdmin(organization, id, admin, { stepUpToken })).then(
+          () => 'done',
+        ),
+    };
+  }
+  const STEP_UP_REQUIRED = { kind: 'forbidden', code: 'step_up_required', status: 403 };
+
+  it('grants and removes with a factor step-up of the matching purpose: 204, the flag flips, the grant is single use', async () => {
+    const s = roles();
+    const member = s.active(false);
+    const token = s.grant('organization.admin.grant');
+    expect(await s.set(member.id, true, token)).toBe('done');
+    expect(s.flag(member.id)).toBe(true);
+    const another = s.active(false);
+    expect(await error(s.set(another.id, true, token))).toEqual(STEP_UP_REQUIRED);
+    expect(s.flag(another.id)).toBe(false);
+    expect(await s.set(member.id, false, s.grant('organization.admin.revoke', 'webauthn'))).toBe(
+      'done',
+    );
+    expect(s.flag(member.id)).toBe(false);
+  });
+
+  it('refuses a missing, wrong-purpose or secret-key step-up (403) and changes nothing', async () => {
+    const s = roles();
+    const member = s.active(false);
+    for (const token of [
+      '',
+      s.grant('organization.admin.revoke'),
+      s.grant('admin_invitation.create'),
+      s.grant('organization.admin.grant', 'secret_key'),
+    ])
+      expect(await error(s.set(member.id, true, token))).toEqual(STEP_UP_REQUIRED);
+    expect(s.flag(member.id)).toBe(false);
+  });
+
+  it('answers 404 without spending the step-up for a role already in place, then accepts it for an eligible member', async () => {
+    const s = roles();
+    const admin = s.active(true);
+    const token = s.grant('organization.admin.grant');
+    expect((await error(s.set(admin.id, true, token))).status).toBe(404);
+    const member = s.active(false);
+    expect(await s.set(member.id, true, token)).toBe('done');
+  });
+
+  it('gives operators the collapsed 404 before any step-up, and changes nothing', async () => {
+    const s = roles('normal', DEMO_OPERATOR_IDS.school, 'operator');
+    const member = s.active(false);
+    expect((await error(s.set(member.id, true, s.grant('organization.admin.grant')))).status).toBe(
+      404,
+    );
+    expect(s.flag(member.id)).toBe(false);
+    expect((await error(s.set(s.active(true).id, false, 'x', ANDALOUS))).status).toBe(404);
+  });
+
+  it('simulates a competing change (404), a lost answer (applied, step-up spent), a full bucket and an outage', async () => {
+    let s = roles('decidedElsewhere');
+    let member = s.active(false);
+    expect((await error(s.set(member.id, true, s.grant('organization.admin.grant')))).status).toBe(
+      404,
+    );
+    expect(s.flag(member.id)).toBe(true);
+    TestBed.resetTestingModule();
+    s = roles('outcomeUnknown');
+    member = s.active(false);
+    const token = s.grant('organization.admin.grant');
+    expect((await error(s.set(member.id, true, token))).kind).toBe('network');
+    expect(s.flag(member.id)).toBe(true);
+    expect(await error(s.set(s.active(false).id, true, token))).toEqual(STEP_UP_REQUIRED);
+    for (const scenario of ['rateLimited', 'unavailable'] as const) {
+      TestBed.resetTestingModule();
+      s = roles(scenario);
+      member = s.active(false);
+      const fresh = s.grant('organization.admin.grant');
+      expect((await error(s.set(member.id, true, fresh))).status).toBe(
+        scenario === 'rateLimited' ? 429 : 503,
+      );
+      expect(s.flag(member.id)).toBe(false);
+    }
+  });
+});

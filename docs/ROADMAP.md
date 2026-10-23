@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation implemented, awaiting review; rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role implemented, awaiting review; rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,10 +290,26 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## P5-S3b: mock organization-admin role (implemented 2026-10-24)
+
+**Status: implemented as a development-only mock prototype, awaiting review.** Design:
+[`design/p5-s3-revocation-and-admin-role.md`](design/p5-s3-revocation-and-admin-role.md).
+
+- "Make organization admin…" and "Remove admin role…" for the Company owner only, from each Active row's "Actions" menu
+  (with "Revoke membership…") and the "Manage membership" card; operators never see a role control (Core gives them
+  the collapsed `404`) and keep the direct "Revoke…".
+- The owner's factor step-up of the direction's purpose (`organization.admin.grant` / `.revoke`: TOTP or passkey, never
+  the secret key), checked before and spent only when the change commits; a `404` (not active, already in that role,
+  gone, no authority) leaves it unspent. A refused code stays in verification.
+- `setOrganizationAdmin` command: owner authority inside the command; only `isOrganizationAdmin` flips; status,
+  audience, counts and every other table unchanged; `organization.admin.granted` / `.revoked` activity (no contact).
+- Grant warns about an unverified contact; removing the last listed admin warns; neither is blocked (no such Core
+  rule). One membership action at a time; never resent; reload and reconcile the role after a `404` or a lost answer.
+- Residual Core risks: CF-26/CF-27 (no step-up on revoke, which also removes the role), grant without contact check.
+
 ## P5-S3a: mock membership revocation (design approved 2026-10-24; implemented 2026-10-24)
 
-**Status: implemented as a development-only mock prototype, awaiting review. P5-S3b (the organization-admin role,
-owner + step-up) is not implemented.** Design and contract:
+**Status: complete (PR #27), a development-only mock prototype.** Design and contract:
 [`design/p5-s3-revocation-and-admin-role.md`](design/p5-s3-revocation-and-admin-role.md) (seven owner decisions approved).
 
 - "Revoke…" on Active rows and a "Manage membership" card on an active membership's details, for the Company owner and

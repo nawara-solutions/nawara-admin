@@ -5,6 +5,7 @@ import { OrganizationDirectoryFacade } from './application/organization-director
 import { MembershipActionLock } from './application/membership-action-support';
 import { MembershipDecisionAction } from './application/membership-decision.action';
 import { MembershipRevokeAction } from './application/membership-revoke.action';
+import { OrganizationAdminRoleAction } from './application/organization-admin-role.action';
 import { OrganizationMembersFacade } from './application/organization-members.facade';
 import { MEMBERS_SEGMENT } from '../../core/context/scope-context';
 import { MembershipGateway, UnavailableMembershipGateway } from './data-access/membership.gateway';
@@ -64,9 +65,10 @@ export async function loadOrganizationsRoutes(environment: AppEnvironment): Prom
             import('./pages/organization-detail.page').then((m) => m.OrganizationDetailPage),
         },
         {
-          // An Organization's members and one membership (P5-S1), decisions on its requests (P5-S2) and revocation
-          // (P5-S3a): one facade for both pages, so the lists are loaded once; the Organization is the detail facade's
-          // (Platform-checked first); one set of actions for both, single-flight across them (`MembershipActionLock`).
+          // An Organization's members and one membership (P5-S1), decisions on its requests (P5-S2), revocation (P5-S3a)
+          // and the organization-admin role (P5-S3b; its step-up gateway is the parent route's): one facade for both
+          // pages, so the lists are loaded once; the Organization is the detail facade's (Platform-checked first); one
+          // set of actions for both, single-flight across them (`MembershipActionLock`).
           path: `:organizationId/${MEMBERS_SEGMENT}`,
           providers: [
             OrganizationDetailFacade,
@@ -74,6 +76,7 @@ export async function loadOrganizationsRoutes(environment: AppEnvironment): Prom
             MembershipActionLock,
             MembershipDecisionAction,
             MembershipRevokeAction,
+            OrganizationAdminRoleAction,
           ],
           children: [
             {

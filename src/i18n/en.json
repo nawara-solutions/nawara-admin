@@ -366,6 +366,8 @@
         "membershipApproved": "Membership approved",
         "membershipRejected": "Membership request rejected",
         "membershipRevoked": "Membership revoked",
+        "adminGranted": "Organization-admin role granted",
+        "adminRemoved": "Organization-admin role removed",
         "platformCreated": "Platform created"
       },
       "auditLog": "Audit log"
@@ -516,6 +518,8 @@
       "membershipApproved": "Membership approved",
       "membershipRejected": "Membership request rejected",
       "membershipRevoked": "Membership revoked",
+      "adminGranted": "Organization-admin role granted",
+      "adminRemoved": "Organization-admin role removed",
       "operatorAssigned": "Operator assigned",
       "platformCreated": "Platform created"
     },
@@ -826,7 +830,48 @@
       },
       "role": {
         "admin": "Organization admin",
-        "member": "Member"
+        "member": "Member",
+        "actions": "Actions",
+        "actionsFor": "Actions for {{who}}",
+        "sending": "Changing the role…",
+        "grantOpen": "Make organization admin…",
+        "removeOpen": "Remove admin role…",
+        "sectionTitle": "Organization-admin role",
+        "sectionBody": "Authority within {{name}} only. Changing it keeps the membership and needs your verification.",
+        "grantTitle": "Make this member an organization admin?",
+        "removeTitle": "Remove the organization-admin role?",
+        "grantBody": "They gain administrative authority in {{name}} only: its memberships, join codes and admin invitations.",
+        "removeBody": "They stay an active member of {{name}} but no longer administer it.",
+        "grantKeepsMembership": "Their membership and audience stay as they are.",
+        "grantNoOtherAccess": "No Company or Platform access, and no other organization: this is not the Company owner’s or a Platform operator’s authority.",
+        "grantNoCommercial": "No subscription or payment change.",
+        "unverifiedWarning": "This contact has not been confirmed. Where Nawara Core requires verified contacts, the role may not take effect until it is.",
+        "lastAdminTitle": "No other organization admin is listed.",
+        "lastAdminBody": "{{name}} will have no organization admin until you make someone one. Nawara Core allows this.",
+        "stepUpNext": "Next: verify with your authenticator or passkey.",
+        "continue": "Continue",
+        "grantPurpose": "Make an organization admin in {{name}}",
+        "removePurpose": "Remove an organization-admin role in {{name}}",
+        "factorHint": "The 6-digit code from your authenticator app. A passkey works too; your secret key is not accepted for this change.",
+        "verifyAndGrant": "Verify and make admin",
+        "verifyAndRemove": "Verify and remove role",
+        "granting": "Granting the organization-admin role…",
+        "removing": "Removing the organization-admin role…",
+        "grantingShort": "Granting…",
+        "removingShort": "Removing…",
+        "notListed": "The membership is no longer listed in this organization.",
+        "nowAdmin": "It is now an organization admin, possibly from your request.",
+        "nowMember": "It is no longer an organization admin, possibly from your request.",
+        "unchanged": "Its role is unchanged.",
+        "granted": "Organization-admin role granted in {{name}}.",
+        "removed": "Organization-admin role removed in {{name}}.",
+        "notChanged": "The role change in {{name}} was not completed.",
+        "failure": {
+          "notApplied": "The role was not changed: the membership may no longer be active, or its role was already changed. Your verification was not used up.",
+          "unknown": "We couldn’t confirm the role change: the answer was lost, so it may or may not have been applied. Nothing is sent again automatically.",
+          "rateLimited": "Too many membership changes in a short time. Nothing was changed; wait a few minutes and try again.",
+          "unavailable": "Nawara Core could not change the role right now. Nothing was changed."
+        }
       },
       "identity": {
         "user": "Member {{ref}}",
@@ -844,7 +889,7 @@
         "contact": "Contact",
         "other": "Other memberships",
         "otherNote": "Not shown: Nawara Core offers no way to find one person across organizations.",
-        "readOnly": "Changing the organization-admin role arrives in a later release.",
+        "readOnly": "Revoked memberships cannot be restored here.",
         "notFoundTitle": "Membership not found or not accessible",
         "notFoundDescription": "It may not exist, may belong to another organization, or may no longer be listed."
       },
@@ -894,8 +939,8 @@
         "open": "Revoke…",
         "for": "Revoke the membership of {{who}}",
         "sending": "Revoking the membership…",
-        "authorityOwner": "As the Company owner you can revoke memberships. Nawara Core checks your authority on every change.",
-        "authorityOperator": "As an operator assigned to {{platform}} you can revoke memberships, including an organization admin’s. Nawara Core checks your authority on every change.",
+        "authorityOwner": "As the Company owner you can revoke memberships and change the organization-admin role. Nawara Core checks your authority on every change.",
+        "authorityOperator": "As an operator assigned to {{platform}} you can revoke memberships, including an organization admin’s. Only the Company owner can change the organization-admin role. Nawara Core checks your authority on every change.",
         "cardTitle": "Manage membership",
         "cardBody": "Revoking removes this person’s access to {{name}}.",
         "cardBodyAdmin": "Revoking removes this person’s access to {{name}}, and with it their organization-admin role.",
@@ -922,7 +967,9 @@
           "unknown": "We couldn’t confirm the revocation: the answer was lost, so it may or may not have been applied. Nothing is sent again automatically.",
           "rateLimited": "Too many membership changes in a short time. Nothing was changed; wait a few minutes and try again.",
           "unavailable": "Nawara Core could not revoke the membership right now. Nothing was changed."
-        }
+        },
+        "menuItem": "Revoke membership…",
+        "sectionTitle": "Membership"
       }
     },
     "totals": {
@@ -1059,6 +1106,8 @@
       "membershipApproved": "Membership approved",
       "membershipRejected": "Membership request rejected",
       "membershipRevoked": "Membership revoked",
+      "adminGranted": "Organization-admin role granted",
+      "adminRemoved": "Organization-admin role removed",
       "simulated": "simulated"
     },
     "footnote": "Memberships are counted per organization; one person can hold memberships in several."

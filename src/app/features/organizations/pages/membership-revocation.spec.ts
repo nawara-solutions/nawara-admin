@@ -52,9 +52,12 @@ async function setUp({
     await settle(latency + 10);
   const world = TestBed.inject(DemoWorld);
   const dialog = () => document.querySelector<HTMLElement>('adm-revoke-membership-dialog');
-  /** The table's controls (the cards' twins are hidden by the container query in a browser, not in jsdom). */
+  /**
+   * The table's row controls (the cards' twins are hidden by the container query in a browser, not in jsdom): the
+   * owner's "Actions" menu buttons (P5-S3b), an operator's direct "Revoke…".
+   */
   const revokes = () =>
-    [...element.querySelectorAll<HTMLButtonElement>('[data-revoke]')].filter(
+    [...element.querySelectorAll<HTMLButtonElement>('[data-revoke], [data-actions]')].filter(
       (b) => b.closest('.member-list__cards') === null,
     );
   const button = (label: string, root: ParentNode | null = dialog()) =>
@@ -77,6 +80,15 @@ async function setUp({
     revokes().find(
       (b) => (b.closest('tr')?.querySelector('.member-list__admin') !== null) === admin,
     )!;
+  /** Opens the revocation from a row control: directly, or through the owner's "Actions" menu. */
+  const openRevoke = async (control: HTMLButtonElement) => {
+    control.click();
+    await settle();
+    if (control.hasAttribute('data-actions')) {
+      document.querySelector<HTMLButtonElement>('.nw-menu [data-revoke]')!.click();
+      await settle();
+    }
+  };
   return {
     ...rendered,
     world,
@@ -89,6 +101,7 @@ async function setUp({
     role: () => document.querySelector('.cdk-dialog-container')?.getAttribute('role') ?? null,
     revokes,
     revokeFor,
+    openRevoke,
     idOf,
     button,
     press,
@@ -108,8 +121,9 @@ describe('Membership revocation (P5-S3a)', { timeout: 15_000 }, () => {
     const s = await setUp();
     expect(s.revokes().length).toBe(s.rows().length);
     const first = s.revokes()[0]!;
+    // The owner's row actions are one menu (P5-S3b), named with the member; Revoke is its last item.
     expect(strip(first.getAttribute('aria-label') ?? '')).toContain(
-      R.for.replace('{{who}}', '').trim(),
+      en.organizations.members.role.actionsFor.replace('{{who}}', '').trim(),
     );
     expect(text(s.element)).toContain(R.authorityOwner);
     await s.router.navigateByUrl(`${MEMBERS}?status=pending`);
@@ -119,8 +133,7 @@ describe('Membership revocation (P5-S3a)', { timeout: 15_000 }, () => {
 
   it('confirms in an alertdialog that starts on Cancel and says what is and is not affected; no verification', async () => {
     const s = await setUp();
-    s.revokeFor(false).click();
-    await s.settle();
+    await s.openRevoke(s.revokeFor(false));
     expect(s.role()).toBe('alertdialog');
     expect(document.activeElement?.hasAttribute('data-cancel')).toBe(true);
     const body = strip(text(s.dialog()));
@@ -136,8 +149,7 @@ describe('Membership revocation (P5-S3a)', { timeout: 15_000 }, () => {
     const before = s.revision();
     const target = s.revokeFor(false);
     const id = s.idOf(target);
-    target.click();
-    await s.settle();
+    await s.openRevoke(target);
     await s.press(R.confirm, 20);
     expect(s.revoke).toHaveBeenCalledTimes(1);
     expect(s.revoke).toHaveBeenCalledWith(HORIZON, id);
@@ -151,13 +163,12 @@ describe('Membership revocation (P5-S3a)', { timeout: 15_000 }, () => {
     const message = strip(String(s.toasts.mock.calls[0]?.[0]));
     expect(message).toBe(R.revoked.replace('{{name}}', 'École Horizon'));
     expect(message).not.toContain('@');
-    expect(document.activeElement?.hasAttribute('data-revoke')).toBe(true);
+    expect(document.activeElement?.hasAttribute('data-actions')).toBe(true);
   });
 
   it('warns that an admin also loses the role; an operator is told only the owner grants it again', async () => {
     let s = await setUp();
-    s.revokeFor(true).click();
-    await s.settle();
+    await s.openRevoke(s.revokeFor(true));
     let body = strip(text(s.dialog()));
     expect(body).toContain(R.adminTitle);
     expect(body).not.toContain(R.adminOperator);
@@ -173,8 +184,7 @@ describe('Membership revocation (P5-S3a)', { timeout: 15_000 }, () => {
     );
     const admin = s.revokeFor(true);
     const id = s.idOf(admin);
-    admin.click();
-    await s.settle();
+    await s.openRevoke(admin);
     body = strip(text(s.dialog()));
     expect(body).toContain(R.adminTitle);
     expect(body).toContain(R.adminOperator);
@@ -183,9 +193,10 @@ describe('Membership revocation (P5-S3a)', { timeout: 15_000 }, () => {
   });
 
   it('holds every membership control while a revocation is sent; double clicks send once', async () => {
-    const s = await setUp({ latency: 60 });
-    s.revokes()[0]!.click();
-    await s.settle();
+    // A wide in-flight window (400 ms of simulated latency), so the checks below run while the request is pending
+    // even under the full suite's load.
+    const s = await setUp({ latency: 400 });
+    await s.openRevoke(s.revokes()[0]!);
     const confirm = s.button(R.confirm)!;
     confirm.click();
     confirm.click();
@@ -198,7 +209,7 @@ describe('Membership revocation (P5-S3a)', { timeout: 15_000 }, () => {
     others[0]!.click();
     await s.settle();
     expect(document.querySelectorAll('adm-revoke-membership-dialog')).toHaveLength(1);
-    await s.settle(200);
+    await s.settle(600);
     expect(s.revoke).toHaveBeenCalledTimes(1);
     expect(s.horizon('active')).toHaveLength(63);
   });
@@ -207,8 +218,7 @@ describe('Membership revocation (P5-S3a)', { timeout: 15_000 }, () => {
     const s = await setUp({ scenario: 'outcomeUnknown' });
     const target = s.revokeFor(false);
     const id = s.idOf(target);
-    target.click();
-    await s.settle();
+    await s.openRevoke(target);
     await s.press(R.confirm, 30);
     expect(text(s.dialog())).toContain(R.failure.unknown);
     await s.settle(20);
@@ -221,8 +231,7 @@ describe('Membership revocation (P5-S3a)', { timeout: 15_000 }, () => {
 
   it('reports a competing revocation (409) and offers no retry', async () => {
     const s = await setUp({ scenario: 'decidedElsewhere' });
-    s.revokeFor(false).click();
-    await s.settle();
+    await s.openRevoke(s.revokeFor(false));
     await s.press(R.confirm, 30);
     expect(text(s.dialog())).toContain(R.failure.notActive);
     await s.settle(20);
@@ -232,8 +241,7 @@ describe('Membership revocation (P5-S3a)', { timeout: 15_000 }, () => {
 
   it('offers "Try again" where Core refused before applying anything', async () => {
     const s = await setUp({ scenario: 'rateLimited' });
-    s.revokes()[0]!.click();
-    await s.settle();
+    await s.openRevoke(s.revokes()[0]!);
     await s.press(R.confirm, 20);
     expect(text(s.dialog())).toContain(R.failure.rateLimited);
     await s.press(en.actions.retry, 20);

@@ -485,6 +485,17 @@ confirm (severity-appropriate dialog)
   uncertain revocation is reported as "may have been revoked", never as confirmed.
 - Revoking from the details page returns to the list (the revoked id would read "not found").
 
+**Ninth and tenth actions (P5-S3b, 2026-10-24): the organization-admin role**, Auth-owned, the Company owner only
+([`design/p5-s3-revocation-and-admin-role.md`](design/p5-s3-revocation-and-admin-role.md)):
+
+- `OrganizationAdminRoleAction`: one `ActionRun` with a step-up whose purpose follows the input's direction
+  (`organization.admin.grant` / `.revoke`, factor only); `context()` is `null` for operators, so it never opens for
+  them. It registers with the same `MembershipActionLock` as decisions and revocation.
+- **Step-up spent on commit:** the mock checks the grant without spending it, commits, and only then spends it, as
+  Core's transaction does; a `404` leaves it usable.
+- The role is authority within one Organization: it never touches Company owner or Platform operator authority,
+  membership status or counts.
+
 ## 13. Design system: tokens, SCSS and BEM
 
 ### Token architecture

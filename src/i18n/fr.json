@@ -366,6 +366,8 @@
         "membershipApproved": "Adhésion approuvée",
         "membershipRejected": "Demande d’adhésion refusée",
         "membershipRevoked": "Adhésion révoquée",
+        "adminGranted": "Rôle d’administrateur d’organisation accordé",
+        "adminRemoved": "Rôle d’administrateur d’organisation retiré",
         "platformCreated": "Plateforme créée"
       },
       "auditLog": "Journal d’audit"
@@ -516,6 +518,8 @@
       "membershipApproved": "Adhésion approuvée",
       "membershipRejected": "Demande d’adhésion refusée",
       "membershipRevoked": "Adhésion révoquée",
+      "adminGranted": "Rôle d’administrateur d’organisation accordé",
+      "adminRemoved": "Rôle d’administrateur d’organisation retiré",
       "operatorAssigned": "Opérateur affecté",
       "platformCreated": "Plateforme créée"
     },
@@ -826,7 +830,48 @@
       },
       "role": {
         "admin": "Administrateur de l’organisation",
-        "member": "Membre"
+        "member": "Membre",
+        "actions": "Actions",
+        "actionsFor": "Actions pour {{who}}",
+        "sending": "Modification du rôle…",
+        "grantOpen": "Nommer administrateur de l’organisation…",
+        "removeOpen": "Retirer le rôle d’administrateur…",
+        "sectionTitle": "Rôle d’administrateur de l’organisation",
+        "sectionBody": "Une autorité limitée à {{name}}. Le modifier conserve l’adhésion et demande votre vérification.",
+        "grantTitle": "Nommer ce membre administrateur de l’organisation ?",
+        "removeTitle": "Retirer le rôle d’administrateur de l’organisation ?",
+        "grantBody": "Cette personne obtient une autorité administrative dans {{name}} uniquement : ses adhésions, ses codes d’accès et ses invitations d’administrateur.",
+        "removeBody": "Cette personne reste membre active de {{name}} mais ne l’administre plus.",
+        "grantKeepsMembership": "Son adhésion et son public restent inchangés.",
+        "grantNoOtherAccess": "Aucun accès à l’entreprise ni à la plateforme, ni à une autre organisation : ce n’est pas l’autorité du propriétaire de l’entreprise ni celle d’un opérateur de plateforme.",
+        "grantNoCommercial": "Aucun changement d’abonnement ni de paiement.",
+        "unverifiedWarning": "Ce contact n’a pas été confirmé. Lorsque Nawara Core exige des contacts vérifiés, le rôle peut ne prendre effet qu’après confirmation.",
+        "lastAdminTitle": "Aucun autre administrateur de l’organisation n’est listé.",
+        "lastAdminBody": "{{name}} n’aura plus d’administrateur tant que vous n’en nommerez pas un. Nawara Core le permet.",
+        "stepUpNext": "Ensuite : vérifiez avec votre application d’authentification ou votre clé d’accès.",
+        "continue": "Continuer",
+        "grantPurpose": "Nommer un administrateur de l’organisation dans {{name}}",
+        "removePurpose": "Retirer un rôle d’administrateur de l’organisation dans {{name}}",
+        "factorHint": "Le code à 6 chiffres de votre application d’authentification. Une clé d’accès convient aussi ; votre clé secrète n’est pas acceptée pour cette modification.",
+        "verifyAndGrant": "Vérifier et nommer administrateur",
+        "verifyAndRemove": "Vérifier et retirer le rôle",
+        "granting": "Attribution du rôle d’administrateur…",
+        "removing": "Retrait du rôle d’administrateur…",
+        "grantingShort": "Attribution…",
+        "removingShort": "Retrait…",
+        "notListed": "L’adhésion ne figure plus dans cette organisation.",
+        "nowAdmin": "Cette adhésion est désormais administrateur de l’organisation, éventuellement par votre demande.",
+        "nowMember": "Cette adhésion n’est plus administrateur de l’organisation, éventuellement par votre demande.",
+        "unchanged": "Son rôle est inchangé.",
+        "granted": "Rôle d’administrateur accordé dans {{name}}.",
+        "removed": "Rôle d’administrateur retiré dans {{name}}.",
+        "notChanged": "La modification du rôle dans {{name}} n’a pas abouti.",
+        "failure": {
+          "notApplied": "Le rôle n’a pas été modifié : l’adhésion n’est peut-être plus active, ou son rôle a déjà changé. Votre vérification n’a pas été consommée.",
+          "unknown": "Nous n’avons pas pu confirmer la modification du rôle : la réponse a été perdue, elle a donc pu être appliquée ou non. Rien n’est renvoyé automatiquement.",
+          "rateLimited": "Trop de modifications d’adhésions en peu de temps. Rien n’a été modifié ; patientez quelques minutes puis réessayez.",
+          "unavailable": "Nawara Core n’a pas pu modifier le rôle pour le moment. Rien n’a été modifié."
+        }
       },
       "identity": {
         "user": "Membre {{ref}}",
@@ -844,7 +889,7 @@
         "contact": "Contact",
         "other": "Autres adhésions",
         "otherNote": "Non affichées : Nawara Core ne permet pas de retrouver une personne d’une organisation à l’autre.",
-        "readOnly": "La modification du rôle d’administrateur d’organisation arrivera dans une version ultérieure.",
+        "readOnly": "Les adhésions révoquées ne peuvent pas être rétablies ici.",
         "notFoundTitle": "Adhésion introuvable ou inaccessible",
         "notFoundDescription": "Elle n’existe peut-être pas, appartient peut-être à une autre organisation, ou n’est plus listée."
       },
@@ -894,8 +939,8 @@
         "open": "Révoquer…",
         "for": "Révoquer l’adhésion de {{who}}",
         "sending": "Révocation de l’adhésion…",
-        "authorityOwner": "En tant que propriétaire de l’entreprise, vous pouvez révoquer des adhésions. Nawara Core vérifie votre autorité à chaque modification.",
-        "authorityOperator": "En tant qu’opérateur affecté à {{platform}}, vous pouvez révoquer des adhésions, y compris celle d’un administrateur de l’organisation. Nawara Core vérifie votre autorité à chaque modification.",
+        "authorityOwner": "En tant que propriétaire de l’entreprise, vous pouvez révoquer des adhésions et modifier le rôle d’administrateur de l’organisation. Nawara Core vérifie votre autorité à chaque modification.",
+        "authorityOperator": "En tant qu’opérateur affecté à {{platform}}, vous pouvez révoquer des adhésions, y compris celle d’un administrateur de l’organisation. Seul le propriétaire de l’entreprise peut modifier le rôle d’administrateur. Nawara Core vérifie votre autorité à chaque modification.",
         "cardTitle": "Gérer l’adhésion",
         "cardBody": "La révocation retire à cette personne l’accès à {{name}}.",
         "cardBodyAdmin": "La révocation retire à cette personne l’accès à {{name}}, et avec lui son rôle d’administrateur de l’organisation.",
@@ -922,7 +967,9 @@
           "unknown": "Nous n’avons pas pu confirmer la révocation : la réponse a été perdue, elle a donc pu être appliquée ou non. Rien n’est renvoyé automatiquement.",
           "rateLimited": "Trop de modifications d’adhésions en peu de temps. Rien n’a été modifié ; patientez quelques minutes puis réessayez.",
           "unavailable": "Nawara Core n’a pas pu révoquer l’adhésion pour le moment. Rien n’a été modifié."
-        }
+        },
+        "menuItem": "Révoquer l’adhésion…",
+        "sectionTitle": "Adhésion"
       }
     },
     "totals": {
@@ -1059,6 +1106,8 @@
       "membershipApproved": "Adhésion approuvée",
       "membershipRejected": "Demande d’adhésion refusée",
       "membershipRevoked": "Adhésion révoquée",
+      "adminGranted": "Rôle d’administrateur d’organisation accordé",
+      "adminRemoved": "Rôle d’administrateur d’organisation retiré",
       "simulated": "simulé"
     },
     "footnote": "Les adhésions sont comptées par organisation ; une personne peut en avoir dans plusieurs."

@@ -50,6 +50,8 @@ export type OrganizationMembersView =
 /** Where one membership is in the loaded lists (`null`: in none), as of answer number `loadSequence`. */
 export interface MembershipWhereabouts {
   readonly status: ListableMembershipStatus | null;
+  /** Its organization-admin role as listed (`null`: in no list). */
+  readonly isOrganizationAdmin: boolean | null;
   readonly loadSequence: number;
 }
 
@@ -180,9 +182,25 @@ export class OrganizationMembersFacade {
   whereabouts(membershipId: string): MembershipWhereabouts | null {
     const view = this.view();
     if (view.status !== 'ready') return null;
-    const status = LISTABLE_STATUSES.find((s) => view.lists[s].some((m) => m.id === membershipId));
-    return { status: status ?? null, loadSequence: view.loadSequence };
+    for (const status of LISTABLE_STATUSES) {
+      const found = view.lists[status].find((m) => m.id === membershipId);
+      if (found)
+        return {
+          status,
+          isOrganizationAdmin: found.isOrganizationAdmin,
+          loadSequence: view.loadSequence,
+        };
+    }
+    return { status: null, isOrganizationAdmin: null, loadSequence: view.loadSequence };
   }
+
+  /** How many organization admins the loaded Active list shows (`null` while not loaded): the last-admin warning. */
+  readonly adminCount = computed<number | null>(() => {
+    const view = this.view();
+    return view.status === 'ready'
+      ? view.lists.active.filter((m) => m.isOrganizationAdmin).length
+      : null;
+  });
 
   /** Changes the tab, the admins filter or the sort: a URL change (replacing the history entry). */
   setQuery(change: Partial<MembersQuery>): void {

@@ -26,3 +26,12 @@ export interface MembershipRevokeResult {
 /** Only an active membership can be revoked (Core answers `409 membership_not_active` for any other). */
 export const isRevocable = (membership: Pick<Membership, 'status'>): boolean =>
   membership.status === 'active';
+
+/**
+ * The organization-admin role can change only on an active membership, and only to the other value (Core answers the
+ * collapsed `404` otherwise: already admin for a grant, not admin for a removal).
+ */
+export const roleChangeOf = (
+  membership: Pick<Membership, 'status' | 'isOrganizationAdmin'>,
+): 'grant' | 'remove' | null =>
+  membership.status !== 'active' ? null : membership.isOrganizationAdmin ? 'remove' : 'grant';

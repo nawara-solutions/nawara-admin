@@ -24,6 +24,9 @@ import { OrganizationDetailFacade } from '../application/organization-detail.fac
 import { MembershipActionLock } from '../application/membership-action-support';
 import { MembershipDecisionAction } from '../application/membership-decision.action';
 import { MembershipRevokeAction } from '../application/membership-revoke.action';
+import { OrganizationAdminRoleAction } from '../application/organization-admin-role.action';
+import { StepUpGateway } from '../../../core/auth/step-up.gateway';
+import { MockStepUpGateway } from '../../../core/auth/step-up.mock';
 import { OrganizationMembersFacade } from '../application/organization-members.facade';
 import { OrganizationCommercialGateway } from '../data-access/organization-commercial.gateway';
 import { OrganizationGateway } from '../data-access/organization.gateway';
@@ -100,6 +103,8 @@ export async function renderMembers<T>(
       MembershipActionLock,
       MembershipDecisionAction,
       MembershipRevokeAction,
+      OrganizationAdminRoleAction,
+      { provide: StepUpGateway, useClass: MockStepUpGateway },
       ...extraProviders,
     ],
   });
