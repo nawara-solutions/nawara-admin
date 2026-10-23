@@ -24,12 +24,14 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
     expect([...capabilitiesOf(owner)].sort()).toEqual([
       'company.overview.view',
       'company.platforms.view',
+      'company.scope',
       'platform.create',
     ]);
   });
 
   it('never gives an operator company-wide access, whatever their platform assignments', () => {
     expect(capabilitiesOf(operator).size).toBe(0);
+    expect(can(operator, 'company.scope')).toBe(false);
     expect(can(operator, 'company.overview.view')).toBe(false);
     expect(can(operator, 'company.platforms.view')).toBe(false);
     expect(can(operator, 'platform.create')).toBe(false);

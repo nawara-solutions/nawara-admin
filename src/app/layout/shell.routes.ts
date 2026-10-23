@@ -2,7 +2,9 @@ import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import { capabilityGuard, sessionGuard } from '../core/access/access.guards';
 import { homePath } from '../core/access/home-path';
+import { AuthGateway, UnavailableAuthGateway } from '../core/auth/auth.gateway';
 import { AuthSession } from '../core/auth/auth-session';
+import { SignOut } from '../core/auth/sign-out';
 import { APP_ENVIRONMENT, AppEnvironment, adapterProviders } from '../core/config/app-environment';
 import { ScopeContext } from '../core/context/scope-context';
 import {
@@ -31,10 +33,14 @@ const NOT_FOUND: StatusPageData = {
 
 /**
  * The signed-in application (docs/ARCHITECTURE.md §6): the shell with company scope (`/overview`) and platform scope
- * (`/platforms/:platformId`). The scope directory and notification summary gateways are bound here for everything
- * under the shell.
+ * (`/platforms/:platformId`). The auth, scope directory and notification summary gateways are bound here for everything
+ * under the shell; the auth gateway serves the account menu's sign-out (`SignOut`). In a demo build its mock shares the
+ * one `DemoAuthState` with the sign-in pages' mock, so both see the same simulated session.
  */
 export async function loadShellRoutes(environment: AppEnvironment): Promise<Routes> {
+  const auth = await adapterProviders(environment, 'auth', [
+    { provide: AuthGateway, useClass: UnavailableAuthGateway },
+  ]);
   const directory = await adapterProviders(environment, 'scopeDirectory', [
     { provide: ScopeDirectoryGateway, useClass: UnavailableScopeDirectoryGateway },
   ]);
@@ -45,7 +51,14 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
     {
       path: '',
       canActivate: [sessionGuard],
-      providers: [...directory, ...notifications, ScopeContext, NotificationIndicator],
+      providers: [
+        ...auth,
+        ...directory,
+        ...notifications,
+        ScopeContext,
+        NotificationIndicator,
+        SignOut,
+      ],
       loadComponent: () => import('./shell/shell').then((m) => m.Shell),
       children: [
         // Home depends on the actor: an operator never has the Company overview.

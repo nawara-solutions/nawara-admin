@@ -1,3 +1,4 @@
+import { EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Observable, firstValueFrom } from 'rxjs';
 import { DEMO_LATENCY_MS } from '../context/scope-directory.mock';
@@ -5,6 +6,7 @@ import { DEMO_DRIVE_PLATFORM_ID } from '../context/scope-directory.fixtures';
 import { AppError } from '../errors/app-error';
 import {
   DEMO_CONFIRMATION_CODE,
+  DEMO_NEW_OPERATORS,
   DEMO_PASSWORD,
   DEMO_SIGN_IN_HINT,
   DEMO_TOTP_CODE,
@@ -12,6 +14,7 @@ import {
   DEMO_WORKING_CODE,
 } from './auth.fixtures';
 import { MockAuthGateway } from './auth.mock';
+import { DemoAuthState } from './auth.mock-state';
 import { OperatorIdentifier } from './operator-identifier';
 
 const SCHOOL_OPERATOR: OperatorIdentifier = {
@@ -296,5 +299,61 @@ describe('demo sign-in hint: enrollment scenario labels', () => {
       'enrollment.unavailable@demo.nawara.invalid': 'auth.demo.enrollmentBeginUnavailable',
       'enrollment.busy@demo.nawara.invalid': 'auth.demo.enrollmentBeginLimited',
     });
+  });
+});
+
+describe('MockAuthGateway: one simulated Auth service across route injectors (A3-S3)', () => {
+  /** Two route injectors, as the sign-in routes and the shell each bind their own mock instance. */
+  function twoRoutes() {
+    TestBed.configureTestingModule({ providers: [{ provide: DEMO_LATENCY_MS, useValue: 0 }] });
+    const root = TestBed.inject(EnvironmentInjector);
+    const route = () => createEnvironmentInjector([MockAuthGateway], root).get(MockAuthGateway);
+    return { signInRoute: route(), shell: route(), state: TestBed.inject(DemoAuthState) };
+  }
+
+  it('gives each route its own instance, over the same state', () => {
+    const { signInRoute, shell, state } = twoRoutes();
+    expect(signInRoute).not.toBe(shell);
+    expect(TestBed.inject(DemoAuthState)).toBe(state);
+  });
+
+  it('ends, from the shell, the session the sign-in pages opened', async () => {
+    const { signInRoute, shell, state } = twoRoutes();
+    await firstValueFrom(signInRoute.requestWorkingCode(SCHOOL_OPERATOR));
+    await firstValueFrom(signInRoute.verifyWorkingCode(SCHOOL_OPERATOR, DEMO_WORKING_CODE));
+    expect((await firstValueFrom(shell.me())).email).toBe('operator.school@demo.nawara.invalid');
+    await firstValueFrom(shell.logout());
+    expect(state.signedIn()).toBeNull();
+    expect((await error(signInRoute.me())).status).toBe(401);
+    expect((await error(signInRoute.grants())).status).toBe(401);
+  });
+
+  it('keeps Core records through a sign-out: an enrolled owner is asked for the code next time', async () => {
+    const { signInRoute, shell } = twoRoutes();
+    const outcome = await firstValueFrom(
+      signInRoute.login('enrollment@demo.nawara.invalid', DEMO_PASSWORD),
+    );
+    if (outcome.kind !== 'enrollment_required') throw new Error('expected enrollment_required');
+    const setup = await firstValueFrom(signInRoute.beginTotpEnrollment(outcome.enrollmentToken));
+    await firstValueFrom(
+      signInRoute.confirmTotpEnrollment(outcome.enrollmentToken, setup.factorId, DEMO_TOTP_CODE),
+    );
+    await firstValueFrom(shell.logout());
+    const next = await firstValueFrom(
+      signInRoute.login('enrollment@demo.nawara.invalid', DEMO_PASSWORD),
+    );
+    expect(next.kind).toBe('mfa_required');
+  });
+
+  it('keeps a confirmed operator contact through a sign-out', async () => {
+    const { signInRoute, shell, state } = twoRoutes();
+    const fresh: OperatorIdentifier = { kind: 'email', email: 'operator.new@demo.nawara.invalid' };
+    const userId = DEMO_NEW_OPERATORS[0]?.identity.userId ?? '';
+    expect(state.confirmedOperators.has(userId)).toBe(false);
+    await firstValueFrom(signInRoute.confirmOperatorContact(fresh, DEMO_CONFIRMATION_CODE));
+    await firstValueFrom(shell.logout());
+    expect(state.confirmedOperators.has(userId)).toBe(true);
+    // Already confirmed: 204 without checking the code, as Core answers.
+    await firstValueFrom(signInRoute.confirmOperatorContact(fresh, '000000'));
   });
 });

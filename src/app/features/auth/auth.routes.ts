@@ -3,6 +3,7 @@ import { CanActivateFn, Router, Routes } from '@angular/router';
 import { guestGuard } from '../../core/access/access.guards';
 import { AuthGateway, UnavailableAuthGateway } from '../../core/auth/auth.gateway';
 import { AuthSession } from '../../core/auth/auth-session';
+import { SignOut } from '../../core/auth/sign-out';
 import { BrowserWebAuthnClient, WebAuthnClient } from '../../core/auth/webauthn-client';
 import { AppEnvironment, adapterProviders } from '../../core/config/app-environment';
 import {
@@ -33,7 +34,7 @@ export async function loadAuthRoutes(environment: AppEnvironment): Promise<Route
   return [
     {
       path: '',
-      providers: [...auth, ...directory],
+      providers: [...auth, ...directory, SignOut],
       loadComponent: () => import('./components/auth-frame/auth-frame').then((m) => m.AuthFrame),
       children: [
         {

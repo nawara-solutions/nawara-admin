@@ -6,6 +6,7 @@ import { Observable, of, throwError } from 'rxjs';
 import en from '../../../../i18n/en.json';
 import { OperatorIdentifier } from '../../../core/auth/operator-identifier';
 import { AuthGateway } from '../../../core/auth/auth.gateway';
+import { SignOut } from '../../../core/auth/sign-out';
 import {
   Grants,
   Identity,
@@ -154,6 +155,7 @@ export function configureAuthPage(
       { provide: AuthGateway, useClass: ScriptedAuthGateway },
       { provide: WebAuthnClient, useClass: PendingWebAuthn },
       { provide: ScopeDirectoryGateway, useClass: MockScopeDirectoryGateway },
+      SignOut,
       AuthFlowFacade,
       ...extra,
     ],

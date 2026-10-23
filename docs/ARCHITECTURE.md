@@ -306,6 +306,9 @@ type AppError =
   Core is a bug in the policy, and Core wins.
 - When Core V2 A6 ships a permissions contract, `CapabilityPolicy` switches its input from derived facts to Core's answer. Its
   consumers do not change.
+- **Company-scope navigation (A3-S3):** every company-wide sidebar destination requires `company.scope` (owner only), so an
+  operator never sees them; an operator's sidebar lists their assigned Platforms ("Your platforms") instead. A destination
+  gets its own capability when it is built.
 
 ## 11. Authentication and session
 
@@ -335,6 +338,11 @@ code, request then verify. Logout. Owner recovery. WebAuthn uses `navigator.cred
 - **Operator sessions** end at the shift ceiling (`session_ceiling_reached`). The UI shows when the session ends and signs out cleanly.
 - `GET /auth/me` and `GET /auth/grants` are loaded after sign-in and kept for the session. They are refreshed on focus after inactivity
   and after any `403`, because Core state is live.
+- **Sign-out (A3-S3):** one `SignOut` (`core/auth/sign-out.ts`), provided by every route that binds `AuthGateway` (the shell
+  and the sign-in pages), single-run: Core logout best effort, then the local session, then the sign-in page with "You have
+  signed out". Session-derived views (the unread count, the scope directory, assigned Platforms) are keyed on the signed-in
+  actor, so a new identity never reads the previous one's data. In demo builds the route-scoped auth mocks share one
+  root `DemoAuthState`, the one simulated Auth service; its Core records survive a sign-out, its session does not.
 
 ## 12. Step-up and destructive actions
 

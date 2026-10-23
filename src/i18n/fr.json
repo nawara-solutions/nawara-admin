@@ -208,6 +208,13 @@
       "explanation": "Données de démonstration : chiffres fictifs et session de propriétaire de démonstration. Rien sur cet écran ne provient de Nawara Core.",
       "about": "À propos des données fictives"
     },
+    "account": {
+      "trigger": "Compte : {{name}}, {{role}}",
+      "menuLabel": "Compte",
+      "appearance": "Apparence",
+      "signOut": "Se déconnecter",
+      "signingOut": "Déconnexion…"
+    },
     "nav": {
       "groups": {
         "platform": "Plateforme",
@@ -226,7 +233,9 @@
       "services": "Services et santé",
       "monitoring": "Supervision",
       "settings": "Paramètres",
-      "releases": "Versions"
+      "releases": "Versions",
+      "platformsUnavailable": "Plateformes indisponibles",
+      "platformsLoading": "Chargement de vos plateformes…"
     },
     "pages": {
       "backToOverview": "Retour à la vue d’ensemble de l’entreprise",

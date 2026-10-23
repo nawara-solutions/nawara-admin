@@ -129,6 +129,17 @@
   font-variant-numeric: tabular-nums;
 }
 
+// "Your platforms" when the operator's Platforms cannot be listed, and while they load.
+.sidebar__note {
+  padding: 0.25rem 0.625rem;
+  color: var(--nw-text-secondary);
+  font-size: 0.78125rem;
+}
+
+.sidebar__loading {
+  padding: 0.4375rem 0.625rem;
+}
+
 .sidebar__footer {
   display: grid;
   gap: 0.375rem;
@@ -150,9 +161,17 @@
   color: var(--nw-text-primary);
   font: inherit;
   text-align: start;
+  cursor: pointer;
 
-  &:disabled {
-    cursor: default;
+  &:hover,
+  &[aria-expanded='true'] {
+    border-color: var(--nw-border-default);
+    background-color: var(--nw-color-neutral-hover);
+  }
+
+  // Signing out: the card says so and is not offered again (`SignOut` ignores a second run anyway).
+  &--busy {
+    cursor: progress;
   }
 }
 

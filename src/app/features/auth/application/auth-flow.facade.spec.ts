@@ -13,6 +13,7 @@ import {
 } from '../../../core/auth/auth.model';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { OperatorIdentifier } from '../../../core/auth/operator-identifier';
+import { SignOut } from '../../../core/auth/sign-out';
 import { PasskeyPromptError, WebAuthnClient } from '../../../core/auth/webauthn-client';
 import {
   APP_ENVIRONMENT,
@@ -166,6 +167,7 @@ function setUp() {
       { provide: AuthGateway, useClass: FakeGateway },
       { provide: WebAuthnClient, useClass: FakeWebAuthn },
       { provide: ScopeDirectoryGateway, useClass: UnavailableScopeDirectoryGateway },
+      SignOut,
       AuthFlowFacade,
     ],
   });
