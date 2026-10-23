@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
 import { AccessSummary } from '../../domain/company-overview.model';
-import { CardLink } from '../card-link/card-link';
-import { MetricValue } from '../metric-value/metric-value';
+import { CardLink } from '../../../../shared/dashboard/card-link/card-link';
+import { MetricValue } from '../../../../shared/dashboard/metric-value/metric-value';
 
 /**
  * Access & security: the owner's own account, and platform operator access. Operator access shows active ASSIGNMENTS

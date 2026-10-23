@@ -1,0 +1,58 @@
+@if (items().length === 0) {
+  <p class="platform-attention__empty">{{ 'platformDashboard.attention.none' | transloco }}</p>
+} @else {
+  <ul class="platform-attention__items" role="list">
+    @for (item of items(); track item.kind) {
+      @let kind = kinds[item.kind];
+      <li
+        class="platform-attention__item"
+        [class.platform-attention__item--warning]="item.tone === 'warning'"
+      >
+        <span class="platform-attention__icon"><nw-icon [name]="kind.icon" size="sm" /></span>
+        <span class="platform-attention__text">
+          <span class="platform-attention__title">{{
+            kind.key | transloco: { count: item.count }
+          }}</span>
+          @switch (item.kind) {
+            @case ('membership_requests') {
+              @if (item.organizations !== undefined) {
+                <span class="platform-attention__detail">{{
+                  'platformDashboard.attention.inOrganizations'
+                    | transloco: { count: item.organizations }
+                }}</span>
+              }
+            }
+            @case ('admin_invitations') {
+              <span class="platform-attention__detail">{{
+                'platformDashboard.attention.adminInvitationsDetail' | transloco
+              }}</span>
+            }
+            @case ('subscription_grace') {
+              <span class="platform-attention__detail">
+                @if (item.organizationName; as name) {
+                  <bdi>{{ name }}</bdi> ·
+                }
+                @if (item.graceEndsAt; as ends) {
+                  {{ 'platformDashboard.attention.graceEnds' | transloco }}
+                  <time [attr.datetime]="ends">{{ ends | nwDate: 'date-time' }}</time>
+                } @else {
+                  {{ 'platformDashboard.attention.graceDetail' | transloco }}
+                }
+              </span>
+            }
+            @case ('payment_issues') {
+              <span class="platform-attention__detail">{{
+                'platformDashboard.attention.paymentIssuesDetail' | transloco
+              }}</span>
+            }
+          }
+        </span>
+        @if (item.tone === 'warning') {
+          <span class="nw-visually-hidden"
+            >({{ 'platformDashboard.attention.warning' | transloco }})</span
+          >
+        }
+      </li>
+    }
+  </ul>
+}

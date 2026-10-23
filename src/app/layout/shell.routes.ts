@@ -94,12 +94,15 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
           },
         },
         {
+          // The Platform dashboard: owner or assigned operator; the access check is the page's (collapsed 404).
           path: 'platforms/:platformId',
           title: 'titles.platform',
-          loadComponent: () =>
-            import('../features/platform-scope/pages/platform-placeholder.page').then(
-              (m) => m.PlatformPlaceholderPage,
-            ),
+          loadChildren: () => {
+            const env = inject(APP_ENVIRONMENT);
+            return import('../features/platform-dashboard/platform-dashboard.routes').then((m) =>
+              m.loadPlatformDashboardRoutes(env),
+            );
+          },
         },
         {
           path: 'settings',

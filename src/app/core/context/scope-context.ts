@@ -1,7 +1,7 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter, map, of, shareReplay, startWith, switchMap } from 'rxjs';
+import { Subject, combineLatest, filter, map, of, shareReplay, startWith, switchMap } from 'rxjs';
 import { AuthSession } from '../auth/auth-session';
 import { ViewState, toViewState } from '../state/view-state';
 import { ScopeDirectoryGateway } from './scope-directory.gateway';
@@ -36,6 +36,8 @@ export class ScopeContext {
   private readonly router = inject(Router);
   private readonly gateway = inject(ScopeDirectoryGateway);
   private readonly session = inject(AuthSession);
+  /** "Try again" after the directory could not be loaded (the platform pages offer it). */
+  private readonly reloads = new Subject<void>();
 
   readonly scope = toSignal(
     this.router.events.pipe(
@@ -51,9 +53,12 @@ export class ScopeContext {
     return actor?.kind === 'owner' ? actor.companyId : null;
   });
 
-  /** One load per Company, shared by the switcher, breadcrumbs and pages. */
-  readonly directory$ = toObservable(this.companyId).pipe(
-    switchMap((id) =>
+  /** One load per Company (and per reload), shared by the switcher, breadcrumbs and pages. */
+  readonly directory$ = combineLatest([
+    toObservable(this.companyId),
+    this.reloads.pipe(startWith(undefined)),
+  ]).pipe(
+    switchMap(([id]) =>
       id === null
         ? of<ViewState<CompanyDirectory>>({ status: 'forbidden' })
         : toViewState(this.gateway.companyDirectory(id)),
@@ -65,11 +70,14 @@ export class ScopeContext {
     initialValue: { status: 'idle' } as ViewState<CompanyDirectory>,
   });
 
-  /** The Platforms the signed-in actor may see; loaded once per actor. */
+  /** The Platforms the signed-in actor may see; loaded once per actor (and per reload). */
   readonly platforms$ = toObservable(this.session.actor).pipe(
     switchMap((actor) => {
       if (actor?.kind === 'operator') {
-        return toViewState(this.gateway.assignedPlatforms(actor.platformAssignments));
+        return this.reloads.pipe(
+          startWith(undefined),
+          switchMap(() => toViewState(this.gateway.assignedPlatforms(actor.platformAssignments))),
+        );
       }
       return this.directory$.pipe(
         map((state): ViewState<readonly PlatformRef[]> =>
@@ -83,4 +91,9 @@ export class ScopeContext {
   readonly platforms = toSignal(this.platforms$, {
     initialValue: { status: 'idle' } as ViewState<readonly PlatformRef[]>,
   });
+
+  /** Loads the directory (owner) or the assigned Platforms (operator) again. */
+  reload(): void {
+    this.reloads.next();
+  }
 }

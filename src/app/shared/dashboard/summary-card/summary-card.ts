@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { NwNumberPipe } from '../../../../shared/format/format.pipes';
-import { NwIcon } from '../../../../shared/ui/icon/icon';
-import { NwIconName } from '../../../../shared/ui/icon/icon.registry';
-import { Metric } from '../../domain/company-overview.model';
+import { NwNumberPipe } from '../../format/format.pipes';
+import { NwIcon } from '../../ui/icon/icon';
+import { NwIconName } from '../../ui/icon/icon.registry';
+import { Metric } from '../metric';
 import { MetricValue } from '../metric-value/metric-value';
 
 export type SummaryAccent = 'pink' | 'orange' | 'purple';

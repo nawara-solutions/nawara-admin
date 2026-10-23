@@ -1,0 +1,64 @@
+.platform-attention__empty {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.platform-attention__items {
+  display: grid;
+  gap: var(--nw-space-2);
+}
+
+.platform-attention__item {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  align-items: start;
+  gap: var(--nw-space-3);
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+
+  // A warning is tinted and also says so in words (the hidden "(Warning)"), never by colour alone.
+  &--warning {
+    border-color: var(--nw-alert-warning-border);
+    background-color: var(--nw-alert-warning-bg);
+
+    .platform-attention__icon {
+      background-color: var(--nw-surface-raised);
+      color: var(--nw-alert-warning-icon);
+    }
+  }
+}
+
+.platform-attention__icon {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-surface-raised);
+  color: var(--nw-text-secondary);
+}
+
+.platform-attention__text {
+  display: grid;
+  gap: 2px;
+  min-inline-size: 0;
+}
+
+.platform-attention__title {
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.platform-attention__detail {
+  color: var(--nw-text-secondary);
+  font-size: 0.78125rem;
+  overflow-wrap: anywhere;
+}
+
+@media (forced-colors: active) {
+  .platform-attention__item {
+    border-color: CanvasText;
+  }
+}

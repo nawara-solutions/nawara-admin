@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices implemented (A3-S1 Company Overview, A3-S3 account menu + sign-out + operator navigation, awaiting review), rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard implemented, awaiting review; rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,9 +290,42 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## P2: Platform dashboard (design approved 2026-10-23; implemented 2026-10-23)
+
+**Status: implemented as a development-only mock prototype, awaiting review.** Design: the "P2 Platform Dashboard" canvas
+(claude.ai, private; 6 artboards). Replaces the platform-scope placeholder at `/platforms/:platformId`. Read only.
+
+- **Who sees what** (UX; Core is the authority): the owner of the Company sees identity, figures (organizations,
+  memberships, membership requests, operator assignments), the five newest Organizations with their subscription state,
+  "Needs attention" (requests, admin invitations, Organizations in their 24-hour grace, payment issues), subscriptions with
+  Personal Premium and payment issues, the read-only assisted-payments policy and recent activity. An operator assigned to
+  the Platform sees identity, three figures, the Organizations without subscription state, and membership requests only:
+  no commercial, audit or policy section (no confirmed read authority; owner-only capabilities `platform.commercial.view`,
+  `platform.activity.view`, `platform.access.view`, mirrors of documented Core rules).
+- **Architecture:** page → `PlatformDashboardFacade` → `PlatformDashboardGateway` (hierarchy) and `PlatformCommercialGateway`
+  (Billing/Payment), mock and unavailable adapters bound by the route. The Platform comes from the URL; both loads take it
+  explicitly, switch with `switchMap`, and an answer for another Platform is never shown. The facade asks nothing for a
+  Platform the actor cannot enter and never asks an operator's commercial facts.
+- **States:** checking; Platforms could not be listed (an outage, "Try again" reloads the scope directory; never shown as an
+  access refusal); not found or not accessible (unknown, unassigned, or Core's late `404`/`403`); loading; error with "Try
+  again"; a section unavailable ("—", never zero); a Platform without Organizations; not available in a production build.
+- **Mock data:** 24 fictional Organization records with stable ids (`core/context/organization.fixtures.ts`, demo only), from
+  which the `/platforms` directory and the dashboard derive every count (16 + 8 Organizations, 920 + 460 memberships), so
+  they agree by construction; a seed for the P2.5 Demo World. Organization subscriptions (one per Organization, adding up to
+  the Organizations), Personal Premium and payment issues are separate facts, never summed.
+- **Shared, unchanged:** `overview-card`, `summary-card`, `metric-value`, `card-link` and `Metric`/`Section` moved from the
+  Company Overview to `shared/dashboard/` (Admin-local); appearance and behaviour unchanged (`common.notAvailable` replaces
+  the feature key with the same text). `ScopeContext.reload()` added for the directory retry.
+
+**Follow-up FU-P25-OVERVIEW-FIXTURES (open; P2.5 Demo World):** the Company Overview's hand-written figures are not derived
+from records and disagree with them: its commercial summary counts 38 Organizations with a valid entitlement while the
+Company has 24 Organizations (one subscription per Organization), and the auth operator fixtures hold 10 Platform
+assignments for 9 operators where the overview and directory say 5 assignments for 4 operators. P2 does not reuse these
+figures; P2.5 derives them from the Demo World.
+
 ## A3-S3: account menu, mock sign-out and operator-aware navigation (design approved 2026-10-23; implemented 2026-10-23)
 
-**Status: implemented as a development-only mock prototype, awaiting review.** Design: the "A3-S3 Account Menu &
+**Status: complete as a development-only mock prototype (PR #17).** Design: the "A3-S3 Account Menu &
 Navigation" canvas (claude.ai, private; 8 artboards). Not production authentication: production builds keep sign-in
 unavailable and contain no mock, fixture or demo state.
 

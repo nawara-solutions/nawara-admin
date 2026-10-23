@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, booleanAttribute, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { NwIcon } from '../../../../shared/ui/icon/icon';
+import { NwIcon } from '../../ui/icon/icon';
 
 /**
  * A link-styled action of the owner design ("Manage →", "Audit log →", "Account security ›"). With `link` it is a

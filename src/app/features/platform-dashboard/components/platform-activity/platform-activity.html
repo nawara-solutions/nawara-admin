@@ -1,0 +1,21 @@
+@if (entries().length === 0) {
+  <p class="platform-activity__empty">{{ 'platformDashboard.activity.empty' | transloco }}</p>
+} @else {
+  <ol class="platform-activity__items" role="list">
+    @for (entry of entries(); track entry.id) {
+      @let action = actions[entry.action];
+      <li class="platform-activity__item">
+        <span class="platform-activity__icon"><nw-icon [name]="action.icon" size="sm" /></span>
+        <span class="platform-activity__text">
+          <span class="platform-activity__action">{{ action.key | transloco }}</span>
+          @if (entry.organizationName; as organization) {
+            <bdi class="platform-activity__subject">{{ organization }}</bdi>
+          }
+        </span>
+        <time class="platform-activity__time" [attr.datetime]="entry.occurredAt">{{
+          entry.occurredAt | nwDate: 'relative'
+        }}</time>
+      </li>
+    }
+  </ol>
+}

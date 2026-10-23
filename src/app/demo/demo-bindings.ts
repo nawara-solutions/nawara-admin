@@ -8,6 +8,10 @@ import {
   MOCK_COMPANY_OVERVIEW_PROVIDERS,
   MOCK_SERVICE_HEALTH_PROVIDERS,
 } from '../features/company-overview/data-access/company-overview.mock';
+import {
+  MOCK_PLATFORM_COMMERCIAL_PROVIDERS,
+  MOCK_PLATFORM_DASHBOARD_PROVIDERS,
+} from '../features/platform-dashboard/data-access/platform-dashboard.mock';
 import { MOCK_PLATFORM_DIRECTORY_PROVIDERS } from '../features/platforms/data-access/platform-directory.mock';
 
 /**
@@ -24,5 +28,7 @@ export const DEMO_BINDINGS: DemoBindings = {
     platformDirectory: MOCK_PLATFORM_DIRECTORY_PROVIDERS,
     commercialSummary: MOCK_COMMERCIAL_SUMMARY_PROVIDERS,
     serviceHealth: MOCK_SERVICE_HEALTH_PROVIDERS,
+    platformDashboard: MOCK_PLATFORM_DASHBOARD_PROVIDERS,
+    platformCommercial: MOCK_PLATFORM_COMMERCIAL_PROVIDERS,
   },
 };

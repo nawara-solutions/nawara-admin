@@ -1,5 +1,6 @@
 {
   "common": {
+    "notAvailable": "Not available",
     "close": "Close",
     "dismiss": "Dismiss",
     "loading": "Loading…"
@@ -396,15 +397,103 @@
     "sectionUnavailable": "Not available yet: Nawara Core does not provide this information.",
     "periodUnavailable": "Other periods are not available yet."
   },
-  "platformScope": {
-    "eyebrow": "Platform scope",
-    "placeholderTitle": "Platform administration is not built yet",
-    "placeholderDescription": "You are now in the {{name}} platform scope. Its administration pages arrive in later stages.",
-    "key": "Platform identifier:",
-    "loading": "Loading the platform",
-    "notFoundTitle": "Platform not found or not accessible",
-    "notFoundDescription": "It may not exist, or it is outside your administration scope.",
-    "backToPlatforms": "Back to Platforms"
+  "platformDashboard": {
+    "header": {
+      "eyebrow": "Platform",
+      "accessOwner": "Your access: Company owner",
+      "accessOperator": "Your access: Assigned operator",
+      "backToPlatforms": "Back to Platforms"
+    },
+    "figures": {
+      "label": "Platform figures",
+      "organizations": "Organizations",
+      "organizationsCaption": "Change over the last {{days}} days",
+      "memberships": "Memberships",
+      "membershipsCaption": "In this platform’s organizations",
+      "membershipRequests": "Membership requests",
+      "membershipRequestsCaption": "Awaiting approval",
+      "operatorAssignments": "Operator assignments",
+      "operatorAssignmentsCaption": "Active on this platform"
+    },
+    "organizations": {
+      "title": "Organizations",
+      "all": "All organizations",
+      "name": "Organization",
+      "memberships": "Memberships",
+      "pending": "Pending requests",
+      "subscriptionColumn": "Subscription",
+      "membershipsShort": "memberships",
+      "pendingShort": "pending requests",
+      "subscription": {
+        "active": "Active",
+        "grace": "In grace",
+        "none": "None"
+      },
+      "footnote": "Newest {{shown}} of {{total}}. The full directory arrives with Organization management.",
+      "emptyTitle": "No organizations yet",
+      "emptyDescription": "Organizations created on this platform appear here, with their memberships and subscriptions.",
+      "create": "Create organization"
+    },
+    "attention": {
+      "title": "Needs attention",
+      "open": "{{count}} open",
+      "none": "Nothing needs attention.",
+      "membershipRequests": "{{count}} · Membership requests awaiting approval",
+      "inOrganizations": "Organizations concerned: {{count}}",
+      "adminInvitations": "{{count}} · Admin invitations awaiting acceptance",
+      "adminInvitationsDetail": "Organization admins who have not joined yet.",
+      "subscriptionGrace": "{{count}} · Organizations in their 24-hour grace period",
+      "graceEnds": "grace ends",
+      "graceDetail": "Their subscription ended; access continues until the grace period ends.",
+      "paymentIssues": "{{count}} · Payments needing attention",
+      "paymentIssuesDetail": "Failed, or awaiting action.",
+      "warning": "Warning"
+    },
+    "commercial": {
+      "title": "Subscriptions",
+      "organizationSubscriptions": "Organization subscriptions",
+      "barLabel": "Organization subscriptions: {{active}} active, {{grace}} in grace, {{none}} none, of {{total}} organizations",
+      "active": "Active",
+      "grace": "In 24-hour grace",
+      "none": "None",
+      "subscriptionsUnavailable": "Organization subscriptions are not available.",
+      "personalPremium": "Personal Premium",
+      "personalPremiumNote": "People’s own subscriptions in this product",
+      "paymentIssues": "Payment issues",
+      "paymentIssuesNote": "Failed, or awaiting action"
+    },
+    "policies": {
+      "title": "Policies",
+      "assistedPayments": "Assisted payments",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "enabledDetail": "Organizations inherit it; {{disabled}} of {{total}} have it disabled.",
+      "disabledDetail": "Disabled for this platform: no organization can enable it.",
+      "change": "Change policy"
+    },
+    "activity": {
+      "title": "Recent activity",
+      "empty": "No recent administrative activity.",
+      "organizationCreated": "Organization created",
+      "adminInvitationSent": "Admin invitation sent",
+      "membershipApproved": "Membership approved",
+      "operatorAssigned": "Operator assigned"
+    },
+    "states": {
+      "checking": "Opening the platform",
+      "loading": "Loading the platform dashboard",
+      "loadingSection": "Loading",
+      "retry": "Try again",
+      "directoryTitle": "This platform cannot be opened right now",
+      "directoryDescription": "Your platforms could not be listed. This is not an access refusal: try again in a moment.",
+      "notAccessibleTitle": "Platform not found or not accessible",
+      "notAccessibleDescription": "It may not exist, or it is outside your administration scope.",
+      "errorTitle": "The platform figures could not be loaded",
+      "errorDescription": "This does not mean the platform is empty. Try again in a moment.",
+      "notInBuildTitle": "Not available in this build",
+      "notInBuildDescription": "No Nawara Core contract provides this dashboard yet.",
+      "sectionUnavailable": "Not available right now."
+    }
   },
   "platforms": {
     "title": "Platforms",
