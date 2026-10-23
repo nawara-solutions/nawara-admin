@@ -365,6 +365,7 @@
         "invitationRevoked": "Invitation révoquée",
         "membershipApproved": "Adhésion approuvée",
         "membershipRejected": "Demande d’adhésion refusée",
+        "membershipRevoked": "Adhésion révoquée",
         "platformCreated": "Plateforme créée"
       },
       "auditLog": "Journal d’audit"
@@ -514,6 +515,7 @@
       "adminInvitationRevoked": "Invitation d’administrateur révoquée",
       "membershipApproved": "Adhésion approuvée",
       "membershipRejected": "Demande d’adhésion refusée",
+      "membershipRevoked": "Adhésion révoquée",
       "operatorAssigned": "Opérateur affecté",
       "platformCreated": "Plateforme créée"
     },
@@ -842,7 +844,7 @@
         "contact": "Contact",
         "other": "Autres adhésions",
         "otherNote": "Non affichées : Nawara Core ne permet pas de retrouver une personne d’une organisation à l’autre.",
-        "readOnly": "La révocation et le rôle d’administrateur d’organisation arriveront dans des versions ultérieures.",
+        "readOnly": "La modification du rôle d’administrateur d’organisation arrivera dans une version ultérieure.",
         "notFoundTitle": "Adhésion introuvable ou inaccessible",
         "notFoundDescription": "Elle n’existe peut-être pas, appartient peut-être à une autre organisation, ou n’est plus listée."
       },
@@ -885,6 +887,41 @@
           "unknown": "Nous n’avons pas pu confirmer la décision : la réponse a été perdue, elle a donc pu être enregistrée ou non. Rien n’est renvoyé automatiquement.",
           "rateLimited": "Trop de modifications d’adhésions en peu de temps. Rien n’a été modifié ; patientez quelques minutes puis réessayez.",
           "unavailable": "Nawara Core n’a pas pu prendre la décision pour le moment. Rien n’a été modifié."
+        }
+      },
+      "revoke": {
+        "column": "Actions",
+        "open": "Révoquer…",
+        "for": "Révoquer l’adhésion de {{who}}",
+        "sending": "Révocation de l’adhésion…",
+        "authorityOwner": "En tant que propriétaire de l’entreprise, vous pouvez révoquer des adhésions. Nawara Core vérifie votre autorité à chaque modification.",
+        "authorityOperator": "En tant qu’opérateur affecté à {{platform}}, vous pouvez révoquer des adhésions, y compris celle d’un administrateur de l’organisation. Nawara Core vérifie votre autorité à chaque modification.",
+        "cardTitle": "Gérer l’adhésion",
+        "cardBody": "La révocation retire à cette personne l’accès à {{name}}.",
+        "cardBodyAdmin": "La révocation retire à cette personne l’accès à {{name}}, et avec lui son rôle d’administrateur de l’organisation.",
+        "title": "Révoquer cette adhésion ?",
+        "body": "Cette personne perd l’accès à {{name}}.",
+        "adminTitle": "Ce membre est administrateur de l’organisation.",
+        "adminBody": "La révocation de l’adhésion retire aussi son autorité administrative dans {{name}}.",
+        "adminOperator": "Seul le propriétaire de l’entreprise peut nommer un administrateur de l’organisation.",
+        "keptTitle": "Non concernés :",
+        "keptAccount": "son compte Nawara et sa connexion (ce n’est pas une suspension du compte)",
+        "keptOther": "ses adhésions à d’autres organisations",
+        "keptCommercial": "abonnements et paiements : rien n’est annulé ni remboursé",
+        "noRestore": "Nawara Admin ne permet pas aujourd’hui de rétablir une adhésion révoquée, et les adhésions révoquées ne sont pas listées.",
+        "confirm": "Révoquer l’adhésion",
+        "revoking": "Révocation de l’adhésion…",
+        "revokingShort": "Révocation…",
+        "stillActive": "Elle est toujours active : elle n’a pas été révoquée.",
+        "notListed": "Elle ne figure plus parmi les adhésions actives. Elle a peut-être été révoquée, éventuellement par votre demande, mais les adhésions révoquées ne sont pas listées : cela ne peut pas être confirmé ici.",
+        "revoked": "Adhésion révoquée dans {{name}}.",
+        "notRevoked": "La révocation dans {{name}} n’a pas abouti.",
+        "failure": {
+          "notActive": "Cette adhésion n’est plus active : votre demande n’a rien révoqué.",
+          "refused": "Cette adhésion ne vous est plus accessible. Rien n’a été modifié.",
+          "unknown": "Nous n’avons pas pu confirmer la révocation : la réponse a été perdue, elle a donc pu être appliquée ou non. Rien n’est renvoyé automatiquement.",
+          "rateLimited": "Trop de modifications d’adhésions en peu de temps. Rien n’a été modifié ; patientez quelques minutes puis réessayez.",
+          "unavailable": "Nawara Core n’a pas pu révoquer l’adhésion pour le moment. Rien n’a été modifié."
         }
       }
     },
@@ -1021,6 +1058,7 @@
       "adminInvitationRevoked": "Invitation d’administrateur révoquée",
       "membershipApproved": "Adhésion approuvée",
       "membershipRejected": "Demande d’adhésion refusée",
+      "membershipRevoked": "Adhésion révoquée",
       "simulated": "simulé"
     },
     "footnote": "Les adhésions sont comptées par organisation ; une personne peut en avoir dans plusieurs."

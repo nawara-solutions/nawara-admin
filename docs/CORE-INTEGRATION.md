@@ -220,8 +220,16 @@ Admin strategy and the decision required before A4.
     `REQUIRE_CONTACT_VERIFICATION` (default **false**, `config/app-config.ts:391`) and an unverified contact:
     `409 contact_not_verified` → conditional update (0 rows: `409`). Writes `status`, `approvedAt|rejectedAt`,
     `approvedBy|rejectedBy` (never returned); audit, central audit and an outbox event in the same transaction. No
-    body, no idempotency key, no reason. Revoke `POST …/revoke` → `200`; `409 membership_not_active`;
-    **no step-up**; clears the admin flag. Final.
+    body, no idempotency key, no reason.
+  - Revoke `POST …/memberships/:id/revoke` → `200 { id, status: 'revoked' }`; **no step-up**, no body, no idempotency.
+    **Built in Admin as a demo mock only (P5-S3a;
+    [`design/p5-s3-revocation-and-admin-role.md`](design/p5-s3-revocation-and-admin-role.md)).** Order
+    (`membership.service.ts:148-192`): throttle → row locked by id and URL Organization (none: `404`) → authority
+    (owner, assigned operator, organization admin; else `404`) → one's own membership: `404` → an organization admin
+    revoking another admin: `404` (an owner or assigned operator may) → not active: `409 membership_not_active` (also
+    for a repeat) → conditional update that also sets `isOrganizationAdmin = false`. Audit `membership.revoked`
+    (`authority`, `wasAdmin`), central audit, outbox event. No administrative restore route exists; revoked rows are
+    not listable (CF-24); re-join semantics unverified.
   - Admin role `POST | DELETE …/memberships/:id/admin` → `204`; owner only; step-up `organization.admin.grant|revoke`
     (TOTP or WebAuthn); the membership must be active.
   - Suspend / restore `POST /auth/admin/members/:id/suspend|restore`: owner + factor step-up; reasons
@@ -326,7 +334,7 @@ Admin strategy and the decision required before A4.
 | Organization lifecycle (suspend/archive) | Organization | 🔴 | BD-5 undecided | Placeholder only |
 | Memberships — list (one Organization, by status) | Auth | 🟢 Prod | `GET …/memberships?status=` | `MembershipGateway.list(organizationId, status)`, mock in demo builds (P5-S1); detail resolved from the lists; **CF-23, CF-24, CF-25** |
 | Memberships — approve/reject | Auth | 🟢 Prod | `POST …/memberships/:id/approve\|reject` | `MembershipGateway.decide(organizationId, id, decision)`, mock in demo builds (P5-S2); never resent after a lost answer; **CF-26** |
-| Memberships — revoke | Auth | 🟢 Prod | `POST …/memberships/:id/revoke` | Not built (P5-S3); HTTP (A7) |
+| Memberships — revoke | Auth | 🟢 Prod | `POST …/memberships/:id/revoke` | `MembershipGateway.revoke(organizationId, id)`, mock in demo builds (P5-S3a); never resent after a lost answer; **CF-26, CF-27** |
 | Join codes / admin invitations | Auth | 🟢 Prod | `organization.controller.ts` | HTTP (A7) |
 | Organization-admin grant/revoke | Auth | 🟢 Prod | `memberships/:id/admin` | HTTP (A7) |
 | Operators (create/confirm/block/unblock) | Auth | 🟢 Prod | `operator.controller.ts` | HTTP (A7) |
@@ -663,6 +671,20 @@ Admin requirement: Core confirms this is intended (residual risk: a stolen opera
 Classification:   🟡 security review item.
 V1 or V2:         to decide by the Core owner.
 Recommended checkpoint: before P5-S2/S3.
+
+CF-27  Assigned operators can revoke an organization admin's membership without step-up
+Service:          auth-service
+Current behavior: (origin/main b91b7bf) membership.service.ts revoke: an owner or an operator assigned to the Platform may revoke
+                  any active membership, an organization admin's included (only an organization admin is barred from
+                  revoking another admin); the admin role is cleared in the same statement. No step-up is required, while
+                  granting or removing the role alone requires the owner's factor step-up (organization.admin.grant|revoke).
+Admin requirement: Core confirms the intended authority. Residual risk: a stolen operator session can remove an Organization's
+                  administrators (and members) with the bearer alone, a stronger effect than the step-up-protected role
+                  change. Admin follows the source (P5-S3a): operators may revoke admins' memberships, the confirmation says
+                  the administrative authority goes too; Admin cannot add authority.
+Classification:   🟡 security review item.
+V1 or V2:         to decide by the Core owner.
+Recommended checkpoint: before the membership HTTP integration.
 ```
 
 ## 10. Undefined architectural decisions (Core side)

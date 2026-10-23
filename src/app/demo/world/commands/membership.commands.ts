@@ -5,10 +5,10 @@ import { AdminIdentityId, DemoWorldTables, MembershipRecord } from '../records';
 import { organizationOf, platformViewerOf } from '../selectors';
 
 /**
- * Membership decision commands of the demo world (development builds only), applied through `DemoWorld.commit`. They
- * follow the source-verified Auth contract (P5-S0; auth-service `membership/membership.service.ts` `decide`,
- * `membership/organization.controller.ts`): pending → active (approve) or pending → rejected (reject), one membership,
- * nothing else. The audience is an opaque label: no rule here reads it.
+ * Membership commands of the demo world (development builds only), applied through `DemoWorld.commit`. They follow the
+ * source-verified Auth contract (P5-S0; auth-service `membership/membership.service.ts` `decide` and `revoke`,
+ * `membership/organization.controller.ts`): pending → active (approve) or rejected (reject), active → revoked (revoke,
+ * P5-S3a); one membership, nothing else. The audience is an opaque label: no rule here reads it.
  */
 
 export type MembershipDecision = 'approve' | 'reject';
@@ -87,6 +87,71 @@ export function decideMembership(
           platformId: organization.platformId,
           organizationId: organization.id,
           action: input.decision === 'approve' ? 'membership.approved' : 'membership.rejected',
+          occurredAt: at,
+        },
+      ],
+    },
+  };
+}
+
+const NOT_ACTIVE: AppError = { kind: 'conflict', code: 'membership_not_active', status: 409 };
+
+export interface RevokeMembershipInput {
+  readonly organizationId: OrganizationId;
+  readonly membershipId: string;
+  /** The acting business identity (owner or operator) and the session's user id (Core's `actor.userId`). */
+  readonly actor: AdminIdentityId;
+  readonly actorUserId: string;
+  readonly now: number;
+}
+
+/**
+ * Core's `revoke` (P5-S0, auth-service `membership.service.ts`), in its order: the membership of the URL's Organization
+ * (none: `404`), the actor's authority (the Company owner or an operator assigned to the Platform; otherwise the same
+ * `404`), never the actor's own membership (`404`), only an active one (`409 membership_not_active`: pending, rejected
+ * and already revoked alike). Then exactly one record changes, in one step: `status → revoked`, `revokedAt`, and the
+ * organization-admin flag cleared. An assigned operator may revoke an organization admin, as in Core (only an
+ * organization admin, not an Admin actor, is barred from revoking another admin). The person, their other
+ * memberships, invitations and everything commercial stay as they are; a `membership.revoked` activity record is added.
+ */
+export function revokeMembership(
+  world: DemoWorldTables,
+  input: RevokeMembershipInput,
+): CommandOutcome<MembershipRecord> {
+  const current = world.memberships.find(
+    (m) => m.id === input.membershipId && m.organizationId === input.organizationId,
+  );
+  if (current === undefined) return { ok: false, error: NOT_FOUND };
+  const organization = organizationOf(world, current.organizationId);
+  if (
+    organization === undefined ||
+    platformViewerOf(world, input.actor, organization.platformId) === null
+  )
+    return { ok: false, error: NOT_FOUND };
+  if (current.userId === input.actorUserId) return { ok: false, error: NOT_FOUND };
+  if (current.status !== 'active') return { ok: false, error: NOT_ACTIVE };
+  const at = new Date(input.now).toISOString();
+  const revoked: MembershipRecord = {
+    ...current,
+    status: 'revoked',
+    revokedAt: at,
+    isOrganizationAdmin: false,
+  };
+  const sequence = world.sequence + 1;
+  return {
+    ok: true,
+    result: revoked,
+    world: {
+      ...world,
+      sequence,
+      memberships: world.memberships.map((m) => (m.id === current.id ? revoked : m)),
+      activity: [
+        ...world.activity,
+        {
+          id: `membership-activity-revoke-${sequence}`,
+          platformId: organization.platformId,
+          organizationId: organization.id,
+          action: 'membership.revoked',
           occurredAt: at,
         },
       ],

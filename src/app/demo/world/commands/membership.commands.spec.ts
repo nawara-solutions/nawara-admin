@@ -14,7 +14,13 @@ import {
   pendingRequestCount,
   pendingRequestTotal,
 } from '../selectors';
-import { DecideMembershipInput, MembershipDecision, decideMembership } from './membership.commands';
+import {
+  DecideMembershipInput,
+  MembershipDecision,
+  RevokeMembershipInput,
+  decideMembership,
+  revokeMembership,
+} from './membership.commands';
 
 const NOW = Date.parse('2026-10-23T12:00:00Z');
 const LATER = NOW + 60_000;
@@ -241,5 +247,116 @@ describe('decideMembership (P5-S2, Core’s decide)', () => {
       applied(world, input(request, 'reject', { requireContactVerification: true })).result.status,
     ).toBe('rejected');
     expect(applied(world, input(request, 'approve')).result.status).toBe('active');
+  });
+});
+
+describe('revokeMembership (P5-S3a, Core’s revoke)', () => {
+  const revoke = (
+    membership: MembershipRecord,
+    change: Partial<RevokeMembershipInput> = {},
+  ): RevokeMembershipInput => ({
+    organizationId: membership.organizationId,
+    membershipId: membership.id,
+    actor: DEMO_OWNER_ID,
+    actorUserId: 'owner-user',
+    now: LATER,
+    ...change,
+  });
+  const member = seed.memberships.find(
+    (m) => m.organizationId === HORIZON && m.status === 'active' && !m.isOrganizationAdmin,
+  )!;
+  const admin = seed.memberships.find(
+    (m) => m.organizationId === HORIZON && m.status === 'active' && m.isOrganizationAdmin,
+  )!;
+  const applyRevoke = (world: DemoWorldTables, command: RevokeMembershipInput) => {
+    const outcome = revokeMembership(world, command);
+    if (!outcome.ok) throw new Error(`refused: ${outcome.error.kind}`);
+    return outcome;
+  };
+
+  it('revokes an active membership: exactly that record changes, nothing else does', () => {
+    const { world, result } = applyRevoke(seed, revoke(member));
+    expect(result).toEqual({
+      ...member,
+      status: 'revoked',
+      revokedAt: new Date(LATER).toISOString(),
+    });
+    expect(world.memberships.filter((m, i) => m !== seed.memberships[i])).toEqual([result]);
+    expect(world.members).toBe(seed.members);
+    for (const table of [
+      'company',
+      'platforms',
+      'organizations',
+      'identities',
+      'assignments',
+      'subscriptions',
+      'adminInvitations',
+      'paymentIssues',
+      'platformCommercial',
+      'inboxes',
+      'idempotency',
+    ] as const)
+      expect(world[table]).toBe(seed[table]);
+    expect(world.activity.at(-1)).toMatchObject({
+      action: 'membership.revoked',
+      organizationId: HORIZON,
+      platformId: DEMO_SCHOOL_PLATFORM_ID,
+    });
+  });
+
+  it('clears the organization-admin role in the same change, also when an assigned operator revokes it', () => {
+    for (const actor of [DEMO_OWNER_ID, DEMO_OPERATOR_IDS.school] as AdminIdentityId[]) {
+      const { result } = applyRevoke(seed, revoke(admin, { actor }));
+      expect([result.status, result.isOrganizationAdmin]).toEqual(['revoked', false]);
+      expect(result.audience).toBe(admin.audience);
+    }
+  });
+
+  it('lowers the active figures by one for the Organization, its Platform and nothing else', () => {
+    const world = applyRevoke(seed, revoke(member)).world;
+    const school = organizationsOf(world, DEMO_SCHOOL_PLATFORM_ID);
+    const drive = organizationsOf(world, DEMO_DRIVE_PLATFORM_ID);
+    expect([activeMembershipCount(world, HORIZON), pendingRequestCount(world, HORIZON)]).toEqual([
+      63, 3,
+    ]);
+    expect([membershipTotal(world, school), pendingRequestTotal(world, school)]).toEqual([919, 12]);
+    expect([membershipTotal(world, drive), pendingRequestTotal(world, drive)]).toEqual([460, 4]);
+    expect(activeMembershipCount(world, RIAD)).toBe(87);
+  });
+
+  it('refuses anything not active, and a repeated or competing revocation: 409 membership_not_active', () => {
+    const once = applyRevoke(seed, revoke(member)).world;
+    const conflict = {
+      ok: false,
+      error: { kind: 'conflict', code: 'membership_not_active', status: 409 },
+    };
+    expect(revokeMembership(once, revoke(member))).toEqual(conflict);
+    for (const status of ['pending', 'rejected', 'revoked'] as const)
+      expect(revokeMembership(seed, revoke(firstOf(seed, HORIZON, status)))).toEqual(conflict);
+  });
+
+  it('collapses unknown, another Organization’s, someone else’s Platform and one’s own membership into one 404', () => {
+    const notFound = { ok: false, error: { kind: 'not_found', code: 'not_found', status: 404 } };
+    expect(revokeMembership(seed, revoke(member, { membershipId: 'unknown' }))).toEqual(notFound);
+    expect(revokeMembership(seed, revoke(member, { organizationId: RIAD }))).toEqual(notFound);
+    for (const actor of [
+      DEMO_OPERATOR_IDS.phone,
+      DEMO_OPERATOR_IDS.unassigned,
+    ] as AdminIdentityId[])
+      expect(revokeMembership(seed, revoke(member, { actor }))).toEqual(notFound);
+    expect(revokeMembership(seed, revoke(member, { actorUserId: member.userId }))).toEqual(
+      notFound,
+    );
+  });
+
+  it('never reads the audience', () => {
+    for (const audience of ['student', 'teacher', 'learner', 'org_admin', 'anything']) {
+      const other = { ...member, audience };
+      const world = {
+        ...seed,
+        memberships: seed.memberships.map((m) => (m.id === member.id ? other : m)),
+      };
+      expect(applyRevoke(world, revoke(other)).result.status).toBe('revoked');
+    }
   });
 });

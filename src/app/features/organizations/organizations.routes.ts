@@ -2,7 +2,9 @@ import { Routes } from '@angular/router';
 import { AppEnvironment, adapterProviders } from '../../core/config/app-environment';
 import { OrganizationDetailFacade } from './application/organization-detail.facade';
 import { OrganizationDirectoryFacade } from './application/organization-directory.facade';
+import { MembershipActionLock } from './application/membership-action-support';
 import { MembershipDecisionAction } from './application/membership-decision.action';
+import { MembershipRevokeAction } from './application/membership-revoke.action';
 import { OrganizationMembersFacade } from './application/organization-members.facade';
 import { MEMBERS_SEGMENT } from '../../core/context/scope-context';
 import { MembershipGateway, UnavailableMembershipGateway } from './data-access/membership.gateway';
@@ -62,14 +64,16 @@ export async function loadOrganizationsRoutes(environment: AppEnvironment): Prom
             import('./pages/organization-detail.page').then((m) => m.OrganizationDetailPage),
         },
         {
-          // An Organization's members and one membership (P5-S1), and decisions on its requests (P5-S2): one facade
-          // for both pages, so the lists are loaded once; the Organization is the detail facade's (Platform-checked
-          // first); one decision action for both, so a decision is single-flight across them.
+          // An Organization's members and one membership (P5-S1), decisions on its requests (P5-S2) and revocation
+          // (P5-S3a): one facade for both pages, so the lists are loaded once; the Organization is the detail facade's
+          // (Platform-checked first); one set of actions for both, single-flight across them (`MembershipActionLock`).
           path: `:organizationId/${MEMBERS_SEGMENT}`,
           providers: [
             OrganizationDetailFacade,
             OrganizationMembersFacade,
+            MembershipActionLock,
             MembershipDecisionAction,
+            MembershipRevokeAction,
           ],
           children: [
             {

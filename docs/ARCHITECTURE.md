@@ -475,6 +475,16 @@ confirm (severity-appropriate dialog)
   for an answer newer than the failure (`loadSequence`) before saying where the request is. Nothing is resent.
 - **Audience is opaque:** no rule in the command, the mock, the action or the UI reads it.
 
+**Eighth action (P5-S3a, 2026-10-24): membership revocation**, Auth-owned, owner and assigned operators
+([`design/p5-s3-revocation-and-admin-role.md`](design/p5-s3-revocation-and-admin-role.md)):
+
+- `MembershipRevokeAction` (an `ActionRun`, no step-up) beside the decision action on the members parent route. Both
+  register with one `MembershipActionLock`, so only one membership action is sent at a time across the list and the
+  details page; the shared actor context and Platform guard live in `membership-action-support.ts`.
+- **What a reload can prove:** revoked memberships are not listable, so a membership gone from every list after an
+  uncertain revocation is reported as "may have been revoked", never as confirmed.
+- Revoking from the details page returns to the list (the revoked id would read "not found").
+
 ## 13. Design system: tokens, SCSS and BEM
 
 ### Token architecture

@@ -1,12 +1,9 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-import { Observable, defer, throwError } from 'rxjs';
 import { ActionFailure, failureKey } from '../../../core/actions/action-failure';
-import { ActionContext, ActionRun } from '../../../core/actions/action-run';
+import { ActionRun } from '../../../core/actions/action-run';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { ScopeContext } from '../../../core/context/scope-context';
-import { OrganizationId, PlatformId } from '../../../core/context/scope.model';
-import { AppError } from '../../../core/errors/app-error';
 import { NwDialogService } from '../../../shared/ui/dialog/dialog.service';
 import { NwToastService } from '../../../shared/ui/toast/toast.service';
 import { isolated } from '../../platforms/domain/create-platform.model';
@@ -18,14 +15,16 @@ import {
   isDecidable,
 } from '../domain/membership-decision.model';
 import { ListableMembershipStatus, Membership } from '../domain/membership.model';
+import {
+  MembershipActionLock,
+  MembershipActionTarget,
+  guardedByPlatform,
+  membershipActionContext,
+} from './membership-action-support';
 import { OrganizationMembersFacade } from './organization-members.facade';
 
 /** The Organization a decision is for, as the members page shows it (already checked against the Platform in the URL). */
-export interface DecisionTarget {
-  readonly organizationId: OrganizationId;
-  readonly organizationName: string;
-  readonly platformId: PlatformId;
-}
+export type DecisionTarget = MembershipActionTarget;
 
 export interface DecisionInput {
   readonly target: DecisionTarget;
@@ -70,7 +69,8 @@ export type Reconciliation =
  * Organization's Platform (Core's `organizationAuthority`; Core decides, this only offers). No step-up (Core requires
  * none), no idempotency key (Core has none), no body. Route-scoped with the members facade.
  *
- * - One decision at a time on the page (`ActionRun`): every other decision control waits while one is sent.
+ * - One membership action at a time on the page (`MembershipActionLock`): every decision and revocation control waits
+ *   while one is sent.
  * - Immediately before sending, the Platform must still be one of the actor's; otherwise nothing is sent (`404`).
  * - A lost answer is never resent: the lists are reloaded and the dialog shows where the request is now. A competing
  *   decision (`409`) or a request no longer available (`404`) reloads them too. "Try again" exists only where Core
@@ -86,6 +86,7 @@ export class MembershipDecisionAction {
   private readonly dialogs = inject(NwDialogService);
   private readonly toasts = inject(NwToastService);
   private readonly transloco = inject(TranslocoService);
+  private readonly lock = inject(MembershipActionLock);
   /** The page's lists (the dialog, outside the route's injector, reads them through the action). */
   readonly members = inject(OrganizationMembersFacade);
   private input: DecisionInput | null = null;
@@ -99,10 +100,10 @@ export class MembershipDecisionAction {
   readonly succeeded = signal<{ readonly membershipId: string } | null>(null);
 
   readonly run = new ActionRun<DecisionInput, MembershipDecisionResult>({
-    context: () => this.context(),
+    context: () => membershipActionContext(this.session.actor()),
     stepUp: null,
     execute: (input) =>
-      this.guarded(input.target.platformId, () =>
+      guardedByPlatform(this.scope, input.target.platformId, () =>
         this.gateway.decide(input.target.organizationId, input.membership.id, input.decision),
       ),
     settled: (outcome, input, presented) => {
@@ -136,8 +137,12 @@ export class MembershipDecisionAction {
     this.run.state().phase === 'pending' ? (this.input?.membership.id ?? null) : null,
   );
 
-  /** Whether a decision is under way (every decision control waits). */
-  readonly sending = computed(() => this.run.state().phase === 'pending');
+  /** Whether any membership action of the page is under way (every membership control waits). */
+  readonly sending = this.lock.busy;
+
+  constructor() {
+    this.lock.register(this.run.state);
+  }
 
   /** Where the request is according to a reload asked for after the failure (`null`: none asked). */
   readonly reconciliation = computed<Reconciliation | null>(() => {
@@ -170,7 +175,7 @@ export class MembershipDecisionAction {
   }
 
   open(input: DecisionInput): void {
-    if (!this.offers(input.membership) || this.run.state().phase === 'pending') return;
+    if (!this.offers(input.membership) || this.lock.busy()) return;
     this.input = input;
     this.reconcileFrom.set(null);
     if (!this.run.open()) return;
@@ -199,24 +204,5 @@ export class MembershipDecisionAction {
     // Read the run state so a new decision recomputes this.
     this.run.state();
     return this.input?.membership.id ?? null;
-  }
-
-  private context(): ActionContext | null {
-    const actor = this.session.actor();
-    if (actor === null) return null;
-    return {
-      actorId: actor.userId,
-      scope: actor.kind === 'owner' ? actor.companyId : 'assigned-platforms',
-    };
-  }
-
-  /** Immediately before sending: the Organization's Platform is still one of the actor's; otherwise nothing is sent. */
-  private guarded<T>(platform: PlatformId, send: () => Observable<T>): Observable<T> {
-    return defer(() => {
-      const platforms = this.scope.platforms();
-      return platforms.status === 'success' && platforms.data.some((p) => p.id === platform)
-        ? send()
-        : throwError((): AppError => ({ kind: 'not_found', status: 404 }));
-    });
   }
 }

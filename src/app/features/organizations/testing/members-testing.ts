@@ -21,7 +21,9 @@ import { AdminIdentityId } from '../../../demo/world/records';
 import { DEMO_COMPANY_ID, DEMO_SCHOOL_PLATFORM_ID } from '../../../demo/world/seed';
 import { NW_CLOCK } from '../../../shared/format/clock';
 import { OrganizationDetailFacade } from '../application/organization-detail.facade';
+import { MembershipActionLock } from '../application/membership-action-support';
 import { MembershipDecisionAction } from '../application/membership-decision.action';
+import { MembershipRevokeAction } from '../application/membership-revoke.action';
 import { OrganizationMembersFacade } from '../application/organization-members.facade';
 import { OrganizationCommercialGateway } from '../data-access/organization-commercial.gateway';
 import { OrganizationGateway } from '../data-access/organization.gateway';
@@ -95,7 +97,9 @@ export async function renderMembers<T>(
       EntityLabel,
       OrganizationDetailFacade,
       OrganizationMembersFacade,
+      MembershipActionLock,
       MembershipDecisionAction,
+      MembershipRevokeAction,
       ...extraProviders,
     ],
   });

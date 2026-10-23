@@ -92,7 +92,10 @@ async function setUp({
   };
 }
 
-describe('Membership decisions (P5-S2)', () => {
+// These page tests render the real demo world (École Horizon's 64 active rows, as a table and as cards, each with its
+// membership controls): about a second each on their own, several under the full parallel suite. The timeout covers
+// that rendering cost only; every assertion is unchanged.
+describe('Membership decisions (P5-S2)', { timeout: 15_000 }, () => {
   afterEach(() => TestBed.inject(Dialog).closeAll());
 
   it('offers Approve and Reject on each request, named with its member, and nothing on Active rows', async () => {

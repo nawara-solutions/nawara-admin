@@ -34,6 +34,10 @@ const ACTIONS = {
     icon: 'circle-x',
     key: 'platformDashboard.activity.membershipRejected',
   },
+  'membership.revoked': {
+    icon: 'shield-off',
+    key: 'platformDashboard.activity.membershipRevoked',
+  },
   'operator.assigned': { icon: 'shield-check', key: 'platformDashboard.activity.operatorAssigned' },
 } as const satisfies Record<
   PlatformActivityAction,

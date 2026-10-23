@@ -4,11 +4,18 @@ import { DemoAuthState } from '../../../core/auth/auth.mock-state';
 import { DEMO_LATENCY_MS } from '../../../core/context/scope-directory.mock';
 import { OrganizationId } from '../../../core/context/scope.model';
 import { AppError } from '../../../core/errors/app-error';
-import { decideMembership } from '../../../demo/world/commands/membership.commands';
+import {
+  decideMembership,
+  revokeMembership,
+} from '../../../demo/world/commands/membership.commands';
 import { DemoWorld } from '../../../demo/world/demo-world';
 import { organizationOf, platformViewerOf } from '../../../demo/world/selectors';
 import { NW_CLOCK } from '../../../shared/format/clock';
-import { MembershipDecision, MembershipDecisionResult } from '../domain/membership-decision.model';
+import {
+  MembershipDecision,
+  MembershipDecisionResult,
+  MembershipRevokeResult,
+} from '../domain/membership-decision.model';
 import {
   LISTABLE_STATUSES,
   ListableMembershipStatus,
@@ -26,8 +33,8 @@ export const MEMBERSHIPS_DEMO_SCENARIO = new InjectionToken<MembershipsDemoScena
 );
 
 /**
- * Which answer a decision gets (§3). Demo builds use `normal`, which SUCCEEDS. The others:
- * - `decidedElsewhere`: someone else decides the request just before (a competing decision): `409`;
+ * Which answer a decision or a revocation gets (§3). Demo builds use `normal`, which SUCCEEDS. The others:
+ * - `decidedElsewhere`: someone else acts on the membership just before (a competing decision or revocation): `409`;
  * - `outcomeUnknown`: the decision is applied but its answer is lost (nothing replays it: no idempotency);
  * - `rateLimited`: the per-actor bucket is exhausted (`429 rate_limited`);
  * - `unavailable`: the service refuses before applying anything (`503`).
@@ -56,8 +63,9 @@ export const MEMBERSHIP_OP_LIMIT = { limit: 120, windowMs: 900_000 } as const;
  * Core cannot list is `400`. Rows are Core's projection (no name; the identity's email, phone and verification), oldest
  * request first; revoked memberships are never returned.
  *
- * Decisions follow Core's `decide`: the session (`401`), the throttle (`429`, every attempt counts), then the
- * `decideMembership` command, which owns authority, the self rule and the pending check (`404`/`409`).
+ * Decisions and revocations follow Core's `decide` and `revoke`: the session (`401`), the throttle (`429`, every
+ * attempt counts, one bucket for both), then the `decideMembership` or `revokeMembership` command, which owns authority,
+ * the self rule and the status check (`404`/`409`).
  */
 export class MockMembershipGateway extends MembershipGateway {
   readonly available = true;
@@ -153,7 +161,37 @@ export class MockMembershipGateway extends MembershipGateway {
     });
   }
 
-  /** Core's per-actor bucket: every decision attempt counts, refused or not. */
+  revoke(organization: OrganizationId, membershipId: string): Observable<MembershipRevokeResult> {
+    return defer((): Observable<MembershipRevokeResult> => {
+      const signedIn = this.auth.signedIn();
+      if (signedIn === null) return this.fail({ kind: 'unauthenticated', status: 401 });
+      if (this.decisions === 'unavailable') return this.fail({ kind: 'unavailable', status: 503 });
+      const userId = signedIn.identity.userId;
+      const throttled = this.throttle(userId);
+      if (throttled) return this.fail(throttled);
+      const actor = signedIn.businessIdentityId;
+      if (actor === null) return this.fail({ kind: 'not_found', code: 'not_found', status: 404 });
+      const input = {
+        organizationId: organization,
+        membershipId,
+        actor,
+        actorUserId: userId,
+        now: this.now(),
+      };
+      if (this.decisions === 'decidedElsewhere')
+        this.world.commit((tables) =>
+          revokeMembership(tables, { ...input, actorUserId: 'elsewhere' }),
+        );
+      const outcome = this.world.commit((tables) => revokeMembership(tables, input));
+      if (!outcome.ok) return this.fail(outcome.error);
+      if (this.decisions === 'outcomeUnknown') return this.fail({ kind: 'network', status: 0 });
+      return of<MembershipRevokeResult>({ id: outcome.result.id, status: 'revoked' }).pipe(
+        delay(this.latency),
+      );
+    });
+  }
+
+  /** Core's per-actor bucket (`membership_op_actor`): every decision or revocation attempt counts, refused or not. */
   private throttle(userId: string): AppError | null {
     if (this.decisions === 'rateLimited') return { kind: 'rate_limited', status: 429 };
     const now = this.now();

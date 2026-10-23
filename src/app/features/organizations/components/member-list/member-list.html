@@ -20,9 +20,14 @@
         @if (decidedKey) {
           <th scope="col">{{ decidedKey | transloco }}</th>
         }
-        @if (decisions()) {
+        @if (actions()) {
           <th scope="col" class="member-list__decision-head">
-            {{ 'organizations.members.decision.column' | transloco }}
+            {{
+              (decisions()
+                ? 'organizations.members.decision.column'
+                : 'organizations.members.revoke.column'
+              ) | transloco
+            }}
           </th>
         }
       </tr>
@@ -41,7 +46,7 @@
           @if (decidedKey) {
             <td>{{ decidedAt(row) ? (decidedAt(row)! | nwDate: 'date') : '—' }}</td>
           }
-          @if (decisions()) {
+          @if (actions()) {
             <td class="member-list__decision-cell">
               <ng-container *ngTemplateOutlet="decisionControls; context: { $implicit: row }" />
             </td>
@@ -64,7 +69,7 @@
             · {{ decidedKey | transloco }} {{ decidedAt(row)! | nwDate: 'date' }}
           }
         </span>
-        @if (decisions()) {
+        @if (actions()) {
           <ng-container *ngTemplateOutlet="decisionControls; context: { $implicit: row }" />
         }
       </li>
@@ -100,7 +105,34 @@
 </ng-template>
 
 <ng-template #decisionControls let-row>
-  @if (offers()(row)) {
+  @if (revokeOffers()(row)) {
+    @let who = identity(row);
+    @let name =
+      who.kind === 'user'
+        ? ('organizations.members.identity.user' | transloco: { ref: who.value })
+        : who.value;
+    @if (sendingId() === row.id) {
+      <span class="member-list__sending" role="status">
+        <nw-spinner />{{ 'organizations.members.revoke.sending' | transloco }}
+      </span>
+    } @else {
+      <span class="member-list__decision">
+        <button
+          nw-button
+          variant="ghost"
+          type="button"
+          class="member-list__reject"
+          data-revoke
+          [attr.aria-label]="'organizations.members.revoke.for' | transloco: { who: name }"
+          [attr.aria-disabled]="sending() || null"
+          [attr.aria-describedby]="sending() ? listId() + '-waiting' : null"
+          (click)="askRevoke(row)"
+        >
+          {{ 'organizations.members.revoke.open' | transloco }}
+        </button>
+      </span>
+    }
+  } @else if (offers()(row)) {
     @let who = identity(row);
     @let name =
       who.kind === 'user'

@@ -1,7 +1,11 @@
 import { Observable, throwError } from 'rxjs';
 import { OrganizationId } from '../../../core/context/scope.model';
 import { adapterUnavailable } from '../../../core/errors/app-error';
-import { MembershipDecision, MembershipDecisionResult } from '../domain/membership-decision.model';
+import {
+  MembershipDecision,
+  MembershipDecisionResult,
+  MembershipRevokeResult,
+} from '../domain/membership-decision.model';
 import { ListableMembershipStatus, MembershipList } from '../domain/membership.model';
 
 /**
@@ -10,6 +14,8 @@ import { ListableMembershipStatus, MembershipList } from '../domain/membership.m
  *   Core's default is `pending`). No pagination, search, sort or detail read exists, so none is offered here.
  * - `decide` (P5-S2): `POST …/memberships/:membershipId/approve` or `…/reject`, no body, `200 { id, status }`. Not
  *   idempotent and no key exists: a lost answer is never resent automatically.
+ * - `revoke` (P5-S3a): `POST …/memberships/:membershipId/revoke`, no body, no step-up, `200 { id, status: 'revoked' }`;
+ *   not idempotent either.
  * No HTTP adapter is authorized yet: production builds bind the unavailable adapter.
  */
 export abstract class MembershipGateway {
@@ -26,9 +32,14 @@ export abstract class MembershipGateway {
     membershipId: string,
     decision: MembershipDecision,
   ): Observable<MembershipDecisionResult>;
+
+  abstract revoke(
+    organization: OrganizationId,
+    membershipId: string,
+  ): Observable<MembershipRevokeResult>;
 }
 
-/** Every non-demo build: nothing is wired, so nothing is ever listed or decided. */
+/** Every non-demo build: nothing is wired, so nothing is ever listed, decided or revoked. */
 export class UnavailableMembershipGateway extends MembershipGateway {
   readonly available = false;
 
@@ -37,6 +48,10 @@ export class UnavailableMembershipGateway extends MembershipGateway {
   }
 
   decide(): Observable<MembershipDecisionResult> {
+    return throwError(adapterUnavailable);
+  }
+
+  revoke(): Observable<MembershipRevokeResult> {
     return throwError(adapterUnavailable);
   }
 }

@@ -16,3 +16,13 @@ export interface MembershipDecisionResult {
 /** Only a pending request can be decided (Core answers `409 membership_already_decided` for any other). */
 export const isDecidable = (membership: Pick<Membership, 'status'>): boolean =>
   membership.status === 'pending';
+
+/** Core's answer to `POST …/memberships/:membershipId/revoke` (P5-S3a): `200 { id, status: 'revoked' }`. */
+export interface MembershipRevokeResult {
+  readonly id: string;
+  readonly status: 'revoked';
+}
+
+/** Only an active membership can be revoked (Core answers `409 membership_not_active` for any other). */
+export const isRevocable = (membership: Pick<Membership, 'status'>): boolean =>
+  membership.status === 'active';

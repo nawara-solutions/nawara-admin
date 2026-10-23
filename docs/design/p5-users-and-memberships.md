@@ -1,8 +1,10 @@
 # P5 — Users and memberships (design specification)
 
 - **Status:** P5-S1 (read-only Organization members and membership details) complete (PR #25); P5-S2 (approve and
-  reject requests) implemented as a development-only mock prototype, specified in
-  [`p5-s2-membership-decisions.md`](p5-s2-membership-decisions.md). Production binds the unavailable adapter.
+  reject requests) complete (PR #26, [`p5-s2-membership-decisions.md`](p5-s2-membership-decisions.md)); P5-S3a
+  (revocation) implemented as a development-only mock prototype and P5-S3b (the admin role) not yet, both specified in
+  [`p5-s3-revocation-and-admin-role.md`](p5-s3-revocation-and-admin-role.md). Production binds the unavailable
+  adapter.
 - **Why this file exists:** the claude.ai design canvases are private and have become unavailable before; this text is the
   durable record of the P5-0 design (six artboards) as corrected by the P5-S0 read-only Core verification.
 - **Contract:** source-verified in P5-S0 against Nawara Core `origin/main` `b91b7bf`
@@ -101,5 +103,5 @@ Organization-scoped rows Core gives them. No other memberships, no distinct coun
 
 ## 8. Not built (later slices)
 
-Revoke and the admin role (P5-S3), account suspend / restore (P5-S4), join codes, a
+The admin role (P5-S3b), account suspend / restore (P5-S4), join codes, a
 Company-wide directory (blocked on CF-03), a revoked view (blocked on Core's list filter).
