@@ -3,6 +3,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Observable, Subject, combineLatest, of, startWith, switchMap } from 'rxjs';
 import { can } from '../../../core/access/capability-policy';
 import { AuthSession } from '../../../core/auth/auth-session';
+import { ScopeContext } from '../../../core/context/scope-context';
 import { CompanyId } from '../../../core/context/scope.model';
 import { ViewState, toViewState } from '../../../core/state/view-state';
 import { CommercialSummaryGateway } from '../data-access/commercial-summary.gateway';
@@ -44,8 +45,12 @@ export class CompanyOverviewFacade {
     return actor?.kind === 'owner' && can(actor, 'company.overview.view') ? actor.companyId : null;
   });
 
+  /** The hierarchy changed (a Platform was created): the overview loads again, so its counts follow. */
+  private readonly revision = toObservable(inject(ScopeContext).revision);
+
   private readonly scoped$ = combineLatest([
     toObservable(this.companyId),
+    this.revision,
     this.reloads.pipe(startWith(undefined)),
   ]);
 

@@ -34,7 +34,11 @@ export interface RecentOrganization {
 
 /** Administrative actions of the activity feed (machine values; labels come from the catalog). */
 export type PlatformActivityAction =
-  'organization.created' | 'admin_invitation.sent' | 'membership.approved' | 'operator.assigned';
+  | 'platform.created'
+  | 'organization.created'
+  | 'admin_invitation.sent'
+  | 'membership.approved'
+  | 'operator.assigned';
 
 export interface PlatformActivityEntry {
   readonly id: string;

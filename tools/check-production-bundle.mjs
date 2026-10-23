@@ -20,6 +20,10 @@ const MARKERS = [
   'PLATFORM_DIRECTORY_DEMO_SCENARIO', // mock adapter token (platform-directory.mock.ts)
   'PLATFORM_DASHBOARD_DEMO_SCENARIO', // mock adapter token (platform-dashboard.mock.ts)
   'ORGANIZATIONS_DEMO_SCENARIO', // mock adapter token (organization.mock.ts)
+  'PLATFORM_COMMANDS_DEMO_SCENARIO', // mock adapter token (platform-command.mock.ts)
+  'STEP_UP_DEMO_SCENARIO', // simulated step-up token (step-up.mock.ts)
+  'demo-step-up-', // simulated step-up grants (auth.mock-state.ts)
+  'platform-activity-created-', // the demo command's activity records (platform.commands.ts)
 ];
 
 if (!existsSync(DIST)) {

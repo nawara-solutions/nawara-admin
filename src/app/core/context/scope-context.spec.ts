@@ -101,6 +101,8 @@ describe('ScopeContext: the Platforms the actor may see', () => {
       platformCommercial: [],
       organizations: [],
       organizationCommercial: [],
+      platformCommands: [],
+      stepUp: [],
     },
   };
 

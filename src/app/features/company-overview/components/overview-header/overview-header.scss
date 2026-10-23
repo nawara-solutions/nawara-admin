@@ -93,7 +93,7 @@
   }
 }
 
-// Create platform: the design's ink action. Disabled until the real flow exists (A4 step-up, cutover).
+// Create platform: the design's ink action. Live where this build can send it (simulated in demo builds, P4-S1).
 .overview-header__create-button {
   display: inline-flex;
   align-items: center;
@@ -109,8 +109,19 @@
   font-size: 0.8125rem;
   font-weight: var(--nw-font-weight-semibold);
 
+  cursor: pointer;
+
   &:disabled {
     cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    filter: brightness(1.12);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: 2px;
   }
 }
 

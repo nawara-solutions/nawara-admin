@@ -2,6 +2,8 @@
 <adm-overview-header
   [isDemo]="isDemo()"
   [canCreate]="facade.canSeeCreatePlatform()"
+  [createAvailable]="createPlatform.available"
+  (create)="createPlatform.open()"
   [periodDays]="state.status === 'success' ? state.data.periodDays : null"
 />
 

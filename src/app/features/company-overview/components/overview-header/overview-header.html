@@ -25,7 +25,12 @@
       >
         <p>{{ 'shell.demo.explanation' | transloco }}</p>
         @if (canCreate()) {
-          <p>{{ 'companyOverview.createUnavailable' | transloco }}</p>
+          <p>
+            {{
+              (createAvailable() ? 'platforms.create.simulated' : 'platforms.create.unavailable')
+                | transloco
+            }}
+          </p>
         }
       </div>
     </div>
@@ -47,8 +52,13 @@
       'companyOverview.periodUnavailable' | transloco
     }}</span>
   }
-  @if (canCreate()) {
-    <span class="overview-header__create" [title]="'companyOverview.createUnavailable' | transloco">
+  @if (canCreate() && createAvailable()) {
+    <button type="button" class="overview-header__create-button" (click)="create.emit()">
+      <nw-icon name="plus" size="sm" />
+      {{ 'companyOverview.create' | transloco }}
+    </button>
+  } @else if (canCreate()) {
+    <span class="overview-header__create" [title]="'platforms.create.unavailable' | transloco">
       <button
         type="button"
         class="overview-header__create-button"
@@ -60,7 +70,7 @@
       </button>
     </span>
     <span id="create-platform-note" class="nw-visually-hidden">{{
-      'companyOverview.createUnavailable' | transloco
+      'platforms.create.unavailable' | transloco
     }}</span>
   }
 </div>

@@ -9,6 +9,7 @@ import {
 } from '../../domain/platform-dashboard.model';
 
 const ACTIONS = {
+  'platform.created': { icon: 'hexagon', key: 'platformDashboard.activity.platformCreated' },
   'organization.created': {
     icon: 'building-2',
     key: 'platformDashboard.activity.organizationCreated',

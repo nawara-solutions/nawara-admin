@@ -404,5 +404,7 @@ export function demoWorldSeed(now: number): DemoWorldTables {
     ],
     activity: ACTIVITY.map(({ hoursAgo, ...event }) => ({ ...event, occurredAt: at(-hoursAgo) })),
     inboxes: [{ identityId: DEMO_OWNER_ID, unread: 4 }],
+    sequence: 0,
+    idempotency: [],
   };
 }

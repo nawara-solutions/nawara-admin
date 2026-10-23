@@ -386,6 +386,30 @@ confirm (severity-appropriate dialog)
   localized labels. Admin never sends free text where Core expects a code.
 - Every action reminds the operator that it is recorded in the audit trail. Core writes the evidence, not Admin.
 
+**Implementation (P4-S1, 2026-10-23):**
+
+- `core/actions/action-run.ts` (`ActionRun`): the state of ONE action, owned by its feature's facade (closed → editing →
+  verifying, only when a step-up purpose is declared → pending → succeeded | failed). One run at a time. One idempotency key per
+  logical operation: kept across retries of the same input, replaced when the input changes, dropped at a final answer. The actor
+  and scope are checked when the action opens, immediately before sending and on the answer; a changed context sends nothing,
+  and an answer for another actor (or after a sign-out) is dropped silently. A sent command is never cancelled: closing the
+  dialog or leaving the page detaches it, and its result is reported by a toast. A step-up grant serves one send; a retry
+  verifies again.
+- `core/actions/action-failure.ts`: `AppError` → `ActionFailure` (validation, conflict, refused, verificationRefused,
+  rateLimited, outcomeUnknown, unavailable, notInBuild, stale) and what can be done next (resend, verify, edit, none). Specific
+  copy only for documented Core codes (`not_authoritative`, `idempotency_key_reused`); never Core's `message`.
+- `core/auth/step-up.gateway.ts`: `StepUpGateway.obtain(purpose, proof)`; purposes are a closed union of documented ones a
+  built action uses (`platform.create`). Production binds the unavailable adapter. The demo mock issues an opaque, in-memory,
+  single-use grant bound to the user and the purpose, valid 5 minutes (a provisional mock policy within Core's ≤ 15), and says
+  it is simulated; it is never Core evidence.
+- `nw-dialog` `busy`: Escape, the backdrop and the close button are ignored while an operation runs; narrow dialogs stack their
+  actions, the main action first.
+- Demo world: changes go through `DemoWorld.commit(command)` only; domain commands (`demo/world/commands/`) are pure
+  `(tables) → next tables | refusal`, keep an append-only replay record per idempotency key (a reuse with a different request is
+  `422 idempotency_key_reused`), and append activity records that nothing edits.
+- Risk tiers (standard, destructive, irreversible) are the design vocabulary; only the standard tier is built (Create
+  platform). Destructive and irreversible behaviour is added with the first action that needs it.
+
 ## 13. Design system: tokens, SCSS and BEM
 
 ### Token architecture

@@ -80,7 +80,11 @@ export interface GrowthSeries {
 
 /** Administrative actions shown in the activity feed (machine values; labels come from the catalog). */
 export type ActivityAction =
-  'organization.created' | 'operator.assigned' | 'admin_invitation.sent' | 'membership.approved';
+  | 'platform.created'
+  | 'organization.created'
+  | 'operator.assigned'
+  | 'admin_invitation.sent'
+  | 'membership.approved';
 
 export interface ActivityEntry {
   readonly id: string;

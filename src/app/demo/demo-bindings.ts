@@ -1,6 +1,7 @@
 import { DEMO_SIGN_IN_HINT } from '../core/auth/auth.fixtures';
 import { MOCK_AUTH_PROVIDERS } from '../core/auth/auth.mock';
 import { DemoBindings } from '../core/config/app-environment';
+import { MOCK_STEP_UP_PROVIDERS } from '../core/auth/step-up.mock';
 import { MOCK_SCOPE_DIRECTORY_PROVIDERS } from '../core/context/scope-directory.mock';
 import { MOCK_NOTIFICATION_SUMMARY_PROVIDERS } from '../core/notifications/notification-summary.mock';
 import {
@@ -16,6 +17,7 @@ import {
   MOCK_ORGANIZATION_COMMERCIAL_PROVIDERS,
   MOCK_ORGANIZATION_PROVIDERS,
 } from '../features/organizations/data-access/organization.mock';
+import { MOCK_PLATFORM_COMMAND_PROVIDERS } from '../features/platforms/data-access/platform-command.mock';
 import { MOCK_PLATFORM_DIRECTORY_PROVIDERS } from '../features/platforms/data-access/platform-directory.mock';
 
 /**
@@ -36,5 +38,7 @@ export const DEMO_BINDINGS: DemoBindings = {
     platformCommercial: MOCK_PLATFORM_COMMERCIAL_PROVIDERS,
     organizations: MOCK_ORGANIZATION_PROVIDERS,
     organizationCommercial: MOCK_ORGANIZATION_COMMERCIAL_PROVIDERS,
+    platformCommands: MOCK_PLATFORM_COMMAND_PROVIDERS,
+    stepUp: MOCK_STEP_UP_PROVIDERS,
   },
 };

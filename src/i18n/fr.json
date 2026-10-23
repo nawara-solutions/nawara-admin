@@ -3,7 +3,35 @@
     "notAvailable": "Non disponible",
     "close": "Fermer",
     "dismiss": "Ignorer",
-    "loading": "Chargement…"
+    "loading": "Chargement…",
+    "cancel": "Annuler"
+  },
+  "actions": {
+    "retry": "Réessayer",
+    "stepUp": {
+      "title": "Confirmez votre identité",
+      "purposeIntro": "Cette vérification sert uniquement à",
+      "codeLabel": "Code de votre application d’authentification",
+      "codeHint": "6 chiffres. Il ne sert qu’une fois, pour cette action seulement.",
+      "demoTitle": "Vérification simulée.",
+      "demoNote": "Cette démo accepte le code {{code}}. Aucune vérification Nawara Core n’est demandée ni émise.",
+      "back": "Retour",
+      "verifying": "Vérification…"
+    },
+    "failure": {
+      "validation": "Les informations ont été refusées. Vérifiez-les et réessayez. Rien n’a été modifié.",
+      "conflict": "Cela entre en conflit avec l’état actuel. Rien n’a été modifié.",
+      "notAuthoritative": "Les plateformes ne peuvent pas encore être créées : le service des plateformes n’accepte pas de modifications. Rien n’a été créé.",
+      "keyReused": "Cette demande a déjà été utilisée avec d’autres informations. Rien n’a été créé.",
+      "refused": "Vous ne pouvez plus effectuer cette action : votre accès a peut-être changé. Rien n’a été modifié.",
+      "verificationRefused": "Ce code n’a pas fonctionné, ou la vérification a expiré. Saisissez le code actuel.",
+      "rateLimited": "Trop de tentatives. Réessayez dans un instant. Rien n’a été modifié.",
+      "rateLimitedFor": "Trop de tentatives. Réessayez dans {{seconds}} secondes. Rien n’a été modifié.",
+      "outcomeUnknown": "Nous n’avons pas pu confirmer le résultat. Réessayer est sans risque : la même demande est renvoyée et n’en crée jamais une seconde.",
+      "unavailable": "Le service est indisponible. Rien n’a été modifié. Réessayez dans un instant.",
+      "notInBuild": "Cette action n’est pas disponible dans cette version.",
+      "stale": "Votre accès ou votre périmètre a changé pendant que cette fenêtre était ouverte. Rien n’a été envoyé."
+    }
   },
   "brand": {
     "logoLabel": "Nawara Solutions"
@@ -271,7 +299,6 @@
     "subtitle": "Vos plateformes, organisations et accès — au même endroit.",
     "period": "{{days}} derniers jours",
     "create": "Créer une plateforme",
-    "createUnavailable": "La création de plateforme n’est pas disponible dans cette démonstration.",
     "unavailable": "Non disponible",
     "summary": {
       "label": "Chiffres de l’entreprise",
@@ -330,7 +357,8 @@
         "organizationCreated": "Organisation créée",
         "operatorAssigned": "Opérateur affecté",
         "invitationSent": "Invitation envoyée",
-        "membershipApproved": "Adhésion approuvée"
+        "membershipApproved": "Adhésion approuvée",
+        "platformCreated": "Plateforme créée"
       },
       "auditLog": "Journal d’audit"
     },
@@ -476,7 +504,8 @@
       "organizationCreated": "Organisation créée",
       "adminInvitationSent": "Invitation d’administrateur envoyée",
       "membershipApproved": "Adhésion approuvée",
-      "operatorAssigned": "Opérateur affecté"
+      "operatorAssigned": "Opérateur affecté",
+      "platformCreated": "Plateforme créée"
     },
     "states": {
       "checking": "Ouverture de la plateforme",
@@ -530,7 +559,26 @@
     "errorDescription": "Cela ne signifie pas que votre entreprise n’a aucune plateforme. Réessayez dans un instant.",
     "retry": "Réessayer",
     "unavailableTitle": "Non disponible dans cette version",
-    "unavailableDescription": "Aucun contrat Nawara Core ne liste encore vos plateformes."
+    "unavailableDescription": "Aucun contrat Nawara Core ne liste encore vos plateformes.",
+    "create": {
+      "title": "Créer une plateforme",
+      "description": "Une plateforme accueille les organisations d’un produit. Elle est créée dans votre entreprise.",
+      "nameLabel": "Nom de la plateforme",
+      "nameHint": "De 1 à {{max}} caractères.",
+      "nameRequired": "Saisissez un nom.",
+      "nameTooLong": "Utilisez {{max}} caractères au maximum.",
+      "stepUpNext": "Ensuite, vous confirmerez votre identité.",
+      "recorded": "Cette action est enregistrée dans le journal d’activité.",
+      "simulated": "Démo : la création de plateforme est simulée ; aucun service Nawara Core n’est appelé.",
+      "unavailable": "La création de plateforme n’est pas disponible dans cette version.",
+      "submit": "Créer la plateforme",
+      "verifyAndCreate": "Vérifier et créer",
+      "purpose": "Créer la plateforme « {{name}} »",
+      "creating": "Création de la plateforme…",
+      "creatingShort": "Création…",
+      "created": "Plateforme « {{name}} » créée.",
+      "notCreated": "« {{name}} » n’a pas été créée."
+    }
   },
   "organizations": {
     "header": {

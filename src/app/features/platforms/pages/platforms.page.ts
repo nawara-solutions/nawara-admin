@@ -8,6 +8,7 @@ import { LocaleService } from '../../../core/i18n/locale.service';
 import { NwButton } from '../../../shared/ui/button/button';
 import { NwSkeleton } from '../../../shared/ui/skeleton/skeleton';
 import { NwIcon } from '../../../shared/ui/icon/icon';
+import { CreatePlatformAction } from '../application/create-platform.action';
 import { PlatformDirectoryFacade } from '../application/platform-directory.facade';
 import { PlatformCard } from '../components/platform-card/platform-card';
 import { PlatformsHeader } from '../components/platforms-header/platforms-header';
@@ -52,6 +53,7 @@ const COUNT_KEYS = {
 })
 export class PlatformsPage {
   protected readonly facade = inject(PlatformDirectoryFacade);
+  protected readonly createPlatform = inject(CreatePlatformAction);
   protected readonly isDemo = inject(AuthSession).isDemo;
   private readonly transloco = inject(TranslocoService);
   private readonly locale = inject(LocaleService).locale;

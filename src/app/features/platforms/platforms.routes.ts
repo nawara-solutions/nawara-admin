@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AppEnvironment, adapterProviders } from '../../core/config/app-environment';
 import { PlatformDirectoryFacade } from './application/platform-directory.facade';
+import { createPlatformProviders } from './create-platform.providers';
 import {
   PlatformDirectoryGateway,
   UnavailablePlatformDirectoryGateway,
@@ -11,13 +12,16 @@ import {
  * demo build, the `unavailable` adapter otherwise.
  */
 export async function loadPlatformsRoutes(environment: AppEnvironment): Promise<Routes> {
-  const directory = await adapterProviders(environment, 'platformDirectory', [
-    { provide: PlatformDirectoryGateway, useClass: UnavailablePlatformDirectoryGateway },
+  const [directory, createPlatform] = await Promise.all([
+    adapterProviders(environment, 'platformDirectory', [
+      { provide: PlatformDirectoryGateway, useClass: UnavailablePlatformDirectoryGateway },
+    ]),
+    createPlatformProviders(environment),
   ]);
   return [
     {
       path: '',
-      providers: [...directory, PlatformDirectoryFacade],
+      providers: [...directory, ...createPlatform, PlatformDirectoryFacade],
       loadComponent: () => import('./pages/platforms.page').then((m) => m.PlatformsPage),
     },
   ];
