@@ -37,7 +37,8 @@ export type PlatformActivityAction =
   | 'platform.created'
   | 'organization.created'
   | 'organization.updated'
-  | 'admin_invitation.sent'
+  | 'admin_invitation.created'
+  | 'admin_invitation.revoked'
   | 'membership.approved'
   | 'operator.assigned';
 

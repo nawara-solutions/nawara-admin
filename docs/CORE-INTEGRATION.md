@@ -10,8 +10,9 @@
   R6 (all services) and R7 are closed, R8 is next.
 - **P3b-0 (2026-10-23):** the Organization create and edit contracts, the `organization.create` step-up, Organization
   idempotency, admin invitations and the lifecycle decision were re-read from Core source (read-only) for P3b; §5 records
-  them with file references (paths relative to `nawara-core/apps/`). Implemented in Admin so far: **create, as a demo-world
-  mock only (P3b-S1)**; edit and invitations are verified but not built.
+  them with file references (paths relative to `nawara-core/apps/`). The invitation contract was re-verified in detail in
+  **P3b-S3-0** (Core `origin/main` `dd07f2a`). Implemented in Admin, each as a **demo-world mock only**: create (P3b-S1),
+  metadata edit (P3b-S2) and admin invitations (P3b-S3); no HTTP adapter.
 - **Precedence:** a service's OpenAPI (`GET /<service>/docs`) and Core ADRs win over this document. Report differences to Core.
 
 ---
@@ -165,11 +166,41 @@ Admin strategy and the decision required before A4.
 - Per organization (owner, operator, org admin): list memberships by status; approve / reject / revoke; join codes create / list /
   revoke (owner needs step-up); admin invitations (owner + step-up, operators refused); grant / revoke organization admin (owner +
   step-up). Controller: `auth-service/src/membership/organization.controller.ts`.
-- **Admin invitations, verified 2026-10-23 (P3b-0), not built** (`auth-service/src/membership/organization.controller.ts:122-150`,
-  `onboarding/invitation.service.ts:199-300`, `onboarding/dto.ts:32-39`): the owner with a **factor-only** step-up
-  (`admin_invitation.create` / `admin_invitation.revoke`), or an admin of that Organization without step-up; operators get a
-  collapsed `404`. The plaintext invitation code is returned **once**, in the create answer. **No idempotency key.** Planned for
-  P3b-S3.
+- **Admin invitations, source-verified 2026-10-23 (P3b-S3-0, Core `origin/main` `dd07f2a`); built in Admin as a demo mock
+  only (P3b-S3).** Full design and contract: [`design/p3b-s3-admin-invitations.md`](design/p3b-s3-admin-invitations.md).
+  Paths relative to `nawara-core/apps/auth-service/src/`:
+  - Routes (`membership/organization.controller.ts:123-148`): `POST /auth/organizations/:organizationId/admin-invitations`
+    (`201`), `GET …` (list), `POST …/:invitationId/revoke` (`204`, no body). UUID path ids (`ParseUUIDPipe`); step-up in
+    `x-step-up-token`.
+  - Body (`onboarding/dto.ts:32-39`): `invitationType` required, `^(?!admin$)[a-z][a-z0-9_-]{0,31}$` — an opaque,
+    platform-defined audience label; **Core has no list of values**. `expiresInMinutes` optional integer (DTO 1–43,200);
+    `inviteeContact` optional string ≤ 254. Unknown fields rejected (`libs/service-kit/src/bootstrap.ts:64`,
+    `forbidNonWhitelisted`; `transform: false`, so numbers must be JSON numbers).
+  - Expiry (`onboarding/invitation.service.ts:206-214`, `config/app-config.ts:276-281`): a duration; the server computes
+    `expiresAt`; configured range default 15 min – 7 days, default 24 h; outside: `400 validation_error`.
+  - Contact (`invitation.service.ts:72-78`, `:223`; `users/users.service.ts:19-21`): `@` → email trimmed and lowercased
+    (format not checked); otherwise a phone stripped of spaces, `()`, `-` and matched to `^\+?[0-9]{8,15}$`; empty = no
+    binding. Only an HMAC is stored; **the contact is never returned** (`contactBound` only).
+  - Create (`invitation.service.ts:216-257`): body → throttle → Organization exists → transaction: authority (owner or
+    organization admin, else collapsed `404 not_found`) → owner step-up `admin_invitation.create` consumed in the
+    transaction → insert → audit. Answer `{ id, invitationType, expiresAt, createdAt, contactBound, code }`. A code
+    collision is `409 conflict` (rolled back, step-up unspent). **No idempotency, no reconciliation route.**
+  - Code (`crypto/join-code.ts:53-67`, ADR-0029): 12 Crockford characters (60 bits), `XXXX-XXXX-XXXX`, no prefix; shown once;
+    HMAC only.
+  - List (`invitation.service.ts:281-290`): `{ id, invitationType, contactBound, expiresAt, createdBy, createdAt,
+    consumedAt, revokedAt, status }`, `status` derived consumed → revoked → expired → active; newest first; no pagination or
+    filter; never the code or the contact. No step-up.
+  - Revoke (`invitation.service.ts:259-278`): throttle → authority → step-up `admin_invitation.revoke` → update of an
+    unconsumed, unrevoked invitation of that Organization (**expired ones included**). Otherwise `404 not_found`, rolled
+    back (step-up unspent). Not idempotent. Never touches memberships.
+  - Step-up (`owner/step-up.service.ts:41-43`, `:175-188`): both purposes accept TOTP or WebAuthn only, never the secret
+    key; single use, owner-, session- and purpose-bound; default TTL 300 s.
+  - Throttle (`config/app-config.ts:384`, `throttle/throttle.service.ts:39-40`): create and revoke share
+    `invitation_manage_actor`, 20 per hour per actor by default, every attempt counted; `429 rate_limited`.
+  - Audit (`invitation.service.ts:243-250`, `:272-276`): `admin_invitation.created` / `admin_invitation.revoked`. No event
+    carries the code; nothing delivers invitations (ADR-0029 `:157-160`).
+  - Core documentation drift (not Admin's to fix): the DTO says the type becomes the member's *role*, ADR-0030 and the code
+    store it as the membership `audience`.
 - Operators (owner): create (step-up `operator.create`), confirm, block / unblock (deliberately no step-up), platform assignments
   grant / revoke (step-up) and history.
 - Member security (owner + factor step-up, closed reason code): suspend / restore (`auth-service/src/members/member-security.controller.ts`).
@@ -296,7 +327,7 @@ Admin strategy and the decision required before A4.
 | Recent administrative activity, company-wide | Audit | 🔴 | owner reads one organization per request, ≤ 31 days; platform-level records service-only (CF-04) | Mock: the demo world's Platform events, newest first (P2.5) |
 | Create organization | Organization | 🟢 contract · ⚠ not authoritative | `POST /organization/admin/organizations` (see §5, verified P3b-0) | P3b-S1: the owner's flow (name + optional metadata → step-up `organization.create` → idempotent command) against a demo-world mock that succeeds by default, `409 not_authoritative` as a scenario; operators see it disabled (no operator step-up, CF-08); production binds the unavailable adapter (no HTTP adapter yet) |
 | Edit organization metadata | Organization | 🟢 contract · ⚠ not authoritative | `PATCH /organization/admin/organizations/:id` (§5) | P3b-S2: "Edit details" for the owner and assigned operators (no step-up), minimal patch, `null` clears, no automatic resend; demo-world mock (succeeds by default; `409 not_authoritative`, lost answer and `503` as scenarios); production binds the unavailable adapter (no HTTP adapter) |
-| Organization admin invitations | Auth | 🟢 | `organization.controller.ts:122-150` (§5) | Not built (P3b-S3) |
+| Organization admin invitations | Auth | 🟢 | `organization.controller.ts:123-148` (§5, verified P3b-S3-0) | P3b-S3: owner-only card on the Organization details; create (step-up `admin_invitation.create`, the code shown once, never stored), list (derived status, `contactBound` only), revoke (destructive confirmation + step-up `admin_invitation.revoke`); no automatic retry after a lost answer; demo-world mock; production binds the unavailable adapter (no HTTP adapter) |
 | Create platform | Organization | 🟢 contract · ⚠ not authoritative | `POST /organization/admin/platforms` (see §5) | P4-S1: the owner's flow (confirm → step-up `platform.create` → idempotent command) against a demo-world mock, `409 not_authoritative` as a scenario; production binds the unavailable adapter (no HTTP adapter: response DTO not verified, writes not authoritative before cutover) |
 | Access & security: owner account security | Auth | 🟢 Prod (page not built) | `GET /auth/admin/factors`, factor add/remove, `secret-key/rotate`, `password/change` (owner only) | Overview row only, action disabled; no score or rating is computed |
 | Access & security: operator assignments vs unique operators | Auth | 🔴 | assignments readable only per operator (`GET /auth/admin/operators/:id/platform-assignments`); no operator directory (CF-03) | Mock; assignments and unique operators kept as separate figures |

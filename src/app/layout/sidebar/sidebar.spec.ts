@@ -77,6 +77,7 @@ const DEMO: DemoBindings = {
     organizationCommercial: [],
     platformCommands: [],
     organizationCommands: [],
+    adminInvitations: [],
     stepUp: [],
   },
 };

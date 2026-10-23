@@ -177,6 +177,17 @@
           />
         </adm-overview-card>
 
+        @if (facade.showsAccess()) {
+          <!-- Owner only: operators get no card, no records and no request (Core refuses them). -->
+          <adm-admin-invitations-card
+            [target]="{
+              organizationId: detail.id,
+              organizationName: detail.name,
+              platformId: platform.id,
+            }"
+          />
+        }
+
         @if (facade.showsActivity()) {
           <adm-overview-card
             headingId="organization-activity"

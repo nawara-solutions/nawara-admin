@@ -18,7 +18,14 @@ const ACTIONS = {
     icon: 'pencil',
     key: 'platformDashboard.activity.organizationUpdated',
   },
-  'admin_invitation.sent': { icon: 'send', key: 'platformDashboard.activity.adminInvitationSent' },
+  'admin_invitation.created': {
+    icon: 'mail',
+    key: 'platformDashboard.activity.adminInvitationCreated',
+  },
+  'admin_invitation.revoked': {
+    icon: 'circle-x',
+    key: 'platformDashboard.activity.adminInvitationRevoked',
+  },
   'membership.approved': {
     icon: 'user-plus',
     key: 'platformDashboard.activity.membershipApproved',

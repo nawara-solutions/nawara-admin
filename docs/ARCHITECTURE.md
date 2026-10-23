@@ -437,6 +437,21 @@ confirm (severity-appropriate dialog)
 - `keyedLoad` refreshes in place when only `revision` changed for the same key (no `loading` in between), so an edited page
   keeps its layout and focus.
 
+**Fourth and fifth actions (P3b-S3, 2026-10-23): admin invitations**, Auth-owned, owner only
+([`design/p3b-s3-admin-invitations.md`](design/p3b-s3-admin-invitations.md)):
+
+- A dedicated `AdminInvitationGateway` in the Organizations feature; its facade and two actions are route-scoped to the
+  Organization detail page. No new action framework: two `ActionRun`s with step-up purposes `admin_invitation.create` and
+  `.revoke`.
+- **One-time secrets:** a code exists only in the create answer and the open dialog (the run's result). It is never in
+  DemoWorld, view state, storage, URLs, logs or toasts; the dialog is `guarded` until the code is copied, and resetting the
+  run on close drops it.
+- **First destructive action:** revoke asks in an `alertdialog` (focus on Cancel) before verification.
+- **Step-up spent on commit:** the demo state now records each grant's factor (Core's `STEP_UP_METHODS`: invitation
+  purposes refuse the secret key) and offers a non-consuming `checkStepUp`, so a refused command does not spend its grant.
+- **No idempotency:** nothing is resent after a lost answer. Create reconciles client-side only (ids known before sending,
+  `createdBy`, `createdAt`) and labels matches "possibly", never "proven".
+
 ## 13. Design system: tokens, SCSS and BEM
 
 ### Token architecture

@@ -1,0 +1,190 @@
+@let current = state();
+<nw-dialog
+  [title]="
+    (current.phase === 'verifying'
+      ? 'actions.stepUp.title'
+      : 'organizations.invitations.revoke.title'
+    ) | transloco
+  "
+  [closeLabel]="'common.close' | transloco"
+  [busy]="busy()"
+>
+  @switch (current.phase) {
+    @case ('verifying') {
+      <form
+        id="revoke-invitation-verify"
+        class="revoke-invitation__body"
+        novalidate
+        (submit)="verify($event)"
+      >
+        <p class="revoke-invitation__purpose" id="revoke-invitation-purpose">
+          <span class="revoke-invitation__purpose-label">{{
+            'actions.stepUp.purposeIntro' | transloco
+          }}</span>
+          <strong>{{
+            'organizations.invitations.revoke.purpose' | transloco: { name: isolatedOrganization }
+          }}</strong>
+        </p>
+        <nw-form-field
+          [label]="'actions.stepUp.codeLabel' | transloco"
+          [hint]="'actions.stepUp.codeHint' | transloco"
+          [error]="failureKey() ? (failureKey()! | transloco) : undefined"
+        >
+          <input
+            #codeInput
+            nwControl
+            class="revoke-invitation__otp"
+            type="text"
+            name="step-up-code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            spellcheck="false"
+            dir="ltr"
+            aria-describedby="revoke-invitation-purpose"
+            [value]="code()"
+            [readOnly]="busy()"
+            (input)="onCode($event)"
+          />
+        </nw-form-field>
+        @if (demoCode(); as demo) {
+          <p class="revoke-invitation__demo" role="note">
+            <nw-icon name="flask-conical" size="sm" />
+            <span>
+              <strong>{{ 'actions.stepUp.demoTitle' | transloco }}</strong>
+              {{ 'actions.stepUp.demoNote' | transloco: { code: demo } }}
+            </span>
+          </p>
+        }
+      </form>
+    }
+    @case ('pending') {
+      <div class="revoke-invitation__body">
+        <p class="revoke-invitation__status" role="status">
+          <nw-spinner />{{ 'organizations.invitations.revoke.revoking' | transloco }}
+        </p>
+      </div>
+    }
+    @case ('failed') {
+      <div class="revoke-invitation__body">
+        <nw-inline-alert
+          [tone]="
+            current.failure.kind === 'outcomeUnknown' || current.failure.kind === 'refused'
+              ? 'danger'
+              : 'warning'
+          "
+        >
+          {{ failureKey()! | transloco }}
+        </nw-inline-alert>
+      </div>
+    }
+    @default {
+      <div class="revoke-invitation__body">
+        <p id="revoke-invitation-description">
+          {{ 'organizations.invitations.revoke.body' | transloco }}
+        </p>
+        <dl class="revoke-invitation__facts">
+          <div>
+            <dt>{{ 'organizations.invitations.list.type' | transloco }}</dt>
+            <dd>
+              <bdi translate="no">{{ invitation.invitationType }}</bdi>
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'organizations.invitations.list.created' | transloco }}</dt>
+            <dd>{{ invitation.createdAt | nwDate: 'date-time' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'organizations.invitations.list.binding' | transloco }}</dt>
+            <dd>
+              {{
+                (invitation.contactBound
+                  ? 'organizations.invitations.list.boundPerson'
+                  : 'organizations.invitations.list.boundAnyone'
+                ) | transloco
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'organizations.invitations.code.expires' | transloco }}</dt>
+            <dd>{{ invitation.expiresAt | nwDate: 'date-time' }}</dd>
+          </div>
+        </dl>
+        <p class="revoke-invitation__next">
+          <nw-icon name="shield-check" size="sm" />{{
+            'organizations.invitations.revoke.stepUpNext' | transloco
+          }}
+        </p>
+      </div>
+    }
+  }
+
+  <div nwDialogActions>
+    @switch (current.phase) {
+      @case ('verifying') {
+        <button
+          nw-button
+          variant="ghost"
+          type="button"
+          [attr.aria-disabled]="busy() || null"
+          (click)="back()"
+        >
+          {{ 'actions.stepUp.back' | transloco }}
+        </button>
+        <button
+          #mainButton
+          nw-button
+          variant="danger"
+          type="submit"
+          form="revoke-invitation-verify"
+          [busy]="busy()"
+          [attr.aria-disabled]="busy() || null"
+        >
+          @if (busy()) {
+            <nw-spinner />{{ 'actions.stepUp.verifying' | transloco }}
+          } @else {
+            {{ 'organizations.invitations.revoke.verifyAndRevoke' | transloco }}
+          }
+        </button>
+      }
+      @case ('pending') {
+        <button nw-button variant="ghost" type="button" aria-disabled="true">
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button #mainButton nw-button variant="danger" type="button" busy aria-disabled="true">
+          <nw-spinner />{{ 'organizations.invitations.revoke.revokingShort' | transloco }}
+        </button>
+      }
+      @case ('failed') {
+        <button nw-button variant="ghost" type="button" (click)="close()">
+          {{ 'common.close' | transloco }}
+        </button>
+        @if (current.failure.kind === 'outcomeUnknown' || current.failure.kind === 'refused') {
+          <button #mainButton nw-button type="button" (click)="close()">
+            <nw-icon name="refresh-cw" size="sm" />{{
+              'organizations.invitations.revoke.checkStatus' | transloco
+            }}
+          </button>
+        } @else if (current.failure.kind === 'unavailable') {
+          <button #mainButton nw-button type="button" (click)="tryAgain()">
+            <nw-icon name="refresh-cw" size="sm" />{{ 'actions.retry' | transloco }}
+          </button>
+        }
+      }
+      @default {
+        <button
+          #cancelButton
+          nw-button
+          variant="secondary"
+          type="button"
+          data-cancel
+          (click)="close()"
+        >
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button nw-button variant="danger" type="button" (click)="confirm()">
+          {{ 'organizations.invitations.revoke.confirm' | transloco }}
+        </button>
+      }
+    }
+  </div>
+</nw-dialog>

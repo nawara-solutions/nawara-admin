@@ -26,10 +26,15 @@ const ACTIONS = {
     accent: 'purple',
     labelKey: 'companyOverview.activity.actions.operatorAssigned',
   },
-  'admin_invitation.sent': {
-    icon: 'send',
+  'admin_invitation.created': {
+    icon: 'mail',
     accent: 'orange',
-    labelKey: 'companyOverview.activity.actions.invitationSent',
+    labelKey: 'companyOverview.activity.actions.invitationCreated',
+  },
+  'admin_invitation.revoked': {
+    icon: 'circle-x',
+    accent: 'orange',
+    labelKey: 'companyOverview.activity.actions.invitationRevoked',
   },
   'membership.approved': {
     icon: 'badge-check',

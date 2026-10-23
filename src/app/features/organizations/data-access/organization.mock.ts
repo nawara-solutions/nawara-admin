@@ -8,7 +8,7 @@ import { DemoWorld } from '../../../demo/world/demo-world';
 import { DemoWorldTables, OrganizationRecord } from '../../../demo/world/records';
 import {
   activityOfOrganization,
-  adminInvitationsOf,
+  activeAdminInvitationsOf,
   assistedPaymentsOf,
   newestFirst,
   organizationOf,
@@ -107,6 +107,7 @@ function subscriptionOf(
  */
 export class MockOrganizationGateway extends OrganizationGateway {
   private readonly latency = inject(DEMO_LATENCY_MS);
+  private readonly now = inject(NW_CLOCK);
   private readonly scenario = inject(ORGANIZATIONS_DEMO_SCENARIO);
   private readonly auth = inject(DemoAuthState);
   private readonly world = inject(DemoWorld);
@@ -141,7 +142,10 @@ export class MockOrganizationGateway extends OrganizationGateway {
         type: record.type,
       },
       adminInvitationsAwaiting: owner
-        ? { status: 'available', data: count(adminInvitationsOf(world, [record]).length) }
+        ? {
+            status: 'available',
+            data: count(activeAdminInvitationsOf(world, [record], this.now()).length),
+          }
         : UNAVAILABLE,
       activity:
         owner && this.scenario !== 'partial'

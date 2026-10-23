@@ -286,6 +286,126 @@ const ORGANIZATIONS: readonly OrganizationSeed[] = [
   },
 ];
 
+/**
+ * The main owner account's session user id (auth.fixtures, `DEMO_OWNER_ACCOUNT`): Core's `createdBy` is a user id, not
+ * the business identity. A spec checks the two stay equal.
+ */
+export const DEMO_OWNER_USER_ID = '9e1d7c55-2a4b-4c3d-8e9f-0a1b2c3d4e01';
+/** A fictional organization admin of École Horizon (a member, not an Admin actor): a creator Admin cannot name. */
+const ORG_ADMIN_USER_ID = '6a2f1c90-4d3e-4b2a-9c8d-7e6f5a4b3c21';
+
+/**
+ * Organization-admin invitations. Seven are ACTIVE (the counts every view shows: 2 at École Horizon, 1 each at five
+ * other Organizations); École Horizon also has one of each other status, so its list shows every state without
+ * changing the active counts. No code and no contact is ever kept. Every invitation is younger than its Organization
+ * (École Horizon was created 2 hours before the seed's "now").
+ */
+const ADMIN_INVITATIONS: readonly {
+  readonly id: string;
+  readonly n: number;
+  readonly invitationType: string;
+  readonly contactBound: boolean;
+  readonly createdHoursAgo: number;
+  readonly lifetimeHours: number;
+  readonly createdBy: string;
+  readonly consumedHoursAgo?: number;
+  readonly revokedHoursAgo?: number;
+}[] = [
+  {
+    id: 'admin-invitation-1',
+    n: 1,
+    invitationType: 'org_admin',
+    contactBound: true,
+    createdHoursAgo: 0.5,
+    lifetimeHours: 7 * DAY,
+    createdBy: DEMO_OWNER_USER_ID,
+  },
+  {
+    id: 'admin-invitation-2',
+    n: 1,
+    invitationType: 'manager',
+    contactBound: false,
+    createdHoursAgo: 1,
+    lifetimeHours: 3 * DAY,
+    createdBy: ORG_ADMIN_USER_ID,
+  },
+  {
+    id: 'admin-invitation-3',
+    n: 3,
+    invitationType: 'org_admin',
+    contactBound: true,
+    createdHoursAgo: 26,
+    lifetimeHours: 7 * DAY,
+    createdBy: DEMO_OWNER_USER_ID,
+  },
+  {
+    id: 'admin-invitation-4',
+    n: 4,
+    invitationType: 'org_admin',
+    contactBound: false,
+    createdHoursAgo: 30,
+    lifetimeHours: 3 * DAY,
+    createdBy: DEMO_OWNER_USER_ID,
+  },
+  {
+    id: 'admin-invitation-5',
+    n: 6,
+    invitationType: 'org_admin',
+    contactBound: true,
+    createdHoursAgo: 8,
+    lifetimeHours: DAY,
+    createdBy: DEMO_OWNER_USER_ID,
+  },
+  {
+    id: 'admin-invitation-6',
+    n: 18,
+    invitationType: 'fleet_manager',
+    contactBound: true,
+    createdHoursAgo: 100,
+    lifetimeHours: 7 * DAY,
+    createdBy: DEMO_OWNER_USER_ID,
+  },
+  {
+    id: 'admin-invitation-7',
+    n: 19,
+    invitationType: 'fleet_manager',
+    contactBound: false,
+    createdHoursAgo: 40,
+    lifetimeHours: 3 * DAY,
+    createdBy: DEMO_OWNER_USER_ID,
+  },
+  // École Horizon's history: used, revoked, expired (none of them active).
+  {
+    id: 'admin-invitation-8',
+    n: 1,
+    invitationType: 'org_admin',
+    contactBound: true,
+    createdHoursAgo: 1.75,
+    lifetimeHours: DAY,
+    createdBy: DEMO_OWNER_USER_ID,
+    consumedHoursAgo: 1.6,
+  },
+  {
+    id: 'admin-invitation-9',
+    n: 1,
+    invitationType: 'org_admin',
+    contactBound: false,
+    createdHoursAgo: 1.5,
+    lifetimeHours: DAY,
+    createdBy: DEMO_OWNER_USER_ID,
+    revokedHoursAgo: 1.25,
+  },
+  {
+    id: 'admin-invitation-10',
+    n: 1,
+    invitationType: 'manager',
+    contactBound: false,
+    createdHoursAgo: 1.9,
+    lifetimeHours: 1,
+    createdBy: DEMO_OWNER_USER_ID,
+  },
+];
+
 const ACTIVITY: readonly (Omit<ActivityRecord, 'occurredAt'> & { readonly hoursAgo: number })[] = [
   {
     id: 'platform-activity-s1',
@@ -298,7 +418,7 @@ const ACTIVITY: readonly (Omit<ActivityRecord, 'occurredAt'> & { readonly hoursA
     id: 'platform-activity-s2',
     platformId: S,
     organizationId: org(3),
-    action: 'admin_invitation.sent',
+    action: 'admin_invitation.created',
     hoursAgo: 26,
   },
   {
@@ -326,7 +446,7 @@ const ACTIVITY: readonly (Omit<ActivityRecord, 'occurredAt'> & { readonly hoursA
     id: 'platform-activity-d2',
     platformId: D,
     organizationId: org(18),
-    action: 'admin_invitation.sent',
+    action: 'admin_invitation.created',
     hoursAgo: 100,
   },
   {
@@ -390,15 +510,18 @@ export function demoWorldSeed(now: number): DemoWorldTables {
         ? []
         : [{ organizationId: org(o.n), endsAt: at(o.subscriptionEndsInHours) }],
     ),
-    adminInvitations: [
-      { id: 'admin-invitation-1', organizationId: org(1) },
-      { id: 'admin-invitation-2', organizationId: org(1) },
-      { id: 'admin-invitation-3', organizationId: org(3) },
-      { id: 'admin-invitation-4', organizationId: org(4) },
-      { id: 'admin-invitation-5', organizationId: org(6) },
-      { id: 'admin-invitation-6', organizationId: org(18) },
-      { id: 'admin-invitation-7', organizationId: org(19) },
-    ],
+    adminInvitations: ADMIN_INVITATIONS.map((i) => ({
+      id: i.id,
+      organizationId: org(i.n),
+      invitationType: i.invitationType,
+      contactBound: i.contactBound,
+      createdAt: at(-i.createdHoursAgo),
+      expiresAt: at(-i.createdHoursAgo + i.lifetimeHours),
+      createdBy: i.createdBy,
+      consumedAt: i.consumedHoursAgo === undefined ? null : at(-i.consumedHoursAgo),
+      revokedAt: i.revokedHoursAgo === undefined ? null : at(-i.revokedHoursAgo),
+      revokedBy: i.revokedHoursAgo === undefined ? null : DEMO_OWNER_USER_ID,
+    })),
     paymentIssues: [
       { id: 'payment-issue-1', organizationId: org(3), kind: 'failed' },
       { id: 'payment-issue-2', organizationId: org(21), kind: 'awaiting_action' },

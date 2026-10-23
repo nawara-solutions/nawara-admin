@@ -32,6 +32,7 @@ interface DemoStepUp {
   readonly purpose: string;
   readonly userId: string;
   readonly expiresAt: number;
+  readonly method: DemoStepUpMethod;
 }
 
 /** Every demo operator: the confirmed ones (working-code sign-in) and the new ones (contact confirmation first). */
@@ -76,11 +77,36 @@ export class DemoAuthState {
   /** Live simulated step-up grants, by token. */
   private readonly stepUps = new Map<string, DemoStepUp>();
 
-  /** Issues a single-use grant for `purpose` to `userId`, valid until `expiresAt`. */
-  issueStepUp(purpose: string, userId: string, expiresAt: number): string {
+  /**
+   * Issues a single-use grant for `purpose` to `userId`, valid until `expiresAt`, recording the factor that proved it
+   * (Core's `owner_step_up.method`: a purpose accepts only its allowed factors, `DEMO_STEP_UP_METHODS`).
+   */
+  issueStepUp(
+    purpose: string,
+    userId: string,
+    expiresAt: number,
+    method: DemoStepUpMethod = 'totp',
+  ): string {
     const token = `demo-step-up-${crypto.randomUUID()}`;
-    this.stepUps.set(token, { purpose, userId, expiresAt });
+    this.stepUps.set(token, { purpose, userId, expiresAt, method });
     return token;
+  }
+
+  /**
+   * Whether a grant would be accepted, WITHOUT consuming it: live, issued to `userId` for exactly `purpose`, by a factor
+   * that purpose allows. For a command that spends its step-up only when its change commits (auth-service consumes the
+   * proof inside the command's transaction, so a refusal rolls it back): check, apply, then `consumeStepUp`.
+   */
+  checkStepUp(token: string | null, purpose: string, userId: string, now: number): boolean {
+    if (token === null) return false;
+    const grant = this.stepUps.get(token);
+    return (
+      grant !== undefined &&
+      grant.purpose === purpose &&
+      grant.userId === userId &&
+      grant.expiresAt > now &&
+      stepUpMethodAllowed(purpose, grant.method)
+    );
   }
 
   /**
@@ -95,7 +121,24 @@ export class DemoAuthState {
       grant !== undefined &&
       grant.purpose === purpose &&
       grant.userId === userId &&
-      grant.expiresAt > now
+      grant.expiresAt > now &&
+      stepUpMethodAllowed(purpose, grant.method)
     );
   }
 }
+
+export type DemoStepUpMethod = 'totp' | 'webauthn' | 'secret_key';
+
+/**
+ * The factors each purpose accepts, as Core's `STEP_UP_METHODS` (auth-service `owner/step-up.service.ts`), for the
+ * purposes the demo uses. Admin-invitation purposes are factor only: never the secret key.
+ */
+export const DEMO_STEP_UP_METHODS: Readonly<Record<string, readonly DemoStepUpMethod[]>> = {
+  'platform.create': ['totp', 'webauthn', 'secret_key'],
+  'organization.create': ['totp', 'webauthn', 'secret_key'],
+  'admin_invitation.create': ['totp', 'webauthn'],
+  'admin_invitation.revoke': ['totp', 'webauthn'],
+};
+
+const stepUpMethodAllowed = (purpose: string, method: DemoStepUpMethod) =>
+  DEMO_STEP_UP_METHODS[purpose]?.includes(method) ?? false;

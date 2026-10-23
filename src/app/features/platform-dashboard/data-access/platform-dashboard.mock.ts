@@ -8,7 +8,7 @@ import { DemoWorld } from '../../../demo/world/demo-world';
 import { DemoWorldTables } from '../../../demo/world/records';
 import {
   activityOf,
-  adminInvitationsOf,
+  activeAdminInvitationsOf,
   assignmentsOf,
   createdWithin,
   membershipTotal,
@@ -124,7 +124,10 @@ export class MockPlatformDashboardGateway extends PlatformDashboardGateway {
         ? { status: 'available', data: count(assignmentsOf(world, platform).length) }
         : UNAVAILABLE,
       adminInvitationsAwaiting: owner
-        ? { status: 'available', data: count(adminInvitationsOf(world, organizations).length) }
+        ? {
+            status: 'available',
+            data: count(activeAdminInvitationsOf(world, organizations, this.now()).length),
+          }
         : UNAVAILABLE,
       activity:
         owner && !partial

@@ -32,7 +32,11 @@ export interface OrganizationDirectory {
 
 /** Administrative actions on one Organization (machine values; labels come from the catalog). */
 export type OrganizationActivityAction =
-  'organization.created' | 'organization.updated' | 'admin_invitation.sent' | 'membership.approved';
+  | 'organization.created'
+  | 'organization.updated'
+  | 'admin_invitation.created'
+  | 'admin_invitation.revoked'
+  | 'membership.approved';
 
 export interface OrganizationActivityEntry {
   readonly id: string;

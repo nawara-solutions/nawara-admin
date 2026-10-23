@@ -81,9 +81,26 @@ export interface OrganizationSubscriptionRecord {
 }
 
 /** An organization-admin invitation awaiting acceptance (Auth). */
+/**
+ * An organization-admin invitation (Auth `organization_admin_invitation`, ADR-0029; verified in P3b-S3-0). It holds
+ * what Core's list returns and nothing more: NEVER the code (Core keeps only its HMAC; the demo keeps nothing) and NEVER
+ * the contact (Core keeps only an HMAC; the demo keeps only whether one was given). The status is derived
+ * (`invitationStatusOf`), never stored.
+ */
 export interface AdminInvitationRecord {
   readonly id: string;
   readonly organizationId: OrganizationId;
+  /** Opaque, platform-defined audience label (`^(?!admin$)[a-z][a-z0-9_-]{0,31}$`). */
+  readonly invitationType: string;
+  readonly contactBound: boolean;
+  /** UTC instants, ISO 8601 with `Z`. */
+  readonly expiresAt: string;
+  readonly createdAt: string;
+  /** The creating user's id (Core's `createdBy`): the owner's session user, or an organization admin's. */
+  readonly createdBy: string;
+  readonly consumedAt: string | null;
+  readonly revokedAt: string | null;
+  readonly revokedBy: string | null;
 }
 
 /** A payment that failed or awaits action (Payment), for an Organization. */
@@ -114,7 +131,8 @@ export interface ActivityRecord {
     | 'platform.created'
     | 'organization.created'
     | 'organization.updated'
-    | 'admin_invitation.sent'
+    | 'admin_invitation.created'
+    | 'admin_invitation.revoked'
     | 'membership.approved'
     | 'operator.assigned';
   /** UTC instant, ISO 8601 with `Z`. */

@@ -12,7 +12,14 @@ import {
 const ACTIONS = {
   'organization.created': { icon: 'building-2', key: 'organizations.activity.organizationCreated' },
   'organization.updated': { icon: 'pencil', key: 'organizations.activity.organizationUpdated' },
-  'admin_invitation.sent': { icon: 'send', key: 'organizations.activity.adminInvitationSent' },
+  'admin_invitation.created': {
+    icon: 'mail',
+    key: 'organizations.activity.adminInvitationCreated',
+  },
+  'admin_invitation.revoked': {
+    icon: 'circle-x',
+    key: 'organizations.activity.adminInvitationRevoked',
+  },
   'membership.approved': { icon: 'user-plus', key: 'organizations.activity.membershipApproved' },
 } as const satisfies Record<
   OrganizationActivityAction,
