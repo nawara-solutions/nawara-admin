@@ -31,22 +31,57 @@ export const organizationsPath = (platform: PlatformId): string =>
 export const organizationPath = (platform: PlatformId, organization: OrganizationId): string =>
   `${organizationsPath(platform)}/${encodeURIComponent(organization)}`;
 
+export const MEMBERS_SEGMENT = 'members';
+
+/** An Organization's members (P5-S1): still platform scope, the Organization an entity of the URL. */
+export const membersPath = (platform: PlatformId, organization: OrganizationId): string =>
+  `${organizationPath(platform, organization)}/${MEMBERS_SEGMENT}`;
+
+/** One membership, resolved from the Organization's lists (Core has no single-membership read). */
+export const membershipPath = (
+  platform: PlatformId,
+  organization: OrganizationId,
+  membership: string,
+): string => `${membersPath(platform, organization)}/${encodeURIComponent(membership)}`;
+
 /** Where in platform scope a URL is: the dashboard, the Organization directory, or one Organization. */
 export type PlatformPage =
   | { readonly kind: 'dashboard' }
   | { readonly kind: 'organizations' }
   | { readonly kind: 'organization'; readonly organizationId: OrganizationId }
+  | { readonly kind: 'members'; readonly organizationId: OrganizationId }
+  | {
+      readonly kind: 'membership';
+      readonly organizationId: OrganizationId;
+      readonly membershipId: string;
+    }
   | { readonly kind: 'other' };
+
+/** The Organization a platform-scope page is about (its detail, its members or one membership), if any. */
+export const organizationOfPage = (page: PlatformPage): OrganizationId | null =>
+  page.kind === 'organization' || page.kind === 'members' || page.kind === 'membership'
+    ? page.organizationId
+    : null;
 
 export function platformPageFromUrl(url: string): PlatformPage {
   const path = url.split(/[?#]/)[0] ?? '';
-  const [first, id, section, organization, ...rest] = path.split('/').filter((s) => s !== '');
+  const [first, id, section, organization, sub, membership, ...rest] = path
+    .split('/')
+    .filter((s) => s !== '');
   if (first !== PLATFORM_SCOPE_SEGMENT || !id) return { kind: 'other' };
   if (section === undefined) return { kind: 'dashboard' };
   if (section !== ORGANIZATIONS_SEGMENT || rest.length > 0) return { kind: 'other' };
-  return organization === undefined
-    ? { kind: 'organizations' }
-    : { kind: 'organization', organizationId: organizationId(decodeURIComponent(organization)) };
+  if (organization === undefined) return { kind: 'organizations' };
+  const organizationIdOf = organizationId(decodeURIComponent(organization));
+  if (sub === undefined) return { kind: 'organization', organizationId: organizationIdOf };
+  if (sub !== MEMBERS_SEGMENT) return { kind: 'other' };
+  return membership === undefined
+    ? { kind: 'members', organizationId: organizationIdOf }
+    : {
+        kind: 'membership',
+        organizationId: organizationIdOf,
+        membershipId: decodeURIComponent(membership),
+      };
 }
 
 /** The scope a URL addresses: `/platforms/:platformId/…` is platform scope; everything else in the shell is company scope. */

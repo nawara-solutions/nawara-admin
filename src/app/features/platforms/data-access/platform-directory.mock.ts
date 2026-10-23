@@ -29,7 +29,7 @@ export const demoPlatformDirectory = (world: DemoWorldTables): readonly Platform
   platformRefs(world).map((platform) => ({
     platform,
     organizations: count(organizationsOf(world, platform.id).length),
-    memberships: count(membershipTotal(organizationsOf(world, platform.id))),
+    memberships: count(membershipTotal(world, organizationsOf(world, platform.id))),
     operatorAssignments: count(assignmentsOf(world, platform.id).length),
   }));
 

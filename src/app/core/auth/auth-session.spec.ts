@@ -29,6 +29,7 @@ const DEMO_BINDINGS_STUB: DemoBindings = {
     platformCommands: [],
     organizationCommands: [],
     adminInvitations: [],
+    memberships: [],
     stepUp: [],
   },
 };

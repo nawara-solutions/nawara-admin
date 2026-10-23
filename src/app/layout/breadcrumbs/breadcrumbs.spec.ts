@@ -42,6 +42,7 @@ const DEMO: DemoBindings = {
     platformCommands: [],
     organizationCommands: [],
     adminInvitations: [],
+    memberships: [],
     stepUp: [],
   },
 };
@@ -158,5 +159,27 @@ describe('Breadcrumbs', () => {
     TestBed.inject(AuthSession).signOut();
     TestBed.tick();
     expect(last()).not.toBe('Collège Riad');
+  });
+
+  it('continues to an Organization’s members and one membership, naming the Organization, never a member', async () => {
+    const school = `/platforms/${DEMO_SCHOOL_PLATFORM_ID}`;
+    const members = `${school}/organizations/riad/members`;
+    const nav = await render(OWNER, `${members}?status=pending`);
+    const label = TestBed.inject(EntityLabel);
+    label.set(members, 'Collège Riad');
+    TestBed.tick();
+    expect(crumbs(nav).slice(-3)).toEqual([
+      { text: en.shell.breadcrumb.organizations, href: `${school}/organizations` },
+      { text: 'Collège Riad', href: `${school}/organizations/riad` },
+      { text: en.shell.breadcrumb.members, href: null },
+    ]);
+    await TestBed.inject(Router).navigateByUrl(`${members}/m-1`);
+    label.set(`${members}/m-1`, 'Collège Riad');
+    TestBed.tick();
+    expect(crumbs(nav).slice(-3)).toEqual([
+      { text: 'Collège Riad', href: `${school}/organizations/riad` },
+      { text: en.shell.breadcrumb.members, href: members },
+      { text: en.shell.breadcrumb.membership, href: null },
+    ]);
   });
 });

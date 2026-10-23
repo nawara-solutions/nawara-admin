@@ -82,9 +82,9 @@ describe('demo world: derived figures', () => {
   it('counts Organizations and memberships per Platform from the records', () => {
     expect(organizationsOf(world, S)).toHaveLength(16);
     expect(organizationsOf(world, D)).toHaveLength(8);
-    expect(membershipTotal(organizationsOf(world, S))).toBe(920);
-    expect(membershipTotal(organizationsOf(world, D))).toBe(460);
-    expect(pendingRequestTotal(organizationsOf(world, S))).toBe(12);
+    expect(membershipTotal(world, organizationsOf(world, S))).toBe(920);
+    expect(membershipTotal(world, organizationsOf(world, D))).toBe(460);
+    expect(pendingRequestTotal(world, organizationsOf(world, S))).toBe(12);
     expect(createdWithin(organizationsOf(world, S), NOW, 30)).toHaveLength(2);
   });
 

@@ -2,6 +2,9 @@ import { Routes } from '@angular/router';
 import { AppEnvironment, adapterProviders } from '../../core/config/app-environment';
 import { OrganizationDetailFacade } from './application/organization-detail.facade';
 import { OrganizationDirectoryFacade } from './application/organization-directory.facade';
+import { OrganizationMembersFacade } from './application/organization-members.facade';
+import { MEMBERS_SEGMENT } from '../../core/context/scope-context';
+import { MembershipGateway, UnavailableMembershipGateway } from './data-access/membership.gateway';
 import {
   ADMIN_INVITATION_PROVIDERS,
   organizationActionProviders,
@@ -16,13 +19,13 @@ import {
 } from './data-access/organization.gateway';
 
 /**
- * Organization routes, inside platform scope (`/platforms/:platformId/organizations[/:organizationId]`): the
- * directory and one Organization's detail. The gateways (hierarchy, the owner's commercial facts) and the
+ * Organization routes, inside platform scope (`/platforms/:platformId/organizations[/:organizationId[/members[/…]]]`):
+ * the directory, one Organization's detail, and its members (P5-S1). The gateways (hierarchy, the owner's commercial facts) and the
  * Organization actions ("Create organization", "Edit details") are bound here (docs/ARCHITECTURE.md §3): mock adapters
  * in a demo build, `unavailable` adapters otherwise. No Organization context or scope: each facade follows the URL.
  */
 export async function loadOrganizationsRoutes(environment: AppEnvironment): Promise<Routes> {
-  const [organizations, commercial, actions] = await Promise.all([
+  const [organizations, commercial, memberships, actions] = await Promise.all([
     adapterProviders(environment, 'organizations', [
       { provide: OrganizationGateway, useClass: UnavailableOrganizationGateway },
     ]),
@@ -32,12 +35,15 @@ export async function loadOrganizationsRoutes(environment: AppEnvironment): Prom
         useClass: UnavailableOrganizationCommercialGateway,
       },
     ]),
+    adapterProviders(environment, 'memberships', [
+      { provide: MembershipGateway, useClass: UnavailableMembershipGateway },
+    ]),
     organizationActionProviders(environment),
   ]);
   return [
     {
       path: '',
-      providers: [...organizations, ...commercial, ...actions],
+      providers: [...organizations, ...commercial, ...memberships, ...actions],
       children: [
         {
           path: '',
@@ -53,6 +59,27 @@ export async function loadOrganizationsRoutes(environment: AppEnvironment): Prom
           providers: [OrganizationDetailFacade, ...ADMIN_INVITATION_PROVIDERS],
           loadComponent: () =>
             import('./pages/organization-detail.page').then((m) => m.OrganizationDetailPage),
+        },
+        {
+          // An Organization's members and one membership (P5-S1), read only: one facade for both, so the lists are
+          // loaded once; the Organization is the detail facade's (Platform-checked first).
+          path: `:organizationId/${MEMBERS_SEGMENT}`,
+          providers: [OrganizationDetailFacade, OrganizationMembersFacade],
+          children: [
+            {
+              path: '',
+              pathMatch: 'full',
+              title: 'titles.members',
+              loadComponent: () =>
+                import('./pages/organization-members.page').then((m) => m.OrganizationMembersPage),
+            },
+            {
+              path: ':membershipId',
+              title: 'titles.membership',
+              loadComponent: () =>
+                import('./pages/membership-detail.page').then((m) => m.MembershipDetailPage),
+            },
+          ],
         },
       ],
     },

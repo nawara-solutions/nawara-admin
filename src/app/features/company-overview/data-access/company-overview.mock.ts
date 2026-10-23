@@ -71,7 +71,7 @@ export function demoCompanyOverview(world: DemoWorldTables, now: number): Compan
     platforms: platforms.map((platform) => ({
       platform,
       organizations: count(organizationsOf(world, platform.id).length),
-      memberships: count(membershipTotal(organizationsOf(world, platform.id))),
+      memberships: count(membershipTotal(world, organizationsOf(world, platform.id))),
       operators: count(assignmentsOf(world, platform.id).length),
     })),
     access: {

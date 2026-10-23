@@ -157,8 +157,6 @@ export function createOrganization(
     platformId: request.platformId,
     name: request.name,
     createdAt,
-    memberships: 0,
-    pendingRequests: 0,
     // Organizations inherit their Platform's assisted-payments setting until overridden.
     assistedPayments: 'inherit',
     taxCode: request.taxCode,

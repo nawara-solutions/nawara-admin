@@ -1,0 +1,155 @@
+@let view = facade.view();
+@if ('organization' in view) {
+  @let organization = view.organization;
+  @let back = membersPath(view.platform.id, organization.id);
+  @let found = resolution();
+  @if (view.status === 'ready' && found.status === 'found') {
+    @let m = found.membership;
+    @let who = identity(m);
+    <header
+      adm-organizations-header
+      [eyebrow]="'organizations.members.detail.eyebrow' | transloco: { name: organization.name }"
+      [heading]="
+        who.kind === 'user'
+          ? ('organizations.members.identity.user' | transloco: { ref: who.value })
+          : who.value
+      "
+    >
+      <p headerMeta class="membership-detail__badges">
+        <nw-status-badge [tone]="status[m.status].tone">{{
+          status[m.status].key | transloco
+        }}</nw-status-badge>
+        @if (m.isOrganizationAdmin) {
+          <span class="membership-detail__admin">{{
+            'organizations.members.role.admin' | transloco
+          }}</span>
+        }
+      </p>
+      <a headerActions nw-button variant="secondary" [routerLink]="back">
+        <nw-icon name="arrow-left" size="sm" />{{ 'organizations.members.detail.back' | transloco }}
+      </a>
+    </header>
+    <div class="membership-detail__grid">
+      <section class="membership-detail__card" aria-labelledby="membership-detail-facts">
+        <h2 id="membership-detail-facts">{{ 'organizations.members.detail.facts' | transloco }}</h2>
+        <dl class="membership-detail__rows">
+          <div>
+            <dt>{{ 'organizations.members.detail.status' | transloco }}</dt>
+            <dd>{{ status[m.status].key | transloco }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'organizations.members.table.role' | transloco }}</dt>
+            <dd>
+              {{
+                (m.isOrganizationAdmin
+                  ? 'organizations.members.role.admin'
+                  : 'organizations.members.role.member'
+                ) | transloco
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'organizations.members.table.audience' | transloco }}</dt>
+            <dd>
+              <bdi class="membership-detail__mono" dir="ltr" translate="no">{{ m.audience }}</bdi>
+            </dd>
+          </div>
+          @if (m.email) {
+            <div>
+              <dt>{{ 'organizations.members.detail.email' | transloco }}</dt>
+              <dd>
+                <bdi dir="ltr" translate="no">{{ m.email }}</bdi>
+              </dd>
+            </div>
+          }
+          @if (m.phone) {
+            <div>
+              <dt>{{ 'organizations.members.detail.phone' | transloco }}</dt>
+              <dd>
+                <bdi dir="ltr" translate="no">{{ m.phone }}</bdi>
+              </dd>
+            </div>
+          }
+          <div>
+            <dt>{{ 'organizations.members.detail.contact' | transloco }}</dt>
+            <dd>
+              {{
+                (m.contactVerified
+                  ? 'organizations.members.identity.verified'
+                  : 'organizations.members.identity.unverified'
+                ) | transloco
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'organizations.members.table.requested' | transloco }}</dt>
+            <dd>{{ m.requestedAt | nwDate: 'date-time' }}</dd>
+          </div>
+          @if (m.approvedAt) {
+            <div>
+              <dt>{{ 'organizations.members.table.approved' | transloco }}</dt>
+              <dd>{{ m.approvedAt | nwDate: 'date-time' }}</dd>
+            </div>
+          }
+          @if (m.rejectedAt) {
+            <div>
+              <dt>{{ 'organizations.members.table.rejected' | transloco }}</dt>
+              <dd>{{ m.rejectedAt | nwDate: 'date-time' }}</dd>
+            </div>
+          }
+        </dl>
+      </section>
+      <section class="membership-detail__card" aria-labelledby="membership-detail-other">
+        <h2 id="membership-detail-other">{{ 'organizations.members.detail.other' | transloco }}</h2>
+        <p class="membership-detail__note">
+          {{ 'organizations.members.detail.otherNote' | transloco }}
+        </p>
+        <p class="membership-detail__note">
+          <nw-icon name="info" size="sm" />{{ 'organizations.members.detail.readOnly' | transloco }}
+        </p>
+      </section>
+    </div>
+  } @else if (view.status === 'ready' && found.status === 'notFound') {
+    <h1 class="nw-visually-hidden">
+      {{ 'organizations.members.detail.notFoundTitle' | transloco }}
+    </h1>
+    <nw-data-state
+      state="empty"
+      [title]="'organizations.members.detail.notFoundTitle' | transloco"
+      [description]="'organizations.members.detail.notFoundDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <a nw-button variant="secondary" [routerLink]="back">
+          <nw-icon name="arrow-left" size="sm" />{{
+            'organizations.members.detail.back' | transloco
+          }}
+        </a>
+      </div>
+    </nw-data-state>
+  } @else if (view.status === 'membersError') {
+    <h1 class="nw-visually-hidden">{{ 'organizations.members.errorTitle' | transloco }}</h1>
+    <nw-data-state
+      state="error"
+      [title]="'organizations.members.errorTitle' | transloco"
+      [description]="'organizations.members.errorDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'organizations.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  } @else if (view.status === 'membersNotInBuild') {
+    <h1 class="nw-visually-hidden">{{ 'organizations.members.notInBuildTitle' | transloco }}</h1>
+    <nw-data-state
+      state="empty"
+      [title]="'organizations.members.notInBuildTitle' | transloco"
+      [description]="'organizations.members.notInBuildDescription' | transloco"
+    />
+  } @else {
+    <h1 class="nw-visually-hidden">{{ 'organizations.members.loading' | transloco }}</h1>
+    <nw-data-state state="loading" [title]="'organizations.members.loading' | transloco" />
+  }
+} @else {
+  <adm-organization-states [view]="view" (retry)="facade.reload()" />
+}

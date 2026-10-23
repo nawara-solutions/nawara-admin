@@ -1,0 +1,98 @@
+// The members of one tab (P5-S1 design): cards on a narrow card, a table from 40rem, sized by the card's own width.
+:host {
+  display: block;
+  container-type: inline-size;
+}
+
+.member-list__table {
+  display: none;
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--nw-text-size-sm);
+
+  th,
+  td {
+    padding: var(--nw-space-3) var(--nw-space-2);
+    border-block-end: 1px solid var(--nw-border-subtle);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  thead th {
+    color: var(--nw-text-secondary);
+    font-weight: var(--nw-font-weight-medium);
+  }
+
+  tbody th {
+    font-weight: var(--nw-font-weight-regular);
+  }
+}
+
+.member-list__cards {
+  display: grid;
+  gap: var(--nw-space-2);
+}
+
+.member-list__card {
+  display: grid;
+  gap: var(--nw-space-1);
+  padding: var(--nw-space-3);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-raised);
+}
+
+.member-list__link {
+  display: inline-block;
+  color: var(--nw-text-link);
+  font-weight: var(--nw-font-weight-semibold);
+  overflow-wrap: anywhere;
+
+  &:focus-visible {
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.member-list__verified {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-1);
+  color: var(--nw-status-success-fg);
+  font-size: var(--nw-text-size-xs);
+
+  &--no {
+    color: var(--nw-status-warning-fg);
+  }
+}
+
+.member-list__admin {
+  justify-self: start;
+  padding: 0 var(--nw-space-2);
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-status-info-bg);
+  color: var(--nw-status-info-fg);
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.member-list__member,
+.member-list__meta {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.member-list__audience {
+  font-family: var(--nw-font-mono);
+  font-size: var(--nw-text-size-xs);
+}
+
+@container (min-width: 40rem) {
+  .member-list__table {
+    display: table;
+  }
+
+  .member-list__cards {
+    display: none;
+  }
+}

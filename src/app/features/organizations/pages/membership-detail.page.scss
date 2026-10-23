@@ -1,0 +1,89 @@
+// One membership (P5-S1 design, artboard 3): header, then its facts and the limits of what can be shown.
+:host {
+  display: grid;
+  align-content: start;
+  gap: 0.875rem;
+  container-type: inline-size;
+}
+
+.membership-detail__badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-2);
+}
+
+.membership-detail__admin {
+  padding: 0 var(--nw-space-2);
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-status-info-bg);
+  color: var(--nw-status-info-fg);
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.membership-detail__grid {
+  display: grid;
+  gap: var(--nw-space-4);
+}
+
+.membership-detail__card {
+  display: grid;
+  align-content: start;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-4) var(--nw-space-5);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-lg);
+  background-color: var(--nw-surface-raised);
+
+  h2 {
+    font-size: var(--nw-text-size-md);
+    font-weight: var(--nw-font-weight-semibold);
+  }
+}
+
+.membership-detail__rows {
+  display: grid;
+
+  div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--nw-space-1) var(--nw-space-3);
+    padding-block: var(--nw-space-3);
+    border-block-end: 1px solid var(--nw-border-subtle);
+  }
+
+  div:last-child {
+    border-block-end: 0;
+  }
+
+  dt {
+    color: var(--nw-text-secondary);
+  }
+
+  dd {
+    font-weight: var(--nw-font-weight-medium);
+    overflow-wrap: anywhere;
+  }
+}
+
+.membership-detail__mono {
+  font-family: var(--nw-font-mono);
+  font-size: var(--nw-text-size-sm);
+}
+
+.membership-detail__note {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+@container (min-width: 48rem) {
+  .membership-detail__grid {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}

@@ -11,6 +11,7 @@ import {
   runtimeOrganizationId,
 } from '../../../demo/world/commands/organization.commands';
 import { DemoWorld } from '../../../demo/world/demo-world';
+import { activeMembershipCount, pendingRequestCount } from '../../../demo/world/selectors';
 import { AdminIdentityId } from '../../../demo/world/records';
 import {
   DEMO_COMPANY_ID,
@@ -178,11 +179,11 @@ describe('MockOrganizationCommandGateway (demo world)', () => {
     expect(count()).toBe(17);
     expect(count(DRIVE)).toBe(drive);
     const record = world.snapshot().organizations.find((o) => o.id === NEW);
-    expect(record).toMatchObject({
-      memberships: 0,
-      pendingRequests: 0,
-      assistedPayments: 'inherit',
-    });
+    expect(record).toMatchObject({ assistedPayments: 'inherit' });
+    // Its figures are derived from membership records: it has none yet.
+    expect(activeMembershipCount(world.snapshot(), NEW)).toBe(0);
+    expect(pendingRequestCount(world.snapshot(), NEW)).toBe(0);
+    expect(world.snapshot().memberships.some((m) => m.organizationId === NEW)).toBe(false);
     // Same key, same request (with a fresh step-up): the same Organization, never a second one.
     expect(await create(body)).toEqual({ ...created, replayed: true });
     expect(count()).toBe(17);

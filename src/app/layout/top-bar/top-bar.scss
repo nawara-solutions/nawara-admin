@@ -27,8 +27,9 @@
 
 .top-bar__breadcrumbs {
   display: none;
-  // Keeps its full trail; the search field gives way instead.
-  flex: 1 0 auto;
+  // Keeps its full trail while it fits; the search field gives way first, then long crumbs truncate (deep pages).
+  flex: 1 1 auto;
+  min-inline-size: 0;
 
   @include nw.from(tablet) {
     display: block;
@@ -41,14 +42,15 @@
   margin-inline-end: auto;
 
   @include nw.from(tablet) {
+    flex-shrink: 0;
     margin-inline-end: 0;
   }
 }
 
 .top-bar__search {
   display: none;
-  // Shrinks before the breadcrumbs do.
-  flex: 0 1 17.5rem;
+  // Shrinks (to its minimum) before the breadcrumbs do.
+  flex: 0 1000 17.5rem;
   min-inline-size: 11rem;
   align-items: center;
   gap: var(--nw-space-2);

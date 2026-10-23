@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { Shell } from './shell';
+import { DefaultUrlSerializer, provideRouter } from '@angular/router';
+import { Shell, pageOf } from './shell';
 
 /** The shell's own logic, without rendering its children (the drawer itself is checked in the browser review). */
 class ShellUnderTest extends Shell {
@@ -39,5 +39,22 @@ describe('Shell: Escape closes only the topmost layer', () => {
     shell.open();
     shell.escape(escape(false));
     expect(shell.isOpen).toBe(false);
+  });
+});
+
+describe('Shell: focus moves to the new page only when the page changes', () => {
+  const page = (url: string) => pageOf(new DefaultUrlSerializer(), url);
+
+  it('ignores query parameters and fragments (a tab, a filter or a sort stays on its control)', () => {
+    expect(page('/platforms/p/organizations/o/members?status=pending&sort=oldest')).toBe(
+      page('/platforms/p/organizations/o/members'),
+    );
+    expect(page('/platforms/p/organizations?q=riad#top')).toBe(page('/platforms/p/organizations'));
+  });
+
+  it('tells different pages apart', () => {
+    expect(page('/platforms/p/organizations/o/members/m')).not.toBe(
+      page('/platforms/p/organizations/o/members'),
+    );
   });
 });

@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { can } from '../../../core/access/capability-policy';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { PlatformAccess, platformAccessOf } from '../../../core/context/platform-access';
-import { ScopeContext } from '../../../core/context/scope-context';
+import { ScopeContext, organizationOfPage } from '../../../core/context/scope-context';
 import { OrganizationId, PlatformRef } from '../../../core/context/scope.model';
 import { ADAPTER_UNAVAILABLE } from '../../../core/errors/app-error';
 import { ViewState } from '../../../core/state/view-state';
@@ -58,13 +58,13 @@ export class OrganizationDetailFacade {
   readonly showsActivity = computed(() => can(this.session.actor(), 'platform.activity.view'));
   readonly showsAccess = computed(() => can(this.session.actor(), 'platform.access.view'));
 
-  /** The Organization in the URL, once its Platform is granted; `null` requests nothing. */
-  private readonly organizationId = computed<OrganizationId | null>(() => {
-    const page = this.context.platformPage();
-    return this.access().status === 'granted' && page.kind === 'organization'
-      ? page.organizationId
-      : null;
-  });
+  /**
+   * The Organization in the URL (its detail, or its members' pages), once its Platform is granted; `null` requests
+   * nothing.
+   */
+  private readonly organizationId = computed<OrganizationId | null>(() =>
+    this.access().status === 'granted' ? organizationOfPage(this.context.platformPage()) : null,
+  );
 
   private readonly raw = keyedLoad(this.organizationId, this.reloads, (id) =>
     this.gateway.load(id),

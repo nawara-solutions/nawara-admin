@@ -201,6 +201,26 @@ Admin strategy and the decision required before A4.
     carries the code; nothing delivers invitations (ADR-0029 `:157-160`).
   - Core documentation drift (not Admin's to fix): the DTO says the type becomes the member's *role*, ADR-0030 and the code
     store it as the membership `audience`.
+- **Memberships, source-verified 2026-10-23 (P5-S0, Core `origin/main` `b91b7bf`); the read is built in Admin as a demo
+  mock only (P5-S1).** Full design: [`design/p5-users-and-memberships.md`](design/p5-users-and-memberships.md). Paths
+  relative to `nawara-core/apps/auth-service/src/`:
+  - List (`membership/organization.controller.ts:69-74`, `membership/membership.service.ts:87-97`): `GET
+    /auth/organizations/:organizationId/memberships?status=`; `status` ∈ `pending | active | rejected` only
+    (`onboarding/dto.ts:27-30`), **default `pending`** (Admin always sends it). **`revoked` exists but cannot be listed.**
+    No pagination, search or sort; oldest request first. Readers: Company owner, operator assigned to the Platform,
+    organization admin (`platform/platform-access.service.ts:95-110`); otherwise a collapsed `404`.
+  - Row: `{ id, userId, status, requestedAt, approvedAt, rejectedAt, isOrganizationAdmin, email, phone, audience,
+    contactVerified }`; raw email and phone for every reader. No name, provenance, `revokedAt` or decider.
+  - **No single-membership read for administrators**: Admin resolves a membership's details from the three lists.
+  - Approve / reject `POST …/memberships/:id/approve|reject` → `200 { id, status }`; `409 membership_already_decided`,
+    `409 contact_not_verified` (approve); **no step-up**. Revoke `POST …/revoke` → `200`; `409 membership_not_active`;
+    **no step-up**; clears the admin flag. Final.
+  - Admin role `POST | DELETE …/memberships/:id/admin` → `204`; owner only; step-up `organization.admin.grant|revoke`
+    (TOTP or WebAuthn); the membership must be active.
+  - Suspend / restore `POST /auth/admin/members/:id/suspend|restore`: owner + factor step-up; reasons
+    `compromised_account | security_incident | policy_violation`; **account-wide**, not one Organization.
+  - Throttle `membership_op_actor` 120 per 900 s. A member may hold memberships in several Organizations (ADR-0030); no
+    administrative read finds them, and nothing counts distinct people.
 - Operators (owner): create (step-up `operator.create`), confirm, block / unblock (deliberately no step-up), platform assignments
   grant / revoke (step-up) and history.
 - Member security (owner + factor step-up, closed reason code): suspend / restore (`auth-service/src/members/member-security.controller.ts`).
@@ -292,7 +312,8 @@ Admin strategy and the decision required before A4.
 | Organization create / edit | Organization | 🟢 contract · ⚠ not authoritative | `/organization/admin/*` | Gateway ready; **writes disabled by config until cutover** |
 | Platform create / edit | Organization | 🟢 contract · ⚠ not authoritative | `/organization/admin/platforms*` | Same |
 | Organization lifecycle (suspend/archive) | Organization | 🔴 | BD-5 undecided | Placeholder only |
-| Memberships (list/approve/reject/revoke) | Auth | 🟢 Prod | `organization.controller.ts` | HTTP (A7) |
+| Memberships — list (one Organization, by status) | Auth | 🟢 Prod | `GET …/memberships?status=` | `MembershipGateway.list(organizationId, status)`, mock in demo builds (P5-S1); detail resolved from the lists; **CF-23, CF-24, CF-25** |
+| Memberships — approve/reject/revoke | Auth | 🟢 Prod | `organization.controller.ts` | Not built (P5-S2/S3); HTTP (A7) |
 | Join codes / admin invitations | Auth | 🟢 Prod | `organization.controller.ts` | HTTP (A7) |
 | Organization-admin grant/revoke | Auth | 🟢 Prod | `memberships/:id/admin` | HTTP (A7) |
 | Operators (create/confirm/block/unblock) | Auth | 🟢 Prod | `operator.controller.ts` | HTTP (A7) |
@@ -588,6 +609,47 @@ Admin requirement: Core states the intended completion. Until then Admin follows
 Classification:   🟡 documentation/source discrepancy.
 V1 or V2:         V1 (documentation or source fix, Core owner's choice).
 Recommended checkpoint: before the A4-S4 HTTP integration.
+
+CF-23  Membership list returns raw contacts to every administrative reader
+Service:          auth-service
+Current behavior: (origin/main b91b7bf) membership.service.ts:87-97 returns each row's email and phone to the Company owner,
+                  assigned operators and organization admins alike. ADR-0050 decision 11 (:200-201) describes administrative
+                  reads as purpose-specific projections ("identifiers, state, timestamps"), never "everything about a user".
+Admin requirement: Core states which projection each reader gets (for example masked contacts for operators). Until then Admin
+                  shows the minimum (email, else phone, else a neutral reference), keeps contacts out of URLs, storage, logs,
+                  titles and breadcrumbs (P5-S1).
+Classification:   🟡 documentation/source tension (privacy minimization).
+V1 or V2:         to decide by the Core owner.
+Recommended checkpoint: before the membership HTTP integration.
+
+CF-24  Revoked memberships cannot be listed; no single-membership read
+Service:          auth-service
+Current behavior: (origin/main b91b7bf) ListMembershipsQuery accepts pending | active | rejected only; revoked rows exist but no
+                  administrative route returns them, and there is no GET of one membership for administrators.
+Admin requirement: a revoked filter (or an explicit decision that revoked history is audit-only), and optionally a detail read.
+                  Until then Admin has no Revoked tab and resolves details from the three lists; an id in none is "not found".
+Classification:   🟡 contract addition.
+V1 or V2:         to decide by the Core owner.
+Recommended checkpoint: before P5-S3 (revoke).
+
+CF-25  Membership list has no pagination
+Service:          auth-service
+Current behavior: (origin/main b91b7bf) every row of one status is returned in one answer, oldest request first.
+Admin requirement: cursor pagination (and ideally server-side search) before large Organizations; Admin searches, filters and
+                  sorts in the browser over the loaded rows.
+Classification:   🟡 scalability; contract addition.
+V1 or V2:         V2 unless Organizations grow large earlier.
+Recommended checkpoint: before production use with large Organizations.
+
+CF-26  Approve, reject and revoke carry no step-up
+Service:          auth-service
+Current behavior: (origin/main b91b7bf) approve, reject and revoke take the bearer only; the admin-role and suspension routes
+                  require a factor step-up.
+Admin requirement: Core confirms this is intended (residual risk: a stolen operator session can revoke members). Admin will
+                  confirm each decision in a dialog but cannot add authority.
+Classification:   🟡 security review item.
+V1 or V2:         to decide by the Core owner.
+Recommended checkpoint: before P5-S2/S3.
 ```
 
 ## 10. Undefined architectural decisions (Core side)

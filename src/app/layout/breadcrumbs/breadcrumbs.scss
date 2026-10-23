@@ -10,15 +10,41 @@
   white-space: nowrap;
 }
 
+// On a deep page whose trail does not fit, crumbs truncate rather than push the top bar's controls: the earliest
+// levels give way first (flex-shrink weights act as priorities), each keeping room for an ellipsis; the current page
+// keeps its full name (its own ellipsis applies only if it alone is wider than the trail).
 .breadcrumbs__item {
   display: inline-flex;
-  flex-shrink: 0;
+  flex-shrink: 1;
   align-items: center;
   gap: var(--nw-space-2);
-  min-inline-size: 0;
+  min-inline-size: 2.125rem;
+
+  &:first-child {
+    flex-shrink: 0;
+    min-inline-size: 0;
+  }
+
+  &:nth-child(2) {
+    flex-shrink: 10000;
+  }
+
+  &:nth-child(3) {
+    flex-shrink: 1000;
+  }
+
+  &:nth-child(4) {
+    flex-shrink: 100;
+  }
+
+  &:nth-child(5) {
+    flex-shrink: 10;
+  }
 
   &:last-child {
-    flex-shrink: 1;
+    flex-shrink: 0;
+    min-inline-size: 0;
+    max-inline-size: 100%;
   }
 
   // Only the page itself is kept on narrower top bars (owner design): Home › Overview.
@@ -46,15 +72,22 @@
   }
 }
 
+// Text-only crumbs (links and plain text) truncate with an ellipsis when the trail is too long.
+.breadcrumbs__link,
+.breadcrumbs__text {
+  display: block;
+  overflow: hidden;
+  line-height: 1.5rem;
+  text-overflow: ellipsis;
+}
+
 .breadcrumbs__separator {
+  flex-shrink: 0;
   color: var(--nw-icon-muted);
 }
 
 // A crumb the actor cannot open (the Company, for an operator): the same quiet text, not a link.
 .breadcrumbs__text {
-  display: inline-flex;
-  align-items: center;
-  min-block-size: 1.5rem;
   color: var(--nw-text-secondary);
 }
 

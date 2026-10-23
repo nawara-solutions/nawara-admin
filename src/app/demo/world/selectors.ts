@@ -9,6 +9,7 @@ import {
   ActivityRecord,
   AdminIdentityId,
   AdminInvitationRecord,
+  MembershipRecord,
   DemoWorldTables,
   OrganizationRecord,
   OrganizationSubscriptionRecord,
@@ -60,11 +61,45 @@ export const organizationsOfCompany = (world: DemoWorldTables): readonly Organiz
 
 const sum = (values: readonly number[]) => values.reduce((total, value) => total + value, 0);
 
-export const membershipTotal = (organizations: readonly OrganizationRecord[]): number =>
-  sum(organizations.map((o) => o.memberships));
+/** Active memberships and pending requests by Organization, computed once per memberships table. */
+const countCache = new WeakMap<
+  readonly MembershipRecord[],
+  ReadonlyMap<OrganizationId, { readonly active: number; readonly pending: number }>
+>();
 
-export const pendingRequestTotal = (organizations: readonly OrganizationRecord[]): number =>
-  sum(organizations.map((o) => o.pendingRequests));
+function membershipCounts(world: DemoWorldTables) {
+  let counts = countCache.get(world.memberships);
+  if (counts === undefined) {
+    const map = new Map<OrganizationId, { active: number; pending: number }>();
+    for (const m of world.memberships) {
+      const entry = map.get(m.organizationId) ?? { active: 0, pending: 0 };
+      if (m.status === 'active') entry.active += 1;
+      else if (m.status === 'pending') entry.pending += 1;
+      map.set(m.organizationId, entry);
+    }
+    countCache.set(world.memberships, (counts = map));
+  }
+  return counts;
+}
+
+/** An Organization's "memberships" figure: its ACTIVE memberships (one person may hold several across Organizations). */
+export const activeMembershipCount = (world: DemoWorldTables, organization: OrganizationId) =>
+  membershipCounts(world).get(organization)?.active ?? 0;
+
+/** An Organization's "requests awaiting approval": its PENDING memberships. */
+export const pendingRequestCount = (world: DemoWorldTables, organization: OrganizationId) =>
+  membershipCounts(world).get(organization)?.pending ?? 0;
+
+/** A sum of memberships, never a count of people: one person with two memberships counts twice (CF-11). */
+export const membershipTotal = (
+  world: DemoWorldTables,
+  organizations: readonly OrganizationRecord[],
+): number => sum(organizations.map((o) => activeMembershipCount(world, o.id)));
+
+export const pendingRequestTotal = (
+  world: DemoWorldTables,
+  organizations: readonly OrganizationRecord[],
+): number => sum(organizations.map((o) => pendingRequestCount(world, o.id)));
 
 /** Newest first; ties broken by id, so the order is stable. */
 export const newestFirst = (a: OrganizationRecord, b: OrganizationRecord): number =>

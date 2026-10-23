@@ -1,0 +1,169 @@
+@let view = facade.view();
+@if ('organization' in view) {
+  @let organization = view.organization;
+  @let query = facade.query();
+  @let counts = facade.counts();
+  <header
+    adm-organizations-header
+    [eyebrow]="organization.name"
+    [heading]="'organizations.members.title' | transloco"
+  >
+    <p headerMeta class="organization-members__subtitle">
+      {{ 'organizations.members.subtitle' | transloco }}
+    </p>
+    <a
+      headerActions
+      nw-button
+      variant="secondary"
+      [routerLink]="organizationPath(view.platform.id, organization.id)"
+    >
+      <nw-icon name="arrow-left" size="sm" />{{
+        'organizations.members.backToOrganization' | transloco
+      }}
+    </a>
+  </header>
+
+  <section class="organization-members__card" aria-labelledby="organization-members-tab-label">
+    <h2 id="organization-members-tab-label" class="nw-visually-hidden">
+      {{ 'organizations.members.title' | transloco }}
+    </h2>
+    <div
+      class="organization-members__tabs"
+      role="tablist"
+      [attr.aria-label]="'organizations.members.tabsLabel' | transloco"
+    >
+      @for (status of statuses; track status; let i = $index) {
+        <button
+          #tab
+          type="button"
+          role="tab"
+          class="organization-members__tab"
+          [id]="'organization-members-tab-' + status"
+          aria-controls="organization-members-panel"
+          [attr.aria-selected]="query.status === status"
+          [attr.tabindex]="query.status === status ? 0 : -1"
+          (click)="select(status)"
+          (keydown)="onTabKey($event, i)"
+        >
+          {{ statusKeys[status] | transloco }}
+          @if (counts) {
+            <span class="organization-members__tab-count">{{ counts[status] }}</span>
+          }
+        </button>
+      }
+    </div>
+
+    <div
+      id="organization-members-panel"
+      role="tabpanel"
+      class="organization-members__panel"
+      [attr.aria-labelledby]="'organization-members-tab-' + query.status"
+    >
+      @switch (view.status) {
+        @case ('ready') {
+          @let total = view.lists[query.status].length;
+          @if (total === 0) {
+            <nw-data-state state="empty" [title]="emptyKeys[query.status] | transloco" />
+          } @else {
+            <div class="organization-members__toolbar" role="search">
+              <label class="organization-members__search">
+                <nw-icon name="search" size="sm" />
+                <span class="nw-visually-hidden">{{
+                  'organizations.members.searchLabel' | transloco
+                }}</span>
+                <input
+                  class="organization-members__search-input"
+                  type="search"
+                  autocomplete="off"
+                  spellcheck="false"
+                  aria-controls="organization-members-list"
+                  [placeholder]="'organizations.members.searchPlaceholder' | transloco"
+                  [value]="facade.search()"
+                  (input)="onSearch($event)"
+                />
+              </label>
+              @if (query.status === 'active') {
+                <label class="organization-members__check">
+                  <input type="checkbox" [checked]="query.admins" (change)="onAdmins($event)" />
+                  {{ 'organizations.members.adminsOnly' | transloco }}
+                </label>
+              }
+              <nw-form-field
+                class="organization-members__sort"
+                [label]="'organizations.members.sortLabel' | transloco"
+              >
+                <select nwControl (change)="onSort($event)">
+                  @for (sort of sorts; track sort) {
+                    <option [value]="sort" [selected]="sort === query.sort">
+                      {{ sortKeys[sort] | transloco }}
+                    </option>
+                  }
+                </select>
+              </nw-form-field>
+              <p class="organization-members__count" role="status" aria-live="polite">
+                {{
+                  'organizations.members.count'
+                    | transloco: { shown: facade.rows().length, total: total }
+                }}
+              </p>
+            </div>
+            @if (facade.rows().length > 0) {
+              <adm-member-list
+                listId="organization-members-list"
+                [rows]="facade.rows()"
+                [status]="query.status"
+                [pathOf]="pathOf()"
+              />
+            } @else {
+              <div id="organization-members-list">
+                <nw-data-state
+                  state="empty"
+                  [title]="'organizations.members.noResultsTitle' | transloco"
+                  [description]="'organizations.members.noResultsDescription' | transloco"
+                >
+                  @if (filtered()) {
+                    <div nwDataStateActions>
+                      <button nw-button variant="secondary" type="button" (click)="clear()">
+                        {{ 'organizations.members.clear' | transloco }}
+                      </button>
+                    </div>
+                  }
+                </nw-data-state>
+              </div>
+            }
+          }
+          <p class="organization-members__footnote">
+            <nw-icon name="info" size="sm" />{{ 'organizations.members.footnote' | transloco }}
+          </p>
+        }
+        @case ('membersError') {
+          <nw-data-state
+            state="error"
+            [title]="'organizations.members.errorTitle' | transloco"
+            [description]="'organizations.members.errorDescription' | transloco"
+          >
+            <div nwDataStateActions>
+              <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+                <nw-icon name="refresh-cw" size="sm" />{{
+                  'organizations.states.retry' | transloco
+                }}
+              </button>
+            </div>
+          </nw-data-state>
+        }
+        @case ('membersNotInBuild') {
+          <nw-data-state
+            state="empty"
+            [title]="'organizations.members.notInBuildTitle' | transloco"
+            [description]="'organizations.members.notInBuildDescription' | transloco"
+          />
+        }
+        @default {
+          <nw-data-state state="loading" [title]="'organizations.members.loading' | transloco" />
+        }
+      }
+    </div>
+  </section>
+} @else {
+  <adm-organization-states [view]="view" (retry)="facade.reload()" />
+}

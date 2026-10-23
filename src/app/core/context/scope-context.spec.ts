@@ -9,6 +9,9 @@ import { ScopeDirectoryGateway } from './scope-directory.gateway';
 import { DEMO_LATENCY_MS, MockScopeDirectoryGateway } from './scope-directory.mock';
 import {
   ScopeContext,
+  membersPath,
+  membershipPath,
+  organizationOfPage,
   organizationPath,
   organizationsPath,
   platformPageFromUrl,
@@ -60,11 +63,31 @@ describe('the platform page from the URL (Organizations are entities of platform
   it('recognises nothing else, and never makes an Organization a scope of its own', () => {
     expect(platformPageFromUrl('/overview')).toEqual({ kind: 'other' });
     expect(platformPageFromUrl('/platforms/p/settings')).toEqual({ kind: 'other' });
-    expect(platformPageFromUrl('/platforms/p/organizations/o/members')).toEqual({ kind: 'other' });
-    expect(scopeFromUrl('/platforms/p/organizations/o')).toEqual({
-      kind: 'platform',
-      platformId: 'p',
+    expect(platformPageFromUrl('/platforms/p/organizations/o/settings')).toEqual({ kind: 'other' });
+    expect(platformPageFromUrl('/platforms/p/organizations/o/members/m/x')).toEqual({
+      kind: 'other',
     });
+    for (const url of ['/platforms/p/organizations/o', '/platforms/p/organizations/o/members/m'])
+      expect(scopeFromUrl(url)).toEqual({ kind: 'platform', platformId: 'p' });
+  });
+
+  it('tells an Organization’s members and one membership apart (P5-S1), still in platform scope', () => {
+    expect(platformPageFromUrl('/platforms/p/organizations/o/members?status=pending')).toEqual({
+      kind: 'members',
+      organizationId: 'o',
+    });
+    expect(platformPageFromUrl('/platforms/p/organizations/o/members/m%201')).toEqual({
+      kind: 'membership',
+      organizationId: 'o',
+      membershipId: 'm 1',
+    });
+    expect(membershipPath(platformId('p'), organizationId('o'), 'm 1')).toBe(
+      '/platforms/p/organizations/o/members/m%201',
+    );
+    expect(
+      organizationOfPage(platformPageFromUrl(membersPath(platformId('p'), organizationId('o')))),
+    ).toBe('o');
+    expect(organizationOfPage({ kind: 'dashboard' })).toBeNull();
   });
 
   it('builds Organization URLs that round-trip', () => {
@@ -104,6 +127,7 @@ describe('ScopeContext: the Platforms the actor may see', () => {
       platformCommands: [],
       organizationCommands: [],
       adminInvitations: [],
+      memberships: [],
       stepUp: [],
     },
   };

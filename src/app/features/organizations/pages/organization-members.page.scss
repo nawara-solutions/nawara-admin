@@ -1,0 +1,137 @@
+// The P5-S1 members page (artboards 1, 5, 6), sized by its own width: header, then one card with the status tabs,
+// the toolbar and the list.
+// One column that never grows past the page: the tab row scrolls inside the card on the narrowest viewports.
+:host {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 0.875rem;
+  container-type: inline-size;
+}
+
+.organization-members__subtitle {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.organization-members__card {
+  display: grid;
+  gap: var(--nw-space-3);
+  padding: var(--nw-space-4);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-lg);
+  background-color: var(--nw-surface-raised);
+}
+
+.organization-members__tabs {
+  display: flex;
+  justify-self: start;
+  max-inline-size: 100%;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  overflow-x: auto;
+}
+
+.organization-members__tab {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--nw-space-2);
+  min-block-size: 2.5rem;
+  padding-inline: var(--nw-space-3);
+  border: 0;
+  border-radius: calc(var(--nw-radius-md) - 2px);
+  background: transparent;
+  color: var(--nw-text-secondary);
+  font: inherit;
+  cursor: pointer;
+
+  &[aria-selected='true'] {
+    background-color: var(--nw-surface-raised);
+    color: var(--nw-text-primary);
+    font-weight: var(--nw-font-weight-semibold);
+    box-shadow: var(--nw-shadow-sm);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: 1px;
+  }
+}
+
+.organization-members__tab-count {
+  color: var(--nw-text-secondary);
+  font-weight: var(--nw-font-weight-regular);
+}
+
+.organization-members__panel {
+  display: grid;
+  gap: var(--nw-space-3);
+}
+
+.organization-members__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--nw-space-3);
+}
+
+.organization-members__search {
+  display: flex;
+  flex: 1 1 14rem;
+  align-items: center;
+  gap: var(--nw-space-2);
+  min-block-size: 2.75rem;
+  padding-inline: var(--nw-space-3);
+  border: 1px solid var(--nw-border-strong);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-raised);
+
+  &:focus-within {
+    outline: 2px solid var(--nw-focus-ring);
+  }
+}
+
+.organization-members__search-input {
+  flex: 1;
+  min-inline-size: 0;
+  border: 0;
+  background: transparent;
+  color: var(--nw-text-primary);
+  font: inherit;
+  outline: none;
+}
+
+.organization-members__check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  min-block-size: 2.75rem;
+  font-size: var(--nw-text-size-sm);
+
+  input {
+    inline-size: 1.125rem;
+    block-size: 1.125rem;
+    accent-color: var(--nw-color-primary);
+  }
+}
+
+.organization-members__sort {
+  flex: 0 1 13rem;
+}
+
+.organization-members__count {
+  flex-basis: 100%;
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.organization-members__footnote {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
