@@ -1,0 +1,87 @@
+// The account menu (A3-S3 design): the shared nw-menu surface, a decorative identity header, two items.
+
+.account-menu {
+  inline-size: min(17rem, calc(100vw - 2rem));
+}
+
+.account-menu__header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.625rem 0.75rem;
+}
+
+.account-menu__avatar {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-avatar-background);
+  color: var(--nw-avatar-text);
+  font-size: 0.875rem;
+  font-weight: var(--nw-font-weight-bold);
+}
+
+.account-menu__identity {
+  display: grid;
+  gap: 0.1875rem;
+  min-inline-size: 0;
+}
+
+.account-menu__name {
+  color: var(--nw-text-primary);
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-bold);
+  overflow-wrap: anywhere;
+
+  // No display name: the name is the email or phone, a machine value.
+  &--identifier {
+    font-family: var(--nw-font-mono);
+    font-size: 0.75rem;
+    font-weight: var(--nw-font-weight-medium);
+  }
+}
+
+.account-menu__identifier {
+  color: var(--nw-text-secondary);
+  font-family: var(--nw-font-mono);
+  font-size: 0.71875rem;
+  overflow-wrap: anywhere;
+}
+
+// In a right-to-left menu, a left-to-right value (an email, a phone, a Latin name) still lines up with the menu's start
+// edge, the right: its own direction would otherwise push it to the left. Scoped to RTL, so it is the logical start.
+.account-menu__identity:dir(rtl) > :is([dir='ltr'], bdi) {
+  text-align: right;
+}
+
+.account-menu__role {
+  justify-self: start;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-accent-purple-bg);
+  color: var(--nw-accent-purple-fg);
+  font-size: 0.6875rem;
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.account-menu__separator {
+  block-size: 1px;
+  margin: 0.125rem 0.25rem;
+  background-color: var(--nw-border-subtle);
+}
+
+// Touch screens: comfortable targets (WCAG 2.2 target size is met either way).
+@media (pointer: coarse) {
+  .account-menu__item {
+    min-block-size: 2.75rem;
+  }
+}
+
+@media (forced-colors: active) {
+  .account-menu__separator {
+    background-color: CanvasText;
+  }
+}

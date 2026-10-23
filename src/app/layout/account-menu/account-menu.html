@@ -1,0 +1,30 @@
+<nw-menu class="account-menu" [attr.aria-label]="'shell.account.menuLabel' | transloco">
+  @if (profile(); as person) {
+    <div class="account-menu__header" aria-hidden="true">
+      <span class="account-menu__avatar">{{ person.initials }}</span>
+      <span class="account-menu__identity">
+        @if (nameIsIdentifier()) {
+          <span class="account-menu__name account-menu__name--identifier" dir="ltr">{{
+            person.name
+          }}</span>
+        } @else {
+          <bdi class="account-menu__name">{{ person.name }}</bdi>
+        }
+        @if (identifier(); as id) {
+          <span class="account-menu__identifier" dir="ltr">{{ id }}</span>
+        }
+        <span class="account-menu__role">{{ person.roleKey | transloco }}</span>
+      </span>
+    </div>
+  }
+  <div class="account-menu__separator" aria-hidden="true"></div>
+  <button nw-menu-item class="account-menu__item" (triggered)="openAppearance()">
+    <nw-icon name="palette" size="sm" />
+    <span>{{ 'shell.account.appearance' | transloco }}</span>
+  </button>
+  <div class="account-menu__separator" aria-hidden="true"></div>
+  <button nw-menu-item class="account-menu__item" (triggered)="signOutNow()">
+    <nw-icon name="log-out" size="sm" />
+    <span>{{ 'shell.account.signOut' | transloco }}</span>
+  </button>
+</nw-menu>

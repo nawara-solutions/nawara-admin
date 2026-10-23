@@ -35,7 +35,7 @@ export const DRAWER_QUERY = '(max-width: 56.24em)';
     class: 'shell',
     '[class.shell--drawer]': 'drawerMode()',
     '[class.shell--drawer-open]': 'drawerMode() && drawerOpen()',
-    '(document:keydown.escape)': 'closeDrawer()',
+    '(document:keydown.escape)': 'onEscape($event)',
   },
 })
 export class Shell {
@@ -78,6 +78,15 @@ export class Shell {
           ?.focus(),
       { injector: this.injector },
     );
+  }
+
+  /**
+   * Escape closes the topmost thing only: when an overlay above the drawer (the account menu) has already handled it
+   * (CDK menus `preventDefault` and close, returning focus to their trigger), the drawer stays open.
+   */
+  protected onEscape(event: Event): void {
+    if (event.defaultPrevented) return;
+    this.closeDrawer();
   }
 
   protected closeDrawer(): void {

@@ -115,11 +115,19 @@
   place-items: center;
   inline-size: 2.125rem;
   block-size: 2.125rem;
+  padding: 0;
+  border: 0;
   border-radius: var(--nw-radius-pill);
   background-color: var(--nw-avatar-background);
   color: var(--nw-avatar-text);
+  font: inherit;
   font-size: 0.78125rem;
   font-weight: var(--nw-font-weight-bold);
+  cursor: pointer;
+
+  &[aria-busy='true'] {
+    cursor: progress;
+  }
 
   @include nw.from(tablet) {
     display: grid;

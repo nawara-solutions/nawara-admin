@@ -208,6 +208,13 @@
       "explanation": "Demo data: fictional figures and a demo owner session. Nothing on this screen comes from Nawara Core.",
       "about": "About the demo data"
     },
+    "account": {
+      "trigger": "Account: {{name}}, {{role}}",
+      "menuLabel": "Account",
+      "appearance": "Appearance",
+      "signOut": "Sign out",
+      "signingOut": "Signing out…"
+    },
     "nav": {
       "groups": {
         "platform": "Platform",
@@ -226,7 +233,9 @@
       "services": "Services & health",
       "monitoring": "Monitoring",
       "settings": "Settings",
-      "releases": "Releases"
+      "releases": "Releases",
+      "platformsUnavailable": "Platforms unavailable",
+      "platformsLoading": "Loading your platforms…"
     },
     "pages": {
       "backToOverview": "Back to Company overview",

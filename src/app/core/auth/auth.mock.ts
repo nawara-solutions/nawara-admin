@@ -8,17 +8,20 @@ import { AppError } from '../errors/app-error';
 import {
   DEMO_ACCOUNTS,
   DEMO_CONFIRMATION_CODE,
-  DEMO_NEW_OPERATORS,
-  DEMO_OPERATORS,
   DEMO_PASSWORD,
   DEMO_TOTP_CODE,
   DEMO_TOTP_ISSUER,
   DEMO_TOTP_SECRET,
   DEMO_WORKING_CODE,
-  DemoAccount,
   DemoOperator,
 } from './auth.fixtures';
 import { AuthGateway } from './auth.gateway';
+import {
+  ALL_DEMO_OPERATORS,
+  CODE_ATTEMPTS,
+  DemoAuthState,
+  PendingEnrollment,
+} from './auth.mock-state';
 import {
   FactorProof,
   Grants,
@@ -33,9 +36,6 @@ import { PasskeyPromptError, WebAuthnClient } from './webauthn-client';
 
 /** How long a demo challenge stays valid. Core's real lifetime is still to verify (docs/CORE-INTEGRATION.md §9). */
 const CHALLENGE_LIFETIME_MS = 5 * 60_000;
-
-/** Core's `MAX_CODE_ATTEMPTS`: five wrong guesses kill a working code (`operator-code.service.ts`). */
-const WORKING_CODE_ATTEMPTS = 5;
 
 /**
  * Core's per-token attempt budget (`MAX_CHALLENGE_ATTEMPTS`, `challenge.service.ts`): every refused confirmation counts
@@ -60,17 +60,6 @@ const FACTOR_ALREADY_ENROLLED: AppError = {
   status: 403,
 };
 
-/** A pending enrollment: the owner, the factor begun last (if any), and the attempts left on its token. */
-interface PendingEnrollment {
-  readonly account: DemoAccount;
-  readonly expiresAt: number;
-  factorId: string | null;
-  attemptsLeft: number;
-}
-
-/** Every demo operator: the confirmed ones (working-code sign-in) and the new ones (contact confirmation first). */
-const ALL_OPERATORS: readonly DemoOperator[] = [...DEMO_OPERATORS, ...DEMO_NEW_OPERATORS];
-
 /** Core's one answer to every refused working code (wrong, used, replaced, locked, unknown, out of shift). */
 const CODE_INVALID: AppError = {
   kind: 'unauthenticated',
@@ -87,28 +76,15 @@ const sameIdentifier = (a: OperatorIdentifier, b: OperatorIdentifier): boolean =
  * Mock adapter (demo builds only). Its answers follow Auth's documented outcomes; its errors use HTTP status only,
  * because Core's stable auth error codes are not verified yet (provisional, never a Core contract).
  * An unknown or expired challenge answers `404`, which the flow treats as "verification needs to restart".
+ *
+ * Each route that binds the auth adapter (sign-in pages, shell) gets its own instance, but every instance works on the
+ * one root `DemoAuthState`: one simulated Auth service, so a sign-out from the shell ends the session the sign-in
+ * pages opened, and Core records (an enrolled factor, a confirmed contact) survive it until a reload.
  */
 @Injectable()
 export class MockAuthGateway extends AuthGateway {
   private readonly latency = inject(DEMO_LATENCY_MS);
-  private readonly challenges = new Map<string, { account: DemoAccount; expiresAt: number }>();
-  private readonly enrollments = new Map<string, PendingEnrollment>();
-  /** Owners who completed enrollment in this session (by user id): their next sign-in asks for the code. */
-  private readonly enrolledOwners = new Set<string>();
-  /** The live working code per operator (by user id): wrong guesses left. Issuing replaces; success consumes. */
-  private readonly workingCodes = new Map<string, number>();
-  /** Operators whose contact is confirmed (by user id). Core issues working codes only to them. */
-  private readonly confirmedOperators = new Set(
-    ALL_OPERATORS.filter((o) => o.confirmed).map((o) => o.identity.userId),
-  );
-  /** The confirmation code of each unconfirmed operator: wrong guesses left. Core never reissues it (CF-16). */
-  private readonly confirmationCodes = new Map(
-    ALL_OPERATORS.filter((o) => !o.confirmed).map((o) => [
-      o.identity.userId,
-      WORKING_CODE_ATTEMPTS,
-    ]),
-  );
-  private signedIn: { readonly identity: Identity; readonly grants: Grants } | null = null;
+  private readonly state = inject(DemoAuthState);
 
   login(email: string, password: string): Observable<LoginOutcome> {
     const account = DEMO_ACCOUNTS.find(
@@ -116,16 +92,16 @@ export class MockAuthGateway extends AuthGateway {
     );
     if (!account || password !== DEMO_PASSWORD)
       return this.fail({ kind: 'unauthenticated', status: 401 });
-    const next = this.enrolledOwners.has(account.identity.userId)
+    const next = this.state.enrolledOwners.has(account.identity.userId)
       ? ({ kind: 'mfa', methods: ['totp'] } as const)
       : account.next;
     switch (next.kind) {
       case 'session':
-        this.signedIn = account;
+        this.state.signedIn.set(account);
         return this.answer<LoginOutcome>({ kind: 'session' });
       case 'enrollment': {
         const enrollmentToken = crypto.randomUUID();
-        this.enrollments.set(enrollmentToken, {
+        this.state.enrollments.set(enrollmentToken, {
           account,
           expiresAt: Date.now() + CHALLENGE_LIFETIME_MS,
           factorId: null,
@@ -137,7 +113,10 @@ export class MockAuthGateway extends AuthGateway {
         return this.answer<LoginOutcome>({ kind: 'recovery_required' });
       case 'mfa': {
         const token = crypto.randomUUID();
-        this.challenges.set(token, { account, expiresAt: Date.now() + CHALLENGE_LIFETIME_MS });
+        this.state.challenges.set(token, {
+          account,
+          expiresAt: Date.now() + CHALLENGE_LIFETIME_MS,
+        });
         return this.answer<LoginOutcome>({
           kind: 'mfa_required',
           challenge: { token, methods: next.methods },
@@ -152,12 +131,12 @@ export class MockAuthGateway extends AuthGateway {
     const next = pending.account.next;
     const offered =
       (next.kind === 'mfa' && next.methods.includes(proof.method)) ||
-      (this.enrolledOwners.has(pending.account.identity.userId) && proof.method === 'totp');
+      (this.state.enrolledOwners.has(pending.account.identity.userId) && proof.method === 'totp');
     // A simulated passkey assertion is accepted unchecked (see SimulatedWebAuthnClient).
     const valid = proof.method === 'passkey' || proof.code.replace(/\s/g, '') === DEMO_TOTP_CODE;
     if (!offered || !valid) return this.fail({ kind: 'unauthenticated', status: 401 });
-    this.challenges.delete(challenge);
-    this.signedIn = pending.account;
+    this.state.challenges.delete(challenge);
+    this.state.signedIn.set(pending.account);
     return this.answer(undefined);
   }
 
@@ -210,9 +189,9 @@ export class MockAuthGateway extends AuthGateway {
       pending.attemptsLeft -= 1;
       return this.fail({ kind: 'validation', messages: [], status: 400 });
     }
-    this.enrollments.delete(enrollmentToken);
-    this.enrolledOwners.add(pending.account.identity.userId);
-    this.signedIn = pending.account;
+    this.state.enrollments.delete(enrollmentToken);
+    this.state.enrolledOwners.add(pending.account.identity.userId);
+    this.state.signedIn.set(pending.account);
     return this.answer(undefined);
   }
 
@@ -221,8 +200,8 @@ export class MockAuthGateway extends AuthGateway {
     const found = this.operator(identifier);
     if (found?.scenario === 'requestLimited')
       return this.fail({ kind: 'rate_limited', status: 429 });
-    if (found && this.confirmedOperators.has(found.identity.userId))
-      this.workingCodes.set(found.identity.userId, WORKING_CODE_ATTEMPTS);
+    if (found && this.state.confirmedOperators.has(found.identity.userId))
+      this.state.workingCodes.set(found.identity.userId, CODE_ATTEMPTS);
     return this.answer(undefined);
   }
 
@@ -232,14 +211,14 @@ export class MockAuthGateway extends AuthGateway {
       return this.fail({ kind: 'rate_limited', status: 429 });
     if (found?.scenario === 'verifyUnavailable')
       return this.fail({ kind: 'unavailable', status: 503 });
-    const left = found ? this.workingCodes.get(found.identity.userId) : undefined;
+    const left = found ? this.state.workingCodes.get(found.identity.userId) : undefined;
     if (!found || left === undefined || left <= 0) return this.fail(CODE_INVALID);
     if (code !== DEMO_WORKING_CODE) {
-      this.workingCodes.set(found.identity.userId, left - 1);
+      this.state.workingCodes.set(found.identity.userId, left - 1);
       return this.fail(CODE_INVALID);
     }
-    this.workingCodes.delete(found.identity.userId);
-    this.signedIn = found;
+    this.state.workingCodes.delete(found.identity.userId);
+    this.state.signedIn.set(found);
     return this.answer(undefined);
   }
 
@@ -256,33 +235,36 @@ export class MockAuthGateway extends AuthGateway {
       return this.fail({ kind: 'rate_limited', status: 429 });
     if (found?.scenario === 'confirmUnavailable')
       return this.fail({ kind: 'unavailable', status: 503 });
-    if (found && this.confirmedOperators.has(found.identity.userId)) return this.answer(undefined);
-    const left = found ? this.confirmationCodes.get(found.identity.userId) : undefined;
+    if (found && this.state.confirmedOperators.has(found.identity.userId))
+      return this.answer(undefined);
+    const left = found ? this.state.confirmationCodes.get(found.identity.userId) : undefined;
     if (!found || left === undefined || left <= 0) return this.fail(CODE_INVALID);
     if (code !== DEMO_CONFIRMATION_CODE) {
-      this.confirmationCodes.set(found.identity.userId, left - 1);
+      this.state.confirmationCodes.set(found.identity.userId, left - 1);
       return this.fail(CODE_INVALID);
     }
-    this.confirmationCodes.delete(found.identity.userId);
-    this.confirmedOperators.add(found.identity.userId);
+    this.state.confirmationCodes.delete(found.identity.userId);
+    this.state.confirmedOperators.add(found.identity.userId);
     return this.answer(undefined);
   }
 
   me(): Observable<Identity> {
-    return this.signedIn
-      ? this.answer(this.signedIn.identity)
+    const signedIn = this.state.signedIn();
+    return signedIn
+      ? this.answer(signedIn.identity)
       : this.fail({ kind: 'unauthenticated', status: 401 });
   }
 
   grants(): Observable<Grants> {
-    return this.signedIn
-      ? this.answer(this.signedIn.grants)
+    const signedIn = this.state.signedIn();
+    return signedIn
+      ? this.answer(signedIn.grants)
       : this.fail({ kind: 'unauthenticated', status: 401 });
   }
 
   /** Like Core: the owner for a Platform of their Company, an operator for an assigned Platform; else `false`. */
   platformAccess(platform: PlatformId): Observable<boolean> {
-    const account = this.signedIn;
+    const account = this.state.signedIn();
     if (!account) return this.fail({ kind: 'unauthenticated', status: 401 });
     const allowed =
       account.identity.adminTier === 'owner'
@@ -293,18 +275,19 @@ export class MockAuthGateway extends AuthGateway {
     return this.answer(allowed);
   }
 
+  /** Ends the simulated Core session only: Core records (enrolled factors, confirmed contacts) are kept. */
   logout(): Observable<void> {
-    this.signedIn = null;
+    this.state.signedIn.set(null);
     return this.answer(undefined);
   }
 
   private operator(identifier: OperatorIdentifier): DemoOperator | undefined {
-    return ALL_OPERATORS.find((candidate) => sameIdentifier(candidate.identifier, identifier));
+    return ALL_DEMO_OPERATORS.find((candidate) => sameIdentifier(candidate.identifier, identifier));
   }
 
   /** A live token: known, unexpired and not out of attempts (Core consumes it on the fifth refusal). */
   private liveEnrollment(enrollmentToken: string): PendingEnrollment | null {
-    const pending = this.enrollments.get(enrollmentToken);
+    const pending = this.state.enrollments.get(enrollmentToken);
     return pending && pending.expiresAt > Date.now() && pending.attemptsLeft > 0 ? pending : null;
   }
 
@@ -314,7 +297,7 @@ export class MockAuthGateway extends AuthGateway {
   }
 
   private live(challenge: string) {
-    const pending = this.challenges.get(challenge);
+    const pending = this.state.challenges.get(challenge);
     return pending && pending.expiresAt > Date.now() ? pending : null;
   }
 

@@ -208,6 +208,13 @@
       "explanation": "بيانات تجريبية: أرقام وهمية وجلسة مالك تجريبية. لا شيء في هذه الشاشة مصدره Nawara Core.",
       "about": "حول البيانات التجريبية"
     },
+    "account": {
+      "trigger": "الحساب: {{name}}، {{role}}",
+      "menuLabel": "الحساب",
+      "appearance": "المظهر",
+      "signOut": "تسجيل الخروج",
+      "signingOut": "جارٍ تسجيل الخروج…"
+    },
     "nav": {
       "groups": {
         "platform": "المنصة",
@@ -226,7 +233,9 @@
       "services": "الخدمات والحالة",
       "monitoring": "المراقبة",
       "settings": "الإعدادات",
-      "releases": "الإصدارات"
+      "releases": "الإصدارات",
+      "platformsUnavailable": "المنصات غير متاحة",
+      "platformsLoading": "جارٍ تحميل منصّاتك…"
     },
     "pages": {
       "backToOverview": "العودة إلى نظرة عامة على الشركة",

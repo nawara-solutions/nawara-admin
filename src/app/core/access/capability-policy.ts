@@ -6,6 +6,11 @@ import { PlatformId } from '../context/scope.model';
  * authorizes every request and answers `403`/`404` whatever the UI showed. Each rule mirrors a documented Core rule.
  */
 export type Capability =
+  /**
+   * The Company's company-wide destinations as a whole (docs/ARCHITECTURE.md §7: company scope is the owner's only).
+   * Navigation uses it for destinations that are not built yet; each one gets its own capability when it is built.
+   */
+  | 'company.scope'
   /** Company-wide administration ("All platforms"): the owner of the Company only. */
   | 'company.overview.view'
   /** The Company's Platform directory (`/platforms`): company scope, so the owner only. */
@@ -17,6 +22,7 @@ export type Capability =
   | 'platform.create';
 
 const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
+  'company.scope',
   'company.overview.view',
   'company.platforms.view',
   'platform.create',

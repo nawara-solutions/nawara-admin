@@ -12,18 +12,28 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslocoPipe, translateSignal } from '@jsverse/transloco';
 import { can } from '../../core/access/capability-policy';
 import { AuthSession } from '../../core/auth/auth-session';
+import { SignOut } from '../../core/auth/sign-out';
+import { ScopeContext, platformPath } from '../../core/context/scope-context';
+import { PlatformRef } from '../../core/context/scope.model';
 import { NotificationIndicator } from '../../core/notifications/notification-indicator';
 import { NwNumberPipe } from '../../shared/format/format.pipes';
 import { NwBrandMark } from '../../shared/ui/brand-mark/brand-mark';
 import { NwIcon } from '../../shared/ui/icon/icon';
 import { NwIconButton } from '../../shared/ui/icon-button/icon-button';
+import { NwMenuTrigger } from '../../shared/ui/menu/menu';
+import { NwSkeleton } from '../../shared/ui/skeleton/skeleton';
+import { NwSpinner } from '../../shared/ui/spinner/spinner';
+import { AccountMenu } from '../account-menu/account-menu';
 import { NAVIGATION, NavigationItem, SETTINGS_ITEM } from './navigation';
 import { profileOf } from './profile';
 
 /**
  * The sidebar of the owner's Company Overview design: the Nawara lockup, the navigation over a soft blush wash with a
- * floral illustration, and the signed-in profile. The illustration is a CSS background (decorative, invisible to
- * assistive technology). As a drawer it carries its own close button.
+ * floral illustration, and the signed-in profile, which opens the account menu. The illustration is a CSS background
+ * (decorative, invisible to assistive technology). As a drawer it carries its own close button.
+ *
+ * Navigation by actor (A3-S3): the company groups need the owner's company scope; an operator sees "Your platforms",
+ * their assigned Platforms as links, instead. Hiding is UX only: guards and Core still decide.
  */
 @Component({
   selector: 'adm-sidebar',
@@ -36,6 +46,10 @@ import { profileOf } from './profile';
     NwBrandMark,
     NwIcon,
     NwIconButton,
+    NwMenuTrigger,
+    NwSkeleton,
+    NwSpinner,
+    AccountMenu,
   ],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
@@ -60,4 +74,13 @@ export class Sidebar {
   });
   protected readonly settings = SETTINGS_ITEM;
   protected readonly profile = computed(() => profileOf(this.session.actor()));
+  protected readonly signingOut = inject(SignOut).busy;
+
+  protected readonly isOperator = computed(() => this.session.actor()?.kind === 'operator');
+  /** An operator's assigned Platforms, as the scope switcher lists them (one load, shared). */
+  protected readonly assignedPlatforms = inject(ScopeContext).platforms;
+
+  protected platformLink(platform: PlatformRef): string {
+    return platformPath(platform.id);
+  }
 }

@@ -5,13 +5,8 @@ import { AuthGateway } from '../../../core/auth/auth.gateway';
 import { FactorProof, MfaMethod, TotpEnrollment } from '../../../core/auth/auth.model';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { OperatorIdentifier } from '../../../core/auth/operator-identifier';
-import {
-  RETURN_URL_PARAM,
-  SIGN_IN_PATH,
-  SIGN_IN_REASON_PARAM,
-  SignInReason,
-  safeReturnUrl,
-} from '../../../core/auth/return-url';
+import { SignOut } from '../../../core/auth/sign-out';
+import { RETURN_URL_PARAM, SIGN_IN_PATH, safeReturnUrl } from '../../../core/auth/return-url';
 import { PasskeyPromptError, WebAuthnClient } from '../../../core/auth/webauthn-client';
 import { ScopeDirectoryGateway } from '../../../core/context/scope-directory.gateway';
 import { PlatformRef } from '../../../core/context/scope.model';
@@ -203,6 +198,7 @@ export class AuthFlowFacade {
   private readonly directory = inject(ScopeDirectoryGateway);
   private readonly session = inject(AuthSession);
   private readonly router = inject(Router);
+  private readonly signOutService = inject(SignOut);
   private readonly acceptedPause = inject(AUTH_ACCEPTED_PAUSE_MS);
   private destroyed = false;
 
@@ -538,22 +534,14 @@ export class AuthFlowFacade {
     await this.router.navigate([SIGN_IN_PATH], this.signInQuery());
   }
 
-  /** Ends the Core session (best effort) and the local one, then shows "You have signed out". */
+  /** Signs out through the one `SignOut` (Core best effort, local session, "You have signed out"), dropping this flow's state. */
   async signOut(): Promise<void> {
-    try {
-      await firstValueFrom(this.gateway.logout());
-    } catch {
-      // The local session ends regardless; Core expires what it could not revoke.
-    }
-    this.session.signOut();
-    this.forgetChallenge();
-    this.noAccessContact.set(null);
-    this.email.set('');
-    this.identifierText.set('');
-    this.currentStep.set('password');
-    const reason: SignInReason = 'signed-out';
-    await this.router.navigate([SIGN_IN_PATH], {
-      queryParams: { [SIGN_IN_REASON_PARAM]: reason },
+    await this.signOutService.run(() => {
+      this.forgetChallenge();
+      this.noAccessContact.set(null);
+      this.email.set('');
+      this.identifierText.set('');
+      this.currentStep.set('password');
     });
   }
 

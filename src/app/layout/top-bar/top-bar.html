@@ -43,5 +43,22 @@
   </span>
 }
 @if (profile(); as person) {
-  <span class="top-bar__avatar" aria-hidden="true">{{ person.initials }}</span>
+  <!-- The account menu's second trigger (the sidebar profile card is the first); shown from the tablet breakpoint. -->
+  <button
+    type="button"
+    class="top-bar__avatar"
+    [nwMenuTriggerFor]="accountMenu"
+    [attr.aria-label]="
+      'shell.account.trigger' | transloco: { name: person.name, role: (person.roleKey | transloco) }
+    "
+    [attr.aria-busy]="signingOut() || null"
+    [attr.aria-disabled]="signingOut() || null"
+  >
+    <span aria-hidden="true">{{ person.initials }}</span>
+  </button>
 }
+<ng-template #accountMenu><adm-account-menu /></ng-template>
+<!-- Always present, so the change is announced: the sidebar may be a closed (hidden) drawer. -->
+<span class="nw-visually-hidden" role="status">{{
+  signingOut() ? ('shell.account.signingOut' | transloco) : ''
+}}</span>

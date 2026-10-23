@@ -12,9 +12,9 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slice implemented (A3-S1 Company Overview), rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices implemented (A3-S1 Company Overview, A3-S3 account menu + sign-out + operator navigation, awaiting review), rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
-A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 implemented mock prototype — awaiting review (owner TOTP enrollment); real integration and rest ⏳
+A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
 A6  Authorization-aware UI                   🟢 facts ⏳
 A7  Identity & access administration         🟢       ⏳
@@ -289,6 +289,38 @@ the frontend only and shows "sign-in not available": no mock authentication, dem
 stylesheet budget warnings were resolved by component decomposition (Platforms page header; sign-in brand panel and demo
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
+
+## A3-S3: account menu, mock sign-out and operator-aware navigation (design approved 2026-10-23; implemented 2026-10-23)
+
+**Status: implemented as a development-only mock prototype, awaiting review.** Design: the "A3-S3 Account Menu &
+Navigation" canvas (claude.ai, private; 8 artboards). Not production authentication: production builds keep sign-in
+unavailable and contain no mock, fixture or demo state.
+
+- **Account menu** (`layout/account-menu/`), opened by two triggers: the sidebar profile card (desktop sidebar and the
+  phone/tablet drawer) and the top-bar avatar (from the tablet breakpoint). Both are named "Account: {name}, {role}". The
+  menu holds a decorative identity header (display name, else email, else phone; the identifier is a LTR machine value),
+  Appearance (`/settings/appearance`) and Sign out. CDK Menu keyboard model (arrows, Escape back to the trigger).
+- **One sign-out** (`core/auth/sign-out.ts`), provided by the shell and the sign-in routes; the no-access page's sign-out
+  delegates to it. Core logout best effort, then the local session ends, then `/login?reason=signed-out` ("You have signed
+  out."). One run at a time: a second request while running is ignored. Busy: the triggers are `aria-busy`/`aria-disabled`,
+  the card says "Signing out…", a polite status in the top bar announces it.
+- **One simulated Auth service** (`core/auth/auth.mock-state.ts`, `DemoAuthState`, root-provided, demo only): every
+  route-scoped `MockAuthGateway` (sign-in pages, shell) works on it, so a sign-out from the shell ends the session the
+  sign-in pages opened. Core records it keeps (enrolled owners, confirmed contacts, live codes) survive a sign-out until a
+  reload, as Core's do. Not the Demo World (P2.5): no entity graph.
+- **Session-scoped views reset on identity change:** the unread count (`NotificationIndicator`) is keyed on the signed-in
+  actor and dropped on sign-out; the demo notification summary answers per signed-in identity (owner 4, operator none, so no
+  badge or bell for an operator). `ScopeContext` was already actor-keyed.
+- **Operator-aware navigation:** capability `company.scope` (owner only) on every company-scope sidebar entry, so an
+  operator no longer sees them; an operator gets "Your platforms", their assigned Platforms as links (loading placeholder,
+  "Platforms unavailable" on error without retry, hidden when empty). Routes and guards unchanged; hiding is UX only.
+- **Overlays:** verified in the browser that CDK 22 opens menus in a `popover="manual"` element in the browser's top layer,
+  so the menu renders above the drawer whatever its z-index: the conditionally approved global overlay z-index change was
+  **not needed and not made**. Escape closes only the topmost layer: the shell's drawer ignores an Escape the menu already
+  handled (`defaultPrevented`); focus returns to the trigger, then to the menu button when the drawer closes.
+
+Open, carried forward: refresh, logout broadcast across tabs and the session strategy (D-A4), `/account/security`,
+recovery. FU-A3-OVERVIEW-FR-320 stays separate.
 
 ## A4-S4: owner first-factor enrollment, TOTP (design accepted 2026-10-06; mock implemented 2026-10-07)
 

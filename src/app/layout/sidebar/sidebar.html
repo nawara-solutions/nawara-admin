@@ -13,6 +13,52 @@
 </div>
 
 <nav class="sidebar__nav" [attr.aria-label]="'shell.mainNavigation' | transloco">
+  @if (isOperator()) {
+    <!-- An operator's own Platforms (their assignments, named through the scope directory). -->
+    @let assigned = assignedPlatforms();
+    @if (
+      assigned.status !== 'empty' && (assigned.status !== 'success' || assigned.data.length > 0)
+    ) {
+      <p class="sidebar__group-label" id="sidebar-group-assigned">
+        {{ 'shell.context.assigned' | transloco }}
+      </p>
+      @switch (assigned.status) {
+        @case ('success') {
+          <ul class="sidebar__list" role="list" aria-labelledby="sidebar-group-assigned">
+            @for (platform of assigned.data; track platform.id) {
+              <li>
+                <a
+                  class="sidebar__item"
+                  [routerLink]="platformLink(platform)"
+                  routerLinkActive="sidebar__item--active"
+                  ariaCurrentWhenActive="page"
+                >
+                  <nw-icon
+                    class="sidebar__icon"
+                    [name]="platform.product === 'drive' ? 'car' : 'hexagon'"
+                    size="lg"
+                  />
+                  <bdi class="sidebar__label">{{ platform.name }}</bdi>
+                </a>
+              </li>
+            }
+          </ul>
+        }
+        @case ('error') {
+          <p class="sidebar__note">{{ 'shell.nav.platformsUnavailable' | transloco }}</p>
+        }
+        @case ('forbidden') {
+          <p class="sidebar__note">{{ 'shell.nav.platformsUnavailable' | transloco }}</p>
+        }
+        @default {
+          <div class="sidebar__loading" role="status">
+            <span class="nw-visually-hidden">{{ 'shell.nav.platformsLoading' | transloco }}</span>
+            <nw-skeleton [lines]="2" />
+          </div>
+        }
+      }
+    }
+  }
   @for (group of groups(); track group.labelKey; let g = $index) {
     <p class="sidebar__group-label" [id]="'sidebar-group-' + g">{{ group.labelKey | transloco }}</p>
     <ul class="sidebar__list" role="list" [attr.aria-labelledby]="'sidebar-group-' + g">
@@ -38,22 +84,34 @@
     </li>
   </ul>
   @if (profile(); as person) {
-    <!-- The account menu is not built yet: the card is shown, disabled, and says so. -->
+    <!-- The account menu's first trigger (the top-bar avatar is the other). -->
     <button
       type="button"
       class="sidebar__profile"
-      disabled
-      [title]="'shell.notAvailableYet' | transloco"
+      [class.sidebar__profile--busy]="signingOut()"
+      [nwMenuTriggerFor]="accountMenu"
+      [attr.aria-label]="
+        'shell.account.trigger'
+          | transloco: { name: person.name, role: (person.roleKey | transloco) }
+      "
+      [attr.aria-busy]="signingOut() || null"
+      [attr.aria-disabled]="signingOut() || null"
     >
       <span class="sidebar__avatar" aria-hidden="true">{{ person.initials }}</span>
-      <span class="sidebar__person">
+      <span class="sidebar__person" aria-hidden="true">
         <bdi class="sidebar__name">{{ person.name }}</bdi>
-        <span class="sidebar__role">{{ person.roleKey | transloco }}</span>
+        <span class="sidebar__role">{{
+          (signingOut() ? 'shell.account.signingOut' : person.roleKey) | transloco
+        }}</span>
       </span>
-      <nw-icon class="sidebar__profile-icon" name="chevrons-up-down" size="sm" />
-      <span class="nw-visually-hidden">({{ 'shell.notAvailableYet' | transloco }})</span>
+      @if (signingOut()) {
+        <nw-spinner class="sidebar__profile-icon" />
+      } @else {
+        <nw-icon class="sidebar__profile-icon" name="chevrons-up-down" size="sm" />
+      }
     </button>
   }
+  <ng-template #accountMenu><adm-account-menu /></ng-template>
 </div>
 
 <ng-template #entry let-item>
