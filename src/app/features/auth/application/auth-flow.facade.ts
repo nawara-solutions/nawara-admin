@@ -2,7 +2,7 @@ import { DestroyRef, Injectable, InjectionToken, computed, inject, signal } from
 import { Router } from '@angular/router';
 import { Observable, firstValueFrom, forkJoin, of, timer } from 'rxjs';
 import { AuthGateway } from '../../../core/auth/auth.gateway';
-import { FactorProof, MfaMethod } from '../../../core/auth/auth.model';
+import { FactorProof, MfaMethod, TotpEnrollment } from '../../../core/auth/auth.model';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { OperatorIdentifier } from '../../../core/auth/operator-identifier';
 import {
@@ -29,8 +29,9 @@ export const MFA_PATH = '/login/verify';
 export const WORKING_CODE_PATH = '/login/code';
 export const WORKING_CODE_VERIFY_PATH = '/login/code/verify';
 export const CONTACT_CONFIRMATION_PATH = '/login/confirm';
+export const ENROLL_PATH = '/login/enroll';
 
-/** `password` → (`mfa`) → `checking` → `resolved` (the landing page, or the no-access page). */
+/** `password` → (`mfa`) → `checking` → `resolved` (the landing page, or the no-access page). Enrollment is on the password step's side. */
 export type AuthStep = 'password' | 'mfa' | 'checking' | 'resolved';
 export type BusyAction =
   | 'signIn'
@@ -39,19 +40,16 @@ export type BusyAction =
   | 'requestCode'
   | 'resendCode'
   | 'verifyWorkingCode'
-  | 'confirmContact';
+  | 'confirmContact'
+  | 'beginEnrollment'
+  | 'confirmEnrollment';
 /**
- * Banner states of the password step. `enrollmentRequired` and `recoveryRequired` are Core's established next states
- * (`enrollment_required`, `recovery_required`), kept distinct; their screens are not in this prototype, so the flow
- * stops there: no session, no navigation. `stepNotAvailable`: `mfa_required` offered no factor this prototype knows.
+ * Banner states of the password step. `recoveryRequired` is Core's established `recovery_required` next state; its
+ * screens are not in this prototype, so the flow stops there: no session, no navigation. (`enrollment_required` goes to
+ * the enrollment page.) `stepNotAvailable`: `mfa_required` offered no factor this prototype knows.
  */
 export type SignInProblem =
-  | 'failed'
-  | 'unavailable'
-  | 'rateLimited'
-  | 'enrollmentRequired'
-  | 'recoveryRequired'
-  | 'stepNotAvailable';
+  'failed' | 'unavailable' | 'rateLimited' | 'recoveryRequired' | 'stepNotAvailable';
 export type VerifyProblem =
   'invalidCode' | 'rateLimited' | 'unavailable' | 'expired' | 'passkeyFailed';
 /** Problems of the working-code request (`invalid`: Core refused the identifier's shape, `400`). */
@@ -66,6 +64,21 @@ export type WorkingCodeProblem = 'invalidCode' | 'rateLimited' | 'unavailable';
  * operator_code_invalid` (wrong, expired, used up, unknown or blocked): `invalidCode` never says why.
  */
 export type ContactConfirmationProblem = 'invalidCode' | 'rateLimited' | 'unavailable';
+/**
+ * Problems of the owner's authenticator enrollment (A4-S4). Retrying a confirmation (`invalidCode`, `rateLimited`,
+ * `unavailable`) keeps the same setup and key; `expired` and `alreadyEnrolled` end it (a new setup starts only from
+ * sign-in). No setup could be begun, so no key was shown: `beginRateLimited` (Core's `429`, no retry time given) or
+ * `beginUnavailable`; both keep the token for a manual "Try again".
+ */
+export type EnrollmentProblem =
+  | 'invalidCode'
+  | 'rateLimited'
+  | 'unavailable'
+  | 'expired'
+  | 'alreadyEnrolled'
+  | 'beginRateLimited'
+  | 'beginUnavailable';
+
 /** What the verify page says about the last request: neither confirms eligibility nor delivery. */
 export type WorkingCodeNotice = 'requested' | 'requestedAgain';
 
@@ -118,6 +131,46 @@ export function contactConfirmationProblemOf(error: AppError): ContactConfirmati
   return workingCodeProblemOf(error);
 }
 
+/**
+ * Enrollment errors, by status and Core code (Core `origin/main` `1ad43d2`, docs/CORE-INTEGRATION.md CF-21): `401` is a
+ * token Core no longer accepts (invalid, expired, used or out of attempts); `403 factor_already_enrolled`.
+ * Any other refusal also restarts from sign-in, never guessing that the setup is still valid.
+ */
+function enrollmentEndOf(error: AppError): EnrollmentProblem | null {
+  if (error.kind === 'forbidden' && error.code === 'factor_already_enrolled')
+    return 'alreadyEnrolled';
+  switch (error.kind) {
+    case 'unauthenticated':
+    case 'forbidden':
+    case 'not_found':
+    case 'conflict':
+      return 'expired';
+    default:
+      return null;
+  }
+}
+
+/** Beginning a setup: `429` is its own state; anything else that does not end it (network, 5xx) is unavailable. */
+export function enrollmentBeginProblemOf(error: AppError): EnrollmentProblem {
+  const end = enrollmentEndOf(error);
+  if (end !== null) return end;
+  return error.kind === 'rate_limited' ? 'beginRateLimited' : 'beginUnavailable';
+}
+
+/** Confirming a code: `400` is a wrong code (the token and the setup are kept). */
+export function enrollmentConfirmProblemOf(error: AppError): EnrollmentProblem {
+  const end = enrollmentEndOf(error);
+  if (end !== null) return end;
+  switch (error.kind) {
+    case 'validation':
+      return 'invalidCode';
+    case 'rate_limited':
+      return 'rateLimited';
+    default:
+      return 'unavailable';
+  }
+}
+
 /** A refused proof keeps the challenge; a challenge Core no longer knows (`403`/`404`/`409`) must restart. */
 export function verifyProblemOf(error: AppError): VerifyProblem {
   switch (error.kind) {
@@ -140,8 +193,8 @@ export function verifyProblemOf(error: AppError): VerifyProblem {
  * code (a separate method, never an owner factor), then the same access check and landing. Scoped to the sign-in frame component, so its state ends when the user leaves the sign-in pages.
  *
  * Authentication never grants access by itself: the session is established only after `/auth/me` and `/auth/grants`
- * have been resolved by `resolveLanding`. The challenge token stays in this facade's memory only, and is dropped on
- * going back, on expiry and on success. Credentials and codes are never kept here.
+ * have been resolved by `resolveLanding`. The challenge and enrollment tokens, and an enrollment's setup key, stay in this
+ * facade's memory only, and are dropped on going back, on expiry and on success. Credentials and codes are never kept.
  */
 @Injectable()
 export class AuthFlowFacade {
@@ -154,6 +207,7 @@ export class AuthFlowFacade {
   private destroyed = false;
 
   private challengeToken: string | null = null;
+  private readonly enrollmentToken = signal<string | null>(null);
   private readonly returnUrl = signal<string | null>(null);
 
   private readonly currentStep = signal<AuthStep>('password');
@@ -180,6 +234,12 @@ export class AuthFlowFacade {
   /** Contact confirmation (a new operator, before any working code): its problem, or that it succeeded. */
   readonly confirmationProblem = signal<ContactConfirmationProblem | null>(null);
   readonly contactConfirmed = signal(false);
+  /** The owner's authenticator setup (A4-S4): whether Core asked for one, its key once begun, and its problem. */
+  readonly enrollmentPending = computed(() => this.enrollmentToken() !== null);
+  readonly totpEnrollment = signal<TotpEnrollment | null>(null);
+  readonly enrollmentProblem = signal<EnrollmentProblem | null>(null);
+  /** Set when enrollment signed the owner in: the access check announces it. */
+  readonly enrolled = signal(false);
 
   readonly methods = this.offered.asReadonly();
   readonly method = signal<MfaMethod>('totp');
@@ -195,7 +255,8 @@ export class AuthFlowFacade {
 
   /** The polite live-region text (catalog key) for the current busy state or step. */
   readonly announcement = computed(() => {
-    if (this.currentStep() === 'checking') return 'auth.checking.announce';
+    if (this.currentStep() === 'checking')
+      return this.enrolled() ? 'auth.enroll.announce' : 'auth.checking.announce';
     switch (this.currentBusy()) {
       case 'signIn':
         return 'auth.signIn.submitting';
@@ -211,6 +272,10 @@ export class AuthFlowFacade {
         return 'auth.workingCode.verifying';
       case 'confirmContact':
         return 'auth.contactConfirmation.confirming';
+      case 'beginEnrollment':
+        return 'auth.enroll.preparing';
+      case 'confirmEnrollment':
+        return 'auth.enroll.confirming';
       default:
         return null;
     }
@@ -230,6 +295,7 @@ export class AuthFlowFacade {
     this.email.set(email);
     this.signInProblem.set(null);
     this.currentBusy.set('signIn');
+    let enroll = false;
     try {
       const outcome = await firstValueFrom(this.gateway.login(email, password));
       if (this.destroyed) return;
@@ -244,7 +310,12 @@ export class AuthFlowFacade {
         this.currentStep.set('mfa');
         await this.router.navigateByUrl(MFA_PATH);
       } else if (outcome.kind === 'enrollment_required') {
-        this.signInProblem.set('enrollmentRequired');
+        this.forgetEnrollment();
+        this.enrolled.set(false);
+        this.enrollmentToken.set(outcome.enrollmentToken);
+        // The setup begins only on its page: a navigation that did not happen (superseded or refused) drops the token.
+        enroll = await this.router.navigateByUrl(ENROLL_PATH);
+        if (!enroll) this.forgetEnrollment();
       } else if (outcome.kind === 'recovery_required') {
         this.signInProblem.set('recoveryRequired');
       } else {
@@ -255,6 +326,7 @@ export class AuthFlowFacade {
     } finally {
       this.currentBusy.set(null);
     }
+    if (enroll && !this.destroyed) await this.beginEnrollment();
   }
 
   async verifyCode(code: string): Promise<void> {
@@ -379,6 +451,63 @@ export class AuthFlowFacade {
     }
   }
 
+  /**
+   * Begins the authenticator setup with Core's enrollment token (one request at a time): once, right after sign-in
+   * reached the enrollment page, and again only on the owner's "Try again". Never on its own otherwise. During a retry
+   * the previous begin problem stays, so its card (and its busy "Try again") stays until Core answers.
+   */
+  async beginEnrollment(): Promise<void> {
+    const token = this.enrollmentToken();
+    if (this.currentBusy() !== null || token === null || this.totpEnrollment() !== null) return;
+    this.currentBusy.set('beginEnrollment');
+    try {
+      const enrollment = await firstValueFrom(this.gateway.beginTotpEnrollment(token));
+      if (this.destroyed) return;
+      this.enrollmentProblem.set(null);
+      this.totpEnrollment.set(enrollment);
+    } catch (error: unknown) {
+      const problem = enrollmentBeginProblemOf(toAppError(error));
+      if (problem === 'expired' || problem === 'alreadyEnrolled') this.enrollmentToken.set(null);
+      this.enrollmentProblem.set(problem);
+    } finally {
+      this.currentBusy.set(null);
+    }
+  }
+
+  /**
+   * Confirms the setup with a code from the app (a string: leading zeroes kept). Core then issues the session directly
+   * (CF-22): straight to the access check, no accepted pause and no further MFA. A refused code keeps the setup.
+   */
+  async confirmEnrollment(code: string): Promise<void> {
+    const token = this.enrollmentToken();
+    const enrollment = this.totpEnrollment();
+    if (this.currentBusy() !== null || token === null || enrollment === null) return;
+    this.enrollmentProblem.set(null);
+    this.currentBusy.set('confirmEnrollment');
+    try {
+      try {
+        await firstValueFrom(this.gateway.confirmTotpEnrollment(token, enrollment.factorId, code));
+      } catch (error: unknown) {
+        const problem = enrollmentConfirmProblemOf(toAppError(error));
+        if (problem === 'expired' || problem === 'alreadyEnrolled') this.forgetEnrollment();
+        this.enrollmentProblem.set(problem);
+        return;
+      }
+      if (this.destroyed) return;
+      this.forgetEnrollment();
+      this.enrolled.set(true);
+      await this.resolveAccess();
+    } finally {
+      this.currentBusy.set(null);
+    }
+  }
+
+  /** Drops the enrollment token and the setup key (leaving the page, going back, success). Problems are kept. */
+  forgetEnrollment(): void {
+    this.enrollmentToken.set(null);
+    this.totpEnrollment.set(null);
+  }
+
   /** Back to the request page to correct the identifier (kept as typed). */
   async changeIdentifier(): Promise<void> {
     if (this.currentBusy() !== null) return;
@@ -399,6 +528,7 @@ export class AuthFlowFacade {
     this.codeRequestProblem.set(null);
     this.workingCodeProblem.set(null);
     this.confirmationProblem.set(null);
+    this.enrollmentProblem.set(null);
   }
 
   /** Back to the password step. The challenge is dropped; the email is kept. */
@@ -509,6 +639,9 @@ export class AuthFlowFacade {
 
   private forgetChallenge(): void {
     this.challengeToken = null;
+    this.forgetEnrollment();
+    this.enrollmentProblem.set(null);
+    this.enrolled.set(false);
     this.offered.set([]);
     this.verifyProblem.set(null);
     this.accepted.set(false);

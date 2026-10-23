@@ -14,6 +14,28 @@ import { OperatorIdentifier } from './operator-identifier';
 export const DEMO_PASSWORD = 'nawara-demo-2026';
 export const DEMO_TOTP_CODE = '123456';
 
+/**
+ * The one FICTIONAL authenticator setup key (base32, 160 bits) the mock issues on enrollment. Not a Core secret. The mock
+ * never computes TOTP: it accepts `DEMO_TOTP_CODE`, so an entry added from this key will not produce accepted codes.
+ */
+export const DEMO_TOTP_SECRET = 'DEMOKEYNAWARAADMINFICTIONAL23456';
+
+/** Provisional issuer label of the demo `otpauth` URI. Core's real one is its `totp.issuer` setting (not decided). */
+export const DEMO_TOTP_ISSUER = 'Nawara Admin';
+
+/**
+ * How the mock's enrollment routes answer for an owner who must enroll: `normal` follows Core (begin, then the right code
+ * signs in; a wrong code uses one of the token's attempts); the others simulate Core's `403 factor_already_enrolled`,
+ * `429 rate_limited` on begin or on confirmation, and an unavailable service on begin or on confirmation.
+ */
+export type DemoEnrollmentScenario =
+  | 'normal'
+  | 'alreadyEnrolled'
+  | 'confirmLimited'
+  | 'beginLimited'
+  | 'beginUnavailable'
+  | 'confirmUnavailable';
+
 export interface DemoAccount {
   /** Password accounts always have an email (the sign-in identifier). */
   readonly identity: Identity & { readonly email: string };
@@ -22,7 +44,7 @@ export interface DemoAccount {
   readonly next:
     | { readonly kind: 'session' }
     | { readonly kind: 'mfa'; readonly methods: readonly MfaMethod[] }
-    | { readonly kind: 'enrollment' }
+    | { readonly kind: 'enrollment'; readonly scenario: DemoEnrollmentScenario }
     | { readonly kind: 'recovery' };
 }
 
@@ -53,18 +75,37 @@ export const DEMO_MEMBER_ACCOUNT: DemoAccount = {
   next: { kind: 'session' },
 };
 
-/** Owners whose sign-in stops at Core's `enrollment_required` / `recovery_required` (screens not in this prototype). */
-export const DEMO_ENROLLMENT_ACCOUNT: DemoAccount = {
+const enrollmentOwner = (
+  userIdSuffix: string,
+  email: string,
+  scenario: DemoEnrollmentScenario,
+): DemoAccount => ({
   identity: {
-    userId: '9e1d7c55-2a4b-4c3d-8e9f-0a1b2c3d4e03',
-    email: 'enrollment@demo.nawara.invalid',
+    userId: `9e1d7c55-2a4b-4c3d-8e9f-0a1b2c3d4e${userIdSuffix}`,
+    email,
     phone: null,
     adminTier: 'owner',
   },
   grants: { companyId: DEMO_COMPANY_ID, platformAssignments: [] },
-  next: { kind: 'enrollment' },
-};
+  next: { kind: 'enrollment', scenario },
+});
 
+/** Owners whose sign-in answers Core's `enrollment_required`: they set up an authenticator (A4-S4), one per scenario. */
+export const DEMO_ENROLLMENT_ACCOUNT = enrollmentOwner(
+  '03',
+  'enrollment@demo.nawara.invalid',
+  'normal',
+);
+
+export const DEMO_ENROLLMENT_SCENARIO_ACCOUNTS: readonly DemoAccount[] = [
+  enrollmentOwner('31', 'enrollment.enrolled@demo.nawara.invalid', 'alreadyEnrolled'),
+  enrollmentOwner('32', 'enrollment.limited@demo.nawara.invalid', 'confirmLimited'),
+  enrollmentOwner('33', 'enrollment.offline@demo.nawara.invalid', 'confirmUnavailable'),
+  enrollmentOwner('34', 'enrollment.unavailable@demo.nawara.invalid', 'beginUnavailable'),
+  enrollmentOwner('35', 'enrollment.busy@demo.nawara.invalid', 'beginLimited'),
+];
+
+/** An owner whose sign-in stops at Core's `recovery_required` (recovery is not in this prototype). */
 export const DEMO_RECOVERY_ACCOUNT: DemoAccount = {
   identity: {
     userId: '9e1d7c55-2a4b-4c3d-8e9f-0a1b2c3d4e04',
@@ -80,8 +121,22 @@ export const DEMO_ACCOUNTS: readonly DemoAccount[] = [
   DEMO_OWNER_ACCOUNT,
   DEMO_MEMBER_ACCOUNT,
   DEMO_ENROLLMENT_ACCOUNT,
+  ...DEMO_ENROLLMENT_SCENARIO_ACCOUNTS,
   DEMO_RECOVERY_ACCOUNT,
 ];
+
+/** The demo list's label for each enrollment scenario, by scenario (never by position in the account list). */
+const ENROLLMENT_ROLE_KEYS: Readonly<Record<DemoEnrollmentScenario, string>> = {
+  normal: 'auth.demo.enrollment',
+  alreadyEnrolled: 'auth.demo.enrollmentAlready',
+  confirmLimited: 'auth.demo.enrollmentConfirmLimited',
+  confirmUnavailable: 'auth.demo.enrollmentConfirmUnavailable',
+  beginUnavailable: 'auth.demo.enrollmentBeginUnavailable',
+  beginLimited: 'auth.demo.enrollmentBeginLimited',
+};
+
+const enrollmentScenarioOf = (account: DemoAccount): DemoEnrollmentScenario =>
+  account.next.kind === 'enrollment' ? account.next.scenario : 'normal';
 
 /** The one demo working code, a string with a leading zero (codes are never numbers). */
 export const DEMO_WORKING_CODE = '042917';
@@ -213,6 +268,10 @@ export const DEMO_SIGN_IN_HINT: DemoSignInHint = {
     { email: DEMO_OWNER_ACCOUNT.identity.email, roleKey: 'auth.demo.owner' },
     { email: DEMO_MEMBER_ACCOUNT.identity.email, roleKey: 'auth.demo.member' },
     { email: DEMO_ENROLLMENT_ACCOUNT.identity.email, roleKey: 'auth.demo.enrollment' },
+    ...DEMO_ENROLLMENT_SCENARIO_ACCOUNTS.map((a) => ({
+      email: a.identity.email,
+      roleKey: ENROLLMENT_ROLE_KEYS[enrollmentScenarioOf(a)],
+    })),
     { email: DEMO_RECOVERY_ACCOUNT.identity.email, roleKey: 'auth.demo.recovery' },
   ],
   password: DEMO_PASSWORD,
@@ -228,4 +287,9 @@ export const DEMO_SIGN_IN_HINT: DemoSignInHint = {
     roleKey: NEW_OPERATOR_ROLE_KEYS[i] ?? 'auth.demo.operatorNew',
   })),
   confirmationCode: DEMO_CONFIRMATION_CODE,
+  enrollmentNote: {
+    en: `The QR code contains a fictional setup key. Codes generated by an authenticator app won’t work with this mock: use the demo code ${DEMO_TOTP_CODE}.`,
+    fr: `Le code QR contient une clé de configuration fictive. Les codes générés par une application d’authentification ne fonctionneront pas avec cette simulation : utilisez le code de démonstration ${DEMO_TOTP_CODE}.`,
+    ar: `يحتوي رمز QR على مفتاح إعداد وهمي. لن تعمل الرموز التي يولّدها تطبيق المصادقة مع هذه المحاكاة: استخدم الرمز التجريبي ${DEMO_TOTP_CODE}.`,
+  },
 };

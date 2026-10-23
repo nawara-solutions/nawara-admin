@@ -1,14 +1,21 @@
 import { Observable, throwError } from 'rxjs';
 import { adapterUnavailable } from '../errors/app-error';
 import { PlatformId } from '../context/scope.model';
-import { FactorProof, Grants, Identity, LoginOutcome, PasskeyRequest } from './auth.model';
+import {
+  FactorProof,
+  Grants,
+  Identity,
+  LoginOutcome,
+  PasskeyRequest,
+  TotpEnrollment,
+} from './auth.model';
 import { OperatorIdentifier } from './operator-identifier';
 
 /**
  * Frontend contract for Core authentication (docs/ARCHITECTURE.md §3, §11). Every error is an `AppError`.
  *
  * Core status 🟢 (docs/CORE-INTEGRATION.md §7): `POST /auth/login`, `/auth/admin/login/owner/verify`,
- * `/auth/admin/login/operator/request-code` and `/verify-code`, `/auth/admin/operators/confirm`, the WebAuthn
+ * `/auth/admin/enroll/totp` and `/enroll/totp/confirm`, `/auth/admin/login/operator/request-code` and `/verify-code`, `/auth/admin/operators/confirm`, the WebAuthn
  * options route, `GET /auth/me`, `GET /auth/grants`, `GET /auth/platform-access/:platformId`, `POST /auth/logout`. The HTTP adapter is not written in this slice:
  * request fields, error codes and the session strategy (D-A4) are still to verify. Until then only the demo mock
  * exists, and every other build is unavailable.
@@ -18,6 +25,22 @@ export abstract class AuthGateway {
   /** Completes an owner `mfa_required` challenge; on success Core issues the session. */
   abstract verifyOwnerFactor(challenge: string, proof: FactorProof): Observable<void>;
   abstract passkeyRequest(challenge: string): Observable<PasskeyRequest>;
+  /**
+   * Begins the owner's first-factor enrollment with the `enrollment_required` token (`POST /auth/admin/enroll/totp`,
+   * the source's route, CF-21). Errors: `401` token invalid, expired, used or exhausted; `403 factor_already_enrolled`;
+   * `429 rate_limited`.
+   */
+  abstract beginTotpEnrollment(enrollmentToken: string): Observable<TotpEnrollment>;
+  /**
+   * Confirms it with a code from the authenticator app (`POST /auth/admin/enroll/totp/confirm`, a string: leading zeroes
+   * kept). On success Core issues the first session in the same step, with no further MFA (CF-22). Errors: `400` wrong
+   * code (the token is kept, one of its attempts used), `401`, `403 factor_already_enrolled`, `429 rate_limited`.
+   */
+  abstract confirmTotpEnrollment(
+    enrollmentToken: string,
+    factorId: string,
+    code: string,
+  ): Observable<void>;
   /**
    * Asks Core for an operator working code. Core always answers 204 for a well-formed request: the answer says nothing
    * about the account, its eligibility or any delivery (Core sends to the account's stored contact, if anything).
@@ -53,6 +76,14 @@ export class UnavailableAuthGateway extends AuthGateway {
   }
 
   passkeyRequest(): Observable<PasskeyRequest> {
+    return throwError(adapterUnavailable);
+  }
+
+  beginTotpEnrollment(): Observable<TotpEnrollment> {
+    return throwError(adapterUnavailable);
+  }
+
+  confirmTotpEnrollment(): Observable<void> {
     return throwError(adapterUnavailable);
   }
 

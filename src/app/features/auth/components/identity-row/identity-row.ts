@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, booleanAttribute, input } from '@angular/core';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
 
 /** "Signed in as" and the account's email (a machine value, kept left-to-right), with an optional role pill. */
@@ -58,6 +58,14 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
       white-space: nowrap;
     }
 
+    // A long identifier wraps instead of being cut (the enrollment page, down to 320px).
+    :host(.identity-row--wrap) .identity-row__email {
+      overflow: visible;
+      text-overflow: clip;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
     :host(:dir(rtl)) .identity-row__email {
       text-align: right;
     }
@@ -73,10 +81,12 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'identity-row' },
+  host: { class: 'identity-row', '[class.identity-row--wrap]': 'wrap()' },
 })
 export class IdentityRow {
   readonly label = input.required<string>();
   readonly email = input.required<string>();
   readonly role = input<string>();
+  /** Wraps a long identifier instead of truncating it with an ellipsis. */
+  readonly wrap = input(false, { transform: booleanAttribute });
 }

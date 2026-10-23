@@ -20,6 +20,11 @@
   // The corner botanical (sign-in pages and the shell's content column) fades toward the page.
   --nw-auth-corner-mask: radial-gradient(130% 55% at 100% 45%, #000 30%, transparent 72%);
 
+  // QR code tile: dark modules on white in every theme and palette, so authenticator apps can scan it (18:1). Aliases of
+  // foundation reference values, never redefinitions.
+  --nw-qr-background: var(--nw-ref-ink-0);
+  --nw-qr-module: var(--nw-ref-ink-900);
+
   // Layout
   --nw-shell-sidebar-width: 16rem;
   --nw-content-max: 80rem;

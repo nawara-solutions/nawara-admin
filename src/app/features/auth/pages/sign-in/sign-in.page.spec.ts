@@ -143,19 +143,20 @@ describe('SignInPage', () => {
     expect(text(page.querySelector('h1'))).toBe(en.auth.signIn.title);
   });
 
-  it('shows enrollment and recovery as their own states, not as errors', async () => {
+  it('goes to the authenticator setup for enrollment, and shows recovery as its own state', async () => {
     const { page, email, password, submit, gateway, navigations } = await render();
     type(email(), 'owner@x.invalid');
     type(password(), 'secret');
-    gateway.loginAnswer = of({ kind: 'enrollment_required' });
+    gateway.loginAnswer = of({ kind: 'enrollment_required', enrollmentToken: 'enroll-1' });
     await submit();
-    const alert = page.querySelector('nw-inline-alert');
-    expect(text(alert)).toBe(en.auth.banner.enrollmentRequired);
-    expect(alert?.getAttribute('role')).toBe('status');
+    expect(page.querySelector('nw-inline-alert')).toBeNull();
+    expect(navigations).toEqual(['/login/enroll']);
     gateway.loginAnswer = of({ kind: 'recovery_required' });
     await submit();
-    expect(text(page.querySelector('nw-inline-alert'))).toBe(en.auth.banner.recoveryRequired);
-    expect(navigations).toEqual([]);
+    const alert = page.querySelector('nw-inline-alert');
+    expect(text(alert)).toBe(en.auth.banner.recoveryRequired);
+    expect(alert?.getAttribute('role')).toBe('status');
+    expect(navigations).toEqual(['/login/enroll']);
   });
 
   it('shows no return banner for an unsafe return URL', async () => {

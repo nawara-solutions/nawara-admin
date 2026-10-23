@@ -14,7 +14,7 @@ A1  Workspace & tooling                               ✅ COMPLETE (owner review
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
 A3  Application shell & infrastructure                🟡 bounded slice implemented (A3-S1 Company Overview), rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
-A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); real integration and rest ⏳
+A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 implemented mock prototype — awaiting review (owner TOTP enrollment); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
 A6  Authorization-aware UI                   🟢 facts ⏳
 A7  Identity & access administration         🟢       ⏳
@@ -223,6 +223,11 @@ none), operator scope.
 
 Evidence: [`review/a3-company-overview/`](review/a3-company-overview/README.md).
 
+**Follow-up FU-A3-OVERVIEW-FR-320 (open; targeted A3 responsive fix, separately authorized):** at 320 px in French, the
+Company Overview's Services & health card action row ("7 sur 8 opérationnels · Voir les services",
+`.overview-card__actions`) is wider than the viewport: the page scrolls horizontally by about 35 px. English and Arabic do
+not overflow. Found during the A4-S4 browser review (2026-10-23); not part of A4-S4.
+
 
 ## Clean page headers and fixed workspace artwork (owner-authorized 2026-10-04)
 
@@ -284,6 +289,60 @@ the frontend only and shows "sign-in not available": no mock authentication, dem
 stylesheet budget warnings were resolved by component decomposition (Platforms page header; sign-in brand panel and demo
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
+
+## A4-S4: owner first-factor enrollment, TOTP (design accepted 2026-10-06; mock implemented 2026-10-07)
+
+**Status: A4-S4 implemented mock prototype — awaiting review.** Development-only (mock adapter, no HTTP adapter); not
+production authentication: production builds keep authentication unavailable and exclude the demo fixtures. A4 stays open, and
+CF-21 and CF-22 (`docs/CORE-INTEGRATION.md` §9) stay unresolved; until Core answers them, Admin follows the source.
+
+Core contract, read in source at `nawara-core` `origin/main` `1ad43d2` for the design; `owner/enrollment.service.ts` and
+`owner/challenge.service.ts` re-read 2026-10-07 at `4ffcb0d` (unchanged):
+
+- Sign-in answers `enrollment_required` with an `enrollmentToken`. `POST /auth/admin/enroll/totp {enrollmentToken}` →
+  `{factorId, secret, otpauthUri}`; `POST /auth/admin/enroll/totp/confirm {enrollmentToken, factorId, code}` → the first session,
+  with no further MFA (CF-22). Both resolve the token first, then hit the `factor_enroll_owner` throttle (`429 rate_limited`, no
+  retry time); see the order below.
+- Errors: `400 verification_failed` (wrong code, or a factor that is not the one begun); `401 verification_failed` (token unknown,
+  expired, used or out of attempts; stale bootstrap token); `403 factor_already_enrolled`.
+- Attempts (`MAX_CHALLENGE_ATTEMPTS` = 5): each refused confirmation is counted outside the transaction. The **fifth** refusal
+  still answers its own `400` and consumes the token; every later begin or confirm with it is `401`. A throttle `429` is answered
+  before anything is counted.
+- Order of answers (verified read-only 2026-10-23 at `nawara-core` `origin/main` `de8323d`; `owner.controller.ts`,
+  `enrollment.service.ts`, `challenge.service.ts` and `throttle/` unchanged since `4ffcb0d`): the controller resolves the token
+  (`fromToken`) before the service hits the throttle, which is keyed by the owner the token names. So a dead token is `401`
+  and an owner with a confirmed factor is `403`, both **before** any `429`; only a live token can be rate limited. The mock
+  answers in this order (an earlier review note that the mock should answer `429` first was wrong).
+
+Implementation (2026-10-07):
+
+- `/login/enroll` (guest only), reached only from sign-in's `enrollment_required`. All approved frames (01–15): preparing, setup
+  (QR, setup key with copy, code field), confirming, wrong code, rate limited, unavailable (Try again keeps the same setup), setup
+  needs to restart (401), already set up (403), no setup on this page (reload, typed URL), success straight into the existing
+  access check with an announced "Authenticator set up". One addition after review: a `429` while beginning is its own "Too many
+  setup attempts" card (no countdown, no automatic retry, manual Try again), never "unavailable".
+- The token, `secret` and `otpauthUri` live in the auth-flow facade's memory only and are dropped on leaving the page.
+- QR: `uqr` **0.1.3** (pinned exactly, MIT, no dependencies; owner-approved), drawn as an SVG path in the lazy route chunk only.
+  Dark-on-white in every theme through Admin's `--nw-qr-background` / `--nw-qr-module` (aliases of foundation values). 10rem below
+  the tablet breakpoint, 11.5rem from it. An independent decoder (jsQR) read the exact fictional `otpauth` URI from the rendered
+  page at 1440 px and 320 px, light and dark.
+- `AuthGateway.beginTotpEnrollment` / `confirmTotpEnrollment`; non-demo builds use the unavailable gateway. The mock follows the
+  contract above, including the five-attempt boundary. Its rate limits and outages are **simulated by scenario only**. It issues
+  one FICTIONAL setup key and computes no TOTP: codes from an authenticator app will not work; the demo code is `123456`. The
+  development-only demo note says so.
+
+Open, carried forward: the HTTP adapter (with A4's request/response verification, CF-15), CF-21, CF-22, production
+`CHALLENGE_TTL_SEC` and the TOTP issuer label (`cfg.totp.issuer`), passkey enrollment, secret-key issuance after enrollment
+(step-up), and the recovery-origin restart variant.
+
+**Follow-up FU-DEMO-I18N (open; separately authorized task, not part of A4-S4):** the translation catalogs are compiled into the
+production bundle, so every demo-only `auth.demo.*` string is present in production chunks although the demo note never renders
+there: the demo account roles, the simulated-passkey texts and the demo-note labels from A4-S1 to A4-S3, **and the six added by
+A4-S4** (`auth.demo.enrollmentAlready`, `enrollmentConfirmLimited`, `enrollmentConfirmUnavailable`, `enrollmentBeginUnavailable`,
+`enrollmentBeginLimited`, `enrollmentQr`), in en, fr and ar. They are labels of fictional scenarios, with no account, password or
+code. A4-S4's explanation of the fictional setup key (which names the demo code) comes with the lazily loaded demo bindings
+instead and is absent from production. Moving all demo strings out of the catalogs (for example into the demo bindings) is the
+follow-up; A4-S4 does not restructure localization.
 
 ## A4-S3: operator contact confirmation (discovery 2026-10-05; design approved and mock implemented 2026-10-06)
 

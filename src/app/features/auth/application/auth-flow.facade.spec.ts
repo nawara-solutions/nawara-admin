@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, Subject, of, throwError } from 'rxjs';
 import { AuthGateway } from '../../../core/auth/auth.gateway';
 import {
   FactorProof,
@@ -9,6 +9,7 @@ import {
   LoginOutcome,
   PasskeyAssertion,
   PasskeyRequest,
+  TotpEnrollment,
 } from '../../../core/auth/auth.model';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { OperatorIdentifier } from '../../../core/auth/operator-identifier';
@@ -33,6 +34,8 @@ import {
   verifyProblemOf,
   workingCodeProblemOf,
   contactConfirmationProblemOf,
+  enrollmentBeginProblemOf,
+  enrollmentConfirmProblemOf,
 } from './auth-flow.facade';
 
 const DEMO: DemoBindings = {
@@ -62,6 +65,16 @@ const OWNER_GRANTS: Grants = { companyId: companyId('company'), platformAssignme
 const MEMBER: Identity = { userId: 'm', email: 'member@x.invalid', phone: null, adminTier: null };
 const NO_GRANTS: Grants = { companyId: null, platformAssignments: [] };
 
+const ENROLLMENT: TotpEnrollment = {
+  factorId: 'factor-1',
+  secret: 'ABCDEFGHIJKLMNOP',
+  otpauthUri: 'otpauth://totp/Test:owner%40x.invalid?secret=ABCDEFGHIJKLMNOP&issuer=Test',
+};
+const ENROLLMENT_REQUIRED: LoginOutcome = {
+  kind: 'enrollment_required',
+  enrollmentToken: 'enroll-1',
+};
+
 const fail = <T>(error: AppError): Observable<T> => throwError(() => error);
 
 /** A scripted gateway: each method answers what the test sets. */
@@ -80,6 +93,10 @@ class FakeGateway extends AuthGateway {
   readonly codeVerifications: { identifier: OperatorIdentifier; code: string }[] = [];
   confirmAnswer: Observable<void> = of(undefined);
   readonly confirmations: { identifier: OperatorIdentifier; code: string }[] = [];
+  beginEnrollmentAnswer: Observable<TotpEnrollment> = of(ENROLLMENT);
+  confirmEnrollmentAnswer: Observable<void> = of(undefined);
+  readonly enrollmentBegins: string[] = [];
+  readonly enrollmentConfirms: { token: string; factorId: string; code: string }[] = [];
   logouts = 0;
   /** Calls of the access check (`/auth/me`, `/auth/grants`). */
   accessChecks = 0;
@@ -94,6 +111,14 @@ class FakeGateway extends AuthGateway {
   }
   passkeyRequest(): Observable<PasskeyRequest> {
     return of({ publicKey: { challenge: new Uint8Array(1) } });
+  }
+  beginTotpEnrollment(token: string): Observable<TotpEnrollment> {
+    this.enrollmentBegins.push(token);
+    return this.beginEnrollmentAnswer;
+  }
+  confirmTotpEnrollment(token: string, factorId: string, code: string): Observable<void> {
+    this.enrollmentConfirms.push({ token, factorId, code });
+    return this.confirmEnrollmentAnswer;
   }
   requestWorkingCode(identifier: OperatorIdentifier): Observable<void> {
     this.codeRequests.push(identifier);
@@ -338,14 +363,11 @@ describe('AuthFlowFacade', () => {
     expect(navigations.at(-1)).toBe('/login/no-access');
   });
 
-  it.each([
-    ['enrollment_required', 'enrollmentRequired'],
-    ['recovery_required', 'recoveryRequired'],
-  ] as const)('stops at %s as its own state: no session, no navigation', async (kind, problem) => {
+  it('stops at recovery_required as its own state: no session, no navigation', async () => {
     const { flow, gateway, session, navigations } = setUp();
-    gateway.loginAnswer = of({ kind });
+    gateway.loginAnswer = of({ kind: 'recovery_required' });
     await flow.signIn('owner@x.invalid', 'secret');
-    expect(flow.signInProblem()).toBe(problem);
+    expect(flow.signInProblem()).toBe('recoveryRequired');
     expect(flow.step()).toBe('password');
     expect(session.actor()).toBeNull();
     expect(navigations).toEqual([]);
@@ -651,5 +673,216 @@ describe('contact confirmation (new operators)', () => {
     await flow.confirmContact('x', EMAIL, '005318');
     await flow.backToSignIn();
     expect(flow.contactConfirmed()).toBe(false);
+  });
+});
+
+describe('AuthFlowFacade: authenticator enrollment (A4-S4)', () => {
+  async function enrolling() {
+    const setup = setUp();
+    setup.gateway.loginAnswer = of(ENROLLMENT_REQUIRED);
+    await setup.flow.signIn('owner@x.invalid', 'secret');
+    return setup;
+  }
+
+  it('goes to the setup on enrollment_required and begins it with Core’s token, without a session', async () => {
+    const { flow, gateway, session, navigations } = await enrolling();
+    expect(navigations).toEqual(['/login/enroll']);
+    expect(gateway.enrollmentBegins).toEqual(['enroll-1']);
+    expect(flow.totpEnrollment()).toEqual(ENROLLMENT);
+    expect(flow.enrollmentPending()).toBe(true);
+    expect(flow.signInProblem()).toBeNull();
+    expect(flow.step()).toBe('password');
+    expect(session.actor()).toBeNull();
+  });
+
+  it('confirms with the code as a string, then resolves access before the session, with no further MFA', async () => {
+    const { flow, gateway, session, navigations } = await enrolling();
+    await flow.confirmEnrollment('012345');
+    expect(gateway.enrollmentConfirms).toEqual([
+      { token: 'enroll-1', factorId: 'factor-1', code: '012345' },
+    ]);
+    expect(gateway.proofs).toEqual([]);
+    expect(gateway.accessChecks).toBe(2);
+    expect(session.actor()?.kind).toBe('owner');
+    expect(flow.step()).toBe('resolved');
+    expect(flow.totpEnrollment()).toBeNull();
+    expect(flow.enrollmentPending()).toBe(false);
+    expect(navigations.at(-1)).not.toBe('/login/enroll');
+  });
+
+  it('announces the setup with the access check', async () => {
+    const { flow, gateway } = await enrolling();
+    gateway.grants = () => new Observable<Grants>();
+    void flow.confirmEnrollment('123456');
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(flow.step()).toBe('checking');
+    expect(flow.announcement()).toBe('auth.enroll.announce');
+  });
+
+  it('keeps the same setup after a wrong code, and sends the next code with the same token and factor', async () => {
+    const { flow, gateway, session } = await enrolling();
+    gateway.confirmEnrollmentAnswer = fail({ kind: 'validation', messages: [], status: 400 });
+    await flow.confirmEnrollment('000000');
+    expect(flow.enrollmentProblem()).toBe('invalidCode');
+    expect(flow.totpEnrollment()).toEqual(ENROLLMENT);
+    expect(session.actor()).toBeNull();
+    gateway.confirmEnrollmentAnswer = of(undefined);
+    await flow.confirmEnrollment('123456');
+    expect(gateway.enrollmentConfirms.map((c) => c.token)).toEqual(['enroll-1', 'enroll-1']);
+    expect(gateway.enrollmentBegins).toEqual(['enroll-1']);
+    expect(flow.enrollmentProblem()).toBeNull();
+  });
+
+  it.each([
+    [{ kind: 'rate_limited', status: 429 }, 'rateLimited'],
+    [{ kind: 'unavailable', status: 503 }, 'unavailable'],
+    [{ kind: 'network', status: 0 }, 'unavailable'],
+  ] as const)(
+    'keeps the setup and its key when confirmation fails with %o',
+    async (error, problem) => {
+      const { flow, gateway } = await enrolling();
+      gateway.confirmEnrollmentAnswer = fail(error);
+      await flow.confirmEnrollment('123456');
+      expect(flow.enrollmentProblem()).toBe(problem);
+      expect(flow.totpEnrollment()).toEqual(ENROLLMENT);
+      expect(flow.enrollmentPending()).toBe(true);
+    },
+  );
+
+  it.each([
+    [{ kind: 'unauthenticated', code: 'verification_failed', status: 401 }, 'expired'],
+    [{ kind: 'forbidden', code: 'factor_already_enrolled', status: 403 }, 'alreadyEnrolled'],
+  ] as const)('ends the setup when confirmation answers %o', async (error, problem) => {
+    const { flow, gateway } = await enrolling();
+    gateway.confirmEnrollmentAnswer = fail(error);
+    await flow.confirmEnrollment('123456');
+    expect(flow.enrollmentProblem()).toBe(problem);
+    expect(flow.totpEnrollment()).toBeNull();
+    expect(flow.enrollmentPending()).toBe(false);
+    await flow.confirmEnrollment('123456');
+    expect(gateway.enrollmentConfirms).toHaveLength(1);
+  });
+
+  it('offers to begin again after an unavailable service, with the same token, never on its own', async () => {
+    const setup = setUp();
+    setup.gateway.loginAnswer = of(ENROLLMENT_REQUIRED);
+    setup.gateway.beginEnrollmentAnswer = fail({ kind: 'unavailable', status: 503 });
+    await setup.flow.signIn('owner@x.invalid', 'secret');
+    expect(setup.flow.enrollmentProblem()).toBe('beginUnavailable');
+    expect(setup.flow.enrollmentPending()).toBe(true);
+    expect(setup.gateway.enrollmentBegins).toEqual(['enroll-1']);
+    setup.gateway.beginEnrollmentAnswer = of(ENROLLMENT);
+    await setup.flow.beginEnrollment();
+    expect(setup.gateway.enrollmentBegins).toEqual(['enroll-1', 'enroll-1']);
+    expect(setup.flow.totpEnrollment()).toEqual(ENROLLMENT);
+    await setup.flow.beginEnrollment();
+    expect(setup.gateway.enrollmentBegins).toHaveLength(2);
+  });
+
+  it.each([
+    [{ kind: 'unauthenticated', code: 'verification_failed', status: 401 }, 'expired'],
+    [{ kind: 'forbidden', code: 'factor_already_enrolled', status: 403 }, 'alreadyEnrolled'],
+  ] as const)('ends the setup when beginning answers %o', async (error, problem) => {
+    const setup = setUp();
+    setup.gateway.loginAnswer = of(ENROLLMENT_REQUIRED);
+    setup.gateway.beginEnrollmentAnswer = fail(error);
+    await setup.flow.signIn('owner@x.invalid', 'secret');
+    expect(setup.flow.enrollmentProblem()).toBe(problem);
+    expect(setup.flow.enrollmentPending()).toBe(false);
+  });
+
+  it('drops the token and the key when the page is left', async () => {
+    const { flow } = await enrolling();
+    flow.forgetEnrollment();
+    expect(flow.totpEnrollment()).toBeNull();
+    expect(flow.enrollmentPending()).toBe(false);
+  });
+
+  it('drops the token and the key on going back to sign-in', async () => {
+    const { flow, navigations } = await enrolling();
+    await flow.backToSignIn();
+    expect(flow.totpEnrollment()).toBeNull();
+    expect(flow.enrollmentPending()).toBe(false);
+    expect(navigations.at(-1)).toBe('/login');
+  });
+
+  it('shows a 429 on begin as its own state, keeps the token, and begins again only when asked', async () => {
+    const setup = setUp();
+    setup.gateway.loginAnswer = of(ENROLLMENT_REQUIRED);
+    setup.gateway.beginEnrollmentAnswer = fail({ kind: 'rate_limited', status: 429 });
+    await setup.flow.signIn('owner@x.invalid', 'secret');
+    expect(setup.flow.enrollmentProblem()).toBe('beginRateLimited');
+    expect(setup.flow.enrollmentPending()).toBe(true);
+    expect(setup.flow.totpEnrollment()).toBeNull();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(setup.gateway.enrollmentBegins).toEqual(['enroll-1']);
+    setup.gateway.beginEnrollmentAnswer = of(ENROLLMENT);
+    await setup.flow.beginEnrollment();
+    expect(setup.gateway.enrollmentBegins).toEqual(['enroll-1', 'enroll-1']);
+    expect(setup.flow.totpEnrollment()).toEqual(ENROLLMENT);
+  });
+
+  it('maps errors by status and Core code', () => {
+    expect(enrollmentBeginProblemOf({ kind: 'rate_limited', status: 429 })).toBe(
+      'beginRateLimited',
+    );
+    expect(enrollmentBeginProblemOf({ kind: 'unavailable', status: 503 })).toBe('beginUnavailable');
+    expect(enrollmentBeginProblemOf({ kind: 'forbidden', status: 403 })).toBe('expired');
+    expect(
+      enrollmentConfirmProblemOf({
+        kind: 'forbidden',
+        code: 'factor_already_enrolled',
+        status: 403,
+      }),
+    ).toBe('alreadyEnrolled');
+    expect(enrollmentConfirmProblemOf({ kind: 'validation', messages: [], status: 400 })).toBe(
+      'invalidCode',
+    );
+    expect(enrollmentConfirmProblemOf({ kind: 'unexpected', status: 500 })).toBe('unavailable');
+  });
+});
+
+describe('AuthFlowFacade: enrollment navigation and retries (A4-S4 remediation)', () => {
+  it('does not begin a setup when the enrollment page was not reached, and drops the token', async () => {
+    const setup = setUp();
+    vi.mocked(TestBed.inject(Router).navigateByUrl).mockImplementationOnce(async () => false);
+    setup.gateway.loginAnswer = of(ENROLLMENT_REQUIRED);
+    await setup.flow.signIn('owner@x.invalid', 'secret');
+    expect(setup.gateway.enrollmentBegins).toEqual([]);
+    expect(setup.flow.enrollmentPending()).toBe(false);
+    expect(setup.flow.totpEnrollment()).toBeNull();
+    expect(setup.flow.busy()).toBeNull();
+    expect(setup.session.actor()).toBeNull();
+  });
+
+  it('keeps the begin problem while a retry is pending, and clears it only when Core answers with a setup', async () => {
+    const setup = setUp();
+    setup.gateway.loginAnswer = of(ENROLLMENT_REQUIRED);
+    setup.gateway.beginEnrollmentAnswer = fail({ kind: 'rate_limited', status: 429 });
+    await setup.flow.signIn('owner@x.invalid', 'secret');
+    const pending = new Subject<TotpEnrollment>();
+    setup.gateway.beginEnrollmentAnswer = pending;
+    const retry = setup.flow.beginEnrollment();
+    expect(setup.flow.busy()).toBe('beginEnrollment');
+    expect(setup.flow.enrollmentProblem()).toBe('beginRateLimited');
+    await setup.flow.beginEnrollment();
+    expect(setup.gateway.enrollmentBegins).toHaveLength(2);
+    pending.next(ENROLLMENT);
+    pending.complete();
+    await retry;
+    expect(setup.flow.enrollmentProblem()).toBeNull();
+    expect(setup.flow.totpEnrollment()).toEqual(ENROLLMENT);
+  });
+
+  it('replaces the begin problem with the new one when a retry fails differently', async () => {
+    const setup = setUp();
+    setup.gateway.loginAnswer = of(ENROLLMENT_REQUIRED);
+    setup.gateway.beginEnrollmentAnswer = fail({ kind: 'rate_limited', status: 429 });
+    await setup.flow.signIn('owner@x.invalid', 'secret');
+    setup.gateway.beginEnrollmentAnswer = fail({ kind: 'unavailable', status: 503 });
+    await setup.flow.beginEnrollment();
+    expect(setup.flow.enrollmentProblem()).toBe('beginUnavailable');
+    expect(setup.flow.enrollmentPending()).toBe(true);
   });
 });

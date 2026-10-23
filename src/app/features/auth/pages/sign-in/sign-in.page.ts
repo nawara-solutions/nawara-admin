@@ -33,7 +33,6 @@ const PROBLEM_BANNERS = {
   unavailable: { tone: 'warning', icon: 'cloud-off', key: 'auth.banner.unavailable', retry: true },
   rateLimited: { tone: 'warning', icon: 'hourglass', key: 'auth.banner.rateLimited' },
   // Core's established next states, distinct from errors; their screens are not in this prototype.
-  enrollmentRequired: { tone: 'info', icon: 'shield-check', key: 'auth.banner.enrollmentRequired' },
   recoveryRequired: { tone: 'info', icon: 'key-round', key: 'auth.banner.recoveryRequired' },
   stepNotAvailable: { tone: 'info', icon: 'info', key: 'auth.banner.stepNotAvailable' },
 } as const satisfies Record<SignInProblem, Banner>;

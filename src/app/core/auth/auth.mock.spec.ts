@@ -3,7 +3,14 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { DEMO_LATENCY_MS } from '../context/scope-directory.mock';
 import { DEMO_DRIVE_PLATFORM_ID } from '../context/scope-directory.fixtures';
 import { AppError } from '../errors/app-error';
-import { DEMO_CONFIRMATION_CODE, DEMO_WORKING_CODE } from './auth.fixtures';
+import {
+  DEMO_CONFIRMATION_CODE,
+  DEMO_PASSWORD,
+  DEMO_SIGN_IN_HINT,
+  DEMO_TOTP_CODE,
+  DEMO_TOTP_SECRET,
+  DEMO_WORKING_CODE,
+} from './auth.fixtures';
 import { MockAuthGateway } from './auth.mock';
 import { OperatorIdentifier } from './operator-identifier';
 
@@ -152,5 +159,142 @@ describe('MockAuthGateway: contact confirmation (demo only)', () => {
     expect(
       (await error(mock.confirmOperatorContact(at('offline'), DEMO_CONFIRMATION_CODE))).kind,
     ).toBe('unavailable');
+  });
+});
+
+describe('MockAuthGateway: owner authenticator enrollment (demo only)', () => {
+  async function enrollmentToken(mock: MockAuthGateway, email: string): Promise<string> {
+    const outcome = await firstValueFrom(mock.login(email, DEMO_PASSWORD));
+    if (outcome.kind !== 'enrollment_required') throw new Error('expected enrollment_required');
+    return outcome.enrollmentToken;
+  }
+
+  it('begins a setup with the fictional key and an otpauth URI, then signs in on the right code', async () => {
+    const mock = gateway();
+    const token = await enrollmentToken(mock, 'enrollment@demo.nawara.invalid');
+    const setup = await firstValueFrom(mock.beginTotpEnrollment(token));
+    expect(setup.secret).toBe(DEMO_TOTP_SECRET);
+    expect(setup.otpauthUri).toBe(
+      `otpauth://totp/Nawara%20Admin:enrollment%40demo.nawara.invalid?secret=${DEMO_TOTP_SECRET}&issuer=Nawara%20Admin&algorithm=SHA1&digits=6&period=30`,
+    );
+    await firstValueFrom(mock.confirmTotpEnrollment(token, setup.factorId, DEMO_TOTP_CODE));
+    expect((await firstValueFrom(mock.me())).email).toBe('enrollment@demo.nawara.invalid');
+    // The token is used up; the next sign-in asks for the code.
+    expect(await error(mock.confirmTotpEnrollment(token, setup.factorId, DEMO_TOTP_CODE))).toEqual(
+      expect.objectContaining({ status: 401 }),
+    );
+    const next = await firstValueFrom(mock.login('enrollment@demo.nawara.invalid', DEMO_PASSWORD));
+    expect(next.kind).toBe('mfa_required');
+  });
+
+  it('follows Core’s five-attempt boundary: the fifth refusal is still 400, then the token is dead (401)', async () => {
+    const mock = gateway();
+    const token = await enrollmentToken(mock, 'enrollment@demo.nawara.invalid');
+    const { factorId } = await firstValueFrom(mock.beginTotpEnrollment(token));
+    for (let attempt = 1; attempt <= 4; attempt++) {
+      expect((await error(mock.confirmTotpEnrollment(token, factorId, '000000'))).status).toBe(400);
+    }
+    // The fifth refusal answers its own 400 and consumes the token (`recordFailure`).
+    expect(await error(mock.confirmTotpEnrollment(token, factorId, '000000'))).toEqual({
+      kind: 'validation',
+      messages: [],
+      status: 400,
+    });
+    // Afterwards Core no longer finds the token: even the right code, and a new begin, are 401.
+    expect(await error(mock.confirmTotpEnrollment(token, factorId, DEMO_TOTP_CODE))).toEqual({
+      kind: 'unauthenticated',
+      code: 'verification_failed',
+      status: 401,
+    });
+    expect((await error(mock.beginTotpEnrollment(token))).status).toBe(401);
+  });
+
+  it('accepts the right code after four refusals', async () => {
+    const mock = gateway();
+    const token = await enrollmentToken(mock, 'enrollment@demo.nawara.invalid');
+    const { factorId } = await firstValueFrom(mock.beginTotpEnrollment(token));
+    for (let attempt = 1; attempt <= 4; attempt++) {
+      await error(mock.confirmTotpEnrollment(token, factorId, '000000'));
+    }
+    await expect(
+      firstValueFrom(mock.confirmTotpEnrollment(token, factorId, DEMO_TOTP_CODE)),
+    ).resolves.toBeUndefined();
+  });
+
+  it('refuses an unknown token (401), and counts a factor that is not the one begun as a refused code (400)', async () => {
+    const mock = gateway();
+    expect((await error(mock.beginTotpEnrollment('unknown'))).status).toBe(401);
+    const token = await enrollmentToken(mock, 'enrollment@demo.nawara.invalid');
+    const { factorId } = await firstValueFrom(mock.beginTotpEnrollment(token));
+    for (let attempt = 1; attempt <= 4; attempt++) {
+      expect((await error(mock.confirmTotpEnrollment(token, 'other', DEMO_TOTP_CODE))).status).toBe(
+        400,
+      );
+    }
+    expect((await error(mock.confirmTotpEnrollment(token, factorId, '000000'))).status).toBe(400);
+    expect((await error(mock.confirmTotpEnrollment(token, factorId, DEMO_TOTP_CODE))).status).toBe(
+      401,
+    );
+  });
+
+  it.each([
+    ['enrollment.enrolled@demo.nawara.invalid', 'begin', 403],
+    ['enrollment.unavailable@demo.nawara.invalid', 'begin', 503],
+    ['enrollment.busy@demo.nawara.invalid', 'begin', 429],
+    ['enrollment.limited@demo.nawara.invalid', 'confirm', 429],
+    ['enrollment.offline@demo.nawara.invalid', 'confirm', 503],
+  ] as const)('simulates %s on %s (%i)', async (email, step, status) => {
+    const mock = gateway();
+    const token = await enrollmentToken(mock, email);
+    if (step === 'begin') {
+      expect((await error(mock.beginTotpEnrollment(token))).status).toBe(status);
+      return;
+    }
+    const { factorId } = await firstValueFrom(mock.beginTotpEnrollment(token));
+    expect((await error(mock.confirmTotpEnrollment(token, factorId, DEMO_TOTP_CODE))).status).toBe(
+      status,
+    );
+  });
+});
+
+describe('MockAuthGateway: enrollment answer order, as in Core (A4-S4 remediation)', () => {
+  async function tokenFor(mock: MockAuthGateway, email: string): Promise<string> {
+    const outcome = await firstValueFrom(mock.login(email, DEMO_PASSWORD));
+    if (outcome.kind !== 'enrollment_required') throw new Error('expected enrollment_required');
+    return outcome.enrollmentToken;
+  }
+
+  it('answers a dead token 401 before any simulated 429, on both routes', async () => {
+    const mock = gateway();
+    expect((await error(mock.beginTotpEnrollment('unknown-token'))).status).toBe(401);
+    const token = await tokenFor(mock, 'enrollment.busy@demo.nawara.invalid');
+    expect((await error(mock.beginTotpEnrollment(token))).status).toBe(429);
+    expect(
+      (await error(mock.confirmTotpEnrollment('unknown-token', 'f', DEMO_TOTP_CODE))).status,
+    ).toBe(401);
+  });
+
+  it('answers 403 factor_already_enrolled on confirmation too, without counting an attempt', async () => {
+    const mock = gateway();
+    const token = await tokenFor(mock, 'enrollment.enrolled@demo.nawara.invalid');
+    for (let attempt = 1; attempt <= 6; attempt++) {
+      expect(await error(mock.confirmTotpEnrollment(token, 'f', '000000'))).toEqual(
+        expect.objectContaining({ status: 403, code: 'factor_already_enrolled' }),
+      );
+    }
+  });
+});
+
+describe('demo sign-in hint: enrollment scenario labels', () => {
+  it('labels each enrollment account by its own scenario', () => {
+    const roles = Object.fromEntries(DEMO_SIGN_IN_HINT.accounts.map((a) => [a.email, a.roleKey]));
+    expect(roles).toMatchObject({
+      'enrollment@demo.nawara.invalid': 'auth.demo.enrollment',
+      'enrollment.enrolled@demo.nawara.invalid': 'auth.demo.enrollmentAlready',
+      'enrollment.limited@demo.nawara.invalid': 'auth.demo.enrollmentConfirmLimited',
+      'enrollment.offline@demo.nawara.invalid': 'auth.demo.enrollmentConfirmUnavailable',
+      'enrollment.unavailable@demo.nawara.invalid': 'auth.demo.enrollmentBeginUnavailable',
+      'enrollment.busy@demo.nawara.invalid': 'auth.demo.enrollmentBeginLimited',
+    });
   });
 });

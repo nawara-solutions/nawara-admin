@@ -13,6 +13,7 @@ import {
   MfaMethod,
   PasskeyAssertion,
   PasskeyRequest,
+  TotpEnrollment,
 } from '../../../core/auth/auth.model';
 import { WebAuthnClient } from '../../../core/auth/webauthn-client';
 import { APP_ENVIRONMENT, DemoBindings } from '../../../core/config/app-environment';
@@ -46,6 +47,13 @@ const DEMO: DemoBindings = {
   },
 };
 
+/** A test setup key (base32) and its `otpauth` URI. Not a real secret. */
+export const TEST_ENROLLMENT: TotpEnrollment = {
+  factorId: 'factor-1',
+  secret: 'ABCDEFGHIJKLMNOP',
+  otpauthUri: 'otpauth://totp/Test:owner%40x.invalid?secret=ABCDEFGHIJKLMNOP&issuer=Test',
+};
+
 export const fail = <T>(error: AppError): Observable<T> => throwError(() => error);
 
 /** A scripted gateway for page specs. Test-only: imported by specs and nothing else. */
@@ -56,6 +64,10 @@ export class ScriptedAuthGateway extends AuthGateway {
   requestCodeAnswer: Observable<void> = of(undefined);
   verifyCodeAnswer: Observable<void> = of(undefined);
   confirmAnswer: Observable<void> = of(undefined);
+  beginEnrollmentAnswer: Observable<TotpEnrollment> = of(TEST_ENROLLMENT);
+  confirmEnrollmentAnswer: Observable<void> = of(undefined);
+  /** What the enrollment page sent: the token, the factor and the code (a string). */
+  readonly enrollmentCalls: { token: string; factorId?: string; code?: string }[] = [];
   /** What the page sent, to check codes stay strings. */
   readonly codeCalls: { identifier: OperatorIdentifier; code?: string }[] = [];
   readonly confirmCalls: { identifier: OperatorIdentifier; code: string }[] = [];
@@ -74,6 +86,14 @@ export class ScriptedAuthGateway extends AuthGateway {
   }
   passkeyRequest(): Observable<PasskeyRequest> {
     return of({ publicKey: { challenge: new Uint8Array(1) } });
+  }
+  beginTotpEnrollment(token: string): Observable<TotpEnrollment> {
+    this.enrollmentCalls.push({ token });
+    return this.beginEnrollmentAnswer;
+  }
+  confirmTotpEnrollment(token: string, factorId: string, code: string): Observable<void> {
+    this.enrollmentCalls.push({ token, factorId, code });
+    return this.confirmEnrollmentAnswer;
   }
   requestWorkingCode(identifier: OperatorIdentifier): Observable<void> {
     this.codeCalls.push({ identifier });

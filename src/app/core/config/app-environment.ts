@@ -1,4 +1,5 @@
 import { InjectionToken, Provider } from '@angular/core';
+import { Locale } from '../i18n/locale';
 
 /** Domains that can be served by a demo (mock) adapter. Each has an `unavailable` adapter for every other build. */
 export type DemoDomain =
@@ -21,6 +22,11 @@ export interface DemoSignInHint {
   /** New operators (contact not confirmed yet) and the one demo confirmation code. */
   readonly newOperators: readonly { readonly identifier: string; readonly roleKey: string }[];
   readonly confirmationCode: string;
+  /**
+   * What the authenticator setup's demo QR holds, per locale. Kept here, in the lazily loaded demo bindings, rather than in
+   * the catalogs, so this explanation never reaches a production bundle.
+   */
+  readonly enrollmentNote?: Readonly<Record<Locale, string>>;
 }
 
 /** What a demo build adds: the mock adapter bindings and the demo sign-in accounts (src/app/demo/demo-bindings.ts). */
