@@ -302,10 +302,6 @@
         "description": "Invitations d’administrateur d’organisation pas encore acceptées."
       },
       "empty": "Rien à traiter.",
-      "accessAssignments": {
-        "title": "Affectations d’accès à vérifier",
-        "description": "Attribuez ou ajustez l’accès des opérateurs aux plateformes."
-      },
       "licensesExpiring": {
         "title": "Licences arrivant à échéance",
         "description": "Renouvelez sous {{days}} jours pour éviter toute interruption."
@@ -330,7 +326,7 @@
         "organizationCreated": "Organisation créée",
         "operatorAssigned": "Opérateur affecté",
         "invitationSent": "Invitation envoyée",
-        "licenseRenewed": "Licence renouvelée"
+        "membershipApproved": "Adhésion approuvée"
       },
       "auditLog": "Journal d’audit"
     },
@@ -359,8 +355,7 @@
         "assignments": "Affectations",
         "uniqueOperators": "Opérateurs uniques",
         "platforms": "Plateformes",
-        "action": "Gérer les accès",
-        "toReview": "À examiner : {{count}}"
+        "action": "Gérer les accès"
       }
     },
     "commercial": {

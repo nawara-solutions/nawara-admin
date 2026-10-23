@@ -21,10 +21,10 @@ const ACTIONS = {
     accent: 'orange',
     labelKey: 'companyOverview.activity.actions.invitationSent',
   },
-  'license.renewed': {
+  'membership.approved': {
     icon: 'badge-check',
     accent: 'green',
-    labelKey: 'companyOverview.activity.actions.licenseRenewed',
+    labelKey: 'companyOverview.activity.actions.membershipApproved',
   },
 } as const satisfies Record<
   ActivityAction,

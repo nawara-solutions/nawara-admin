@@ -6,7 +6,7 @@ import { Actor } from '../../../core/auth/actor';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { APP_ENVIRONMENT, DemoBindings } from '../../../core/config/app-environment';
 import { DEMO_LATENCY_MS } from '../../../core/context/scope-directory.mock';
-import { DEMO_COMPANY_ID } from '../../../core/context/scope-directory.fixtures';
+import { DEMO_COMPANY_ID } from '../../../demo/world/seed';
 import { platformId } from '../../../core/context/scope.model';
 import { PlatformDirectoryFacade } from '../application/platform-directory.facade';
 import { PlatformDirectoryGateway } from '../data-access/platform-directory.gateway';

@@ -51,12 +51,6 @@
         }
       </span>
     </div>
-    @if (toReview(); as count) {
-      <p class="access-summary__status access-summary__status--pending">
-        <nw-icon name="clock" size="sm" />
-        {{ 'companyOverview.access.operators.toReview' | transloco: { count: count } }}
-      </p>
-    }
     <adm-card-link chevron [label]="'companyOverview.access.operators.action' | transloco" />
   </li>
 </ul>

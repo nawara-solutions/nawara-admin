@@ -101,13 +101,6 @@ export class CompanyOverviewFacade {
     return first && last && points.length > 1 ? last.organizations - first.organizations : null;
   });
 
-  /** Access assignments waiting for review (the "Needs attention" item), or `null` when unknown. */
-  readonly assignmentsToReview = computed<number | null>(() => {
-    const attention = this.attention();
-    if (attention.status !== 'available') return null;
-    return attention.data.find((i) => i.kind === 'access_assignments_to_review')?.count ?? 0;
-  });
-
   /** Whether the Create platform action is shown at all (owner only, as Core's `canCreatePlatform`). */
   readonly canSeeCreatePlatform = computed(() => can(this.session.actor(), 'platform.create'));
 

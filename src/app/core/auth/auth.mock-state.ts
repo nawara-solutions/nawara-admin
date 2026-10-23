@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
+import { AdminIdentityId } from '../../demo/world/records';
 import { DEMO_NEW_OPERATORS, DEMO_OPERATORS, DemoAccount, DemoOperator } from './auth.fixtures';
-import { Grants, Identity } from './auth.model';
+import { Identity } from './auth.model';
 
 /** Core's `MAX_CODE_ATTEMPTS`: five wrong guesses kill a working code or a confirmation code (`operator-code.service.ts`). */
 export const CODE_ATTEMPTS = 5;
@@ -13,10 +14,13 @@ export interface PendingEnrollment {
   attemptsLeft: number;
 }
 
-/** The account Core would answer `/auth/me` and `/auth/grants` for. */
+/**
+ * The simulated Core session: the account Core would answer `/auth/me` for, and the demo world's business identity it
+ * acts as (`null`: not Company staff). Grants are not stored: they are derived from the world's records on each read.
+ */
 export interface DemoSignedIn {
   readonly identity: Identity;
-  readonly grants: Grants;
+  readonly businessIdentityId: AdminIdentityId | null;
 }
 
 /** Every demo operator: the confirmed ones (working-code sign-in) and the new ones (contact confirmation first). */
@@ -36,7 +40,8 @@ export const ALL_DEMO_OPERATORS: readonly DemoOperator[] = [
  *   Core's do.
  * - The simulated Core session (`signedIn`): ended by `logout()`.
  *
- * Not the Demo World (docs/ROADMAP.md P2.5): no entity graph, only what the auth mock already kept.
+ * Not the demo world (`DemoWorld`, docs/ROADMAP.md P2.5), which holds the business records: this state refers to it
+ * only by business identity, and a sign-out leaves it untouched.
  */
 @Injectable({ providedIn: 'root' })
 export class DemoAuthState {

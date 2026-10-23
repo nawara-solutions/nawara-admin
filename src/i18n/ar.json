@@ -302,10 +302,6 @@
         "description": "دعوات مسؤولي المؤسسات التي لم تُقبل بعد."
       },
       "empty": "لا شيء يتطلب انتباهك.",
-      "accessAssignments": {
-        "title": "تعيينات وصول للمراجعة",
-        "description": "عيّن أو عدّل وصول المشغّلين إلى المنصات."
-      },
       "licensesExpiring": {
         "title": "تراخيص تنتهي قريبًا",
         "description": "جدّد خلال {{days}} يومًا لتجنّب أي انقطاع."
@@ -330,7 +326,7 @@
         "organizationCreated": "تم إنشاء مؤسسة",
         "operatorAssigned": "تم تعيين مشغّل",
         "invitationSent": "تم إرسال دعوة",
-        "licenseRenewed": "تم تجديد الترخيص"
+        "membershipApproved": "تمت الموافقة على عضوية"
       },
       "auditLog": "سجل التدقيق"
     },
@@ -359,8 +355,7 @@
         "assignments": "التعيينات",
         "uniqueOperators": "المشغّلون الفريدون",
         "platforms": "المنصات",
-        "action": "إدارة الوصول",
-        "toReview": "بانتظار المراجعة: {{count}}"
+        "action": "إدارة الوصول"
       }
     },
     "commercial": {

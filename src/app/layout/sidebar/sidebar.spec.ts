@@ -26,6 +26,7 @@ import {
 } from '../../core/notifications/notification-summary.gateway';
 import { MockNotificationSummaryGateway } from '../../core/notifications/notification-summary.mock';
 import { Sidebar } from './sidebar';
+import { DEMO_OPERATOR_IDS, DEMO_OWNER_ID } from '../../demo/world/seed';
 
 const owner: Actor = {
   kind: 'owner',
@@ -133,10 +134,8 @@ async function render(
       phone: null,
       adminTier: actor.kind,
     },
-    grants: {
-      companyId: actor.kind === 'owner' ? actor.companyId : null,
-      platformAssignments: actor.kind === 'operator' ? actor.platformAssignments : [],
-    },
+    // The demo world's business identity: its unread count is the world's record.
+    businessIdentityId: actor.kind === 'owner' ? DEMO_OWNER_ID : DEMO_OPERATOR_IDS.school,
   });
   TestBed.inject(AuthSession).establish(actor);
   const fixture = TestBed.createComponent(Sidebar);

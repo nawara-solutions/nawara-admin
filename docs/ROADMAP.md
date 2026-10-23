@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard implemented, awaiting review; rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world implemented, awaiting review; rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,9 +290,39 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## P2.5: Canonical Demo World (architecture approved 2026-10-23; implemented 2026-10-23)
+
+**Status: implemented as a development-only mock foundation, awaiting review.** No UI redesign, no production capability, no
+Core contract. Production builds contain none of it.
+
+- **What:** `src/app/demo/world/` holds the canonical records (`records.ts`), a deterministic seed from the injected clock
+  (`seed.ts`), the root signal-based `DemoWorld` (`demo-world.ts`, read only in P2.5) and pure selectors (`selectors.ts`).
+  The scope-directory, auth, notification, Company Overview, Platform directory and Platform dashboard mocks read it at
+  request time and map to their own feature models; Page → Facade → Gateway → Mock/Unavailable adapter is unchanged, as
+  are the public gateway contracts and the demo scenarios. No state library.
+- **Auth (D1, D2, D4):** `DemoAuthState` keeps the session and the sign-in workflow; the session stores the account's
+  `businessIdentityId`, and grants and Platform access are derived from the world's assignment records on each read. A
+  sign-out clears the session only. The owner, enrollment and recovery accounts all act as the ONE Company owner, each with
+  its own credentials and user id, so every scenario stays independent. Operators who can reach the workspace (single,
+  multi, phone, unassigned, new) are the canonical staff; scenario-only accounts (rate-limited, offline, unconfirmable),
+  which never complete a sign-in, hold no identity and no assignment. Logins and access are unchanged.
+- **Derived values (before → after):** Organizations 24 (16 + 8) and memberships 920 + 460: unchanged, now derived.
+  Assignments 5 (3 + 2), 4 unique operators, 2 Platforms: unchanged, now from assignment records (the auth fixtures' 10
+  assignments are gone). Unique identities 1,284 → unavailable (D3: no person records before P5; memberships are not
+  identities). Admin invitations 7: unchanged, from records. Active subscriptions 38 → 20 (13 + 7), with 1 in grace; expiring
+  within 14 days 3 → 4, from each subscription's `endsAt` and the clock (D5). Payment issues 2: from records. Growth
+  16 → 24 (+8) → 21 → 24 (+3) over the last 30 days, from creation dates at UTC day boundaries (D8). Company activity: the
+  newest 4 of the Platforms' 7 events, newest first; "License renewed" removed, "Membership approved" added (D6). "Access
+  assignments to review" (2) removed with its status line, without a replacement (D7). Owner unread 4: from the world.
+- **Boundary (D9):** ESLint forbids `*.mock`, `*.mock-state`, `*.fixtures` and `demo/` imports outside demo modules,
+  specs and `testing/` helpers; `check:production` searches the bundle for world markers.
+- **Not in scope:** Organization or membership changes, user directories, new Billing/Payment gateways, settlement,
+  refunds, an action pipeline, HTTP integration. Personal Premium and unread counts remain declared counts until person
+  and inbox records exist.
+
 ## P2: Platform dashboard (design approved 2026-10-23; implemented 2026-10-23)
 
-**Status: implemented as a development-only mock prototype, awaiting review.** Design: the "P2 Platform Dashboard" canvas
+**Status: complete as a development-only mock prototype (PR #18).** Design: the "P2 Platform Dashboard" canvas
 (claude.ai, private; 6 artboards). Replaces the platform-scope placeholder at `/platforms/:platformId`. Read only.
 
 - **Who sees what** (UX; Core is the authority): the owner of the Company sees identity, figures (organizations,
@@ -309,15 +339,16 @@ Policy (A14), and everything listed open for A4-S1 below.
 - **States:** checking; Platforms could not be listed (an outage, "Try again" reloads the scope directory; never shown as an
   access refusal); not found or not accessible (unknown, unassigned, or Core's late `404`/`403`); loading; error with "Try
   again"; a section unavailable ("—", never zero); a Platform without Organizations; not available in a production build.
-- **Mock data:** 24 fictional Organization records with stable ids (`core/context/organization.fixtures.ts`, demo only), from
-  which the `/platforms` directory and the dashboard derive every count (16 + 8 Organizations, 920 + 460 memberships), so
-  they agree by construction; a seed for the P2.5 Demo World. Organization subscriptions (one per Organization, adding up to
+- **Mock data:** 24 fictional Organization records with stable ids (since P2.5 in the demo world, `src/app/demo/world/`),
+  from which the `/platforms` directory and the dashboard derive every count (16 + 8 Organizations, 920 + 460 memberships),
+  so they agree by construction. Organization subscriptions (one per Organization, adding up to
   the Organizations), Personal Premium and payment issues are separate facts, never summed.
 - **Shared, unchanged:** `overview-card`, `summary-card`, `metric-value`, `card-link` and `Metric`/`Section` moved from the
   Company Overview to `shared/dashboard/` (Admin-local); appearance and behaviour unchanged (`common.notAvailable` replaces
   the feature key with the same text). `ScopeContext.reload()` added for the directory retry.
 
-**Follow-up FU-P25-OVERVIEW-FIXTURES (open; P2.5 Demo World):** the Company Overview's hand-written figures are not derived
+**Follow-up FU-P25-OVERVIEW-FIXTURES (closed by P2.5, 2026-10-23; cross-feature consistency verified by
+`src/app/demo/world/consistency.spec.ts`):** the Company Overview's hand-written figures are not derived
 from records and disagree with them: its commercial summary counts 38 Organizations with a valid entitlement while the
 Company has 24 Organizations (one subscription per Organization), and the auth operator fixtures hold 10 Platform
 assignments for 9 operators where the overview and directory say 5 assignments for 4 operators. P2 does not reuse these
@@ -340,7 +371,7 @@ unavailable and contain no mock, fixture or demo state.
 - **One simulated Auth service** (`core/auth/auth.mock-state.ts`, `DemoAuthState`, root-provided, demo only): every
   route-scoped `MockAuthGateway` (sign-in pages, shell) works on it, so a sign-out from the shell ends the session the
   sign-in pages opened. Core records it keeps (enrolled owners, confirmed contacts, live codes) survive a sign-out until a
-  reload, as Core's do. Not the Demo World (P2.5): no entity graph.
+  reload, as Core's do. Not the demo world (P2.5), which holds the business records.
 - **Session-scoped views reset on identity change:** the unread count (`NotificationIndicator`) is keyed on the signed-in
   actor and dropped on sign-out; the demo notification summary answers per signed-in identity (owner 4, operator none, so no
   badge or bell for an operator). `ScopeContext` was already actor-keyed.

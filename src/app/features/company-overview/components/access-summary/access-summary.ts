@@ -26,6 +26,4 @@ export class AccessSummaryList {
   readonly access = input.required<AccessSummary | null>();
   /** The signed-in owner's name (user data). */
   readonly ownerName = input<string | null>(null);
-  /** Access assignments waiting for review; `null` or 0 shows no status line. */
-  readonly toReview = input<number | null>(null);
 }

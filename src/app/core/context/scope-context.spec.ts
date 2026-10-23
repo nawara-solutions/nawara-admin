@@ -4,7 +4,7 @@ import { filter, firstValueFrom } from 'rxjs';
 import { Actor } from '../auth/actor';
 import { AuthSession } from '../auth/auth-session';
 import { APP_ENVIRONMENT, DemoBindings } from '../config/app-environment';
-import { DEMO_COMPANY_ID, DEMO_DRIVE_PLATFORM_ID } from './scope-directory.fixtures';
+import { DEMO_COMPANY_ID, DEMO_DRIVE_PLATFORM_ID } from '../../demo/world/seed';
 import { ScopeDirectoryGateway } from './scope-directory.gateway';
 import { DEMO_LATENCY_MS, MockScopeDirectoryGateway } from './scope-directory.mock';
 import { ScopeContext, platformPath, scopeFromUrl } from './scope-context';

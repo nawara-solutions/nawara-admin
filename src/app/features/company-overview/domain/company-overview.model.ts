@@ -52,7 +52,7 @@ export interface AccessSummary {
 }
 
 /** Attention items of the company overview itself; the commercial item comes from the commercial summary. */
-export type AttentionKind = 'admin_invitations_awaiting' | 'access_assignments_to_review';
+export type AttentionKind = 'admin_invitations_awaiting';
 
 export interface AttentionItem {
   readonly kind: AttentionKind;
@@ -80,7 +80,7 @@ export interface GrowthSeries {
 
 /** Administrative actions shown in the activity feed (machine values; labels come from the catalog). */
 export type ActivityAction =
-  'organization.created' | 'operator.assigned' | 'admin_invitation.sent' | 'license.renewed';
+  'organization.created' | 'operator.assigned' | 'admin_invitation.sent' | 'membership.approved';
 
 export interface ActivityEntry {
   readonly id: string;
