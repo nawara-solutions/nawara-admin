@@ -166,6 +166,8 @@ export interface ActivityRecord {
     | 'membership.approved'
     | 'membership.rejected'
     | 'membership.revoked'
+    | 'organization.admin.granted'
+    | 'organization.admin.revoked'
     | 'operator.assigned';
   /** UTC instant, ISO 8601 with `Z`. */
   readonly occurredAt: string;

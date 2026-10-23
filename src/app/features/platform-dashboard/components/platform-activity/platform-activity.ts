@@ -38,6 +38,14 @@ const ACTIONS = {
     icon: 'shield-off',
     key: 'platformDashboard.activity.membershipRevoked',
   },
+  'organization.admin.granted': {
+    icon: 'shield-check',
+    key: 'platformDashboard.activity.adminGranted',
+  },
+  'organization.admin.revoked': {
+    icon: 'shield-off',
+    key: 'platformDashboard.activity.adminRemoved',
+  },
   'operator.assigned': { icon: 'shield-check', key: 'platformDashboard.activity.operatorAssigned' },
 } as const satisfies Record<
   PlatformActivityAction,

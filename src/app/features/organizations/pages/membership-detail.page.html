@@ -147,11 +147,59 @@
           </p>
         </section>
       }
-      @if (revocations.offers(m) || revocations.sendingId() === m.id) {
+      @if (
+        revocations.offers(m) ||
+        roles.offers(m) !== null ||
+        revocations.sendingId() === m.id ||
+        roles.sendingId() === m.id
+      ) {
         <section class="membership-detail__card" aria-labelledby="membership-detail-manage">
           <h2 id="membership-detail-manage">
             {{ 'organizations.members.revoke.cardTitle' | transloco }}
           </h2>
+          @if (roles.offers(m); as change) {
+            <h3 class="membership-detail__subhead">
+              {{ 'organizations.members.role.sectionTitle' | transloco }}
+            </h3>
+            <p class="membership-detail__note">
+              {{
+                'organizations.members.role.sectionBody'
+                  | transloco: { name: isolated(organization.name) }
+              }}
+            </p>
+            <div class="membership-detail__decision">
+              <button
+                nw-button
+                variant="secondary"
+                type="button"
+                data-role
+                [attr.aria-disabled]="decisions.sending() || null"
+                (click)="
+                  changeRole(
+                    m,
+                    change === 'grant',
+                    view.platform.id,
+                    organization.id,
+                    organization.name
+                  )
+                "
+              >
+                <nw-icon name="shield-check" size="sm" />{{
+                  (change === 'grant'
+                    ? 'organizations.members.role.grantOpen'
+                    : 'organizations.members.role.removeOpen'
+                  ) | transloco
+                }}
+              </button>
+            </div>
+            <h3 class="membership-detail__subhead">
+              {{ 'organizations.members.revoke.sectionTitle' | transloco }}
+            </h3>
+          } @else if (roles.sendingId() === m.id) {
+            <p class="membership-detail__sending" role="status">
+              <nw-spinner />{{ 'organizations.members.role.sending' | transloco }}
+            </p>
+          }
           <p class="membership-detail__note">
             {{
               (m.isOrganizationAdmin
@@ -164,7 +212,7 @@
             <p class="membership-detail__sending" role="status">
               <nw-spinner />{{ 'organizations.members.revoke.sending' | transloco }}
             </p>
-          } @else {
+          } @else if (revocations.offers(m)) {
             <div class="membership-detail__decision">
               <button
                 nw-button

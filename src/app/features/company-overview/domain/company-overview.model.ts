@@ -88,7 +88,9 @@ export type ActivityAction =
   | 'admin_invitation.revoked'
   | 'membership.approved'
   | 'membership.rejected'
-  | 'membership.revoked';
+  | 'membership.revoked'
+  | 'organization.admin.granted'
+  | 'organization.admin.revoked';
 
 export interface ActivityEntry {
   readonly id: string;

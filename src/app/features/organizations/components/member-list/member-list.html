@@ -105,7 +105,58 @@
 </ng-template>
 
 <ng-template #decisionControls let-row>
-  @if (revokeOffers()(row)) {
+  @if (roleOffers()(row); as change) {
+    @let who = identity(row);
+    @let name =
+      who.kind === 'user'
+        ? ('organizations.members.identity.user' | transloco: { ref: who.value })
+        : who.value;
+    @if (sendingId() === row.id) {
+      <span class="member-list__sending" role="status">
+        <nw-spinner />{{ 'organizations.members.role.sending' | transloco }}
+      </span>
+    } @else {
+      <span class="member-list__decision">
+        <button
+          nw-button
+          variant="secondary"
+          type="button"
+          data-actions
+          [attr.data-membership]="row.id"
+          [nwMenuTriggerFor]="rowActions"
+          [attr.aria-label]="'organizations.members.role.actionsFor' | transloco: { who: name }"
+          [attr.aria-disabled]="sending() || null"
+          [attr.aria-describedby]="sending() ? listId() + '-waiting' : null"
+        >
+          {{ 'organizations.members.role.actions' | transloco }}
+          <nw-icon name="chevron-down" size="sm" />
+        </button>
+      </span>
+      <ng-template #rowActions>
+        <nw-menu>
+          @if (!sending()) {
+            <button nw-menu-item data-role (triggered)="askRole(row, change === 'grant')">
+              {{
+                (change === 'grant'
+                  ? 'organizations.members.role.grantOpen'
+                  : 'organizations.members.role.removeOpen'
+                ) | transloco
+              }}
+            </button>
+            @if (revokeOffers()(row)) {
+              <button nw-menu-item danger data-revoke (triggered)="askRevoke(row)">
+                {{ 'organizations.members.revoke.menuItem' | transloco }}
+              </button>
+            }
+          } @else {
+            <button nw-menu-item disabled>
+              {{ 'organizations.members.decision.waiting' | transloco }}
+            </button>
+          }
+        </nw-menu>
+      </ng-template>
+    }
+  } @else if (revokeOffers()(row)) {
     @let who = identity(row);
     @let name =
       who.kind === 'user'

@@ -1,8 +1,8 @@
 # P5-S3 — Membership revocation and the organization-admin role (design specification)
 
-- **Status:** design approved by the owner (2026-10-24, all seven decisions in §11). **P5-S3a (revocation) implemented**
-  as a development-only mock prototype on `main` `afbf3fc`; **P5-S3b (the organization-admin role) not implemented**.
-  Production binds the unavailable adapter.
+- **Status:** design approved by the owner (2026-10-24, all seven decisions in §11). **P5-S3a (revocation) complete**
+  (PR #27); **P5-S3b (the organization-admin role) implemented** as a development-only mock prototype on `main`
+  `372b13b`. Production binds the unavailable adapter.
 - **Why this file exists:** the design canvas (9 artboards) has already become unavailable; this text is the durable
   record and prevails.
 - **Contract source:** the P5-S0 read-only Core verification (nawara-core `origin/main` `b91b7bf`): `CORE-INTEGRATION.md`
@@ -21,7 +21,7 @@
 | Step-up | none (CF-26) | `organization.admin.grant`, TOTP or WebAuthn only | `organization.admin.revoke`, TOTP or WebAuthn only |
 | Precondition | `status = active` | `active` and not admin | `active` and admin |
 | Changes | `status → revoked`, `revokedAt`, `revokedBy`, **`isOrganizationAdmin → false`** in the same statement | `isOrganizationAdmin → true` | `isOrganizationAdmin → false` |
-| Admin | **P5-S3a, built (mock)** | P5-S3b, not built | P5-S3b, not built |
+| Admin | **P5-S3a, built (mock)** | **P5-S3b, built (mock)** | **P5-S3b, built (mock)** |
 | Never changes | the user, sessions, other memberships | status, audience, anything else | status, audience, anything else |
 | Audit (Core) | `membership.revoked` (metadata `authority`, `wasAdmin`), central `membership.revoked`, outbox event | `organization.admin.granted`, central `membership.admin_granted` | `organization.admin.revoked`, central `membership.admin_revoked` |
 
@@ -109,9 +109,13 @@ Grant/remove never changes `status`; revoke never leaves `isOrganizationAdmin = 
   organizations; subscriptions and payments (nothing is cancelled or refunded); not an account suspension." Note:
   "Nawara Admin has no way to restore a revoked membership today, and revoked memberships are not listed." (Not called
   permanent: future policies may change.) Button "Revoke membership". No verification step.
-- **As built (P5-S3a):** Active rows have a direct "Revoke…" control (the "Actions" menu comes with P5-S3b, when a
-  row has more than one action); for an organization admin the dialog opens with a warning that the administrative
+- **As built (P5-S3a):** for an organization admin the revoke dialog opens with a warning that the administrative
   authority goes too, and for an operator adds that only the Company owner can make someone an organization admin.
+- **As built (P5-S3b):** the owner's Active rows have one "Actions" menu ("Make organization admin…" or "Remove admin
+  role…", then "Revoke membership…"; the identity link already opens the membership, so there is no "View membership"
+  item); an operator's rows keep the direct "Revoke…" (a one-item menu would only add a step), and an operator never
+  sees a role control. After a role change the row stays: its badge changes once the lists reload, focus returns to
+  its "Actions" button; on the details page the page stays and focus moves to the facts heading.
 - **Make admin** (`dialog`, focus on Continue): "{identity} gains administrative authority in {Organization} only: its
   memberships, join codes and admin invitations." "Their membership and audience stay as they are. No Company or
   Platform access, no other organization. No subscription or payment change." Unverified contact: a warning that the
@@ -146,12 +150,22 @@ have been revoked, possibly by your request", never as proven: revoked membershi
 Never an automatic retry, no idempotency key (Core has none). The dialog's status line waits for a list answer newer
 than the failure (`loadSequence`).
 
-## 8. Files (P5-S3a as built; P5-S3b anticipated)
+## 8. Files (as built)
 
 P5-S3a new: `application/membership-revoke.action.ts`, `application/membership-action-support.ts` (the
 `MembershipActionLock`, shared context and Platform guard), `components/revoke-membership-dialog/*`,
-`pages/membership-revocation.spec.ts`, this file. P5-S3b anticipated: `organization-admin-role.action.ts`,
-`components/membership-actions-menu/*`, `components/organization-admin-role-dialog/*` (+ specs).
+`pages/membership-revocation.spec.ts`, this file.
+
+P5-S3b new: `application/organization-admin-role.action.ts`, `components/organization-admin-role-dialog/*`,
+`pages/membership-admin-role.spec.ts`. Changed: `core/auth/step-up.gateway.ts` (purposes), `core/auth/auth.mock-state.ts`
+(factor-only methods), `demo/world/commands/membership.commands.ts` (+ spec: `setOrganizationAdmin`, `ownsOrganization`),
+`demo/world/records.ts` and the three activity feeds (`organization.admin.granted` / `.revoked`), `membership.gateway.ts`,
+`membership.mock.ts` (+ spec), `membership-decision.model.ts` (`roleChangeOf`), `organization-members.facade.ts`
+(`whereabouts` with the role, `adminCount`), `organizations.routes.ts`, `member-list.*` (the "Actions" menu; no separate
+menu component), `organization-members.page.*`, `membership-detail.page.*`, `i18n/*`, `testing/members-testing.ts`
+(the mock step-up gateway), `pages/membership-revocation.spec.ts` (Revoke through the owner's menu), docs.
+
+Earlier P5-S3a plan, kept for reference:
 
 Changed in P5-S3a: `demo/world/commands/membership.commands.ts` (+ spec), `demo/world/records.ts`,
 `membership.gateway.ts`, `membership.mock.ts` (+ spec), `membership-decision.model.ts`, `membership-decision.action.ts`

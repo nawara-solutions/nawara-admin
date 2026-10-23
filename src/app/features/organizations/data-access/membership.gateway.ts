@@ -16,6 +16,8 @@ import { ListableMembershipStatus, MembershipList } from '../domain/membership.m
  *   idempotent and no key exists: a lost answer is never resent automatically.
  * - `revoke` (P5-S3a): `POST …/memberships/:membershipId/revoke`, no body, no step-up, `200 { id, status: 'revoked' }`;
  *   not idempotent either.
+ * - `setOrganizationAdmin` (P5-S3b): `POST` (grant) or `DELETE` (remove) `…/memberships/:membershipId/admin`, the
+ *   owner's step-up in `x-step-up-token` (`organization.admin.grant` / `.revoke`), `204`.
  * No HTTP adapter is authorized yet: production builds bind the unavailable adapter.
  */
 export abstract class MembershipGateway {
@@ -37,9 +39,16 @@ export abstract class MembershipGateway {
     organization: OrganizationId,
     membershipId: string,
   ): Observable<MembershipRevokeResult>;
+
+  abstract setOrganizationAdmin(
+    organization: OrganizationId,
+    membershipId: string,
+    admin: boolean,
+    options: { readonly stepUpToken: string },
+  ): Observable<void>;
 }
 
-/** Every non-demo build: nothing is wired, so nothing is ever listed, decided or revoked. */
+/** Every non-demo build: nothing is wired, so nothing is ever listed or changed. */
 export class UnavailableMembershipGateway extends MembershipGateway {
   readonly available = false;
 
@@ -52,6 +61,10 @@ export class UnavailableMembershipGateway extends MembershipGateway {
   }
 
   revoke(): Observable<MembershipRevokeResult> {
+    return throwError(adapterUnavailable);
+  }
+
+  setOrganizationAdmin(): Observable<void> {
     return throwError(adapterUnavailable);
   }
 }

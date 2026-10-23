@@ -18,8 +18,10 @@ import {
   DecideMembershipInput,
   MembershipDecision,
   RevokeMembershipInput,
+  SetOrganizationAdminInput,
   decideMembership,
   revokeMembership,
+  setOrganizationAdmin,
 } from './membership.commands';
 
 const NOW = Date.parse('2026-10-23T12:00:00Z');
@@ -357,6 +359,116 @@ describe('revokeMembership (P5-S3a, Core’s revoke)', () => {
         memberships: seed.memberships.map((m) => (m.id === member.id ? other : m)),
       };
       expect(applyRevoke(world, revoke(other)).result.status).toBe('revoked');
+    }
+  });
+});
+
+describe('setOrganizationAdmin (P5-S3b, Core’s setAdmin)', () => {
+  const role = (
+    membership: MembershipRecord,
+    admin: boolean,
+    change: Partial<SetOrganizationAdminInput> = {},
+  ): SetOrganizationAdminInput => ({
+    organizationId: membership.organizationId,
+    membershipId: membership.id,
+    actor: DEMO_OWNER_ID,
+    admin,
+    now: LATER,
+    ...change,
+  });
+  const member = seed.memberships.find(
+    (m) => m.organizationId === HORIZON && m.status === 'active' && !m.isOrganizationAdmin,
+  )!;
+  const admin = seed.memberships.find(
+    (m) => m.organizationId === HORIZON && m.status === 'active' && m.isOrganizationAdmin,
+  )!;
+  const notFound = { ok: false, error: { kind: 'not_found', code: 'not_found', status: 404 } };
+  const applyRole = (world: DemoWorldTables, command: SetOrganizationAdminInput) => {
+    const outcome = setOrganizationAdmin(world, command);
+    if (!outcome.ok) throw new Error(`refused: ${outcome.error.kind}`);
+    return outcome;
+  };
+  const untouched = [
+    'company',
+    'platforms',
+    'organizations',
+    'identities',
+    'assignments',
+    'subscriptions',
+    'adminInvitations',
+    'paymentIssues',
+    'platformCommercial',
+    'inboxes',
+    'idempotency',
+    'members',
+  ] as const;
+
+  it('grants the role: only the flag of that one membership changes, status and audience stay, counts too', () => {
+    const { world, result } = applyRole(seed, role(member, true));
+    expect(result).toEqual({ ...member, isOrganizationAdmin: true });
+    expect(world.memberships.filter((m, i) => m !== seed.memberships[i])).toEqual([result]);
+    for (const table of untouched) expect(world[table]).toBe(seed[table]);
+    expect([activeMembershipCount(world, HORIZON), pendingRequestCount(world, HORIZON)]).toEqual([
+      64, 3,
+    ]);
+    expect(world.activity.at(-1)).toMatchObject({
+      action: 'organization.admin.granted',
+      organizationId: HORIZON,
+      platformId: DEMO_SCHOOL_PLATFORM_ID,
+    });
+  });
+
+  it('removes the role, even from the last listed admin (Core has no last-admin rule)', () => {
+    expect(
+      seed.memberships.filter((m) => m.organizationId === HORIZON && m.isOrganizationAdmin),
+    ).toEqual([admin]);
+    const { world, result } = applyRole(seed, role(admin, false));
+    expect(result).toEqual({ ...admin, isOrganizationAdmin: false });
+    expect(
+      world.memberships.filter((m) => m.organizationId === HORIZON && m.isOrganizationAdmin),
+    ).toEqual([]);
+    expect(result.status).toBe('active');
+    expect(world.activity.at(-1)?.action).toBe('organization.admin.revoked');
+  });
+
+  it('is for the Company owner only: every operator, assigned or not, gets the collapsed 404 and nothing changes', () => {
+    for (const actor of [
+      DEMO_OPERATOR_IDS.school,
+      DEMO_OPERATOR_IDS.multi,
+      DEMO_OPERATOR_IDS.phone,
+      DEMO_OPERATOR_IDS.unassigned,
+    ] as AdminIdentityId[]) {
+      expect(setOrganizationAdmin(seed, role(member, true, { actor }))).toEqual(notFound);
+      expect(setOrganizationAdmin(seed, role(admin, false, { actor }))).toEqual(notFound);
+    }
+  });
+
+  it('answers 404 for a role already in place, anything not active, an unknown id and another Organization’s', () => {
+    expect(setOrganizationAdmin(seed, role(admin, true))).toEqual(notFound);
+    expect(setOrganizationAdmin(seed, role(member, false))).toEqual(notFound);
+    for (const status of ['pending', 'rejected', 'revoked'] as const)
+      expect(setOrganizationAdmin(seed, role(firstOf(seed, HORIZON, status), true))).toEqual(
+        notFound,
+      );
+    expect(setOrganizationAdmin(seed, role(member, true, { membershipId: 'unknown' }))).toEqual(
+      notFound,
+    );
+    expect(setOrganizationAdmin(seed, role(member, true, { organizationId: RIAD }))).toEqual(
+      notFound,
+    );
+    // A repeat of a successful grant is the same 404.
+    const once = applyRole(seed, role(member, true)).world;
+    expect(setOrganizationAdmin(once, role(member, true))).toEqual(notFound);
+  });
+
+  it('never reads the audience', () => {
+    for (const audience of ['student', 'teacher', 'learner', 'anything']) {
+      const other = { ...member, audience };
+      const world = {
+        ...seed,
+        memberships: seed.memberships.map((m) => (m.id === member.id ? other : m)),
+      };
+      expect(applyRole(world, role(other, true)).result.isOrganizationAdmin).toBe(true);
     }
   });
 });

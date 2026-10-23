@@ -131,13 +131,15 @@ export type DemoStepUpMethod = 'totp' | 'webauthn' | 'secret_key';
 
 /**
  * The factors each purpose accepts, as Core's `STEP_UP_METHODS` (auth-service `owner/step-up.service.ts`), for the
- * purposes the demo uses. Admin-invitation purposes are factor only: never the secret key.
+ * purposes the demo uses. Admin-invitation and organization-admin role purposes are factor only: never the secret key.
  */
 export const DEMO_STEP_UP_METHODS: Readonly<Record<string, readonly DemoStepUpMethod[]>> = {
   'platform.create': ['totp', 'webauthn', 'secret_key'],
   'organization.create': ['totp', 'webauthn', 'secret_key'],
   'admin_invitation.create': ['totp', 'webauthn'],
   'admin_invitation.revoke': ['totp', 'webauthn'],
+  'organization.admin.grant': ['totp', 'webauthn'],
+  'organization.admin.revoke': ['totp', 'webauthn'],
 };
 
 const stepUpMethodAllowed = (purpose: string, method: DemoStepUpMethod) =>

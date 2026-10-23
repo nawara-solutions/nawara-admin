@@ -24,6 +24,7 @@ import { NwStatusBadge, NwStatusTone } from '../../../shared/ui/status-badge/sta
 import { isolated } from '../../platforms/domain/create-platform.model';
 import { MembershipDecisionAction } from '../application/membership-decision.action';
 import { MembershipRevokeAction } from '../application/membership-revoke.action';
+import { OrganizationAdminRoleAction } from '../application/organization-admin-role.action';
 import { publishOrganizationLabel } from '../application/organization-label';
 import { OrganizationMembersFacade } from '../application/organization-members.facade';
 import { OrganizationStates } from '../components/organization-states/organization-states';
@@ -50,7 +51,9 @@ const STATUS = {
  * stays: the status badge changes once the lists are reloaded, the card goes, and focus moves to the facts heading.
  *
  * An active membership the actor may revoke has a "Manage membership" card (P5-S3a). After a revocation the page
- * returns to the members list: a revoked membership is not listable, so this page would read "not found".
+ * returns to the members list: a revoked membership is not listable, so this page would read "not found". For the
+ * owner the card also changes the organization-admin role (P5-S3b): the page stays, the role badge changes once the
+ * lists are reloaded, and focus moves to the facts heading.
  */
 @Component({
   selector: 'adm-membership-detail-page',
@@ -80,6 +83,9 @@ export class MembershipDetailPage {
   protected readonly resolution = this.facade.membership;
   protected readonly decisions = inject(MembershipDecisionAction);
   protected readonly revocations = inject(MembershipRevokeAction);
+  protected readonly roles = inject(OrganizationAdminRoleAction);
+  /** The role change made on this page, while under way (focus follows its success). */
+  private roleChange: { readonly membershipId: string; readonly admin: boolean } | null = null;
   private readonly router = inject(Router);
   /** Whether a revocation made on this page is under way (its success returns to the list). */
   private revoking = false;
@@ -99,6 +105,20 @@ export class MembershipDetailPage {
         return 'organization' in view ? view.organization.name : null;
       }),
     );
+
+    // Once a role change made here succeeded and the reloaded lists show it, focus the facts heading.
+    effect(() => {
+      const done = this.roles.succeeded();
+      const change = this.roleChange;
+      const found = this.resolution();
+      if (done === null || change === null || done.membershipId !== change.membershipId) return;
+      if (found.status !== 'found' || found.membership.isOrganizationAdmin !== change.admin) return;
+      this.roleChange = null;
+      untracked(() => this.roles.succeeded.set(null));
+      afterNextRender(() => this.factsHeading()?.nativeElement.focus(), {
+        injector: this.injector,
+      });
+    });
 
     // Once a revocation made here succeeded, return to the members list (it focuses its count).
     effect(() => {
@@ -137,6 +157,22 @@ export class MembershipDetailPage {
     this.revoking = true;
     this.revocations.succeeded.set(null);
     this.revocations.open({ target: { platformId, organizationId, organizationName }, membership });
+  }
+
+  protected changeRole(
+    membership: Membership,
+    admin: boolean,
+    platformId: PlatformId,
+    organizationId: OrganizationId,
+    organizationName: string,
+  ): void {
+    this.roleChange = { membershipId: membership.id, admin };
+    this.roles.succeeded.set(null);
+    this.roles.open({
+      target: { platformId, organizationId, organizationName },
+      membership,
+      admin,
+    });
   }
 
   protected decide(

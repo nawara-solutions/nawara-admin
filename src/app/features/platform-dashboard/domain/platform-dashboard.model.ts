@@ -42,6 +42,8 @@ export type PlatformActivityAction =
   | 'membership.approved'
   | 'membership.rejected'
   | 'membership.revoked'
+  | 'organization.admin.granted'
+  | 'organization.admin.revoked'
   | 'operator.assigned';
 
 export interface PlatformActivityEntry {

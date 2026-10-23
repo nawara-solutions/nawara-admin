@@ -108,3 +108,9 @@
   align-items: center;
   gap: var(--nw-space-2);
 }
+
+// The "Manage membership" card's sections (P5-S3b): the organization-admin role, then the membership.
+.membership-detail__subhead {
+  margin: var(--nw-space-2) 0 0;
+  font-size: var(--nw-text-size-md);
+}

@@ -6,11 +6,17 @@ import { FactorProof } from './auth.model';
  * The purposes a step-up is obtained for: Core's own (auth-service `step-up.service.ts` `STEP_UP_METHODS`), and only
  * those a built action uses (docs/CORE-INTEGRATION.md §4, §5): `platform.create` for `POST /organization/admin/platforms`,
  * `organization.create` for `POST /organization/admin/organizations`, `admin_invitation.create` / `.revoke` for the
- * organization-admin invitations of `/auth/organizations/:id/admin-invitations` (factor only: TOTP or a passkey, never
- * the secret key). Machine values.
+ * organization-admin invitations of `/auth/organizations/:id/admin-invitations`, and `organization.admin.grant` /
+ * `.revoke` for the organization-admin role of `…/memberships/:id/admin` (P5-S3b); the last four are factor only: TOTP
+ * or a passkey, never the secret key. Machine values.
  */
 export type StepUpPurpose =
-  'platform.create' | 'organization.create' | 'admin_invitation.create' | 'admin_invitation.revoke';
+  | 'platform.create'
+  | 'organization.create'
+  | 'admin_invitation.create'
+  | 'admin_invitation.revoke'
+  | 'organization.admin.grant'
+  | 'organization.admin.revoke';
 
 /** A step-up grant: sent once, immediately, with the one operation of its purpose; never stored. */
 export interface StepUpGrant {

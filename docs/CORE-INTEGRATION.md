@@ -231,7 +231,15 @@ Admin strategy and the decision required before A4.
     (`authority`, `wasAdmin`), central audit, outbox event. No administrative restore route exists; revoked rows are
     not listable (CF-24); re-join semantics unverified.
   - Admin role `POST | DELETE …/memberships/:id/admin` → `204`; owner only; step-up `organization.admin.grant|revoke`
-    (TOTP or WebAuthn); the membership must be active.
+    (TOTP or WebAuthn); the membership must be active. **Built in Admin as a demo mock only (P5-S3b;
+    [`design/p5-s3-revocation-and-admin-role.md`](design/p5-s3-revocation-and-admin-role.md)).** Order
+    (`membership.service.ts:194-218`): throttle → authority must be `owner` (operators and organization admins: the
+    collapsed `404`) → step-up consumed in the transaction (`403 step_up_required`) → conditional update `status =
+    'active' AND isOrganizationAdmin <> target` → no row: `404` and the transaction rolls back, so **the step-up is
+    not spent** (unknown, another Organization's, not active, already admin for a grant, not admin for a removal).
+    Audit `organization.admin.granted|revoked`, central `membership.admin_granted|admin_revoked`. No row lock, no last-
+    admin rule; the grant does not check contact verification, while `organizationAuthority` requires it for an
+    organization admin when `REQUIRE_CONTACT_VERIFICATION` is on (so such an admin may have no effective authority).
   - Suspend / restore `POST /auth/admin/members/:id/suspend|restore`: owner + factor step-up; reasons
     `compromised_account | security_incident | policy_violation`; **account-wide**, not one Organization.
   - Audience (owner clarification, 2026-10-23, from the Core join-code investigation): join codes carry an opaque
@@ -336,7 +344,7 @@ Admin strategy and the decision required before A4.
 | Memberships — approve/reject | Auth | 🟢 Prod | `POST …/memberships/:id/approve\|reject` | `MembershipGateway.decide(organizationId, id, decision)`, mock in demo builds (P5-S2); never resent after a lost answer; **CF-26** |
 | Memberships — revoke | Auth | 🟢 Prod | `POST …/memberships/:id/revoke` | `MembershipGateway.revoke(organizationId, id)`, mock in demo builds (P5-S3a); never resent after a lost answer; **CF-26, CF-27** |
 | Join codes / admin invitations | Auth | 🟢 Prod | `organization.controller.ts` | HTTP (A7) |
-| Organization-admin grant/revoke | Auth | 🟢 Prod | `memberships/:id/admin` | HTTP (A7) |
+| Organization-admin grant/revoke | Auth | 🟢 Prod | `memberships/:id/admin` | `MembershipGateway.setOrganizationAdmin(org, id, admin, { stepUpToken })`, mock in demo builds (P5-S3b); owner only, factor step-up; never resent after a lost answer; **CF-27** |
 | Operators (create/confirm/block/unblock) | Auth | 🟢 Prod | `operator.controller.ts` | HTTP (A7) |
 | Operator directory | Auth | 🔴 | no list route | Mock; **CF-03** |
 | Platform assignments | Auth | 🟢 Prod | `platform.controller.ts` | HTTP (A7) |

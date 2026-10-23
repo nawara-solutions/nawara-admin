@@ -2,7 +2,7 @@
 
 - **Status:** P5-S1 (read-only Organization members and membership details) complete (PR #25); P5-S2 (approve and
   reject requests) complete (PR #26, [`p5-s2-membership-decisions.md`](p5-s2-membership-decisions.md)); P5-S3a
-  (revocation) implemented as a development-only mock prototype and P5-S3b (the admin role) not yet, both specified in
+  (revocation) complete (PR #27) and P5-S3b (the admin role) implemented as a development-only mock prototype, both specified in
   [`p5-s3-revocation-and-admin-role.md`](p5-s3-revocation-and-admin-role.md). Production binds the unavailable
   adapter.
 - **Why this file exists:** the claude.ai design canvases are private and have become unavailable before; this text is the
@@ -103,5 +103,5 @@ Organization-scoped rows Core gives them. No other memberships, no distinct coun
 
 ## 8. Not built (later slices)
 
-The admin role (P5-S3b), account suspend / restore (P5-S4), join codes, a
+Account suspend / restore (P5-S4), join codes, a
 Company-wide directory (blocked on CF-03), a revoked view (blocked on Core's list filter).

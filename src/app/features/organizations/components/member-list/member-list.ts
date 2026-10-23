@@ -5,6 +5,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { NwDatePipe } from '../../../../shared/format/format.pipes';
 import { NwButton } from '../../../../shared/ui/button/button';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
+import { NwMenu, NwMenuItem, NwMenuTrigger } from '../../../../shared/ui/menu/menu';
 import { NwSpinner } from '../../../../shared/ui/spinner/spinner';
 import { MembershipDecision } from '../../domain/membership-decision.model';
 import {
@@ -21,6 +22,12 @@ const DECIDED_KEYS = {
   pending: null,
 } as const satisfies Record<ListableMembershipStatus, string | null>;
 
+/** An organization-admin role change asked for on one row (`admin`: the role wanted). */
+export interface RoleRequest {
+  readonly membership: Membership;
+  readonly admin: boolean;
+}
+
 /** A decision asked for on one row. */
 export interface DecisionRequest {
   readonly membership: Membership;
@@ -33,13 +40,26 @@ export interface DecisionRequest {
  * written left to right and isolated; the organization-admin privilege is said in words.
  *
  * Rows the actor may decide (P5-S2, `offers`) get "Approve" and "Reject"; active rows the actor may revoke (P5-S3a,
- * `revokeOffers`) get "Revoke…"; each named with the member it is about. While a membership action is sent
+ * `revokeOffers`) get "Revoke…"; each named with the member it is about. Where the owner may also change the
+ * organization-admin role (P5-S3b, `roleOffers`), the row's actions are one "Actions" menu instead: "Make organization
+ * admin…" or "Remove admin role…", "View membership", then "Revoke membership…". While a membership action is sent
  * (`sendingId`), that row says so and every other control waits (`aria-disabled`, with the reason). The list only asks
  * (`decide`, `revoke`): the page confirms and sends.
  */
 @Component({
   selector: 'adm-member-list',
-  imports: [NgTemplateOutlet, RouterLink, TranslocoPipe, NwButton, NwDatePipe, NwIcon, NwSpinner],
+  imports: [
+    NgTemplateOutlet,
+    RouterLink,
+    TranslocoPipe,
+    NwButton,
+    NwDatePipe,
+    NwIcon,
+    NwMenu,
+    NwMenuItem,
+    NwMenuTrigger,
+    NwSpinner,
+  ],
   templateUrl: './member-list.html',
   styleUrl: './member-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,12 +81,20 @@ export class MemberList {
   /** Whether the actor may be offered to revoke a row (P5-S3a); none by default. */
   readonly revokeOffers = input<(membership: Membership) => boolean>(() => false);
   readonly revoke = output<Membership>();
+  /** Which organization-admin role change the owner may be offered on a row (P5-S3b); none by default. */
+  readonly roleOffers = input<(membership: Membership) => 'grant' | 'remove' | null>(() => null);
+  readonly role = output<RoleRequest>();
 
   protected readonly decisions = computed(() => this.rows().some((row) => this.offers()(row)));
   protected readonly revocations = computed(() =>
     this.rows().some((row) => this.revokeOffers()(row)),
   );
-  protected readonly actions = computed(() => this.decisions() || this.revocations());
+  protected readonly roles = computed(() =>
+    this.rows().some((row) => this.roleOffers()(row) !== null),
+  );
+  protected readonly actions = computed(
+    () => this.decisions() || this.revocations() || this.roles(),
+  );
 
   protected readonly identity = memberIdentity;
   protected readonly decidedAt = decidedAt;
@@ -80,5 +108,10 @@ export class MemberList {
   protected askRevoke(membership: Membership): void {
     if (this.sending()) return;
     this.revoke.emit(membership);
+  }
+
+  protected askRole(membership: Membership, admin: boolean): void {
+    if (this.sending()) return;
+    this.role.emit({ membership, admin });
   }
 }

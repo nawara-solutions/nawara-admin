@@ -1,0 +1,246 @@
+@let current = state();
+<nw-dialog
+  [title]="
+    (current.phase === 'verifying'
+      ? 'actions.stepUp.title'
+      : grant
+        ? 'organizations.members.role.grantTitle'
+        : 'organizations.members.role.removeTitle'
+    ) | transloco
+  "
+  [closeLabel]="'common.close' | transloco"
+  [busy]="busy()"
+>
+  @switch (current.phase) {
+    @case ('verifying') {
+      <form id="admin-role-verify" class="admin-role__body" novalidate (submit)="verify($event)">
+        <p class="admin-role__purpose" id="admin-role-purpose">
+          <span class="admin-role__purpose-label">{{
+            'actions.stepUp.purposeIntro' | transloco
+          }}</span>
+          <strong>{{
+            (grant
+              ? 'organizations.members.role.grantPurpose'
+              : 'organizations.members.role.removePurpose'
+            ) | transloco: { name: isolatedOrganization }
+          }}</strong>
+        </p>
+        <nw-form-field
+          [label]="'actions.stepUp.codeLabel' | transloco"
+          [hint]="'organizations.members.role.factorHint' | transloco"
+          [error]="failureKey() ? (failureKey()! | transloco) : undefined"
+        >
+          <input
+            #codeInput
+            nwControl
+            class="admin-role__otp"
+            type="text"
+            name="step-up-code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            spellcheck="false"
+            dir="ltr"
+            aria-describedby="admin-role-purpose"
+            [value]="code()"
+            [readOnly]="busy()"
+            (input)="onCode($event)"
+          />
+        </nw-form-field>
+        @if (demoCode(); as demo) {
+          <p class="admin-role__demo" role="note">
+            <nw-icon name="flask-conical" size="sm" />
+            <span>
+              <strong>{{ 'actions.stepUp.demoTitle' | transloco }}</strong>
+              {{ 'actions.stepUp.demoNote' | transloco: { code: demo } }}
+            </span>
+          </p>
+        }
+      </form>
+    }
+    @case ('pending') {
+      <div class="admin-role__body">
+        <p class="admin-role__status" role="status">
+          <nw-spinner />{{
+            (grant ? 'organizations.members.role.granting' : 'organizations.members.role.removing')
+              | transloco
+          }}
+        </p>
+        <p class="admin-role__note">
+          {{ 'organizations.members.decision.pendingNote' | transloco }}
+        </p>
+      </div>
+    }
+    @case ('failed') {
+      <div class="admin-role__body">
+        <nw-inline-alert [tone]="current.failure.kind === 'outcomeUnknown' ? 'danger' : 'warning'">
+          {{ failureKey()! | transloco }}
+        </nw-inline-alert>
+        @if (reconciling()) {
+          @let known = reconciliation();
+          <p class="admin-role__status" role="status">
+            @if (known === null || known.state === 'checking') {
+              <nw-spinner />{{ 'organizations.members.decision.checking' | transloco }}
+            } @else if (known.status === null) {
+              {{ 'organizations.members.role.notListed' | transloco }}
+            } @else if (known.status !== 'active') {
+              {{ 'organizations.members.decision.nowStatus' | transloco }}
+              <strong>{{ statusKeys[known.status] | transloco }}</strong>
+            } @else if (known.isOrganizationAdmin === grant) {
+              {{
+                (grant
+                  ? 'organizations.members.role.nowAdmin'
+                  : 'organizations.members.role.nowMember'
+                ) | transloco
+              }}
+            } @else {
+              {{ 'organizations.members.role.unchanged' | transloco }}
+            }
+          </p>
+        }
+      </div>
+    }
+    @default {
+      <div class="admin-role__body">
+        <p id="admin-role-description">
+          {{
+            (grant
+              ? 'organizations.members.role.grantBody'
+              : 'organizations.members.role.removeBody'
+            ) | transloco: { name: isolatedOrganization }
+          }}
+        </p>
+        <dl class="admin-role__facts">
+          <div>
+            <dt>{{ 'organizations.members.table.member' | transloco }}</dt>
+            <dd>
+              @if (who.kind === 'user') {
+                {{ 'organizations.members.identity.user' | transloco: { ref: who.value } }}
+              } @else {
+                <bdi dir="ltr" translate="no">{{ who.value }}</bdi>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'organizations.members.detail.contact' | transloco }}</dt>
+            <dd>
+              {{
+                (membership.contactVerified
+                  ? 'organizations.members.identity.verified'
+                  : 'organizations.members.identity.unverified'
+                ) | transloco
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'organizations.members.table.audience' | transloco }}</dt>
+            <dd>
+              <bdi class="admin-role__mono" dir="ltr" translate="no">{{ membership.audience }}</bdi>
+            </dd>
+          </div>
+        </dl>
+        @if (grant) {
+          <ul class="admin-role__list">
+            <li>{{ 'organizations.members.role.grantKeepsMembership' | transloco }}</li>
+            <li>{{ 'organizations.members.role.grantNoOtherAccess' | transloco }}</li>
+            <li>{{ 'organizations.members.role.grantNoCommercial' | transloco }}</li>
+          </ul>
+          @if (!membership.contactVerified) {
+            <nw-inline-alert tone="warning">
+              {{ 'organizations.members.role.unverifiedWarning' | transloco }}
+            </nw-inline-alert>
+          }
+        } @else if (lastAdmin) {
+          <nw-inline-alert tone="warning">
+            <strong>{{ 'organizations.members.role.lastAdminTitle' | transloco }}</strong>
+            {{
+              'organizations.members.role.lastAdminBody' | transloco: { name: isolatedOrganization }
+            }}
+          </nw-inline-alert>
+        }
+        <p class="admin-role__note">
+          <nw-icon name="shield-check" size="sm" />{{
+            'organizations.members.role.stepUpNext' | transloco
+          }}
+        </p>
+      </div>
+    }
+  }
+
+  <div nwDialogActions>
+    @switch (current.phase) {
+      @case ('verifying') {
+        <button
+          nw-button
+          variant="ghost"
+          type="button"
+          [attr.aria-disabled]="busy() || null"
+          (click)="back()"
+        >
+          {{ 'actions.stepUp.back' | transloco }}
+        </button>
+        <button
+          nw-button
+          type="submit"
+          form="admin-role-verify"
+          [busy]="busy()"
+          [attr.aria-disabled]="busy() || null"
+        >
+          @if (busy()) {
+            <nw-spinner />{{ 'actions.stepUp.verifying' | transloco }}
+          } @else {
+            {{
+              (grant
+                ? 'organizations.members.role.verifyAndGrant'
+                : 'organizations.members.role.verifyAndRemove'
+              ) | transloco
+            }}
+          }
+        </button>
+      }
+      @case ('pending') {
+        <button nw-button variant="ghost" type="button" aria-disabled="true">
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button nw-button type="button" busy aria-disabled="true">
+          <nw-spinner />{{
+            (grant
+              ? 'organizations.members.role.grantingShort'
+              : 'organizations.members.role.removingShort'
+            ) | transloco
+          }}
+        </button>
+      }
+      @case ('failed') {
+        @if (retryable()) {
+          <button nw-button variant="ghost" type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+          <button #mainButton nw-button type="button" (click)="tryAgain()">
+            <nw-icon name="refresh-cw" size="sm" />{{ 'actions.retry' | transloco }}
+          </button>
+        } @else if (current.failure.kind === 'outcomeUnknown') {
+          <button nw-button variant="ghost" type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+          <button #mainButton nw-button type="button" (click)="checkStatus()">
+            <nw-icon name="refresh-cw" size="sm" />{{
+              'organizations.members.decision.checkStatus' | transloco
+            }}
+          </button>
+        } @else {
+          <button #mainButton nw-button type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+        }
+      }
+      @default {
+        <button nw-button variant="secondary" type="button" data-cancel (click)="close()">
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button nw-button type="button" data-confirm (click)="confirm()">
+          {{ 'organizations.members.role.continue' | transloco }}
+        </button>
+      }
+    }
+  </div>
+</nw-dialog>
