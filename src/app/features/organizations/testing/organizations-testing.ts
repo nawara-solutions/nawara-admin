@@ -75,6 +75,7 @@ export const DEMO: DemoBindings = {
     platformCommands: [],
     organizationCommands: [],
     adminInvitations: [],
+    memberships: [],
     stepUp: [],
   },
 };

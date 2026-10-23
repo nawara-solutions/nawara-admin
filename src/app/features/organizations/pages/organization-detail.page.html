@@ -165,6 +165,14 @@
               </div>
             }
           </dl>
+          <a
+            nw-button
+            variant="secondary"
+            class="organization-detail__members-link"
+            [routerLink]="membersPath(platform.id, detail.id)"
+          >
+            <nw-icon name="users" size="sm" />{{ 'organizations.detail.viewMembers' | transloco }}
+          </a>
           <p class="organization-detail__note" id="organization-membership-note">
             <nw-icon name="info" size="sm" />{{ 'organizations.detail.membershipNote' | transloco }}
           </p>

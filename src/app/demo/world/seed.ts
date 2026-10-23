@@ -13,6 +13,7 @@ import {
   OrganizationRecord,
   adminIdentityId,
 } from './records';
+import { seedMemberships } from './seed-memberships';
 
 /**
  * The FICTIONAL canonical seed of the demo world (development builds only). Not Core data and not a Core contract. Ids
@@ -52,7 +53,11 @@ const DAY = 24;
 const org = (n: number): OrganizationId =>
   organizationId(`3f6d2b10-8c4e-4a71-9b2c-5e0f1a2b3c${n.toString().padStart(2, '0')}`);
 
-/** One Organization of the seed: its number (stable id), when it was created and its counts. */
+/**
+ * One Organization of the seed: its number (stable id), when it was created, and the figures its membership records are
+ * generated from (`seedMemberships`): `memberships` active ones, `pendingRequests` pending ones. The figures are not kept
+ * on the record: every view derives them from the memberships.
+ */
 interface OrganizationSeed {
   readonly n: number;
   readonly platformId: PlatformId;
@@ -466,8 +471,6 @@ export function demoWorldSeed(now: number): DemoWorldTables {
     platformId: o.platformId,
     name: o.name,
     createdAt: at(-o.createdHoursAgo),
-    memberships: o.memberships,
-    pendingRequests: o.pendingRequests,
     assistedPayments: o.assistedPayments ?? 'inherit',
     taxCode: null,
     address: null,
@@ -475,6 +478,24 @@ export function demoWorldSeed(now: number): DemoWorldTables {
     type: null,
     updatedAt: at(-o.createdHoursAgo),
   }));
+  // École Horizon's admin is the person who accepted its used invitation (admin-invitation-8).
+  const horizonAdmin = ADMIN_INVITATIONS.find((i) => i.consumedHoursAgo !== undefined);
+  const { members, memberships } = seedMemberships(
+    ORGANIZATIONS.map((o) => ({
+      organizationId: org(o.n),
+      platformId: o.platformId,
+      createdAt: now - o.createdHoursAgo * HOUR_MS,
+      active: o.memberships,
+      pending: o.pendingRequests,
+      rejected: o.n % 4 === 1 ? 1 : 0,
+      revoked: o.n === 1 ? 1 : 0,
+      ...(o.n === horizonAdmin?.n && horizonAdmin.consumedHoursAgo !== undefined
+        ? { adminJoinedAt: now - horizonAdmin.consumedHoursAgo * HOUR_MS }
+        : {}),
+    })),
+    S,
+    now,
+  );
   return {
     company: { id: DEMO_COMPANY_ID, name: 'Nawara Solutions', ownerId: DEMO_OWNER_ID },
     platforms: [
@@ -522,6 +543,8 @@ export function demoWorldSeed(now: number): DemoWorldTables {
       revokedAt: i.revokedHoursAgo === undefined ? null : at(-i.revokedHoursAgo),
       revokedBy: i.revokedHoursAgo === undefined ? null : DEMO_OWNER_USER_ID,
     })),
+    members,
+    memberships,
     paymentIssues: [
       { id: 'payment-issue-1', organizationId: org(3), kind: 'failed' },
       { id: 'payment-issue-2', organizationId: org(21), kind: 'awaiting_action' },

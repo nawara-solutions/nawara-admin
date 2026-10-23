@@ -452,6 +452,19 @@ confirm (severity-appropriate dialog)
 - **No idempotency:** nothing is resent after a lost answer. Create reconciles client-side only (ids known before sending,
   `createdBy`, `createdAt`) and labels matches "possibly", never "proven".
 
+**Organization members (P5-S1, 2026-10-23), read only**
+([`design/p5-users-and-memberships.md`](design/p5-users-and-memberships.md)):
+
+- Nested routes `…/organizations/:organizationId/members` and `…/members/:membershipId`, still platform scope
+  (`PlatformPage` kinds `members` and `membership`). One `OrganizationMembersFacade` on the parent route reuses the
+  Organization detail facade's checks, then loads the three listable statuses; list ↔ detail navigation never refetches.
+- **List-derived detail:** Core has no single-membership read, so a membership is found in the loaded lists or is "not
+  found" (unknown, another Organization's or revoked alike). No detail API is invented.
+- **Derived counts:** DemoWorld stores people and memberships, not figures; every membership and pending-request count is
+  a selector over records.
+- **Contacts are minimum and local:** the search text is page state, never a URL parameter; breadcrumbs and titles carry
+  the Organization's name only; contacts render LTR in an isolated `bdi`.
+
 ## 13. Design system: tokens, SCSS and BEM
 
 ### Token architecture

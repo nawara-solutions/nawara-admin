@@ -205,7 +205,9 @@
     "contactConfirmation": "Confirm your contact",
     "enroll": "Set up your authenticator",
     "organizations": "Organizations",
-    "organization": "Organization"
+    "organization": "Organization",
+    "members": "Members",
+    "membership": "Membership"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -222,7 +224,9 @@
       "platforms": "Platforms",
       "appearance": "Appearance",
       "organizations": "Organizations",
-      "organization": "Organization"
+      "organization": "Organization",
+      "members": "Members",
+      "membership": "Membership"
     },
     "context": {
       "label": "Administration scope",
@@ -773,6 +777,74 @@
         "validation": "The details were refused. Check them (the type, and that the duration is allowed) and try again. Nothing was created."
       }
     },
+    "members": {
+      "title": "Members",
+      "subtitle": "Memberships in this organization. One person can be a member of several organizations; this page shows this one only.",
+      "backToOrganization": "Organization",
+      "tabsLabel": "Membership status",
+      "status": {
+        "active": "Active",
+        "pending": "Requests",
+        "rejected": "Rejected"
+      },
+      "searchLabel": "Search members",
+      "searchPlaceholder": "Search by email, phone or audience",
+      "adminsOnly": "Organization admins only",
+      "sortLabel": "Sort",
+      "sort": {
+        "newest": "Newest requests first",
+        "oldest": "Oldest requests first",
+        "identity": "By email or phone"
+      },
+      "count": "Showing {{shown}} of {{total}}",
+      "loading": "Loading members",
+      "errorTitle": "The members could not be loaded",
+      "errorDescription": "The service did not answer. This is not a change to your access. Try again in a moment.",
+      "notInBuildTitle": "Members are not available in this build",
+      "notInBuildDescription": "No Nawara Core connection provides memberships here yet.",
+      "empty": {
+        "active": "No active members yet.",
+        "pending": "No requests awaiting approval.",
+        "rejected": "No rejected requests."
+      },
+      "noResultsTitle": "No members match",
+      "noResultsDescription": "Check the spelling, or clear the search and filters.",
+      "clear": "Clear search and filters",
+      "footnote": "Being a member never grants administration: only the organization-admin role does. Revoked memberships are not listed.",
+      "table": {
+        "label": "Members of this organization",
+        "member": "Member",
+        "role": "Role in this organization",
+        "audience": "Audience",
+        "requested": "Requested",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "role": {
+        "admin": "Organization admin",
+        "member": "Member"
+      },
+      "identity": {
+        "user": "Member {{ref}}",
+        "verified": "Contact verified",
+        "unverified": "Contact not verified"
+      },
+      "detail": {
+        "eyebrow": "Membership in {{name}}",
+        "back": "All members",
+        "facts": "This membership",
+        "status": "Status",
+        "statusPending": "Request awaiting approval",
+        "email": "Email",
+        "phone": "Phone",
+        "contact": "Contact",
+        "other": "Other memberships",
+        "otherNote": "Not shown: Nawara Core offers no way to find one person across organizations.",
+        "readOnly": "Read only: decisions, revocation and the admin role arrive in later releases.",
+        "notFoundTitle": "Membership not found or not accessible",
+        "notFoundDescription": "It may not exist, may belong to another organization, or may no longer be listed."
+      }
+    },
     "totals": {
       "label": "Platform totals",
       "organizations": "Organizations",
@@ -867,7 +939,7 @@
       "activeMemberships": "Active memberships",
       "pendingRequests": "Requests awaiting approval",
       "invitationsAwaiting": "Organization-admin invitations awaiting acceptance",
-      "membershipNote": "The member list and request review arrive with membership administration.",
+      "membershipNote": "The member list is available below; request decisions arrive with membership administration.",
       "reviewRequests": "Review requests",
       "activity": "Recent activity",
       "activityEmpty": "No recent administrative activity for this organization.",
@@ -896,7 +968,8 @@
       "type": "Type",
       "taxCode": "Tax code",
       "phone": "Phone",
-      "address": "Address"
+      "address": "Address",
+      "viewMembers": "View members"
     },
     "activity": {
       "organizationCreated": "Organization created",

@@ -18,6 +18,7 @@ import {
   MOCK_ORGANIZATION_PROVIDERS,
 } from '../features/organizations/data-access/organization.mock';
 import { MOCK_ADMIN_INVITATION_PROVIDERS } from '../features/organizations/data-access/admin-invitation.mock';
+import { MOCK_MEMBERSHIP_PROVIDERS } from '../features/organizations/data-access/membership.mock';
 import { MOCK_ORGANIZATION_COMMAND_PROVIDERS } from '../features/organizations/data-access/organization-command.mock';
 import { MOCK_PLATFORM_COMMAND_PROVIDERS } from '../features/platforms/data-access/platform-command.mock';
 import { MOCK_PLATFORM_DIRECTORY_PROVIDERS } from '../features/platforms/data-access/platform-directory.mock';
@@ -43,6 +44,7 @@ export const DEMO_BINDINGS: DemoBindings = {
     platformCommands: MOCK_PLATFORM_COMMAND_PROVIDERS,
     organizationCommands: MOCK_ORGANIZATION_COMMAND_PROVIDERS,
     adminInvitations: MOCK_ADMIN_INVITATION_PROVIDERS,
+    memberships: MOCK_MEMBERSHIP_PROVIDERS,
     stepUp: MOCK_STEP_UP_PROVIDERS,
   },
 };

@@ -154,6 +154,10 @@
 }
 
 // Read only: focusable (so its "not available yet" description is reachable), never actionable.
+.organization-detail__members-link {
+  justify-self: start;
+}
+
 .organization-detail__unavailable-action {
   justify-self: start;
   min-block-size: 2.75rem;

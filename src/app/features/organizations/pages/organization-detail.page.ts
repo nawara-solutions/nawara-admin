@@ -13,7 +13,12 @@ import { can } from '../../../core/access/capability-policy';
 import { homePath } from '../../../core/access/home-path';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { EntityLabel } from '../../../core/context/entity-label';
-import { ScopeContext, organizationsPath, platformPath } from '../../../core/context/scope-context';
+import {
+  ScopeContext,
+  membersPath,
+  organizationsPath,
+  platformPath,
+} from '../../../core/context/scope-context';
 import { OverviewCard } from '../../../shared/dashboard/overview-card/overview-card';
 import { SummaryCard } from '../../../shared/dashboard/summary-card/summary-card';
 import { MetricValue } from '../../../shared/dashboard/metric-value/metric-value';
@@ -93,6 +98,7 @@ export class OrganizationDetailPage {
   protected readonly platformPath = platformPath;
   protected readonly metadataFields = METADATA_FIELDS;
   protected readonly organizationsPath = organizationsPath;
+  protected readonly membersPath = membersPath;
 
   protected readonly home = computed(() => homePath(this.session.actor()));
   protected readonly canOpenPlatforms = computed(() =>

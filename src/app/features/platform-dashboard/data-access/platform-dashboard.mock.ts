@@ -12,6 +12,8 @@ import {
   assignmentsOf,
   createdWithin,
   membershipTotal,
+  activeMembershipCount,
+  pendingRequestCount,
   newestFirst,
   organizationNameOf,
   organizationsOf,
@@ -98,10 +100,10 @@ export class MockPlatformDashboardGateway extends PlatformDashboardGateway {
           organizationsAdded: count(
             createdWithin(organizations, this.now(), PLATFORM_PERIOD_DAYS).length,
           ),
-          memberships: count(membershipTotal(organizations)),
-          membershipRequests: count(pendingRequestTotal(organizations)),
+          memberships: count(membershipTotal(world, organizations)),
+          membershipRequests: count(pendingRequestTotal(world, organizations)),
           organizationsWithRequests: count(
-            organizations.filter((o) => o.pendingRequests > 0).length,
+            organizations.filter((o) => pendingRequestCount(world, o.id) > 0).length,
           ),
         },
       },
@@ -116,8 +118,8 @@ export class MockPlatformDashboardGateway extends PlatformDashboardGateway {
                 id: o.id,
                 name: o.name,
                 createdAt: o.createdAt,
-                memberships: count(o.memberships),
-                pendingRequests: count(o.pendingRequests),
+                memberships: count(activeMembershipCount(world, o.id)),
+                pendingRequests: count(pendingRequestCount(world, o.id)),
               })),
           },
       operatorAssignments: owner

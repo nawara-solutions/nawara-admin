@@ -11,7 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet, UrlSerializer } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { filter, map } from 'rxjs';
 import { Sidebar } from '../sidebar/sidebar';
@@ -20,10 +20,18 @@ import { TopBar } from '../top-bar/top-bar';
 /** Below the `laptop` breakpoint (docs/ARCHITECTURE.md §15, abstracts/_breakpoints.scss) navigation is a drawer. */
 export const DRAWER_QUERY = '(max-width: 56.24em)';
 
+/** The page a URL shows: its path, without query parameters or fragment. */
+export function pageOf(serializer: UrlSerializer, url: string): string {
+  const tree = serializer.parse(url);
+  tree.queryParams = {};
+  tree.fragment = null;
+  return serializer.serialize(tree);
+}
+
 /**
  * The application shell (docs/ARCHITECTURE.md §15, §25): skip link, sidebar (a drawer on narrow and tablet
- * viewports), top bar and the `main` landmark. On route change focus moves to `main` so the new page is read from its
- * heading, and the drawer closes.
+ * viewports), top bar and the `main` landmark. On a change of page focus moves to `main` so the new page is read from
+ * its heading (not when only query parameters change), and the drawer closes.
  */
 @Component({
   selector: 'adm-shell',
@@ -41,6 +49,7 @@ export const DRAWER_QUERY = '(max-width: 56.24em)';
 export class Shell {
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
+  private readonly serializer = inject(UrlSerializer);
   private readonly main = viewChild.required<ElementRef<HTMLElement>>('main');
   private readonly sidebar = viewChild.required(Sidebar, { read: ElementRef });
   private readonly topBar = viewChild.required(TopBar);
@@ -54,13 +63,18 @@ export class Shell {
   protected readonly drawerOpen = signal(false);
 
   constructor() {
-    let first = true;
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
-      this.drawerOpen.set(false);
-      // The first page load keeps the browser's natural focus; later navigations move focus to the new page.
-      if (!first) this.main().nativeElement.focus({ preventScroll: true });
-      first = false;
-    });
+    let path: string | null = null;
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        this.drawerOpen.set(false);
+        // The first page load keeps the browser's natural focus; later navigations move focus to the new page. A change
+        // of query parameters only (a tab, a filter, a sort) stays on the same page, so focus stays on its control.
+        const next = pageOf(this.serializer, event.urlAfterRedirects);
+        if (path !== null && next !== path)
+          this.main().nativeElement.focus({ preventScroll: true });
+        path = next;
+      });
 
     // Leaving drawer mode (resize) never leaves an invisible drawer "open".
     effect(() => {

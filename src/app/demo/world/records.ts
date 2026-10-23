@@ -40,10 +40,6 @@ export interface OrganizationRecord {
   readonly name: string;
   /** UTC instant, ISO 8601 with `Z`. */
   readonly createdAt: string;
-  /** Memberships in this Organization (a count: membership and user records arrive with P5). */
-  readonly memberships: number;
-  /** Membership requests awaiting approval (a count, as above). */
-  readonly pendingRequests: number;
   /** The Organization's assisted-payments override: inherit the Platform's setting, or disabled. */
   readonly assistedPayments: 'inherit' | 'disabled';
   /**
@@ -56,6 +52,40 @@ export interface OrganizationRecord {
   readonly type: string | null;
   /** UTC instant of the last change (Core's `updatedAt`): the creation instant until a metadata edit changes something. */
   readonly updatedAt: string;
+}
+
+/**
+ * A member's Auth identity (`user`, kind `member`), as far as Core's Organization membership list exposes it (P5-S0):
+ * an id, an email or a phone, and whether the contact is verified. No name exists. Never an owner or an operator.
+ */
+export interface MemberIdentityRecord {
+  readonly id: string;
+  readonly email: string | null;
+  readonly phone: string | null;
+  readonly contactVerified: boolean;
+}
+
+/** Core's membership states (ADR-0030): pending → active | rejected; active → revoked. `rejected` and `revoked` are final. */
+export type MembershipStatus = 'pending' | 'active' | 'rejected' | 'revoked';
+
+/**
+ * One user's membership of one Organization (`organization_membership`, ADR-0028/0030; one per user and Organization).
+ * The organization-admin privilege is its own flag, set only while active; membership alone grants no authority.
+ * Counts are derived from these records: active memberships are "memberships", pending ones "requests".
+ */
+export interface MembershipRecord {
+  readonly id: string;
+  readonly organizationId: OrganizationId;
+  readonly userId: string;
+  readonly status: MembershipStatus;
+  /** UTC instants, ISO 8601 with `Z`. */
+  readonly requestedAt: string;
+  readonly approvedAt: string | null;
+  readonly rejectedAt: string | null;
+  readonly revokedAt: string | null;
+  readonly isOrganizationAdmin: boolean;
+  /** Opaque, platform-defined label from the join code or the admin invitation. */
+  readonly audience: string;
 }
 
 /** The Company's administrative staff: its owner and its Platform operators. Never an Organization member. */
@@ -167,6 +197,9 @@ export interface DemoWorldTables {
   readonly assignments: readonly PlatformAssignmentRecord[];
   readonly subscriptions: readonly OrganizationSubscriptionRecord[];
   readonly adminInvitations: readonly AdminInvitationRecord[];
+  /** Member identities and their Organization memberships (P5-S1). */
+  readonly members: readonly MemberIdentityRecord[];
+  readonly memberships: readonly MembershipRecord[];
   readonly paymentIssues: readonly PaymentIssueRecord[];
   readonly platformCommercial: readonly PlatformCommercialRecord[];
   readonly activity: readonly ActivityRecord[];

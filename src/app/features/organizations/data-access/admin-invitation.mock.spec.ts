@@ -293,7 +293,7 @@ describe('MockAdminInvitationGateway (demo world)', () => {
     const statuses = Object.fromEntries((await list()).invitations.map((i) => [i.id, i.status]));
     expect(statuses['admin-invitation-1']).toBe('revoked');
     expect(statuses['admin-invitation-10']).toBe('revoked');
-    const memberships = world.snapshot().organizations.find((o) => o.id === HORIZON)?.memberships;
+    const memberships = world.snapshot().memberships;
     for (const id of [
       'admin-invitation-8',
       'admin-invitation-9',
@@ -312,9 +312,7 @@ describe('MockAdminInvitationGateway (demo world)', () => {
     // Another Organization's invitation, through this one's route.
     expect((await error(revoke('admin-invitation-3', HORIZON))).status).toBe(404);
     // Revocation never touches memberships.
-    expect(world.snapshot().organizations.find((o) => o.id === HORIZON)?.memberships).toBe(
-      memberships,
-    );
+    expect(world.snapshot().memberships).toBe(memberships);
     expect(world.snapshot().activity.at(-1)).toMatchObject({ action: 'admin_invitation.revoked' });
   });
 

@@ -7,7 +7,13 @@ import { can } from '../../core/access/capability-policy';
 import { homePath } from '../../core/access/home-path';
 import { AuthSession } from '../../core/auth/auth-session';
 import { EntityLabel } from '../../core/context/entity-label';
-import { ScopeContext, organizationsPath, platformPath } from '../../core/context/scope-context';
+import {
+  ScopeContext,
+  membersPath,
+  organizationPath,
+  organizationsPath,
+  platformPath,
+} from '../../core/context/scope-context';
 import { NwIcon } from '../../shared/ui/icon/icon';
 
 /** Route data key: the catalog key of the page's last breadcrumb ("Overview"). */
@@ -85,7 +91,7 @@ export class Breadcrumbs {
         ? { label: name, translate: false }
         : { label: 'shell.breadcrumb.platform', translate: true };
       const page = this.context.platformPage();
-      if (page.kind !== 'organizations' && page.kind !== 'organization')
+      if (page.kind === 'dashboard' || page.kind === 'other')
         return [company, ...platforms, platform];
       const organizations: Crumb = {
         label: 'shell.breadcrumb.organizations',
@@ -100,12 +106,22 @@ export class Breadcrumbs {
       ];
       if (page.kind === 'organizations') return trail;
       const path = this.context.url().split(/[?#]/)[0] ?? '';
-      const organization = this.entity?.labelFor(path) ?? null;
-      return [
+      // The Organization's name, set by the page that shows it (detail or members); never a member's contact.
+      const organizationName = this.entity?.labelFor(path) ?? null;
+      const organization: Crumb = organizationName
+        ? { label: organizationName, translate: false }
+        : { label: 'shell.breadcrumb.organization', translate: true };
+      if (page.kind === 'organization') return [...trail, organization];
+      const withOrganization = [
         ...trail,
-        organization
-          ? { label: organization, translate: false }
-          : { label: 'shell.breadcrumb.organization', translate: true },
+        { ...organization, link: organizationPath(scope.platformId, page.organizationId) },
+      ];
+      const members: Crumb = { label: 'shell.breadcrumb.members', translate: true };
+      if (page.kind === 'members') return [...withOrganization, members];
+      return [
+        ...withOrganization,
+        { ...members, link: membersPath(scope.platformId, page.organizationId) },
+        { label: 'shell.breadcrumb.membership', translate: true },
       ];
     }
     const page = this.pageKey();

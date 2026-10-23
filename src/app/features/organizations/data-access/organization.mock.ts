@@ -9,6 +9,8 @@ import { DemoWorldTables, OrganizationRecord } from '../../../demo/world/records
 import {
   activityOfOrganization,
   activeAdminInvitationsOf,
+  activeMembershipCount,
+  pendingRequestCount,
   assistedPaymentsOf,
   newestFirst,
   organizationOf,
@@ -79,14 +81,17 @@ function visibleOrganization(
   return typeof viewer === 'string' ? { record, viewer } : viewer;
 }
 
-const summaryOf = (o: OrganizationRecord): OrganizationSummary => ({
-  id: o.id,
-  platformId: o.platformId,
-  name: o.name,
-  createdAt: o.createdAt,
-  memberships: count(o.memberships),
-  pendingRequests: count(o.pendingRequests),
-});
+/** Its figures are derived from membership records: active memberships, pending requests. */
+const summaryOf =
+  (world: DemoWorldTables) =>
+  (o: OrganizationRecord): OrganizationSummary => ({
+    id: o.id,
+    platformId: o.platformId,
+    name: o.name,
+    createdAt: o.createdAt,
+    memberships: count(activeMembershipCount(world, o.id)),
+    pendingRequests: count(pendingRequestCount(world, o.id)),
+  });
 
 function subscriptionOf(
   world: DemoWorldTables,
@@ -120,7 +125,7 @@ export class MockOrganizationGateway extends OrganizationGateway {
     const organizations =
       this.scenario === 'empty' ? [] : [...organizationsOf(world, platform)].sort(newestFirst);
     return answer(
-      { platformId: platform, organizations: organizations.map(summaryOf) },
+      { platformId: platform, organizations: organizations.map(summaryOf(world)) },
       this.latency,
     );
   }
@@ -134,7 +139,7 @@ export class MockOrganizationGateway extends OrganizationGateway {
     const { record, viewer } = visible;
     const owner = viewer === 'owner';
     const detail: OrganizationDetail = {
-      ...summaryOf(record),
+      ...summaryOf(world)(record),
       metadata: {
         taxCode: record.taxCode,
         address: record.address,

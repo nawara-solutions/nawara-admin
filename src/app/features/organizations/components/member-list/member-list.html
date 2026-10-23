@@ -1,0 +1,82 @@
+@let decidedKey = decidedKeys[status()];
+<div [id]="listId()">
+  <table class="member-list__table">
+    <caption class="nw-visually-hidden">
+      {{
+        'organizations.members.table.label' | transloco
+      }}
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">{{ 'organizations.members.table.member' | transloco }}</th>
+        <th scope="col">{{ 'organizations.members.table.role' | transloco }}</th>
+        <th scope="col">{{ 'organizations.members.table.audience' | transloco }}</th>
+        <th scope="col">{{ 'organizations.members.table.requested' | transloco }}</th>
+        @if (decidedKey) {
+          <th scope="col">{{ decidedKey | transloco }}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track row.id) {
+        <tr>
+          <th scope="row">
+            <ng-container *ngTemplateOutlet="identityLink; context: { $implicit: row }" />
+          </th>
+          <td><ng-container *ngTemplateOutlet="role; context: { $implicit: row }" /></td>
+          <td>
+            <bdi class="member-list__audience" dir="ltr" translate="no">{{ row.audience }}</bdi>
+          </td>
+          <td>{{ row.requestedAt | nwDate: 'date' }}</td>
+          @if (decidedKey) {
+            <td>{{ decidedAt(row) ? (decidedAt(row)! | nwDate: 'date') : '—' }}</td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+  <ul class="member-list__cards" role="list">
+    @for (row of rows(); track row.id) {
+      <li class="member-list__card">
+        <ng-container *ngTemplateOutlet="identityLink; context: { $implicit: row }" />
+        <ng-container *ngTemplateOutlet="role; context: { $implicit: row }" />
+        <span class="member-list__meta">
+          {{ 'organizations.members.table.audience' | transloco }}
+          <bdi class="member-list__audience" dir="ltr" translate="no">{{ row.audience }}</bdi>
+          · {{ 'organizations.members.table.requested' | transloco }}
+          {{ row.requestedAt | nwDate: 'date' }}
+          @if (decidedKey && decidedAt(row)) {
+            · {{ decidedKey | transloco }} {{ decidedAt(row)! | nwDate: 'date' }}
+          }
+        </span>
+      </li>
+    }
+  </ul>
+</div>
+
+<ng-template #identityLink let-row>
+  @let who = identity(row);
+  <a class="member-list__link" [routerLink]="pathOf()(row)">
+    @if (who.kind === 'user') {
+      {{ 'organizations.members.identity.user' | transloco: { ref: who.value } }}
+    } @else {
+      <bdi dir="ltr" translate="no">{{ who.value }}</bdi>
+    }
+  </a>
+  <span class="member-list__verified" [class.member-list__verified--no]="!row.contactVerified">
+    <nw-icon [name]="row.contactVerified ? 'badge-check' : 'circle-alert'" size="sm" />{{
+      (row.contactVerified
+        ? 'organizations.members.identity.verified'
+        : 'organizations.members.identity.unverified'
+      ) | transloco
+    }}
+  </span>
+</ng-template>
+
+<ng-template #role let-row>
+  @if (row.isOrganizationAdmin) {
+    <span class="member-list__admin">{{ 'organizations.members.role.admin' | transloco }}</span>
+  } @else {
+    <span class="member-list__member">{{ 'organizations.members.role.member' | transloco }}</span>
+  }
+</ng-template>

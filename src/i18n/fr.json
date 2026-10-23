@@ -205,7 +205,9 @@
     "contactConfirmation": "Confirmez votre contact",
     "enroll": "Configurez votre application d’authentification",
     "organizations": "Organisations",
-    "organization": "Organisation"
+    "organization": "Organisation",
+    "members": "Membres",
+    "membership": "Adhésion"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -222,7 +224,9 @@
       "platforms": "Plateformes",
       "appearance": "Apparence",
       "organizations": "Organisations",
-      "organization": "Organisation"
+      "organization": "Organisation",
+      "members": "Membres",
+      "membership": "Adhésion"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -773,6 +777,74 @@
         "validation": "Les informations ont été refusées. Vérifiez-les (le type, et que la durée est autorisée) puis réessayez. Rien n’a été créé."
       }
     },
+    "members": {
+      "title": "Membres",
+      "subtitle": "Les adhésions de cette organisation. Une personne peut être membre de plusieurs organisations ; cette page ne montre que celle-ci.",
+      "backToOrganization": "Organisation",
+      "tabsLabel": "Statut d’adhésion",
+      "status": {
+        "active": "Actives",
+        "pending": "Demandes",
+        "rejected": "Refusées"
+      },
+      "searchLabel": "Rechercher des membres",
+      "searchPlaceholder": "Rechercher par e-mail, téléphone ou audience",
+      "adminsOnly": "Administrateurs de l’organisation uniquement",
+      "sortLabel": "Trier",
+      "sort": {
+        "newest": "Demandes les plus récentes",
+        "oldest": "Demandes les plus anciennes",
+        "identity": "Par e-mail ou téléphone"
+      },
+      "count": "{{shown}} sur {{total}}",
+      "loading": "Chargement des membres",
+      "errorTitle": "Les membres n’ont pas pu être chargés",
+      "errorDescription": "Le service n’a pas répondu. Ce n’est pas un changement de vos accès. Réessayez dans un instant.",
+      "notInBuildTitle": "Les membres ne sont pas disponibles dans cette version",
+      "notInBuildDescription": "Aucune connexion Nawara Core ne fournit encore les adhésions ici.",
+      "empty": {
+        "active": "Aucun membre actif pour le moment.",
+        "pending": "Aucune demande en attente.",
+        "rejected": "Aucune demande refusée."
+      },
+      "noResultsTitle": "Aucun membre ne correspond",
+      "noResultsDescription": "Vérifiez l’orthographe ou effacez la recherche et les filtres.",
+      "clear": "Effacer la recherche et les filtres",
+      "footnote": "Être membre ne donne jamais de droits d’administration : seul le rôle d’administrateur de l’organisation le fait. Les adhésions révoquées ne sont pas listées.",
+      "table": {
+        "label": "Membres de cette organisation",
+        "member": "Membre",
+        "role": "Rôle dans cette organisation",
+        "audience": "Audience",
+        "requested": "Demandée",
+        "approved": "Approuvée",
+        "rejected": "Refusée"
+      },
+      "role": {
+        "admin": "Administrateur de l’organisation",
+        "member": "Membre"
+      },
+      "identity": {
+        "user": "Membre {{ref}}",
+        "verified": "Contact vérifié",
+        "unverified": "Contact non vérifié"
+      },
+      "detail": {
+        "eyebrow": "Adhésion à {{name}}",
+        "back": "Tous les membres",
+        "facts": "Cette adhésion",
+        "status": "Statut",
+        "statusPending": "Demande en attente",
+        "email": "E-mail",
+        "phone": "Téléphone",
+        "contact": "Contact",
+        "other": "Autres adhésions",
+        "otherNote": "Non affichées : Nawara Core ne permet pas de retrouver une personne d’une organisation à l’autre.",
+        "readOnly": "Lecture seule : les décisions, la révocation et le rôle d’administrateur arriveront dans de prochaines versions.",
+        "notFoundTitle": "Adhésion introuvable ou inaccessible",
+        "notFoundDescription": "Elle n’existe peut-être pas, appartient peut-être à une autre organisation, ou n’est plus listée."
+      }
+    },
     "totals": {
       "label": "Totaux de la plateforme",
       "organizations": "Organisations",
@@ -867,7 +939,7 @@
       "activeMemberships": "Adhésions actives",
       "pendingRequests": "Demandes en attente d’approbation",
       "invitationsAwaiting": "Invitations d’administrateur de l’organisation en attente d’acceptation",
-      "membershipNote": "La liste des membres et l’examen des demandes arrivent avec l’administration des adhésions.",
+      "membershipNote": "La liste des membres est disponible ; les décisions sur les demandes arriveront avec l’administration des adhésions.",
       "reviewRequests": "Examiner les demandes",
       "activity": "Activité récente",
       "activityEmpty": "Aucune activité administrative récente pour cette organisation.",
@@ -896,7 +968,8 @@
       "type": "Type",
       "taxCode": "Numéro fiscal",
       "phone": "Téléphone",
-      "address": "Adresse"
+      "address": "Adresse",
+      "viewMembers": "Voir les membres"
     },
     "activity": {
       "organizationCreated": "Organisation créée",

@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations implemented, awaiting review; rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members implemented, awaiting review; rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,9 +290,30 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
-## P3b-S3: mock Organization admin invitations (contract verified and implemented 2026-10-23)
+## P5-S1: read-only Organization members and membership details (contract verified and implemented 2026-10-23)
 
 **Status: implemented as a development-only mock prototype, awaiting review.** Design and contract:
+[`design/p5-users-and-memberships.md`](design/p5-users-and-memberships.md) (P5-0 canvas corrected by the P5-S0 read-only
+Core verification, `b91b7bf`). Owner decisions D1 Company-wide Users & identity unavailable until CF-03; D2 tabs Active,
+Requests, Rejected (no Revoked); D3 email, else phone, else a neutral reference, never a name; D4 owners and assigned
+operators read; D5 a nested detail route resolved from the lists; D6 synthetic records with derived counts.
+
+- Routes `/platforms/:platformId/organizations/:organizationId/members[/:membershipId]`; "View members" on the
+  Organization's details; breadcrumbs name the Organization, never a member.
+- `MembershipGateway.list(organizationId, status)` (Core's list, always with `status`); the three listable statuses load
+  together; tabs with counts, local search (never in the URL), admins filter and sort in the URL, table / cards.
+- DemoWorld holds synthetic people and memberships; every membership and request figure (dashboards, directory, details)
+  is now derived from records, unchanged (School 920 / 12, Drive 460 / 4).
+- Shell fixes found in browser acceptance: focus moves to `main` only when the page changes, not on a query-only
+  change (a tab, filter or sort kept losing keyboard focus, the P3a directory filters included); the top bar keeps the
+  Platform switcher whole on deep trails, the search field gives way first, then the earliest crumbs truncate (the
+  current page never does). Owner review point: at 1280 px an eight-level trail shows Company / Platforms / … as initials.
+- Not built: approve / reject, revoke, the admin role, suspend / restore, join codes, a Company directory. Core follow-ups
+  CF-23 (contact minimization), CF-24 (revoked list, detail read), CF-25 (pagination), CF-26 (no step-up on decisions).
+
+## P3b-S3: mock Organization admin invitations (contract verified and implemented 2026-10-23)
+
+**Status: complete (PR #24), a development-only mock prototype.** Design and contract:
 [`design/p3b-s3-admin-invitations.md`](design/p3b-s3-admin-invitations.md) (durable copy of the six-artboard canvas,
 corrected by the P3b-S3-0 read-only Core verification). Owner decisions D-A free-text type validated to Core's pattern,
 D-B Core-format demo codes, D-C Revoke on active only (the model still revokes expired ones), D-D "You" only when certain,
