@@ -30,6 +30,10 @@ const ACTIONS = {
     icon: 'user-plus',
     key: 'platformDashboard.activity.membershipApproved',
   },
+  'membership.rejected': {
+    icon: 'circle-x',
+    key: 'platformDashboard.activity.membershipRejected',
+  },
   'operator.assigned': { icon: 'shield-check', key: 'platformDashboard.activity.operatorAssigned' },
 } as const satisfies Record<
   PlatformActivityAction,

@@ -36,7 +36,8 @@ export type OrganizationActivityAction =
   | 'organization.updated'
   | 'admin_invitation.created'
   | 'admin_invitation.revoked'
-  | 'membership.approved';
+  | 'membership.approved'
+  | 'membership.rejected';
 
 export interface OrganizationActivityEntry {
   readonly id: string;

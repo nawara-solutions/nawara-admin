@@ -364,6 +364,7 @@
         "invitationCreated": "Invitation créée",
         "invitationRevoked": "Invitation révoquée",
         "membershipApproved": "Adhésion approuvée",
+        "membershipRejected": "Demande d’adhésion refusée",
         "platformCreated": "Plateforme créée"
       },
       "auditLog": "Journal d’audit"
@@ -512,6 +513,7 @@
       "adminInvitationCreated": "Invitation d’administrateur créée",
       "adminInvitationRevoked": "Invitation d’administrateur révoquée",
       "membershipApproved": "Adhésion approuvée",
+      "membershipRejected": "Demande d’adhésion refusée",
       "operatorAssigned": "Opérateur affecté",
       "platformCreated": "Plateforme créée"
     },
@@ -817,7 +819,7 @@
         "role": "Rôle dans cette organisation",
         "audience": "Audience",
         "requested": "Demandée",
-        "approved": "Approuvée",
+        "activeSince": "Active depuis",
         "rejected": "Refusée"
       },
       "role": {
@@ -840,9 +842,50 @@
         "contact": "Contact",
         "other": "Autres adhésions",
         "otherNote": "Non affichées : Nawara Core ne permet pas de retrouver une personne d’une organisation à l’autre.",
-        "readOnly": "Lecture seule : les décisions, la révocation et le rôle d’administrateur arriveront dans de prochaines versions.",
+        "readOnly": "La révocation et le rôle d’administrateur d’organisation arriveront dans des versions ultérieures.",
         "notFoundTitle": "Adhésion introuvable ou inaccessible",
         "notFoundDescription": "Elle n’existe peut-être pas, appartient peut-être à une autre organisation, ou n’est plus listée."
+      },
+      "decision": {
+        "column": "Décision",
+        "approve": "Approuver",
+        "reject": "Refuser",
+        "approveFor": "Approuver la demande de {{who}}",
+        "rejectFor": "Refuser la demande de {{who}}",
+        "sending": "Envoi de la décision…",
+        "waiting": "Une autre décision est en cours d’envoi.",
+        "authorityOwner": "En tant que propriétaire de l’entreprise, vous pouvez approuver ou refuser les demandes. Nawara Core vérifie votre autorité à chaque décision.",
+        "authorityOperator": "En tant qu’opérateur affecté à {{platform}}, vous pouvez approuver ou refuser les demandes. Nawara Core vérifie votre autorité à chaque décision.",
+        "cardTitle": "Décision",
+        "approveTitle": "Approuver cette demande ?",
+        "rejectTitle": "Refuser cette demande ?",
+        "approveBody": "Cette personne devient membre active de {{name}}.",
+        "rejectBody": "La demande est close et cette personne ne rejoindra pas {{name}}. Cette action ne peut pas être annulée ici.",
+        "unverifiedWarning": "Ce contact n’a pas été confirmé. Nawara Core peut refuser l’approbation lorsque des contacts vérifiés sont exigés.",
+        "approveNote": "L’approbation ajoute une adhésion à cette organisation uniquement. Elle ne fait de personne un administrateur de l’organisation.",
+        "rejectNote": "Nawara Core enregistre la décision et son heure. Aucun motif n’est enregistré.",
+        "approveConfirm": "Approuver la demande",
+        "rejectConfirm": "Refuser la demande",
+        "approving": "Approbation de la demande…",
+        "rejecting": "Refus de la demande…",
+        "approvingShort": "Approbation…",
+        "rejectingShort": "Refus…",
+        "pendingNote": "Cette fenêtre reste ouverte jusqu’à la réponse de Nawara Core. Rien n’est envoyé deux fois.",
+        "checking": "Vérification de l’état actuel de la demande…",
+        "notListed": "La demande ne figure plus dans cette organisation.",
+        "nowStatus": "Son état actuel :",
+        "checkStatus": "Vérifier l’état",
+        "approved": "Demande approuvée dans {{name}}.",
+        "rejected": "Demande refusée dans {{name}}.",
+        "notDecided": "La décision dans {{name}} n’a pas abouti.",
+        "failure": {
+          "alreadyDecided": "Cette demande a déjà été traitée : votre décision n’a pas été appliquée.",
+          "contactNotVerified": "L’approbation exige un contact vérifié. Rien n’a été modifié ; vous pouvez toujours refuser la demande.",
+          "refused": "Cette demande ne vous est plus accessible. Rien n’a été modifié.",
+          "unknown": "Nous n’avons pas pu confirmer la décision : la réponse a été perdue, elle a donc pu être enregistrée ou non. Rien n’est renvoyé automatiquement.",
+          "rateLimited": "Trop de modifications d’adhésions en peu de temps. Rien n’a été modifié ; patientez quelques minutes puis réessayez.",
+          "unavailable": "Nawara Core n’a pas pu prendre la décision pour le moment. Rien n’a été modifié."
+        }
       }
     },
     "totals": {
@@ -977,6 +1020,7 @@
       "adminInvitationCreated": "Invitation d’administrateur créée",
       "adminInvitationRevoked": "Invitation d’administrateur révoquée",
       "membershipApproved": "Adhésion approuvée",
+      "membershipRejected": "Demande d’adhésion refusée",
       "simulated": "simulé"
     },
     "footnote": "Les adhésions sont comptées par organisation ; une personne peut en avoir dans plusieurs."

@@ -1,7 +1,8 @@
 # P5 — Users and memberships (design specification)
 
-- **Status:** P5-S1 (read-only Organization members and membership details) implemented as a development-only mock
-  prototype (2026-10-23). Production binds the unavailable adapter.
+- **Status:** P5-S1 (read-only Organization members and membership details) complete (PR #25); P5-S2 (approve and
+  reject requests) implemented as a development-only mock prototype, specified in
+  [`p5-s2-membership-decisions.md`](p5-s2-membership-decisions.md). Production binds the unavailable adapter.
 - **Why this file exists:** the claude.ai design canvases are private and have become unavailable before; this text is the
   durable record of the P5-0 design (six artboards) as corrected by the P5-S0 read-only Core verification.
 - **Contract:** source-verified in P5-S0 against Nawara Core `origin/main` `b91b7bf`
@@ -33,7 +34,7 @@ distinct people (CF-03, CF-11). Admin shows neither.
   admin of it (`platform/platform-access.service.ts:95-110`). All three receive the same rows, contacts included.
 - **No single-membership read** for administrators; `GET /auth/organizations/:id/membership` is the member's own
   tenancy check (`auth/auth.controller.ts:120-128`).
-- **Later slices (verified, not built):** approve/reject (`POST …/memberships/:id/approve|reject`, `200`, no step-up,
+- **Later slices (verified; approve/reject built in P5-S2):** approve/reject (`POST …/memberships/:id/approve|reject`, `200`, no step-up,
   `409 membership_already_decided`, `409 contact_not_verified`); revoke (`POST …/revoke`, `200`, no step-up, `409
   membership_not_active`, admin flag cleared); admin grant/remove (`POST|DELETE …/memberships/:id/admin`, `204`, owner +
   factor step-up `organization.admin.grant|revoke`); account suspend/restore (`POST /auth/admin/members/:id/suspend|
@@ -71,7 +72,7 @@ with derived figures of the same meaning.
   (case- and accent-insensitive, local); "Organization admins only" on the Active tab; sort newest / oldest / by email or
   phone; a polite count; a table from 40rem, cards below. Each row: identity (LTR, isolated) and contact verification in
   words, role in this Organization, audience (LTR, monospace, not translated), requested and decided dates.
-- **Membership:** identity, status, admin role, audience, email and/or phone, verification, requested / approved /
+- **Membership:** identity, status, admin role, audience, email and/or phone, verification, requested / active since /
   rejected instants; "Other memberships: not shown (Core offers no lookup across Organizations)"; read-only note.
 - **States:** the Organization's (checking, outage, not accessible, not found, loading, not in build, error); members
   loading, error with Try again, not in build, empty per tab, no results with "Clear search and filters"; membership not
@@ -83,6 +84,9 @@ with derived figures of the same meaning.
   organization admin; École Horizon's is the person who used its admin invitation) and its `pendingRequests` figure as
   PENDING ones, plus a few rejected and one revoked record that no figure counts. Every figure is now derived
   (`activeMembershipCount`, `pendingRequestCount`): School 920 / 12, Drive 460 / 4, unchanged.
+- Audiences (corrected in P5-S2 to Nawara School's standard join codes): School requests (pending, rejected) are
+  `teacher`, active School members `student` or `teacher`; Drive keeps `learner` requests and `learner`/`instructor`
+  members. Join codes and admission provenance are not represented.
 - About 1,360 synthetic people (no names; `member-NNNN@example.invalid`, or a phone in the unassigned `+999` range), some
   with memberships in several Organizations; timestamps within each Organization's life; ids deterministic.
 - `MockMembershipGateway` answers Core's list: authority as Core (owner, assigned operator), collapsed `404` otherwise,
@@ -97,5 +101,5 @@ Organization-scoped rows Core gives them. No other memberships, no distinct coun
 
 ## 8. Not built (later slices)
 
-Approve / reject (P5-S2), revoke and the admin role (P5-S3), account suspend / restore (P5-S4), join codes, a
+Revoke and the admin role (P5-S3), account suspend / restore (P5-S4), join codes, a
 Company-wide directory (blocked on CF-03), a revoked view (blocked on Core's list filter).

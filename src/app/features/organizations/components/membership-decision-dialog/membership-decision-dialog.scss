@@ -1,0 +1,48 @@
+// The membership decision dialog's content (P5-S2 design): the confirmation, pending and the result.
+.membership-decision__body {
+  display: grid;
+  gap: var(--nw-space-4);
+}
+
+.membership-decision__facts {
+  display: grid;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3) var(--nw-space-4);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  font-size: var(--nw-text-size-sm);
+
+  div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--nw-space-1) var(--nw-space-3);
+  }
+
+  dt {
+    color: var(--nw-text-secondary);
+  }
+
+  dd {
+    overflow-wrap: anywhere;
+  }
+}
+
+.membership-decision__mono {
+  font-family: var(--nw-font-mono);
+}
+
+.membership-decision__note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.membership-decision__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-2);
+}

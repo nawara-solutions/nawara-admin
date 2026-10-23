@@ -213,12 +213,24 @@ Admin strategy and the decision required before A4.
     contactVerified }`; raw email and phone for every reader. No name, provenance, `revokedAt` or decider.
   - **No single-membership read for administrators**: Admin resolves a membership's details from the three lists.
   - Approve / reject `POST …/memberships/:id/approve|reject` → `200 { id, status }`; `409 membership_already_decided`,
-    `409 contact_not_verified` (approve); **no step-up**. Revoke `POST …/revoke` → `200`; `409 membership_not_active`;
+    `409 contact_not_verified` (approve); **no step-up**. **Built in Admin as a demo mock only (P5-S2;
+    [`design/p5-s2-membership-decisions.md`](design/p5-s2-membership-decisions.md)).** Order (`membership.service.ts:100-129`):
+    throttle → row locked by id and URL Organization (none: `404`) → authority (`404`) → **one's own membership: the
+    same collapsed `404`** (not a distinct `403`) → not pending: `409 membership_already_decided` → approve with
+    `REQUIRE_CONTACT_VERIFICATION` (default **false**, `config/app-config.ts:391`) and an unverified contact:
+    `409 contact_not_verified` → conditional update (0 rows: `409`). Writes `status`, `approvedAt|rejectedAt`,
+    `approvedBy|rejectedBy` (never returned); audit, central audit and an outbox event in the same transaction. No
+    body, no idempotency key, no reason. Revoke `POST …/revoke` → `200`; `409 membership_not_active`;
     **no step-up**; clears the admin flag. Final.
   - Admin role `POST | DELETE …/memberships/:id/admin` → `204`; owner only; step-up `organization.admin.grant|revoke`
     (TOTP or WebAuthn); the membership must be active.
   - Suspend / restore `POST /auth/admin/members/:id/suspend|restore`: owner + factor step-up; reasons
     `compromised_account | security_incident | policy_violation`; **account-wide**, not one Organization.
+  - Audience (owner clarification, 2026-10-23, from the Core join-code investigation): join codes carry an opaque
+    `audience`, `requiresApproval` (pending vs active at registration) and `requiresSubscription` (a hint, not
+    authorization). Nawara School's standard codes: `student` without approval, `teacher` with approval; a product
+    default, not a Core rule. Admin never branches on the audience. Not source-verified here: what `approvedAt` holds for
+    a membership admitted without approval (Admin labels it "Active since").
   - Throttle `membership_op_actor` 120 per 900 s. A member may hold memberships in several Organizations (ADR-0030); no
     administrative read finds them, and nothing counts distinct people.
 - Operators (owner): create (step-up `operator.create`), confirm, block / unblock (deliberately no step-up), platform assignments
@@ -313,7 +325,8 @@ Admin strategy and the decision required before A4.
 | Platform create / edit | Organization | 🟢 contract · ⚠ not authoritative | `/organization/admin/platforms*` | Same |
 | Organization lifecycle (suspend/archive) | Organization | 🔴 | BD-5 undecided | Placeholder only |
 | Memberships — list (one Organization, by status) | Auth | 🟢 Prod | `GET …/memberships?status=` | `MembershipGateway.list(organizationId, status)`, mock in demo builds (P5-S1); detail resolved from the lists; **CF-23, CF-24, CF-25** |
-| Memberships — approve/reject/revoke | Auth | 🟢 Prod | `organization.controller.ts` | Not built (P5-S2/S3); HTTP (A7) |
+| Memberships — approve/reject | Auth | 🟢 Prod | `POST …/memberships/:id/approve\|reject` | `MembershipGateway.decide(organizationId, id, decision)`, mock in demo builds (P5-S2); never resent after a lost answer; **CF-26** |
+| Memberships — revoke | Auth | 🟢 Prod | `POST …/memberships/:id/revoke` | Not built (P5-S3); HTTP (A7) |
 | Join codes / admin invitations | Auth | 🟢 Prod | `organization.controller.ts` | HTTP (A7) |
 | Organization-admin grant/revoke | Auth | 🟢 Prod | `memberships/:id/admin` | HTTP (A7) |
 | Operators (create/confirm/block/unblock) | Auth | 🟢 Prod | `operator.controller.ts` | HTTP (A7) |

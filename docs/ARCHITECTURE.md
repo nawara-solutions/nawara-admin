@@ -465,6 +465,16 @@ confirm (severity-appropriate dialog)
 - **Contacts are minimum and local:** the search text is page state, never a URL parameter; breadcrumbs and titles carry
   the Organization's name only; contacts render LTR in an isolated `bdi`.
 
+**Sixth and seventh actions (P5-S2, 2026-10-23): membership decisions**, Auth-owned, owner and assigned operators
+([`design/p5-s2-membership-decisions.md`](design/p5-s2-membership-decisions.md)):
+
+- One `MembershipDecisionAction` (an `ActionRun` with no step-up) on the members parent route, shared by the list and
+  the detail page, so a decision is single-flight across both. The dialog reads the route's facade through the action
+  (CDK dialogs sit outside the route injector).
+- **Reconciliation without idempotency:** after a lost answer, a `409` or a `404`, the lists reload; the dialog waits
+  for an answer newer than the failure (`loadSequence`) before saying where the request is. Nothing is resent.
+- **Audience is opaque:** no rule in the command, the mock, the action or the UI reads it.
+
 ## 13. Design system: tokens, SCSS and BEM
 
 ### Token architecture

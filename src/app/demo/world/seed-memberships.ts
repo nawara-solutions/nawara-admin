@@ -30,10 +30,18 @@ export interface MembershipSeedSpec {
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 
-/** Opaque, platform-defined audience labels (ADR-0030); the admin's matches the seed's admin invitations. */
+/**
+ * Opaque, platform-defined audience labels (ADR-0030); the admin's matches the seed's admin invitations. `members`
+ * rotate over active memberships; `requests` is the audience of pending (and so of rejected) requests.
+ *
+ * Nawara School's standard join codes (owner policy, 2026-10-23): `student` codes do not require approval (the member
+ * is active at once), `teacher` codes do; so School requests are teachers. This is a product default, not a Core rule:
+ * the code's `requiresApproval` decides, never the label, and nothing in Admin branches on an audience (a pending
+ * `student` from a code that requires approval is valid). Join codes themselves are not part of the demo world.
+ */
 const AUDIENCES = {
-  school: { members: ['student', 'teacher', 'parent'], admin: 'org_admin' },
-  drive: { members: ['learner', 'instructor'], admin: 'fleet_manager' },
+  school: { members: ['student', 'teacher'], requests: 'teacher', admin: 'org_admin' },
+  drive: { members: ['learner', 'instructor'], requests: 'learner', admin: 'fleet_manager' },
 } as const;
 
 /** Every N-th active membership of an Organization (after the first) reuses a person from an earlier Organization. */
@@ -116,7 +124,7 @@ export function seedMemberships(
         userId: person(),
         status: 'pending',
         requestedAt: iso(now - (spec.pending - p) * step),
-        audience: audiences.members[0],
+        audience: audiences.requests,
       });
     for (let r = 0; r < spec.rejected; r++) {
       const requested = spec.createdAt + life * (0.5 + r * 0.01);
@@ -126,7 +134,7 @@ export function seedMemberships(
         status: 'rejected',
         requestedAt: iso(requested),
         rejectedAt: iso(requested + Math.min(HOUR, (now - requested) / 4)),
-        audience: audiences.members[0],
+        audience: audiences.requests,
       });
     }
     for (let v = 0; v < spec.revoked; v++) {

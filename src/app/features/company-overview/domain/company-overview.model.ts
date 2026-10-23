@@ -86,7 +86,8 @@ export type ActivityAction =
   | 'operator.assigned'
   | 'admin_invitation.created'
   | 'admin_invitation.revoked'
-  | 'membership.approved';
+  | 'membership.approved'
+  | 'membership.rejected';
 
 export interface ActivityEntry {
   readonly id: string;

@@ -364,6 +364,7 @@
         "invitationCreated": "تم إنشاء دعوة",
         "invitationRevoked": "تم إلغاء دعوة",
         "membershipApproved": "تمت الموافقة على عضوية",
+        "membershipRejected": "تم رفض طلب عضوية",
         "platformCreated": "تم إنشاء منصة"
       },
       "auditLog": "سجل التدقيق"
@@ -512,6 +513,7 @@
       "adminInvitationCreated": "تم إنشاء دعوة مسؤول",
       "adminInvitationRevoked": "تم إلغاء دعوة مسؤول",
       "membershipApproved": "تمت الموافقة على عضوية",
+      "membershipRejected": "تم رفض طلب عضوية",
       "operatorAssigned": "تم تعيين مشغّل",
       "platformCreated": "تم إنشاء منصة"
     },
@@ -817,7 +819,7 @@
         "role": "الدور في هذه المؤسسة",
         "audience": "الجمهور",
         "requested": "تاريخ الطلب",
-        "approved": "تاريخ الموافقة",
+        "activeSince": "نشطة منذ",
         "rejected": "تاريخ الرفض"
       },
       "role": {
@@ -840,9 +842,50 @@
         "contact": "جهة الاتصال",
         "other": "العضويات الأخرى",
         "otherNote": "غير معروضة: لا يتيح Nawara Core إيجاد الشخص نفسه عبر المؤسسات.",
-        "readOnly": "للاطّلاع فقط: القرارات والإلغاء ودور المسؤول ستأتي في إصدارات لاحقة.",
+        "readOnly": "يأتي الإلغاء ودور مسؤول المؤسسة في إصدارات لاحقة.",
         "notFoundTitle": "العضوية غير موجودة أو غير متاحة",
         "notFoundDescription": "ربما لا توجد، أو تتبع مؤسسة أخرى، أو لم تعد مدرجة."
+      },
+      "decision": {
+        "column": "القرار",
+        "approve": "قبول",
+        "reject": "رفض",
+        "approveFor": "قبول طلب {{who}}",
+        "rejectFor": "رفض طلب {{who}}",
+        "sending": "جارٍ إرسال القرار…",
+        "waiting": "يجري إرسال قرار آخر.",
+        "authorityOwner": "بصفتك مالك الشركة يمكنك قبول الطلبات أو رفضها. تتحقق Nawara Core من صلاحيتك في كل قرار.",
+        "authorityOperator": "بصفتك مشغّلًا مُسندًا إلى {{platform}} يمكنك قبول الطلبات أو رفضها. تتحقق Nawara Core من صلاحيتك في كل قرار.",
+        "cardTitle": "القرار",
+        "approveTitle": "قبول هذا الطلب؟",
+        "rejectTitle": "رفض هذا الطلب؟",
+        "approveBody": "يصبح عضوًا نشطًا في {{name}}.",
+        "rejectBody": "سيُغلق الطلب ولن ينضم إلى {{name}}. لا يمكن التراجع عن ذلك هنا.",
+        "unverifiedWarning": "لم يتم تأكيد جهة الاتصال هذه. قد ترفض Nawara Core القبول حيث تُشترط جهات اتصال موثّقة.",
+        "approveNote": "يضيف القبول عضوية في هذه المؤسسة فقط، ولا يجعل أحدًا مسؤولًا عن المؤسسة.",
+        "rejectNote": "تسجّل Nawara Core القرار ووقته. لا يُسجَّل أي سبب.",
+        "approveConfirm": "قبول الطلب",
+        "rejectConfirm": "رفض الطلب",
+        "approving": "جارٍ قبول الطلب…",
+        "rejecting": "جارٍ رفض الطلب…",
+        "approvingShort": "جارٍ القبول…",
+        "rejectingShort": "جارٍ الرفض…",
+        "pendingNote": "تبقى هذه النافذة مفتوحة حتى ترد Nawara Core. لا يُرسل أي شيء مرتين.",
+        "checking": "جارٍ التحقق من الحالة الحالية للطلب…",
+        "notListed": "لم يعد الطلب مدرجًا في هذه المؤسسة.",
+        "nowStatus": "حالته الحالية:",
+        "checkStatus": "التحقق من الحالة",
+        "approved": "تم قبول الطلب في {{name}}.",
+        "rejected": "تم رفض الطلب في {{name}}.",
+        "notDecided": "لم يكتمل القرار في {{name}}.",
+        "failure": {
+          "alreadyDecided": "سبق اتخاذ قرار بشأن هذا الطلب، لذلك لم يُطبَّق قرارك.",
+          "contactNotVerified": "يتطلب القبول جهة اتصال موثّقة. لم يتغير شيء، ولا يزال بإمكانك رفض الطلب.",
+          "refused": "لم يعد هذا الطلب متاحًا لك. لم يتغير شيء.",
+          "unknown": "تعذّر تأكيد القرار: فُقد الرد، لذا ربما سُجّل أو لم يُسجَّل. لا يُعاد الإرسال تلقائيًا.",
+          "rateLimited": "تغييرات كثيرة على العضويات في وقت قصير. لم يتغير شيء؛ انتظر بضع دقائق ثم حاول مجددًا.",
+          "unavailable": "تعذّر على Nawara Core اتخاذ القرار الآن. لم يتغير شيء."
+        }
       }
     },
     "totals": {
@@ -977,6 +1020,7 @@
       "adminInvitationCreated": "تم إنشاء دعوة مسؤول",
       "adminInvitationRevoked": "تم إلغاء دعوة مسؤول",
       "membershipApproved": "تمت الموافقة على عضوية",
+      "membershipRejected": "تم رفض طلب عضوية",
       "simulated": "محاكى"
     },
     "footnote": "تُحتسب العضويات لكل مؤسسة؛ يمكن لشخص واحد أن يملك عضويات في عدة مؤسسات."

@@ -32,6 +32,8 @@ const MARKERS = [
   'invitation-activity-revoked-',
   '0123456789ABCDEFGHJKMNPQRSTVWXYZ', // the demo invitation-code alphabet (admin-invitation.mock.ts)
   'MEMBERSHIPS_DEMO_SCENARIO', // mock adapter token (membership.mock.ts)
+  'MEMBERSHIP_DECISIONS_DEMO_SCENARIO', // mock adapter token (membership.mock.ts)
+  'membership-activity-', // demo decision activity ids (demo/world/commands/membership.commands.ts)
   'example.invalid', // synthetic member contacts (demo/world/seed-memberships.ts)
   '8c4f2e10-6b3a-4d5e-9f01-', // synthetic member identity ids (demo/world/seed-memberships.ts)
 ];

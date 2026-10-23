@@ -128,6 +128,17 @@
   font-size: var(--nw-text-size-sm);
 }
 
+.organization-members__authority {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-2) var(--nw-space-3);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  font-size: var(--nw-text-size-sm);
+}
+
 .organization-members__footnote {
   display: flex;
   align-items: center;
