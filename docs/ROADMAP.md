@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions implemented, awaiting review; rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation implemented, awaiting review; rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,9 +290,27 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## P5-S3a: mock membership revocation (design approved 2026-10-24; implemented 2026-10-24)
+
+**Status: implemented as a development-only mock prototype, awaiting review. P5-S3b (the organization-admin role,
+owner + step-up) is not implemented.** Design and contract:
+[`design/p5-s3-revocation-and-admin-role.md`](design/p5-s3-revocation-and-admin-role.md) (seven owner decisions approved).
+
+- "Revoke…" on Active rows and a "Manage membership" card on an active membership's details, for the Company owner and
+  operators assigned to the Platform, an organization admin's membership included (Core allows it; the confirmation
+  says the administrative authority goes too, and for an operator that only the owner grants it again).
+- `revokeMembership` command in Core's order: collapsed `404` (unknown, another Organization's, no authority, one's own),
+  `409 membership_not_active` (pending, rejected, revoked, a repeat); one record changes (`revoked`, admin flag
+  cleared); `membership.revoked` activity. No step-up, no idempotency key.
+- One membership action at a time across decisions and revocation (`MembershipActionLock`). Never resent: after a lost
+  answer, a `409` or a `404` the lists reload and the dialog says what they show; a membership gone from Active "may have
+  been revoked", never proven (revoked is not listable). From the details page, success returns to the list.
+- Security follow-up **CF-27**: assigned operators can revoke organization admins without step-up (Core behaviour).
+- Not built: the admin role (P5-S3b), restoration, suspension, join codes.
+
 ## P5-S2: mock membership request decisions (design approved and implemented 2026-10-23)
 
-**Status: implemented as a development-only mock prototype, awaiting review.** Design and contract:
+**Status: complete (PR #26), a development-only mock prototype.** Design and contract:
 [`design/p5-s2-membership-decisions.md`](design/p5-s2-membership-decisions.md) (canvas corrected by the owner's Nawara
 School onboarding clarification).
 

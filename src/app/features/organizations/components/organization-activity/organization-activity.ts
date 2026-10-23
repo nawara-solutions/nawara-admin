@@ -22,6 +22,7 @@ const ACTIONS = {
   },
   'membership.approved': { icon: 'user-plus', key: 'organizations.activity.membershipApproved' },
   'membership.rejected': { icon: 'circle-x', key: 'organizations.activity.membershipRejected' },
+  'membership.revoked': { icon: 'shield-off', key: 'organizations.activity.membershipRevoked' },
 } as const satisfies Record<
   OrganizationActivityAction,
   { readonly icon: NwIconName; readonly key: string }

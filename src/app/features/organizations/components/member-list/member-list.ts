@@ -32,9 +32,10 @@ export interface DecisionRequest {
  * links to its membership. The identity is the email, else the phone, else a short neutral reference (never a name),
  * written left to right and isolated; the organization-admin privilege is said in words.
  *
- * Rows the actor may decide (P5-S2, `offers`) get "Approve" and "Reject", named with the member they are about. While
- * a decision is sent (`sendingId`), that row says so and every other decision control waits (`aria-disabled`, with
- * the reason). The list only asks (`decide`): the page confirms and sends.
+ * Rows the actor may decide (P5-S2, `offers`) get "Approve" and "Reject"; active rows the actor may revoke (P5-S3a,
+ * `revokeOffers`) get "Revoke…"; each named with the member it is about. While a membership action is sent
+ * (`sendingId`), that row says so and every other control waits (`aria-disabled`, with the reason). The list only asks
+ * (`decide`, `revoke`): the page confirms and sends.
  */
 @Component({
   selector: 'adm-member-list',
@@ -57,8 +58,15 @@ export class MemberList {
   /** Whether any decision is being sent (every decision control waits). */
   readonly sending = input(false);
   readonly decide = output<DecisionRequest>();
+  /** Whether the actor may be offered to revoke a row (P5-S3a); none by default. */
+  readonly revokeOffers = input<(membership: Membership) => boolean>(() => false);
+  readonly revoke = output<Membership>();
 
   protected readonly decisions = computed(() => this.rows().some((row) => this.offers()(row)));
+  protected readonly revocations = computed(() =>
+    this.rows().some((row) => this.revokeOffers()(row)),
+  );
+  protected readonly actions = computed(() => this.decisions() || this.revocations());
 
   protected readonly identity = memberIdentity;
   protected readonly decidedAt = decidedAt;
@@ -67,5 +75,10 @@ export class MemberList {
   protected ask(membership: Membership, decision: MembershipDecision): void {
     if (this.sending()) return;
     this.decide.emit({ membership, decision });
+  }
+
+  protected askRevoke(membership: Membership): void {
+    if (this.sending()) return;
+    this.revoke.emit(membership);
   }
 }

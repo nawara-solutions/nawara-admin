@@ -365,6 +365,7 @@
         "invitationRevoked": "Invitation revoked",
         "membershipApproved": "Membership approved",
         "membershipRejected": "Membership request rejected",
+        "membershipRevoked": "Membership revoked",
         "platformCreated": "Platform created"
       },
       "auditLog": "Audit log"
@@ -514,6 +515,7 @@
       "adminInvitationRevoked": "Admin invitation revoked",
       "membershipApproved": "Membership approved",
       "membershipRejected": "Membership request rejected",
+      "membershipRevoked": "Membership revoked",
       "operatorAssigned": "Operator assigned",
       "platformCreated": "Platform created"
     },
@@ -842,7 +844,7 @@
         "contact": "Contact",
         "other": "Other memberships",
         "otherNote": "Not shown: Nawara Core offers no way to find one person across organizations.",
-        "readOnly": "Revocation and the organization-admin role arrive in later releases.",
+        "readOnly": "Changing the organization-admin role arrives in a later release.",
         "notFoundTitle": "Membership not found or not accessible",
         "notFoundDescription": "It may not exist, may belong to another organization, or may no longer be listed."
       },
@@ -885,6 +887,41 @@
           "unknown": "We couldn’t confirm the decision: the answer was lost, so it may or may not have been recorded. Nothing is sent again automatically.",
           "rateLimited": "Too many membership changes in a short time. Nothing was changed; wait a few minutes and try again.",
           "unavailable": "Nawara Core could not take the decision right now. Nothing was changed."
+        }
+      },
+      "revoke": {
+        "column": "Actions",
+        "open": "Revoke…",
+        "for": "Revoke the membership of {{who}}",
+        "sending": "Revoking the membership…",
+        "authorityOwner": "As the Company owner you can revoke memberships. Nawara Core checks your authority on every change.",
+        "authorityOperator": "As an operator assigned to {{platform}} you can revoke memberships, including an organization admin’s. Nawara Core checks your authority on every change.",
+        "cardTitle": "Manage membership",
+        "cardBody": "Revoking removes this person’s access to {{name}}.",
+        "cardBodyAdmin": "Revoking removes this person’s access to {{name}}, and with it their organization-admin role.",
+        "title": "Revoke this membership?",
+        "body": "This person loses access to {{name}}.",
+        "adminTitle": "This member is an organization admin.",
+        "adminBody": "Revoking the membership also removes their administrative authority in {{name}}.",
+        "adminOperator": "Only the Company owner can make someone an organization admin.",
+        "keptTitle": "Not affected:",
+        "keptAccount": "their Nawara account and sign-in (this is not an account suspension)",
+        "keptOther": "their memberships in other organizations",
+        "keptCommercial": "subscriptions and payments: nothing is cancelled or refunded",
+        "noRestore": "Nawara Admin has no way to restore a revoked membership today, and revoked memberships are not listed.",
+        "confirm": "Revoke membership",
+        "revoking": "Revoking the membership…",
+        "revokingShort": "Revoking…",
+        "stillActive": "It is still active: it was not revoked.",
+        "notListed": "It is no longer listed as active. It may have been revoked, possibly by your request, but revoked memberships are not listed, so this cannot be confirmed here.",
+        "revoked": "Membership revoked in {{name}}.",
+        "notRevoked": "The revocation in {{name}} was not completed.",
+        "failure": {
+          "notActive": "This membership is no longer active, so your request revoked nothing.",
+          "refused": "This membership is no longer available to you. Nothing was changed.",
+          "unknown": "We couldn’t confirm the revocation: the answer was lost, so it may or may not have been applied. Nothing is sent again automatically.",
+          "rateLimited": "Too many membership changes in a short time. Nothing was changed; wait a few minutes and try again.",
+          "unavailable": "Nawara Core could not revoke the membership right now. Nothing was changed."
         }
       }
     },
@@ -1021,6 +1058,7 @@
       "adminInvitationRevoked": "Admin invitation revoked",
       "membershipApproved": "Membership approved",
       "membershipRejected": "Membership request rejected",
+      "membershipRevoked": "Membership revoked",
       "simulated": "simulated"
     },
     "footnote": "Memberships are counted per organization; one person can hold memberships in several."

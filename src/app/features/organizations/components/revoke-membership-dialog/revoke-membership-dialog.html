@@ -1,0 +1,149 @@
+@let current = state();
+<nw-dialog
+  [title]="'organizations.members.revoke.title' | transloco"
+  [closeLabel]="'common.close' | transloco"
+  [busy]="busy()"
+>
+  <div class="revoke-membership__body">
+    @switch (current.phase) {
+      @case ('pending') {
+        <p class="revoke-membership__status" role="status">
+          <nw-spinner />{{ 'organizations.members.revoke.revoking' | transloco }}
+        </p>
+        <p class="revoke-membership__note">
+          {{ 'organizations.members.decision.pendingNote' | transloco }}
+        </p>
+      }
+      @case ('failed') {
+        <nw-inline-alert [tone]="current.failure.kind === 'outcomeUnknown' ? 'danger' : 'warning'">
+          {{ failureKey()! | transloco }}
+        </nw-inline-alert>
+        @if (reconciling()) {
+          @let known = reconciliation();
+          <p class="revoke-membership__status" role="status">
+            @if (known === null || known.state === 'checking') {
+              <nw-spinner />{{ 'organizations.members.decision.checking' | transloco }}
+            } @else if (known.status === 'active') {
+              {{ 'organizations.members.revoke.stillActive' | transloco }}
+            } @else if (known.status === null) {
+              {{ 'organizations.members.revoke.notListed' | transloco }}
+            } @else {
+              {{ 'organizations.members.decision.nowStatus' | transloco }}
+              <strong>{{ statusKeys[known.status] | transloco }}</strong>
+            }
+          </p>
+        }
+      }
+      @default {
+        <p id="revoke-membership-description">
+          {{ 'organizations.members.revoke.body' | transloco: { name: isolatedOrganization } }}
+        </p>
+        @if (membership.isOrganizationAdmin) {
+          <nw-inline-alert tone="warning">
+            <strong>{{ 'organizations.members.revoke.adminTitle' | transloco }}</strong>
+            {{
+              'organizations.members.revoke.adminBody' | transloco: { name: isolatedOrganization }
+            }}
+            @if (byOperator()) {
+              {{ 'organizations.members.revoke.adminOperator' | transloco }}
+            }
+          </nw-inline-alert>
+        }
+        <dl class="revoke-membership__facts">
+          <div>
+            <dt>{{ 'organizations.members.table.member' | transloco }}</dt>
+            <dd>
+              @if (who.kind === 'user') {
+                {{ 'organizations.members.identity.user' | transloco: { ref: who.value } }}
+              } @else {
+                <bdi dir="ltr" translate="no">{{ who.value }}</bdi>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'organizations.members.table.role' | transloco }}</dt>
+            <dd>
+              {{
+                (membership.isOrganizationAdmin
+                  ? 'organizations.members.role.admin'
+                  : 'organizations.members.role.member'
+                ) | transloco
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'organizations.members.table.audience' | transloco }}</dt>
+            <dd>
+              <bdi class="revoke-membership__mono" dir="ltr" translate="no">{{
+                membership.audience
+              }}</bdi>
+            </dd>
+          </div>
+          @if (membership.approvedAt) {
+            <div>
+              <dt>{{ 'organizations.members.table.activeSince' | transloco }}</dt>
+              <dd>{{ membership.approvedAt | nwDate: 'date-time' }}</dd>
+            </div>
+          }
+        </dl>
+        <div class="revoke-membership__kept">
+          <p>{{ 'organizations.members.revoke.keptTitle' | transloco }}</p>
+          <ul>
+            <li>{{ 'organizations.members.revoke.keptAccount' | transloco }}</li>
+            <li>{{ 'organizations.members.revoke.keptOther' | transloco }}</li>
+            <li>{{ 'organizations.members.revoke.keptCommercial' | transloco }}</li>
+          </ul>
+        </div>
+        <p class="revoke-membership__note">
+          <nw-icon name="info" size="sm" />{{
+            'organizations.members.revoke.noRestore' | transloco
+          }}
+        </p>
+      }
+    }
+  </div>
+
+  <div nwDialogActions>
+    @switch (current.phase) {
+      @case ('pending') {
+        <button nw-button variant="ghost" type="button" aria-disabled="true">
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button nw-button variant="danger" type="button" busy aria-disabled="true">
+          <nw-spinner />{{ 'organizations.members.revoke.revokingShort' | transloco }}
+        </button>
+      }
+      @case ('failed') {
+        @if (retryable()) {
+          <button nw-button variant="ghost" type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+          <button #mainButton nw-button type="button" (click)="tryAgain()">
+            <nw-icon name="refresh-cw" size="sm" />{{ 'actions.retry' | transloco }}
+          </button>
+        } @else if (current.failure.kind === 'outcomeUnknown') {
+          <button nw-button variant="ghost" type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+          <button #mainButton nw-button type="button" (click)="checkStatus()">
+            <nw-icon name="refresh-cw" size="sm" />{{
+              'organizations.members.decision.checkStatus' | transloco
+            }}
+          </button>
+        } @else {
+          <button #mainButton nw-button type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+        }
+      }
+      @default {
+        <button nw-button variant="secondary" type="button" data-cancel (click)="close()">
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button nw-button variant="danger" type="button" data-confirm (click)="confirm()">
+          {{ 'organizations.members.revoke.confirm' | transloco }}
+        </button>
+      }
+    }
+  </div>
+</nw-dialog>

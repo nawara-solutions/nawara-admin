@@ -23,6 +23,7 @@ import { NwControl, NwFormField } from '../../../shared/ui/form-field/form-field
 import { NwIcon } from '../../../shared/ui/icon/icon';
 import { isolated } from '../../platforms/domain/create-platform.model';
 import { MembershipDecisionAction } from '../application/membership-decision.action';
+import { MembershipRevokeAction } from '../application/membership-revoke.action';
 import { publishOrganizationLabel } from '../application/organization-label';
 import { OrganizationMembersFacade } from '../application/organization-members.facade';
 import { DecisionRequest, MemberList } from '../components/member-list/member-list';
@@ -61,9 +62,10 @@ const SORT_KEYS = {
  * (Active, Requests, Rejected) with their counts; search over the loaded tab (never in the URL); the admins filter on
  * the Active tab; a client-side sort. Breadcrumbs show the Organization's name, never a contact.
  *
- * Requests can be approved or rejected (P5-S2) by whoever may read them here (Core decides): the row asks, the
- * decision action confirms and sends. After a success the decided row leaves the tab and focus moves to the next
- * request's "Approve", else to the count, else to the tab.
+ * Requests can be approved or rejected (P5-S2), and active memberships revoked (P5-S3a), by whoever may read them
+ * here (Core decides): the row asks, the action confirms and sends. After a success the row leaves the tab and focus
+ * moves to the same control of the next row, else to the count, else to the tab. Back from a revocation made on a
+ * membership's details, focus starts on the count.
  */
 @Component({
   selector: 'adm-organization-members-page',
@@ -87,12 +89,14 @@ const SORT_KEYS = {
 export class OrganizationMembersPage {
   protected readonly facade = inject(OrganizationMembersFacade);
   protected readonly decisions = inject(MembershipDecisionAction);
+  protected readonly revocations = inject(MembershipRevokeAction);
   private readonly session = inject(AuthSession);
   private readonly document = inject(DOCUMENT);
   private readonly injector = inject(Injector);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  /** Where the decided row was, while its decision (made on this page) is under way. */
+  /** Where the row was, and which control it had, while its action (made on this page) is under way. */
   private decidedIndex: number | null = null;
+  private decidedControl: '[data-decide="approve"]' | '[data-revoke]' = '[data-decide="approve"]';
   protected readonly statuses = LISTABLE_STATUSES;
   protected readonly statusKeys = STATUS_KEYS;
   protected readonly emptyKeys = EMPTY_KEYS;
@@ -109,7 +113,13 @@ export class OrganizationMembersPage {
     this.decisions.available ? (this.session.actor()?.kind ?? null) : null,
   );
 
+  /** Who revokes here, for the Active tab's authority line (UX; Core checks every revocation). */
+  protected readonly revokeAuthority = computed(() =>
+    this.revocations.available ? (this.session.actor()?.kind ?? null) : null,
+  );
+
   protected readonly offers = (membership: Membership) => this.decisions.offers(membership);
+  protected readonly revokeOffers = (membership: Membership) => this.revocations.offers(membership);
 
   protected readonly filtered = computed(
     () => this.facade.search().trim() !== '' || this.facade.query().admins,
@@ -131,17 +141,41 @@ export class OrganizationMembersPage {
       }),
     );
 
-    // Once a decision made here succeeded and its row has left the list, focus the next request.
+    // Once an action made here succeeded and its row has left the list, focus the next row's same control.
     effect(() => {
-      const done = this.decisions.succeeded();
+      const done = this.decisions.succeeded() ?? this.revocations.succeeded();
       const rows = this.facade.rows();
       if (done === null || this.decidedIndex === null) return;
       if (rows.some((m) => m.id === done.membershipId)) return;
       const index = this.decidedIndex;
       this.decidedIndex = null;
-      untracked(() => this.decisions.succeeded.set(null));
+      untracked(() => {
+        this.decisions.succeeded.set(null);
+        this.revocations.succeeded.set(null);
+      });
       afterNextRender(() => this.focusAfterDecision(index), { injector: this.injector });
     });
+
+    // Back from a revocation made on a membership's details: focus the count once the list is shown.
+    effect(() => {
+      if (!this.revocations.returnedFromDetails()) return;
+      const count = this.count();
+      if (count === undefined) return;
+      untracked(() => this.revocations.returnedFromDetails.set(false));
+      afterNextRender(() => count.nativeElement.focus(), { injector: this.injector });
+    });
+  }
+
+  protected revoke(
+    membership: Membership,
+    platformId: PlatformId,
+    organizationId: OrganizationId,
+    organizationName: string,
+  ): void {
+    this.decidedIndex = this.facade.rows().findIndex((m) => m.id === membership.id);
+    this.decidedControl = '[data-revoke]';
+    this.revocations.succeeded.set(null);
+    this.revocations.open({ target: { platformId, organizationId, organizationName }, membership });
   }
 
   protected decide(
@@ -151,6 +185,7 @@ export class OrganizationMembersPage {
     organizationName: string,
   ): void {
     this.decidedIndex = this.facade.rows().findIndex((m) => m.id === request.membership.id);
+    this.decidedControl = '[data-decide="approve"]';
     this.decisions.succeeded.set(null);
     this.decisions.open({
       target: { platformId, organizationId, organizationName },
@@ -166,9 +201,9 @@ export class OrganizationMembersPage {
         '.member-list__table, .member-list__cards',
       ),
     ].find((list) => getComputedStyle(list).display !== 'none');
-    const approves = [...(shown?.querySelectorAll<HTMLElement>('[data-decide="approve"]') ?? [])];
+    const controls = [...(shown?.querySelectorAll<HTMLElement>(this.decidedControl) ?? [])];
     const target =
-      approves[Math.min(index, approves.length - 1)] ??
+      controls[Math.min(index, controls.length - 1)] ??
       this.count()?.nativeElement ??
       this.tabs().find((t) => t.nativeElement.getAttribute('aria-selected') === 'true')
         ?.nativeElement;

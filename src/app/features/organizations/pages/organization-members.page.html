@@ -79,6 +79,20 @@
                   }
                 </span>
               </p>
+            } @else if (query.status === 'active' && revokeAuthority(); as role) {
+              <p class="organization-members__authority">
+                <nw-icon name="shield-check" size="sm" />
+                <span>
+                  @if (role === 'owner') {
+                    {{ 'organizations.members.revoke.authorityOwner' | transloco }}
+                  } @else {
+                    {{
+                      'organizations.members.revoke.authorityOperator'
+                        | transloco: { platform: isolated(view.platform.name) }
+                    }}
+                  }
+                </span>
+              </p>
             }
             <div class="organization-members__toolbar" role="search">
               <label class="organization-members__search">
@@ -135,9 +149,11 @@
                 [status]="query.status"
                 [pathOf]="pathOf()"
                 [offers]="offers"
-                [sendingId]="decisions.sendingId()"
+                [revokeOffers]="revokeOffers"
+                [sendingId]="decisions.sendingId() ?? revocations.sendingId()"
                 [sending]="decisions.sending()"
                 (decide)="decide($event, view.platform.id, organization.id, organization.name)"
+                (revoke)="revoke($event, view.platform.id, organization.id, organization.name)"
               />
             } @else {
               <div id="organization-members-list">

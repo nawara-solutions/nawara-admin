@@ -147,6 +147,40 @@
           </p>
         </section>
       }
+      @if (revocations.offers(m) || revocations.sendingId() === m.id) {
+        <section class="membership-detail__card" aria-labelledby="membership-detail-manage">
+          <h2 id="membership-detail-manage">
+            {{ 'organizations.members.revoke.cardTitle' | transloco }}
+          </h2>
+          <p class="membership-detail__note">
+            {{
+              (m.isOrganizationAdmin
+                ? 'organizations.members.revoke.cardBodyAdmin'
+                : 'organizations.members.revoke.cardBody'
+              ) | transloco: { name: isolated(organization.name) }
+            }}
+          </p>
+          @if (revocations.sendingId() === m.id) {
+            <p class="membership-detail__sending" role="status">
+              <nw-spinner />{{ 'organizations.members.revoke.sending' | transloco }}
+            </p>
+          } @else {
+            <div class="membership-detail__decision">
+              <button
+                nw-button
+                variant="secondary"
+                type="button"
+                class="membership-detail__reject"
+                data-revoke
+                [attr.aria-disabled]="decisions.sending() || null"
+                (click)="revoke(m, view.platform.id, organization.id, organization.name)"
+              >
+                {{ 'organizations.members.revoke.open' | transloco }}
+              </button>
+            </div>
+          }
+        </section>
+      }
       <section class="membership-detail__card" aria-labelledby="membership-detail-other">
         <h2 id="membership-detail-other">{{ 'organizations.members.detail.other' | transloco }}</h2>
         <p class="membership-detail__note">

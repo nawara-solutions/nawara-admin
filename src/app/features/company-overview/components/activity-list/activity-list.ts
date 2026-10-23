@@ -46,6 +46,11 @@ const ACTIONS = {
     accent: 'orange',
     labelKey: 'companyOverview.activity.actions.membershipRejected',
   },
+  'membership.revoked': {
+    icon: 'shield-off',
+    accent: 'orange',
+    labelKey: 'companyOverview.activity.actions.membershipRevoked',
+  },
 } as const satisfies Record<
   ActivityAction,
   { icon: NwIconName; accent: 'pink' | 'purple' | 'orange' | 'green'; labelKey: string }

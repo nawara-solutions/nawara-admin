@@ -215,3 +215,94 @@ describe('MockMembershipGateway: decisions (P5-S2)', () => {
     expect(s.statusOf(request.id)).toBe('pending');
   });
 });
+
+describe('MockMembershipGateway: revocation (P5-S3a)', () => {
+  function revocations(
+    scenario: MembershipDecisionsDemoScenario = 'normal',
+    actor = DEMO_OWNER_ID,
+  ) {
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: DEMO_LATENCY_MS, useValue: 0 },
+        { provide: NW_CLOCK, useValue: () => NOW },
+        { provide: MEMBERSHIP_DECISIONS_DEMO_SCENARIO, useValue: scenario },
+        MockMembershipGateway,
+      ],
+    });
+    TestBed.inject(DemoAuthState).signedIn.set({
+      identity: { userId: `u-${actor}`, email: null, phone: null, adminTier: 'owner' },
+      businessIdentityId: actor,
+    });
+    const gateway = TestBed.inject(MockMembershipGateway);
+    const world = TestBed.inject(DemoWorld);
+    const active = (admin = false) =>
+      world
+        .snapshot()
+        .memberships.find(
+          (m) =>
+            m.organizationId === HORIZON &&
+            m.status === 'active' &&
+            m.isOrganizationAdmin === admin,
+        )!;
+    return {
+      active,
+      record: (id: string) => world.snapshot().memberships.find((m) => m.id === id),
+      revoke: (id: string, organization = HORIZON) =>
+        firstValueFrom(gateway.revoke(organization, id)),
+      listActive: () => firstValueFrom(gateway.list(HORIZON, 'active')),
+    };
+  }
+
+  it('answers Core’s 200 { id, status: "revoked" }; the membership leaves the Active list and no list shows it', async () => {
+    const s = revocations();
+    const target = s.active();
+    expect(await s.revoke(target.id)).toEqual({ id: target.id, status: 'revoked' });
+    expect(s.record(target.id)?.status).toBe('revoked');
+    expect((await s.listActive()).memberships.some((m) => m.id === target.id)).toBe(false);
+  });
+
+  it('refuses a non-active membership with 409 and another Organization’s id with 404', async () => {
+    const s = revocations();
+    const target = s.active();
+    await s.revoke(target.id);
+    expect(await error(s.revoke(target.id))).toEqual({
+      kind: 'conflict',
+      code: 'membership_not_active',
+      status: 409,
+    });
+    expect((await error(s.revoke(s.active().id, ANDALOUS))).status).toBe(404);
+  });
+
+  it('lets an assigned operator revoke an organization admin, clearing the role; another Platform’s operator gets 404', async () => {
+    let s = revocations('normal', DEMO_OPERATOR_IDS.school);
+    const admin = s.active(true);
+    await s.revoke(admin.id);
+    expect(s.record(admin.id)).toMatchObject({ status: 'revoked', isOrganizationAdmin: false });
+    TestBed.resetTestingModule();
+    s = revocations('normal', DEMO_OPERATOR_IDS.phone);
+    const target = s.active();
+    expect((await error(s.revoke(target.id))).status).toBe(404);
+    expect(s.record(target.id)?.status).toBe('active');
+  });
+
+  it('simulates a competing revocation, a lost answer, an exhausted bucket and an outage', async () => {
+    let s = revocations('decidedElsewhere');
+    let target = s.active();
+    expect((await error(s.revoke(target.id))).status).toBe(409);
+    expect(s.record(target.id)?.status).toBe('revoked');
+    TestBed.resetTestingModule();
+    s = revocations('outcomeUnknown');
+    target = s.active();
+    expect((await error(s.revoke(target.id))).kind).toBe('network');
+    expect(s.record(target.id)?.status).toBe('revoked');
+    for (const scenario of ['rateLimited', 'unavailable'] as const) {
+      TestBed.resetTestingModule();
+      s = revocations(scenario);
+      target = s.active();
+      expect((await error(s.revoke(target.id))).status).toBe(
+        scenario === 'rateLimited' ? 429 : 503,
+      );
+      expect(s.record(target.id)?.status).toBe('active');
+    }
+  });
+});

@@ -1,0 +1,59 @@
+// The revoke-membership dialog's content (P5-S3 design): the confirmation, pending and the result.
+.revoke-membership__body {
+  display: grid;
+  gap: var(--nw-space-4);
+}
+
+.revoke-membership__facts {
+  display: grid;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3) var(--nw-space-4);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  font-size: var(--nw-text-size-sm);
+
+  div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--nw-space-1) var(--nw-space-3);
+  }
+
+  dt {
+    color: var(--nw-text-secondary);
+  }
+
+  dd {
+    overflow-wrap: anywhere;
+  }
+}
+
+.revoke-membership__mono {
+  font-family: var(--nw-font-mono);
+}
+
+.revoke-membership__kept {
+  display: grid;
+  gap: var(--nw-space-1);
+  font-size: var(--nw-text-size-sm);
+
+  ul {
+    margin: 0;
+    padding-inline-start: var(--nw-space-5);
+  }
+}
+
+.revoke-membership__note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.revoke-membership__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-2);
+}
