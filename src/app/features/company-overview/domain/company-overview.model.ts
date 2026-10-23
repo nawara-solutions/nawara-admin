@@ -1,4 +1,5 @@
 import { CompanyId, PlatformId, PlatformRef } from '../../../core/context/scope.model';
+import { Metric, Section } from '../../../shared/dashboard/metric';
 
 /**
  * Company Overview: the owner's company-wide view (docs/ARCHITECTURE.md §6 `/overview`, §7 company scope).
@@ -9,13 +10,8 @@ import { CompanyId, PlatformId, PlatformRef } from '../../../core/context/scope.
  * are separate domains with their own gateways (commercial-summary.model.ts, service-health.model.ts).
  */
 
-/** A count that may be unknown. An unavailable value is shown as unavailable and never becomes zero. */
-export type Metric =
-  { readonly status: 'available'; readonly value: number } | { readonly status: 'unavailable' };
-
-/** A section whose data may not exist for this actor or build. */
-export type Section<T> =
-  { readonly status: 'available'; readonly data: T } | { readonly status: 'unavailable' };
+/** Shared with the platform dashboard (shared/dashboard): a count or section that may be unavailable. */
+export type { Metric, Section };
 
 export interface CompanySummary {
   readonly platforms: Metric;

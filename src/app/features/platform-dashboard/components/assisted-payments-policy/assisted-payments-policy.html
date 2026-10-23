@@ -1,0 +1,36 @@
+@let setting = policy();
+<div class="assisted-payments-policy__row">
+  <h3 class="assisted-payments-policy__title">
+    {{ 'platformDashboard.policies.assistedPayments' | transloco }}
+  </h3>
+  @if (setting.platform === 'enabled') {
+    <nw-status-badge tone="success">{{
+      'platformDashboard.policies.enabled' | transloco
+    }}</nw-status-badge>
+  } @else {
+    <nw-status-badge tone="info">{{
+      'platformDashboard.policies.disabled' | transloco
+    }}</nw-status-badge>
+  }
+</div>
+<p class="assisted-payments-policy__text">
+  @if (setting.platform === 'enabled') {
+    {{
+      'platformDashboard.policies.enabledDetail'
+        | transloco: { disabled: setting.organizationsDisabled, total: setting.organizations }
+    }}
+  } @else {
+    {{ 'platformDashboard.policies.disabledDetail' | transloco }}
+  }
+</p>
+<button
+  type="button"
+  class="assisted-payments-policy__change"
+  aria-disabled="true"
+  aria-describedby="assisted-payments-change-note"
+>
+  {{ 'platformDashboard.policies.change' | transloco }}
+</button>
+<span id="assisted-payments-change-note" class="nw-visually-hidden">{{
+  'shell.notAvailableYet' | transloco
+}}</span>

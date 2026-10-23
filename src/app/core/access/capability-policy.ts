@@ -19,13 +19,25 @@ export type Capability =
    * Creating a Platform: Core `POST /organization/admin/platforms` allows only the owner of the Company
    * (`canCreatePlatform`), with step-up `platform.create` and an `Idempotency-Key`.
    */
-  | 'platform.create';
+  | 'platform.create'
+  /**
+   * A Platform's commercial facts and policies (subscriptions, Personal Premium, payments, assisted payments): the owner.
+   * No commercial read authority is confirmed for operators (Billing/Payment staff routes are Core V2 A10/A11).
+   */
+  | 'platform.commercial.view'
+  /** A Platform's administrative activity: Core's owner audit read; operators have no audit read (CF-04). */
+  | 'platform.activity.view'
+  /** Operator assignments and admin invitations of a Platform: the owner manages both; operators manage neither. */
+  | 'platform.access.view';
 
 const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.scope',
   'company.overview.view',
   'company.platforms.view',
   'platform.create',
+  'platform.commercial.view',
+  'platform.activity.view',
+  'platform.access.view',
 ]);
 const NONE: ReadonlySet<Capability> = new Set<Capability>();
 

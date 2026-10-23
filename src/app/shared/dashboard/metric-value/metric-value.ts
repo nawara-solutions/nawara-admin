@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { NwNumberPipe } from '../../../../shared/format/format.pipes';
-import { Metric } from '../../domain/company-overview.model';
+import { NwNumberPipe } from '../../format/format.pipes';
+import { Metric } from '../metric';
 
 /** A count, or an explicit "not available": an unavailable value is never shown as zero. */
 @Component({
@@ -13,7 +13,7 @@ import { Metric } from '../../domain/company-overview.model';
       {{ value.value | nwNumber }}
     } @else {
       <span class="metric-value__missing" aria-hidden="true">—</span>
-      <span class="nw-visually-hidden">{{ 'companyOverview.unavailable' | transloco }}</span>
+      <span class="nw-visually-hidden">{{ 'common.notAvailable' | transloco }}</span>
     }
   `,
   styles: `

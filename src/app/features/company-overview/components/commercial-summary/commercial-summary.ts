@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CommercialSummary } from '../../domain/commercial-summary.model';
-import { MetricValue } from '../metric-value/metric-value';
+import { MetricValue } from '../../../../shared/dashboard/metric-value/metric-value';
 
 /**
  * Commercial overview: three figures from the commercial summary (its own gateway; Core 🟡). The design's usage bar

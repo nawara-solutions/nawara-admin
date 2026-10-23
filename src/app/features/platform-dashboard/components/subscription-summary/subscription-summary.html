@@ -1,0 +1,73 @@
+@let counts = subscriptions();
+<div class="subscription-summary__group">
+  <h3 class="subscription-summary__heading">
+    {{ 'platformDashboard.commercial.organizationSubscriptions' | transloco }}
+  </h3>
+  @if (counts.status === 'available') {
+    @if (shares(); as share) {
+      <div
+        class="subscription-summary__bar"
+        role="img"
+        [attr.aria-label]="
+          'platformDashboard.commercial.barLabel'
+            | transloco
+              : {
+                  active: counts.data.active,
+                  grace: counts.data.grace,
+                  none: counts.data.none,
+                  total: counts.data.total,
+                }
+        "
+      >
+        <span class="subscription-summary__segment" [style.inline-size.%]="share.active"></span>
+        <span
+          class="subscription-summary__segment subscription-summary__segment--grace"
+          [style.inline-size.%]="share.grace"
+        ></span>
+      </div>
+    }
+    <dl class="subscription-summary__legend">
+      <div>
+        <dt>{{ 'platformDashboard.commercial.active' | transloco }}</dt>
+        <dd>{{ counts.data.active }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'platformDashboard.commercial.grace' | transloco }}</dt>
+        <dd class="subscription-summary__grace">{{ counts.data.grace }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'platformDashboard.commercial.none' | transloco }}</dt>
+        <dd>{{ counts.data.none }}</dd>
+      </div>
+    </dl>
+  } @else {
+    <p class="subscription-summary__missing">
+      {{ 'platformDashboard.commercial.subscriptionsUnavailable' | transloco }}
+    </p>
+  }
+</div>
+
+<dl class="subscription-summary__facts">
+  <div class="subscription-summary__fact">
+    <dt>
+      <span class="subscription-summary__fact-label">{{
+        'platformDashboard.commercial.personalPremium' | transloco
+      }}</span>
+      <span class="subscription-summary__fact-note">{{
+        'platformDashboard.commercial.personalPremiumNote' | transloco
+      }}</span>
+    </dt>
+    <dd><adm-metric-value [metric]="metricOf(personalPremium())" /></dd>
+  </div>
+  <div class="subscription-summary__fact">
+    <dt>
+      <span class="subscription-summary__fact-label">{{
+        'platformDashboard.commercial.paymentIssues' | transloco
+      }}</span>
+      <span class="subscription-summary__fact-note">{{
+        'platformDashboard.commercial.paymentIssuesNote' | transloco
+      }}</span>
+    </dt>
+    <dd><adm-metric-value [metric]="metricOf(paymentIssues())" /></dd>
+  </div>
+</dl>

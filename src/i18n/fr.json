@@ -1,5 +1,6 @@
 {
   "common": {
+    "notAvailable": "Non disponible",
     "close": "Fermer",
     "dismiss": "Ignorer",
     "loading": "Chargement…"
@@ -396,15 +397,103 @@
     "sectionUnavailable": "Pas encore disponible : Nawara Core ne fournit pas cette information.",
     "periodUnavailable": "Les autres périodes ne sont pas encore disponibles."
   },
-  "platformScope": {
-    "eyebrow": "Périmètre de la plateforme",
-    "placeholderTitle": "L’administration de la plateforme n’est pas encore construite",
-    "placeholderDescription": "Vous êtes maintenant dans le périmètre de la plateforme {{name}}. Ses pages d’administration arrivent dans des étapes ultérieures.",
-    "key": "Identifiant de la plateforme :",
-    "loading": "Chargement de la plateforme",
-    "notFoundTitle": "Plateforme introuvable ou inaccessible",
-    "notFoundDescription": "Elle n’existe peut-être pas, ou elle est hors de votre périmètre d’administration.",
-    "backToPlatforms": "Retour aux plateformes"
+  "platformDashboard": {
+    "header": {
+      "eyebrow": "Plateforme",
+      "accessOwner": "Votre accès : propriétaire de l’entreprise",
+      "accessOperator": "Votre accès : opérateur affecté",
+      "backToPlatforms": "Retour aux plateformes"
+    },
+    "figures": {
+      "label": "Chiffres de la plateforme",
+      "organizations": "Organisations",
+      "organizationsCaption": "Évolution sur les {{days}} derniers jours",
+      "memberships": "Adhésions",
+      "membershipsCaption": "Dans les organisations de la plateforme",
+      "membershipRequests": "Demandes d’adhésion",
+      "membershipRequestsCaption": "En attente d’approbation",
+      "operatorAssignments": "Affectations d’opérateurs",
+      "operatorAssignmentsCaption": "Actives sur cette plateforme"
+    },
+    "organizations": {
+      "title": "Organisations",
+      "all": "Toutes les organisations",
+      "name": "Organisation",
+      "memberships": "Adhésions",
+      "pending": "Demandes en attente",
+      "subscriptionColumn": "Abonnement",
+      "membershipsShort": "adhésions",
+      "pendingShort": "demandes en attente",
+      "subscription": {
+        "active": "Actif",
+        "grace": "En période de grâce",
+        "none": "Aucun"
+      },
+      "footnote": "Les {{shown}} plus récentes sur {{total}}. L’annuaire complet arrive avec la gestion des organisations.",
+      "emptyTitle": "Aucune organisation pour le moment",
+      "emptyDescription": "Les organisations créées sur cette plateforme apparaissent ici, avec leurs adhésions et abonnements.",
+      "create": "Créer une organisation"
+    },
+    "attention": {
+      "title": "À traiter",
+      "open": "Ouverts : {{count}}",
+      "none": "Rien à traiter.",
+      "membershipRequests": "{{count}} · Demandes d’adhésion en attente d’approbation",
+      "inOrganizations": "Organisations concernées : {{count}}",
+      "adminInvitations": "{{count}} · Invitations d’administrateur en attente d’acceptation",
+      "adminInvitationsDetail": "Administrateurs d’organisation qui n’ont pas encore rejoint.",
+      "subscriptionGrace": "{{count}} · Organisations en période de grâce de 24 heures",
+      "graceEnds": "fin de la grâce",
+      "graceDetail": "Leur abonnement a pris fin ; l’accès continue jusqu’à la fin de la période de grâce.",
+      "paymentIssues": "{{count}} · Paiements à traiter",
+      "paymentIssuesDetail": "Échoués, ou en attente d’action.",
+      "warning": "Avertissement"
+    },
+    "commercial": {
+      "title": "Abonnements",
+      "organizationSubscriptions": "Abonnements des organisations",
+      "barLabel": "Abonnements des organisations : {{active}} actifs, {{grace}} en période de grâce, {{none}} sans, sur {{total}} organisations",
+      "active": "Actifs",
+      "grace": "En grâce de 24 heures",
+      "none": "Sans",
+      "subscriptionsUnavailable": "Les abonnements des organisations ne sont pas disponibles.",
+      "personalPremium": "Premium personnel",
+      "personalPremiumNote": "Abonnements propres des personnes dans ce produit",
+      "paymentIssues": "Incidents de paiement",
+      "paymentIssuesNote": "Échoués, ou en attente d’action"
+    },
+    "policies": {
+      "title": "Règles",
+      "assistedPayments": "Paiements assistés",
+      "enabled": "Activés",
+      "disabled": "Désactivés",
+      "enabledDetail": "Les organisations en héritent ; {{disabled}} sur {{total}} les ont désactivés.",
+      "disabledDetail": "Désactivés pour cette plateforme : aucune organisation ne peut les activer.",
+      "change": "Modifier la règle"
+    },
+    "activity": {
+      "title": "Activité récente",
+      "empty": "Aucune activité administrative récente.",
+      "organizationCreated": "Organisation créée",
+      "adminInvitationSent": "Invitation d’administrateur envoyée",
+      "membershipApproved": "Adhésion approuvée",
+      "operatorAssigned": "Opérateur affecté"
+    },
+    "states": {
+      "checking": "Ouverture de la plateforme",
+      "loading": "Chargement du tableau de bord de la plateforme",
+      "loadingSection": "Chargement",
+      "retry": "Réessayer",
+      "directoryTitle": "Cette plateforme ne peut pas être ouverte pour le moment",
+      "directoryDescription": "Vos plateformes n’ont pas pu être listées. Ce n’est pas un refus d’accès : réessayez dans un instant.",
+      "notAccessibleTitle": "Plateforme introuvable ou inaccessible",
+      "notAccessibleDescription": "Elle n’existe peut-être pas, ou elle est hors de votre périmètre d’administration.",
+      "errorTitle": "Les chiffres de la plateforme n’ont pas pu être chargés",
+      "errorDescription": "Cela ne signifie pas que la plateforme est vide. Réessayez dans un instant.",
+      "notInBuildTitle": "Non disponible dans cette version",
+      "notInBuildDescription": "Aucun contrat Nawara Core ne fournit encore ce tableau de bord.",
+      "sectionUnavailable": "Non disponible pour le moment."
+    }
   },
   "platforms": {
     "title": "Plateformes",

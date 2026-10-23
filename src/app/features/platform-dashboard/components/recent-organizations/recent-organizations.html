@@ -1,0 +1,60 @@
+@let states = subscriptions();
+<table class="recent-organizations__table">
+  <thead>
+    <tr>
+      <th scope="col">{{ 'platformDashboard.organizations.name' | transloco }}</th>
+      <th scope="col">{{ 'platformDashboard.organizations.memberships' | transloco }}</th>
+      <th scope="col">{{ 'platformDashboard.organizations.pending' | transloco }}</th>
+      @if (states !== null) {
+        <th scope="col">{{ 'platformDashboard.organizations.subscriptionColumn' | transloco }}</th>
+      }
+    </tr>
+  </thead>
+  <tbody>
+    @for (organization of organizations(); track organization.id) {
+      <tr>
+        <th scope="row">
+          <bdi>{{ organization.name }}</bdi>
+        </th>
+        <td><adm-metric-value [metric]="organization.memberships" /></td>
+        <td><adm-metric-value [metric]="organization.pendingRequests" /></td>
+        @if (states !== null) {
+          <td>
+            @if (states.get(organization.id); as state) {
+              <nw-status-badge [tone]="subscription[state].tone">{{
+                subscription[state].key | transloco
+              }}</nw-status-badge>
+            } @else {
+              <span class="recent-organizations__missing">—</span>
+            }
+          </td>
+        }
+      </tr>
+    }
+  </tbody>
+</table>
+
+<ul class="recent-organizations__list" role="list">
+  @for (organization of organizations(); track organization.id) {
+    <li class="recent-organizations__item">
+      <bdi class="recent-organizations__name">{{ organization.name }}</bdi>
+      <span class="recent-organizations__facts">
+        <span>
+          <adm-metric-value [metric]="organization.memberships" />
+          {{ 'platformDashboard.organizations.membershipsShort' | transloco }}
+        </span>
+        <span>
+          <adm-metric-value [metric]="organization.pendingRequests" />
+          {{ 'platformDashboard.organizations.pendingShort' | transloco }}
+        </span>
+        @if (states !== null) {
+          @if (states.get(organization.id); as state) {
+            <nw-status-badge [tone]="subscription[state].tone">{{
+              subscription[state].key | transloco
+            }}</nw-status-badge>
+          }
+        }
+      </span>
+    </li>
+  }
+</ul>

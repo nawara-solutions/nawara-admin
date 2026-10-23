@@ -14,6 +14,8 @@ const MARKERS = [
   'demo-activity-1', // activity fixture (company-overview.fixtures.ts)
   'DEMO_LATENCY_MS', // mock adapter token (scope-directory.mock.ts)
   'COMPANY_OVERVIEW_DEMO_SCENARIO', // mock adapter token (company-overview.mock.ts)
+  'PLATFORM_DASHBOARD_DEMO_SCENARIO', // mock adapter token (platform-dashboard.mock.ts)
+  '3f6d2b10-8c4e-4a71-9b2c-5e0f1a2b3c', // demo Organization ids (core/context/organization.fixtures.ts)
 ];
 
 if (!existsSync(DIST)) {

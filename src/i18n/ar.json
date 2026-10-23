@@ -1,5 +1,6 @@
 {
   "common": {
+    "notAvailable": "غير متاح",
     "close": "إغلاق",
     "dismiss": "تجاهل",
     "loading": "جارٍ التحميل…"
@@ -396,15 +397,103 @@
     "sectionUnavailable": "غير متاح بعد: لا يوفر Nawara Core هذه المعلومات.",
     "periodUnavailable": "الفترات الأخرى غير متاحة بعد."
   },
-  "platformScope": {
-    "eyebrow": "نطاق المنصة",
-    "placeholderTitle": "إدارة المنصة لم تُبنَ بعد",
-    "placeholderDescription": "أنت الآن في نطاق المنصة {{name}}. تأتي صفحات إدارتها في مراحل لاحقة.",
-    "key": "معرّف المنصة:",
-    "loading": "جارٍ تحميل المنصة",
-    "notFoundTitle": "المنصة غير موجودة أو غير متاحة",
-    "notFoundDescription": "ربما لا توجد، أو أنها خارج نطاق إدارتك.",
-    "backToPlatforms": "العودة إلى المنصات"
+  "platformDashboard": {
+    "header": {
+      "eyebrow": "المنصة",
+      "accessOwner": "وصولك: مالك الشركة",
+      "accessOperator": "وصولك: مشغّل معيَّن",
+      "backToPlatforms": "العودة إلى المنصات"
+    },
+    "figures": {
+      "label": "أرقام المنصة",
+      "organizations": "المؤسسات",
+      "organizationsCaption": "التغيّر خلال آخر {{days}} يومًا",
+      "memberships": "العضويات",
+      "membershipsCaption": "في مؤسسات هذه المنصة",
+      "membershipRequests": "طلبات العضوية",
+      "membershipRequestsCaption": "بانتظار الموافقة",
+      "operatorAssignments": "تعيينات المشغّلين",
+      "operatorAssignmentsCaption": "نشطة على هذه المنصة"
+    },
+    "organizations": {
+      "title": "المؤسسات",
+      "all": "جميع المؤسسات",
+      "name": "المؤسسة",
+      "memberships": "العضويات",
+      "pending": "الطلبات المعلّقة",
+      "subscriptionColumn": "الاشتراك",
+      "membershipsShort": "عضويات",
+      "pendingShort": "طلبات معلّقة",
+      "subscription": {
+        "active": "نشط",
+        "grace": "في فترة السماح",
+        "none": "لا يوجد"
+      },
+      "footnote": "أحدث {{shown}} من أصل {{total}}. يأتي الدليل الكامل مع إدارة المؤسسات.",
+      "emptyTitle": "لا توجد مؤسسات بعد",
+      "emptyDescription": "تظهر هنا المؤسسات التي تُنشأ على هذه المنصة، مع عضوياتها واشتراكاتها.",
+      "create": "إنشاء مؤسسة"
+    },
+    "attention": {
+      "title": "بحاجة إلى انتباه",
+      "open": "مفتوحة: {{count}}",
+      "none": "لا شيء يتطلب الانتباه.",
+      "membershipRequests": "{{count}} · طلبات عضوية بانتظار الموافقة",
+      "inOrganizations": "المؤسسات المعنية: {{count}}",
+      "adminInvitations": "{{count}} · دعوات مسؤولين بانتظار القبول",
+      "adminInvitationsDetail": "مسؤولو مؤسسات لم ينضموا بعد.",
+      "subscriptionGrace": "{{count}} · مؤسسات في فترة السماح (24 ساعة)",
+      "graceEnds": "تنتهي فترة السماح",
+      "graceDetail": "انتهى اشتراكها؛ يستمر الوصول حتى نهاية فترة السماح.",
+      "paymentIssues": "{{count}} · مدفوعات تحتاج إلى متابعة",
+      "paymentIssuesDetail": "فاشلة، أو بانتظار إجراء.",
+      "warning": "تحذير"
+    },
+    "commercial": {
+      "title": "الاشتراكات",
+      "organizationSubscriptions": "اشتراكات المؤسسات",
+      "barLabel": "اشتراكات المؤسسات: {{active}} نشطة، {{grace}} في فترة السماح، {{none}} دون اشتراك، من أصل {{total}} مؤسسة",
+      "active": "نشطة",
+      "grace": "في فترة السماح (24 ساعة)",
+      "none": "دون اشتراك",
+      "subscriptionsUnavailable": "اشتراكات المؤسسات غير متاحة.",
+      "personalPremium": "بريميوم الشخصي",
+      "personalPremiumNote": "اشتراكات الأشخاص الخاصة في هذا المنتج",
+      "paymentIssues": "مشكلات الدفع",
+      "paymentIssuesNote": "فاشلة، أو بانتظار إجراء"
+    },
+    "policies": {
+      "title": "السياسات",
+      "assistedPayments": "الدفع المساعد",
+      "enabled": "مفعّل",
+      "disabled": "معطّل",
+      "enabledDetail": "ترثه المؤسسات؛ عطّلته {{disabled}} من أصل {{total}}.",
+      "disabledDetail": "معطّل لهذه المنصة: لا يمكن لأي مؤسسة تفعيله.",
+      "change": "تغيير السياسة"
+    },
+    "activity": {
+      "title": "النشاط الأخير",
+      "empty": "لا يوجد نشاط إداري حديث.",
+      "organizationCreated": "تم إنشاء مؤسسة",
+      "adminInvitationSent": "تم إرسال دعوة مسؤول",
+      "membershipApproved": "تمت الموافقة على عضوية",
+      "operatorAssigned": "تم تعيين مشغّل"
+    },
+    "states": {
+      "checking": "جارٍ فتح المنصة",
+      "loading": "جارٍ تحميل لوحة المنصة",
+      "loadingSection": "جارٍ التحميل",
+      "retry": "إعادة المحاولة",
+      "directoryTitle": "لا يمكن فتح هذه المنصة حاليًا",
+      "directoryDescription": "تعذّر عرض منصّاتك. هذا ليس رفضًا للوصول: أعد المحاولة بعد قليل.",
+      "notAccessibleTitle": "المنصة غير موجودة أو غير متاحة",
+      "notAccessibleDescription": "ربما لا توجد، أو أنها خارج نطاق إدارتك.",
+      "errorTitle": "تعذّر تحميل أرقام المنصة",
+      "errorDescription": "هذا لا يعني أن المنصة فارغة. أعد المحاولة بعد قليل.",
+      "notInBuildTitle": "غير متاح في هذا الإصدار",
+      "notInBuildDescription": "لا يوفر أي عقد من Nawara Core هذه اللوحة بعد.",
+      "sectionUnavailable": "غير متاح حاليًا."
+    }
   },
   "platforms": {
     "title": "المنصات",

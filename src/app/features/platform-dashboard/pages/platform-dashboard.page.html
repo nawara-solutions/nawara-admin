@@ -1,0 +1,343 @@
+@let access = facade.access();
+@switch (access.status) {
+  @case ('checking') {
+    <h1 class="nw-visually-hidden">{{ 'platformDashboard.states.checking' | transloco }}</h1>
+    <nw-data-state state="loading" [title]="'platformDashboard.states.checking' | transloco" />
+  }
+  @case ('directoryUnavailable') {
+    <h1 class="nw-visually-hidden">{{ 'platformDashboard.states.directoryTitle' | transloco }}</h1>
+    <nw-data-state
+      state="error"
+      [title]="'platformDashboard.states.directoryTitle' | transloco"
+      [description]="'platformDashboard.states.directoryDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'platformDashboard.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('notAccessible') {
+    <ng-container [ngTemplateOutlet]="notAccessible" />
+  }
+  @case ('granted') {
+    @let platform = access.platform;
+    @let state = facade.state();
+    @if (refused()) {
+      <!-- Core's collapsed 404 (or a 403) for a Platform the directory still listed, e.g. an assignment just revoked. -->
+      <ng-container [ngTemplateOutlet]="notAccessible" />
+    } @else {
+      <header class="platform-dashboard__header">
+        <span class="platform-dashboard__mark" aria-hidden="true">
+          <nw-icon [name]="platform.product === 'drive' ? 'car' : 'hexagon'" size="lg" />
+        </span>
+        <div class="platform-dashboard__titles">
+          <p class="platform-dashboard__eyebrow">
+            {{ 'platformDashboard.header.eyebrow' | transloco }}
+          </p>
+          <h1 class="platform-dashboard__title">
+            <bdi>{{ platform.name }}</bdi>
+          </h1>
+          <p class="platform-dashboard__meta">
+            @if (platform.product; as product) {
+              <span>{{ productKeys[product] | transloco }}</span>
+            }
+            @if (platform.key; as key) {
+              <code class="platform-dashboard__key" dir="ltr" translate="no">{{ key }}</code>
+            }
+            <span class="platform-dashboard__access">{{ accessKey() | transloco }}</span>
+          </p>
+        </div>
+        <div class="platform-dashboard__actions">
+          @if (isDemo()) {
+            <span class="platform-dashboard__demo">
+              <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+              <span class="nw-visually-hidden">: {{ 'shell.demo.explanation' | transloco }}</span>
+            </span>
+          }
+          @if (facade.canOpenPlatforms()) {
+            <a nw-button variant="secondary" routerLink="/platforms">
+              <nw-icon name="arrow-left" size="sm" />{{
+                'platformDashboard.header.backToPlatforms' | transloco
+              }}
+            </a>
+          }
+        </div>
+      </header>
+
+      @switch (state.status) {
+        @case ('success') {
+          @let dashboard = state.data;
+          @if (dashboard.figures.status === 'available') {
+            @let figures = dashboard.figures.data;
+            <section
+              class="platform-dashboard__figures"
+              [attr.aria-label]="'platformDashboard.figures.label' | transloco"
+            >
+              <adm-summary-card
+                icon="building-2"
+                [label]="'platformDashboard.figures.organizations' | transloco"
+                [metric]="figures.organizations"
+                [trend]="
+                  figures.organizationsAdded.status === 'available'
+                    ? figures.organizationsAdded.value
+                    : null
+                "
+                [caption]="
+                  'platformDashboard.figures.organizationsCaption'
+                    | transloco: { days: dashboard.periodDays }
+                "
+              />
+              <adm-summary-card
+                icon="users"
+                accent="orange"
+                [label]="'platformDashboard.figures.memberships' | transloco"
+                [metric]="figures.memberships"
+                [caption]="'platformDashboard.figures.membershipsCaption' | transloco"
+              />
+              <adm-summary-card
+                icon="user-plus"
+                accent="purple"
+                [label]="'platformDashboard.figures.membershipRequests' | transloco"
+                [metric]="figures.membershipRequests"
+                [caption]="'platformDashboard.figures.membershipRequestsCaption' | transloco"
+              />
+              @if (facade.showsAccess()) {
+                <adm-summary-card
+                  icon="shield-check"
+                  accent="purple"
+                  [label]="'platformDashboard.figures.operatorAssignments' | transloco"
+                  [metric]="metricOf(dashboard.operatorAssignments)"
+                  [caption]="'platformDashboard.figures.operatorAssignmentsCaption' | transloco"
+                />
+              }
+            </section>
+          } @else {
+            <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+          }
+
+          <div class="platform-dashboard__row platform-dashboard__row--main">
+            <adm-overview-card
+              headingId="platform-organizations"
+              [heading]="'platformDashboard.organizations.title' | transloco"
+            >
+              <adm-card-link
+                cardActions
+                [label]="'platformDashboard.organizations.all' | transloco"
+              />
+              @let organizations = dashboard.recentOrganizations;
+              @if (
+                dashboard.figures.status === 'available' &&
+                dashboard.figures.data.organizations.status === 'available' &&
+                dashboard.figures.data.organizations.value === 0
+              ) {
+                <div class="platform-dashboard__empty">
+                  <p class="platform-dashboard__empty-title">
+                    {{ 'platformDashboard.organizations.emptyTitle' | transloco }}
+                  </p>
+                  <p class="platform-dashboard__empty-text">
+                    {{ 'platformDashboard.organizations.emptyDescription' | transloco }}
+                  </p>
+                  <button
+                    type="button"
+                    class="platform-dashboard__unavailable-action"
+                    aria-disabled="true"
+                    aria-describedby="platform-create-organization-note"
+                  >
+                    {{ 'platformDashboard.organizations.create' | transloco }}
+                  </button>
+                  <span id="platform-create-organization-note" class="nw-visually-hidden">{{
+                    'shell.notAvailableYet' | transloco
+                  }}</span>
+                </div>
+              } @else if (organizations.status === 'available') {
+                <adm-recent-organizations
+                  [organizations]="organizations.data"
+                  [subscriptions]="facade.showsCommercial() ? facade.subscriptionOf() : null"
+                />
+                @if (
+                  dashboard.figures.status === 'available' &&
+                  dashboard.figures.data.organizations.status === 'available'
+                ) {
+                  <p class="platform-dashboard__footnote">
+                    {{
+                      'platformDashboard.organizations.footnote'
+                        | transloco
+                          : {
+                              shown: organizations.data.length,
+                              total: dashboard.figures.data.organizations.value,
+                            }
+                    }}
+                  </p>
+                }
+              } @else {
+                <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+              }
+            </adm-overview-card>
+
+            <adm-overview-card
+              headingId="platform-attention"
+              [heading]="'platformDashboard.attention.title' | transloco"
+            >
+              @let attention = facade.attention();
+              <!-- One element per block, so the pill is projected into the card header's action slot. -->
+              @if (attention.status === 'available' && attention.data.length > 0) {
+                <span cardActions class="platform-dashboard__pill">{{
+                  'platformDashboard.attention.open' | transloco: { count: attention.data.length }
+                }}</span>
+              }
+              @if (attention.status === 'available') {
+                <adm-platform-attention [items]="attention.data" />
+              } @else {
+                <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+              }
+            </adm-overview-card>
+          </div>
+
+          @if (facade.showsCommercial() || facade.showsActivity()) {
+            <div class="platform-dashboard__row">
+              @if (facade.showsCommercial()) {
+                @let commercial = facade.commercial();
+                <adm-overview-card
+                  headingId="platform-subscriptions"
+                  [heading]="'platformDashboard.commercial.title' | transloco"
+                >
+                  @switch (commercial.status) {
+                    @case ('success') {
+                      <adm-subscription-summary
+                        [subscriptions]="facade.subscriptions()"
+                        [personalPremium]="commercial.data.personalPremium"
+                        [paymentIssues]="commercial.data.paymentIssues"
+                      />
+                    }
+                    @case ('error') {
+                      <ng-container
+                        [ngTemplateOutlet]="sectionUnavailable"
+                        [ngTemplateOutletContext]="{ retry: true }"
+                      />
+                    }
+                    @case ('forbidden') {
+                      <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+                    }
+                    @default {
+                      <nw-data-state
+                        state="loading"
+                        [title]="'platformDashboard.states.loadingSection' | transloco"
+                      />
+                    }
+                  }
+                </adm-overview-card>
+
+                <adm-overview-card
+                  headingId="platform-policies"
+                  [heading]="'platformDashboard.policies.title' | transloco"
+                >
+                  @switch (commercial.status) {
+                    @case ('success') {
+                      @if (commercial.data.assistedPayments.status === 'available') {
+                        <adm-assisted-payments-policy
+                          [policy]="commercial.data.assistedPayments.data"
+                        />
+                      } @else {
+                        <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+                      }
+                    }
+                    @case ('error') {
+                      <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+                    }
+                    @case ('forbidden') {
+                      <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+                    }
+                    @default {
+                      <nw-data-state
+                        state="loading"
+                        [title]="'platformDashboard.states.loadingSection' | transloco"
+                      />
+                    }
+                  }
+                </adm-overview-card>
+              }
+
+              @if (facade.showsActivity()) {
+                <adm-overview-card
+                  headingId="platform-activity"
+                  [heading]="'platformDashboard.activity.title' | transloco"
+                >
+                  @if (dashboard.activity.status === 'available') {
+                    <adm-platform-activity [entries]="dashboard.activity.data" />
+                  } @else {
+                    <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+                  }
+                </adm-overview-card>
+              }
+            </div>
+          }
+        }
+        @case ('error') {
+          @if (state.error.kind === 'unavailable' && state.error.code === adapterUnavailable) {
+            <nw-data-state
+              state="empty"
+              [title]="'platformDashboard.states.notInBuildTitle' | transloco"
+              [description]="'platformDashboard.states.notInBuildDescription' | transloco"
+            />
+          } @else {
+            <nw-data-state
+              state="error"
+              [title]="'platformDashboard.states.errorTitle' | transloco"
+              [description]="'platformDashboard.states.errorDescription' | transloco"
+            >
+              <div nwDataStateActions>
+                <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+                  <nw-icon name="refresh-cw" size="sm" />{{
+                    'platformDashboard.states.retry' | transloco
+                  }}
+                </button>
+              </div>
+            </nw-data-state>
+          }
+        }
+        @default {
+          <nw-data-state state="loading" [title]="'platformDashboard.states.loading' | transloco" />
+        }
+      }
+    }
+  }
+}
+
+<ng-template #notAccessible>
+  <h1 class="nw-visually-hidden">
+    {{ 'platformDashboard.states.notAccessibleTitle' | transloco }}
+  </h1>
+  <nw-data-state
+    state="empty"
+    [title]="'platformDashboard.states.notAccessibleTitle' | transloco"
+    [description]="'platformDashboard.states.notAccessibleDescription' | transloco"
+  >
+    <div nwDataStateActions>
+      @if (facade.canOpenPlatforms()) {
+        <a nw-button variant="secondary" routerLink="/platforms">
+          <nw-icon name="arrow-left" size="sm" />{{
+            'platformDashboard.header.backToPlatforms' | transloco
+          }}
+        </a>
+      } @else {
+        <a nw-button variant="secondary" [routerLink]="home()">
+          <nw-icon name="arrow-left" size="sm" />{{ 'shell.context.assigned' | transloco }}
+        </a>
+      }
+    </div>
+  </nw-data-state>
+</ng-template>
+
+<ng-template #sectionUnavailable let-retry="retry">
+  <p class="platform-dashboard__unavailable">
+    <nw-icon name="circle-alert" size="sm" />
+    <span>{{ 'platformDashboard.states.sectionUnavailable' | transloco }}</span>
+    @if (retry) {
+      <button nw-button variant="ghost" size="sm" type="button" (click)="facade.reload()">
+        {{ 'platformDashboard.states.retry' | transloco }}
+      </button>
+    }
+  </p>
+</ng-template>

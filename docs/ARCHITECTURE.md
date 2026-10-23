@@ -173,7 +173,7 @@ Lazy-loaded feature routes. Titles are localized through a custom `TitleStrategy
 
 /                              → /overview
 /overview                      Company overview: company scope, owner only            🔴 aggregates (mock in demo builds)
-/platforms/:platformId         platform scope entry (placeholder until platform pages) 🟢 access check · 🔴 names
+/platforms/:platformId         Platform dashboard: owner or assigned operator (P2)       🟢 access check · 🔴 names, aggregates
 /forbidden  /** (in the shell) "not available to your account" / "page not found"
 /session-unavailable           no session in this build (every production build until A4)
 /foundation                    A2 design-foundation gallery (verification surface)

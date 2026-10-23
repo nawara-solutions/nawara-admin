@@ -25,6 +25,9 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
       'company.overview.view',
       'company.platforms.view',
       'company.scope',
+      'platform.access.view',
+      'platform.activity.view',
+      'platform.commercial.view',
       'platform.create',
     ]);
   });
@@ -32,6 +35,9 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
   it('never gives an operator company-wide access, whatever their platform assignments', () => {
     expect(capabilitiesOf(operator).size).toBe(0);
     expect(can(operator, 'company.scope')).toBe(false);
+    expect(can(operator, 'platform.commercial.view')).toBe(false);
+    expect(can(operator, 'platform.activity.view')).toBe(false);
+    expect(can(operator, 'platform.access.view')).toBe(false);
     expect(can(operator, 'company.overview.view')).toBe(false);
     expect(can(operator, 'company.platforms.view')).toBe(false);
     expect(can(operator, 'platform.create')).toBe(false);

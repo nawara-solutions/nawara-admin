@@ -14,8 +14,12 @@ type Brand<T, B extends string> = T & { readonly [brand]: B };
 export type CompanyId = Brand<string, 'CompanyId'>;
 export type PlatformId = Brand<string, 'PlatformId'>;
 
+/** An Organization of a Platform (docs/ARCHITECTURE.md §7): an entity inside platform scope, never a scope of its own. */
+export type OrganizationId = Brand<string, 'OrganizationId'>;
+
 export const companyId = (value: string): CompanyId => value as CompanyId;
 export const platformId = (value: string): PlatformId => value as PlatformId;
+export const organizationId = (value: string): OrganizationId => value as OrganizationId;
 
 export type AdminScope =
   { readonly kind: 'company' } | { readonly kind: 'platform'; readonly platformId: PlatformId };

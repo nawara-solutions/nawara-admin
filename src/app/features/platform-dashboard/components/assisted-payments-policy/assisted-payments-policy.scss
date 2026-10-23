@@ -1,0 +1,43 @@
+:host {
+  display: grid;
+  justify-items: start;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-4);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+}
+
+.assisted-payments-policy__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nw-space-2);
+  inline-size: 100%;
+}
+
+.assisted-payments-policy__title {
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.assisted-payments-policy__text {
+  color: var(--nw-text-secondary);
+  font-size: 0.78125rem;
+  line-height: var(--nw-line-height-snug);
+}
+
+// Read only: focusable (so its "not available yet" description is reachable), never actionable.
+.assisted-payments-policy__change {
+  margin-block-start: var(--nw-space-1);
+  padding: 0.4375rem 0.75rem;
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-raised);
+  color: var(--nw-text-secondary);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: var(--nw-font-weight-semibold);
+  cursor: not-allowed;
+}

@@ -13,14 +13,14 @@ import { CompanyOverviewFacade } from '../application/company-overview.facade';
 import { AccessSummaryList } from '../components/access-summary/access-summary';
 import { ActivityList } from '../components/activity-list/activity-list';
 import { AttentionList } from '../components/attention-list/attention-list';
-import { CardLink } from '../components/card-link/card-link';
+import { CardLink } from '../../../shared/dashboard/card-link/card-link';
 import { CommercialSummaryPanel } from '../components/commercial-summary/commercial-summary';
 import { GrowthPanel } from '../components/growth-panel/growth-panel';
-import { OverviewCard } from '../components/overview-card/overview-card';
+import { OverviewCard } from '../../../shared/dashboard/overview-card/overview-card';
 import { OverviewHeader } from '../components/overview-header/overview-header';
 import { PlatformList } from '../components/platform-list/platform-list';
 import { ServiceHealthStrip } from '../components/service-health-strip/service-health-strip';
-import { SummaryCard } from '../components/summary-card/summary-card';
+import { SummaryCard } from '../../../shared/dashboard/summary-card/summary-card';
 import { ServiceHealthSummary } from '../domain/service-health.model';
 
 /**

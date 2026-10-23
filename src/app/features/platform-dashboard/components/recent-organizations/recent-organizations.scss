@@ -1,0 +1,80 @@
+// A table when the card is wide enough for four columns, a list below that (the card's own width decides).
+:host {
+  display: block;
+  container-type: inline-size;
+}
+
+.recent-organizations__table {
+  display: none;
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--nw-text-size-sm);
+
+  th,
+  td {
+    padding-block: 0.625rem;
+    padding-inline-end: var(--nw-space-3);
+    border-block-start: 1px solid var(--nw-border-hairline);
+    text-align: start;
+    font-variant-numeric: tabular-nums;
+  }
+
+  thead th {
+    padding-block-start: 0;
+    border-block-start: 0;
+    color: var(--nw-text-secondary);
+    font-size: var(--nw-text-size-xs);
+    font-weight: var(--nw-font-weight-semibold);
+  }
+
+  tbody th {
+    font-weight: var(--nw-font-weight-semibold);
+  }
+}
+
+.recent-organizations__missing {
+  color: var(--nw-text-secondary);
+}
+
+.recent-organizations__list {
+  display: grid;
+  gap: var(--nw-space-2);
+}
+
+.recent-organizations__item {
+  display: grid;
+  gap: var(--nw-space-1);
+  padding: var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+}
+
+.recent-organizations__name {
+  font-weight: var(--nw-font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.recent-organizations__facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-1) var(--nw-space-3);
+  color: var(--nw-text-secondary);
+  font-size: 0.78125rem;
+}
+
+@container (min-width: 28rem) {
+  .recent-organizations__table {
+    display: table;
+  }
+
+  .recent-organizations__list {
+    display: none;
+  }
+}
+
+// In a right-to-left page a Latin name (its own direction is left-to-right) still lines up with the start edge, the
+// right; scoped to RTL, so it is the logical start.
+.recent-organizations__item:dir(rtl) > .recent-organizations__name {
+  text-align: right;
+}

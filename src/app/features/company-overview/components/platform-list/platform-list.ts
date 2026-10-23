@@ -5,7 +5,7 @@ import { platformPath } from '../../../../core/context/scope-context';
 import { PlatformProduct } from '../../../../core/context/scope.model';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
 import { PlatformSummary } from '../../domain/company-overview.model';
-import { MetricValue } from '../metric-value/metric-value';
+import { MetricValue } from '../../../../shared/dashboard/metric-value/metric-value';
 
 const PRODUCT_KEYS = {
   school: 'companyOverview.platforms.product.school',

@@ -1,0 +1,111 @@
+:host {
+  display: grid;
+  gap: var(--nw-space-4);
+}
+
+.subscription-summary__group {
+  display: grid;
+  gap: var(--nw-space-2);
+}
+
+.subscription-summary__heading {
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+// Active, then in grace; the rest of the track (no subscription) stays the neutral ground.
+.subscription-summary__bar {
+  display: flex;
+  overflow: hidden;
+  block-size: 0.625rem;
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-surface-sunken);
+}
+
+.subscription-summary__segment {
+  background-color: var(--nw-status-success-fg);
+
+  &--grace {
+    background-color: var(--nw-status-warning-fg);
+  }
+}
+
+.subscription-summary__legend {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--nw-space-2);
+
+  // The legend reads value over label, as in the design; values share the top row even when a label wraps.
+  > div {
+    display: grid;
+    grid-template-rows: auto auto;
+    align-content: start;
+    gap: 2px;
+  }
+
+  dt {
+    grid-row: 2;
+    color: var(--nw-text-secondary);
+    font-size: 0.78125rem;
+  }
+
+  dd {
+    grid-row: 1;
+    font-size: var(--nw-text-size-md);
+    font-weight: var(--nw-font-weight-bold);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.subscription-summary__grace {
+  color: var(--nw-status-warning-fg);
+}
+
+.subscription-summary__missing {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.subscription-summary__facts {
+  display: grid;
+  gap: var(--nw-space-3);
+  padding-block-start: var(--nw-space-3);
+  border-block-start: 1px solid var(--nw-border-hairline);
+}
+
+.subscription-summary__fact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nw-space-3);
+
+  dt {
+    display: grid;
+    gap: 2px;
+  }
+
+  dd {
+    font-size: var(--nw-text-size-lg);
+    font-weight: var(--nw-font-weight-bold);
+  }
+}
+
+.subscription-summary__fact-label {
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.subscription-summary__fact-note {
+  color: var(--nw-text-secondary);
+  font-size: 0.75rem;
+}
+
+@media (forced-colors: active) {
+  .subscription-summary__bar {
+    border: 1px solid CanvasText;
+  }
+
+  .subscription-summary__segment {
+    background-color: CanvasText;
+  }
+}

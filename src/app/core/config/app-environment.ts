@@ -9,7 +9,9 @@ export type DemoDomain =
   | 'companyOverview'
   | 'platformDirectory'
   | 'commercialSummary'
-  | 'serviceHealth';
+  | 'serviceHealth'
+  | 'platformDashboard'
+  | 'platformCommercial';
 
 /** The fictional accounts a demo build's sign-in page lists, so a reviewer can sign in (catalog keys for roles). */
 export interface DemoSignInHint {
