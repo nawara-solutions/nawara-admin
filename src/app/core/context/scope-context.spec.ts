@@ -7,8 +7,15 @@ import { APP_ENVIRONMENT, DemoBindings } from '../config/app-environment';
 import { DEMO_COMPANY_ID, DEMO_DRIVE_PLATFORM_ID } from '../../demo/world/seed';
 import { ScopeDirectoryGateway } from './scope-directory.gateway';
 import { DEMO_LATENCY_MS, MockScopeDirectoryGateway } from './scope-directory.mock';
-import { ScopeContext, platformPath, scopeFromUrl } from './scope-context';
-import { platformId } from './scope.model';
+import {
+  ScopeContext,
+  organizationPath,
+  organizationsPath,
+  platformPageFromUrl,
+  platformPath,
+  scopeFromUrl,
+} from './scope-context';
+import { organizationId, platformId } from './scope.model';
 
 describe('scope from the URL (the URL is the source of truth, docs/ARCHITECTURE.md §7)', () => {
   it('treats company pages as company scope ("All platforms")', () => {
@@ -38,6 +45,39 @@ describe('scope from the URL (the URL is the source of truth, docs/ARCHITECTURE.
   });
 });
 
+describe('the platform page from the URL (Organizations are entities of platform scope)', () => {
+  it('tells the dashboard, the Organization directory and one Organization apart', () => {
+    expect(platformPageFromUrl('/platforms/p')).toEqual({ kind: 'dashboard' });
+    expect(platformPageFromUrl('/platforms/p/organizations?q=riad&sort=name')).toEqual({
+      kind: 'organizations',
+    });
+    expect(platformPageFromUrl('/platforms/p/organizations/o%2F1#top')).toEqual({
+      kind: 'organization',
+      organizationId: 'o/1',
+    });
+  });
+
+  it('recognises nothing else, and never makes an Organization a scope of its own', () => {
+    expect(platformPageFromUrl('/overview')).toEqual({ kind: 'other' });
+    expect(platformPageFromUrl('/platforms/p/settings')).toEqual({ kind: 'other' });
+    expect(platformPageFromUrl('/platforms/p/organizations/o/members')).toEqual({ kind: 'other' });
+    expect(scopeFromUrl('/platforms/p/organizations/o')).toEqual({
+      kind: 'platform',
+      platformId: 'p',
+    });
+  });
+
+  it('builds Organization URLs that round-trip', () => {
+    const platform = platformId('5b8d2a10-3c4e-4f61-8a2b-9d0e1f2a3b01');
+    const organization = organizationId('3f6d2b10-8c4e-4a71-9b2c-5e0f1a2b3c03');
+    expect(platformPageFromUrl(organizationsPath(platform))).toEqual({ kind: 'organizations' });
+    expect(platformPageFromUrl(organizationPath(platform, organization))).toEqual({
+      kind: 'organization',
+      organizationId: organization,
+    });
+  });
+});
+
 describe('ScopeContext: the Platforms the actor may see', () => {
   const DEMO: DemoBindings = {
     signIn: {
@@ -59,6 +99,8 @@ describe('ScopeContext: the Platforms the actor may see', () => {
       serviceHealth: [],
       platformDashboard: [],
       platformCommercial: [],
+      organizations: [],
+      organizationCommercial: [],
     },
   };
 

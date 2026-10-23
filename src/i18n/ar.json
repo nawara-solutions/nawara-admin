@@ -175,7 +175,9 @@
     "workingCode": "تسجيل الدخول برمز عمل",
     "workingCodeVerify": "أدخل رمز العمل",
     "contactConfirmation": "تأكيد جهة الاتصال",
-    "enroll": "إعداد تطبيق المصادقة"
+    "enroll": "إعداد تطبيق المصادقة",
+    "organizations": "المؤسسات",
+    "organization": "المؤسسة"
   },
   "shell": {
     "skipToContent": "الانتقال إلى المحتوى",
@@ -190,7 +192,9 @@
       "overview": "نظرة عامة",
       "platform": "المنصة",
       "platforms": "المنصات",
-      "appearance": "المظهر"
+      "appearance": "المظهر",
+      "organizations": "المؤسسات",
+      "organization": "المؤسسة"
     },
     "context": {
       "label": "نطاق الإدارة",
@@ -424,7 +428,7 @@
         "grace": "في فترة السماح",
         "none": "لا يوجد"
       },
-      "footnote": "أحدث {{shown}} من أصل {{total}}. يأتي الدليل الكامل مع إدارة المؤسسات.",
+      "footnote": "أحدث {{shown}} من أصل {{total}}.",
       "emptyTitle": "لا توجد مؤسسات بعد",
       "emptyDescription": "تظهر هنا المؤسسات التي تُنشأ على هذه المنصة، مع عضوياتها واشتراكاتها.",
       "create": "إنشاء مؤسسة"
@@ -527,6 +531,145 @@
     "retry": "إعادة المحاولة",
     "unavailableTitle": "غير متاح في هذا الإصدار",
     "unavailableDescription": "لا يوجد بعد عقد في Nawara Core يسرد منصاتك."
+  },
+  "organizations": {
+    "header": {
+      "directoryTitle": "المؤسسات",
+      "directorySubtitle": "مؤسسات هذه المنصة. للاطّلاع فقط في هذا الإصدار.",
+      "eyebrow": "مؤسسة",
+      "backToDashboard": "لوحة المنصة",
+      "backToDirectory": "جميع المؤسسات",
+      "accessOwner": "وصولك: مالك الشركة",
+      "accessOperator": "وصولك: مشغّل معيَّن",
+      "created": "أُنشئت في {{date}}"
+    },
+    "totals": {
+      "label": "إجماليات المنصة",
+      "organizations": "المؤسسات",
+      "memberships": "العضويات",
+      "requests": "طلبات بانتظار الموافقة",
+      "organizationsWithRequests": "مؤسسات لديها طلبات"
+    },
+    "toolbar": {
+      "searchLabel": "البحث في المؤسسات",
+      "searchPlaceholder": "البحث بالاسم",
+      "clear": "مسح البحث",
+      "show": "عرض",
+      "all": "الكل",
+      "withRequests": "لديها طلبات ({{count}})",
+      "subscription": "الاشتراك",
+      "subscriptionUnavailable": "معلومات الاشتراك غير متاحة حاليًا، لذا هذا المرشّح معطّل.",
+      "sort": "الترتيب",
+      "count": "{{shown}} من أصل {{total}}"
+    },
+    "subscriptionFilter": {
+      "any": "الكل",
+      "active": "نشط",
+      "ending": "ينتهي خلال {{days}} يومًا",
+      "grace": "في فترة السماح",
+      "none": "لا يوجد"
+    },
+    "sort": {
+      "newest": "الأحدث أولًا",
+      "oldest": "الأقدم أولًا",
+      "name": "الاسم (أ–ي)",
+      "memberships": "الأكثر عضويات",
+      "requests": "الأكثر طلبات"
+    },
+    "table": {
+      "label": "دليل المؤسسات",
+      "organization": "المؤسسة",
+      "memberships": "العضويات",
+      "pending": "الطلبات المعلّقة",
+      "subscription": "الاشتراك",
+      "assistedPayments": "الدفع المساعد",
+      "membershipsShort": "عضويات",
+      "pendingShort": "طلبات معلّقة",
+      "unavailable": "غير متاح"
+    },
+    "subscription": {
+      "active": "نشط",
+      "grace": "في فترة السماح",
+      "none": "لا يوجد",
+      "ends": "ينتهي {{when}}",
+      "graceEnds": "ينتهي الوصول {{when}}"
+    },
+    "policy": {
+      "enabled": "مفعّل",
+      "disabled": "معطّل",
+      "inherited": "موروث من المنصة",
+      "platformDisabled": "معطّل للمنصة",
+      "organizationDisabled": "مضبوط لهذه المؤسسة"
+    },
+    "states": {
+      "checking": "جارٍ فتح المنصة",
+      "loading": "جارٍ تحميل المؤسسات",
+      "loadingOrganization": "جارٍ تحميل المؤسسة",
+      "loadingSection": "جارٍ التحميل",
+      "retry": "إعادة المحاولة",
+      "directoryTitle": "لا يمكن فتح هذه المنصة الآن",
+      "directoryDescription": "تعذّر عرض منصاتك. هذا ليس رفضًا للوصول: أعد المحاولة بعد قليل.",
+      "notAccessibleTitle": "المنصة غير موجودة أو غير متاحة",
+      "notAccessibleDescription": "قد لا تكون موجودة، أو أنها خارج نطاق إدارتك.",
+      "notFoundTitle": "المؤسسة غير موجودة أو غير متاحة",
+      "notFoundDescription": "قد لا تكون موجودة، أو تتبع منصة أخرى، أو أنها خارج نطاق إدارتك.",
+      "errorTitle": "تعذّر تحميل المؤسسات",
+      "errorOrganizationTitle": "تعذّر تحميل المؤسسة",
+      "errorDescription": "لم تستجب الخدمة. لم يتغيّر وصولك. أعد المحاولة بعد قليل.",
+      "notInBuildTitle": "غير متاح في هذا الإصدار",
+      "notInBuildDescription": "لا يوفّر أي عقد من Nawara Core المؤسسات هنا بعد.",
+      "emptyTitle": "لا توجد مؤسسات بعد",
+      "emptyDescription": "لا توجد مؤسسات على هذه المنصة. إنشاء المؤسسات غير متاح في هذا الإصدار.",
+      "noResultsTitle": "لا توجد مؤسسات مطابقة",
+      "noResultsDescription": "تحقّق من الكتابة، أو امسح البحث والمرشّحات.",
+      "clearAll": "مسح البحث والمرشّحات",
+      "sectionUnavailable": "غير متاح حاليًا. لا تتأثر الأقسام الأخرى."
+    },
+    "detail": {
+      "figuresLabel": "أرقام المؤسسة",
+      "memberships": "العضويات",
+      "membershipsCaption": "العضويات النشطة في هذه المؤسسة",
+      "requests": "طلبات العضوية",
+      "requestsCaption": "بانتظار الموافقة",
+      "invitations": "دعوات المسؤولين",
+      "invitationsCaption": "بانتظار القبول",
+      "membership": "العضوية",
+      "activeMemberships": "العضويات النشطة",
+      "pendingRequests": "طلبات بانتظار الموافقة",
+      "invitationsAwaiting": "دعوات مسؤولي المؤسسة بانتظار القبول",
+      "membershipNote": "تتوفر قائمة الأعضاء ومراجعة الطلبات مع إدارة العضويات.",
+      "reviewRequests": "مراجعة الطلبات",
+      "activity": "النشاط الأخير",
+      "activityEmpty": "لا يوجد نشاط إداري حديث لهذه المؤسسة.",
+      "activityNote": "الأحداث الإدارية لهذه المؤسسة، الأحدث أولًا.",
+      "about": "حول",
+      "platform": "المنصة",
+      "organizationId": "معرّف المؤسسة",
+      "createdAt": "تاريخ الإنشاء",
+      "subscription": "الاشتراك",
+      "subscriptionState": "اشتراك المؤسسة",
+      "endsAt": "ينتهي",
+      "graceEndsAt": "ينتهي الوصول",
+      "graceNote": "عند انتهائه، يحتفظ الأعضاء بالوصول خلال فترة سماح مدتها 24 ساعة.",
+      "noSubscriptionNote": "لا يوجد اشتراك لهذه المؤسسة.",
+      "payments": "المدفوعات",
+      "paymentIssues": "مدفوعات تحتاج إلى متابعة",
+      "paymentIssuesNote": "تفاصيل الدفع غير متاحة في هذا الإصدار.",
+      "noPaymentIssues": "لا توجد مدفوعات تحتاج إلى متابعة.",
+      "assistedPayments": "الدفع المساعد",
+      "effective": "الحالة الفعلية لهذه المؤسسة",
+      "platformSetting": "إعداد المنصة",
+      "organizationSetting": "هذه المؤسسة",
+      "inherits": "ترث إعداد المنصة",
+      "override": "معطّل لهذه المؤسسة",
+      "changePolicy": "تغيير السياسة"
+    },
+    "activity": {
+      "organizationCreated": "تم إنشاء مؤسسة",
+      "adminInvitationSent": "تم إرسال دعوة مسؤول",
+      "membershipApproved": "تمت الموافقة على عضوية"
+    },
+    "footnote": "تُحتسب العضويات لكل مؤسسة؛ يمكن لشخص واحد أن يملك عضويات في عدة مؤسسات."
   },
   "auth": {
     "brand": {

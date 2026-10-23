@@ -21,7 +21,13 @@
             }
           </span>
         } @else if (crumb.link) {
-          <a class="breadcrumbs__link" [routerLink]="crumb.link">{{ crumb.label | transloco }}</a>
+          <a class="breadcrumbs__link" [routerLink]="crumb.link">
+            @if (crumb.translate) {
+              {{ crumb.label | transloco }}
+            } @else {
+              <bdi>{{ crumb.label }}</bdi>
+            }
+          </a>
         } @else {
           <span class="breadcrumbs__text">{{ crumb.label | transloco }}</span>
         }

@@ -1,0 +1,140 @@
+// A table when the card is wide enough for its columns, a list of link cards below that (the card's own width decides).
+:host {
+  display: block;
+  container-type: inline-size;
+}
+
+.organization-table__table {
+  display: none;
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--nw-text-size-sm);
+
+  th,
+  td {
+    padding-block: 0.6875rem;
+    padding-inline-end: var(--nw-space-4);
+    border-block-start: 1px solid var(--nw-border-hairline);
+    text-align: start;
+    vertical-align: middle;
+  }
+
+  thead th {
+    padding-block-start: 0;
+    border-block-start: 0;
+    color: var(--nw-text-secondary);
+    font-size: var(--nw-text-size-xs);
+    font-weight: var(--nw-font-weight-semibold);
+    white-space: nowrap;
+  }
+
+  tbody th {
+    font-weight: var(--nw-font-weight-regular);
+  }
+}
+
+.organization-table__number {
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+
+  .organization-table__table & {
+    text-align: end;
+  }
+}
+
+.organization-table__link {
+  display: inline-block;
+  color: var(--nw-text-primary);
+  font-weight: var(--nw-font-weight-semibold);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+
+  &:hover {
+    color: var(--nw-text-link);
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    border-radius: var(--nw-radius-sm);
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.organization-table__created,
+.organization-table__source {
+  display: block;
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+}
+
+.organization-table__note {
+  display: block;
+  margin-block-start: 2px;
+  color: var(--nw-status-warning-fg);
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.organization-table__policy {
+  display: block;
+}
+
+.organization-table__list {
+  display: grid;
+  gap: var(--nw-space-2);
+}
+
+.organization-table__card {
+  display: grid;
+  gap: var(--nw-space-1);
+  min-block-size: 2.75rem;
+  padding: var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  color: var(--nw-text-primary);
+  text-decoration: none;
+
+  &:hover {
+    background-color: var(--nw-surface-inset);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.organization-table__name {
+  font-weight: var(--nw-font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.organization-table__facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-1) var(--nw-space-3);
+  color: var(--nw-text-secondary);
+  font-size: 0.78125rem;
+
+  .organization-table__note {
+    display: inline;
+    margin: 0;
+  }
+}
+
+@container (min-width: 40rem) {
+  .organization-table__table {
+    display: table;
+  }
+
+  .organization-table__list {
+    display: none;
+  }
+}
+
+// In a right-to-left page a Latin name still lines up with the start edge (the right); scoped to RTL.
+.organization-table__card:dir(rtl) > .organization-table__name {
+  text-align: right;
+}

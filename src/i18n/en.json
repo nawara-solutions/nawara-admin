@@ -175,7 +175,9 @@
     "workingCode": "Sign in with a working code",
     "workingCodeVerify": "Enter your working code",
     "contactConfirmation": "Confirm your contact",
-    "enroll": "Set up your authenticator"
+    "enroll": "Set up your authenticator",
+    "organizations": "Organizations",
+    "organization": "Organization"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -190,7 +192,9 @@
       "overview": "Overview",
       "platform": "Platform",
       "platforms": "Platforms",
-      "appearance": "Appearance"
+      "appearance": "Appearance",
+      "organizations": "Organizations",
+      "organization": "Organization"
     },
     "context": {
       "label": "Administration scope",
@@ -424,7 +428,7 @@
         "grace": "In grace",
         "none": "None"
       },
-      "footnote": "Newest {{shown}} of {{total}}. The full directory arrives with Organization management.",
+      "footnote": "Newest {{shown}} of {{total}}.",
       "emptyTitle": "No organizations yet",
       "emptyDescription": "Organizations created on this platform appear here, with their memberships and subscriptions.",
       "create": "Create organization"
@@ -527,6 +531,145 @@
     "retry": "Try again",
     "unavailableTitle": "Not available in this build",
     "unavailableDescription": "No Nawara Core contract lists your platforms yet."
+  },
+  "organizations": {
+    "header": {
+      "directoryTitle": "Organizations",
+      "directorySubtitle": "The organizations of this platform. Read only in this release.",
+      "eyebrow": "Organization",
+      "backToDashboard": "Platform dashboard",
+      "backToDirectory": "All organizations",
+      "accessOwner": "Your access: Company owner",
+      "accessOperator": "Your access: Assigned operator",
+      "created": "Created {{date}}"
+    },
+    "totals": {
+      "label": "Platform totals",
+      "organizations": "Organizations",
+      "memberships": "Memberships",
+      "requests": "Requests awaiting approval",
+      "organizationsWithRequests": "Organizations with requests"
+    },
+    "toolbar": {
+      "searchLabel": "Search organizations",
+      "searchPlaceholder": "Search by name",
+      "clear": "Clear the search",
+      "show": "Show",
+      "all": "All",
+      "withRequests": "With requests ({{count}})",
+      "subscription": "Subscription",
+      "subscriptionUnavailable": "Subscription facts are not available right now, so this filter is off.",
+      "sort": "Sort",
+      "count": "Showing {{shown}} of {{total}}"
+    },
+    "subscriptionFilter": {
+      "any": "Any",
+      "active": "Active",
+      "ending": "Ending within {{days}} days",
+      "grace": "In grace",
+      "none": "None"
+    },
+    "sort": {
+      "newest": "Newest first",
+      "oldest": "Oldest first",
+      "name": "Name (A–Z)",
+      "memberships": "Most memberships",
+      "requests": "Most requests"
+    },
+    "table": {
+      "label": "Organization directory",
+      "organization": "Organization",
+      "memberships": "Memberships",
+      "pending": "Pending requests",
+      "subscription": "Subscription",
+      "assistedPayments": "Assisted payments",
+      "membershipsShort": "memberships",
+      "pendingShort": "pending requests",
+      "unavailable": "Not available"
+    },
+    "subscription": {
+      "active": "Active",
+      "grace": "In grace",
+      "none": "None",
+      "ends": "Ends {{when}}",
+      "graceEnds": "Access ends {{when}}"
+    },
+    "policy": {
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "inherited": "inherited from the platform",
+      "platformDisabled": "disabled for the platform",
+      "organizationDisabled": "set on this organization"
+    },
+    "states": {
+      "checking": "Opening the platform",
+      "loading": "Loading organizations",
+      "loadingOrganization": "Loading the organization",
+      "loadingSection": "Loading",
+      "retry": "Try again",
+      "directoryTitle": "This platform cannot be opened right now",
+      "directoryDescription": "Your platforms could not be listed. This is not an access refusal: try again in a moment.",
+      "notAccessibleTitle": "Platform not found or not accessible",
+      "notAccessibleDescription": "It may not exist, or it is outside your administration scope.",
+      "notFoundTitle": "Organization not found or not accessible",
+      "notFoundDescription": "It may not exist, may belong to another platform, or may be outside your administration scope.",
+      "errorTitle": "The organizations could not be loaded",
+      "errorOrganizationTitle": "The organization could not be loaded",
+      "errorDescription": "The service did not answer. This is not a change to your access. Try again in a moment.",
+      "notInBuildTitle": "Not available in this build",
+      "notInBuildDescription": "No Nawara Core contract provides organizations here yet.",
+      "emptyTitle": "No organizations yet",
+      "emptyDescription": "This platform has no organizations. Creating organizations is not available in this release.",
+      "noResultsTitle": "No organizations match",
+      "noResultsDescription": "Check the spelling, or clear the search and filters.",
+      "clearAll": "Clear search and filters",
+      "sectionUnavailable": "Not available right now. The other sections are unaffected."
+    },
+    "detail": {
+      "figuresLabel": "Organization figures",
+      "memberships": "Memberships",
+      "membershipsCaption": "Active memberships in this organization",
+      "requests": "Membership requests",
+      "requestsCaption": "Awaiting approval",
+      "invitations": "Admin invitations",
+      "invitationsCaption": "Awaiting acceptance",
+      "membership": "Membership",
+      "activeMemberships": "Active memberships",
+      "pendingRequests": "Requests awaiting approval",
+      "invitationsAwaiting": "Organization-admin invitations awaiting acceptance",
+      "membershipNote": "The member list and request review arrive with membership administration.",
+      "reviewRequests": "Review requests",
+      "activity": "Recent activity",
+      "activityEmpty": "No recent administrative activity for this organization.",
+      "activityNote": "This organization’s administrative events, newest first.",
+      "about": "About",
+      "platform": "Platform",
+      "organizationId": "Organization ID",
+      "createdAt": "Created",
+      "subscription": "Subscription",
+      "subscriptionState": "Organization subscription",
+      "endsAt": "Ends",
+      "graceEndsAt": "Access ends",
+      "graceNote": "When it ends, members keep access for a 24-hour grace period.",
+      "noSubscriptionNote": "This organization has no subscription.",
+      "payments": "Payments",
+      "paymentIssues": "Payments needing attention",
+      "paymentIssuesNote": "Payment details are not available in this release.",
+      "noPaymentIssues": "No payment needs attention.",
+      "assistedPayments": "Assisted payments",
+      "effective": "Effective for this organization",
+      "platformSetting": "Platform setting",
+      "organizationSetting": "This organization",
+      "inherits": "Inherits the platform",
+      "override": "Disabled for this organization",
+      "changePolicy": "Change policy"
+    },
+    "activity": {
+      "organizationCreated": "Organization created",
+      "adminInvitationSent": "Admin invitation sent",
+      "membershipApproved": "Membership approved"
+    },
+    "footnote": "Memberships are counted per organization; one person can hold memberships in several."
   },
   "auth": {
     "brand": {

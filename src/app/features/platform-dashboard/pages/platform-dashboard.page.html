@@ -125,8 +125,9 @@
               <adm-card-link
                 cardActions
                 [label]="'platformDashboard.organizations.all' | transloco"
+                [link]="organizationsPath(platform.id)"
               />
-              @let organizations = dashboard.recentOrganizations;
+              @let recent = dashboard.recentOrganizations;
               @if (
                 dashboard.figures.status === 'available' &&
                 dashboard.figures.data.organizations.status === 'available' &&
@@ -151,9 +152,10 @@
                     'shell.notAvailableYet' | transloco
                   }}</span>
                 </div>
-              } @else if (organizations.status === 'available') {
+              } @else if (recent.status === 'available') {
                 <adm-recent-organizations
-                  [organizations]="organizations.data"
+                  [platformId]="platform.id"
+                  [organizations]="recent.data"
                   [subscriptions]="facade.showsCommercial() ? facade.subscriptionOf() : null"
                 />
                 @if (
@@ -165,7 +167,7 @@
                       'platformDashboard.organizations.footnote'
                         | transloco
                           : {
-                              shown: organizations.data.length,
+                              shown: recent.data.length,
                               total: dashboard.figures.data.organizations.value,
                             }
                     }}

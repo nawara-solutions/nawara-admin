@@ -18,6 +18,11 @@ import {
 } from '../../features/platform-dashboard/data-access/platform-dashboard.mock';
 import { subscriptionCounts } from '../../features/platform-dashboard/domain/platform-commercial.model';
 import { MockPlatformDirectoryGateway } from '../../features/platforms/data-access/platform-directory.mock';
+import {
+  MockOrganizationCommercialGateway,
+  MockOrganizationGateway,
+} from '../../features/organizations/data-access/organization.mock';
+import { DemoWorld } from './demo-world';
 import { AdminIdentityId } from './records';
 import {
   DEMO_COMPANY_ID,
@@ -42,6 +47,8 @@ function mocks(signedInAs: AdminIdentityId, tier: 'owner' | 'operator') {
       MockPlatformDirectoryGateway,
       MockPlatformDashboardGateway,
       MockPlatformCommercialGateway,
+      MockOrganizationGateway,
+      MockOrganizationCommercialGateway,
     ],
   });
   TestBed.inject(DemoAuthState).signedIn.set({
@@ -56,6 +63,8 @@ function mocks(signedInAs: AdminIdentityId, tier: 'owner' | 'operator') {
     directory: TestBed.inject(MockPlatformDirectoryGateway),
     dashboard: TestBed.inject(MockPlatformDashboardGateway),
     platformCommercial: TestBed.inject(MockPlatformCommercialGateway),
+    organizations: TestBed.inject(MockOrganizationGateway),
+    organizationCommercial: TestBed.inject(MockOrganizationCommercialGateway),
   };
 }
 
@@ -144,5 +153,66 @@ describe('demo world: cross-feature consistency', () => {
   it('answers the owner’s unread count from the world', async () => {
     const m = mocks(DEMO_OWNER_ID, 'owner');
     expect((await firstValueFrom(m.notifications.summary())).unread).toBe(4);
+  });
+
+  it('gives the Organization directory and detail the dashboard’s figures and subscription states', async () => {
+    const m = mocks(DEMO_OWNER_ID, 'owner');
+    for (const platform of [DEMO_SCHOOL_PLATFORM_ID, DEMO_DRIVE_PLATFORM_ID]) {
+      const directory = await firstValueFrom(m.organizations.list(platform));
+      const dashboard = data((await firstValueFrom(m.dashboard.load(platform))).figures);
+      expect(directory.organizations).toHaveLength(value(dashboard.organizations));
+      const total = (pick: (o: (typeof directory.organizations)[number]) => Metric) =>
+        directory.organizations.reduce((n, o) => n + value(pick(o)), 0);
+      expect(total((o) => o.memberships)).toBe(value(dashboard.memberships));
+      expect(total((o) => o.pendingRequests)).toBe(value(dashboard.membershipRequests));
+      // The dashboard's newest Organizations are the directory's first rows.
+      const recent = data((await firstValueFrom(m.dashboard.load(platform))).recentOrganizations);
+      expect(directory.organizations.slice(0, recent.length).map((o) => o.id)).toEqual(
+        recent.map((o) => o.id),
+      );
+
+      const states = (await firstValueFrom(m.organizationCommercial.list(platform))).organizations;
+      const platformStates = data(
+        (await firstValueFrom(m.platformCommercial.load(platform))).organizationSubscriptions,
+      );
+      expect(new Map(states.map((c) => [c.organizationId, c.subscription.state]))).toEqual(
+        new Map(platformStates.map((s) => [s.organizationId, s.state])),
+      );
+      let invitations = 0;
+      for (const row of directory.organizations) {
+        const detail = await firstValueFrom(m.organizations.load(row.id));
+        expect(detail).toMatchObject(row);
+        invitations += value(data(detail.adminInvitationsAwaiting));
+        const commercial = await firstValueFrom(m.organizationCommercial.load(row.id));
+        expect(data(commercial.subscription).state).toBe(
+          states.find((c) => c.organizationId === row.id)?.subscription.state,
+        );
+      }
+      expect(invitations).toBe(
+        value(data((await firstValueFrom(m.dashboard.load(platform))).adminInvitationsAwaiting)),
+      );
+    }
+  });
+
+  it('keeps an operator’s Organizations to their Platform, without commercial facts', async () => {
+    const m = mocks(DEMO_OPERATOR_IDS.school, 'operator');
+    const school = await firstValueFrom(m.organizations.list(DEMO_SCHOOL_PLATFORM_ID));
+    expect(school.organizations.every((o) => o.platformId === DEMO_SCHOOL_PLATFORM_ID)).toBe(true);
+    await expect(
+      firstValueFrom(m.organizations.list(DEMO_DRIVE_PLATFORM_ID)),
+    ).rejects.toMatchObject({ status: 404 });
+    // Auto-École Sahara, a Drive Organization, asked for by its id.
+    const sahara = TestBed.inject(DemoWorld)
+      .snapshot()
+      .organizations.find((o) => o.name === 'Auto-École Sahara');
+    expect(sahara?.platformId).toBe(DEMO_DRIVE_PLATFORM_ID);
+    await expect(firstValueFrom(m.organizations.load(sahara!.id))).rejects.toMatchObject({
+      status: 404,
+    });
+    await expect(
+      firstValueFrom(m.organizationCommercial.list(DEMO_SCHOOL_PLATFORM_ID)),
+    ).rejects.toMatchObject({
+      status: 403,
+    });
   });
 });

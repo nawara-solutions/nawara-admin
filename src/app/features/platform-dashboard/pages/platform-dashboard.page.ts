@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { homePath } from '../../../core/access/home-path';
 import { AuthSession } from '../../../core/auth/auth-session';
+import { organizationsPath } from '../../../core/context/scope-context';
 import { PlatformProduct } from '../../../core/context/scope.model';
 import { ADAPTER_UNAVAILABLE } from '../../../core/errors/app-error';
 import { CardLink } from '../../../shared/dashboard/card-link/card-link';
@@ -62,6 +63,7 @@ export class PlatformDashboardPage {
   protected readonly isDemo = this.session.isDemo;
   protected readonly adapterUnavailable = ADAPTER_UNAVAILABLE;
   protected readonly productKeys = PRODUCT_KEYS;
+  protected readonly organizationsPath = organizationsPath;
 
   /** The actor's own home (their Platforms for an operator), offered when a Platform cannot be shown. */
   protected readonly home = computed(() => homePath(this.session.actor()));

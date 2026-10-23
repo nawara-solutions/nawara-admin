@@ -1,0 +1,426 @@
+@let view = facade.view();
+@switch (view.status) {
+  @case ('checking') {
+    <h1 class="nw-visually-hidden">{{ 'organizations.states.checking' | transloco }}</h1>
+    <nw-data-state state="loading" [title]="'organizations.states.checking' | transloco" />
+  }
+  @case ('directoryUnavailable') {
+    <h1 class="nw-visually-hidden">{{ 'organizations.states.directoryTitle' | transloco }}</h1>
+    <nw-data-state
+      state="error"
+      [title]="'organizations.states.directoryTitle' | transloco"
+      [description]="'organizations.states.directoryDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'organizations.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('notAccessible') {
+    <h1 class="nw-visually-hidden">{{ 'organizations.states.notAccessibleTitle' | transloco }}</h1>
+    <nw-data-state
+      state="empty"
+      [title]="'organizations.states.notAccessibleTitle' | transloco"
+      [description]="'organizations.states.notAccessibleDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        @if (canOpenPlatforms()) {
+          <a nw-button variant="secondary" routerLink="/platforms">
+            <nw-icon name="arrow-left" size="sm" />{{
+              'platformDashboard.header.backToPlatforms' | transloco
+            }}
+          </a>
+        } @else {
+          <a nw-button variant="secondary" [routerLink]="home()">
+            <nw-icon name="arrow-left" size="sm" />{{ 'shell.context.assigned' | transloco }}
+          </a>
+        }
+      </div>
+    </nw-data-state>
+  }
+  @case ('notFound') {
+    <h1 class="nw-visually-hidden">{{ 'organizations.states.notFoundTitle' | transloco }}</h1>
+    <nw-data-state
+      state="empty"
+      [title]="'organizations.states.notFoundTitle' | transloco"
+      [description]="'organizations.states.notFoundDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <a nw-button variant="secondary" [routerLink]="organizationsPath(view.platform.id)">
+          <nw-icon name="arrow-left" size="sm" />{{
+            'organizations.header.backToDirectory' | transloco
+          }}
+        </a>
+      </div>
+    </nw-data-state>
+  }
+  @case ('loading') {
+    <h1 class="nw-visually-hidden">{{ 'organizations.states.loadingOrganization' | transloco }}</h1>
+    <nw-data-state
+      state="loading"
+      [title]="'organizations.states.loadingOrganization' | transloco"
+    />
+  }
+  @case ('notInBuild') {
+    <h1 class="nw-visually-hidden">{{ 'organizations.states.notInBuildTitle' | transloco }}</h1>
+    <nw-data-state
+      state="empty"
+      [title]="'organizations.states.notInBuildTitle' | transloco"
+      [description]="'organizations.states.notInBuildDescription' | transloco"
+    />
+  }
+  @case ('error') {
+    <h1 class="nw-visually-hidden">
+      {{ 'organizations.states.errorOrganizationTitle' | transloco }}
+    </h1>
+    <nw-data-state
+      state="error"
+      [title]="'organizations.states.errorOrganizationTitle' | transloco"
+      [description]="'organizations.states.errorDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'organizations.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('ready') {
+    @let detail = view.detail;
+    @let platform = view.platform;
+    <header
+      adm-organizations-header
+      [eyebrow]="'organizations.header.eyebrow' | transloco"
+      [heading]="detail.name"
+    >
+      <p headerMeta class="organization-detail__meta">
+        <a class="organization-detail__platform" [routerLink]="platformPath(platform.id)">
+          <nw-icon [name]="platform.product === 'drive' ? 'car' : 'hexagon'" size="sm" />
+          <bdi>{{ platform.name }}</bdi>
+        </a>
+        <span>{{
+          'organizations.header.created' | transloco: { date: detail.createdAt | nwDate: 'date' }
+        }}</span>
+        <span class="organization-detail__access">{{ accessKey() | transloco }}</span>
+      </p>
+      <a headerActions nw-button variant="secondary" [routerLink]="organizationsPath(platform.id)">
+        <nw-icon name="arrow-left" size="sm" />{{
+          'organizations.header.backToDirectory' | transloco
+        }}
+      </a>
+    </header>
+
+    <section
+      class="organization-detail__figures"
+      [attr.aria-label]="'organizations.detail.figuresLabel' | transloco"
+    >
+      <adm-summary-card
+        icon="users"
+        accent="orange"
+        [label]="'organizations.detail.memberships' | transloco"
+        [metric]="detail.memberships"
+        [caption]="'organizations.detail.membershipsCaption' | transloco"
+      />
+      <adm-summary-card
+        icon="user-plus"
+        accent="purple"
+        [label]="'organizations.detail.requests' | transloco"
+        [metric]="detail.pendingRequests"
+        [caption]="'organizations.detail.requestsCaption' | transloco"
+      />
+      @if (facade.showsAccess()) {
+        <adm-summary-card
+          icon="mail"
+          [label]="'organizations.detail.invitations' | transloco"
+          [metric]="metricOf(detail.adminInvitationsAwaiting)"
+          [caption]="'organizations.detail.invitationsCaption' | transloco"
+        />
+      }
+    </section>
+
+    <div
+      class="organization-detail__grid"
+      [class.organization-detail__grid--owner]="facade.showsCommercial()"
+    >
+      <div class="organization-detail__column">
+        <adm-overview-card
+          headingId="organization-membership"
+          [heading]="'organizations.detail.membership' | transloco"
+        >
+          <dl class="organization-detail__rows">
+            <div class="organization-detail__row">
+              <dt>{{ 'organizations.detail.activeMemberships' | transloco }}</dt>
+              <dd><adm-metric-value [metric]="detail.memberships" /></dd>
+            </div>
+            <div class="organization-detail__row">
+              <dt>{{ 'organizations.detail.pendingRequests' | transloco }}</dt>
+              <dd><adm-metric-value [metric]="detail.pendingRequests" /></dd>
+            </div>
+            @if (facade.showsAccess()) {
+              <div class="organization-detail__row">
+                <dt>{{ 'organizations.detail.invitationsAwaiting' | transloco }}</dt>
+                <dd><adm-metric-value [metric]="metricOf(detail.adminInvitationsAwaiting)" /></dd>
+              </div>
+            }
+          </dl>
+          <p class="organization-detail__note" id="organization-membership-note">
+            <nw-icon name="info" size="sm" />{{ 'organizations.detail.membershipNote' | transloco }}
+          </p>
+          <ng-container
+            [ngTemplateOutlet]="unavailableAction"
+            [ngTemplateOutletContext]="{
+              label: 'organizations.detail.reviewRequests' | transloco,
+              id: 'review',
+            }"
+          />
+        </adm-overview-card>
+
+        @if (facade.showsActivity()) {
+          <adm-overview-card
+            headingId="organization-activity"
+            [heading]="'organizations.detail.activity' | transloco"
+          >
+            @if (detail.activity.status === 'available') {
+              <adm-organization-activity [entries]="detail.activity.data" />
+            } @else {
+              <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+            }
+          </adm-overview-card>
+        }
+
+        <adm-overview-card
+          headingId="organization-about"
+          [heading]="'organizations.detail.about' | transloco"
+        >
+          <dl class="organization-detail__rows">
+            <div class="organization-detail__row">
+              <dt>{{ 'organizations.detail.platform' | transloco }}</dt>
+              <dd>
+                <a class="organization-detail__link" [routerLink]="platformPath(platform.id)">
+                  <bdi>{{ platform.name }}</bdi>
+                </a>
+              </dd>
+            </div>
+            <div class="organization-detail__row organization-detail__row--id">
+              <dt>{{ 'organizations.detail.organizationId' | transloco }}</dt>
+              <dd>
+                <code class="organization-detail__id" dir="ltr" translate="no">{{
+                  detail.id
+                }}</code>
+              </dd>
+            </div>
+            <div class="organization-detail__row">
+              <dt>{{ 'organizations.detail.createdAt' | transloco }}</dt>
+              <dd>{{ detail.createdAt | nwDate: 'date' }}</dd>
+            </div>
+          </dl>
+        </adm-overview-card>
+      </div>
+
+      @if (facade.showsCommercial()) {
+        @let commercial = facade.commercial();
+        <div class="organization-detail__column">
+          <adm-overview-card
+            headingId="organization-subscription"
+            [heading]="'organizations.detail.subscription' | transloco"
+          >
+            @switch (commercial.status) {
+              @case ('success') {
+                @let subscription = commercial.data.subscription;
+                @if (subscription.status === 'available') {
+                  @let current = subscription.data;
+                  <dl class="organization-detail__rows">
+                    <div class="organization-detail__row">
+                      <dt>{{ 'organizations.detail.subscriptionState' | transloco }}</dt>
+                      <dd>
+                        <nw-status-badge [tone]="badges[current.state].tone">{{
+                          badges[current.state].key | transloco
+                        }}</nw-status-badge>
+                      </dd>
+                    </div>
+                    @if (current.state === 'active' && current.endsAt) {
+                      <div class="organization-detail__row">
+                        <dt>{{ 'organizations.detail.endsAt' | transloco }}</dt>
+                        <dd>
+                          {{ current.endsAt | nwDate: 'date' }}
+                          @if (noteOf(current); as note) {
+                            <nw-status-badge tone="warning">{{
+                              'organizations.subscription.ends'
+                                | transloco: { when: note.at | nwDate: 'until' }
+                            }}</nw-status-badge>
+                          }
+                        </dd>
+                      </div>
+                    }
+                    @if (current.state === 'grace' && current.graceEndsAt) {
+                      <div class="organization-detail__row">
+                        <dt>{{ 'organizations.detail.graceEndsAt' | transloco }}</dt>
+                        <dd>{{ current.graceEndsAt | nwDate: 'date-time' }}</dd>
+                      </div>
+                    }
+                  </dl>
+                  <p class="organization-detail__note">
+                    {{
+                      (current.state === 'none'
+                        ? 'organizations.detail.noSubscriptionNote'
+                        : 'organizations.detail.graceNote'
+                      ) | transloco
+                    }}
+                  </p>
+                } @else {
+                  <ng-container
+                    [ngTemplateOutlet]="sectionUnavailable"
+                    [ngTemplateOutletContext]="{ retry: true }"
+                  />
+                }
+              }
+              @case ('error') {
+                <ng-container
+                  [ngTemplateOutlet]="sectionUnavailable"
+                  [ngTemplateOutletContext]="{ retry: true }"
+                />
+              }
+              @case ('forbidden') {
+                <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+              }
+              @default {
+                <nw-data-state
+                  state="loading"
+                  [title]="'organizations.states.loadingSection' | transloco"
+                />
+              }
+            }
+          </adm-overview-card>
+
+          <adm-overview-card
+            headingId="organization-payments"
+            [heading]="'organizations.detail.payments' | transloco"
+          >
+            @if (commercial.status === 'success') {
+              @let issues = commercial.data.paymentIssues;
+              @if (issues.status === 'available') {
+                @if (issues.data.status === 'available' && issues.data.value > 0) {
+                  <p class="organization-detail__alert" role="note">
+                    <nw-icon name="circle-alert" size="sm" />
+                    <span>
+                      <span class="organization-detail__alert-title"
+                        >{{ 'organizations.detail.paymentIssues' | transloco }}:
+                        <adm-metric-value [metric]="issues.data"
+                      /></span>
+                      <span class="organization-detail__alert-text">{{
+                        'organizations.detail.paymentIssuesNote' | transloco
+                      }}</span>
+                    </span>
+                  </p>
+                } @else {
+                  <p class="organization-detail__note">
+                    {{ 'organizations.detail.noPaymentIssues' | transloco }}
+                  </p>
+                }
+              } @else {
+                <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+              }
+            } @else if (commercial.status === 'error' || commercial.status === 'forbidden') {
+              <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+            } @else {
+              <nw-data-state
+                state="loading"
+                [title]="'organizations.states.loadingSection' | transloco"
+              />
+            }
+          </adm-overview-card>
+
+          <adm-overview-card
+            headingId="organization-assisted-payments"
+            [heading]="'organizations.detail.assistedPayments' | transloco"
+          >
+            @if (commercial.status === 'success') {
+              @let policy = commercial.data.assistedPayments;
+              @if (policy.status === 'available') {
+                @let keys = policyKeys(policy.data);
+                <dl class="organization-detail__rows">
+                  <div class="organization-detail__row">
+                    <dt>{{ 'organizations.detail.effective' | transloco }}</dt>
+                    <dd>
+                      <nw-status-badge
+                        [tone]="policy.data.effective === 'enabled' ? 'success' : 'info'"
+                        >{{ keys.value | transloco }}</nw-status-badge
+                      >
+                    </dd>
+                  </div>
+                  <div class="organization-detail__row">
+                    <dt>{{ 'organizations.detail.platformSetting' | transloco }}</dt>
+                    <dd>
+                      {{
+                        (policy.data.platform === 'enabled'
+                          ? 'organizations.policy.enabled'
+                          : 'organizations.policy.disabled'
+                        ) | transloco
+                      }}
+                    </dd>
+                  </div>
+                  <div class="organization-detail__row">
+                    <dt>{{ 'organizations.detail.organizationSetting' | transloco }}</dt>
+                    <dd>
+                      {{
+                        (policy.data.organization === 'inherit'
+                          ? 'organizations.detail.inherits'
+                          : 'organizations.detail.override'
+                        ) | transloco
+                      }}
+                    </dd>
+                  </div>
+                </dl>
+                <ng-container
+                  [ngTemplateOutlet]="unavailableAction"
+                  [ngTemplateOutletContext]="{
+                    label: 'organizations.detail.changePolicy' | transloco,
+                    id: 'policy',
+                  }"
+                />
+              } @else {
+                <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+              }
+            } @else if (commercial.status === 'error' || commercial.status === 'forbidden') {
+              <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+            } @else {
+              <nw-data-state
+                state="loading"
+                [title]="'organizations.states.loadingSection' | transloco"
+              />
+            }
+          </adm-overview-card>
+        </div>
+      }
+    </div>
+  }
+}
+
+<ng-template #sectionUnavailable let-retry="retry">
+  <p class="organization-detail__unavailable">
+    <nw-icon name="circle-alert" size="sm" />
+    <span>{{ 'organizations.states.sectionUnavailable' | transloco }}</span>
+    @if (retry) {
+      <button nw-button variant="ghost" size="sm" type="button" (click)="facade.reloadCommercial()">
+        {{ 'organizations.states.retry' | transloco }}
+      </button>
+    }
+  </p>
+</ng-template>
+
+<!-- Read only: focusable (so its "not available yet" description is reachable), never actionable. -->
+<ng-template #unavailableAction let-label="label" let-id="id">
+  <button
+    type="button"
+    class="organization-detail__unavailable-action"
+    aria-disabled="true"
+    [attr.aria-describedby]="'organization-action-' + id"
+  >
+    {{ label }}
+  </button>
+  <span [id]="'organization-action-' + id" class="nw-visually-hidden">{{
+    'shell.notAvailableYet' | transloco
+  }}</span>
+</ng-template>

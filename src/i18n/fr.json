@@ -175,7 +175,9 @@
     "workingCode": "Connexion avec un code de travail",
     "workingCodeVerify": "Saisissez votre code de travail",
     "contactConfirmation": "Confirmez votre contact",
-    "enroll": "Configurez votre application d’authentification"
+    "enroll": "Configurez votre application d’authentification",
+    "organizations": "Organisations",
+    "organization": "Organisation"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -190,7 +192,9 @@
       "overview": "Vue d’ensemble",
       "platform": "Plateforme",
       "platforms": "Plateformes",
-      "appearance": "Apparence"
+      "appearance": "Apparence",
+      "organizations": "Organisations",
+      "organization": "Organisation"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -424,7 +428,7 @@
         "grace": "En période de grâce",
         "none": "Aucun"
       },
-      "footnote": "Les {{shown}} plus récentes sur {{total}}. L’annuaire complet arrive avec la gestion des organisations.",
+      "footnote": "Les {{shown}} plus récentes sur {{total}}.",
       "emptyTitle": "Aucune organisation pour le moment",
       "emptyDescription": "Les organisations créées sur cette plateforme apparaissent ici, avec leurs adhésions et abonnements.",
       "create": "Créer une organisation"
@@ -527,6 +531,145 @@
     "retry": "Réessayer",
     "unavailableTitle": "Non disponible dans cette version",
     "unavailableDescription": "Aucun contrat Nawara Core ne liste encore vos plateformes."
+  },
+  "organizations": {
+    "header": {
+      "directoryTitle": "Organisations",
+      "directorySubtitle": "Les organisations de cette plateforme. Consultation seule dans cette version.",
+      "eyebrow": "Organisation",
+      "backToDashboard": "Tableau de bord de la plateforme",
+      "backToDirectory": "Toutes les organisations",
+      "accessOwner": "Votre accès : propriétaire de l’entreprise",
+      "accessOperator": "Votre accès : opérateur affecté",
+      "created": "Créée le {{date}}"
+    },
+    "totals": {
+      "label": "Totaux de la plateforme",
+      "organizations": "Organisations",
+      "memberships": "Adhésions",
+      "requests": "Demandes en attente d’approbation",
+      "organizationsWithRequests": "Organisations avec demandes"
+    },
+    "toolbar": {
+      "searchLabel": "Rechercher des organisations",
+      "searchPlaceholder": "Rechercher par nom",
+      "clear": "Effacer la recherche",
+      "show": "Afficher",
+      "all": "Toutes",
+      "withRequests": "Avec demandes ({{count}})",
+      "subscription": "Abonnement",
+      "subscriptionUnavailable": "Les informations d’abonnement ne sont pas disponibles pour le moment : ce filtre est désactivé.",
+      "sort": "Trier",
+      "count": "{{shown}} sur {{total}}"
+    },
+    "subscriptionFilter": {
+      "any": "Tous",
+      "active": "Actif",
+      "ending": "Se terminant d’ici {{days}} jours",
+      "grace": "En période de grâce",
+      "none": "Aucun"
+    },
+    "sort": {
+      "newest": "Plus récentes d’abord",
+      "oldest": "Plus anciennes d’abord",
+      "name": "Nom (A–Z)",
+      "memberships": "Plus d’adhésions",
+      "requests": "Plus de demandes"
+    },
+    "table": {
+      "label": "Annuaire des organisations",
+      "organization": "Organisation",
+      "memberships": "Adhésions",
+      "pending": "Demandes en attente",
+      "subscription": "Abonnement",
+      "assistedPayments": "Paiements assistés",
+      "membershipsShort": "adhésions",
+      "pendingShort": "demandes en attente",
+      "unavailable": "Non disponible"
+    },
+    "subscription": {
+      "active": "Actif",
+      "grace": "En période de grâce",
+      "none": "Aucun",
+      "ends": "Se termine {{when}}",
+      "graceEnds": "Accès jusqu’au {{when}}"
+    },
+    "policy": {
+      "enabled": "Activés",
+      "disabled": "Désactivés",
+      "inherited": "hérités de la plateforme",
+      "platformDisabled": "désactivés pour la plateforme",
+      "organizationDisabled": "réglés sur cette organisation"
+    },
+    "states": {
+      "checking": "Ouverture de la plateforme",
+      "loading": "Chargement des organisations",
+      "loadingOrganization": "Chargement de l’organisation",
+      "loadingSection": "Chargement",
+      "retry": "Réessayer",
+      "directoryTitle": "Cette plateforme ne peut pas être ouverte pour le moment",
+      "directoryDescription": "Vos plateformes n’ont pas pu être listées. Ce n’est pas un refus d’accès : réessayez dans un instant.",
+      "notAccessibleTitle": "Plateforme introuvable ou inaccessible",
+      "notAccessibleDescription": "Elle n’existe peut-être pas, ou elle est hors de votre périmètre d’administration.",
+      "notFoundTitle": "Organisation introuvable ou inaccessible",
+      "notFoundDescription": "Elle n’existe peut-être pas, appartient peut-être à une autre plateforme, ou est hors de votre périmètre d’administration.",
+      "errorTitle": "Les organisations n’ont pas pu être chargées",
+      "errorOrganizationTitle": "L’organisation n’a pas pu être chargée",
+      "errorDescription": "Le service n’a pas répondu. Votre accès n’a pas changé. Réessayez dans un instant.",
+      "notInBuildTitle": "Non disponible dans cette version",
+      "notInBuildDescription": "Aucun contrat Nawara Core ne fournit encore les organisations ici.",
+      "emptyTitle": "Aucune organisation pour le moment",
+      "emptyDescription": "Cette plateforme n’a aucune organisation. La création d’organisations n’est pas disponible dans cette version.",
+      "noResultsTitle": "Aucune organisation ne correspond",
+      "noResultsDescription": "Vérifiez l’orthographe, ou effacez la recherche et les filtres.",
+      "clearAll": "Effacer la recherche et les filtres",
+      "sectionUnavailable": "Non disponible pour le moment. Les autres sections ne sont pas concernées."
+    },
+    "detail": {
+      "figuresLabel": "Chiffres de l’organisation",
+      "memberships": "Adhésions",
+      "membershipsCaption": "Adhésions actives dans cette organisation",
+      "requests": "Demandes d’adhésion",
+      "requestsCaption": "En attente d’approbation",
+      "invitations": "Invitations d’administrateur",
+      "invitationsCaption": "En attente d’acceptation",
+      "membership": "Adhésions",
+      "activeMemberships": "Adhésions actives",
+      "pendingRequests": "Demandes en attente d’approbation",
+      "invitationsAwaiting": "Invitations d’administrateur de l’organisation en attente d’acceptation",
+      "membershipNote": "La liste des membres et l’examen des demandes arrivent avec l’administration des adhésions.",
+      "reviewRequests": "Examiner les demandes",
+      "activity": "Activité récente",
+      "activityEmpty": "Aucune activité administrative récente pour cette organisation.",
+      "activityNote": "Les événements administratifs de cette organisation, les plus récents d’abord.",
+      "about": "À propos",
+      "platform": "Plateforme",
+      "organizationId": "Identifiant de l’organisation",
+      "createdAt": "Créée le",
+      "subscription": "Abonnement",
+      "subscriptionState": "Abonnement de l’organisation",
+      "endsAt": "Se termine",
+      "graceEndsAt": "Accès jusqu’au",
+      "graceNote": "À son terme, les membres gardent l’accès pendant une période de grâce de 24 heures.",
+      "noSubscriptionNote": "Cette organisation n’a pas d’abonnement.",
+      "payments": "Paiements",
+      "paymentIssues": "Paiements à traiter",
+      "paymentIssuesNote": "Le détail des paiements n’est pas disponible dans cette version.",
+      "noPaymentIssues": "Aucun paiement à traiter.",
+      "assistedPayments": "Paiements assistés",
+      "effective": "En vigueur pour cette organisation",
+      "platformSetting": "Réglage de la plateforme",
+      "organizationSetting": "Cette organisation",
+      "inherits": "Hérite de la plateforme",
+      "override": "Désactivés pour cette organisation",
+      "changePolicy": "Modifier la règle"
+    },
+    "activity": {
+      "organizationCreated": "Organisation créée",
+      "adminInvitationSent": "Invitation d’administrateur envoyée",
+      "membershipApproved": "Adhésion approuvée"
+    },
+    "footnote": "Les adhésions sont comptées par organisation ; une personne peut en avoir dans plusieurs."
   },
   "auth": {
     "brand": {

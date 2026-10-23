@@ -14,7 +14,9 @@
     @for (organization of organizations(); track organization.id) {
       <tr>
         <th scope="row">
-          <bdi>{{ organization.name }}</bdi>
+          <a class="recent-organizations__link" [routerLink]="pathOf(organization.id)">
+            <bdi>{{ organization.name }}</bdi>
+          </a>
         </th>
         <td><adm-metric-value [metric]="organization.memberships" /></td>
         <td><adm-metric-value [metric]="organization.pendingRequests" /></td>
@@ -37,7 +39,9 @@
 <ul class="recent-organizations__list" role="list">
   @for (organization of organizations(); track organization.id) {
     <li class="recent-organizations__item">
-      <bdi class="recent-organizations__name">{{ organization.name }}</bdi>
+      <a class="recent-organizations__name" [routerLink]="pathOf(organization.id)">
+        <bdi>{{ organization.name }}</bdi>
+      </a>
       <span class="recent-organizations__facts">
         <span>
           <adm-metric-value [metric]="organization.memberships" />

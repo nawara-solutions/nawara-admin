@@ -1,0 +1,274 @@
+@let view = facade.view();
+@switch (view.status) {
+  @case ('checking') {
+    <h1 class="nw-visually-hidden">{{ 'organizations.states.checking' | transloco }}</h1>
+    <nw-data-state state="loading" [title]="'organizations.states.checking' | transloco" />
+  }
+  @case ('directoryUnavailable') {
+    <h1 class="nw-visually-hidden">{{ 'organizations.states.directoryTitle' | transloco }}</h1>
+    <nw-data-state
+      state="error"
+      [title]="'organizations.states.directoryTitle' | transloco"
+      [description]="'organizations.states.directoryDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'organizations.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('notAccessible') {
+    <ng-container [ngTemplateOutlet]="notAccessible" />
+  }
+  @case ('refused') {
+    <!-- Core's collapsed 404 (or a 403) for a Platform the directory still listed, e.g. an assignment just revoked. -->
+    <ng-container [ngTemplateOutlet]="notAccessible" />
+  }
+  @default {
+    @let platform = view.platform;
+    <header
+      adm-organizations-header
+      [eyebrow]="platform.name"
+      [heading]="'organizations.header.directoryTitle' | transloco"
+    >
+      <p headerMeta class="organization-directory__subtitle">
+        {{ 'organizations.header.directorySubtitle' | transloco }}
+      </p>
+      <a headerActions nw-button variant="secondary" [routerLink]="platformPath(platform.id)">
+        <nw-icon name="arrow-left" size="sm" />{{
+          'organizations.header.backToDashboard' | transloco
+        }}
+      </a>
+    </header>
+
+    @switch (view.status) {
+      @case ('ready') {
+        @let totals = facade.totals();
+        @if (view.directory.organizations.length === 0) {
+          <nw-data-state
+            state="empty"
+            [title]="'organizations.states.emptyTitle' | transloco"
+            [description]="'organizations.states.emptyDescription' | transloco"
+          />
+        } @else {
+          @if (totals) {
+            <dl
+              class="organization-directory__totals"
+              [attr.aria-label]="'organizations.totals.label' | transloco"
+            >
+              <div class="organization-directory__total">
+                <dt>{{ 'organizations.totals.organizations' | transloco }}</dt>
+                <dd>{{ totals.organizations }}</dd>
+              </div>
+              <div class="organization-directory__total">
+                <dt>{{ 'organizations.totals.memberships' | transloco }}</dt>
+                <dd><adm-metric-value [metric]="totals.memberships" /></dd>
+              </div>
+              <div class="organization-directory__total">
+                <dt>{{ 'organizations.totals.requests' | transloco }}</dt>
+                <dd><adm-metric-value [metric]="totals.requests" /></dd>
+              </div>
+              <div class="organization-directory__total">
+                <dt>{{ 'organizations.totals.organizationsWithRequests' | transloco }}</dt>
+                <dd>{{ totals.organizationsWithRequests }}</dd>
+              </div>
+            </dl>
+          }
+
+          <section
+            class="organization-directory__card"
+            aria-labelledby="organization-directory-label"
+          >
+            <h2 id="organization-directory-label" class="nw-visually-hidden">
+              {{ 'organizations.table.label' | transloco }}
+            </h2>
+            @let query = facade.query();
+            <div class="organization-directory__toolbar" role="search">
+              <label class="organization-directory__search">
+                <nw-icon name="search" size="sm" />
+                <span class="nw-visually-hidden">{{
+                  'organizations.toolbar.searchLabel' | transloco
+                }}</span>
+                <input
+                  class="organization-directory__search-input"
+                  type="search"
+                  aria-controls="organization-directory-list"
+                  [placeholder]="'organizations.toolbar.searchPlaceholder' | transloco"
+                  [value]="search()"
+                  (input)="onSearch($event)"
+                />
+                @if (search()) {
+                  <button
+                    type="button"
+                    class="organization-directory__clear"
+                    [attr.aria-label]="'organizations.toolbar.clear' | transloco"
+                    (click)="clearSearch()"
+                  >
+                    <nw-icon name="x" size="sm" />
+                  </button>
+                }
+              </label>
+              <div
+                class="organization-directory__segments"
+                role="group"
+                [attr.aria-label]="'organizations.toolbar.show' | transloco"
+              >
+                <button
+                  type="button"
+                  class="organization-directory__segment"
+                  [attr.aria-pressed]="!query.requests"
+                  (click)="facade.setQuery({ requests: false })"
+                >
+                  {{ 'organizations.toolbar.all' | transloco }}
+                </button>
+                <button
+                  type="button"
+                  class="organization-directory__segment"
+                  [attr.aria-pressed]="query.requests"
+                  (click)="facade.setQuery({ requests: true })"
+                >
+                  {{
+                    'organizations.toolbar.withRequests'
+                      | transloco: { count: totals?.organizationsWithRequests ?? 0 }
+                  }}
+                </button>
+              </div>
+              @if (facade.showsCommercial()) {
+                <nw-form-field
+                  class="organization-directory__select"
+                  [label]="'organizations.toolbar.subscription' | transloco"
+                  [hint]="
+                    facade.subscriptionFilterAvailable()
+                      ? undefined
+                      : ('organizations.toolbar.subscriptionUnavailable' | transloco)
+                  "
+                >
+                  <select
+                    nwControl
+                    [disabled]="!facade.subscriptionFilterAvailable()"
+                    (change)="onSubscription($event)"
+                  >
+                    @for (filter of subscriptionFilters; track filter) {
+                      <option [value]="filter" [selected]="filter === query.subscription">
+                        {{ filterKeys[filter] | transloco: { days: expiringDays } }}
+                      </option>
+                    }
+                  </select>
+                </nw-form-field>
+              }
+              <nw-form-field
+                class="organization-directory__select"
+                [label]="'organizations.toolbar.sort' | transloco"
+              >
+                <select nwControl (change)="onSort($event)">
+                  @for (sort of sorts; track sort) {
+                    <option [value]="sort" [selected]="sort === query.sort">
+                      {{ sortKeys[sort] | transloco }}
+                    </option>
+                  }
+                </select>
+              </nw-form-field>
+              <p class="organization-directory__count" role="status" aria-live="polite">
+                {{
+                  'organizations.toolbar.count'
+                    | transloco
+                      : { shown: facade.rows().length, total: view.directory.organizations.length }
+                }}
+              </p>
+            </div>
+
+            @if (facade.rows().length > 0) {
+              <adm-organization-table
+                listId="organization-directory-list"
+                [rows]="facade.rows()"
+                [commercial]="facade.showsCommercial()"
+              />
+              @if (facade.showsCommercial() && facade.commercial().status === 'error') {
+                <p class="organization-directory__unavailable">
+                  <nw-icon name="circle-alert" size="sm" />
+                  <span>{{ 'organizations.states.sectionUnavailable' | transloco }}</span>
+                  <button
+                    nw-button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    (click)="facade.reloadCommercial()"
+                  >
+                    {{ 'organizations.states.retry' | transloco }}
+                  </button>
+                </p>
+              }
+            } @else {
+              <div id="organization-directory-list">
+                <nw-data-state
+                  state="empty"
+                  [title]="'organizations.states.noResultsTitle' | transloco"
+                  [description]="'organizations.states.noResultsDescription' | transloco"
+                >
+                  @if (filtered()) {
+                    <div nwDataStateActions>
+                      <button nw-button variant="secondary" type="button" (click)="clearAll()">
+                        {{ 'organizations.states.clearAll' | transloco }}
+                      </button>
+                    </div>
+                  }
+                </nw-data-state>
+              </div>
+            }
+            <p class="organization-directory__footnote">
+              <nw-icon name="info" size="sm" />
+              {{ 'organizations.footnote' | transloco }}
+            </p>
+          </section>
+        }
+      }
+      @case ('notInBuild') {
+        <nw-data-state
+          state="empty"
+          [title]="'organizations.states.notInBuildTitle' | transloco"
+          [description]="'organizations.states.notInBuildDescription' | transloco"
+        />
+      }
+      @case ('error') {
+        <nw-data-state
+          state="error"
+          [title]="'organizations.states.errorTitle' | transloco"
+          [description]="'organizations.states.errorDescription' | transloco"
+        >
+          <div nwDataStateActions>
+            <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+              <nw-icon name="refresh-cw" size="sm" />{{ 'organizations.states.retry' | transloco }}
+            </button>
+          </div>
+        </nw-data-state>
+      }
+      @default {
+        <nw-data-state state="loading" [title]="'organizations.states.loading' | transloco" />
+      }
+    }
+  }
+}
+
+<ng-template #notAccessible>
+  <h1 class="nw-visually-hidden">{{ 'organizations.states.notAccessibleTitle' | transloco }}</h1>
+  <nw-data-state
+    state="empty"
+    [title]="'organizations.states.notAccessibleTitle' | transloco"
+    [description]="'organizations.states.notAccessibleDescription' | transloco"
+  >
+    <div nwDataStateActions>
+      @if (canOpenPlatforms()) {
+        <a nw-button variant="secondary" routerLink="/platforms">
+          <nw-icon name="arrow-left" size="sm" />{{
+            'platformDashboard.header.backToPlatforms' | transloco
+          }}
+        </a>
+      } @else {
+        <a nw-button variant="secondary" [routerLink]="home()">
+          <nw-icon name="arrow-left" size="sm" />{{ 'shell.context.assigned' | transloco }}
+        </a>
+      }
+    </div>
+  </nw-data-state>
+</ng-template>

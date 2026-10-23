@@ -207,8 +207,9 @@ Admin strategy and the decision required before A4.
 | Owner step-up | Auth | 🟢 Prod | `POST /auth/admin/step-up`, `x-step-up-token` | Shared step-up flow (A4) |
 | Operator step-up | Auth | 🟡 | ADR-0042 A.1 accepted, not built | Hide/disable sensitive ops for operators |
 | Secret key rotate / password change | Auth | 🟢 Prod | `secret-key/rotate`, `password/change` | HTTP (A7) |
-| Organization directory (list/search) | Organization | 🔴 | org lists are service-token only | Mock adapter; **CF-02** (V2 A5) |
-| Organization detail | Auth (today) → Organization | 🟢 Prod | `GET /auth/admin/organizations/:id` | HTTP, behind `OrganizationGateway` |
+| Organization directory (list/search) | Organization | 🔴 | org lists are service-token only | `OrganizationGateway.list(platformId)`, mock in demo builds (P3a); search, filters and sort in the browser; **CF-02** (V2 A5) |
+| Organization detail | Auth (today) → Organization | 🟢 Prod | `GET /auth/admin/organizations/:id` | `OrganizationGateway.load(organizationId)`, mock in demo builds (P3a); the response shape is **not verified yet**, so no HTTP adapter; the UI checks the answer's Platform against the URL |
+| Organization commercial facts (owner): subscription, payment issues, effective assisted-payments policy | Billing / Payment | 🟡 | no staff/owner read route before Core V2 A10/A11 | `OrganizationCommercialGateway`, PROVISIONAL mock contract (P3a); never called for an operator; the directory's subscription filter is a client-side mock capability |
 | Organization create / edit | Organization | 🟢 contract · ⚠ not authoritative | `/organization/admin/*` | Gateway ready; **writes disabled by config until cutover** |
 | Platform create / edit | Organization | 🟢 contract · ⚠ not authoritative | `/organization/admin/platforms*` | Same |
 | Organization lifecycle (suspend/archive) | Organization | 🔴 | BD-5 undecided | Placeholder only |

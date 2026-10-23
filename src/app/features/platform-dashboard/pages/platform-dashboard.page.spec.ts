@@ -279,4 +279,16 @@ describe('PlatformDashboardPage', () => {
     expect(text(page.querySelector('h1'))).toBe(en.platformDashboard.states.notAccessibleTitle);
     expect(page.querySelector('.platform-dashboard__header')).toBeNull();
   });
+
+  it('links to the Platform’s Organization directory and to each Organization', async () => {
+    const { page, dashboard, settle } = await render(operator);
+    dashboard.requests[0]?.answer.next(withOrganizations(dashboardOf(SCHOOL)));
+    await settle();
+    expect(page.querySelector('a.card-link__button')?.getAttribute('href')).toBe(
+      '/platforms/school/organizations',
+    );
+    expect(
+      [...page.querySelectorAll('.recent-organizations__link')].map((a) => a.getAttribute('href')),
+    ).toEqual(['/platforms/school/organizations/a', '/platforms/school/organizations/b']);
+  });
 });

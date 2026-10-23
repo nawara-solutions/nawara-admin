@@ -59,6 +59,8 @@ const DEMO: DemoBindings = {
     serviceHealth: [],
     platformDashboard: [],
     platformCommercial: [],
+    organizations: [],
+    organizationCommercial: [],
   },
 };
 const DEMO_BUILD: AppEnvironment = { production: false, demo: { load: async () => DEMO } };

@@ -48,8 +48,12 @@ export class NwNumberPipe implements PipeTransform {
 /**
  * `recent`: time of day for today, "Yesterday" for yesterday, otherwise day and month (local calendar days).
  * `relative`: "2 minutes ago" / "2 hours ago" within a day, then "Yesterday", "3 days ago" (local calendar days).
+ * `until`: a future instant in whole days, rounded up, for use inside a sentence ("Ends {{when}}"): "tomorrow",
+ *   "in 6 days" (not capitalized).
+ * `date`: day, month and year ("Sep 15, 2026").
  */
-export type NwDateStyle = 'day-month' | 'time' | 'date-time' | 'recent' | 'relative';
+export type NwDateStyle =
+  'day-month' | 'date' | 'time' | 'date-time' | 'recent' | 'relative' | 'until';
 
 const MINUTE_MS = 60_000;
 const HOUR_MS = 3_600_000;
@@ -57,10 +61,11 @@ const DAY_MS = 86_400_000;
 
 const DATE_OPTIONS = {
   'day-month': { day: 'numeric', month: 'short' },
+  date: { day: 'numeric', month: 'short', year: 'numeric' },
   time: { hour: '2-digit', minute: '2-digit' },
   'date-time': { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' },
 } as const satisfies Record<
-  Exclude<NwDateStyle, 'recent' | 'relative'>,
+  Exclude<NwDateStyle, 'recent' | 'relative' | 'until'>,
   Intl.DateTimeFormatOptions
 >;
 
@@ -81,6 +86,7 @@ export class NwDatePipe implements PipeTransform {
   transform(value: string, style: NwDateStyle = 'date-time'): string {
     if (style === 'recent') return this.recent(Date.parse(value));
     if (style === 'relative') return this.relative(Date.parse(value));
+    if (style === 'until') return this.until(Date.parse(value));
     return this.format(value, style);
   }
 
@@ -91,6 +97,11 @@ export class NwDatePipe implements PipeTransform {
     if (elapsed < DAY_MS) return this.relativeText(-Math.floor(elapsed / HOUR_MS), 'hour');
     const days = Math.max(1, Math.round((localDay(this.now()) - localDay(time)) / DAY_MS));
     return this.relativeText(-days, 'day');
+  }
+
+  private until(time: number): string {
+    const days = Math.max(1, Math.ceil((time - this.now()) / DAY_MS));
+    return new Intl.RelativeTimeFormat(this.locale(), { numeric: 'auto' }).format(days, 'day');
   }
 
   private relativeText(value: number, unit: Intl.RelativeTimeFormatUnit): string {
@@ -108,7 +119,10 @@ export class NwDatePipe implements PipeTransform {
     return this.format(new Date(time).toISOString(), 'day-month');
   }
 
-  private format(value: string, style: Exclude<NwDateStyle, 'recent' | 'relative'>): string {
+  private format(
+    value: string,
+    style: Exclude<NwDateStyle, 'recent' | 'relative' | 'until'>,
+  ): string {
     const calendarDay = /^\d{4}-\d{2}-\d{2}$/.test(value);
     const instant = new Date(calendarDay ? `${value}T00:00:00Z` : value);
     const key = `${this.locale()}|${style}|${calendarDay}`;

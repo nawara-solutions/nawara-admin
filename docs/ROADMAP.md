@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world implemented, awaiting review; rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details implemented, awaiting review; rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,9 +290,35 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## P3a: Organization directory and read-only details (design approved 2026-10-23; implemented 2026-10-23)
+
+**Status: implemented as a development-only mock prototype, awaiting review.** Design: the "P3a Organization Directory &
+Details" canvas (claude.ai, private; 9 artboards). Read only: no lifecycle, membership, invitation, policy or payment action.
+
+- **Routes** (platform scope, no third scope, no root Organization context; ARCHITECTURE §6, §7 amendment):
+  `/platforms/:platformId/organizations` and `/platforms/:platformId/organizations/:organizationId`. The Platform dashboard's
+  "All organizations" and its newest Organizations link to them; breadcrumbs continue "› Organizations › {name}".
+- **Architecture:** page → `OrganizationDirectoryFacade` / `OrganizationDetailFacade` → `OrganizationGateway` (hierarchy) and
+  `OrganizationCommercialGateway` (owner: Billing, Payment, the Platform policy) → mock (demo world) or unavailable adapters.
+  The Platform-access gate is shared with the dashboard (`core/context/platform-access.ts`, behaviour unchanged).
+- **Who sees what** (UX; Core is the authority): everyone who may enter the Platform sees names, creation dates, memberships and
+  pending requests; the owner also sees each subscription (with "ends in N days" within 14 days, O3, and the grace end), the
+  effective assisted-payments policy and its source, payment issues, admin invitations and activity. An operator's commercial
+  facts are never requested.
+- **Directory:** search by name (case- and accent-insensitive), "With requests", the owner's subscription filter (O2: a
+  PROVISIONAL, client-side mock capability over the loaded mock facts), sort by newest, oldest, name, memberships, requests; all
+  in the URL's query parameters. A table on a wide card, link cards below 40rem; loading, empty, no results, partial (owner columns
+  "—"), outage with retry, not accessible.
+- **Detail:** identity and parent Platform, figures, membership, About (id in mono LTR), and for the owner activity, subscription,
+  payments and assisted payments, each failing on its own. Future actions ("Review requests", "Change policy") are focusable,
+  disabled and say "Not available yet". No lifecycle status is shown (Core defines none, CF-09).
+- **Sidebar:** unchanged; the company-wide "Organizations" item stays unavailable (O1).
+- **Open:** the Organization detail DTO of Core's `GET /auth/admin/organizations/:id` is not verified (no HTTP adapter); the list is
+  CF-02; commercial reads are Core V2 A10/A11; the subscription filter cannot move to Core as is (it crosses Billing).
+
 ## P2.5: Canonical Demo World (architecture approved 2026-10-23; implemented 2026-10-23)
 
-**Status: implemented as a development-only mock foundation, awaiting review.** No UI redesign, no production capability, no
+**Status: complete as a development-only mock foundation (PR #19).** No UI redesign, no production capability, no
 Core contract. Production builds contain none of it.
 
 - **What:** `src/app/demo/world/` holds the canonical records (`records.ts`), a deterministic seed from the injected clock

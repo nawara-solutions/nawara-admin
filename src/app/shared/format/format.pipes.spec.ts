@@ -76,4 +76,15 @@ describe('formatting pipes', () => {
       '5 days ago',
     );
   });
+
+  it('formats a future instant in whole days, rounded up, and a full date with the year', () => {
+    const { date } = pipes('en');
+    expect(date.transform(new Date(NOW + 6 * 86_400_000).toISOString(), 'until')).toBe('in 6 days');
+    expect(date.transform(new Date(NOW + 3_600_000).toISOString(), 'until')).toBe('tomorrow');
+    expect(date.transform(new Date(2026, 8, 15, 12, 0).toISOString(), 'date')).toBe('Sep 15, 2026');
+    TestBed.resetTestingModule();
+    expect(pipes('fr').date.transform(new Date(NOW + 6 * 86_400_000).toISOString(), 'until')).toBe(
+      'dans 6 jours',
+    );
+  });
 });

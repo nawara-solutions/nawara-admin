@@ -6,6 +6,7 @@ import { AuthGateway, UnavailableAuthGateway } from '../core/auth/auth.gateway';
 import { AuthSession } from '../core/auth/auth-session';
 import { SignOut } from '../core/auth/sign-out';
 import { APP_ENVIRONMENT, AppEnvironment, adapterProviders } from '../core/config/app-environment';
+import { EntityLabel } from '../core/context/entity-label';
 import { ScopeContext } from '../core/context/scope-context';
 import {
   ScopeDirectoryGateway,
@@ -33,7 +34,7 @@ const NOT_FOUND: StatusPageData = {
 
 /**
  * The signed-in application (docs/ARCHITECTURE.md §6): the shell with company scope (`/overview`) and platform scope
- * (`/platforms/:platformId`). The auth, scope directory and notification summary gateways are bound here for everything
+ * (`/platforms/:platformId`, and its Organizations below it). The auth, scope directory and notification summary gateways are bound here for everything
  * under the shell; the auth gateway serves the account menu's sign-out (`SignOut`). In a demo build its mock shares the
  * one `DemoAuthState` with the sign-in pages' mock, so both see the same simulated session.
  */
@@ -56,6 +57,7 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
         ...directory,
         ...notifications,
         ScopeContext,
+        EntityLabel,
         NotificationIndicator,
         SignOut,
       ],
@@ -90,6 +92,16 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
             const env = inject(APP_ENVIRONMENT);
             return import('../features/platforms/platforms.routes').then((m) =>
               m.loadPlatformsRoutes(env),
+            );
+          },
+        },
+        {
+          // A Platform's Organizations (an entity of platform scope, never a scope of its own); access as below.
+          path: 'platforms/:platformId/organizations',
+          loadChildren: () => {
+            const env = inject(APP_ENVIRONMENT);
+            return import('../features/organizations/organizations.routes').then((m) =>
+              m.loadOrganizationsRoutes(env),
             );
           },
         },

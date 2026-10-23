@@ -24,6 +24,8 @@ const DEMO_BINDINGS_STUB: DemoBindings = {
     serviceHealth: [],
     platformDashboard: [],
     platformCommercial: [],
+    organizations: [],
+    organizationCommercial: [],
   },
 };
 
