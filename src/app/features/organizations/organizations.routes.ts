@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { AppEnvironment, adapterProviders } from '../../core/config/app-environment';
 import { OrganizationDetailFacade } from './application/organization-detail.facade';
 import { OrganizationDirectoryFacade } from './application/organization-directory.facade';
-import { createOrganizationProviders } from './create-organization.providers';
+import { organizationActionProviders } from './organization-actions.providers';
 import {
   OrganizationCommercialGateway,
   UnavailableOrganizationCommercialGateway,
@@ -14,13 +14,12 @@ import {
 
 /**
  * Organization routes, inside platform scope (`/platforms/:platformId/organizations[/:organizationId]`): the
- * directory and one Organization's detail. The gateways (hierarchy, the owner's commercial facts) and "Create
- * organization" are bound here (docs/ARCHITECTURE.md §3): mock adapters in a demo build, `unavailable` adapters
- * otherwise. No Organization context
- * or scope: each facade follows the URL.
+ * directory and one Organization's detail. The gateways (hierarchy, the owner's commercial facts) and the
+ * Organization actions ("Create organization", "Edit details") are bound here (docs/ARCHITECTURE.md §3): mock adapters
+ * in a demo build, `unavailable` adapters otherwise. No Organization context or scope: each facade follows the URL.
  */
 export async function loadOrganizationsRoutes(environment: AppEnvironment): Promise<Routes> {
-  const [organizations, commercial, create] = await Promise.all([
+  const [organizations, commercial, actions] = await Promise.all([
     adapterProviders(environment, 'organizations', [
       { provide: OrganizationGateway, useClass: UnavailableOrganizationGateway },
     ]),
@@ -30,12 +29,12 @@ export async function loadOrganizationsRoutes(environment: AppEnvironment): Prom
         useClass: UnavailableOrganizationCommercialGateway,
       },
     ]),
-    createOrganizationProviders(environment),
+    organizationActionProviders(environment),
   ]);
   return [
     {
       path: '',
-      providers: [...organizations, ...commercial, ...create],
+      providers: [...organizations, ...commercial, ...actions],
       children: [
         {
           path: '',

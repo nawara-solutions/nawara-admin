@@ -82,6 +82,7 @@ export interface GrowthSeries {
 export type ActivityAction =
   | 'platform.created'
   | 'organization.created'
+  | 'organization.updated'
   | 'operator.assigned'
   | 'admin_invitation.sent'
   | 'membership.approved';

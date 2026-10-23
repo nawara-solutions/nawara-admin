@@ -54,6 +54,8 @@ export interface OrganizationRecord {
   readonly address: string | null;
   readonly phone: string | null;
   readonly type: string | null;
+  /** UTC instant of the last change (Core's `updatedAt`): the creation instant until a metadata edit changes something. */
+  readonly updatedAt: string;
 }
 
 /** The Company's administrative staff: its owner and its Platform operators. Never an Organization member. */
@@ -111,6 +113,7 @@ export interface ActivityRecord {
   readonly action:
     | 'platform.created'
     | 'organization.created'
+    | 'organization.updated'
     | 'admin_invitation.sent'
     | 'membership.approved'
     | 'operator.assigned';

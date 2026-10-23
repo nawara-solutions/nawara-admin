@@ -1,5 +1,5 @@
 import { AppError } from '../../../core/errors/app-error';
-import { PlatformId, organizationId } from '../../../core/context/scope.model';
+import { OrganizationId, PlatformId, organizationId } from '../../../core/context/scope.model';
 import { CommandOutcome } from '../demo-world';
 import { AdminIdentityId, DemoWorldTables, OrganizationRecord } from '../records';
 import { assignedPlatformsOf } from '../selectors';
@@ -91,8 +91,11 @@ export function normaliseOrganizationRequest(
   };
 }
 
-/** Core's `canCreateOrganization`: the owner of the Platform's Company, or an operator assigned to the Platform. */
-export function organizationCreateAuthority(
+/**
+ * Core's authority over a Platform's Organizations (`canCreateOrganization`, and the same rule for editing one): the
+ * owner of the Platform's Company, or an operator assigned to the Platform. Organization admins are not Admin actors.
+ */
+export function organizationAuthority(
   world: DemoWorldTables,
   actor: AdminIdentityId,
   platform: PlatformId,
@@ -129,7 +132,7 @@ export function createOrganization(
   const { request } = input;
   if (!world.platforms.some((p) => p.id === request.platformId))
     return { ok: false, error: { kind: 'not_found', code: 'not_found', status: 404 } };
-  if (organizationCreateAuthority(world, input.actor, request.platformId) === null)
+  if (organizationAuthority(world, input.actor, request.platformId) === null)
     return { ok: false, error: { kind: 'forbidden', code: 'admin_forbidden', status: 403 } };
 
   // Replay: scoped like Core's (caller, operation, key) and compared on the normalised request.
@@ -162,6 +165,7 @@ export function createOrganization(
     address: request.address,
     phone: request.phone,
     type: request.type,
+    updatedAt: createdAt,
   };
   return {
     ok: true,
@@ -188,6 +192,111 @@ export function createOrganization(
           actor: input.actor,
           request: fingerprint,
           resultId: organization.id,
+        },
+      ],
+    },
+  };
+}
+
+export const UPDATE_ORGANIZATION_COMMAND = 'organization.update';
+
+/** The editable fields of `PATCH /organization/admin/organizations/:id`; anything else (id, platformId, …) is refused. */
+export const EDITABLE_ORGANIZATION_FIELDS = ['name', ...ORGANIZATION_OPTIONAL_FIELDS] as const;
+export type EditableOrganizationField = (typeof EDITABLE_ORGANIZATION_FIELDS)[number];
+
+/** A normalised patch: only the supplied fields; `name` a non-blank string, an optional field a string or `null`. */
+export type NormalisedOrganizationPatch = Partial<{
+  readonly name: string;
+  readonly taxCode: string | null;
+  readonly address: string | null;
+  readonly phone: string | null;
+  readonly type: string | null;
+}>;
+
+/**
+ * The verified PATCH rules (docs/CORE-INTEGRATION.md §5): an object with at least one editable field and nothing else;
+ * `name` non-blank and within its limit once trimmed (it can never be cleared); an optional field `null` (cleared) or a
+ * non-blank string within its limit (an empty string is refused, as on create). Answers the patch, or Core's `400`.
+ */
+export function normaliseOrganizationPatch(raw: unknown): NormalisedOrganizationPatch | AppError {
+  if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return invalid('body');
+  const body = raw as Record<string, unknown>;
+  const keys = Object.keys(body);
+  if (keys.length === 0) return invalid('body');
+  for (const key of keys)
+    if (!(EDITABLE_ORGANIZATION_FIELDS as readonly string[]).includes(key)) return invalid(key);
+  const patch: Record<string, string | null> = {};
+  for (const field of EDITABLE_ORGANIZATION_FIELDS) {
+    if (!(field in body)) continue;
+    const value = body[field];
+    if (value === null && field !== 'name') {
+      patch[field] = null;
+      continue;
+    }
+    if (
+      typeof value !== 'string' ||
+      value.trim() === '' ||
+      value.trim().length > ORGANIZATION_LIMITS[field]
+    )
+      return invalid(field);
+    patch[field] = value.trim();
+  }
+  return patch as NormalisedOrganizationPatch;
+}
+
+export interface UpdateOrganizationInput {
+  readonly organizationId: OrganizationId;
+  readonly patch: NormalisedOrganizationPatch;
+  readonly actor: AdminIdentityId;
+  readonly now: number;
+}
+
+export interface UpdateOrganizationResult {
+  readonly organization: OrganizationRecord;
+  /** Whether anything differed: a patch that changes nothing writes nothing. */
+  readonly changed: boolean;
+}
+
+/**
+ * Updates one Organization's metadata: only the supplied fields, never its id, Platform, creation date, counts,
+ * assisted-payments override or any other record. A patch whose values equal the current ones is a no-op (the same
+ * world, no `updatedAt` change, no activity), as in Core; a real change sets `updatedAt` and appends one simulated
+ * `organization.updated` activity record. No idempotency record: the PATCH has no key.
+ */
+export function updateOrganization(
+  world: DemoWorldTables,
+  input: UpdateOrganizationInput,
+): CommandOutcome<UpdateOrganizationResult> {
+  const current = world.organizations.find((o) => o.id === input.organizationId);
+  if (current === undefined)
+    return { ok: false, error: { kind: 'not_found', code: 'not_found', status: 404 } };
+  if (organizationAuthority(world, input.actor, current.platformId) === null)
+    return { ok: false, error: { kind: 'forbidden', code: 'admin_forbidden', status: 403 } };
+
+  const changes = (Object.keys(input.patch) as EditableOrganizationField[]).filter(
+    (field) => input.patch[field] !== current[field],
+  );
+  if (changes.length === 0)
+    return { ok: true, world, result: { organization: current, changed: false } };
+
+  const sequence = world.sequence + 1;
+  const updatedAt = new Date(input.now).toISOString();
+  const organization: OrganizationRecord = { ...current, ...input.patch, updatedAt };
+  return {
+    ok: true,
+    result: { organization, changed: true },
+    world: {
+      ...world,
+      sequence,
+      organizations: world.organizations.map((o) => (o.id === current.id ? organization : o)),
+      activity: [
+        ...world.activity,
+        {
+          id: `organization-activity-updated-${sequence}`,
+          platformId: current.platformId,
+          organizationId: current.id,
+          action: 'organization.updated',
+          occurredAt: updatedAt,
         },
       ],
     },

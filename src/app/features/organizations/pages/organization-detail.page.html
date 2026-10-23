@@ -194,6 +194,29 @@
           headingId="organization-about"
           [heading]="'organizations.detail.about' | transloco"
         >
+          @if (edit.mayEdit(platform.id)) {
+            <!-- One root element, so the whole entry is projected into the card header. -->
+            <div cardActions>
+              @if (edit.available) {
+                <button nw-button variant="secondary" type="button" (click)="edit.open(detail)">
+                  <nw-icon name="pencil" size="sm" />{{ 'organizations.edit.open' | transloco }}
+                </button>
+              } @else {
+                <button
+                  nw-button
+                  variant="secondary"
+                  type="button"
+                  aria-disabled="true"
+                  aria-describedby="organization-edit-unavailable"
+                >
+                  <nw-icon name="pencil" size="sm" />{{ 'organizations.edit.open' | transloco }}
+                </button>
+                <span id="organization-edit-unavailable" class="nw-visually-hidden">{{
+                  'organizations.edit.notInBuildReason' | transloco
+                }}</span>
+              }
+            </div>
+          }
           <dl class="organization-detail__rows">
             <div class="organization-detail__row">
               <dt>{{ 'organizations.detail.platform' | transloco }}</dt>

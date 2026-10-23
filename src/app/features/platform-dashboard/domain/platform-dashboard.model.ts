@@ -36,6 +36,7 @@ export interface RecentOrganization {
 export type PlatformActivityAction =
   | 'platform.created'
   | 'organization.created'
+  | 'organization.updated'
   | 'admin_invitation.sent'
   | 'membership.approved'
   | 'operator.assigned';

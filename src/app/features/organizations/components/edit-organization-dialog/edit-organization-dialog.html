@@ -1,0 +1,211 @@
+@let current = state();
+@let values = draft();
+@let fieldChanges = changes();
+@let fieldErrors = errors();
+<nw-dialog
+  [title]="
+    (view() === 'discard' ? 'organizations.edit.discardTitle' : 'organizations.edit.title')
+      | transloco
+  "
+  [closeLabel]="'common.close' | transloco"
+  [busy]="busy()"
+  [guarded]="guarded()"
+  (closeRequested)="requestClose()"
+>
+  @if (view() === 'discard') {
+    <div class="edit-organization__body">
+      <p>
+        {{ 'organizations.edit.discardBody' | transloco: { name: isolatedName() } }}
+      </p>
+      <ul class="edit-organization__summary-list" role="list">
+        @for (field of changedFields(); track field) {
+          <li>
+            {{ labelKeys[field] | transloco }}:
+            {{ changeKeys[fieldChanges[field] === 'removed' ? 'removed' : 'changed'] | transloco }}
+          </li>
+        }
+      </ul>
+    </div>
+  } @else if (current.phase === 'pending') {
+    <div class="edit-organization__body">
+      <p class="edit-organization__summary">
+        <span>{{ 'organizations.create.nameLabel' | transloco }}</span>
+        <bdi>{{ values.name.trim() }}</bdi>
+      </p>
+      <p class="edit-organization__status" role="status">
+        <nw-spinner />{{ 'organizations.edit.saving' | transloco }}
+      </p>
+    </div>
+  } @else if (showsForm()) {
+    <form
+      #form
+      id="edit-organization-form"
+      class="edit-organization__body"
+      novalidate
+      (submit)="save($event)"
+    >
+      @if (failure()?.kind === 'validation') {
+        <nw-inline-alert tone="danger">{{
+          'actions.failure.validation' | transloco
+        }}</nw-inline-alert>
+      }
+      @if (recovered()) {
+        <nw-inline-alert tone="info">
+          {{
+            (dirty() ? 'organizations.edit.reloadedKept' : 'organizations.edit.reloadedSaved')
+              | transloco
+          }}
+        </nw-inline-alert>
+      }
+      @for (field of fields; track field) {
+        @let change = fieldChanges[field];
+        @let input = inputs[field];
+        <div class="edit-organization__field">
+          @if (change !== 'unchanged') {
+            <span
+              class="edit-organization__change"
+              [class.edit-organization__change--removed]="change === 'removed'"
+              aria-hidden="true"
+              >{{ changeKeys[change] | transloco }}</span
+            >
+          }
+          <nw-form-field
+            [label]="labelKeys[field] | transloco"
+            [hint]="hints()[field]"
+            [error]="
+              fieldErrors[field]
+                ? (fieldErrors[field]! | transloco: { max: limits[field] })
+                : undefined
+            "
+            [required]="field === 'name'"
+          >
+            @if (field === 'address') {
+              <textarea
+                nwControl
+                rows="2"
+                [name]="'organization-' + field"
+                [autocomplete]="input.autocomplete"
+                [dir]="input.dir"
+                [class.edit-organization__control--removed]="change === 'removed'"
+                [value]="values[field]"
+                (input)="onField(field, $event)"
+              ></textarea>
+            } @else {
+              <input
+                nwControl
+                [type]="input.type"
+                [name]="'organization-' + field"
+                [autocomplete]="input.autocomplete"
+                [dir]="input.dir"
+                [placeholder]="field === 'name' ? '' : ('organizations.edit.notSet' | transloco)"
+                [class.edit-organization__control--removed]="change === 'removed'"
+                [value]="values[field]"
+                (input)="onField(field, $event)"
+              />
+            }
+          </nw-form-field>
+          @if (change === 'removed') {
+            <button
+              nw-button
+              variant="secondary"
+              size="sm"
+              type="button"
+              class="edit-organization__undo"
+              (click)="undo(field)"
+            >
+              <nw-icon name="rotate-ccw" size="sm" />{{ 'organizations.edit.undo' | transloco }}
+              <span class="nw-visually-hidden">: {{ labelKeys[field] | transloco }}</span>
+            </button>
+          }
+        </div>
+      }
+      <p class="edit-organization__note" id="edit-organization-note">
+        <nw-icon name="file-text" size="sm" />
+        @if (dirty()) {
+          {{ 'organizations.edit.sentNote' | transloco: { count: changedFields().length } }}
+        } @else {
+          {{ 'organizations.edit.noChanges' | transloco }}
+        }
+      </p>
+      @if (demo()) {
+        <p class="edit-organization__demo-chip">
+          <nw-icon name="flask-conical" size="sm" />{{ 'organizations.edit.simulated' | transloco }}
+        </p>
+      }
+    </form>
+  } @else if (current.phase === 'failed') {
+    <div class="edit-organization__body">
+      <nw-inline-alert
+        [tone]="
+          current.failure.kind === 'outcomeUnknown' || current.failure.kind === 'refused'
+            ? 'danger'
+            : 'warning'
+        "
+      >
+        {{ failureKey()! | transloco }}
+      </nw-inline-alert>
+      @if (reloadFailed()) {
+        <nw-inline-alert tone="danger">{{
+          'organizations.edit.reloadFailed' | transloco
+        }}</nw-inline-alert>
+      }
+    </div>
+  }
+
+  <div nwDialogActions>
+    @if (view() === 'discard') {
+      <button nw-button variant="secondary" type="button" (click)="discard()">
+        {{ 'organizations.edit.discard' | transloco }}
+      </button>
+      <button #keepEditing nw-button type="button" (click)="keepEditingChanges()">
+        {{ 'organizations.edit.keepEditing' | transloco }}
+      </button>
+    } @else if (current.phase === 'pending') {
+      <button nw-button variant="ghost" type="button" aria-disabled="true">
+        {{ 'common.cancel' | transloco }}
+      </button>
+      <button #mainButton nw-button type="button" busy aria-disabled="true">
+        <nw-spinner />{{ 'organizations.edit.savingShort' | transloco }}
+      </button>
+    } @else if (showsForm()) {
+      <button nw-button variant="ghost" type="button" (click)="requestClose()">
+        {{ 'common.cancel' | transloco }}
+      </button>
+      <button
+        #mainButton
+        nw-button
+        type="submit"
+        form="edit-organization-form"
+        [attr.aria-disabled]="!dirty() || null"
+        [attr.aria-describedby]="dirty() ? null : 'edit-organization-note'"
+      >
+        {{ 'organizations.edit.save' | transloco }}
+      </button>
+    } @else if (current.phase === 'failed') {
+      <button nw-button variant="ghost" type="button" (click)="requestClose()">
+        {{ 'common.close' | transloco }}
+      </button>
+      @if (current.failure.kind === 'outcomeUnknown') {
+        <button
+          #mainButton
+          nw-button
+          type="button"
+          [busy]="reloading()"
+          [attr.aria-disabled]="reloading() || null"
+          (click)="checkCurrent()"
+        >
+          @if (reloading()) {
+            <nw-spinner />
+          } @else {
+            <nw-icon name="refresh-cw" size="sm" />
+          }
+          {{ 'organizations.edit.checkCurrent' | transloco }}
+        </button>
+      } @else if (canRetry()) {
+        <button #mainButton nw-button type="button" (click)="tryAgain()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'actions.retry' | transloco }}
+        </button>
+      }
+    }
+  </div>
+</nw-dialog>

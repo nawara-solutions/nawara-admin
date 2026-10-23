@@ -30,7 +30,7 @@ import {
   operator,
   owner,
 } from '../testing/organizations-testing';
-import { createOrganizationTestProviders } from '../testing/create-organization-testing';
+import { organizationActionTestProviders } from '../testing/organization-actions-testing';
 import { OrganizationDetailPage } from './organization-detail.page';
 import { OrganizationDirectoryPage } from './organization-directory.page';
 
@@ -62,7 +62,7 @@ async function render<T>(page: Type<T>, actor: Actor, url: string) {
       EntityLabel,
       OrganizationDirectoryFacade,
       OrganizationDetailFacade,
-      ...createOrganizationTestProviders(false),
+      ...organizationActionTestProviders(false),
     ],
   });
   TestBed.inject(AuthSession).establish(actor);
@@ -285,6 +285,14 @@ describe('OrganizationDetailPage', () => {
       (b) => text(b) === '+213 21 00 00',
     );
     expect(phone?.getAttribute('dir')).toBe('ltr');
+    // A build without the command (here: no adapter) shows Edit details in About, disabled, with its reason.
+    const edit = [...element.querySelectorAll('adm-overview-card button')].find(
+      (b) => text(b) === en.organizations.edit.open,
+    );
+    expect(edit?.getAttribute('aria-disabled')).toBe('true');
+    expect(text(element.querySelector(`#${edit?.getAttribute('aria-describedby')}`))).toBe(
+      en.organizations.edit.notInBuildReason,
+    );
     // Future actions are focusable, never actionable, and say why.
     const unavailable = [...element.querySelectorAll('.organization-detail__unavailable-action')];
     expect(unavailable.map((b) => b.getAttribute('aria-disabled'))).toEqual(['true', 'true']);
