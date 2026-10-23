@@ -4,6 +4,10 @@
 /coverage
 package-lock.json
 
+# Local review evidence (screenshots, design exports, browser reports): never tracked, excluded in .git/info/exclude,
+# which Prettier does not read.
+/screenshot
+
 # Shared Nawara AI standard: symlinks into ../ai-standard and verbatim copies of it.
 # Formatting them would edit (or diverge from) the shared standard — see CLAUDE.md.
 /.claude
