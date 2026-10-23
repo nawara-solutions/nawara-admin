@@ -41,6 +41,11 @@ const ACTIONS = {
     accent: 'green',
     labelKey: 'companyOverview.activity.actions.membershipApproved',
   },
+  'membership.rejected': {
+    icon: 'circle-x',
+    accent: 'orange',
+    labelKey: 'companyOverview.activity.actions.membershipRejected',
+  },
 } as const satisfies Record<
   ActivityAction,
   { icon: NwIconName; accent: 'pink' | 'purple' | 'orange' | 'green'; labelKey: string }

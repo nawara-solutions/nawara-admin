@@ -87,3 +87,24 @@
     align-items: start;
   }
 }
+
+// The Decision card (P5-S2): two 44 px actions that wrap on narrow cards.
+.membership-detail__decision {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nw-space-2);
+
+  > * {
+    flex: 1 1 10rem;
+  }
+}
+
+.membership-detail__decision .membership-detail__reject {
+  --nw-button-fg: var(--nw-status-danger-fg);
+}
+
+.membership-detail__sending {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+}

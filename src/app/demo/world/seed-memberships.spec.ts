@@ -109,3 +109,57 @@ describe('demo world: members and memberships (P5-S1)', () => {
     expect(admin.audience).toBe(used.invitationType);
   });
 });
+
+describe('demo world: audiences follow Nawara School’s standard join codes (P5-S2 correction)', () => {
+  const world = demoWorldSeed(NOW);
+  const platformOf = new Map(world.organizations.map((o) => [o.id, o.platformId]));
+  const audiences = (platform: string, status: string, admin = false) =>
+    new Set(
+      world.memberships
+        .filter(
+          (m) =>
+            platformOf.get(m.organizationId) === platform &&
+            m.status === status &&
+            m.isOrganizationAdmin === admin,
+        )
+        .map((m) => m.audience),
+    );
+
+  it('makes School requests (pending, and so rejected) teachers: student codes need no approval', () => {
+    expect([...audiences(DEMO_SCHOOL_PLATFORM_ID, 'pending')]).toEqual(['teacher']);
+    expect([...audiences(DEMO_SCHOOL_PLATFORM_ID, 'rejected')]).toEqual(['teacher']);
+    expect([...audiences(DEMO_SCHOOL_PLATFORM_ID, 'revoked')]).toEqual(['teacher']);
+  });
+
+  it('keeps active School students and teachers, without the unverified "parent" label', () => {
+    expect([...audiences(DEMO_SCHOOL_PLATFORM_ID, 'active')].sort()).toEqual([
+      'student',
+      'teacher',
+    ]);
+    expect(world.memberships.some((m) => m.audience === 'parent')).toBe(false);
+    expect([...audiences(DEMO_SCHOOL_PLATFORM_ID, 'active', true)]).toEqual(['org_admin']);
+  });
+
+  it('leaves Drive’s audiences as they were', () => {
+    expect([...audiences(DEMO_DRIVE_PLATFORM_ID, 'pending')]).toEqual(['learner']);
+    expect([...audiences(DEMO_DRIVE_PLATFORM_ID, 'rejected')]).toEqual(['learner']);
+    expect([...audiences(DEMO_DRIVE_PLATFORM_ID, 'active')].sort()).toEqual([
+      'instructor',
+      'learner',
+    ]);
+    expect([...audiences(DEMO_DRIVE_PLATFORM_ID, 'active', true)]).toEqual(['fleet_manager']);
+  });
+
+  it('keeps every status count of both Platforms', () => {
+    const count = (platform: string, status: string) =>
+      world.memberships.filter(
+        (m) => platformOf.get(m.organizationId) === platform && m.status === status,
+      ).length;
+    expect(
+      ['active', 'pending', 'rejected', 'revoked'].map((s) => count(DEMO_SCHOOL_PLATFORM_ID, s)),
+    ).toEqual([920, 12, 4, 1]);
+    expect(
+      ['active', 'pending', 'rejected', 'revoked'].map((s) => count(DEMO_DRIVE_PLATFORM_ID, s)),
+    ).toEqual([460, 4, 2, 0]);
+  });
+});

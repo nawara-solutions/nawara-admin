@@ -31,7 +31,9 @@
     </header>
     <div class="membership-detail__grid">
       <section class="membership-detail__card" aria-labelledby="membership-detail-facts">
-        <h2 id="membership-detail-facts">{{ 'organizations.members.detail.facts' | transloco }}</h2>
+        <h2 id="membership-detail-facts" #factsHeading tabindex="-1">
+          {{ 'organizations.members.detail.facts' | transloco }}
+        </h2>
         <dl class="membership-detail__rows">
           <div>
             <dt>{{ 'organizations.members.detail.status' | transloco }}</dt>
@@ -87,7 +89,7 @@
           </div>
           @if (m.approvedAt) {
             <div>
-              <dt>{{ 'organizations.members.table.approved' | transloco }}</dt>
+              <dt>{{ 'organizations.members.table.activeSince' | transloco }}</dt>
               <dd>{{ m.approvedAt | nwDate: 'date-time' }}</dd>
             </div>
           }
@@ -99,6 +101,52 @@
           }
         </dl>
       </section>
+      @if (decisions.offers(m) || decisions.sendingId() === m.id) {
+        <section class="membership-detail__card" aria-labelledby="membership-detail-decision">
+          <h2 id="membership-detail-decision">
+            {{ 'organizations.members.decision.cardTitle' | transloco }}
+          </h2>
+          <p class="membership-detail__note">
+            {{
+              (authority() === 'owner'
+                ? 'organizations.members.decision.authorityOwner'
+                : 'organizations.members.decision.authorityOperator'
+              ) | transloco: { platform: isolated(view.platform.name) }
+            }}
+          </p>
+          @if (decisions.sendingId() === m.id) {
+            <p class="membership-detail__sending" role="status">
+              <nw-spinner />{{ 'organizations.members.decision.sending' | transloco }}
+            </p>
+          } @else {
+            <div class="membership-detail__decision">
+              <button
+                nw-button
+                type="button"
+                data-decide="approve"
+                [attr.aria-disabled]="decisions.sending() || null"
+                (click)="decide(m, 'approve', view.platform.id, organization.id, organization.name)"
+              >
+                {{ 'organizations.members.decision.approveConfirm' | transloco }}
+              </button>
+              <button
+                nw-button
+                variant="secondary"
+                type="button"
+                class="membership-detail__reject"
+                data-decide="reject"
+                [attr.aria-disabled]="decisions.sending() || null"
+                (click)="decide(m, 'reject', view.platform.id, organization.id, organization.name)"
+              >
+                {{ 'organizations.members.decision.rejectConfirm' | transloco }}
+              </button>
+            </div>
+          }
+          <p class="membership-detail__note">
+            {{ 'organizations.members.decision.approveNote' | transloco }}
+          </p>
+        </section>
+      }
       <section class="membership-detail__card" aria-labelledby="membership-detail-other">
         <h2 id="membership-detail-other">{{ 'organizations.members.detail.other' | transloco }}</h2>
         <p class="membership-detail__note">

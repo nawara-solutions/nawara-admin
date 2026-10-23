@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { AppEnvironment, adapterProviders } from '../../core/config/app-environment';
 import { OrganizationDetailFacade } from './application/organization-detail.facade';
 import { OrganizationDirectoryFacade } from './application/organization-directory.facade';
+import { MembershipDecisionAction } from './application/membership-decision.action';
 import { OrganizationMembersFacade } from './application/organization-members.facade';
 import { MEMBERS_SEGMENT } from '../../core/context/scope-context';
 import { MembershipGateway, UnavailableMembershipGateway } from './data-access/membership.gateway';
@@ -61,10 +62,15 @@ export async function loadOrganizationsRoutes(environment: AppEnvironment): Prom
             import('./pages/organization-detail.page').then((m) => m.OrganizationDetailPage),
         },
         {
-          // An Organization's members and one membership (P5-S1), read only: one facade for both, so the lists are
-          // loaded once; the Organization is the detail facade's (Platform-checked first).
+          // An Organization's members and one membership (P5-S1), and decisions on its requests (P5-S2): one facade
+          // for both pages, so the lists are loaded once; the Organization is the detail facade's (Platform-checked
+          // first); one decision action for both, so a decision is single-flight across them.
           path: `:organizationId/${MEMBERS_SEGMENT}`,
-          providers: [OrganizationDetailFacade, OrganizationMembersFacade],
+          providers: [
+            OrganizationDetailFacade,
+            OrganizationMembersFacade,
+            MembershipDecisionAction,
+          ],
           children: [
             {
               path: '',

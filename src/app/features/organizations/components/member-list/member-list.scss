@@ -87,6 +87,44 @@
   font-size: var(--nw-text-size-xs);
 }
 
+// Decisions (P5-S2): full-width 44 px buttons on cards, a compact pair at the end of a table row.
+.member-list__decision {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nw-space-2);
+  margin-block-start: var(--nw-space-2);
+
+  > * {
+    flex: 1 1 8rem;
+  }
+}
+
+.member-list__decision .member-list__reject {
+  --nw-button-fg: var(--nw-status-danger-fg);
+}
+
+.member-list__sending {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.member-list__table .member-list__decision-head,
+.member-list__table .member-list__decision-cell {
+  text-align: end;
+}
+
+.member-list__decision-cell .member-list__decision {
+  justify-content: flex-end;
+  margin-block-start: 0;
+
+  > * {
+    flex: none;
+  }
+}
+
 @container (min-width: 40rem) {
   .member-list__table {
     display: table;

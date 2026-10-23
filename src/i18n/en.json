@@ -364,6 +364,7 @@
         "invitationCreated": "Invitation created",
         "invitationRevoked": "Invitation revoked",
         "membershipApproved": "Membership approved",
+        "membershipRejected": "Membership request rejected",
         "platformCreated": "Platform created"
       },
       "auditLog": "Audit log"
@@ -512,6 +513,7 @@
       "adminInvitationCreated": "Admin invitation created",
       "adminInvitationRevoked": "Admin invitation revoked",
       "membershipApproved": "Membership approved",
+      "membershipRejected": "Membership request rejected",
       "operatorAssigned": "Operator assigned",
       "platformCreated": "Platform created"
     },
@@ -817,7 +819,7 @@
         "role": "Role in this organization",
         "audience": "Audience",
         "requested": "Requested",
-        "approved": "Approved",
+        "activeSince": "Active since",
         "rejected": "Rejected"
       },
       "role": {
@@ -840,9 +842,50 @@
         "contact": "Contact",
         "other": "Other memberships",
         "otherNote": "Not shown: Nawara Core offers no way to find one person across organizations.",
-        "readOnly": "Read only: decisions, revocation and the admin role arrive in later releases.",
+        "readOnly": "Revocation and the organization-admin role arrive in later releases.",
         "notFoundTitle": "Membership not found or not accessible",
         "notFoundDescription": "It may not exist, may belong to another organization, or may no longer be listed."
+      },
+      "decision": {
+        "column": "Decision",
+        "approve": "Approve",
+        "reject": "Reject",
+        "approveFor": "Approve the request from {{who}}",
+        "rejectFor": "Reject the request from {{who}}",
+        "sending": "Sending the decision…",
+        "waiting": "Another decision is being sent.",
+        "authorityOwner": "As the Company owner you can approve or reject requests. Nawara Core checks your authority on every decision.",
+        "authorityOperator": "As an operator assigned to {{platform}} you can approve or reject requests. Nawara Core checks your authority on every decision.",
+        "cardTitle": "Decision",
+        "approveTitle": "Approve this request?",
+        "rejectTitle": "Reject this request?",
+        "approveBody": "They become an active member of {{name}}.",
+        "rejectBody": "The request is closed and they will not join {{name}}. This cannot be undone here.",
+        "unverifiedWarning": "This contact has not been confirmed. Nawara Core may refuse approval where verified contacts are required.",
+        "approveNote": "Approval adds a membership in this organization only. It does not make anyone an organization admin.",
+        "rejectNote": "Nawara Core records the decision and its time. No reason is recorded.",
+        "approveConfirm": "Approve request",
+        "rejectConfirm": "Reject request",
+        "approving": "Approving the request…",
+        "rejecting": "Rejecting the request…",
+        "approvingShort": "Approving…",
+        "rejectingShort": "Rejecting…",
+        "pendingNote": "This window stays open until Nawara Core answers. Nothing is sent twice.",
+        "checking": "Checking the request’s current status…",
+        "notListed": "The request is no longer listed in this organization.",
+        "nowStatus": "Its current status:",
+        "checkStatus": "Check status",
+        "approved": "Request approved in {{name}}.",
+        "rejected": "Request rejected in {{name}}.",
+        "notDecided": "The decision in {{name}} was not completed.",
+        "failure": {
+          "alreadyDecided": "This request was already decided, so your decision was not applied.",
+          "contactNotVerified": "Approval needs a verified contact. Nothing was changed; you can still reject the request.",
+          "refused": "This request is no longer available to you. Nothing was changed.",
+          "unknown": "We couldn’t confirm the decision: the answer was lost, so it may or may not have been recorded. Nothing is sent again automatically.",
+          "rateLimited": "Too many membership changes in a short time. Nothing was changed; wait a few minutes and try again.",
+          "unavailable": "Nawara Core could not take the decision right now. Nothing was changed."
+        }
       }
     },
     "totals": {
@@ -977,6 +1020,7 @@
       "adminInvitationCreated": "Admin invitation created",
       "adminInvitationRevoked": "Admin invitation revoked",
       "membershipApproved": "Membership approved",
+      "membershipRejected": "Membership request rejected",
       "simulated": "simulated"
     },
     "footnote": "Memberships are counted per organization; one person can hold memberships in several."

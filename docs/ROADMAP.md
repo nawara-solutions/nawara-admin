@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members implemented, awaiting review; rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions implemented, awaiting review; rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,9 +290,26 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
-## P5-S1: read-only Organization members and membership details (contract verified and implemented 2026-10-23)
+## P5-S2: mock membership request decisions (design approved and implemented 2026-10-23)
 
 **Status: implemented as a development-only mock prototype, awaiting review.** Design and contract:
+[`design/p5-s2-membership-decisions.md`](design/p5-s2-membership-decisions.md) (canvas corrected by the owner's Nawara
+School onboarding clarification).
+
+- Approve and Reject on pending requests (Requests tab rows and the membership's details), for the Company owner and
+  operators assigned to the Platform; a confirmation each (Reject: alertdialog, focus on Cancel); no step-up.
+- `decideMembership` command in Core's order: collapsed `404` (unknown, another Organization's, no authority, one's own
+  membership), `409 membership_already_decided`, `409 contact_not_verified` when Core requires it; exactly one record
+  changes; `membership.approved` / `membership.rejected` activity.
+- One decision at a time; never resent after a lost answer: the lists reload and the dialog shows where the request is
+  now; "Try again" only after `429`/`503`. Success refreshes every view through `ScopeContext.revision`.
+- Demo data: School requests are `teacher` (student codes need no approval), `parent` removed, Drive unchanged; every
+  count unchanged. "Approved" dates relabelled "Active since" (`approvedAt` semantics for automatic admission unverified).
+- Not built: revoke, the admin role, suspend / restore, join codes, a Company directory.
+
+## P5-S1: read-only Organization members and membership details (contract verified and implemented 2026-10-23)
+
+**Status: complete (PR #25), a development-only mock prototype.** Design and contract:
 [`design/p5-users-and-memberships.md`](design/p5-users-and-memberships.md) (P5-0 canvas corrected by the P5-S0 read-only
 Core verification, `b91b7bf`). Owner decisions D1 Company-wide Users & identity unavailable until CF-03; D2 tabs Active,
 Requests, Rejected (no Revoked); D3 email, else phone, else a neutral reference, never a name; D4 owners and assigned

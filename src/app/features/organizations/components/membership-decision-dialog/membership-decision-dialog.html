@@ -1,0 +1,176 @@
+@let current = state();
+<nw-dialog
+  [title]="
+    (approve
+      ? 'organizations.members.decision.approveTitle'
+      : 'organizations.members.decision.rejectTitle'
+    ) | transloco
+  "
+  [closeLabel]="'common.close' | transloco"
+  [busy]="busy()"
+>
+  <div class="membership-decision__body">
+    @switch (current.phase) {
+      @case ('pending') {
+        <p class="membership-decision__status" role="status">
+          <nw-spinner />{{
+            (approve
+              ? 'organizations.members.decision.approving'
+              : 'organizations.members.decision.rejecting'
+            ) | transloco
+          }}
+        </p>
+        <p class="membership-decision__note">
+          {{ 'organizations.members.decision.pendingNote' | transloco }}
+        </p>
+      }
+      @case ('failed') {
+        <nw-inline-alert [tone]="current.failure.kind === 'outcomeUnknown' ? 'danger' : 'warning'">
+          {{ failureKey()! | transloco }}
+        </nw-inline-alert>
+        @if (reconciling()) {
+          @let known = reconciliation();
+          <p class="membership-decision__status" role="status">
+            @if (known === null || known.state === 'checking') {
+              <nw-spinner />{{ 'organizations.members.decision.checking' | transloco }}
+            } @else if (known.status === null) {
+              {{ 'organizations.members.decision.notListed' | transloco }}
+            } @else {
+              {{ 'organizations.members.decision.nowStatus' | transloco }}
+              <strong>{{ statusKeys[known.status] | transloco }}</strong>
+            }
+          </p>
+        }
+      }
+      @default {
+        <p id="membership-decision-description">
+          @if (approve) {
+            {{
+              'organizations.members.decision.approveBody'
+                | transloco: { name: isolatedOrganization }
+            }}
+          } @else {
+            {{
+              'organizations.members.decision.rejectBody'
+                | transloco: { name: isolatedOrganization }
+            }}
+          }
+        </p>
+        <dl class="membership-decision__facts">
+          <div>
+            <dt>{{ 'organizations.members.table.member' | transloco }}</dt>
+            <dd>
+              @if (who.kind === 'user') {
+                {{ 'organizations.members.identity.user' | transloco: { ref: who.value } }}
+              } @else {
+                <bdi dir="ltr" translate="no">{{ who.value }}</bdi>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'organizations.members.detail.contact' | transloco }}</dt>
+            <dd>
+              {{
+                (membership.contactVerified
+                  ? 'organizations.members.identity.verified'
+                  : 'organizations.members.identity.unverified'
+                ) | transloco
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'organizations.members.table.audience' | transloco }}</dt>
+            <dd>
+              <bdi class="membership-decision__mono" dir="ltr" translate="no">{{
+                membership.audience
+              }}</bdi>
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'organizations.members.table.requested' | transloco }}</dt>
+            <dd>{{ membership.requestedAt | nwDate: 'date-time' }}</dd>
+          </div>
+        </dl>
+        @if (approve && !membership.contactVerified) {
+          <nw-inline-alert tone="warning">
+            {{ 'organizations.members.decision.unverifiedWarning' | transloco }}
+          </nw-inline-alert>
+        }
+        <p class="membership-decision__note">
+          <nw-icon name="info" size="sm" />{{
+            (approve
+              ? 'organizations.members.decision.approveNote'
+              : 'organizations.members.decision.rejectNote'
+            ) | transloco
+          }}
+        </p>
+      }
+    }
+  </div>
+
+  <div nwDialogActions>
+    @switch (current.phase) {
+      @case ('pending') {
+        <button nw-button variant="ghost" type="button" aria-disabled="true">
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button
+          nw-button
+          [variant]="approve ? 'primary' : 'danger'"
+          type="button"
+          busy
+          aria-disabled="true"
+        >
+          <nw-spinner />{{
+            (approve
+              ? 'organizations.members.decision.approvingShort'
+              : 'organizations.members.decision.rejectingShort'
+            ) | transloco
+          }}
+        </button>
+      }
+      @case ('failed') {
+        @if (retryable()) {
+          <button nw-button variant="ghost" type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+          <button #mainButton nw-button type="button" (click)="tryAgain()">
+            <nw-icon name="refresh-cw" size="sm" />{{ 'actions.retry' | transloco }}
+          </button>
+        } @else if (current.failure.kind === 'outcomeUnknown') {
+          <button nw-button variant="ghost" type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+          <button #mainButton nw-button type="button" (click)="checkStatus()">
+            <nw-icon name="refresh-cw" size="sm" />{{
+              'organizations.members.decision.checkStatus' | transloco
+            }}
+          </button>
+        } @else {
+          <button #mainButton nw-button type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+        }
+      }
+      @default {
+        <button nw-button variant="secondary" type="button" data-cancel (click)="close()">
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button
+          nw-button
+          [variant]="approve ? 'primary' : 'danger'"
+          type="button"
+          data-confirm
+          (click)="confirm()"
+        >
+          {{
+            (approve
+              ? 'organizations.members.decision.approveConfirm'
+              : 'organizations.members.decision.rejectConfirm'
+            ) | transloco
+          }}
+        </button>
+      }
+    }
+  </div>
+</nw-dialog>

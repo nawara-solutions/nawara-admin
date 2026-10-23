@@ -43,7 +43,15 @@ export type OrganizationMembersView =
       readonly platform: PlatformRef;
       readonly organization: OrganizationDetail;
       readonly lists: MembershipLists;
+      /** Increases with every answer of the lists (a refresh included): "is this newer than what I saw?". */
+      readonly loadSequence: number;
     };
+
+/** Where one membership is in the loaded lists (`null`: in none), as of answer number `loadSequence`. */
+export interface MembershipWhereabouts {
+  readonly status: ListableMembershipStatus | null;
+  readonly loadSequence: number;
+}
 
 /** One membership of the detail route, resolved from the loaded lists (there is no single-membership read). */
 export type MembershipResolution =
@@ -71,6 +79,7 @@ export class OrganizationMembersFacade {
   private readonly gateway = inject(MembershipGateway);
   private readonly locale = inject(NW_FORMATTING_LOCALE);
   private readonly reloads = new Subject<void>();
+  private loads = 0;
 
   private readonly organizationId = computed<OrganizationId | null>(() => {
     const view = this.detail.view();
@@ -86,6 +95,7 @@ export class OrganizationMembersFacade {
     ).pipe(
       map((lists) => ({
         organizationId: id,
+        loadSequence: ++this.loads,
         lists: {
           active: lists.active.memberships,
           pending: lists.pending.memberships,
@@ -104,7 +114,12 @@ export class OrganizationMembersFacade {
       case 'success':
         // A late answer about another Organization (a switch in flight) reads as loading.
         return state.data.organizationId === view.detail.id
-          ? { status: 'ready', ...base, lists: state.data.lists }
+          ? {
+              status: 'ready',
+              ...base,
+              lists: state.data.lists,
+              loadSequence: state.data.loadSequence,
+            }
           : { status: 'membersLoading', ...base };
       case 'error':
         return state.error.kind === 'unavailable' && state.error.code === ADAPTER_UNAVAILABLE
@@ -160,6 +175,14 @@ export class OrganizationMembersFacade {
     }
     return { status: 'notFound' };
   });
+
+  /** Where a membership is now, for a decision whose outcome must be checked (P5-S2); `null` while not loaded. */
+  whereabouts(membershipId: string): MembershipWhereabouts | null {
+    const view = this.view();
+    if (view.status !== 'ready') return null;
+    const status = LISTABLE_STATUSES.find((s) => view.lists[s].some((m) => m.id === membershipId));
+    return { status: status ?? null, loadSequence: view.loadSequence };
+  }
 
   /** Changes the tab, the admins filter or the sort: a URL change (replacing the history entry). */
   setQuery(change: Partial<MembersQuery>): void {

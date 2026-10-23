@@ -1,0 +1,18 @@
+import { Membership } from './membership.model';
+
+/**
+ * A decision on a pending membership request (P5-S2): Core's `POST …/memberships/:membershipId/approve` or `…/reject`
+ * (P5-S0, auth-service `membership/organization.controller.ts`). No body, no step-up, no idempotency key. The same
+ * rules hold for every audience: the label is opaque and never decides who may be approved.
+ */
+export type MembershipDecision = 'approve' | 'reject';
+
+/** Core's answer, `200 { id, status }`. */
+export interface MembershipDecisionResult {
+  readonly id: string;
+  readonly status: 'active' | 'rejected';
+}
+
+/** Only a pending request can be decided (Core answers `409 membership_already_decided` for any other). */
+export const isDecidable = (membership: Pick<Membership, 'status'>): boolean =>
+  membership.status === 'pending';

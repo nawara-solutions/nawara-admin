@@ -65,6 +65,21 @@
           @if (total === 0) {
             <nw-data-state state="empty" [title]="emptyKeys[query.status] | transloco" />
           } @else {
+            @if (query.status === 'pending' && authority(); as role) {
+              <p class="organization-members__authority">
+                <nw-icon name="shield-check" size="sm" />
+                <span>
+                  @if (role === 'owner') {
+                    {{ 'organizations.members.decision.authorityOwner' | transloco }}
+                  } @else {
+                    {{
+                      'organizations.members.decision.authorityOperator'
+                        | transloco: { platform: isolated(view.platform.name) }
+                    }}
+                  }
+                </span>
+              </p>
+            }
             <div class="organization-members__toolbar" role="search">
               <label class="organization-members__search">
                 <nw-icon name="search" size="sm" />
@@ -100,7 +115,13 @@
                   }
                 </select>
               </nw-form-field>
-              <p class="organization-members__count" role="status" aria-live="polite">
+              <p
+                #count
+                class="organization-members__count"
+                role="status"
+                aria-live="polite"
+                tabindex="-1"
+              >
                 {{
                   'organizations.members.count'
                     | transloco: { shown: facade.rows().length, total: total }
@@ -113,6 +134,10 @@
                 [rows]="facade.rows()"
                 [status]="query.status"
                 [pathOf]="pathOf()"
+                [offers]="offers"
+                [sendingId]="decisions.sendingId()"
+                [sending]="decisions.sending()"
+                (decide)="decide($event, view.platform.id, organization.id, organization.name)"
               />
             } @else {
               <div id="organization-members-list">
