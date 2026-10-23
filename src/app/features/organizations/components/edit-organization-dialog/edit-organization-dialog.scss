@@ -1,0 +1,91 @@
+// The edit-organization dialog's content (P3b-S2 design): the fields with their change marks, Undo, the discard
+// confirmation and the saving status.
+.edit-organization__body {
+  display: grid;
+  gap: var(--nw-space-4);
+}
+
+.edit-organization__field {
+  position: relative;
+  display: grid;
+  gap: var(--nw-space-2);
+}
+
+// Shown at the end of the label row; the field's hint says the same in words.
+.edit-organization__change {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  padding: 0 var(--nw-space-2);
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-status-info-bg);
+  color: var(--nw-status-info-fg);
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-semibold);
+
+  &--removed {
+    background-color: var(--nw-status-warning-bg);
+    color: var(--nw-status-warning-fg);
+  }
+}
+
+.edit-organization__control--removed {
+  border-style: dashed;
+}
+
+.edit-organization__undo {
+  justify-self: start;
+}
+
+.edit-organization__note {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3) var(--nw-space-4);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.edit-organization__demo-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 0.375rem;
+  padding: 2px var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-accent-orange-bg);
+  color: var(--nw-accent-orange-fg);
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.edit-organization__summary-list {
+  display: grid;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3) var(--nw-space-4);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  font-size: var(--nw-text-size-sm);
+}
+
+.edit-organization__summary {
+  display: grid;
+  gap: 2px;
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+
+  bdi {
+    color: var(--nw-text-primary);
+    font-weight: var(--nw-font-weight-semibold);
+    overflow-wrap: anywhere;
+  }
+}
+
+.edit-organization__status {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-primary);
+}

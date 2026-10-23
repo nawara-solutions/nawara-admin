@@ -35,7 +35,7 @@ import {
   MockOrganizationGateway,
 } from '../data-access/organization.mock';
 import { OrganizationDirectoryPage } from '../pages/organization-directory.page';
-import { createOrganizationTestProviders } from '../testing/create-organization-testing';
+import { organizationActionTestProviders } from '../testing/organization-actions-testing';
 import { Blank, DEMO } from '../testing/organizations-testing';
 import { OrganizationDirectoryFacade } from './organization-directory.facade';
 
@@ -92,7 +92,7 @@ async function render(
       ScopeContext,
       EntityLabel,
       OrganizationDirectoryFacade,
-      ...createOrganizationTestProviders(true),
+      ...organizationActionTestProviders(true),
     ],
   });
   TestBed.inject(AuthSession).establish(actor);

@@ -14,6 +14,10 @@ const ACTIONS = {
     icon: 'building-2',
     key: 'platformDashboard.activity.organizationCreated',
   },
+  'organization.updated': {
+    icon: 'pencil',
+    key: 'platformDashboard.activity.organizationUpdated',
+  },
   'admin_invitation.sent': { icon: 'send', key: 'platformDashboard.activity.adminInvitationSent' },
   'membership.approved': {
     icon: 'user-plus',

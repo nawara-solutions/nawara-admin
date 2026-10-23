@@ -16,6 +16,11 @@ const ACTIONS = {
     accent: 'pink',
     labelKey: 'companyOverview.activity.actions.organizationCreated',
   },
+  'organization.updated': {
+    icon: 'pencil',
+    accent: 'pink',
+    labelKey: 'companyOverview.activity.actions.organizationUpdated',
+  },
   'operator.assigned': {
     icon: 'user-plus',
     accent: 'purple',

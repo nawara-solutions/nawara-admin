@@ -39,7 +39,7 @@ owned here. The symlinks need the sibling layout (`ai-standard/`, `nawara-core/`
 A0  Discovery / Architecture          ✅ COMPLETE
 A1  Workspace / Tooling               ✅ COMPLETE (awaiting owner review)
 A2  Design-system foundation          🟡 IMPLEMENTED + VERIFIED — owner review and scope decision pending (not closed)
-A3  Application shell                 🟡 bounded slice A3-S1 (shell + Company Overview, demo data) implemented — owner review pending; A3-S3 account menu, mock sign-out, operator navigation complete (PR #17); P2 platform dashboard complete (PR #18); P2.5 canonical demo world complete (PR #19); P3a Organization directory and details complete (PR #20); P4-S1 action foundation + mock Create platform complete (PR #21); P3b-S1 mock Create organization implemented — awaiting review; rest not started
+A3  Application shell                 🟡 bounded slice A3-S1 (shell + Company Overview, demo data) implemented — owner review pending; A3-S3 account menu, mock sign-out, operator navigation complete (PR #17); P2 platform dashboard complete (PR #18); P2.5 canonical demo world complete (PR #19); P3a Organization directory and details complete (PR #20); P4-S1 action foundation + mock Create platform complete (PR #21); P3b-S1 mock Create organization complete (PR #22); P3b-S2 mock Edit organization details implemented — awaiting review; rest not started
 A4  Authentication                    🟡 A4-S1 + A4-S2 complete as mock prototypes (sign-in, owner MFA, operator working code; not production auth); A4-S3 contact confirmation complete as a mock prototype (owner-approved); A4-S4 owner TOTP enrollment complete as a mock prototype (owner-approved, PR #16) — real integration open; not closed
 A5… see docs/ROADMAP.md               ⏸️
 ```

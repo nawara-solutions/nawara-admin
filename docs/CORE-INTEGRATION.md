@@ -150,10 +150,15 @@ Admin strategy and the decision required before A4.
   another request → **`422 idempotency_key_reused`**. A failed attempt reserves nothing, so it does not consume the key. The
   step-up is consumed *before* the replay lookup, so a retry after an unknown outcome needs **the same key and a fresh step-up**;
   it never creates a second Organization.
-- **Edit organization metadata, verified 2026-10-23 (P3b-0), not built** (`admin.controller.ts:169-189`):
-  `PATCH /organization/admin/organizations/:id` with any of `name`, `taxCode`, `address`, `phone`, `type` (same limits); **no
-  step-up and no `Idempotency-Key`**; authorized for the owner, an assigned operator, or an admin of that Organization. Planned
-  for P3b-S2; nothing in Admin calls or mocks it yet.
+- **Edit organization metadata, verified 2026-10-23 (P3b-0); built in Admin as a demo mock only (P3b-S2)**
+  (`admin.controller.ts:169-189`): `PATCH /organization/admin/organizations/:id` with at least one of `name`, `taxCode`,
+  `address`, `phone`, `type` (same limits; `null` clears an optional field; the name cannot be cleared; unknown and immutable
+  fields are refused); **no step-up, no `Idempotency-Key`, no version or concurrency token**; a request that changes nothing
+  writes nothing; success `200` with `OrganizationDto`. Authorized for the owner, an assigned operator, or an admin of that
+  Organization (organization admins are not Admin actors). Writes are not authoritative before the cutover.
+  - Admin sends only the changed fields. Because there is no key and no version, a lost answer is never resent
+    automatically: the person reloads the current details and decides (P3b-S2). No audit event of the PATCH has been
+    verified in source; the demo's `organization.updated` activity is a simulated record, not a Core audit contract.
 
 ### Memberships, users and access (Auth)
 
@@ -290,7 +295,7 @@ Admin strategy and the decision required before A4.
 | "Needs attention" signals | Auth / Organization | 🔴 | none (CF-13) | Mock, fictional items |
 | Recent administrative activity, company-wide | Audit | 🔴 | owner reads one organization per request, ≤ 31 days; platform-level records service-only (CF-04) | Mock: the demo world's Platform events, newest first (P2.5) |
 | Create organization | Organization | 🟢 contract · ⚠ not authoritative | `POST /organization/admin/organizations` (see §5, verified P3b-0) | P3b-S1: the owner's flow (name + optional metadata → step-up `organization.create` → idempotent command) against a demo-world mock that succeeds by default, `409 not_authoritative` as a scenario; operators see it disabled (no operator step-up, CF-08); production binds the unavailable adapter (no HTTP adapter yet) |
-| Edit organization metadata | Organization | 🟢 contract · ⚠ not authoritative | `PATCH /organization/admin/organizations/:id` (§5) | Not built (P3b-S2) |
+| Edit organization metadata | Organization | 🟢 contract · ⚠ not authoritative | `PATCH /organization/admin/organizations/:id` (§5) | P3b-S2: "Edit details" for the owner and assigned operators (no step-up), minimal patch, `null` clears, no automatic resend; demo-world mock (succeeds by default; `409 not_authoritative`, lost answer and `503` as scenarios); production binds the unavailable adapter (no HTTP adapter) |
 | Organization admin invitations | Auth | 🟢 | `organization.controller.ts:122-150` (§5) | Not built (P3b-S3) |
 | Create platform | Organization | 🟢 contract · ⚠ not authoritative | `POST /organization/admin/platforms` (see §5) | P4-S1: the owner's flow (confirm → step-up `platform.create` → idempotent command) against a demo-world mock, `409 not_authoritative` as a scenario; production binds the unavailable adapter (no HTTP adapter: response DTO not verified, writes not authoritative before cutover) |
 | Access & security: owner account security | Auth | 🟢 Prod (page not built) | `GET /auth/admin/factors`, factor add/remove, `secret-key/rotate`, `password/change` (owner only) | Overview row only, action disabled; no score or rating is computed |

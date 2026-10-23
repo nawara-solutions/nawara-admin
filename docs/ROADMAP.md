@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization implemented, awaiting review; rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details implemented, awaiting review; rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,14 +290,43 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## P3b-S2: mock Edit organization details (design approved 2026-10-23; implemented 2026-10-23)
+
+**Status: implemented as a development-only mock prototype, awaiting review.** Design: the "P3b-S2 Edit Organization"
+canvas (claude.ai, private; six artboards). Contract: [`CORE-INTEGRATION.md`](CORE-INTEGRATION.md) §5. Owner decisions:
+D1 owners and assigned operators edit; D2 a simulated `organization.updated` activity, only on a real change; D3 `updatedAt`
+on the demo record and the response, no new UI row; D4 all five fields shown; D5 change marks, previous values and Undo;
+D6 an in-dialog discard confirmation; D7 "Edit details" only in the About card.
+
+- **Flow** (`EditOrganizationAction`, bound with "Create organization" by `organizationActionProviders`): "Edit details" →
+  the dialog, prefilled; each changed field says "Changed" / "Will be removed" and its previous value (in the hint, not only
+  by colour), with Undo on a removed optional field; Save is disabled until something really changes (trimmed comparison);
+  only the changed fields are sent, `null` for a cleared one. No step-up. Success: `ScopeContext.organizationsChanged()`;
+  the detail refreshes in place (header, About, breadcrumb), focus returns to "Edit details", a toast confirms.
+- **Unsaved changes:** with changes, Escape, the backdrop, the close button and Cancel show "Discard your changes?"
+  (`nw-dialog` `guarded`); any in-app navigation away from the Organization closes the dialog; reloading or closing the
+  tab asks the browser's confirmation (`beforeunload`). **Limitation:** browser Back/Forward closes the dialog (CDK
+  `closeOnNavigation`) and discards unsaved changes; no route guard was added. A save under way is never cancelled: it
+  detaches and reports by toast.
+- **Lost answer:** never resent automatically (no key, no version). The dialog says the result is unknown and offers
+  "Check current details": it reloads the Organization; fields the person did not change take the current values, their own
+  changes stay marked against them (`rebaseDraft`); they save again only if still needed.
+- **Mock:** session, body (`400`: empty, unknown or immutable fields, cleared or blank name, empty strings, limits), the
+  Organization (`404 not_found`), authority (`403 admin_forbidden`), then the write gate; a patch equal to the current values
+  is a no-op (same world, no `updatedAt` change, no activity). Scenarios `notAuthoritative`, `outcomeUnknown` (applied,
+  first answer per Organization lost), `unavailable`.
+- **Detail page refresh:** `keyedLoad` refreshes in place on `revision` for the same key (no loading flash); an explicit
+  "Try again" still shows loading.
+- **Not built:** an HTTP adapter, concurrency control, organization-admin editing, lifecycle, invitations, memberships.
+
 ## P3b-S1: mock Create organization (owner-authorized 2026-10-23; implemented 2026-10-23)
 
-**Status: implemented as a development-only mock prototype, awaiting review.** Design: the "P3b" canvas (claude.ai, private;
+**Status: complete as a development-only mock prototype (PR #22).** Design: the "P3b" canvas (claude.ai, private;
 six artboards). Contract: source-verified in P3b-0 ([`CORE-INTEGRATION.md`](CORE-INTEGRATION.md) §5). Owner decisions: the
 name plus Core's four optional fields (`taxCode`, `address`, `phone`, `type`) under "More details"; P3b-S2 metadata editing and
 P3b-S3 admin invitations follow as separate slices; suspend, restore, archive, provisioning, readiness and activation stay out.
 
-- **Flow** (`CreateOrganizationAction`, bound on the Organization routes by `createOrganizationProviders`): "Create
+- **Flow** (`CreateOrganizationAction`, bound on the Organization routes by `organizationActionProviders`, formerly `createOrganizationProviders`): "Create
   organization" in the directory header and its empty state → the dialog (parent Platform shown, never typed; name 1–200;
   "More details" disclosure with the optional fields, blank → `null`, Core's limits checked trimmed) → the simulated owner
   step-up for `organization.create` → the idempotent command. Success: `ScopeContext.organizationsChanged()` reloads the

@@ -353,6 +353,7 @@ export function demoWorldSeed(now: number): DemoWorldTables {
     address: null,
     phone: null,
     type: null,
+    updatedAt: at(-o.createdHoursAgo),
   }));
   return {
     company: { id: DEMO_COMPANY_ID, name: 'Nawara Solutions', ownerId: DEMO_OWNER_ID },

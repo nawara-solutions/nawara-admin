@@ -24,6 +24,7 @@ import { NwButton } from '../../../shared/ui/button/button';
 import { NwDataState } from '../../../shared/ui/data-state/data-state';
 import { NwIcon } from '../../../shared/ui/icon/icon';
 import { NwStatusBadge } from '../../../shared/ui/status-badge/status-badge';
+import { EditOrganizationAction } from '../application/edit-organization.action';
 import { OrganizationDetailFacade } from '../application/organization-detail.facade';
 import {
   SUBSCRIPTION_BADGES,
@@ -79,6 +80,8 @@ const METADATA_FIELDS = [
 })
 export class OrganizationDetailPage {
   protected readonly facade = inject(OrganizationDetailFacade);
+  /** "Edit details" (P3b-S2): the owner and an operator assigned to the Platform; no step-up. */
+  protected readonly edit = inject(EditOrganizationAction);
   private readonly session = inject(AuthSession);
   private readonly context = inject(ScopeContext);
   private readonly label = inject(EntityLabel);

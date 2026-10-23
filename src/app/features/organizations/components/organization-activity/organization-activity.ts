@@ -11,6 +11,7 @@ import {
 
 const ACTIONS = {
   'organization.created': { icon: 'building-2', key: 'organizations.activity.organizationCreated' },
+  'organization.updated': { icon: 'pencil', key: 'organizations.activity.organizationUpdated' },
   'admin_invitation.sent': { icon: 'send', key: 'organizations.activity.adminInvitationSent' },
   'membership.approved': { icon: 'user-plus', key: 'organizations.activity.membershipApproved' },
 } as const satisfies Record<

@@ -424,6 +424,19 @@ confirm (severity-appropriate dialog)
   so platform-scope pages keep their access state); the Organization facades (`keyedLoad`) and the Platform dashboard now follow
   `revision`, like the Platform directory and the Company Overview.
 
+**Third action (P3b-S2, 2026-10-23): Edit organization details**, an action with no step-up and no idempotency key:
+
+- `ActionRun` unchanged, with `stepUp: null` (editing → pending → result). The run's key is created as usual but never sent.
+- Authority is per Platform, not a company-wide capability: the owner of its Company or an operator assigned to it
+  (`canEnterPlatform` against the actor's Platforms). The context is the actor and the Organization's Platform, so a result
+  still reaches the person after leaving the page, and never another actor.
+- Without a key or a version, a lost answer is never resent: the dialog offers to reload the current details and rebases
+  the person's draft on them (untouched fields follow the current values). No concurrency headers or codes are invented.
+- `nw-dialog` `guarded` (Admin-local): Escape, the backdrop and the close button emit `closeRequested` instead of closing,
+  so content can confirm discarding changes; `busy` wins. Browser Back/Forward still closes a dialog (documented limitation).
+- `keyedLoad` refreshes in place when only `revision` changed for the same key (no `loading` in between), so an edited page
+  keeps its layout and focus.
+
 ## 13. Design system: tokens, SCSS and BEM
 
 ### Token architecture

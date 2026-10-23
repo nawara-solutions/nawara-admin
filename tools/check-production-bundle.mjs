@@ -26,6 +26,7 @@ const MARKERS = [
   'platform-activity-created-', // the demo command's activity records (platform.commands.ts)
   'ORGANIZATION_COMMANDS_DEMO_SCENARIO', // mock adapter token (organization-command.mock.ts)
   'organization-activity-created-', // the demo command's activity records (organization.commands.ts)
+  'organization-activity-updated-', // the demo edit command's activity records (organization.commands.ts)
 ];
 
 if (!existsSync(DIST)) {

@@ -78,3 +78,66 @@ describe('NwDialogService', () => {
     expect(document.activeElement?.textContent).toBe('Confirm');
   });
 });
+
+@Component({
+  imports: [NwDialog],
+  template: `<nw-dialog
+    title="Edit"
+    closeLabel="Close"
+    [guarded]="guarded()"
+    [busy]="busy()"
+    (closeRequested)="requests = requests + 1"
+    >Body</nw-dialog
+  >`,
+})
+class GuardedDialog {
+  readonly guarded = signal(true);
+  readonly busy = signal(false);
+  requests = 0;
+}
+
+describe('NwDialog guarded', () => {
+  afterEach(() => document.querySelectorAll('.cdk-overlay-container').forEach((el) => el.remove()));
+
+  const open = () => {
+    const ref = TestBed.inject(NwDialogService).open<unknown, unknown, GuardedDialog>(
+      GuardedDialog,
+    );
+    TestBed.tick();
+    let closed = false;
+    ref.closed.subscribe(() => (closed = true));
+    const escape = () =>
+      document
+        .querySelector('.cdk-dialog-container')!
+        .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27, bubbles: true }));
+    const backdrop = () => document.querySelector<HTMLElement>('.cdk-overlay-backdrop')!.click();
+    const closeButton = () =>
+      document.querySelector<HTMLButtonElement>('.nw-dialog__header [aria-label="Close"]')!.click();
+    return { ref, closed: () => closed, escape, backdrop, closeButton };
+  };
+
+  it('asks its content instead of closing, on Escape, the backdrop and the close button', () => {
+    const { ref, closed, escape, backdrop, closeButton } = open();
+    escape();
+    backdrop();
+    closeButton();
+    expect(closed()).toBe(false);
+    expect(ref.componentInstance?.requests).toBe(3);
+  });
+
+  it('closes as usual once unguarded, and stays silent while busy', () => {
+    const { ref, closed, escape, closeButton } = open();
+    ref.componentInstance?.busy.set(true);
+    TestBed.tick();
+    escape();
+    closeButton();
+    expect(ref.componentInstance?.requests).toBe(0);
+    expect(closed()).toBe(false);
+    ref.componentInstance?.busy.set(false);
+    ref.componentInstance?.guarded.set(false);
+    TestBed.tick();
+    expect(ref.disableClose).toBe(false);
+    closeButton();
+    expect(closed()).toBe(true);
+  });
+});
