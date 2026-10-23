@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform implemented, awaiting review; rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization implemented, awaiting review; rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,9 +290,34 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## P3b-S1: mock Create organization (owner-authorized 2026-10-23; implemented 2026-10-23)
+
+**Status: implemented as a development-only mock prototype, awaiting review.** Design: the "P3b" canvas (claude.ai, private;
+six artboards). Contract: source-verified in P3b-0 ([`CORE-INTEGRATION.md`](CORE-INTEGRATION.md) §5). Owner decisions: the
+name plus Core's four optional fields (`taxCode`, `address`, `phone`, `type`) under "More details"; P3b-S2 metadata editing and
+P3b-S3 admin invitations follow as separate slices; suspend, restore, archive, provisioning, readiness and activation stay out.
+
+- **Flow** (`CreateOrganizationAction`, bound on the Organization routes by `createOrganizationProviders`): "Create
+  organization" in the directory header and its empty state → the dialog (parent Platform shown, never typed; name 1–200;
+  "More details" disclosure with the optional fields, blank → `null`, Core's limits checked trimmed) → the simulated owner
+  step-up for `organization.create` → the idempotent command. Success: `ScopeContext.organizationsChanged()` reloads the
+  directory, the Platform dashboard, the Platform directory and the Company Overview; with the dialog still open the person is
+  taken to the new Organization's details, and a toast names it either way.
+- **Who:** the owner. An assigned operator sees the action disabled: "Creating an organization needs a verified action.
+  Operators can't verify actions yet." (Core authorizes operators, but none can obtain the step-up: CF-08.) Production builds
+  show it disabled as not available in this build.
+- **Mock** (`MockOrganizationCommandGateway`, Core's order: key → body → Platform → authority → step-up → write gate → replay):
+  succeeds by default; scenarios `notAuthoritative` (409), `outcomeUnknown` (applied, first answer lost; a retry with the same
+  key and a fresh step-up replays it), `unavailable` (503). `401` without a session.
+- **Demo record:** one Organization in the selected Platform with its metadata, 0 memberships and requests, assisted payments
+  inherited; no subscription, payment, invitation, membership, status or provisioning state; a `organization.created` activity
+  record, marked "simulated" in demo builds. About in the details lists the optional fields that were given.
+- **Not built:** an HTTP adapter (production Organization writes stay unavailable), editing, invitations, lifecycle, membership
+  actions, the passkey and secret-key step-up paths (TOTP code only), a "New" badge in the directory.
+
 ## P4-S1: administrative action foundation and mock Create platform (design approved 2026-10-23; implemented 2026-10-23)
 
-**Status: implemented as a development-only mock prototype, awaiting review.** Design: the "P4 Administrative Action States"
+**Status: complete as a development-only mock prototype (PR #21).** Design: the "P4 Administrative Action States"
 canvas (claude.ai, private; 10 artboards). Owner decisions: O-P4-1 Create platform is the pilot; O-P4-2 the mock succeeds by
 default, Core's documented `409 not_authoritative` is a scenario; O-P4-3 the three risk tiers are vocabulary, only what is
 needed is built; O-P4-4 the dialog's busy lock and stacked mobile actions.

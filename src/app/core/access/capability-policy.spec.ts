@@ -20,11 +20,12 @@ const operator: OperatorActor = {
 };
 
 describe('CapabilityPolicy (UX only; Core authorizes)', () => {
-  it('gives the Company owner company-wide administration and platform creation', () => {
+  it('gives the Company owner company-wide administration, platform and organization creation', () => {
     expect([...capabilitiesOf(owner)].sort()).toEqual([
       'company.overview.view',
       'company.platforms.view',
       'company.scope',
+      'organization.create',
       'platform.access.view',
       'platform.activity.view',
       'platform.commercial.view',
@@ -41,6 +42,8 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
     expect(can(operator, 'company.overview.view')).toBe(false);
     expect(can(operator, 'company.platforms.view')).toBe(false);
     expect(can(operator, 'platform.create')).toBe(false);
+    // Core authorizes an assigned operator to create Organizations, but no operator step-up exists (CF-08).
+    expect(can(operator, 'organization.create')).toBe(false);
   });
 
   it('gives nothing without a session', () => {

@@ -21,7 +21,7 @@
     "failure": {
       "validation": "The details were refused. Check them and try again. Nothing was changed.",
       "conflict": "This conflicts with the current state. Nothing was changed.",
-      "notAuthoritative": "Platforms can’t be created yet: the platform service is not accepting changes. Nothing was created.",
+      "notAuthoritative": "This can’t be done yet: the service is not accepting changes. Nothing was changed.",
       "keyReused": "This request was already used with different details. Nothing was created.",
       "refused": "You can’t do this any more: your access may have changed. Nothing was changed.",
       "verificationRefused": "That code didn’t work, or the verification expired. Enter the current code.",
@@ -583,13 +583,43 @@
   "organizations": {
     "header": {
       "directoryTitle": "Organizations",
-      "directorySubtitle": "The organizations of this platform. Read only in this release.",
+      "directorySubtitle": "The organizations of this platform.",
       "eyebrow": "Organization",
       "backToDashboard": "Platform dashboard",
       "backToDirectory": "All organizations",
       "accessOwner": "Your access: Company owner",
       "accessOperator": "Your access: Assigned operator",
       "created": "Created {{date}}"
+    },
+    "create": {
+      "open": "Create organization",
+      "title": "Create organization",
+      "inPlatform": "In platform",
+      "nameLabel": "Organization name",
+      "nameHint": "The name members and admins will see. 1 to {{max}} characters.",
+      "nameRequired": "Enter a name.",
+      "tooLong": "Use {{max}} characters or fewer.",
+      "moreDetails": "More details",
+      "optional": "(optional)",
+      "taxCodeLabel": "Tax code",
+      "addressLabel": "Address",
+      "phoneLabel": "Phone",
+      "typeLabel": "Type",
+      "optionalHint": "Optional. Up to {{max}} characters.",
+      "typeHint": "Optional free text, for example “School”. Up to {{max}} characters.",
+      "stepUpNext": "Next, you’ll confirm it’s you.",
+      "startsEmpty": "The organization starts with no members, admins or subscription.",
+      "recorded": "This action is recorded in the activity log.",
+      "simulated": "Demo: organization creation is simulated; no Nawara Core service is called.",
+      "submit": "Create organization",
+      "verifyAndCreate": "Verify and create",
+      "purpose": "Creating the organization “{{name}}” in {{platform}}",
+      "creating": "Creating the organization…",
+      "creatingShort": "Creating…",
+      "created": "Organization “{{name}}” created.",
+      "notCreated": "“{{name}}” was not created.",
+      "operatorReason": "Creating an organization needs a verified action. Operators can’t verify actions yet.",
+      "notInBuildReason": "Organization creation is not available in this build."
     },
     "totals": {
       "label": "Platform totals",
@@ -667,7 +697,7 @@
       "notInBuildTitle": "Not available in this build",
       "notInBuildDescription": "No Nawara Core contract provides organizations here yet.",
       "emptyTitle": "No organizations yet",
-      "emptyDescription": "This platform has no organizations. Creating organizations is not available in this release.",
+      "emptyDescription": "This platform has no organizations yet.",
       "noResultsTitle": "No organizations match",
       "noResultsDescription": "Check the spelling, or clear the search and filters.",
       "clearAll": "Clear search and filters",
@@ -710,12 +740,17 @@
       "organizationSetting": "This organization",
       "inherits": "Inherits the platform",
       "override": "Disabled for this organization",
-      "changePolicy": "Change policy"
+      "changePolicy": "Change policy",
+      "type": "Type",
+      "taxCode": "Tax code",
+      "phone": "Phone",
+      "address": "Address"
     },
     "activity": {
       "organizationCreated": "Organization created",
       "adminInvitationSent": "Admin invitation sent",
-      "membershipApproved": "Membership approved"
+      "membershipApproved": "Membership approved",
+      "simulated": "simulated"
     },
     "footnote": "Memberships are counted per organization; one person can hold memberships in several."
   },

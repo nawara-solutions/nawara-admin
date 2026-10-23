@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { AuthSession } from '../../../../core/auth/auth-session';
 import { NwDatePipe } from '../../../../shared/format/format.pipes';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
 import { NwIconName } from '../../../../shared/ui/icon/icon.registry';
@@ -17,7 +18,10 @@ const ACTIONS = {
   { readonly icon: NwIconName; readonly key: string }
 >;
 
-/** The owner's recent administrative activity on one Organization, newest first, with relative times. */
+/**
+ * The owner's recent administrative activity on one Organization, newest first, with relative times. In a demo build
+ * every entry is the demo world's (fictional or made by a simulated command), and says so.
+ */
 @Component({
   selector: 'adm-organization-activity',
   imports: [TranslocoPipe, NwDatePipe, NwIcon],
@@ -33,9 +37,14 @@ const ACTIONS = {
               <span class="organization-activity__label">{{
                 actions[entry.action].key | transloco
               }}</span>
-              <time class="organization-activity__time" [attr.datetime]="entry.occurredAt">{{
-                entry.occurredAt | nwDate: 'relative'
-              }}</time>
+              <span class="organization-activity__time">
+                <time [attr.datetime]="entry.occurredAt">{{
+                  entry.occurredAt | nwDate: 'relative'
+                }}</time>
+                @if (isDemo()) {
+                  · {{ 'organizations.activity.simulated' | transloco }}
+                }
+              </span>
             </span>
           </li>
         }
@@ -98,4 +107,5 @@ const ACTIONS = {
 export class OrganizationActivity {
   readonly entries = input.required<readonly OrganizationActivityEntry[]>();
   protected readonly actions = ACTIONS;
+  protected readonly isDemo = inject(AuthSession).isDemo;
 }

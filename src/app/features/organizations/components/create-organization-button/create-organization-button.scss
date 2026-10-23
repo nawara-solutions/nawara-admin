@@ -1,0 +1,30 @@
+// The Create organization entry point; a blocked one shows its reason on hover or focus (P3b design, artboard 4).
+:host {
+  position: relative;
+  display: inline-flex;
+}
+
+.create-organization-button__reason {
+  position: absolute;
+  inset-block-start: calc(100% + var(--nw-space-2));
+  inset-inline-end: 0;
+  z-index: var(--nw-z-dropdown);
+  inline-size: max-content;
+  max-inline-size: min(18rem, calc(100vw - 2rem));
+  padding: var(--nw-space-2) var(--nw-space-3);
+  border-radius: var(--nw-radius-sm);
+  background-color: var(--nw-surface-inverse);
+  color: var(--nw-text-inverse);
+  font-size: 0.78125rem;
+  line-height: 1.4;
+  box-shadow: var(--nw-shadow-md);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--nw-duration-fast) var(--nw-ease-standard);
+
+  :host(:hover) &,
+  :host(:focus-within) & {
+    opacity: 1;
+    visibility: visible;
+  }
+}

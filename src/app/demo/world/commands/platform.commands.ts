@@ -53,15 +53,16 @@ export function createPlatform(
     };
 
   const request = JSON.stringify({ companyId: input.companyId, name });
-  const previous = world.idempotency.find((r) => r.key === input.idempotencyKey);
+  // Scoped like Core's: (caller, operation, key).
+  const previous = world.idempotency.find(
+    (r) =>
+      r.key === input.idempotencyKey &&
+      r.command === CREATE_PLATFORM_COMMAND &&
+      r.actor === input.actor,
+  );
   if (previous) {
     const platform = world.platforms.find((p) => p.id === previous.resultId);
-    if (
-      previous.command === CREATE_PLATFORM_COMMAND &&
-      previous.actor === input.actor &&
-      previous.request === request &&
-      platform
-    )
+    if (previous.request === request && platform)
       return { ok: true, world, result: { platform, replayed: true } };
     // The key was used for another request: refused, never a silent success or a second Platform.
     return { ok: false, error: { kind: 'conflict', code: 'idempotency_key_reused', status: 422 } };

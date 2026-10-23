@@ -33,8 +33,21 @@ import {
 import { OrganizationActivity } from '../components/organization-activity/organization-activity';
 import { OrganizationsHeader } from '../components/organizations-header/organizations-header';
 import { OrganizationSubscription } from '../domain/organization-commercial.model';
+import { OrganizationMetadata } from '../domain/organization.model';
 
 const UNAVAILABLE: Metric = { status: 'unavailable' };
+
+/** The optional fields About lists when given; a tax code and a phone number read left to right in every language. */
+const METADATA_FIELDS = [
+  { key: 'type', label: 'organizations.detail.type', ltr: false },
+  { key: 'taxCode', label: 'organizations.detail.taxCode', ltr: true },
+  { key: 'phone', label: 'organizations.detail.phone', ltr: true },
+  { key: 'address', label: 'organizations.detail.address', ltr: false },
+] as const satisfies readonly {
+  readonly key: keyof OrganizationMetadata;
+  readonly label: string;
+  readonly ltr: boolean;
+}[];
 
 /**
  * One Organization (`/platforms/:platformId/organizations/:organizationId`; P3a design, artboards 2, 4, 7, 8, 9), read
@@ -73,6 +86,7 @@ export class OrganizationDetailPage {
   protected readonly badges = SUBSCRIPTION_BADGES;
   protected readonly policyKeys = policyKeys;
   protected readonly platformPath = platformPath;
+  protected readonly metadataFields = METADATA_FIELDS;
   protected readonly organizationsPath = organizationsPath;
 
   protected readonly home = computed(() => homePath(this.session.actor()));

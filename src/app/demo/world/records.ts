@@ -46,6 +46,14 @@ export interface OrganizationRecord {
   readonly pendingRequests: number;
   /** The Organization's assisted-payments override: inherit the Platform's setting, or disabled. */
   readonly assistedPayments: 'inherit' | 'disabled';
+  /**
+   * Core's optional Organization metadata (organization-service `organization-input.ts`): free text, `null` when absent.
+   * `type` is opaque: Core never validates or interprets it, and neither does the demo.
+   */
+  readonly taxCode: string | null;
+  readonly address: string | null;
+  readonly phone: string | null;
+  readonly type: string | null;
 }
 
 /** The Company's administrative staff: its owner and its Platform operators. Never an Organization member. */

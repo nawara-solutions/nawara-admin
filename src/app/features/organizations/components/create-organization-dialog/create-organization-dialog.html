@@ -1,0 +1,252 @@
+@let current = state();
+@let values = draft();
+@let fieldErrors = errors();
+<nw-dialog
+  [title]="
+    (current.phase === 'verifying' ? 'actions.stepUp.title' : 'organizations.create.title')
+      | transloco
+  "
+  [closeLabel]="'common.close' | transloco"
+  [busy]="busy()"
+>
+  @switch (current.phase) {
+    @case ('verifying') {
+      <form
+        id="create-organization-verify"
+        class="create-organization__body"
+        novalidate
+        (submit)="verify($event)"
+      >
+        <p class="create-organization__purpose" id="create-organization-purpose">
+          <span class="create-organization__purpose-label">{{
+            'actions.stepUp.purposeIntro' | transloco
+          }}</span>
+          <strong>{{
+            'organizations.create.purpose'
+              | transloco: { name: isolatedName(), platform: isolatedPlatform }
+          }}</strong>
+        </p>
+        <nw-form-field
+          [label]="'actions.stepUp.codeLabel' | transloco"
+          [hint]="'actions.stepUp.codeHint' | transloco"
+          [error]="
+            failureKey() ? (failureKey()! | transloco: { seconds: retryAfter() }) : undefined
+          "
+        >
+          <input
+            #codeInput
+            nwControl
+            class="create-organization__code"
+            type="text"
+            name="step-up-code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            spellcheck="false"
+            dir="ltr"
+            aria-describedby="create-organization-purpose"
+            [value]="code()"
+            [readOnly]="busy()"
+            (input)="onCode($event)"
+          />
+        </nw-form-field>
+        @if (demoCode(); as demo) {
+          <p class="create-organization__demo" role="note">
+            <nw-icon name="flask-conical" size="sm" />
+            <span>
+              <strong>{{ 'actions.stepUp.demoTitle' | transloco }}</strong>
+              {{ 'actions.stepUp.demoNote' | transloco: { code: demo } }}
+            </span>
+          </p>
+        }
+      </form>
+    }
+    @case ('pending') {
+      <div class="create-organization__body">
+        <p class="create-organization__summary">
+          <span>{{ 'organizations.create.nameLabel' | transloco }}</span>
+          <bdi>{{ values.name.trim() }}</bdi>
+        </p>
+        <p class="create-organization__status" role="status">
+          <nw-spinner />{{ 'organizations.create.creating' | transloco }}
+        </p>
+      </div>
+    }
+    @default {
+      @let failure = current.phase === 'failed' ? current.failure : null;
+      @if (failure && failure.kind !== 'validation') {
+        <div class="create-organization__body">
+          <nw-inline-alert
+            [tone]="
+              failure.kind === 'outcomeUnknown' || failure.kind === 'refused' ? 'danger' : 'warning'
+            "
+          >
+            {{ failureKey()! | transloco: { seconds: retryAfter() } }}
+          </nw-inline-alert>
+        </div>
+      } @else {
+        <form
+          #form
+          id="create-organization-form"
+          class="create-organization__body"
+          novalidate
+          (submit)="submit($event)"
+        >
+          <p class="create-organization__parent">
+            <span class="create-organization__parent-label">{{
+              'organizations.create.inPlatform' | transloco
+            }}</span>
+            <bdi>{{ platform?.name }}</bdi>
+          </p>
+          @if (failure?.kind === 'validation') {
+            <nw-inline-alert tone="danger">
+              {{ 'actions.failure.validation' | transloco }}
+            </nw-inline-alert>
+          }
+          <nw-form-field
+            [label]="labelKeys.name | transloco"
+            [hint]="hintKeys.name | transloco: { max: limits.name }"
+            [error]="
+              fieldErrors.name ? (fieldErrors.name | transloco: { max: limits.name }) : undefined
+            "
+            required
+          >
+            <input
+              nwControl
+              type="text"
+              name="organization-name"
+              autocomplete="organization"
+              dir="auto"
+              [value]="values.name"
+              (input)="onField('name', $event)"
+            />
+          </nw-form-field>
+
+          <div class="create-organization__more">
+            <button
+              type="button"
+              class="create-organization__toggle"
+              aria-controls="create-organization-details"
+              [attr.aria-expanded]="moreDetails()"
+              (click)="toggleMoreDetails()"
+            >
+              <nw-icon [name]="moreDetails() ? 'chevron-down' : 'chevron-right'" size="sm" />{{
+                'organizations.create.moreDetails' | transloco
+              }}
+              <span class="create-organization__optional">{{
+                'organizations.create.optional' | transloco
+              }}</span>
+            </button>
+            <div
+              id="create-organization-details"
+              class="create-organization__details"
+              [hidden]="!moreDetails()"
+            >
+              @for (field of optionalFields; track field) {
+                @let input = optionalInputs[field];
+                <nw-form-field
+                  [label]="labelKeys[field] | transloco"
+                  [hint]="hintKeys[field] | transloco: { max: limits[field] }"
+                  [error]="
+                    fieldErrors[field]
+                      ? (fieldErrors[field]! | transloco: { max: limits[field] })
+                      : undefined
+                  "
+                >
+                  <input
+                    nwControl
+                    [type]="input.type"
+                    [name]="'organization-' + field"
+                    [autocomplete]="input.autocomplete"
+                    [dir]="input.dir"
+                    [value]="values[field]"
+                    (input)="onField(field, $event)"
+                  />
+                </nw-form-field>
+              }
+            </div>
+          </div>
+
+          <ul class="create-organization__facts" role="list">
+            <li>
+              <nw-icon name="shield-check" size="sm" />{{
+                'organizations.create.stepUpNext' | transloco
+              }}
+            </li>
+            <li>
+              <nw-icon name="users" size="sm" />{{ 'organizations.create.startsEmpty' | transloco }}
+            </li>
+            <li>
+              <nw-icon name="scroll-text" size="sm" />{{
+                'organizations.create.recorded' | transloco
+              }}
+            </li>
+          </ul>
+          @if (demoCode()) {
+            <p class="create-organization__demo-chip">
+              <nw-icon name="flask-conical" size="sm" />{{
+                'organizations.create.simulated' | transloco
+              }}
+            </p>
+          }
+        </form>
+      }
+    }
+  }
+
+  <div nwDialogActions>
+    @switch (current.phase) {
+      @case ('verifying') {
+        <button
+          nw-button
+          variant="ghost"
+          type="button"
+          [attr.aria-disabled]="busy() || null"
+          (click)="back()"
+        >
+          {{ 'actions.stepUp.back' | transloco }}
+        </button>
+        <button
+          #mainButton
+          nw-button
+          type="submit"
+          form="create-organization-verify"
+          [busy]="busy()"
+          [attr.aria-disabled]="busy() || null"
+        >
+          @if (busy()) {
+            <nw-spinner />{{ 'actions.stepUp.verifying' | transloco }}
+          } @else {
+            {{ 'organizations.create.verifyAndCreate' | transloco }}
+          }
+        </button>
+      }
+      @case ('pending') {
+        <button nw-button variant="ghost" type="button" aria-disabled="true">
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button #mainButton nw-button type="button" busy aria-disabled="true">
+          <nw-spinner />{{ 'organizations.create.creatingShort' | transloco }}
+        </button>
+      }
+      @default {
+        @if (current.phase === 'failed' && current.failure.kind !== 'validation') {
+          <button nw-button variant="ghost" type="button" (click)="cancel()">
+            {{ 'common.close' | transloco }}
+          </button>
+          @if (retry() === 'resend' || retry() === 'verify') {
+            <button #mainButton nw-button type="button" (click)="tryAgain()">
+              <nw-icon name="refresh-cw" size="sm" />{{ 'actions.retry' | transloco }}
+            </button>
+          }
+        } @else {
+          <button nw-button variant="ghost" type="button" (click)="cancel()">
+            {{ 'common.cancel' | transloco }}
+          </button>
+          <button #mainButton nw-button type="submit" form="create-organization-form">
+            {{ 'organizations.create.submit' | transloco }}
+          </button>
+        }
+      }
+    }
+  </div>
+</nw-dialog>

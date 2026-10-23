@@ -28,6 +28,7 @@ import {
   SUBSCRIPTION_FILTERS,
   SubscriptionFilter,
 } from '../application/organization-query';
+import { CreateOrganizationButton } from '../components/create-organization-button/create-organization-button';
 import { OrganizationTable } from '../components/organization-table/organization-table';
 import { OrganizationsHeader } from '../components/organizations-header/organizations-header';
 import { EXPIRING_WITHIN_DAYS } from '../domain/organization-commercial.model';
@@ -57,7 +58,8 @@ const pick = <T extends string>(values: readonly T[], value: string): T | null =
 
 /**
  * Organizations of a Platform (`/platforms/:platformId/organizations`; P3a design, artboards 1, 3, 5, 6, 9), for the
- * owner and an operator assigned to the Platform. Read only. Search, the requests filter, the owner's subscription filter
+ * owner and an operator assigned to the Platform. The one action is "Create organization" (P3b-S1; live for the owner
+ * only). Search, the requests filter, the owner's subscription filter
  * and the sort are URL query parameters; they filter the loaded list and request nothing. The count is announced
  * politely.
  */
@@ -66,6 +68,7 @@ const pick = <T extends string>(values: readonly T[], value: string): T | null =
   imports: [
     NgTemplateOutlet,
     RouterLink,
+    CreateOrganizationButton,
     TranslocoPipe,
     MetricValue,
     NwButton,

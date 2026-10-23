@@ -24,6 +24,8 @@ const MARKERS = [
   'STEP_UP_DEMO_SCENARIO', // simulated step-up token (step-up.mock.ts)
   'demo-step-up-', // simulated step-up grants (auth.mock-state.ts)
   'platform-activity-created-', // the demo command's activity records (platform.commands.ts)
+  'ORGANIZATION_COMMANDS_DEMO_SCENARIO', // mock adapter token (organization-command.mock.ts)
+  'organization-activity-created-', // the demo command's activity records (organization.commands.ts)
 ];
 
 if (!existsSync(DIST)) {

@@ -30,6 +30,7 @@ import {
   operator,
   owner,
 } from '../testing/organizations-testing';
+import { createOrganizationTestProviders } from '../testing/create-organization-testing';
 import { OrganizationDetailPage } from './organization-detail.page';
 import { OrganizationDirectoryPage } from './organization-directory.page';
 
@@ -61,6 +62,7 @@ async function render<T>(page: Type<T>, actor: Actor, url: string) {
       EntityLabel,
       OrganizationDirectoryFacade,
       OrganizationDetailFacade,
+      ...createOrganizationTestProviders(false),
     ],
   });
   TestBed.inject(AuthSession).establish(actor);
@@ -122,6 +124,13 @@ describe('OrganizationDirectoryPage', () => {
       'status',
     );
     expect(element.querySelectorAll('.organization-directory__total dd').length).toBe(4);
+    // A build without the command (here: no adapter) still shows Create organization, disabled with its reason.
+    const create = element.querySelector('adm-create-organization-button button');
+    expect(text(create)).toBe(en.organizations.create.open);
+    expect(create?.getAttribute('aria-disabled')).toBe('true');
+    expect(text(element.querySelector(`#${create?.getAttribute('aria-describedby')}`))).toBe(
+      en.organizations.create.notInBuildReason,
+    );
   });
 
   it('shows an operator no subscription filter and no commercial column', async () => {
@@ -139,6 +148,12 @@ describe('OrganizationDirectoryPage', () => {
     );
     expect(headers).not.toContain(en.organizations.table.subscription);
     expect(element.querySelector('nw-status-badge')).toBeNull();
+    // Core authorizes an operator, but no operator step-up exists: shown disabled, with that reason.
+    const create = element.querySelector('adm-create-organization-button button');
+    expect(create?.getAttribute('aria-disabled')).toBe('true');
+    expect(text(element.querySelector(`#${create?.getAttribute('aria-describedby')}`))).toBe(
+      en.organizations.create.operatorReason,
+    );
   });
 
   it('filters from the URL, says when nothing matches, and clears the search and filters', async () => {
@@ -200,6 +215,7 @@ describe('OrganizationDirectoryPage', () => {
     await settle();
     expect(text(element)).toContain(en.organizations.states.emptyTitle);
     expect(element.querySelector('[role="search"]')).toBeNull();
+    expect(element.querySelectorAll('adm-create-organization-button')).toHaveLength(2);
     TestBed.resetTestingModule();
     const outage = await render(
       OrganizationDirectoryPage,
@@ -220,6 +236,7 @@ describe('OrganizationDirectoryPage', () => {
     );
     expect(text(element.querySelector('h1'))).toBe(en.organizations.states.notAccessibleTitle);
     expect(organizations.lists).toHaveLength(0);
+    expect(element.querySelector('adm-create-organization-button button')).toBeNull();
   });
 });
 
@@ -234,7 +251,10 @@ describe('OrganizationDetailPage', () => {
       owner,
       '/platforms/school/organizations/riad',
     );
-    organizations.loads[0]?.answer.next(detailOf());
+    organizations.loads[0]?.answer.next({
+      ...detailOf(),
+      metadata: { taxCode: null, address: null, phone: '+213 21 00 00', type: 'School' },
+    });
     await settle();
     commercial.loads[0]?.answer.next(commercialOf());
     await settle();
@@ -253,6 +273,18 @@ describe('OrganizationDetailPage', () => {
     ]);
     expect(text(element)).toContain(en.organizations.activity.adminInvitationSent);
     expect(element.querySelector('.organization-detail__id')?.getAttribute('dir')).toBe('ltr');
+    // About lists the optional fields that were given, and only those; a phone number reads left to right.
+    const about = [...element.querySelectorAll('.organization-detail__row dt')].map((dt) =>
+      text(dt),
+    );
+    expect(about).toContain(en.organizations.detail.type);
+    expect(about).toContain(en.organizations.detail.phone);
+    expect(about).not.toContain(en.organizations.detail.taxCode);
+    expect(about).not.toContain(en.organizations.detail.address);
+    const phone = [...element.querySelectorAll('.organization-detail__row bdi')].find(
+      (b) => text(b) === '+213 21 00 00',
+    );
+    expect(phone?.getAttribute('dir')).toBe('ltr');
     // Future actions are focusable, never actionable, and say why.
     const unavailable = [...element.querySelectorAll('.organization-detail__unavailable-action')];
     expect(unavailable.map((b) => b.getAttribute('aria-disabled'))).toEqual(['true', 'true']);

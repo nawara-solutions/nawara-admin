@@ -40,6 +40,7 @@
           'organizations.header.backToDashboard' | transloco
         }}
       </a>
+      <adm-create-organization-button headerActions />
     </header>
 
     @switch (view.status) {
@@ -50,7 +51,11 @@
             state="empty"
             [title]="'organizations.states.emptyTitle' | transloco"
             [description]="'organizations.states.emptyDescription' | transloco"
-          />
+          >
+            <div nwDataStateActions>
+              <adm-create-organization-button variant="secondary" />
+            </div>
+          </nw-data-state>
         } @else {
           @if (totals) {
             <dl

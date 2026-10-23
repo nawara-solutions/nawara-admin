@@ -410,6 +410,20 @@ confirm (severity-appropriate dialog)
 - Risk tiers (standard, destructive, irreversible) are the design vocabulary; only the standard tier is built (Create
   platform). Destructive and irreversible behaviour is added with the first action that needs it.
 
+**Second action (P3b-S1, 2026-10-23): Create organization**, on the same foundation, unchanged except:
+
+- `StepUpPurpose` gains exactly `organization.create`; `CommandOptions` and the key format (`[A-Za-z0-9._:-]`, 8–128) moved to
+  `core/actions/command-options.ts`, shared by both commands.
+- Demo replay records are scoped like Core's, by (key, command, caller), and compared on the normalised request.
+- A capability can be authorized by Core yet unusable in Admin: `organization.create` is the owner's only, because an operator
+  cannot obtain its step-up (CF-08). The entry point is still shown to an assigned operator, `aria-disabled`, with the reason.
+- The action's context is the owner and the Company (so a result still reaches the person after they leave the Platform); the
+  parent Platform comes from the URL when the dialog opens and is checked again, against the actor's Platforms, immediately
+  before sending.
+- `ScopeContext.organizationsChanged()` bumps `revision` without reloading the Platform directory (the Platforms did not change,
+  so platform-scope pages keep their access state); the Organization facades (`keyedLoad`) and the Platform dashboard now follow
+  `revision`, like the Platform directory and the Company Overview.
+
 ## 13. Design system: tokens, SCSS and BEM
 
 ### Token architecture

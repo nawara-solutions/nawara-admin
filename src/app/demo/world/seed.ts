@@ -349,6 +349,10 @@ export function demoWorldSeed(now: number): DemoWorldTables {
     memberships: o.memberships,
     pendingRequests: o.pendingRequests,
     assistedPayments: o.assistedPayments ?? 'inherit',
+    taxCode: null,
+    address: null,
+    phone: null,
+    type: null,
   }));
   return {
     company: { id: DEMO_COMPANY_ID, name: 'Nawara Solutions', ownerId: DEMO_OWNER_ID },
