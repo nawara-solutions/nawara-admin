@@ -31,6 +31,7 @@ import {
   policyKeys,
   subscriptionNote,
 } from '../components/commercial-display';
+import { AdminInvitationsCard } from '../components/admin-invitations-card/admin-invitations-card';
 import { OrganizationActivity } from '../components/organization-activity/organization-activity';
 import { OrganizationsHeader } from '../components/organizations-header/organizations-header';
 import { OrganizationSubscription } from '../domain/organization-commercial.model';
@@ -61,6 +62,7 @@ const METADATA_FIELDS = [
   imports: [
     NgTemplateOutlet,
     RouterLink,
+    AdminInvitationsCard,
     TranslocoPipe,
     MetricValue,
     NwButton,

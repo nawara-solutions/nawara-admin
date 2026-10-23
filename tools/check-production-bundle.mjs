@@ -27,6 +27,10 @@ const MARKERS = [
   'ORGANIZATION_COMMANDS_DEMO_SCENARIO', // mock adapter token (organization-command.mock.ts)
   'organization-activity-created-', // the demo command's activity records (organization.commands.ts)
   'organization-activity-updated-', // the demo edit command's activity records (organization.commands.ts)
+  'ADMIN_INVITATIONS_DEMO_SCENARIO', // mock adapter token (admin-invitation.mock.ts)
+  'invitation-activity-created-', // the demo invitation commands' activity records (admin-invitation.commands.ts)
+  'invitation-activity-revoked-',
+  '0123456789ABCDEFGHJKMNPQRSTVWXYZ', // the demo invitation-code alphabet (admin-invitation.mock.ts)
 ];
 
 if (!existsSync(DIST)) {

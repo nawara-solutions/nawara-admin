@@ -2,7 +2,10 @@ import { Routes } from '@angular/router';
 import { AppEnvironment, adapterProviders } from '../../core/config/app-environment';
 import { OrganizationDetailFacade } from './application/organization-detail.facade';
 import { OrganizationDirectoryFacade } from './application/organization-directory.facade';
-import { organizationActionProviders } from './organization-actions.providers';
+import {
+  ADMIN_INVITATION_PROVIDERS,
+  organizationActionProviders,
+} from './organization-actions.providers';
 import {
   OrganizationCommercialGateway,
   UnavailableOrganizationCommercialGateway,
@@ -47,7 +50,7 @@ export async function loadOrganizationsRoutes(environment: AppEnvironment): Prom
         {
           path: ':organizationId',
           title: 'titles.organization',
-          providers: [OrganizationDetailFacade],
+          providers: [OrganizationDetailFacade, ...ADMIN_INVITATION_PROVIDERS],
           loadComponent: () =>
             import('./pages/organization-detail.page').then((m) => m.OrganizationDetailPage),
         },

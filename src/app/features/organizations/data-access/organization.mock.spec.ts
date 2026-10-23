@@ -98,7 +98,7 @@ describe('MockOrganizationGateway (demo world)', () => {
     expect(data(riad.activity)).toEqual([
       {
         id: 'platform-activity-s2',
-        action: 'admin_invitation.sent',
+        action: 'admin_invitation.created',
         occurredAt: new Date(NOW - 26 * HOUR).toISOString(),
       },
     ]);

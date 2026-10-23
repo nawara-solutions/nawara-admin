@@ -119,4 +119,35 @@ describe('MockStepUpGateway (simulated; never a Core token)', () => {
     ).toBe(false);
     expect(state.consumeStepUp(null, 'platform.create', 'owner', NOW)).toBe(false);
   });
+
+  it('records the factor: a passkey or TOTP grant serves an invitation purpose, a secret-key one never does', async () => {
+    const { gateway, state } = setUp('owner');
+    const passkey = (
+      await firstValueFrom(
+        gateway.obtain('admin_invitation.create', {
+          method: 'passkey',
+          assertion: { credential: 'simulated-assertion' },
+        }),
+      )
+    ).token;
+    expect(state.checkStepUp(passkey, 'admin_invitation.create', 'owner', NOW)).toBe(true);
+    const key = state.issueStepUp('admin_invitation.revoke', 'owner', NOW + 60_000, 'secret_key');
+    expect(state.checkStepUp(key, 'admin_invitation.revoke', 'owner', NOW)).toBe(false);
+    expect(state.consumeStepUp(key, 'admin_invitation.revoke', 'owner', NOW)).toBe(false);
+    // The secret key still serves a purpose that accepts it.
+    const platform = state.issueStepUp('platform.create', 'owner', NOW + 60_000, 'secret_key');
+    expect(state.consumeStepUp(platform, 'platform.create', 'owner', NOW)).toBe(true);
+  });
+
+  it('checks a grant without consuming it (a command spends it only when its change commits)', () => {
+    const { state } = setUp('owner');
+    const token = state.issueStepUp('admin_invitation.create', 'owner', NOW + 60_000);
+    expect(state.checkStepUp(token, 'admin_invitation.create', 'owner', NOW)).toBe(true);
+    expect(state.checkStepUp(token, 'admin_invitation.create', 'owner', NOW)).toBe(true);
+    expect(state.checkStepUp(token, 'admin_invitation.revoke', 'owner', NOW)).toBe(false);
+    expect(state.checkStepUp(token, 'admin_invitation.create', 'someone', NOW)).toBe(false);
+    expect(state.checkStepUp(token, 'admin_invitation.create', 'owner', NOW + 60_000)).toBe(false);
+    expect(state.consumeStepUp(token, 'admin_invitation.create', 'owner', NOW)).toBe(true);
+    expect(state.checkStepUp(token, 'admin_invitation.create', 'owner', NOW)).toBe(false);
+  });
 });

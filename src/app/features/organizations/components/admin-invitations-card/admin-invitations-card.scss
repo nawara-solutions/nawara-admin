@@ -1,0 +1,133 @@
+// The owner's invitations card (P3b-S3 design, artboard 1): a list of invitations that wraps by the card's own width.
+:host {
+  display: grid;
+  gap: var(--nw-space-3);
+  padding: var(--nw-space-4) var(--nw-space-5);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-lg);
+  background-color: var(--nw-surface-raised);
+  container-type: inline-size;
+}
+
+.admin-invitations__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--nw-space-3);
+}
+
+.admin-invitations__titles {
+  display: grid;
+  flex: 1 1 16rem;
+  gap: 2px;
+}
+
+.admin-invitations__title {
+  font-size: var(--nw-text-size-md);
+  font-weight: var(--nw-font-weight-semibold);
+
+  &:focus-visible {
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.admin-invitations__subtitle,
+.admin-invitations__count,
+.admin-invitations__empty,
+.admin-invitations__footnote {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.admin-invitations__footnote,
+.admin-invitations__error,
+.admin-invitations__possible-note {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+}
+
+.admin-invitations__possible-note {
+  padding: var(--nw-space-2) var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-status-warning-bg);
+  color: var(--nw-status-warning-fg);
+  font-size: var(--nw-text-size-sm);
+}
+
+.admin-invitations__list {
+  display: grid;
+}
+
+.admin-invitations__item {
+  display: grid;
+  gap: var(--nw-space-2);
+  padding-block: var(--nw-space-3);
+  border-block-start: 1px solid var(--nw-border-subtle);
+
+  &:first-child {
+    border-block-start: 0;
+  }
+}
+
+.admin-invitations__main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-2);
+}
+
+.admin-invitations__type {
+  font-family: var(--nw-font-mono);
+  font-size: var(--nw-text-size-sm);
+  overflow-wrap: anywhere;
+}
+
+.admin-invitations__possible {
+  padding: 0 var(--nw-space-2);
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-status-warning-bg);
+  color: var(--nw-status-warning-fg);
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.admin-invitations__facts {
+  display: grid;
+  gap: var(--nw-space-1);
+  font-size: var(--nw-text-size-sm);
+
+  div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--nw-space-2);
+  }
+
+  dt {
+    color: var(--nw-text-secondary);
+  }
+}
+
+.admin-invitations__revoke {
+  justify-self: start;
+}
+
+// A wide card: facts in a row, Revoke at the end.
+@container (min-width: 36rem) {
+  .admin-invitations__item {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .admin-invitations__facts {
+    grid-column: 1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .admin-invitations__revoke {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    justify-self: end;
+  }
+}

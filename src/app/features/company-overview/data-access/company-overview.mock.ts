@@ -6,7 +6,7 @@ import { AppError } from '../../../core/errors/app-error';
 import { DemoWorld } from '../../../demo/world/demo-world';
 import { DemoWorldTables } from '../../../demo/world/records';
 import {
-  adminInvitationsOf,
+  activeAdminInvitationsOf,
   assignmentsOf,
   companyActivity,
   growthSeries,
@@ -58,7 +58,7 @@ const count = (value: number) => ({ status: 'available', value }) as const;
 export function demoCompanyOverview(world: DemoWorldTables, now: number): CompanyOverview {
   const platforms = platformRefs(world);
   const organizations = organizationsOfCompany(world);
-  const invitations = adminInvitationsOf(world, organizations).length;
+  const invitations = activeAdminInvitationsOf(world, organizations, now).length;
   return {
     company: { id: world.company.id, name: world.company.name },
     periodDays: COMPANY_PERIOD_DAYS,

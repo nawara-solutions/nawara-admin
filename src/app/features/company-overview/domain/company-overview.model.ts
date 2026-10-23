@@ -84,7 +84,8 @@ export type ActivityAction =
   | 'organization.created'
   | 'organization.updated'
   | 'operator.assigned'
-  | 'admin_invitation.sent'
+  | 'admin_invitation.created'
+  | 'admin_invitation.revoked'
   | 'membership.approved';
 
 export interface ActivityEntry {

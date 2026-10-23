@@ -1,0 +1,153 @@
+@let view = facade.view();
+<header class="admin-invitations__header">
+  <div class="admin-invitations__titles">
+    <h2 #heading id="admin-invitations-title" class="admin-invitations__title" tabindex="-1">
+      {{ 'organizations.invitations.title' | transloco }}
+    </h2>
+    <p class="admin-invitations__subtitle">
+      {{ 'organizations.invitations.subtitle' | transloco }}
+    </p>
+  </div>
+  @if (createAction.available) {
+    <button nw-button type="button" (click)="create()">
+      <nw-icon name="plus" size="sm" />{{ 'organizations.invitations.create.open' | transloco }}
+    </button>
+  } @else {
+    <span class="admin-invitations__blocked">
+      <button
+        nw-button
+        type="button"
+        aria-disabled="true"
+        aria-describedby="admin-invitations-unavailable"
+      >
+        <nw-icon name="plus" size="sm" />{{ 'organizations.invitations.create.open' | transloco }}
+      </button>
+      <span id="admin-invitations-unavailable" class="nw-visually-hidden">{{
+        'organizations.invitations.notInBuild' | transloco
+      }}</span>
+    </span>
+  }
+</header>
+
+@switch (view.status) {
+  @case ('ready') {
+    @let possible = facade.possibleFromAttempt();
+    @if (possible.size > 0) {
+      <p class="admin-invitations__possible-note" role="note">
+        <nw-icon name="circle-alert" size="sm" />
+        {{ 'organizations.invitations.possibleNote' | transloco }}
+      </p>
+    }
+    @if (view.invitations.length === 0) {
+      <p class="admin-invitations__empty">{{ 'organizations.invitations.empty' | transloco }}</p>
+    } @else {
+      <p class="admin-invitations__count">
+        {{ 'organizations.invitations.count' | transloco: { count: view.invitations.length } }}
+      </p>
+      <ul class="admin-invitations__list" role="list">
+        @for (invitation of view.invitations; track invitation.id) {
+          @let state = status[invitation.status];
+          <li class="admin-invitations__item">
+            <div class="admin-invitations__main">
+              <nw-status-badge [tone]="state.tone">{{ state.key | transloco }}</nw-status-badge>
+              <bdi class="admin-invitations__type" translate="no">{{
+                invitation.invitationType
+              }}</bdi>
+              @if (possible.has(invitation.id)) {
+                <span class="admin-invitations__possible">{{
+                  'organizations.invitations.possible' | transloco
+                }}</span>
+              }
+            </div>
+            <dl class="admin-invitations__facts">
+              <div>
+                <dt>{{ 'organizations.invitations.list.binding' | transloco }}</dt>
+                <dd>
+                  {{
+                    (invitation.contactBound
+                      ? 'organizations.invitations.list.boundPerson'
+                      : 'organizations.invitations.list.boundAnyone'
+                    ) | transloco
+                  }}
+                </dd>
+              </div>
+              <div>
+                <dt>{{ 'organizations.invitations.list.created' | transloco }}</dt>
+                <dd>
+                  {{
+                    'organizations.invitations.list.createdBy'
+                      | transloco
+                        : {
+                            date: invitation.createdAt | nwDate: 'date-time',
+                            creator: creator(invitation) | transloco,
+                          }
+                  }}
+                </dd>
+              </div>
+              <div>
+                @switch (invitation.status) {
+                  @case ('consumed') {
+                    <dt>{{ 'organizations.invitations.list.used' | transloco }}</dt>
+                    <dd>{{ invitation.consumedAt! | nwDate: 'date-time' }}</dd>
+                  }
+                  @case ('revoked') {
+                    <dt>{{ 'organizations.invitations.list.revokedOn' | transloco }}</dt>
+                    <dd>{{ invitation.revokedAt! | nwDate: 'date-time' }}</dd>
+                  }
+                  @case ('expired') {
+                    <dt>{{ 'organizations.invitations.list.expiredOn' | transloco }}</dt>
+                    <dd>{{ invitation.expiresAt | nwDate: 'date-time' }}</dd>
+                  }
+                  @default {
+                    <dt>{{ 'organizations.invitations.list.expires' | transloco }}</dt>
+                    <dd>{{ invitation.expiresAt | nwDate: 'date-time' }}</dd>
+                  }
+                }
+              </div>
+            </dl>
+            @if (invitation.status === 'active' && revokeAction.available) {
+              <button
+                nw-button
+                variant="secondary"
+                size="sm"
+                type="button"
+                class="admin-invitations__revoke"
+                (click)="revoke(invitation)"
+              >
+                {{ 'organizations.invitations.revoke.open' | transloco }}
+                <span class="nw-visually-hidden">{{
+                  'organizations.invitations.revoke.openContext'
+                    | transloco
+                      : {
+                          type: invitation.invitationType,
+                          date: invitation.createdAt | nwDate: 'date-time',
+                        }
+                }}</span>
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    }
+    <p class="admin-invitations__footnote">
+      <nw-icon name="info" size="sm" />{{ 'organizations.invitations.footnote' | transloco }}
+    </p>
+  }
+  @case ('notInBuild') {
+    <p class="admin-invitations__empty">{{ 'organizations.invitations.notInBuild' | transloco }}</p>
+  }
+  @case ('error') {
+    <p class="admin-invitations__error">
+      <nw-icon name="circle-alert" size="sm" />
+      <span>{{ 'organizations.invitations.error' | transloco }}</span>
+      <button nw-button variant="ghost" size="sm" type="button" (click)="facade.reload()">
+        {{ 'organizations.states.retry' | transloco }}
+      </button>
+    </p>
+  }
+  @default {
+    <p class="admin-invitations__empty" role="status">
+      {{ 'organizations.invitations.loading' | transloco }}
+    </p>
+  }
+}

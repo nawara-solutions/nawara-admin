@@ -8,6 +8,7 @@ import {
 import {
   ActivityRecord,
   AdminIdentityId,
+  AdminInvitationRecord,
   DemoWorldTables,
   OrganizationRecord,
   OrganizationSubscriptionRecord,
@@ -205,10 +206,28 @@ const ofOrganizations = <T extends { readonly organizationId: OrganizationId }>(
   return records.filter((r) => ids.has(r.organizationId));
 };
 
-export const adminInvitationsOf = (
+/** Core's derived invitation status (auth-service `invitation.service.ts` `list`): consumed, revoked, expired, active. */
+export type AdminInvitationStatus = 'active' | 'consumed' | 'revoked' | 'expired';
+
+export function invitationStatusOf(
+  invitation: AdminInvitationRecord,
+  now: number,
+): AdminInvitationStatus {
+  if (invitation.consumedAt !== null) return 'consumed';
+  if (invitation.revokedAt !== null) return 'revoked';
+  if (Date.parse(invitation.expiresAt) <= now) return 'expired';
+  return 'active';
+}
+
+/** The ACTIVE invitations of these Organizations at `now`: the ones "awaiting acceptance" in every count. */
+export const activeAdminInvitationsOf = (
   world: DemoWorldTables,
   organizations: readonly OrganizationRecord[],
-) => ofOrganizations(world.adminInvitations, organizations);
+  now: number,
+) =>
+  ofOrganizations(world.adminInvitations, organizations).filter(
+    (i) => invitationStatusOf(i, now) === 'active',
+  );
 
 export const paymentIssuesOf = (
   world: DemoWorldTables,

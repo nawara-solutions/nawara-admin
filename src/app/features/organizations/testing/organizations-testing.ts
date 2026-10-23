@@ -74,6 +74,7 @@ export const DEMO: DemoBindings = {
     organizationCommercial: [],
     platformCommands: [],
     organizationCommands: [],
+    adminInvitations: [],
     stepUp: [],
   },
 };
@@ -117,7 +118,7 @@ export const detailOf = (
     data: [
       {
         id: 'platform-activity-s2',
-        action: 'admin_invitation.sent',
+        action: 'admin_invitation.created',
         occurredAt: '2026-10-22T10:00:00.000Z',
       },
     ],

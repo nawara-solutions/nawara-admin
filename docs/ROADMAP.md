@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details implemented, awaiting review; rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations implemented, awaiting review; rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,9 +290,27 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## P3b-S3: mock Organization admin invitations (contract verified and implemented 2026-10-23)
+
+**Status: implemented as a development-only mock prototype, awaiting review.** Design and contract:
+[`design/p3b-s3-admin-invitations.md`](design/p3b-s3-admin-invitations.md) (durable copy of the six-artboard canvas,
+corrected by the P3b-S3-0 read-only Core verification). Owner decisions D-A free-text type validated to Core's pattern,
+D-B Core-format demo codes, D-C Revoke on active only (the model still revokes expired ones), D-D "You" only when certain,
+D-E 1 h / 24 h / 3 days / 7 days.
+
+- **Card** on the Organization details, owner only (operators get no card, no records, no request): status in words,
+  type, binding indicator (never the contact), creation date and creator, the status date, Revoke on active rows.
+- **Create**: type, duration, optional binding → simulated step-up `admin_invitation.create` → the code once (read-only LTR
+  field, copy with manual fallback, close guarded until copied). Never retried; a lost answer labels possible matches.
+- **Revoke**: destructive confirmation → step-up `admin_invitation.revoke` → `204`; `404` is the tenant-safe refusal.
+- **Counts** everywhere are active-only (7 in the seed, unchanged); `admin_invitation.sent` replaced by `.created`, and
+  `.revoked` added (simulated activity).
+- **Not built:** organization-admin sign-in, redemption, delivery, membership or admin-rights changes, an HTTP adapter,
+  the passkey path in the dialogs.
+
 ## P3b-S2: mock Edit organization details (design approved 2026-10-23; implemented 2026-10-23)
 
-**Status: implemented as a development-only mock prototype, awaiting review.** Design: the "P3b-S2 Edit Organization"
+**Status: complete as a development-only mock prototype (PR #23).** Design: the "P3b-S2 Edit Organization"
 canvas (claude.ai, private; six artboards). Contract: [`CORE-INTEGRATION.md`](CORE-INTEGRATION.md) §5. Owner decisions:
 D1 owners and assigned operators edit; D2 a simulated `organization.updated` activity, only on a real change; D3 `updatedAt`
 on the demo record and the response, no new UI row; D4 all five fields shown; D5 change marks, previous values and Undo;

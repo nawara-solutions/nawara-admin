@@ -1,0 +1,386 @@
+@let current = state();
+@let result = created();
+<nw-dialog
+  [title]="
+    (confirmingClose()
+      ? 'organizations.invitations.code.closeTitle'
+      : result
+        ? 'organizations.invitations.code.title'
+        : current.phase === 'verifying'
+          ? 'actions.stepUp.title'
+          : 'organizations.invitations.create.title'
+    ) | transloco
+  "
+  [closeLabel]="'common.close' | transloco"
+  [busy]="busy()"
+  [guarded]="guarded()"
+  (closeRequested)="requestClose()"
+>
+  @if (confirmingClose()) {
+    <div class="admin-invitation__body">
+      <p>{{ 'organizations.invitations.code.closeBody' | transloco }}</p>
+    </div>
+  } @else if (result) {
+    <div class="admin-invitation__body">
+      <nw-inline-alert tone="warning">
+        <strong>{{ 'organizations.invitations.code.warningTitle' | transloco }}</strong>
+        {{ 'organizations.invitations.code.warningBody' | transloco }}
+      </nw-inline-alert>
+      <div class="admin-invitation__code-row">
+        <nw-form-field
+          class="admin-invitation__code-field"
+          [label]="'organizations.invitations.code.label' | transloco"
+          [error]="
+            copy() === 'failed'
+              ? ('organizations.invitations.code.copyFailed' | transloco)
+              : undefined
+          "
+        >
+          <input
+            #invitationCode
+            nwControl
+            class="admin-invitation__code"
+            type="text"
+            name="invitation-code"
+            readonly
+            dir="ltr"
+            translate="no"
+            autocomplete="off"
+            spellcheck="false"
+            [value]="result.code"
+            (focus)="selectCode()"
+          />
+        </nw-form-field>
+        <button
+          nw-button
+          type="button"
+          class="admin-invitation__copy"
+          [variant]="copy() === 'copied' ? 'secondary' : 'primary'"
+          (click)="copyCode()"
+        >
+          <nw-icon [name]="copy() === 'copied' ? 'circle-check' : 'clipboard-list'" size="sm" />{{
+            (copy() === 'copied'
+              ? 'organizations.invitations.code.copied'
+              : 'organizations.invitations.code.copy'
+            ) | transloco
+          }}
+        </button>
+      </div>
+      <p class="admin-invitation__copy-status" role="status">
+        @if (copy() === 'copied') {
+          {{ 'organizations.invitations.code.copiedStatus' | transloco }}
+        }
+      </p>
+      <dl class="admin-invitation__facts">
+        <div>
+          <dt>{{ 'organizations.invitations.code.organization' | transloco }}</dt>
+          <dd>
+            <bdi>{{ target.organizationName }}</bdi>
+          </dd>
+        </div>
+        <div>
+          <dt>{{ 'organizations.invitations.list.type' | transloco }}</dt>
+          <dd>
+            <bdi translate="no">{{ result.invitationType }}</bdi>
+          </dd>
+        </div>
+        <div>
+          <dt>{{ 'organizations.invitations.list.binding' | transloco }}</dt>
+          <dd>
+            {{
+              (result.contactBound
+                ? 'organizations.invitations.list.boundPerson'
+                : 'organizations.invitations.list.boundAnyone'
+              ) | transloco
+            }}
+          </dd>
+        </div>
+        <div>
+          <dt>{{ 'organizations.invitations.code.expires' | transloco }}</dt>
+          <dd>{{ result.expiresAt | nwDate: 'date-time' }}</dd>
+        </div>
+      </dl>
+      @if (demoCode()) {
+        <p class="admin-invitation__demo-chip">
+          <nw-icon name="flask-conical" size="sm" />{{
+            'organizations.invitations.simulated' | transloco
+          }}
+        </p>
+      }
+    </div>
+  } @else {
+    @switch (current.phase) {
+      @case ('verifying') {
+        <form
+          id="create-invitation-verify"
+          class="admin-invitation__body"
+          novalidate
+          (submit)="verify($event)"
+        >
+          <p class="admin-invitation__purpose" id="create-invitation-purpose">
+            <span class="admin-invitation__purpose-label">{{
+              'actions.stepUp.purposeIntro' | transloco
+            }}</span>
+            <strong>{{
+              'organizations.invitations.create.purpose' | transloco: { name: isolatedOrganization }
+            }}</strong>
+          </p>
+          <nw-form-field
+            [label]="'actions.stepUp.codeLabel' | transloco"
+            [hint]="'actions.stepUp.codeHint' | transloco"
+            [error]="failureKey() ? (failureKey()! | transloco) : undefined"
+          >
+            <input
+              #codeInput
+              nwControl
+              class="admin-invitation__otp"
+              type="text"
+              name="step-up-code"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              spellcheck="false"
+              dir="ltr"
+              aria-describedby="create-invitation-purpose"
+              [value]="code()"
+              [readOnly]="busy()"
+              (input)="onCode($event)"
+            />
+          </nw-form-field>
+          @if (demoCode(); as demo) {
+            <p class="admin-invitation__demo" role="note">
+              <nw-icon name="flask-conical" size="sm" />
+              <span>
+                <strong>{{ 'actions.stepUp.demoTitle' | transloco }}</strong>
+                {{ 'actions.stepUp.demoNote' | transloco: { code: demo } }}
+              </span>
+            </p>
+          }
+        </form>
+      }
+      @case ('pending') {
+        <div class="admin-invitation__body">
+          <p class="admin-invitation__status" role="status">
+            <nw-spinner />{{ 'organizations.invitations.create.creating' | transloco }}
+          </p>
+        </div>
+      }
+      @default {
+        @let failure = current.phase === 'failed' ? current.failure : null;
+        @if (failure && failure.kind !== 'validation') {
+          <div class="admin-invitation__body">
+            <nw-inline-alert
+              [tone]="
+                failure.kind === 'outcomeUnknown' || failure.kind === 'refused'
+                  ? 'danger'
+                  : 'warning'
+              "
+            >
+              {{ failureKey()! | transloco }}
+            </nw-inline-alert>
+          </div>
+        } @else {
+          <form
+            #form
+            id="create-invitation-form"
+            class="admin-invitation__body"
+            novalidate
+            (submit)="submit($event)"
+          >
+            <p class="admin-invitation__parent">
+              <span class="admin-invitation__parent-label">{{
+                'organizations.invitations.create.forOrganization' | transloco
+              }}</span>
+              <bdi>{{ target.organizationName }}</bdi>
+            </p>
+            @if (failure?.kind === 'validation') {
+              <nw-inline-alert tone="danger">
+                {{ 'organizations.invitations.failure.validation' | transloco }}
+              </nw-inline-alert>
+            }
+            <nw-form-field
+              [label]="'organizations.invitations.form.typeLabel' | transloco"
+              [hint]="'organizations.invitations.form.typeHint' | transloco: { max: typeMax }"
+              [error]="typeError() ? (typeError()! | transloco: { max: typeMax }) : undefined"
+              required
+            >
+              <input
+                nwControl
+                type="text"
+                name="invitation-type"
+                dir="ltr"
+                translate="no"
+                autocomplete="off"
+                autocapitalize="none"
+                spellcheck="false"
+                [attr.maxlength]="typeMax"
+                [value]="invitationType()"
+                (input)="onType($event)"
+              />
+            </nw-form-field>
+            <nw-form-field
+              [label]="'organizations.invitations.form.expiryLabel' | transloco"
+              [hint]="'organizations.invitations.form.expiryHint' | transloco"
+            >
+              <select nwControl name="invitation-expiry" (change)="onExpiry($event)">
+                @for (preset of presets; track preset) {
+                  <option [value]="preset" [selected]="preset === expiry()">
+                    {{ expiryKeys[preset] | transloco }}
+                  </option>
+                }
+              </select>
+            </nw-form-field>
+            <fieldset class="admin-invitation__binding">
+              <legend>{{ 'organizations.invitations.form.bindingLegend' | transloco }}</legend>
+              <label class="admin-invitation__radio">
+                <input
+                  type="radio"
+                  name="invitation-binding"
+                  value="anyone"
+                  [checked]="binding() === 'anyone'"
+                  (change)="onBinding('anyone')"
+                />
+                <span>{{ 'organizations.invitations.form.bindingAnyone' | transloco }}</span>
+              </label>
+              <label class="admin-invitation__radio">
+                <input
+                  type="radio"
+                  name="invitation-binding"
+                  value="person"
+                  [checked]="binding() === 'person'"
+                  (change)="onBinding('person')"
+                />
+                <span>
+                  {{ 'organizations.invitations.form.bindingPerson' | transloco }}
+                  <span class="admin-invitation__radio-hint">{{
+                    'organizations.invitations.form.bindingPersonHint' | transloco
+                  }}</span>
+                </span>
+              </label>
+              @if (binding() === 'person') {
+                <nw-form-field
+                  class="admin-invitation__contact"
+                  [label]="'organizations.invitations.form.contactLabel' | transloco"
+                  [hint]="'organizations.invitations.form.contactHint' | transloco"
+                  [error]="
+                    contactError() ? (contactError()! | transloco: { max: contactMax }) : undefined
+                  "
+                >
+                  <input
+                    nwControl
+                    type="text"
+                    name="invitee-contact"
+                    dir="ltr"
+                    autocomplete="off"
+                    spellcheck="false"
+                    [value]="contact()"
+                    (input)="onContact($event)"
+                  />
+                </nw-form-field>
+              }
+            </fieldset>
+            <ul class="admin-invitation__facts-list" role="list">
+              <li>
+                <nw-icon name="shield-check" size="sm" />{{
+                  'organizations.invitations.create.stepUpNext' | transloco
+                }}
+              </li>
+              <li>
+                <nw-icon name="key-round" size="sm" />{{
+                  'organizations.invitations.create.shownOnce' | transloco
+                }}
+              </li>
+              <li>
+                <nw-icon name="scroll-text" size="sm" />{{
+                  'organizations.invitations.create.recorded' | transloco
+                }}
+              </li>
+            </ul>
+            @if (demoCode()) {
+              <p class="admin-invitation__demo-chip">
+                <nw-icon name="flask-conical" size="sm" />{{
+                  'organizations.invitations.simulated' | transloco
+                }}
+              </p>
+            }
+          </form>
+        }
+      }
+    }
+  }
+
+  <div nwDialogActions>
+    @if (confirmingClose()) {
+      <button nw-button variant="secondary" type="button" (click)="closeAnyway()">
+        {{ 'organizations.invitations.code.closeAnyway' | transloco }}
+      </button>
+      <button #backToCode nw-button type="button" (click)="requestClose()">
+        {{ 'organizations.invitations.code.backToCode' | transloco }}
+      </button>
+    } @else if (result) {
+      <button nw-button type="button" (click)="requestClose()">
+        {{ 'organizations.invitations.code.done' | transloco }}
+      </button>
+    } @else {
+      @switch (current.phase) {
+        @case ('verifying') {
+          <button
+            nw-button
+            variant="ghost"
+            type="button"
+            [attr.aria-disabled]="busy() || null"
+            (click)="back()"
+          >
+            {{ 'actions.stepUp.back' | transloco }}
+          </button>
+          <button
+            #mainButton
+            nw-button
+            type="submit"
+            form="create-invitation-verify"
+            [busy]="busy()"
+            [attr.aria-disabled]="busy() || null"
+          >
+            @if (busy()) {
+              <nw-spinner />{{ 'actions.stepUp.verifying' | transloco }}
+            } @else {
+              {{ 'organizations.invitations.create.verifyAndCreate' | transloco }}
+            }
+          </button>
+        }
+        @case ('pending') {
+          <button nw-button variant="ghost" type="button" aria-disabled="true">
+            {{ 'common.cancel' | transloco }}
+          </button>
+          <button #mainButton nw-button type="button" busy aria-disabled="true">
+            <nw-spinner />{{ 'organizations.invitations.create.creatingShort' | transloco }}
+          </button>
+        }
+        @default {
+          @if (current.phase === 'failed' && current.failure.kind !== 'validation') {
+            <button nw-button variant="ghost" type="button" (click)="cancel()">
+              {{ 'common.close' | transloco }}
+            </button>
+            @if (current.failure.kind === 'outcomeUnknown') {
+              <button #mainButton nw-button type="button" (click)="checkInvitations()">
+                <nw-icon name="refresh-cw" size="sm" />{{
+                  'organizations.invitations.create.checkInvitations' | transloco
+                }}
+              </button>
+            } @else if (canRetry()) {
+              <button #mainButton nw-button type="button" (click)="tryAgain()">
+                <nw-icon name="refresh-cw" size="sm" />{{ 'actions.retry' | transloco }}
+              </button>
+            }
+          } @else {
+            <button nw-button variant="ghost" type="button" (click)="cancel()">
+              {{ 'common.cancel' | transloco }}
+            </button>
+            <button #mainButton nw-button type="submit" form="create-invitation-form">
+              {{ 'organizations.invitations.create.continue' | transloco }}
+            </button>
+          }
+        }
+      }
+    }
+  </div>
+</nw-dialog>

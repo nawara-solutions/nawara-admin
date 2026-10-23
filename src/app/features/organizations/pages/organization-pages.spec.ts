@@ -265,13 +265,22 @@ describe('OrganizationDetailPage', () => {
     expect(element.querySelectorAll('adm-summary-card')).toHaveLength(3);
     expect([...element.querySelectorAll('h2')].map((h) => text(h))).toEqual([
       en.organizations.detail.membership,
+      en.organizations.invitations.title,
       en.organizations.detail.activity,
       en.organizations.detail.about,
       en.organizations.detail.subscription,
       en.organizations.detail.payments,
       en.organizations.detail.assistedPayments,
     ]);
-    expect(text(element)).toContain(en.organizations.activity.adminInvitationSent);
+    expect(text(element)).toContain(en.organizations.activity.adminInvitationCreated);
+    // A build without the invitation gateway: the owner's card says so, and Create is disabled with that reason.
+    const card = element.querySelector('adm-admin-invitations-card');
+    expect(text(card)).toContain(en.organizations.invitations.notInBuild);
+    const create = card?.querySelector('button');
+    expect(create?.getAttribute('aria-disabled')).toBe('true');
+    expect(text(element.querySelector(`#${create?.getAttribute('aria-describedby')}`))).toBe(
+      en.organizations.invitations.notInBuild,
+    );
     expect(element.querySelector('.organization-detail__id')?.getAttribute('dir')).toBe('ltr');
     // About lists the optional fields that were given, and only those; a phone number reads left to right.
     const about = [...element.querySelectorAll('.organization-detail__row dt')].map((dt) =>
@@ -318,6 +327,8 @@ describe('OrganizationDetailPage', () => {
       en.organizations.detail.membership,
       en.organizations.detail.about,
     ]);
+    // No invitation card for operators (Core refuses them).
+    expect(element.querySelector('adm-admin-invitations-card')).toBeNull();
     expect(text(element.querySelector('.organization-detail__access'))).toBe(
       en.organizations.header.accessOperator,
     );

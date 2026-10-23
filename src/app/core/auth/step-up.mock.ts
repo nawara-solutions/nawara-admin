@@ -49,7 +49,12 @@ export class MockStepUpGateway extends StepUpGateway {
     const valid = proof.method === 'passkey' || proof.code.replace(/\s/g, '') === DEMO_TOTP_CODE;
     if (!valid) return fail({ kind: 'unauthenticated', status: 401 });
     const expiresAt = this.now() + DEMO_STEP_UP_LIFETIME_MS;
-    const token = this.state.issueStepUp(purpose, signedIn.identity.userId, expiresAt);
+    const token = this.state.issueStepUp(
+      purpose,
+      signedIn.identity.userId,
+      expiresAt,
+      proof.method === 'passkey' ? 'webauthn' : 'totp',
+    );
     return of({ token, expiresAt: new Date(expiresAt).toISOString() }).pipe(delay(this.latency));
   }
 }
