@@ -122,6 +122,13 @@ neither belongs to the feature that uses it.
 - The **HTTP adapter** maps Core DTOs to models, uses Core's routes exactly, and is the only place a Core URL appears.
 - The **mock adapter** implements the same gateway with typed fixtures. It simulates latency, empty results, `403`, `404`, `409`,
   `429`, `503` and validation failures, so every UI state can be exercised. Mocks live **only** in `*.mock.ts` / `*.fixtures.ts`.
+- **Demo world** (`src/app/demo/world/`, development builds only, P2.5): one root, signal-based `DemoWorld` holds the simulated
+  Core's persistent records (Company, Platforms, Organizations, staff identities, Platform assignments, subscriptions,
+  invitations, payment issues, activity). Mocks that show business data read it at request time through pure selectors and
+  map the results to their own feature models, so the Overview, the directory and the Platform dashboards agree by
+  construction. It is seeded deterministically from `NW_CLOCK`, survives a sign-out, and is separate from `DemoAuthState`
+  (session and sign-in workflow), which refers to it by business identity only. ESLint stops production-facing code from
+  importing `*.mock`, `*.mock-state`, `*.fixtures` or `demo/` modules; `npm run check:production` checks the built bundle.
 - **Binding:** each feature's route `providers` bind its gateway to an adapter chosen from runtime config (`adapters.<domain>:
   'http' | 'mock'`). Mock adapters are loaded through dynamic `import()` so they stay out of the main bundle. **Production config
   refuses `mock`.** A 🟡 domain without an HTTP adapter is *unavailable* in production: its navigation is hidden, it is never
@@ -153,7 +160,8 @@ Decision hierarchy. Each step only when the previous one is insufficient:
 2. **Feature facade:** an `@Injectable()` scoped to the feature's routes. It holds signals for view state and exposes commands. HTTP
    stays as `Observable` inside the facade (`switchMap` cancellation, `debounceTime` search) and is bridged with `toSignal` /
    `rxResource`.
-3. **Application state:** a few root services: session, grants/capabilities, organization context, preferences.
+3. **Application state:** a few root services: session, grants/capabilities, organization context, preferences. (The demo
+   world, §3, is a root service of the demo build only, not application state.)
 4. **A state library (NgRx Signal Store or similar): not adopted.** It is reconsidered only for a concrete problem: cross-feature
    entity caches with optimistic updates and undo, or devtools time-travel needed to debug complex flows. Neither exists today.
 

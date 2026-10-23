@@ -31,6 +31,14 @@ const RAW_HTTP = {
     'Use a domain gateway. HttpClient is allowed only in *.http.ts adapters and src/app/core/http/.',
 };
 
+// Demo internals (docs/ARCHITECTURE.md §3): mock adapters, the demo auth state, fixtures and the demo world. Only demo
+// code and specs import them; production-facing code reaches demo adapters only through the lazy demo bindings.
+const DEMO_INTERNALS = {
+  group: ['**/*.mock', '**/*.mock-state', '**/*.fixtures', '**/demo/**'],
+  message:
+    'Demo internals are imported only by demo code (*.mock.ts, *.fixtures.ts, src/app/demo/) and specs. Use a gateway.',
+};
+
 module.exports = defineConfig([
   {
     files: ['**/*.ts'],
@@ -52,13 +60,30 @@ module.exports = defineConfig([
         { type: ['element', 'attribute'], prefix: SELECTOR_PREFIXES, style: 'kebab-case' },
       ],
       '@typescript-eslint/no-explicit-any': 'error',
-      'no-restricted-imports': ['error', { patterns: [...FORBIDDEN_FRAMEWORKS, RAW_HTTP] }],
+      'no-restricted-imports': [
+        'error',
+        { patterns: [...FORBIDDEN_FRAMEWORKS, RAW_HTTP, DEMO_INTERNALS] },
+      ],
     },
   },
   {
     files: ['src/app/**/*.http.ts', 'src/app/core/http/**/*.ts'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: FORBIDDEN_FRAMEWORKS }],
+      'no-restricted-imports': ['error', { patterns: [...FORBIDDEN_FRAMEWORKS, DEMO_INTERNALS] }],
+    },
+  },
+  {
+    // Demo code and specs may use demo internals (a later block replaces the rule's patterns entirely).
+    files: [
+      'src/app/**/*.mock.ts',
+      'src/app/**/*.mock-state.ts',
+      'src/app/**/*.fixtures.ts',
+      'src/app/demo/**/*.ts',
+      'src/**/*.spec.ts',
+      'src/app/**/testing/**/*.ts',
+    ],
+    rules: {
+      'no-restricted-imports': ['error', { patterns: [...FORBIDDEN_FRAMEWORKS, RAW_HTTP] }],
     },
   },
   {

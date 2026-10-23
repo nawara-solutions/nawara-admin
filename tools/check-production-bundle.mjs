@@ -5,17 +5,20 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const DIST = 'dist/nawara-admin/browser';
-// Strings that exist only in demo modules: fixture ids, the demo owner, and mock adapter internals.
+// Strings that exist only in demo modules: demo world records, the demo accounts, and mock adapter internals.
 const MARKERS = [
   'demo.nawara.invalid', // demo account emails (src/app/core/auth/auth.fixtures.ts)
   'nawara-demo-2026', // demo password (auth.fixtures.ts)
   'simulated-passkey', // simulated passkey assertion (auth.mock.ts)
-  '0c2f4e3a-5d1b-4b8e-9a51-7f0d2c9e1a01', // demo Company id (scope-directory.fixtures.ts)
-  'demo-activity-1', // activity fixture (company-overview.fixtures.ts)
+  '0c2f4e3a-5d1b-4b8e-9a51-7f0d2c9e1a01', // demo Company id (src/app/demo/world/seed.ts)
+  '3f6d2b10-8c4e-4a71-9b2c-5e0f1a2b3c', // demo Organization ids (seed.ts)
+  'platform-activity-s1', // demo activity record (seed.ts)
+  'admin-invitation-1', // demo invitation record (seed.ts)
+  'DEMO_WORLD_SEED', // demo world token (src/app/demo/world/demo-world.ts)
   'DEMO_LATENCY_MS', // mock adapter token (scope-directory.mock.ts)
   'COMPANY_OVERVIEW_DEMO_SCENARIO', // mock adapter token (company-overview.mock.ts)
+  'PLATFORM_DIRECTORY_DEMO_SCENARIO', // mock adapter token (platform-directory.mock.ts)
   'PLATFORM_DASHBOARD_DEMO_SCENARIO', // mock adapter token (platform-dashboard.mock.ts)
-  '3f6d2b10-8c4e-4a71-9b2c-5e0f1a2b3c', // demo Organization ids (core/context/organization.fixtures.ts)
 ];
 
 if (!existsSync(DIST)) {

@@ -1,10 +1,7 @@
 import { DemoSignInHint } from '../config/app-environment';
-import {
-  DEMO_COMPANY_ID,
-  DEMO_DRIVE_PLATFORM_ID,
-  DEMO_SCHOOL_PLATFORM_ID,
-} from '../context/scope-directory.fixtures';
-import { Grants, Identity, MfaMethod } from './auth.model';
+import { AdminIdentityId } from '../../demo/world/records';
+import { DEMO_OPERATOR_IDS, DEMO_OWNER_ID } from '../../demo/world/seed';
+import { Identity, MfaMethod } from './auth.model';
 import { OperatorIdentifier } from './operator-identifier';
 
 /**
@@ -39,7 +36,12 @@ export type DemoEnrollmentScenario =
 export interface DemoAccount {
   /** Password accounts always have an email (the sign-in identifier). */
   readonly identity: Identity & { readonly email: string };
-  readonly grants: Grants;
+  /**
+   * The demo world's business identity this account signs in as (its grants are derived from the world's records), or
+   * `null` for an account that is not Company staff. The enrollment and recovery owners are sign-in scenarios of the
+   * ONE Company owner: their own user ids and credentials keep each scenario independent.
+   */
+  readonly businessIdentityId: AdminIdentityId | null;
   /** What the mock's `POST /auth/login` answers for this account's valid credentials. */
   readonly next:
     | { readonly kind: 'session' }
@@ -56,7 +58,7 @@ export const DEMO_OWNER_ACCOUNT: DemoAccount = {
     adminTier: 'owner',
     displayName: 'Salim Anouar',
   },
-  grants: { companyId: DEMO_COMPANY_ID, platformAssignments: [] },
+  businessIdentityId: DEMO_OWNER_ID,
   next: { kind: 'mfa', methods: ['totp', 'passkey'] },
 };
 
@@ -71,7 +73,7 @@ export const DEMO_MEMBER_ACCOUNT: DemoAccount = {
     phone: null,
     adminTier: null,
   },
-  grants: { companyId: null, platformAssignments: [] },
+  businessIdentityId: null,
   next: { kind: 'session' },
 };
 
@@ -86,7 +88,7 @@ const enrollmentOwner = (
     phone: null,
     adminTier: 'owner',
   },
-  grants: { companyId: DEMO_COMPANY_ID, platformAssignments: [] },
+  businessIdentityId: DEMO_OWNER_ID,
   next: { kind: 'enrollment', scenario },
 });
 
@@ -113,7 +115,7 @@ export const DEMO_RECOVERY_ACCOUNT: DemoAccount = {
     phone: null,
     adminTier: 'owner',
   },
-  grants: { companyId: DEMO_COMPANY_ID, platformAssignments: [] },
+  businessIdentityId: DEMO_OWNER_ID,
   next: { kind: 'recovery' },
 };
 
@@ -160,7 +162,11 @@ export type DemoOperatorScenario =
 export interface DemoOperator {
   readonly identifier: OperatorIdentifier;
   readonly identity: Identity;
-  readonly grants: Grants;
+  /**
+   * The demo world's operator this account signs in as (its assignments are the world's records), or `null` for a
+   * scenario account that only simulates a refused request and never reaches the workspace.
+   */
+  readonly businessIdentityId: AdminIdentityId | null;
   readonly scenario: DemoOperatorScenario;
   /** Whether the contact starts confirmed. Core issues working codes only to confirmed operators. */
   readonly confirmed: boolean;
@@ -169,7 +175,7 @@ export interface DemoOperator {
 const operator = (
   n: number,
   identifier: OperatorIdentifier,
-  platforms: Grants['platformAssignments'],
+  businessIdentityId: AdminIdentityId | null,
   scenario: DemoOperatorScenario = 'normal',
   confirmed = true,
 ): DemoOperator => ({
@@ -180,7 +186,7 @@ const operator = (
     phone: identifier.kind === 'phone' ? identifier.phone : null,
     adminTier: 'operator',
   },
-  grants: { companyId: null, platformAssignments: platforms },
+  businessIdentityId,
   scenario,
   confirmed,
 });
@@ -192,31 +198,13 @@ const email = (value: string): OperatorIdentifier => ({ kind: 'email', email: va
  * the unassigned `+999` country code, so no identifier here can reach a real person.
  */
 export const DEMO_OPERATORS: readonly DemoOperator[] = [
-  operator(1, email('operator.school@demo.nawara.invalid'), [DEMO_SCHOOL_PLATFORM_ID]),
-  operator(2, email('operator.multi@demo.nawara.invalid'), [
-    DEMO_SCHOOL_PLATFORM_ID,
-    DEMO_DRIVE_PLATFORM_ID,
-  ]),
-  operator(3, { kind: 'phone', phone: '+99900000001' }, [DEMO_DRIVE_PLATFORM_ID]),
-  operator(4, email('operator.unassigned@demo.nawara.invalid'), []),
-  operator(
-    5,
-    email('operator.busy@demo.nawara.invalid'),
-    [DEMO_SCHOOL_PLATFORM_ID],
-    'requestLimited',
-  ),
-  operator(
-    6,
-    email('operator.limited@demo.nawara.invalid'),
-    [DEMO_SCHOOL_PLATFORM_ID],
-    'verifyLimited',
-  ),
-  operator(
-    7,
-    email('operator.offline@demo.nawara.invalid'),
-    [DEMO_SCHOOL_PLATFORM_ID],
-    'verifyUnavailable',
-  ),
+  operator(1, email('operator.school@demo.nawara.invalid'), DEMO_OPERATOR_IDS.school),
+  operator(2, email('operator.multi@demo.nawara.invalid'), DEMO_OPERATOR_IDS.multi),
+  operator(3, { kind: 'phone', phone: '+99900000001' }, DEMO_OPERATOR_IDS.phone),
+  operator(4, email('operator.unassigned@demo.nawara.invalid'), DEMO_OPERATOR_IDS.unassigned),
+  operator(5, email('operator.busy@demo.nawara.invalid'), null, 'requestLimited'),
+  operator(6, email('operator.limited@demo.nawara.invalid'), null, 'verifyLimited'),
+  operator(7, email('operator.offline@demo.nawara.invalid'), null, 'verifyUnavailable'),
 ];
 
 /**
@@ -227,21 +215,15 @@ export const DEMO_NEW_OPERATORS: readonly DemoOperator[] = [
   operator(
     8,
     email('operator.new@demo.nawara.invalid'),
-    [DEMO_SCHOOL_PLATFORM_ID],
+    DEMO_OPERATOR_IDS.awaitingConfirmation,
     'normal',
     false,
   ),
-  operator(
-    9,
-    email('operator.new.limited@demo.nawara.invalid'),
-    [DEMO_SCHOOL_PLATFORM_ID],
-    'confirmLimited',
-    false,
-  ),
+  operator(9, email('operator.new.limited@demo.nawara.invalid'), null, 'confirmLimited', false),
   operator(
     10,
     email('operator.new.offline@demo.nawara.invalid'),
-    [DEMO_SCHOOL_PLATFORM_ID],
+    null,
     'confirmUnavailable',
     false,
   ),

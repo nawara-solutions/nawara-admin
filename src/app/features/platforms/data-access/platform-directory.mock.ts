@@ -1,11 +1,17 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
 import { Observable, delay, of, throwError } from 'rxjs';
-import { DEMO_COMPANY_ID } from '../../../core/context/scope-directory.fixtures';
 import { DEMO_LATENCY_MS } from '../../../core/context/scope-directory.mock';
 import { CompanyId } from '../../../core/context/scope.model';
 import { AppError } from '../../../core/errors/app-error';
+import { DemoWorld } from '../../../demo/world/demo-world';
+import { DemoWorldTables } from '../../../demo/world/records';
+import {
+  assignmentsOf,
+  membershipTotal,
+  organizationsOf,
+  platformRefs,
+} from '../../../demo/world/selectors';
 import { PlatformDirectoryEntry } from '../domain/platform-directory.model';
-import { DEMO_PLATFORM_DIRECTORY } from './platform-directory.fixtures';
 import { PlatformDirectoryGateway } from './platform-directory.gateway';
 
 /** Which answer the mock gives, so every view state can be exercised (§3). Demo builds use `normal`. */
@@ -16,14 +22,31 @@ export const PLATFORM_DIRECTORY_DEMO_SCENARIO = new InjectionToken<PlatformDirec
   { factory: () => 'normal' },
 );
 
-/** Mock adapter (demo builds only). Another Company answers like Core's collapsed `404`. */
+const count = (value: number) => ({ status: 'available', value }) as const;
+
+/** The directory of the demo Company, derived from the demo world's records (FICTIONAL; not a Core contract). */
+export const demoPlatformDirectory = (world: DemoWorldTables): readonly PlatformDirectoryEntry[] =>
+  platformRefs(world).map((platform) => ({
+    platform,
+    organizations: count(organizationsOf(world, platform.id).length),
+    memberships: count(membershipTotal(organizationsOf(world, platform.id))),
+    operatorAssignments: count(assignmentsOf(world, platform.id).length),
+  }));
+
+/**
+ * Mock adapter (demo builds only), reading the demo world at request time, so it agrees with the Platform dashboard
+ * and the Company Overview. Another Company answers like Core's collapsed `404`.
+ */
 export class MockPlatformDirectoryGateway extends PlatformDirectoryGateway {
   private readonly latency = inject(DEMO_LATENCY_MS);
   private readonly scenario = inject(PLATFORM_DIRECTORY_DEMO_SCENARIO);
+  private readonly world = inject(DemoWorld);
 
   list(company: CompanyId): Observable<readonly PlatformDirectoryEntry[]> {
     const fail = (error: AppError) => throwError(() => error).pipe(delay(this.latency));
-    if (company !== DEMO_COMPANY_ID) return fail({ kind: 'not_found', status: 404 });
+    const world = this.world.snapshot();
+    if (company !== world.company.id) return fail({ kind: 'not_found', status: 404 });
+    const directory = demoPlatformDirectory(world);
     switch (this.scenario) {
       case 'error':
         return fail({ kind: 'unavailable', code: 'hierarchy_unavailable', status: 503 });
@@ -31,7 +54,7 @@ export class MockPlatformDirectoryGateway extends PlatformDirectoryGateway {
         return of([]).pipe(delay(this.latency));
       case 'partial':
         return of(
-          DEMO_PLATFORM_DIRECTORY.map((entry, i) =>
+          directory.map((entry, i) =>
             i === 1
               ? {
                   ...entry,
@@ -42,7 +65,7 @@ export class MockPlatformDirectoryGateway extends PlatformDirectoryGateway {
           ),
         ).pipe(delay(this.latency));
       case 'normal':
-        return of(DEMO_PLATFORM_DIRECTORY).pipe(delay(this.latency));
+        return of(directory).pipe(delay(this.latency));
     }
   }
 }

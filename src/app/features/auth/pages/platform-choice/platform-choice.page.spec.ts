@@ -1,10 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import en from '../../../../../i18n/en.json';
 import { AuthSession } from '../../../../core/auth/auth-session';
-import {
-  DEMO_DRIVE_PLATFORM_ID,
-  DEMO_SCHOOL_PLATFORM_ID,
-} from '../../../../core/context/scope-directory.fixtures';
+import { DEMO_DRIVE_PLATFORM_ID, DEMO_SCHOOL_PLATFORM_ID } from '../../../../demo/world/seed';
 import { configureAuthPage, settle, text } from '../../testing/auth-testing';
 import { PlatformChoicePage } from './platform-choice.page';
 

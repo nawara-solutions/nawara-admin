@@ -1,10 +1,11 @@
 import { DOCUMENT, Injectable, Provider, inject } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { Observable, delay, of, switchMap, throwError, timer } from 'rxjs';
-import { DEMO_COMPANY_DIRECTORY } from '../context/scope-directory.fixtures';
 import { DEMO_LATENCY_MS } from '../context/scope-directory.mock';
 import { PlatformId } from '../context/scope.model';
 import { AppError } from '../errors/app-error';
+import { DemoWorld } from '../../demo/world/demo-world';
+import { grantsOf, platformViewerOf } from '../../demo/world/selectors';
 import {
   DEMO_ACCOUNTS,
   DEMO_CONFIRMATION_CODE,
@@ -13,6 +14,7 @@ import {
   DEMO_TOTP_ISSUER,
   DEMO_TOTP_SECRET,
   DEMO_WORKING_CODE,
+  DemoAccount,
   DemoOperator,
 } from './auth.fixtures';
 import { AuthGateway } from './auth.gateway';
@@ -85,6 +87,7 @@ const sameIdentifier = (a: OperatorIdentifier, b: OperatorIdentifier): boolean =
 export class MockAuthGateway extends AuthGateway {
   private readonly latency = inject(DEMO_LATENCY_MS);
   private readonly state = inject(DemoAuthState);
+  private readonly world = inject(DemoWorld);
 
   login(email: string, password: string): Observable<LoginOutcome> {
     const account = DEMO_ACCOUNTS.find(
@@ -97,7 +100,7 @@ export class MockAuthGateway extends AuthGateway {
       : account.next;
     switch (next.kind) {
       case 'session':
-        this.state.signedIn.set(account);
+        this.signIn(account);
         return this.answer<LoginOutcome>({ kind: 'session' });
       case 'enrollment': {
         const enrollmentToken = crypto.randomUUID();
@@ -136,7 +139,7 @@ export class MockAuthGateway extends AuthGateway {
     const valid = proof.method === 'passkey' || proof.code.replace(/\s/g, '') === DEMO_TOTP_CODE;
     if (!offered || !valid) return this.fail({ kind: 'unauthenticated', status: 401 });
     this.state.challenges.delete(challenge);
-    this.state.signedIn.set(pending.account);
+    this.signIn(pending.account);
     return this.answer(undefined);
   }
 
@@ -191,7 +194,7 @@ export class MockAuthGateway extends AuthGateway {
     }
     this.state.enrollments.delete(enrollmentToken);
     this.state.enrolledOwners.add(pending.account.identity.userId);
-    this.state.signedIn.set(pending.account);
+    this.signIn(pending.account);
     return this.answer(undefined);
   }
 
@@ -218,7 +221,7 @@ export class MockAuthGateway extends AuthGateway {
       return this.fail(CODE_INVALID);
     }
     this.state.workingCodes.delete(found.identity.userId);
-    this.state.signedIn.set(found);
+    this.signIn(found);
     return this.answer(undefined);
   }
 
@@ -258,27 +261,30 @@ export class MockAuthGateway extends AuthGateway {
   grants(): Observable<Grants> {
     const signedIn = this.state.signedIn();
     return signedIn
-      ? this.answer(signedIn.grants)
+      ? this.answer(grantsOf(this.world.snapshot(), signedIn.businessIdentityId))
       : this.fail({ kind: 'unauthenticated', status: 401 });
   }
 
   /** Like Core: the owner for a Platform of their Company, an operator for an assigned Platform; else `false`. */
   platformAccess(platform: PlatformId): Observable<boolean> {
-    const account = this.state.signedIn();
-    if (!account) return this.fail({ kind: 'unauthenticated', status: 401 });
-    const allowed =
-      account.identity.adminTier === 'owner'
-        ? account.grants.companyId === DEMO_COMPANY_DIRECTORY.company.id &&
-          DEMO_COMPANY_DIRECTORY.platforms.some((p) => p.id === platform)
-        : account.identity.adminTier === 'operator' &&
-          account.grants.platformAssignments.includes(platform);
-    return this.answer(allowed);
+    const signedIn = this.state.signedIn();
+    if (!signedIn) return this.fail({ kind: 'unauthenticated', status: 401 });
+    const viewer = platformViewerOf(this.world.snapshot(), signedIn.businessIdentityId, platform);
+    return this.answer(viewer !== null);
   }
 
   /** Ends the simulated Core session only: Core records (enrolled factors, confirmed contacts) are kept. */
   logout(): Observable<void> {
     this.state.signedIn.set(null);
     return this.answer(undefined);
+  }
+
+  /** Opens the simulated Core session as the account's business identity (its grants stay in the world). */
+  private signIn(account: DemoAccount | DemoOperator): void {
+    this.state.signedIn.set({
+      identity: account.identity,
+      businessIdentityId: account.businessIdentityId,
+    });
   }
 
   private operator(identifier: OperatorIdentifier): DemoOperator | undefined {

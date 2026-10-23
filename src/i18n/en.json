@@ -302,10 +302,6 @@
         "description": "Organization-admin invitations not yet accepted."
       },
       "empty": "Nothing needs your attention.",
-      "accessAssignments": {
-        "title": "Access assignments to review",
-        "description": "Assign or adjust platform operator access."
-      },
       "licensesExpiring": {
         "title": "Licenses expiring soon",
         "description": "Renew within {{days}} days to avoid disruption."
@@ -330,7 +326,7 @@
         "organizationCreated": "Organization created",
         "operatorAssigned": "Operator assigned",
         "invitationSent": "Invitation sent",
-        "licenseRenewed": "License renewed"
+        "membershipApproved": "Membership approved"
       },
       "auditLog": "Audit log"
     },
@@ -359,8 +355,7 @@
         "assignments": "Assignments",
         "uniqueOperators": "Unique operators",
         "platforms": "Platforms",
-        "action": "Manage access",
-        "toReview": "Pending review: {{count}}"
+        "action": "Manage access"
       }
     },
     "commercial": {

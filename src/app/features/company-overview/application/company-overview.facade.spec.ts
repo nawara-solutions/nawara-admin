@@ -3,7 +3,7 @@ import { Actor } from '../../../core/auth/actor';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { APP_ENVIRONMENT, DemoBindings } from '../../../core/config/app-environment';
 import { DEMO_LATENCY_MS } from '../../../core/context/scope-directory.mock';
-import { DEMO_COMPANY_ID } from '../../../core/context/scope-directory.fixtures';
+import { DEMO_COMPANY_ID } from '../../../demo/world/seed';
 import { companyId, platformId } from '../../../core/context/scope.model';
 import { ADAPTER_UNAVAILABLE } from '../../../core/errors/app-error';
 import {
@@ -127,7 +127,6 @@ describe('CompanyOverviewFacade', () => {
     const attention = facade.attention();
     expect(attention.status === 'available' && attention.data.map((i) => i.kind)).toEqual([
       'admin_invitations_awaiting',
-      'access_assignments_to_review',
       'licenses_expiring',
     ]);
   });

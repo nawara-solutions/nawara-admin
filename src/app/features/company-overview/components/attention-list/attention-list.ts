@@ -13,13 +13,6 @@ const KINDS = {
     titleKey: 'companyOverview.attention.adminInvitations.title',
     descriptionKey: 'companyOverview.attention.adminInvitations.description',
   },
-  access_assignments_to_review: {
-    icon: 'user-cog',
-    accent: 'purple',
-    urgent: false,
-    titleKey: 'companyOverview.attention.accessAssignments.title',
-    descriptionKey: 'companyOverview.attention.accessAssignments.description',
-  },
   licenses_expiring: {
     icon: 'key-round',
     accent: 'pink',

@@ -6,8 +6,9 @@ import { Actor } from '../../../core/auth/actor';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { APP_ENVIRONMENT, DemoBindings } from '../../../core/config/app-environment';
 import { DEMO_LATENCY_MS } from '../../../core/context/scope-directory.mock';
-import { DEMO_COMPANY_ID } from '../../../core/context/scope-directory.fixtures';
+import { DEMO_COMPANY_ID } from '../../../demo/world/seed';
 import { platformId } from '../../../core/context/scope.model';
+import { NW_CLOCK } from '../../../shared/format/clock';
 import { CompanyOverviewFacade } from '../application/company-overview.facade';
 import { CommercialSummaryGateway } from '../data-access/commercial-summary.gateway';
 import { CompanyOverviewGateway } from '../data-access/company-overview.gateway';
@@ -73,6 +74,8 @@ async function render(actor: Actor, scenario: CompanyOverviewDemoScenario = 'nor
         useValue: { production: false, demo: { load: async () => DEMO } },
       },
       { provide: DEMO_LATENCY_MS, useValue: 0 },
+      // A fixed clock: the demo world's dates and the growth days are derived from it.
+      { provide: NW_CLOCK, useValue: () => Date.parse('2026-10-23T12:00:00Z') },
       { provide: COMPANY_OVERVIEW_DEMO_SCENARIO, useValue: scenario },
       { provide: CompanyOverviewGateway, useClass: MockCompanyOverviewGateway },
       { provide: CommercialSummaryGateway, useClass: MockCommercialSummaryGateway },
@@ -135,7 +138,8 @@ describe('CompanyOverviewPage', () => {
     const { page } = await render(owner);
     const cards = page.querySelectorAll('adm-summary-card');
     expect(text(cards[2])).toBe(
-      `${en.companyOverview.summary.uniqueIdentities} 1,284 ${en.companyOverview.summary.distinctAccounts}`,
+      // No person records before P5, and memberships are not identities: the figure stays unavailable.
+      `${en.companyOverview.summary.uniqueIdentities}—${en.companyOverview.unavailable}${en.companyOverview.summary.distinctAccounts}`,
     );
     expect(text(cards[3])).toContain(en.companyOverview.summary.awaitingAcceptance);
     for (const card of [cards[2], cards[3]]) {
@@ -143,12 +147,12 @@ describe('CompanyOverviewPage', () => {
     }
   });
 
-  it('derives the organizations trend from the growth history (24 − 16)', async () => {
+  it('derives the organizations trend from the growth history (24 − 21)', async () => {
     const { page } = await render(owner);
     const organizations = page.querySelectorAll('adm-summary-card')[1];
-    expect(text(organizations?.querySelector('.summary-card__trend'))).toBe('8+8');
+    expect(text(organizations?.querySelector('.summary-card__trend'))).toBe('3+3');
     expect(text(organizations?.querySelector('.summary-card__caption'))).toBe(
-      `${en.companyOverview.summary.acrossPlatforms} · +8 this period`,
+      `${en.companyOverview.summary.acrossPlatforms} · +3 this period`,
     );
   });
 
@@ -156,7 +160,7 @@ describe('CompanyOverviewPage', () => {
     const { page, fixture } = await render(owner);
     const value = () => text(page.querySelector('.growth-panel__value'));
     expect(value()).toBe('24');
-    expect(text(page.querySelector('.growth-panel__change'))).toBe('+50% vs. Sep 1');
+    expect(text(page.querySelector('.growth-panel__change'))).toBe('+14% vs. Sep 23');
     const drive = Array.from(page.querySelectorAll('.growth-panel__filter')).find(
       (b) => text(b) === 'Nawara Drive',
     ) as HTMLButtonElement | undefined;

@@ -2,11 +2,20 @@ import { EnvironmentInjector, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Observable, firstValueFrom } from 'rxjs';
 import { DEMO_LATENCY_MS } from '../context/scope-directory.mock';
-import { DEMO_DRIVE_PLATFORM_ID } from '../context/scope-directory.fixtures';
+import { DemoWorld } from '../../demo/world/demo-world';
+import {
+  DEMO_COMPANY_ID,
+  DEMO_DRIVE_PLATFORM_ID,
+  DEMO_OPERATOR_IDS,
+  DEMO_OWNER_ID,
+  DEMO_SCHOOL_PLATFORM_ID,
+} from '../../demo/world/seed';
 import { AppError } from '../errors/app-error';
 import {
+  DEMO_ACCOUNTS,
   DEMO_CONFIRMATION_CODE,
   DEMO_NEW_OPERATORS,
+  DEMO_OPERATORS,
   DEMO_PASSWORD,
   DEMO_SIGN_IN_HINT,
   DEMO_TOTP_CODE,
@@ -355,5 +364,78 @@ describe('MockAuthGateway: one simulated Auth service across route injectors (A3
     expect(state.confirmedOperators.has(userId)).toBe(true);
     // Already confirmed: 204 without checking the code, as Core answers.
     await firstValueFrom(signInRoute.confirmOperatorContact(fresh, '000000'));
+  });
+});
+
+describe('MockAuthGateway over the demo world (P2.5)', () => {
+  const ownerAccounts = DEMO_ACCOUNTS.filter((a) => a.identity.adminTier === 'owner');
+  const operatorAccounts = [...DEMO_OPERATORS, ...DEMO_NEW_OPERATORS];
+
+  it('maps every owner sign-in scenario to the ONE Company owner, each with its own account', () => {
+    expect(ownerAccounts.length).toBeGreaterThan(1);
+    expect(ownerAccounts.every((a) => a.businessIdentityId === DEMO_OWNER_ID)).toBe(true);
+    const userIds = ownerAccounts.map((a) => a.identity.userId);
+    expect(new Set(userIds).size).toBe(userIds.length);
+  });
+
+  it('gives a business identity only to accounts that can reach the workspace', () => {
+    const canonical = new Set<string>(Object.values(DEMO_OPERATOR_IDS));
+    for (const operator of operatorAccounts) {
+      if (operator.scenario === 'normal')
+        expect(operator.businessIdentityId).toBe(operator.identity.userId);
+      else expect(operator.businessIdentityId).toBeNull();
+    }
+    expect(
+      operatorAccounts
+        .filter((o) => o.businessIdentityId !== null)
+        .map((o) => o.businessIdentityId),
+    ).toEqual(expect.arrayContaining([...canonical]));
+    const member = DEMO_ACCOUNTS.find((a) => a.identity.adminTier === null);
+    expect(member?.businessIdentityId).toBeNull();
+  });
+
+  it('answers the owner’s grants from the world, for the enrollment owner too', async () => {
+    const mock = gateway();
+    const outcome = await firstValueFrom(
+      mock.login('enrollment@demo.nawara.invalid', DEMO_PASSWORD),
+    );
+    if (outcome.kind !== 'enrollment_required') throw new Error('expected enrollment_required');
+    const setup = await firstValueFrom(mock.beginTotpEnrollment(outcome.enrollmentToken));
+    await firstValueFrom(
+      mock.confirmTotpEnrollment(outcome.enrollmentToken, setup.factorId, DEMO_TOTP_CODE),
+    );
+    expect(await firstValueFrom(mock.grants())).toEqual({
+      companyId: DEMO_COMPANY_ID,
+      platformAssignments: [],
+    });
+    expect(await firstValueFrom(mock.platformAccess(DEMO_DRIVE_PLATFORM_ID))).toBe(true);
+    // Enrolling one scenario account leaves the others as they were.
+    const other = await firstValueFrom(
+      mock.login('enrollment.busy@demo.nawara.invalid', DEMO_PASSWORD),
+    );
+    expect(other.kind).toBe('enrollment_required');
+  });
+
+  it('derives an operator’s access from the world’s assignment records, live', async () => {
+    const mock = gateway();
+    await firstValueFrom(mock.requestWorkingCode(SCHOOL_OPERATOR));
+    await firstValueFrom(mock.verifyWorkingCode(SCHOOL_OPERATOR, DEMO_WORKING_CODE));
+    expect(await firstValueFrom(mock.platformAccess(DEMO_SCHOOL_PLATFORM_ID))).toBe(true);
+    expect(await firstValueFrom(mock.platformAccess(DEMO_DRIVE_PLATFORM_ID))).toBe(false);
+    expect(TestBed.inject(DemoAuthState).signedIn()).toEqual({
+      identity: expect.objectContaining({ email: 'operator.school@demo.nawara.invalid' }),
+      businessIdentityId: DEMO_OPERATOR_IDS.school,
+    });
+  });
+
+  it('keeps the world’s business records through a sign-out, and clears only the session', async () => {
+    const mock = gateway();
+    const world = TestBed.inject(DemoWorld);
+    const before = world.snapshot();
+    await firstValueFrom(mock.requestWorkingCode(SCHOOL_OPERATOR));
+    await firstValueFrom(mock.verifyWorkingCode(SCHOOL_OPERATOR, DEMO_WORKING_CODE));
+    await firstValueFrom(mock.logout());
+    expect(TestBed.inject(DemoAuthState).signedIn()).toBeNull();
+    expect(world.snapshot()).toBe(before);
   });
 });

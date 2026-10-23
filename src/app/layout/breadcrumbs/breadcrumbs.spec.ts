@@ -6,7 +6,7 @@ import { Actor } from '../../core/auth/actor';
 import { AuthSession } from '../../core/auth/auth-session';
 import { APP_ENVIRONMENT, DemoBindings } from '../../core/config/app-environment';
 import { ScopeContext } from '../../core/context/scope-context';
-import { DEMO_COMPANY_ID } from '../../core/context/scope-directory.fixtures';
+import { DEMO_COMPANY_ID } from '../../demo/world/seed';
 import { ScopeDirectoryGateway } from '../../core/context/scope-directory.gateway';
 import {
   DEMO_LATENCY_MS,
