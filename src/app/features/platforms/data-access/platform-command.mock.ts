@@ -1,5 +1,6 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
 import { Observable, defer, delay, of, switchMap, throwError, timer } from 'rxjs';
+import { CommandOptions } from '../../../core/actions/command-options';
 import { DemoAuthState } from '../../../core/auth/auth.mock-state';
 import { DEMO_LATENCY_MS } from '../../../core/context/scope-directory.mock';
 import { AppError } from '../../../core/errors/app-error';
@@ -10,7 +11,7 @@ import {
 import { DemoWorld } from '../../../demo/world/demo-world';
 import { NW_CLOCK } from '../../../shared/format/clock';
 import { CreatePlatformRequest, CreatedPlatform } from '../domain/create-platform.model';
-import { CommandOptions, PlatformCommandGateway } from './platform-command.gateway';
+import { PlatformCommandGateway } from './platform-command.gateway';
 
 /**
  * Which answer the mock gives (§3). Demo builds use `normal`, which SUCCEEDS (owner decision O-P4-2). The others:

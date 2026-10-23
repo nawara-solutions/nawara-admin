@@ -1,12 +1,7 @@
 import { Observable, throwError } from 'rxjs';
+import { CommandOptions } from '../../../core/actions/command-options';
 import { adapterUnavailable } from '../../../core/errors/app-error';
 import { CreatePlatformRequest, CreatedPlatform } from '../domain/create-platform.model';
-
-/** What travels beside a command: one idempotency key per logical operation, and the step-up token for its purpose. */
-export interface CommandOptions {
-  readonly idempotencyKey: string;
-  readonly stepUpToken: string;
-}
 
 /**
  * Frontend contract for Platform commands (owner only). Core documents `POST /organization/admin/platforms` with the

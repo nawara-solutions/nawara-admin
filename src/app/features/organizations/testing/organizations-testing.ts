@@ -73,6 +73,7 @@ export const DEMO: DemoBindings = {
     organizations: [],
     organizationCommercial: [],
     platformCommands: [],
+    organizationCommands: [],
     stepUp: [],
   },
 };
@@ -109,6 +110,7 @@ export const detailOf = (
   platform: PlatformId = SCHOOL,
 ): OrganizationDetail => ({
   ...summaryOf(id, 'Collège Riad', '2026-09-15T12:00:00.000Z', 87, 5, platform),
+  metadata: { taxCode: null, address: null, phone: null, type: null },
   adminInvitationsAwaiting: { status: 'available', data: count(1) },
   activity: {
     status: 'available',

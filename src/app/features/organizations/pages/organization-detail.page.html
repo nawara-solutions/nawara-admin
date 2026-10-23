@@ -215,6 +215,17 @@
               <dt>{{ 'organizations.detail.createdAt' | transloco }}</dt>
               <dd>{{ detail.createdAt | nwDate: 'date' }}</dd>
             </div>
+            @for (field of metadataFields; track field.key) {
+              @let value = detail.metadata[field.key];
+              @if (value !== null) {
+                <div class="organization-detail__row">
+                  <dt>{{ field.label | transloco }}</dt>
+                  <dd>
+                    <bdi [attr.dir]="field.ltr ? 'ltr' : null">{{ value }}</bdi>
+                  </dd>
+                </div>
+              }
+            }
           </dl>
         </adm-overview-card>
       </div>

@@ -21,7 +21,7 @@
     "failure": {
       "validation": "Les informations ont été refusées. Vérifiez-les et réessayez. Rien n’a été modifié.",
       "conflict": "Cela entre en conflit avec l’état actuel. Rien n’a été modifié.",
-      "notAuthoritative": "Les plateformes ne peuvent pas encore être créées : le service des plateformes n’accepte pas de modifications. Rien n’a été créé.",
+      "notAuthoritative": "Ce n’est pas encore possible : le service n’accepte pas de modifications. Rien n’a été modifié.",
       "keyReused": "Cette demande a déjà été utilisée avec d’autres informations. Rien n’a été créé.",
       "refused": "Vous ne pouvez plus effectuer cette action : votre accès a peut-être changé. Rien n’a été modifié.",
       "verificationRefused": "Ce code n’a pas fonctionné, ou la vérification a expiré. Saisissez le code actuel.",
@@ -583,13 +583,43 @@
   "organizations": {
     "header": {
       "directoryTitle": "Organisations",
-      "directorySubtitle": "Les organisations de cette plateforme. Consultation seule dans cette version.",
+      "directorySubtitle": "Les organisations de cette plateforme.",
       "eyebrow": "Organisation",
       "backToDashboard": "Tableau de bord de la plateforme",
       "backToDirectory": "Toutes les organisations",
       "accessOwner": "Votre accès : propriétaire de l’entreprise",
       "accessOperator": "Votre accès : opérateur affecté",
       "created": "Créée le {{date}}"
+    },
+    "create": {
+      "open": "Créer une organisation",
+      "title": "Créer une organisation",
+      "inPlatform": "Dans la plateforme",
+      "nameLabel": "Nom de l’organisation",
+      "nameHint": "Le nom que verront les membres et les administrateurs. De 1 à {{max}} caractères.",
+      "nameRequired": "Saisissez un nom.",
+      "tooLong": "Utilisez {{max}} caractères au maximum.",
+      "moreDetails": "Plus de détails",
+      "optional": "(facultatif)",
+      "taxCodeLabel": "Numéro fiscal",
+      "addressLabel": "Adresse",
+      "phoneLabel": "Téléphone",
+      "typeLabel": "Type",
+      "optionalHint": "Facultatif. Jusqu’à {{max}} caractères.",
+      "typeHint": "Texte libre facultatif, par exemple « École ». Jusqu’à {{max}} caractères.",
+      "stepUpNext": "Ensuite, vous confirmerez votre identité.",
+      "startsEmpty": "L’organisation démarre sans membres, administrateurs ni abonnement.",
+      "recorded": "Cette action est enregistrée dans le journal d’activité.",
+      "simulated": "Démo : la création d’organisation est simulée ; aucun service Nawara Core n’est appelé.",
+      "submit": "Créer l’organisation",
+      "verifyAndCreate": "Vérifier et créer",
+      "purpose": "Créer l’organisation « {{name}} » dans {{platform}}",
+      "creating": "Création de l’organisation…",
+      "creatingShort": "Création…",
+      "created": "Organisation « {{name}} » créée.",
+      "notCreated": "« {{name}} » n’a pas été créée.",
+      "operatorReason": "Créer une organisation nécessite une action vérifiée. Les opérateurs ne peuvent pas encore vérifier d’actions.",
+      "notInBuildReason": "La création d’organisations n’est pas disponible dans cette version."
     },
     "totals": {
       "label": "Totaux de la plateforme",
@@ -667,7 +697,7 @@
       "notInBuildTitle": "Non disponible dans cette version",
       "notInBuildDescription": "Aucun contrat Nawara Core ne fournit encore les organisations ici.",
       "emptyTitle": "Aucune organisation pour le moment",
-      "emptyDescription": "Cette plateforme n’a aucune organisation. La création d’organisations n’est pas disponible dans cette version.",
+      "emptyDescription": "Cette plateforme n’a encore aucune organisation.",
       "noResultsTitle": "Aucune organisation ne correspond",
       "noResultsDescription": "Vérifiez l’orthographe, ou effacez la recherche et les filtres.",
       "clearAll": "Effacer la recherche et les filtres",
@@ -710,12 +740,17 @@
       "organizationSetting": "Cette organisation",
       "inherits": "Hérite de la plateforme",
       "override": "Désactivés pour cette organisation",
-      "changePolicy": "Modifier la règle"
+      "changePolicy": "Modifier la règle",
+      "type": "Type",
+      "taxCode": "Numéro fiscal",
+      "phone": "Téléphone",
+      "address": "Adresse"
     },
     "activity": {
       "organizationCreated": "Organisation créée",
       "adminInvitationSent": "Invitation d’administrateur envoyée",
-      "membershipApproved": "Adhésion approuvée"
+      "membershipApproved": "Adhésion approuvée",
+      "simulated": "simulé"
     },
     "footnote": "Les adhésions sont comptées par organisation ; une personne peut en avoir dans plusieurs."
   },

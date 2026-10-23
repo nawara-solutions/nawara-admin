@@ -8,6 +8,10 @@
   `apps/organization-service/src` and `apps/audit-service/src` are **unchanged** (`git diff --stat` empty), so every contract
   below still holds. The Core roadmap (`docs/CORE-ROADMAP.md`) is now **merged to `main`** (CF-10 resolved); localization
   R6 (all services) and R7 are closed, R8 is next.
+- **P3b-0 (2026-10-23):** the Organization create and edit contracts, the `organization.create` step-up, Organization
+  idempotency, admin invitations and the lifecycle decision were re-read from Core source (read-only) for P3b; §5 records
+  them with file references (paths relative to `nawara-core/apps/`). Implemented in Admin so far: **create, as a demo-world
+  mock only (P3b-S1)**; edit and invitations are verified but not built.
 - **Precedence:** a service's OpenAPI (`GET /<service>/docs`) and Core ADRs win over this document. Report differences to Core.
 
 ---
@@ -65,6 +69,8 @@ Consequences for Admin:
 - "Global operator context" is **not** "all of Nawara". It is **the actor's scope**: the owner's Company, or an operator's assigned
   Platforms. `GET /auth/grants` returns these facts (`companyId`, `platformAssignments`, `organizationAdminMemberships`).
 - Operators cannot perform any operation requiring step-up (e.g. organization create) until Core builds operator step-up.
+  Organization create is the clearest case: Core **authorizes** an assigned operator (`canCreateOrganization`), but the operator
+  can never present the `organization.create` step-up, so Admin shows them the action disabled with that reason (P3b-S1, CF-08).
 
 ## 4. Authentication findings
 
@@ -104,7 +110,9 @@ Admin strategy and the decision required before A4.
     non-authoritative store until cutover.**
 - **No human route lists Companies, Platforms or Organizations.** All list/read routes of organization-service are service-token
   only. Admin cannot build an organization directory on V1 contracts (CF-02).
-- Organization lifecycle (suspend/archive/delete) is undecided (BD-5). No `status` exists.
+- Organization lifecycle: **ADR-0060 is accepted** (lifecycle architecture), but its **runtime is deferred**
+  (`docs/CORE-V3-ROADMAP.md:33` in Core). No `status`, provisioning, readiness or activation field exists in any Organization
+  route or DTO today; Admin models none (CF-09). This is future architecture, not an implemented contract.
 
 - **Create platform, verified 2026-10-02** (`apps/organization-service/src/admin/admin.controller.ts` `createPlatform`):
   body `{ companyId, name }` (name 1–200); `HumanAuthGuard` (the owner's own bearer, grants from Auth); authority
@@ -117,11 +125,46 @@ Admin strategy and the decision required before A4.
   ownership phase is `ACTIVE` every create answers **`409 not_authoritative`**. Admin must reuse this contract and must not
   build a second creation flow.
 
+- **Create organization, verified 2026-10-23 (P3b-0)** (`organization-service/src/admin/admin.controller.ts:135-167`
+  `createOrganization`):
+  - Route `POST /organization/admin/organizations`, `HumanAuthGuard` (the caller's own bearer, grants from Auth).
+  - Body (`domain/organization-input.ts:25-48`, limits `domain/input.ts:14`, rules `:22-49`): `platformId` (UUID, required),
+    `name` (required, trimmed, 1–200), and the optional, nullable `taxCode` ≤ 64, `address` ≤ 500, `phone` ≤ 32, `type` ≤ 64
+    (opaque free text, never interpreted). Every value is checked trimmed; an empty optional string is refused (send `null`);
+    **unknown fields are invalid** (`400 invalid_organization_request`).
+  - Order in the controller: `Idempotency-Key` (`:152`, missing or malformed → `400 idempotency_key_required`; format
+    `[A-Za-z0-9._:-]`, 8–128) → normalise the body (`:153`) → the parent Platform (`:154`, unknown → **`404 not_found`**) →
+    authority `canCreateOrganization` (`:155`, `admin/authorization-evaluator.ts:29-42`: **owner of the Platform's Company, or an
+    operator assigned to the Platform**; otherwise `403 admin_forbidden`) → step-up `organization.create` (`:160`, missing,
+    wrong-purpose, expired or spent → `403 step_up_required`) → repository create.
+  - Repository (`organizations/organization.repository.ts:28-31, 46-72`, `ownership/ownership.service.ts:6-7, 41, 53-61`):
+    `assertWritable` first (**`409 not_authoritative`** until the organization-service cutover), then the idempotency reservation
+    and the insert in one transaction.
+  - Success **`201`** with `OrganizationDto` (`organizations/organization.dto.ts`, `common/representation.ts:11-14`):
+    `id, platformId, name, taxCode, address, phone, type, createdAt, updatedAt`. **No lifecycle status.** A replay answers
+    **`200`** with `Idempotent-Replayed: true` and the stored result.
+  - Note: the unknown-Platform refusal in source is `404 not_found` (from the Platform lookup), not a `platform_not_found` code.
+    Admin shows both as the same tenant-safe refusal and never branches on the difference.
+- **Idempotency (organization-service)** (`idempotency/idempotency.service.ts:10-55`): scope **(caller, operation, key)**; the
+  request fingerprint is SHA-256 of the **normalised** request. Same key + same request → the stored result (replay); same key +
+  another request → **`422 idempotency_key_reused`**. A failed attempt reserves nothing, so it does not consume the key. The
+  step-up is consumed *before* the replay lookup, so a retry after an unknown outcome needs **the same key and a fresh step-up**;
+  it never creates a second Organization.
+- **Edit organization metadata, verified 2026-10-23 (P3b-0), not built** (`admin.controller.ts:169-189`):
+  `PATCH /organization/admin/organizations/:id` with any of `name`, `taxCode`, `address`, `phone`, `type` (same limits); **no
+  step-up and no `Idempotency-Key`**; authorized for the owner, an assigned operator, or an admin of that Organization. Planned
+  for P3b-S2; nothing in Admin calls or mocks it yet.
+
 ### Memberships, users and access (Auth)
 
 - Per organization (owner, operator, org admin): list memberships by status; approve / reject / revoke; join codes create / list /
   revoke (owner needs step-up); admin invitations (owner + step-up, operators refused); grant / revoke organization admin (owner +
   step-up). Controller: `auth-service/src/membership/organization.controller.ts`.
+- **Admin invitations, verified 2026-10-23 (P3b-0), not built** (`auth-service/src/membership/organization.controller.ts:122-150`,
+  `onboarding/invitation.service.ts:199-300`, `onboarding/dto.ts:32-39`): the owner with a **factor-only** step-up
+  (`admin_invitation.create` / `admin_invitation.revoke`), or an admin of that Organization without step-up; operators get a
+  collapsed `404`. The plaintext invitation code is returned **once**, in the create answer. **No idempotency key.** Planned for
+  P3b-S3.
 - Operators (owner): create (step-up `operator.create`), confirm, block / unblock (deliberately no step-up), platform assignments
   grant / revoke (step-up) and history.
 - Member security (owner + factor step-up, closed reason code): suspend / restore (`auth-service/src/members/member-security.controller.ts`).
@@ -204,7 +247,7 @@ Admin strategy and the decision required before A4.
 | Current user / grants | Auth | 🟢 Prod | `GET /auth/me`, `GET /auth/grants` | HTTP (A4/A6) |
 | MFA factor management | Auth | 🟢 Prod | `owner.controller.ts` `factors*` | HTTP (A7) |
 | WebAuthn (passkeys) | Auth | 🟢 Prod | `webauthn-options`, `factors/webauthn*`; RP `nawara-solutions.com` | HTTP + browser WebAuthn API (A4) |
-| Owner step-up | Auth | 🟢 Prod | `POST /auth/admin/step-up`, `x-step-up-token` | `StepUpGateway` (P4-S1): simulated mock in demo builds (opaque in-memory grant, single use, purpose- and user-bound, never Core evidence), unavailable otherwise; purposes limited to documented ones in use (`platform.create`) |
+| Owner step-up | Auth | 🟢 Prod | `POST /auth/admin/step-up`, `x-step-up-token` | `StepUpGateway` (P4-S1): simulated mock in demo builds (opaque in-memory grant, single use, purpose- and user-bound, expiring, never Core evidence), unavailable otherwise; purposes limited to documented ones in use: `platform.create` (P4-S1), `organization.create` (P3b-S1). Both accept TOTP, WebAuthn and secret key (`auth-service/src/owner/step-up.service.ts:23-56`); the demo simulates TOTP only |
 | Operator step-up | Auth | 🟡 | ADR-0042 A.1 accepted, not built | Hide/disable sensitive ops for operators |
 | Secret key rotate / password change | Auth | 🟢 Prod | `secret-key/rotate`, `password/change` | HTTP (A7) |
 | Organization directory (list/search) | Organization | 🔴 | org lists are service-token only | `OrganizationGateway.list(platformId)`, mock in demo builds (P3a); search, filters and sort in the browser; **CF-02** (V2 A5) |
@@ -246,6 +289,9 @@ Admin strategy and the decision required before A4.
 | Organization growth history | Organization | 🔴 | no history or time-series route (CF-12) | Mock, derived from the demo world's Organization creation dates (P2.5) |
 | "Needs attention" signals | Auth / Organization | 🔴 | none (CF-13) | Mock, fictional items |
 | Recent administrative activity, company-wide | Audit | 🔴 | owner reads one organization per request, ≤ 31 days; platform-level records service-only (CF-04) | Mock: the demo world's Platform events, newest first (P2.5) |
+| Create organization | Organization | 🟢 contract · ⚠ not authoritative | `POST /organization/admin/organizations` (see §5, verified P3b-0) | P3b-S1: the owner's flow (name + optional metadata → step-up `organization.create` → idempotent command) against a demo-world mock that succeeds by default, `409 not_authoritative` as a scenario; operators see it disabled (no operator step-up, CF-08); production binds the unavailable adapter (no HTTP adapter yet) |
+| Edit organization metadata | Organization | 🟢 contract · ⚠ not authoritative | `PATCH /organization/admin/organizations/:id` (§5) | Not built (P3b-S2) |
+| Organization admin invitations | Auth | 🟢 | `organization.controller.ts:122-150` (§5) | Not built (P3b-S3) |
 | Create platform | Organization | 🟢 contract · ⚠ not authoritative | `POST /organization/admin/platforms` (see §5) | P4-S1: the owner's flow (confirm → step-up `platform.create` → idempotent command) against a demo-world mock, `409 not_authoritative` as a scenario; production binds the unavailable adapter (no HTTP adapter: response DTO not verified, writes not authoritative before cutover) |
 | Access & security: owner account security | Auth | 🟢 Prod (page not built) | `GET /auth/admin/factors`, factor add/remove, `secret-key/rotate`, `password/change` (owner only) | Overview row only, action disabled; no score or rating is computed |
 | Access & security: operator assignments vs unique operators | Auth | 🔴 | assignments readable only per operator (`GET /auth/admin/operators/:id/platform-assignments`); no operator directory (CF-03) | Mock; assignments and unique operators kept as separate figures |
@@ -340,14 +386,17 @@ Recommended checkpoint: separate owner authorization when Admin first integrates
 CF-08  Operator step-up
 Service:          auth-service
 Current behavior: accepted (ADR-0042 A.1), not built; operators denied sensitive operations.
-Admin requirement: operators performing organization create and future sensitive operations.
+Admin requirement: operators performing organization create and future sensitive operations. Organization create is authorized
+                  for assigned operators by Core (canCreateOrganization) but needs the organization.create step-up, which
+                  operators cannot obtain: Admin shows it disabled for them (P3b-S1).
 Classification:   🟡
 V1 or V2:         V2 A4/A6.
 Recommended checkpoint: Core V2 A4.
 
 CF-09  Organization lifecycle
 Service:          organization-service
-Current behavior: BD-5 undecided; no status field.
+Current behavior: ADR-0060 (lifecycle architecture) accepted; runtime deferred (Core docs/CORE-V3-ROADMAP.md:33). No status,
+                  provisioning, readiness or activation field exists in any route or DTO.
 Admin requirement: suspend/archive presentation and "disabled organization" context handling.
 Classification:   🔴
 V1 or V2:         V2 A5.
@@ -509,6 +558,6 @@ Recommended checkpoint: before the A4-S4 HTTP integration.
 
 - Whether "License" becomes a Core term or remains Billing Subscription/Entitlement (V2 A10).
 - Operator capability sets / fine-grained permissions (V2 A6).
-- Organization lifecycle semantics (BD-5).
+- Organization lifecycle runtime (ADR-0060 accepted as architecture; implementation deferred, CF-09).
 - Whether operator administration is ever publicly browser-reachable (stage-10 study: open deployment/security choice).
 - Browser session model for administrative clients (CF-01).

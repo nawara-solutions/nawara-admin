@@ -141,8 +141,9 @@ export class ScopeContext {
   private readonly changes = signal(0);
 
   /**
-   * Increments when the Company's hierarchy changed (a Platform was created): views that list Platforms reload on it,
-   * so every view shows the change, not only the one that made it.
+   * Increments when the Company's hierarchy changed (a Platform or an Organization was created): views that list
+   * Platforms or Organizations, or count them, reload on it, so every view shows the change, not only the one that
+   * made it.
    */
   readonly revision = this.changes.asReadonly();
 
@@ -150,5 +151,13 @@ export class ScopeContext {
   hierarchyChanged(): void {
     this.changes.update((n) => n + 1);
     this.reload();
+  }
+
+  /**
+   * Reports a change inside a Platform (an Organization was created): the views that follow `revision` reload, but not
+   * the Platform directory, whose Platforms are unchanged (the platform-scope pages keep their access state).
+   */
+  organizationsChanged(): void {
+    this.changes.update((n) => n + 1);
   }
 }

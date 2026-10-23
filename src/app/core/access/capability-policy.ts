@@ -21,6 +21,13 @@ export type Capability =
    */
   | 'platform.create'
   /**
+   * Creating an Organization under a Platform: Core `POST /organization/admin/organizations` allows the owner of the
+   * Platform's Company and an operator assigned to it (`canCreateOrganization`), with step-up `organization.create` and
+   * an `Idempotency-Key`. Core has no step-up for operators (CF-08), so only the owner can complete it: an operator sees
+   * the action disabled, with that reason.
+   */
+  | 'organization.create'
+  /**
    * A Platform's commercial facts and policies (subscriptions, Personal Premium, payments, assisted payments): the owner.
    * No commercial read authority is confirmed for operators (Billing/Payment staff routes are Core V2 A10/A11).
    */
@@ -35,6 +42,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.overview.view',
   'company.platforms.view',
   'platform.create',
+  'organization.create',
   'platform.commercial.view',
   'platform.activity.view',
   'platform.access.view',

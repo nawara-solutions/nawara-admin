@@ -3,10 +3,11 @@ import { adapterUnavailable } from '../errors/app-error';
 import { FactorProof } from './auth.model';
 
 /**
- * The purposes a step-up is obtained for. Only documented Core purposes, and only those a built action uses
- * (docs/CORE-INTEGRATION.md §5: `platform.create` for `POST /organization/admin/platforms`). Machine values.
+ * The purposes a step-up is obtained for: Core's own (auth-service `step-up.service.ts` `STEP_UP_METHODS`), and only
+ * those a built action uses (docs/CORE-INTEGRATION.md §4, §5): `platform.create` for `POST /organization/admin/platforms`,
+ * `organization.create` for `POST /organization/admin/organizations`. Machine values.
  */
-export type StepUpPurpose = 'platform.create';
+export type StepUpPurpose = 'platform.create' | 'organization.create';
 
 /** A step-up grant: sent once, immediately, with the one operation of its purpose; never stored. */
 export interface StepUpGrant {

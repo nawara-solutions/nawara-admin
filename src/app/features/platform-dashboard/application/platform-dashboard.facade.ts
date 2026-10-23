@@ -54,6 +54,8 @@ export class PlatformDashboardFacade {
   private readonly dashboardGateway = inject(PlatformDashboardGateway);
   private readonly commercialGateway = inject(PlatformCommercialGateway);
   private readonly reloads = new Subject<void>();
+  /** The hierarchy changed (an Organization was created, here or elsewhere): the dashboard loads again. */
+  private readonly revision = toObservable(inject(ScopeContext).revision);
 
   readonly access = computed<PlatformAccess>(() =>
     platformAccessOf(this.context.scope(), this.context.platforms(), this.session.actor()),
@@ -185,7 +187,11 @@ export class PlatformDashboardFacade {
     platform: Signal<PlatformId | null>,
   ): Signal<ViewState<T>> {
     return toSignal(
-      combineLatest([toObservable(platform), this.reloads.pipe(startWith(undefined))]).pipe(
+      combineLatest([
+        toObservable(platform),
+        this.revision,
+        this.reloads.pipe(startWith(undefined)),
+      ]).pipe(
         switchMap(([id]) => (id === null ? of<ViewState<T>>(IDLE) : toViewState(request(id)))),
       ),
       { initialValue: IDLE as ViewState<T> },

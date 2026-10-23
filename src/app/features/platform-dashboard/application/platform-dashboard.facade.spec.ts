@@ -149,6 +149,18 @@ describe('PlatformDashboardFacade', () => {
     expect(commercial.requests.map((r) => r.platform)).toEqual([SCHOOL, SCHOOL]);
   });
 
+  it('loads again when an Organization was created (here or elsewhere), keeping its access state', async () => {
+    const { facade, dashboard, commercial, directory } = await setUp(owner);
+    const directoryCalls = directory.calls;
+    TestBed.inject(ScopeContext).organizationsChanged();
+    await settle();
+    expect(dashboard.requests.map((r) => r.platform)).toEqual([SCHOOL, SCHOOL]);
+    expect(commercial.requests.map((r) => r.platform)).toEqual([SCHOOL, SCHOOL]);
+    // The Platforms are unchanged: the directory is not asked again, so the page never goes back to "checking".
+    expect(directory.calls).toBe(directoryCalls);
+    expect(facade.access().status).toBe('granted');
+  });
+
   it('composes the owner’s attention: requests, invitations, then grace and payment warnings', async () => {
     const { facade, dashboard, commercial } = await setUp(owner);
     dashboard.requests[0]?.answer.next(dashboardOf(SCHOOL));

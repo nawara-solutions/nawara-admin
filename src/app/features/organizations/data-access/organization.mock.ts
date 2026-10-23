@@ -134,6 +134,12 @@ export class MockOrganizationGateway extends OrganizationGateway {
     const owner = viewer === 'owner';
     const detail: OrganizationDetail = {
       ...summaryOf(record),
+      metadata: {
+        taxCode: record.taxCode,
+        address: record.address,
+        phone: record.phone,
+        type: record.type,
+      },
       adminInvitationsAwaiting: owner
         ? { status: 'available', data: count(adminInvitationsOf(world, [record]).length) }
         : UNAVAILABLE,

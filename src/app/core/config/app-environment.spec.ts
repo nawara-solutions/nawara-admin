@@ -42,6 +42,7 @@ const bindings: DemoBindings = {
     organizations: [],
     organizationCommercial: [],
     platformCommands: [],
+    organizationCommands: [],
     stepUp: [],
   },
 };

@@ -41,7 +41,17 @@ export interface OrganizationActivityEntry {
   readonly occurredAt: string;
 }
 
+/** Core's optional Organization fields (`OrganizationDto`): user data, `null` when not given. */
+export interface OrganizationMetadata {
+  readonly taxCode: string | null;
+  readonly address: string | null;
+  readonly phone: string | null;
+  /** Opaque free text: never translated or interpreted. */
+  readonly type: string | null;
+}
+
 export interface OrganizationDetail extends OrganizationSummary {
+  readonly metadata: OrganizationMetadata;
   /** Owner only: organization-admin invitations awaiting acceptance (operators cannot manage invitations). */
   readonly adminInvitationsAwaiting: Section<Metric>;
   /** Owner only: Core's owner audit read, per Organization; operators have no audit read (CF-04). */
