@@ -1,0 +1,256 @@
+@switch (view()) {
+  @case ('beginRateLimited') {
+    <!-- Core's 429 gives no retry time: no countdown and no automatic retry, only the owner's own "Try again". -->
+    <adm-auth-card
+      centered
+      icon="hourglass"
+      [step]="view()"
+      [title]="'auth.enroll.beginRateLimitedTitle' | transloco"
+      [subtitle]="'auth.enroll.beginRateLimitedSubtitle' | transloco"
+    >
+      <div class="enroll__actions">
+        <button
+          nw-button
+          size="lg"
+          type="button"
+          [busy]="flow.busy() === 'beginEnrollment'"
+          [attr.aria-disabled]="flow.busy() !== null || null"
+          (click)="retry()"
+        >
+          @if (flow.busy() === 'beginEnrollment') {
+            <nw-spinner />
+            <span>{{ 'auth.enroll.preparing' | transloco }}</span>
+          } @else {
+            <nw-icon name="refresh-cw" size="sm" />
+            <span>{{ 'auth.banner.retry' | transloco }}</span>
+          }
+        </button>
+        <button type="button" class="working-code__back" (click)="back()">
+          <nw-icon name="arrow-left" size="sm" />
+          <span>{{ 'auth.enroll.backToSignIn' | transloco }}</span>
+        </button>
+      </div>
+    </adm-auth-card>
+  }
+  @case ('beginUnavailable') {
+    <adm-auth-card
+      centered
+      icon="cloud-off"
+      [step]="view()"
+      [title]="'auth.enroll.beginUnavailableTitle' | transloco"
+      [subtitle]="'auth.enroll.beginUnavailableSubtitle' | transloco"
+    >
+      <div class="enroll__actions">
+        <button
+          nw-button
+          size="lg"
+          type="button"
+          [busy]="flow.busy() === 'beginEnrollment'"
+          [attr.aria-disabled]="flow.busy() !== null || null"
+          (click)="retry()"
+        >
+          @if (flow.busy() === 'beginEnrollment') {
+            <nw-spinner />
+            <span>{{ 'auth.enroll.preparing' | transloco }}</span>
+          } @else {
+            <nw-icon name="refresh-cw" size="sm" />
+            <span>{{ 'auth.banner.retry' | transloco }}</span>
+          }
+        </button>
+        <button type="button" class="working-code__back" (click)="back()">
+          <nw-icon name="arrow-left" size="sm" />
+          <span>{{ 'auth.enroll.backToSignIn' | transloco }}</span>
+        </button>
+      </div>
+    </adm-auth-card>
+  }
+  @case ('expired') {
+    <adm-auth-card
+      centered
+      icon="timer-off"
+      [step]="view()"
+      [title]="'auth.enroll.expiredTitle' | transloco"
+      [subtitle]="'auth.enroll.expiredSubtitle' | transloco"
+    >
+      <div class="enroll__actions">
+        <button nw-button size="lg" type="button" (click)="back()">
+          <nw-icon name="arrow-left" size="sm" />
+          <span>{{ 'auth.enroll.backToSignIn' | transloco }}</span>
+        </button>
+      </div>
+      <p class="working-code__footnote">{{ 'auth.enroll.staleEntry' | transloco }}</p>
+    </adm-auth-card>
+  }
+  @case ('alreadyEnrolled') {
+    <adm-auth-card
+      centered
+      icon="badge-check"
+      [step]="view()"
+      [title]="'auth.enroll.alreadyTitle' | transloco"
+      [subtitle]="'auth.enroll.alreadySubtitle' | transloco"
+    >
+      <div class="enroll__actions">
+        <button nw-button size="lg" type="button" (click)="back()">
+          <nw-icon name="arrow-left" size="sm" />
+          <span>{{ 'auth.enroll.backToSignIn' | transloco }}</span>
+        </button>
+      </div>
+    </adm-auth-card>
+  }
+  @case ('noSetup') {
+    <adm-auth-card
+      centered
+      icon="circle-alert"
+      [step]="view()"
+      [title]="'auth.enroll.noSetupTitle' | transloco"
+      [subtitle]="'auth.enroll.noSetupSubtitle' | transloco"
+    >
+      <div class="enroll__actions">
+        <button nw-button size="lg" type="button" (click)="back()">
+          <nw-icon name="arrow-left" size="sm" />
+          <span>{{ 'auth.enroll.goToSignIn' | transloco }}</span>
+        </button>
+      </div>
+      <p class="working-code__footnote">{{ 'auth.enroll.staleEntry' | transloco }}</p>
+    </adm-auth-card>
+  }
+  @default {
+    <adm-auth-card
+      icon="shield-check"
+      [step]="view()"
+      [title]="'auth.enroll.title' | transloco"
+      [subtitle]="'auth.enroll.subtitle' | transloco"
+    >
+      @if (banner(); as b) {
+        <nw-inline-alert
+          [id]="bannerId"
+          [tone]="b.tone"
+          [icon]="b.icon"
+          [actionLabel]="b.retry ? ('auth.banner.retry' | transloco) : undefined"
+          actionIcon="refresh-cw"
+          (action)="retry()"
+          >{{ b.key | transloco }}</nw-inline-alert
+        >
+      }
+
+      <adm-identity-row
+        wrap
+        [label]="'auth.enroll.settingUpFor' | transloco"
+        [email]="flow.email()"
+      />
+
+      <div class="enroll__steps">
+        <section class="enroll__step" aria-labelledby="enroll-step-scan">
+          <h2 id="enroll-step-scan" class="enroll__step-title">
+            <span class="enroll__step-number">1</span>
+            <span>{{ 'auth.enroll.scanTitle' | transloco }}</span>
+          </h2>
+          @if (qr(); as code) {
+            <div
+              class="enroll__qr"
+              role="img"
+              [attr.aria-label]="'auth.enroll.qrLabel' | transloco"
+            >
+              <svg
+                class="enroll__qr-image"
+                aria-hidden="true"
+                shape-rendering="crispEdges"
+                [attr.viewBox]="'0 0 ' + code.size + ' ' + code.size"
+              >
+                <path fill="currentColor" [attr.d]="code.path" />
+              </svg>
+            </div>
+            <p class="enroll__hint">{{ 'auth.enroll.cantScan' | transloco }}</p>
+            <div class="enroll__key">
+              <div class="enroll__key-row">
+                <span class="enroll__key-label">{{ 'auth.enroll.keyLabel' | transloco }}</span>
+                <button nw-button variant="secondary" size="sm" type="button" (click)="copyKey()">
+                  <nw-icon name="copy" size="sm" />
+                  <span>{{ 'auth.enroll.copyKey' | transloco }}</span>
+                </button>
+              </div>
+              <code class="enroll__key-value" dir="ltr">{{ groupedKey() }}</code>
+              @switch (copyResult()) {
+                @case ('copied') {
+                  <p class="enroll__copy-status enroll__copy-status--copied" role="status">
+                    <nw-icon name="circle-check" size="sm" />
+                    <span>{{ 'auth.enroll.copied' | transloco }}</span>
+                  </p>
+                }
+                @case ('failed') {
+                  <p class="enroll__copy-status enroll__copy-status--failed" role="status">
+                    <nw-icon name="circle-alert" size="sm" />
+                    <span>{{ 'auth.enroll.copyFailed' | transloco }}</span>
+                  </p>
+                }
+              }
+            </div>
+            <p class="enroll__meta">{{ 'auth.enroll.keyMeta' | transloco }}</p>
+          } @else {
+            <div class="enroll__qr enroll__qr--preparing" role="status">
+              <nw-spinner size="lg" />
+              <span>{{ 'auth.enroll.preparing' | transloco }}</span>
+            </div>
+            <div class="enroll__skeleton" aria-hidden="true"><span></span><span></span></div>
+          }
+        </section>
+
+        <section class="enroll__step" aria-labelledby="enroll-step-code">
+          <h2 id="enroll-step-code" class="enroll__step-title">
+            <span class="enroll__step-number">2</span>
+            <span>{{ 'auth.enroll.codeTitle' | transloco }}</span>
+          </h2>
+          <form
+            class="working-code__form"
+            novalidate
+            [attr.aria-busy]="confirming()"
+            (submit)="submit($event)"
+          >
+            @let errorKey = codeError();
+            <nw-form-field
+              [label]="'auth.enroll.codeLabel' | transloco"
+              [hint]="'auth.enroll.codeHint' | transloco"
+              [error]="errorKey ? (errorKey | transloco) : undefined"
+              [errorRef]="invalidRef()"
+            >
+              <input
+                nwControl
+                class="nw-control--lg working-code__code"
+                type="text"
+                name="authenticator-code"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                spellcheck="false"
+                dir="ltr"
+                [value]="code()"
+                [disabled]="preparing()"
+                [readOnly]="confirming()"
+                (input)="onCode($event)"
+              />
+            </nw-form-field>
+            <button
+              nw-button
+              size="lg"
+              type="submit"
+              [busy]="confirming()"
+              [attr.aria-disabled]="confirming() || preparing() || null"
+            >
+              @if (confirming()) {
+                <nw-spinner />
+              }
+              <span>{{
+                (confirming() ? 'auth.enroll.confirming' : 'auth.enroll.confirm') | transloco
+              }}</span>
+            </button>
+          </form>
+        </section>
+      </div>
+
+      <p class="working-code__footnote">{{ 'auth.enroll.keepOpen' | transloco }}</p>
+      <button type="button" class="working-code__back" (click)="back()">
+        <nw-icon name="arrow-left" size="sm" />
+        <span>{{ 'auth.enroll.backToSignIn' | transloco }}</span>
+      </button>
+    </adm-auth-card>
+  }
+}

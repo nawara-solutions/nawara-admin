@@ -5,11 +5,13 @@ import {
   UrlTree,
   provideRouter,
 } from '@angular/router';
+import { guestGuard } from '../../core/access/access.guards';
 import { Actor } from '../../core/auth/actor';
 import { AuthSession } from '../../core/auth/auth-session';
 import { APP_ENVIRONMENT, DemoBindings } from '../../core/config/app-environment';
 import { companyId, platformId } from '../../core/context/scope.model';
-import { platformChoiceGuard } from './auth.routes';
+import { loadAuthRoutes, platformChoiceGuard } from './auth.routes';
+import { EnrollPage } from './pages/enroll/enroll.page';
 
 const DEMO: DemoBindings = {
   signIn: {
@@ -68,5 +70,15 @@ describe('platformChoiceGuard', () => {
     expect(
       run({ kind: 'owner', userId: 'o', email: 'o@x.invalid', companyId: companyId('c') }),
     ).toBe('/');
+  });
+});
+
+describe('auth routes: authenticator setup', () => {
+  it('serves /login/enroll to guests only, as the lazily loaded enrollment page', async () => {
+    const [frame] = await loadAuthRoutes({ production: false, demo: { load: async () => DEMO } });
+    const enroll = frame?.children?.find((route) => route.path === 'enroll');
+    expect(enroll?.title).toBe('titles.enroll');
+    expect(enroll?.canActivate).toEqual([guestGuard]);
+    expect(await enroll?.loadComponent?.()).toBe(EnrollPage);
   });
 });

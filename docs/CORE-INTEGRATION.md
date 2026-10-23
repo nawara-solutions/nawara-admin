@@ -474,6 +474,32 @@ Admin requirement: code messages in the operator's language (EN/FR/AR), or an ag
 Classification:   🟡 product decision and contract addition.
 V1 or V2:         to decide by the Core owner.
 Recommended checkpoint: before the working-code and confirmation HTTP integration.
+
+CF-21  Owner enrollment routes: SDD versus source
+Service:          auth-service (documentation and source)
+Current behavior: recorded, not resolved here (origin/main 1ad43d2). docs/sdd/auth-service.md (factor section, ~1997–2001)
+                  says first-factor enrollment uses POST /auth/admin/factors/* with "Bearer or the enrollmentToken". The source
+                  takes the enrollment token only on POST /auth/admin/enroll/totp, enroll/totp/confirm, enroll/webauthn/options
+                  and enroll/webauthn, as a body field (owner/owner.controller.ts:70–99, owner/dto.ts); the factors/* routes
+                  require an owner session (@Actors('owner')) and, once a factor exists, step-up owner.factor.enroll.
+Admin requirement: Core states which route family is the contract. Until then Admin follows the source: enrollment-token
+                  calls go to enroll/*, never to factors/*; adding a factor from a session is a separate flow.
+Classification:   🟡 documentation/source discrepancy.
+V1 or V2:         V1 (documentation or source fix, Core owner's choice).
+Recommended checkpoint: before the A4-S4 HTTP integration.
+
+CF-22  Owner enrollment completion: SDD versus source
+Service:          auth-service (documentation and source)
+Current behavior: recorded, not resolved here (origin/main 1ad43d2). docs/sdd/auth-service.md (sign-in section, ~1934–1937)
+                  says the mfa_required / enrollment_required flow "completes at POST /auth/admin/login/owner/verify". In the
+                  source, login/owner/verify accepts only login_mfa challenge tokens; enrollment completes at
+                  enroll/totp/confirm or enroll/webauthn, which consume the enrollment token and issue the first session
+                  ({accessToken, refreshToken, expiresIn}) in the same transaction (owner/enrollment.service.ts:78–102).
+Admin requirement: Core states the intended completion. Until then Admin follows the source: a confirmed enrollment establishes
+                  the session directly and is followed by the usual identity/access resolution, with no further MFA challenge.
+Classification:   🟡 documentation/source discrepancy.
+V1 or V2:         V1 (documentation or source fix, Core owner's choice).
+Recommended checkpoint: before the A4-S4 HTTP integration.
 ```
 
 ## 10. Undefined architectural decisions (Core side)

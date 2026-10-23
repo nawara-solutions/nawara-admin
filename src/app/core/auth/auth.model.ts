@@ -22,8 +22,18 @@ export interface MfaChallenge {
 export type LoginOutcome =
   | { readonly kind: 'session' }
   | { readonly kind: 'mfa_required'; readonly challenge: MfaChallenge }
-  | { readonly kind: 'enrollment_required' }
+  | { readonly kind: 'enrollment_required'; readonly enrollmentToken: string }
   | { readonly kind: 'recovery_required' };
+
+/**
+ * `POST /auth/admin/enroll/totp`: a new, unconfirmed authenticator factor. `secret` (base32) and `otpauthUri` are shown
+ * once, held in the enrollment page's flow memory only, never stored, put in a URL or logged.
+ */
+export interface TotpEnrollment {
+  readonly factorId: string;
+  readonly secret: string;
+  readonly otpauthUri: string;
+}
 
 /** The browser's answer to a passkey prompt, passed to Core unread. */
 export interface PasskeyAssertion {

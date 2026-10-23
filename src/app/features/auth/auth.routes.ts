@@ -49,6 +49,12 @@ export async function loadAuthRoutes(environment: AppEnvironment): Promise<Route
           loadComponent: () => import('./pages/mfa/mfa.page').then((m) => m.MfaPage),
         },
         {
+          path: 'enroll',
+          title: 'titles.enroll',
+          canActivate: [guestGuard],
+          loadComponent: () => import('./pages/enroll/enroll.page').then((m) => m.EnrollPage),
+        },
+        {
           path: 'code',
           title: 'titles.workingCode',
           canActivate: [guestGuard],

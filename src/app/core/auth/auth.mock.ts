@@ -12,6 +12,8 @@ import {
   DEMO_OPERATORS,
   DEMO_PASSWORD,
   DEMO_TOTP_CODE,
+  DEMO_TOTP_ISSUER,
+  DEMO_TOTP_SECRET,
   DEMO_WORKING_CODE,
   DemoAccount,
   DemoOperator,
@@ -24,6 +26,7 @@ import {
   LoginOutcome,
   PasskeyAssertion,
   PasskeyRequest,
+  TotpEnrollment,
 } from './auth.model';
 import { OperatorIdentifier } from './operator-identifier';
 import { PasskeyPromptError, WebAuthnClient } from './webauthn-client';
@@ -33,6 +36,37 @@ const CHALLENGE_LIFETIME_MS = 5 * 60_000;
 
 /** Core's `MAX_CODE_ATTEMPTS`: five wrong guesses kill a working code (`operator-code.service.ts`). */
 const WORKING_CODE_ATTEMPTS = 5;
+
+/**
+ * Core's per-token attempt budget (`MAX_CHALLENGE_ATTEMPTS`, `challenge.service.ts`): every refused confirmation counts
+ * one; the fifth still answers its own error (`400`), and consumes the token, so every later begin or confirm is `401`.
+ * Order of Core's answers on both enrollment routes (`owner.controller.ts` → `enrollment.service.ts` `fromToken`, then the
+ * `factor_enroll_owner` throttle): a dead token `401`, then `403 factor_already_enrolled`, then the throttle's `429`, all
+ * before anything is counted. The mock answers in the same order.
+ */
+const ENROLLMENT_ATTEMPTS = 5;
+
+/** Core's answer for an enrollment token that is invalid, expired, used or exhausted. */
+const ENROLLMENT_TOKEN_INVALID: AppError = {
+  kind: 'unauthenticated',
+  code: 'verification_failed',
+  status: 401,
+};
+
+/** Core's answer, on either enrollment route, once the owner has a confirmed factor. */
+const FACTOR_ALREADY_ENROLLED: AppError = {
+  kind: 'forbidden',
+  code: 'factor_already_enrolled',
+  status: 403,
+};
+
+/** A pending enrollment: the owner, the factor begun last (if any), and the attempts left on its token. */
+interface PendingEnrollment {
+  readonly account: DemoAccount;
+  readonly expiresAt: number;
+  factorId: string | null;
+  attemptsLeft: number;
+}
 
 /** Every demo operator: the confirmed ones (working-code sign-in) and the new ones (contact confirmation first). */
 const ALL_OPERATORS: readonly DemoOperator[] = [...DEMO_OPERATORS, ...DEMO_NEW_OPERATORS];
@@ -58,6 +92,9 @@ const sameIdentifier = (a: OperatorIdentifier, b: OperatorIdentifier): boolean =
 export class MockAuthGateway extends AuthGateway {
   private readonly latency = inject(DEMO_LATENCY_MS);
   private readonly challenges = new Map<string, { account: DemoAccount; expiresAt: number }>();
+  private readonly enrollments = new Map<string, PendingEnrollment>();
+  /** Owners who completed enrollment in this session (by user id): their next sign-in asks for the code. */
+  private readonly enrolledOwners = new Set<string>();
   /** The live working code per operator (by user id): wrong guesses left. Issuing replaces; success consumes. */
   private readonly workingCodes = new Map<string, number>();
   /** Operators whose contact is confirmed (by user id). Core issues working codes only to them. */
@@ -79,12 +116,23 @@ export class MockAuthGateway extends AuthGateway {
     );
     if (!account || password !== DEMO_PASSWORD)
       return this.fail({ kind: 'unauthenticated', status: 401 });
-    switch (account.next.kind) {
+    const next = this.enrolledOwners.has(account.identity.userId)
+      ? ({ kind: 'mfa', methods: ['totp'] } as const)
+      : account.next;
+    switch (next.kind) {
       case 'session':
         this.signedIn = account;
         return this.answer<LoginOutcome>({ kind: 'session' });
-      case 'enrollment':
-        return this.answer<LoginOutcome>({ kind: 'enrollment_required' });
+      case 'enrollment': {
+        const enrollmentToken = crypto.randomUUID();
+        this.enrollments.set(enrollmentToken, {
+          account,
+          expiresAt: Date.now() + CHALLENGE_LIFETIME_MS,
+          factorId: null,
+          attemptsLeft: ENROLLMENT_ATTEMPTS,
+        });
+        return this.answer<LoginOutcome>({ kind: 'enrollment_required', enrollmentToken });
+      }
       case 'recovery':
         return this.answer<LoginOutcome>({ kind: 'recovery_required' });
       case 'mfa': {
@@ -92,7 +140,7 @@ export class MockAuthGateway extends AuthGateway {
         this.challenges.set(token, { account, expiresAt: Date.now() + CHALLENGE_LIFETIME_MS });
         return this.answer<LoginOutcome>({
           kind: 'mfa_required',
-          challenge: { token, methods: account.next.methods },
+          challenge: { token, methods: next.methods },
         });
       }
     }
@@ -102,7 +150,9 @@ export class MockAuthGateway extends AuthGateway {
     const pending = this.live(challenge);
     if (!pending) return this.fail({ kind: 'not_found', status: 404 });
     const next = pending.account.next;
-    const offered = next.kind === 'mfa' && next.methods.includes(proof.method);
+    const offered =
+      (next.kind === 'mfa' && next.methods.includes(proof.method)) ||
+      (this.enrolledOwners.has(pending.account.identity.userId) && proof.method === 'totp');
     // A simulated passkey assertion is accepted unchecked (see SimulatedWebAuthnClient).
     const valid = proof.method === 'passkey' || proof.code.replace(/\s/g, '') === DEMO_TOTP_CODE;
     if (!offered || !valid) return this.fail({ kind: 'unauthenticated', status: 401 });
@@ -121,6 +171,49 @@ export class MockAuthGateway extends AuthGateway {
         timeout: 60_000,
       },
     });
+  }
+
+  /**
+   * Like Core's `enroll/totp`: a live token begins a new, unconfirmed factor (a new `factorId` each time) and returns its
+   * key. The key is the one FICTIONAL demo key; nothing here is a real secret.
+   */
+  beginTotpEnrollment(enrollmentToken: string): Observable<TotpEnrollment> {
+    const pending = this.liveEnrollment(enrollmentToken);
+    if (!pending) return this.fail(ENROLLMENT_TOKEN_INVALID);
+    const scenario = this.enrollmentScenario(pending);
+    if (scenario === 'alreadyEnrolled') return this.fail(FACTOR_ALREADY_ENROLLED);
+    if (scenario === 'beginUnavailable') return this.fail({ kind: 'unavailable', status: 503 });
+    if (scenario === 'beginLimited') return this.fail({ kind: 'rate_limited', status: 429 });
+    pending.factorId = crypto.randomUUID();
+    const issuer = encodeURIComponent(DEMO_TOTP_ISSUER);
+    const label = `${issuer}:${encodeURIComponent(pending.account.identity.email)}`;
+    return this.answer<TotpEnrollment>({
+      factorId: pending.factorId,
+      secret: DEMO_TOTP_SECRET,
+      otpauthUri: `otpauth://totp/${label}?secret=${DEMO_TOTP_SECRET}&issuer=${issuer}&algorithm=SHA1&digits=6&period=30`,
+    });
+  }
+
+  /**
+   * Like Core's `enroll/totp/confirm`: the right code (`DEMO_TOTP_CODE`; the mock computes no TOTP) consumes the token and
+   * signs in, with no further MFA. A wrong code is `400` and uses one of the token's attempts; a dead token is `401`.
+   */
+  confirmTotpEnrollment(enrollmentToken: string, factorId: string, code: string): Observable<void> {
+    const pending = this.liveEnrollment(enrollmentToken);
+    if (!pending) return this.fail(ENROLLMENT_TOKEN_INVALID);
+    const scenario = this.enrollmentScenario(pending);
+    if (scenario === 'alreadyEnrolled') return this.fail(FACTOR_ALREADY_ENROLLED);
+    if (scenario === 'confirmUnavailable') return this.fail({ kind: 'unavailable', status: 503 });
+    if (scenario === 'confirmLimited') return this.fail({ kind: 'rate_limited', status: 429 });
+    // Like Core's `factors.confirmTotp`: a factor that is not the one begun, or a wrong code, is the same counted 400.
+    if (pending.factorId !== factorId || code.replace(/\s/g, '') !== DEMO_TOTP_CODE) {
+      pending.attemptsLeft -= 1;
+      return this.fail({ kind: 'validation', messages: [], status: 400 });
+    }
+    this.enrollments.delete(enrollmentToken);
+    this.enrolledOwners.add(pending.account.identity.userId);
+    this.signedIn = pending.account;
+    return this.answer(undefined);
   }
 
   /** Always 204, like Core: nothing says whether the account exists or a code was sent (none, if unconfirmed). */
@@ -207,6 +300,17 @@ export class MockAuthGateway extends AuthGateway {
 
   private operator(identifier: OperatorIdentifier): DemoOperator | undefined {
     return ALL_OPERATORS.find((candidate) => sameIdentifier(candidate.identifier, identifier));
+  }
+
+  /** A live token: known, unexpired and not out of attempts (Core consumes it on the fifth refusal). */
+  private liveEnrollment(enrollmentToken: string): PendingEnrollment | null {
+    const pending = this.enrollments.get(enrollmentToken);
+    return pending && pending.expiresAt > Date.now() && pending.attemptsLeft > 0 ? pending : null;
+  }
+
+  private enrollmentScenario(pending: PendingEnrollment) {
+    const next = pending.account.next;
+    return next.kind === 'enrollment' ? next.scenario : 'normal';
   }
 
   private live(challenge: string) {

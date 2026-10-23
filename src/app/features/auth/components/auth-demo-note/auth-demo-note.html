@@ -24,6 +24,12 @@
     <dt>{{ 'auth.demo.passkey' | transloco }}</dt>
     <dd class="auth-demo-note__text">{{ 'auth.demo.passkeySimulated' | transloco }}</dd>
   </div>
+  @if (enrollmentNote(); as note) {
+    <div class="auth-demo-note__row">
+      <dt>{{ 'auth.demo.enrollmentQr' | transloco }}</dt>
+      <dd class="auth-demo-note__text">{{ note }}</dd>
+    </div>
+  }
 </dl>
 @if (hint().operators.length > 0) {
   <p class="auth-demo-note__title auth-demo-note__title--section">
