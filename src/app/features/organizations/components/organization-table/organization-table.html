@@ -1,0 +1,133 @@
+<div [id]="listId()">
+  <table class="organization-table__table">
+    <caption class="nw-visually-hidden">
+      {{
+        'organizations.table.label' | transloco
+      }}
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">{{ 'organizations.table.organization' | transloco }}</th>
+        <th scope="col" class="organization-table__number">
+          {{ 'organizations.table.memberships' | transloco }}
+        </th>
+        <th scope="col" class="organization-table__number">
+          {{ 'organizations.table.pending' | transloco }}
+        </th>
+        @if (commercial()) {
+          <th scope="col">{{ 'organizations.table.subscription' | transloco }}</th>
+          <th scope="col">{{ 'organizations.table.assistedPayments' | transloco }}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track row.organization.id) {
+        <tr>
+          <th scope="row">
+            <a class="organization-table__link" [routerLink]="pathOf(row)">
+              <bdi>{{ row.organization.name }}</bdi>
+            </a>
+            <span class="organization-table__created">{{
+              'organizations.header.created'
+                | transloco: { date: row.organization.createdAt | nwDate: 'date' }
+            }}</span>
+          </th>
+          <td class="organization-table__number">
+            <adm-metric-value [metric]="row.organization.memberships" />
+          </td>
+          <td class="organization-table__number">
+            <adm-metric-value [metric]="row.organization.pendingRequests" />
+          </td>
+          @if (commercial()) {
+            @if (row.commercial; as facts) {
+              <td>
+                <nw-status-badge [tone]="badges[facts.subscription.state].tone">{{
+                  badges[facts.subscription.state].key | transloco
+                }}</nw-status-badge>
+                @if (noteOf(row); as note) {
+                  <span class="organization-table__note">
+                    @if (note.kind === 'ends') {
+                      {{
+                        'organizations.subscription.ends'
+                          | transloco: { when: note.at | nwDate: 'until' }
+                      }}
+                    } @else {
+                      {{
+                        'organizations.subscription.graceEnds'
+                          | transloco: { when: note.at | nwDate: 'date-time' }
+                      }}
+                    }
+                  </span>
+                }
+              </td>
+              <td>
+                @let policy = policyKeys(facts.assistedPayments);
+                <span class="organization-table__policy">{{ policy.value | transloco }}</span>
+                <span class="organization-table__source">{{ policy.source | transloco }}</span>
+              </td>
+            } @else {
+              <td>
+                <span aria-hidden="true">—</span
+                ><span class="nw-visually-hidden">{{
+                  'organizations.table.unavailable' | transloco
+                }}</span>
+              </td>
+              <td>
+                <span aria-hidden="true">—</span
+                ><span class="nw-visually-hidden">{{
+                  'organizations.table.unavailable' | transloco
+                }}</span>
+              </td>
+            }
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <ul class="organization-table__list" role="list">
+    @for (row of rows(); track row.organization.id) {
+      <li>
+        <a class="organization-table__card" [routerLink]="pathOf(row)">
+          <bdi class="organization-table__name">{{ row.organization.name }}</bdi>
+          <span class="organization-table__facts">
+            <span>
+              <adm-metric-value [metric]="row.organization.memberships" />
+              {{ 'organizations.table.membershipsShort' | transloco }}
+            </span>
+            <span>
+              <adm-metric-value [metric]="row.organization.pendingRequests" />
+              {{ 'organizations.table.pendingShort' | transloco }}
+            </span>
+          </span>
+          <span class="organization-table__facts">
+            @if (commercial() && row.commercial; as facts) {
+              <nw-status-badge [tone]="badges[facts.subscription.state].tone">{{
+                badges[facts.subscription.state].key | transloco
+              }}</nw-status-badge>
+              @if (noteOf(row); as note) {
+                <span class="organization-table__note">
+                  @if (note.kind === 'ends') {
+                    {{
+                      'organizations.subscription.ends'
+                        | transloco: { when: note.at | nwDate: 'until' }
+                    }}
+                  } @else {
+                    {{
+                      'organizations.subscription.graceEnds'
+                        | transloco: { when: note.at | nwDate: 'date-time' }
+                    }}
+                  }
+                </span>
+              }
+            }
+            <span>{{
+              'organizations.header.created'
+                | transloco: { date: row.organization.createdAt | nwDate: 'date' }
+            }}</span>
+          </span>
+        </a>
+      </li>
+    }
+  </ul>
+</div>

@@ -49,9 +49,23 @@
   background-color: var(--nw-surface-sunken);
 }
 
-.recent-organizations__name {
+.recent-organizations__name,
+.recent-organizations__link {
+  color: var(--nw-text-primary);
   font-weight: var(--nw-font-weight-semibold);
+  text-decoration: none;
   overflow-wrap: anywhere;
+
+  &:hover {
+    color: var(--nw-text-link);
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    border-radius: var(--nw-radius-sm);
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: 2px;
+  }
 }
 
 .recent-organizations__facts {

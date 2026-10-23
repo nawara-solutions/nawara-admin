@@ -19,6 +19,7 @@ const MARKERS = [
   'COMPANY_OVERVIEW_DEMO_SCENARIO', // mock adapter token (company-overview.mock.ts)
   'PLATFORM_DIRECTORY_DEMO_SCENARIO', // mock adapter token (platform-directory.mock.ts)
   'PLATFORM_DASHBOARD_DEMO_SCENARIO', // mock adapter token (platform-dashboard.mock.ts)
+  'ORGANIZATIONS_DEMO_SCENARIO', // mock adapter token (organization.mock.ts)
 ];
 
 if (!existsSync(DIST)) {

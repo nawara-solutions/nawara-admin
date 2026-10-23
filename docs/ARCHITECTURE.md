@@ -182,13 +182,15 @@ Lazy-loaded feature routes. Titles are localized through a custom `TitleStrategy
 /                              → /overview
 /overview                      Company overview: company scope, owner only            🔴 aggregates (mock in demo builds)
 /platforms/:platformId         Platform dashboard: owner or assigned operator (P2)       🟢 access check · 🔴 names, aggregates
+/platforms/:platformId/organizations                  Organization directory (P3a)    🔴 list, mock until CF-02
+/platforms/:platformId/organizations/:organizationId  Organization detail, read only  🟢 single read · 🟡 commercial (owner)
 /forbidden  /** (in the shell) "not available to your account" / "page not found"
 /session-unavailable           no session in this build (every production build until A4)
 /foundation                    A2 design-foundation gallery (verification surface)
 
-/organizations                 directory                                      🔴 mock until CF-02
-/organizations/:organizationId                                                 organization context
-    /overview                  organization detail                            🟢
+Organizations are entities of platform scope (amendment, P3a, 2026-10-23): their pages live below
+/platforms/:platformId/organizations/:organizationId. Planned child pages (not built; one page today):
+    (detail)                   organization detail                            🟢
     /members                   memberships: pending / active / revoked         🟢
     /access                    join codes · admin invitations · org admins     🟢
     /licenses                  subscription / entitlement                      🟡
@@ -246,10 +248,25 @@ organization context, both derived from the URL (`scopeFromUrl` in `core/context
   bound by the shell route; `ScopeContext` (shell-scoped) exposes the scope and the directory as signals.
 - Platform administration pages are later stages; until then the platform scope shows a labelled placeholder.
 
-**Organization context** is entered by URL (`/organizations/:organizationId/…`):
+**Organizations inside platform scope** (amendment, P3a, 2026-10-23; replaces the earlier top-level `/organizations/:organizationId`
+and its root `OrganizationContext`). An Organization is an entity of the Platform in the URL, never a third scope:
 
-- `OrganizationContext` (root, `core/context`) derives `organizationId` from the router as a signal and loads the organization through
-  `OrganizationGateway` (today `GET /auth/admin/organizations/:id`).
+- URLs: `/platforms/:platformId/organizations` (directory) and `/platforms/:platformId/organizations/:organizationId` (detail).
+  `scopeFromUrl` reads both as platform scope; `ScopeContext.platformPage` says which page it is.
+- **No `OrganizationContext` yet.** The route-scoped `OrganizationDetailFacade` follows the URL and loads the Organization through
+  `OrganizationGateway.load(organizationId)` (Core's single read, `GET /auth/admin/organizations/:id`, takes the id alone). When several
+  Organization child pages share state (members, settings), an `OrganizationContext` is provided at the `:organizationId` route, never
+  at the root.
+- **Order of checks:** the Platform first (`platformAccessOf`, the same gate as the Platform dashboard), then the Organization; the
+  answer is shown only if it is the Organization in the URL **and** belongs to the Platform in the URL. Unknown, not yours and
+  another Platform's are one "not found or not accessible" state. An outage (`503`) is "could not be loaded, try again", never a
+  refusal.
+- **Owner-only facts** (subscription, payment issues, assisted-payments policy: `OrganizationCommercialGateway`; invitations and
+  activity) are never requested for an operator.
+- **Breadcrumbs** show the Organization's name from its page (`EntityLabel`, shell-provided), keyed by path and signed-in actor, so a
+  stale name is never shown.
+
+The rules below still hold for the Organization pages that come later:
 - **Gateways always take the organization id as an explicit parameter.** No adapter reads a hidden "current organization". This keeps
   calls testable and prevents a request from one context leaking into another.
 - **Refresh / deep link:** the URL rebuilds the context. Nothing is required from storage.
@@ -257,12 +274,10 @@ organization context, both derived from the URL (`scopeFromUrl` in `core/context
   does not distinguish the two cases.
 - **Stale:** a `403`/`404` on an organization-scoped call while in context marks the context invalid. A banner explains it and links
   to the directory, and further org-scoped requests stop.
-- **Disabled / archived:** Core has no lifecycle yet (CF-09). The view model reserves a `lifecycle` field that is `unknown` until Core
-  defines it.
-- **Switching:** the switcher (a combobox) offers recent organizations (kept in memory for the session) and directory search (🔴 mock).
-  Switching navigates to the **same child route** in the new organization, cancels in-flight requests (`switchMap` on the id), and
-  **resets organization-scoped facades**, which are keyed by organization id and reset when it changes. Session, grants and
-  preferences are untouched. Route-level providers are not relied on for teardown.
+- **Disabled / archived:** Core has no lifecycle yet (CF-09). No lifecycle state is shown or modelled until Core defines one.
+- **Switching** (P3a: by navigation, from the directory): a new id cancels in-flight requests (`switchMap` on the id), and
+  facades are keyed by id, so an answer for the previous Organization is shown as loading. Session, grants and preferences are
+  untouched. Route-level providers are not relied on for teardown. An Organization switcher is not built.
 - **No token switching.** Selecting an organization is context selection, not authentication. Core authorizes each request from the
   same human's bearer (Core roadmap, ADR-0050).
 

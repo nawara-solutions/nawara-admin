@@ -49,6 +49,11 @@ export const organizationsOf = (
   platform: PlatformId,
 ): readonly OrganizationRecord[] => world.organizations.filter((o) => o.platformId === platform);
 
+export const organizationOf = (
+  world: DemoWorldTables,
+  organization: OrganizationId,
+): OrganizationRecord | undefined => world.organizations.find((o) => o.id === organization);
+
 export const organizationsOfCompany = (world: DemoWorldTables): readonly OrganizationRecord[] =>
   world.organizations.filter((o) => isCompanyPlatform(world, o.platformId));
 
@@ -156,6 +161,12 @@ const subscriptionOf = (
 ): OrganizationSubscriptionRecord | undefined =>
   world.subscriptions.find((s) => s.organizationId === organization);
 
+/** When the Organization's one subscription ends (UTC instant), or `null` when it has none. */
+export const subscriptionEndOf = (
+  world: DemoWorldTables,
+  organization: OrganizationId,
+): string | null => subscriptionOf(world, organization)?.endsAt ?? null;
+
 /** Active until it ends, then in grace for 24 hours, then no subscription. No record: no subscription. */
 export function subscriptionStateOf(
   world: DemoWorldTables,
@@ -207,6 +218,26 @@ export const paymentIssuesOf = (
 export const platformCommercialOf = (world: DemoWorldTables, platform: PlatformId) =>
   world.platformCommercial.find((c) => c.platformId === platform);
 
+/**
+ * The assisted-payments policy that applies to an Organization: the Platform's setting, unless the Organization is set
+ * to `disabled` (an override can only turn it off; a disabled Platform cannot be enabled below). `null`: the Platform
+ * has no commercial record.
+ */
+export function assistedPaymentsOf(
+  world: DemoWorldTables,
+  organization: OrganizationRecord,
+): {
+  readonly effective: 'enabled' | 'disabled';
+  readonly platform: 'enabled' | 'disabled';
+  readonly organization: 'inherit' | 'disabled';
+} | null {
+  const platform = platformCommercialOf(world, organization.platformId)?.assistedPayments;
+  if (platform === undefined) return null;
+  const effective =
+    platform === 'enabled' && organization.assistedPayments === 'inherit' ? 'enabled' : 'disabled';
+  return { effective, platform, organization: organization.assistedPayments };
+}
+
 // ── Activity ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 /** Newest first; ties broken by id, so the order is stable. */
@@ -222,6 +253,13 @@ export const activityOf = (
 /** The Company's activity: every Platform's events, in one order. */
 export const companyActivity = (world: DemoWorldTables): readonly ActivityRecord[] =>
   world.activity.filter((e) => isCompanyPlatform(world, e.platformId)).sort(newestEventFirst);
+
+/** One Organization's events, newest first (ties by id). */
+export const activityOfOrganization = (
+  world: DemoWorldTables,
+  organization: OrganizationId,
+): readonly ActivityRecord[] =>
+  world.activity.filter((e) => e.organizationId === organization).sort(newestEventFirst);
 
 export const organizationNameOf = (
   world: DemoWorldTables,

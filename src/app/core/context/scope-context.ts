@@ -5,7 +5,15 @@ import { Subject, combineLatest, filter, map, of, shareReplay, startWith, switch
 import { AuthSession } from '../auth/auth-session';
 import { ViewState, toViewState } from '../state/view-state';
 import { ScopeDirectoryGateway } from './scope-directory.gateway';
-import { AdminScope, CompanyDirectory, PlatformId, PlatformRef, platformId } from './scope.model';
+import {
+  AdminScope,
+  CompanyDirectory,
+  OrganizationId,
+  PlatformId,
+  PlatformRef,
+  organizationId,
+  platformId,
+} from './scope.model';
 
 /** Route prefix of the platform scope (docs/ARCHITECTURE.md §6, §7). */
 export const PLATFORM_SCOPE_SEGMENT = 'platforms';
@@ -13,6 +21,33 @@ export const PLATFORM_SCOPE_SEGMENT = 'platforms';
 /** The platform-scope URL of a Platform (docs/ARCHITECTURE.md §6). */
 export const platformPath = (platform: PlatformId): string =>
   `/${PLATFORM_SCOPE_SEGMENT}/${encodeURIComponent(platform)}`;
+
+/** Below a Platform: its Organizations (an entity of platform scope, never a scope of its own; docs/ARCHITECTURE.md §7). */
+export const ORGANIZATIONS_SEGMENT = 'organizations';
+
+export const organizationsPath = (platform: PlatformId): string =>
+  `${platformPath(platform)}/${ORGANIZATIONS_SEGMENT}`;
+
+export const organizationPath = (platform: PlatformId, organization: OrganizationId): string =>
+  `${organizationsPath(platform)}/${encodeURIComponent(organization)}`;
+
+/** Where in platform scope a URL is: the dashboard, the Organization directory, or one Organization. */
+export type PlatformPage =
+  | { readonly kind: 'dashboard' }
+  | { readonly kind: 'organizations' }
+  | { readonly kind: 'organization'; readonly organizationId: OrganizationId }
+  | { readonly kind: 'other' };
+
+export function platformPageFromUrl(url: string): PlatformPage {
+  const path = url.split(/[?#]/)[0] ?? '';
+  const [first, id, section, organization, ...rest] = path.split('/').filter((s) => s !== '');
+  if (first !== PLATFORM_SCOPE_SEGMENT || !id) return { kind: 'other' };
+  if (section === undefined) return { kind: 'dashboard' };
+  if (section !== ORGANIZATIONS_SEGMENT || rest.length > 0) return { kind: 'other' };
+  return organization === undefined
+    ? { kind: 'organizations' }
+    : { kind: 'organization', organizationId: organizationId(decodeURIComponent(organization)) };
+}
 
 /** The scope a URL addresses: `/platforms/:platformId/…` is platform scope; everything else in the shell is company scope. */
 export function scopeFromUrl(url: string): AdminScope {
@@ -39,14 +74,20 @@ export class ScopeContext {
   /** "Try again" after the directory could not be loaded (the platform pages offer it). */
   private readonly reloads = new Subject<void>();
 
-  readonly scope = toSignal(
+  /** The current URL, after each completed navigation: the one source the scope and the platform page come from. */
+  readonly url = toSignal(
     this.router.events.pipe(
       filter((event) => event instanceof NavigationEnd),
-      map((event) => scopeFromUrl(event.urlAfterRedirects)),
-      startWith(scopeFromUrl(this.router.url)),
+      map((event) => event.urlAfterRedirects),
+      startWith(this.router.url),
     ),
     { requireSync: true },
   );
+
+  readonly scope = computed(() => scopeFromUrl(this.url()));
+
+  /** Where in platform scope the URL is (dashboard, Organization directory, one Organization). */
+  readonly platformPage = computed(() => platformPageFromUrl(this.url()));
 
   private readonly companyId = computed(() => {
     const actor = this.session.actor();

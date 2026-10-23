@@ -1,10 +1,11 @@
 import { Injectable, Signal, computed, inject } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Observable, Subject, combineLatest, of, startWith, switchMap } from 'rxjs';
-import { can, canEnterPlatform } from '../../../core/access/capability-policy';
+import { can } from '../../../core/access/capability-policy';
 import { AuthSession } from '../../../core/auth/auth-session';
+import { PlatformAccess, platformAccessOf } from '../../../core/context/platform-access';
 import { ScopeContext } from '../../../core/context/scope-context';
-import { PlatformId, PlatformRef } from '../../../core/context/scope.model';
+import { PlatformId } from '../../../core/context/scope.model';
 import { ViewState, toViewState } from '../../../core/state/view-state';
 import { Section } from '../../../shared/dashboard/metric';
 import { PlatformCommercialGateway } from '../data-access/platform-commercial.gateway';
@@ -17,18 +18,8 @@ import {
 } from '../domain/platform-commercial.model';
 import { PlatformDashboard } from '../domain/platform-dashboard.model';
 
-/**
- * Whether the Platform in the URL can be shown, before anything about it is requested:
- * - `checking`: the actor's Platforms are still loading;
- * - `directoryUnavailable`: they could not be listed (an outage, never an access refusal; "Try again");
- * - `notAccessible`: unknown, or outside the actor's scope (one state, as Core collapses both into `404`);
- * - `granted`: the actor may enter it (UX; Core authorizes every request).
- */
-export type PlatformAccess =
-  | { readonly status: 'checking' }
-  | { readonly status: 'directoryUnavailable' }
-  | { readonly status: 'notAccessible' }
-  | { readonly status: 'granted'; readonly platform: PlatformRef };
+/** Re-exported: the access gate is shared by every platform-scope page (core/context/platform-access.ts). */
+export type { PlatformAccess };
 
 /** Attention items of the dashboard (machine values; labels come from the catalog). */
 export type PlatformAttentionKind =
@@ -64,29 +55,9 @@ export class PlatformDashboardFacade {
   private readonly commercialGateway = inject(PlatformCommercialGateway);
   private readonly reloads = new Subject<void>();
 
-  readonly access = computed<PlatformAccess>(() => {
-    const scope = this.context.scope();
-    if (scope.kind !== 'platform') return { status: 'notAccessible' };
-    const platforms = this.context.platforms();
-    switch (platforms.status) {
-      case 'idle':
-      case 'loading':
-        return { status: 'checking' };
-      case 'error':
-        return { status: 'directoryUnavailable' };
-      case 'success': {
-        const platform = platforms.data.find((p) => p.id === scope.platformId);
-        const allowed = canEnterPlatform(
-          this.session.actor(),
-          scope.platformId,
-          platforms.data.map((p) => p.id),
-        );
-        return platform && allowed ? { status: 'granted', platform } : { status: 'notAccessible' };
-      }
-      default:
-        return { status: 'notAccessible' };
-    }
-  });
+  readonly access = computed<PlatformAccess>(() =>
+    platformAccessOf(this.context.scope(), this.context.platforms(), this.session.actor()),
+  );
 
   /** The Platform to load, or `null`: nothing is requested for a Platform that cannot be shown. */
   private readonly platformId = computed<PlatformId | null>(() => {

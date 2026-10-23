@@ -39,6 +39,8 @@ const bindings: DemoBindings = {
     serviceHealth: [],
     platformDashboard: [],
     platformCommercial: [],
+    organizations: [],
+    organizationCommercial: [],
   },
 };
 
