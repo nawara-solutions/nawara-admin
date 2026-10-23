@@ -15,6 +15,7 @@ import {
   PLATFORM_DIRECTORY_DEMO_SCENARIO,
   PlatformDirectoryDemoScenario,
 } from '../data-access/platform-directory.mock';
+import { createPlatformTestProviders } from '../testing/create-platform-testing';
 import { PlatformsPage } from './platforms.page';
 
 const owner: Actor = {
@@ -51,6 +52,8 @@ const DEMO: DemoBindings = {
     platformCommercial: [],
     organizations: [],
     organizationCommercial: [],
+    platformCommands: [],
+    stepUp: [],
   },
 };
 
@@ -74,6 +77,7 @@ async function render(actor: Actor, scenario: PlatformDirectoryDemoScenario = 'n
       { provide: PLATFORM_DIRECTORY_DEMO_SCENARIO, useValue: scenario },
       { provide: PlatformDirectoryGateway, useClass: MockPlatformDirectoryGateway },
       PlatformDirectoryFacade,
+      ...createPlatformTestProviders(false),
     ],
   });
   TestBed.inject(AuthSession).establish(actor);
@@ -148,13 +152,13 @@ describe('PlatformsPage', () => {
     expect(failed.page.querySelector('input[type="search"]')).toBeNull();
   });
 
-  it('keeps Create platform focusable but disabled, with its explanation', async () => {
+  it('keeps Create platform focusable but disabled, with its reason, where this build cannot send it', async () => {
     const { page } = await render(owner);
     const button = page.querySelector<HTMLButtonElement>('.platforms-header__create-button');
     expect(button?.disabled).toBe(false);
     expect(button?.getAttribute('aria-disabled')).toBe('true');
     const note = page.querySelector(`#${button?.getAttribute('aria-describedby')}`);
-    expect(text(note)).toBe(en.companyOverview.createUnavailable);
+    expect(text(note)).toBe(en.platforms.create.unavailable);
   });
 
   it('gives an operator no company-wide directory', async () => {

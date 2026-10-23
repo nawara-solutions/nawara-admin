@@ -20,6 +20,7 @@ import {
   MockServiceHealthGateway,
 } from '../data-access/company-overview.mock';
 import { ServiceHealthGateway } from '../data-access/service-health.gateway';
+import { createPlatformTestProviders } from '../../platforms/testing/create-platform-testing';
 import { CompanyOverviewPage } from './company-overview.page';
 
 const owner: Actor = {
@@ -56,6 +57,8 @@ const DEMO: DemoBindings = {
     platformCommercial: [],
     organizations: [],
     organizationCommercial: [],
+    platformCommands: [],
+    stepUp: [],
   },
 };
 
@@ -83,6 +86,7 @@ async function render(actor: Actor, scenario: CompanyOverviewDemoScenario = 'nor
       { provide: CommercialSummaryGateway, useClass: MockCommercialSummaryGateway },
       { provide: ServiceHealthGateway, useClass: MockServiceHealthGateway },
       CompanyOverviewFacade,
+      ...createPlatformTestProviders(false),
     ],
   });
   TestBed.inject(AuthSession).establish(actor);
@@ -181,14 +185,14 @@ describe('CompanyOverviewPage', () => {
     expect(page.querySelector('.attention-list__item a, .attention-list__item button')).toBeNull();
   });
 
-  it('shows Create platform to the owner, disabled with its explanation', async () => {
+  it('shows Create platform to the owner, disabled with its reason where this build cannot send it', async () => {
     const { page } = await render(owner);
     const button = Array.from(page.querySelectorAll('button')).find(
       (b) => text(b) === en.companyOverview.create,
     );
     expect(button?.disabled).toBe(true);
     const note = page.querySelector(`#${button?.getAttribute('aria-describedby')}`);
-    expect(text(note)).toBe(en.companyOverview.createUnavailable);
+    expect(text(note)).toBe(en.platforms.create.unavailable);
   });
 
   it('separates operator assignments from unique operators', async () => {

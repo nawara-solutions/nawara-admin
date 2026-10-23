@@ -2,6 +2,7 @@ import { Injectable, computed, inject } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Subject, combineLatest, of, startWith, switchMap } from 'rxjs';
 import { can } from '../../../core/access/capability-policy';
+import { ScopeContext } from '../../../core/context/scope-context';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { ViewState, toViewState } from '../../../core/state/view-state';
 import { PlatformDirectoryGateway } from '../data-access/platform-directory.gateway';
@@ -23,8 +24,15 @@ export class PlatformDirectoryFacade {
     return actor?.kind === 'owner' && can(actor, 'company.platforms.view') ? actor.companyId : null;
   });
 
+  /** The hierarchy changed (a Platform was created, here or elsewhere): the directory loads again. */
+  private readonly revision = toObservable(inject(ScopeContext).revision);
+
   readonly state = toSignal(
-    combineLatest([toObservable(this.companyId), this.reloads.pipe(startWith(undefined))]).pipe(
+    combineLatest([
+      toObservable(this.companyId),
+      this.revision,
+      this.reloads.pipe(startWith(undefined)),
+    ]).pipe(
       switchMap(([id]) =>
         id === null
           ? of<ViewState<readonly PlatformDirectoryEntry[]>>({ status: 'forbidden' })

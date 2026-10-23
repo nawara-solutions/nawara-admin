@@ -3,6 +3,8 @@
   adm-platforms-header
   [isDemo]="isDemo()"
   [canCreate]="facade.canSeeCreatePlatform()"
+  [createAvailable]="createPlatform.available"
+  (create)="createPlatform.open()"
 ></header>
 
 @if (state.status !== 'empty' && state.status !== 'error' && state.status !== 'forbidden') {

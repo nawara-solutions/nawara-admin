@@ -1,4 +1,4 @@
-import { Injectable, computed, inject } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subject, combineLatest, filter, map, of, shareReplay, startWith, switchMap } from 'rxjs';
@@ -136,5 +136,19 @@ export class ScopeContext {
   /** Loads the directory (owner) or the assigned Platforms (operator) again. */
   reload(): void {
     this.reloads.next();
+  }
+
+  private readonly changes = signal(0);
+
+  /**
+   * Increments when the Company's hierarchy changed (a Platform was created): views that list Platforms reload on it,
+   * so every view shows the change, not only the one that made it.
+   */
+  readonly revision = this.changes.asReadonly();
+
+  /** Reports a change to the hierarchy: the directory reloads, and so does every view that follows `revision`. */
+  hierarchyChanged(): void {
+    this.changes.update((n) => n + 1);
+    this.reload();
   }
 }

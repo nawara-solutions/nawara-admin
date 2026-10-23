@@ -1,6 +1,7 @@
 @use 'abstracts' as nw;
 
 :host {
+  container-type: inline-size;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   inline-size: min(30rem, 100vw - 2 * var(--nw-space-4));
@@ -44,6 +45,14 @@
 
   &:empty {
     display: none;
+  }
+}
+
+// Narrow dialogs (phones): actions stack full width, the main action (the last one) first.
+@container (max-width: 26rem) {
+  .nw-dialog__actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
   }
 }
 

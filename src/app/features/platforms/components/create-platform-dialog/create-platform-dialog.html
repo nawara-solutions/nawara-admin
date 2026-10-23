@@ -1,0 +1,187 @@
+@let current = state();
+<nw-dialog
+  [title]="
+    (current.phase === 'verifying' ? 'actions.stepUp.title' : 'platforms.create.title') | transloco
+  "
+  [closeLabel]="'common.close' | transloco"
+  [busy]="busy()"
+>
+  @switch (current.phase) {
+    @case ('verifying') {
+      <form
+        id="create-platform-verify"
+        class="create-platform__body"
+        novalidate
+        (submit)="verify($event)"
+      >
+        <p class="create-platform__purpose" id="create-platform-purpose">
+          <span class="create-platform__purpose-label">{{
+            'actions.stepUp.purposeIntro' | transloco
+          }}</span>
+          <strong>{{ 'platforms.create.purpose' | transloco: { name: isolatedName() } }}</strong>
+        </p>
+        <nw-form-field
+          [label]="'actions.stepUp.codeLabel' | transloco"
+          [hint]="'actions.stepUp.codeHint' | transloco"
+          [error]="
+            failureKey() ? (failureKey()! | transloco: { seconds: retryAfter() }) : undefined
+          "
+        >
+          <input
+            #codeInput
+            nwControl
+            class="create-platform__code"
+            type="text"
+            name="step-up-code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            spellcheck="false"
+            dir="ltr"
+            aria-describedby="create-platform-purpose"
+            [value]="code()"
+            [readOnly]="busy()"
+            (input)="onCode($event)"
+          />
+        </nw-form-field>
+        @if (demoCode(); as demo) {
+          <p class="create-platform__demo" role="note">
+            <nw-icon name="flask-conical" size="sm" />
+            <span>
+              <strong>{{ 'actions.stepUp.demoTitle' | transloco }}</strong>
+              {{ 'actions.stepUp.demoNote' | transloco: { code: demo } }}
+            </span>
+          </p>
+        }
+      </form>
+    }
+    @case ('pending') {
+      <div class="create-platform__body">
+        <p class="create-platform__summary">
+          <span>{{ 'platforms.create.nameLabel' | transloco }}</span>
+          <bdi>{{ name().trim() }}</bdi>
+        </p>
+        <p class="create-platform__status" role="status">
+          <nw-spinner />{{ 'platforms.create.creating' | transloco }}
+        </p>
+      </div>
+    }
+    @default {
+      @let failure = current.phase === 'failed' ? current.failure : null;
+      @if (failure && failure.kind !== 'validation') {
+        <div class="create-platform__body">
+          <nw-inline-alert
+            [tone]="
+              failure.kind === 'outcomeUnknown' || failure.kind === 'refused' ? 'danger' : 'warning'
+            "
+          >
+            {{ failureKey()! | transloco: { seconds: retryAfter() } }}
+          </nw-inline-alert>
+        </div>
+      } @else {
+        <form
+          id="create-platform-form"
+          class="create-platform__body"
+          novalidate
+          (submit)="submit($event)"
+        >
+          <p>{{ 'platforms.create.description' | transloco }}</p>
+          @if (failure?.kind === 'validation') {
+            <nw-inline-alert tone="danger">
+              {{ 'actions.failure.validation' | transloco }}
+            </nw-inline-alert>
+          }
+          <nw-form-field
+            [label]="'platforms.create.nameLabel' | transloco"
+            [hint]="'platforms.create.nameHint' | transloco: { max: maxLength }"
+            [error]="nameError() ? (nameError()! | transloco: { max: maxLength }) : undefined"
+            required
+          >
+            <input
+              #nameInput
+              nwControl
+              type="text"
+              name="platform-name"
+              autocomplete="off"
+              [value]="name()"
+              (input)="onName($event)"
+            />
+          </nw-form-field>
+          <ul class="create-platform__facts" role="list">
+            <li>
+              <nw-icon name="shield-check" size="sm" />{{
+                'platforms.create.stepUpNext' | transloco
+              }}
+            </li>
+            <li>
+              <nw-icon name="scroll-text" size="sm" />{{ 'platforms.create.recorded' | transloco }}
+            </li>
+          </ul>
+          @if (demoCode()) {
+            <p class="create-platform__demo-chip">
+              <nw-icon name="flask-conical" size="sm" />{{
+                'platforms.create.simulated' | transloco
+              }}
+            </p>
+          }
+        </form>
+      }
+    }
+  }
+
+  <div nwDialogActions>
+    @switch (current.phase) {
+      @case ('verifying') {
+        <button
+          nw-button
+          variant="ghost"
+          type="button"
+          [attr.aria-disabled]="busy() || null"
+          (click)="back()"
+        >
+          {{ 'actions.stepUp.back' | transloco }}
+        </button>
+        <button
+          #mainButton
+          nw-button
+          type="submit"
+          form="create-platform-verify"
+          [busy]="busy()"
+          [attr.aria-disabled]="busy() || null"
+        >
+          @if (busy()) {
+            <nw-spinner />{{ 'actions.stepUp.verifying' | transloco }}
+          } @else {
+            {{ 'platforms.create.verifyAndCreate' | transloco }}
+          }
+        </button>
+      }
+      @case ('pending') {
+        <button nw-button variant="ghost" type="button" aria-disabled="true">
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button #mainButton nw-button type="button" busy aria-disabled="true">
+          <nw-spinner />{{ 'platforms.create.creatingShort' | transloco }}
+        </button>
+      }
+      @default {
+        @if (current.phase === 'failed' && current.failure.kind !== 'validation') {
+          <button nw-button variant="ghost" type="button" (click)="cancel()">
+            {{ 'common.close' | transloco }}
+          </button>
+          @if (retry() === 'resend' || retry() === 'verify') {
+            <button #mainButton nw-button type="button" (click)="tryAgain()">
+              <nw-icon name="refresh-cw" size="sm" />{{ 'actions.retry' | transloco }}
+            </button>
+          }
+        } @else {
+          <button nw-button variant="ghost" type="button" (click)="cancel()">
+            {{ 'common.cancel' | transloco }}
+          </button>
+          <button #mainButton nw-button type="submit" form="create-platform-form">
+            {{ 'platforms.create.submit' | transloco }}
+          </button>
+        }
+      }
+    }
+  </div>
+</nw-dialog>

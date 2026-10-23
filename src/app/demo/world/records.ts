@@ -101,7 +101,11 @@ export interface ActivityRecord {
   readonly platformId: PlatformId;
   readonly organizationId: OrganizationId | null;
   readonly action:
-    'organization.created' | 'admin_invitation.sent' | 'membership.approved' | 'operator.assigned';
+    | 'platform.created'
+    | 'organization.created'
+    | 'admin_invitation.sent'
+    | 'membership.approved'
+    | 'operator.assigned';
   /** UTC instant, ISO 8601 with `Z`. */
   readonly occurredAt: string;
 }
@@ -110,6 +114,20 @@ export interface ActivityRecord {
 export interface NotificationInboxRecord {
   readonly identityId: AdminIdentityId;
   readonly unread: number;
+}
+
+/**
+ * A command the world has already applied, by idempotency key (the simulated Core keeps its replay record). A repeat with
+ * the same key, command, actor and request answers the stored result; any other reuse of the key is refused.
+ */
+export interface IdempotencyRecord {
+  readonly key: string;
+  readonly command: string;
+  readonly actor: AdminIdentityId;
+  /** The request it was applied to (a canonical string of the command's input). */
+  readonly request: string;
+  /** The id of what it created. */
+  readonly resultId: string;
 }
 
 export interface DemoWorldTables {
@@ -124,4 +142,7 @@ export interface DemoWorldTables {
   readonly platformCommercial: readonly PlatformCommercialRecord[];
   readonly activity: readonly ActivityRecord[];
   readonly inboxes: readonly NotificationInboxRecord[];
+  /** Records created at run time so far: their ids are numbered from it, so they are stable and never reuse a seed id. */
+  readonly sequence: number;
+  readonly idempotency: readonly IdempotencyRecord[];
 }

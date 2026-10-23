@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details implemented, awaiting review; rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform implemented, awaiting review; rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,9 +290,28 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## P4-S1: administrative action foundation and mock Create platform (design approved 2026-10-23; implemented 2026-10-23)
+
+**Status: implemented as a development-only mock prototype, awaiting review.** Design: the "P4 Administrative Action States"
+canvas (claude.ai, private; 10 artboards). Owner decisions: O-P4-1 Create platform is the pilot; O-P4-2 the mock succeeds by
+default, Core's documented `409 not_authoritative` is a scenario; O-P4-3 the three risk tiers are vocabulary, only what is
+needed is built; O-P4-4 the dialog's busy lock and stacked mobile actions.
+
+- **Foundation** (ARCHITECTURE §12, "Implementation"): `ActionRun`, `ActionFailure`, `StepUpGateway` (mock and unavailable),
+  `nw-dialog` busy and stacking, `DemoWorld.commit` with domain-owned commands.
+- **Create platform** (owner only): the same flow from the Platform directory and the Company Overview
+  (`CreatePlatformAction`, the Platforms feature's public facade, bound per route by `createPlatformProviders`). Name 1–200
+  (trimmed; whether Core trims is not known), then the simulated owner step-up for `platform.create`, then the idempotent
+  command. Success: `ScopeContext.hierarchyChanged()` reloads the scope directory, the Platform directory and the Overview, so
+  the new Platform shows in the switcher, the directory, the Overview counts and its own (empty) dashboard; a toast names it.
+- **Demo record:** a new Platform has no slug, product, Organization, assignment, commercial or lifecycle record; its id comes
+  from the world's sequence; a `platform.created` activity record is appended. It lives until a reload, survives a sign-out.
+- **Not built:** destructive or irreversible actions, operator, refund or recovery step-up, the passkey step-up path (TOTP
+  code only), an HTTP adapter, real provisioning. Core's response DTO is not verified.
+
 ## P3a: Organization directory and read-only details (design approved 2026-10-23; implemented 2026-10-23)
 
-**Status: implemented as a development-only mock prototype, awaiting review.** Design: the "P3a Organization Directory &
+**Status: complete as a development-only mock prototype (PR #20).** Design: the "P3a Organization Directory &
 Details" canvas (claude.ai, private; 9 artboards). Read only: no lifecycle, membership, invitation, policy or payment action.
 
 - **Routes** (platform scope, no third scope, no root Organization context; ARCHITECTURE §6, §7 amendment):

@@ -23,6 +23,17 @@ export interface DemoSignedIn {
   readonly businessIdentityId: AdminIdentityId | null;
 }
 
+/**
+ * A simulated step-up grant (demo builds only). NOT a Core token and not Core evidence: an opaque random string that only
+ * the demo mocks recognise, kept in memory, never logged or stored. Bound to the user it was issued to and to one
+ * purpose; used once; it expires.
+ */
+interface DemoStepUp {
+  readonly purpose: string;
+  readonly userId: string;
+  readonly expiresAt: number;
+}
+
 /** Every demo operator: the confirmed ones (working-code sign-in) and the new ones (contact confirmation first). */
 export const ALL_DEMO_OPERATORS: readonly DemoOperator[] = [
   ...DEMO_OPERATORS,
@@ -61,4 +72,30 @@ export class DemoAuthState {
   );
   /** The simulated Core session; other demo mocks read whose data to answer with from it. */
   readonly signedIn = signal<DemoSignedIn | null>(null);
+
+  /** Live simulated step-up grants, by token. */
+  private readonly stepUps = new Map<string, DemoStepUp>();
+
+  /** Issues a single-use grant for `purpose` to `userId`, valid until `expiresAt`. */
+  issueStepUp(purpose: string, userId: string, expiresAt: number): string {
+    const token = `demo-step-up-${crypto.randomUUID()}`;
+    this.stepUps.set(token, { purpose, userId, expiresAt });
+    return token;
+  }
+
+  /**
+   * Consumes a grant: true only for a live one issued to `userId` for exactly `purpose`. Any presented token is used up,
+   * valid or not, so it can never be tried twice.
+   */
+  consumeStepUp(token: string | null, purpose: string, userId: string, now: number): boolean {
+    if (token === null) return false;
+    const grant = this.stepUps.get(token);
+    this.stepUps.delete(token);
+    return (
+      grant !== undefined &&
+      grant.purpose === purpose &&
+      grant.userId === userId &&
+      grant.expiresAt > now
+    );
+  }
 }

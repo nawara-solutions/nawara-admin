@@ -142,7 +142,8 @@ export class MockOrganizationGateway extends OrganizationGateway {
           ? {
               status: 'available',
               data: activityOfOrganization(world, record.id).flatMap((e) =>
-                e.action === 'operator.assigned'
+                // Platform-level events (an operator assigned, the Platform created) are not the Organization's.
+                e.action === 'operator.assigned' || e.action === 'platform.created'
                   ? []
                   : [
                       {

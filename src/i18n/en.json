@@ -3,7 +3,35 @@
     "notAvailable": "Not available",
     "close": "Close",
     "dismiss": "Dismiss",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "cancel": "Cancel"
+  },
+  "actions": {
+    "retry": "Try again",
+    "stepUp": {
+      "title": "Confirm it’s you",
+      "purposeIntro": "This verification is only for",
+      "codeLabel": "Code from your authenticator app",
+      "codeHint": "6 digits. It is used once, for this action only.",
+      "demoTitle": "Simulated verification.",
+      "demoNote": "This demo accepts the code {{code}}. No Nawara Core verification is requested or issued.",
+      "back": "Back",
+      "verifying": "Verifying…"
+    },
+    "failure": {
+      "validation": "The details were refused. Check them and try again. Nothing was changed.",
+      "conflict": "This conflicts with the current state. Nothing was changed.",
+      "notAuthoritative": "Platforms can’t be created yet: the platform service is not accepting changes. Nothing was created.",
+      "keyReused": "This request was already used with different details. Nothing was created.",
+      "refused": "You can’t do this any more: your access may have changed. Nothing was changed.",
+      "verificationRefused": "That code didn’t work, or the verification expired. Enter the current code.",
+      "rateLimited": "Too many attempts. Try again in a moment. Nothing was changed.",
+      "rateLimitedFor": "Too many attempts. Try again in {{seconds}} seconds. Nothing was changed.",
+      "outcomeUnknown": "We couldn’t confirm the result. Trying again is safe: it repeats the same request and never creates a second one.",
+      "unavailable": "The service is unavailable. Nothing was changed. Try again in a moment.",
+      "notInBuild": "This action is not available in this build.",
+      "stale": "Your access or scope changed while this was open. Nothing was sent."
+    }
   },
   "brand": {
     "logoLabel": "Nawara Solutions"
@@ -271,7 +299,6 @@
     "subtitle": "Your platforms, organizations and access — in one place.",
     "period": "Last {{days}} days",
     "create": "Create platform",
-    "createUnavailable": "Platform creation is not available in this demo.",
     "unavailable": "Not available",
     "summary": {
       "label": "Company figures",
@@ -330,7 +357,8 @@
         "organizationCreated": "Organization created",
         "operatorAssigned": "Operator assigned",
         "invitationSent": "Invitation sent",
-        "membershipApproved": "Membership approved"
+        "membershipApproved": "Membership approved",
+        "platformCreated": "Platform created"
       },
       "auditLog": "Audit log"
     },
@@ -476,7 +504,8 @@
       "organizationCreated": "Organization created",
       "adminInvitationSent": "Admin invitation sent",
       "membershipApproved": "Membership approved",
-      "operatorAssigned": "Operator assigned"
+      "operatorAssigned": "Operator assigned",
+      "platformCreated": "Platform created"
     },
     "states": {
       "checking": "Opening the platform",
@@ -530,7 +559,26 @@
     "errorDescription": "This does not mean your company has no platforms. Try again in a moment.",
     "retry": "Try again",
     "unavailableTitle": "Not available in this build",
-    "unavailableDescription": "No Nawara Core contract lists your platforms yet."
+    "unavailableDescription": "No Nawara Core contract lists your platforms yet.",
+    "create": {
+      "title": "Create platform",
+      "description": "A platform hosts one product’s organizations. It is created in your Company.",
+      "nameLabel": "Platform name",
+      "nameHint": "1 to {{max}} characters.",
+      "nameRequired": "Enter a name.",
+      "nameTooLong": "Use {{max}} characters or fewer.",
+      "stepUpNext": "Next, you’ll confirm it’s you.",
+      "recorded": "This action is recorded in the activity log.",
+      "simulated": "Demo: platform creation is simulated; no Nawara Core service is called.",
+      "unavailable": "Platform creation is not available in this build.",
+      "submit": "Create platform",
+      "verifyAndCreate": "Verify and create",
+      "purpose": "Creating the platform “{{name}}”",
+      "creating": "Creating the platform…",
+      "creatingShort": "Creating…",
+      "created": "Platform “{{name}}” created.",
+      "notCreated": "“{{name}}” was not created."
+    }
   },
   "organizations": {
     "header": {

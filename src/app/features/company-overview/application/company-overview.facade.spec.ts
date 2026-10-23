@@ -2,7 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { Actor } from '../../../core/auth/actor';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { APP_ENVIRONMENT, DemoBindings } from '../../../core/config/app-environment';
-import { DEMO_LATENCY_MS } from '../../../core/context/scope-directory.mock';
+import {
+  DEMO_LATENCY_MS,
+  MockScopeDirectoryGateway,
+} from '../../../core/context/scope-directory.mock';
 import { DEMO_COMPANY_ID } from '../../../demo/world/seed';
 import { companyId, platformId } from '../../../core/context/scope.model';
 import { ADAPTER_UNAVAILABLE } from '../../../core/errors/app-error';
@@ -26,6 +29,8 @@ import {
   UnavailableServiceHealthGateway,
 } from '../data-access/service-health.gateway';
 import { CompanyOverviewFacade } from './company-overview.facade';
+import { ScopeContext } from '../../../core/context/scope-context';
+import { ScopeDirectoryGateway } from '../../../core/context/scope-directory.gateway';
 
 const owner: Actor = {
   kind: 'owner',
@@ -61,6 +66,8 @@ const DEMO: DemoBindings = {
     platformCommercial: [],
     organizations: [],
     organizationCommercial: [],
+    platformCommands: [],
+    stepUp: [],
   },
 };
 
@@ -91,6 +98,9 @@ function setUp(
         useClass: mock ? MockServiceHealthGateway : UnavailableServiceHealthGateway,
       },
       CompanyOverviewFacade,
+      // The shell's scope context: the overview reloads when the hierarchy changes.
+      ScopeContext,
+      { provide: ScopeDirectoryGateway, useClass: MockScopeDirectoryGateway },
     ],
   });
   TestBed.inject(AuthSession).establish(actor);

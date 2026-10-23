@@ -10,3 +10,9 @@
 .cdk-overlay-backdrop.nw-overlay-backdrop {
   background-color: var(--nw-scrim);
 }
+
+// A dialog's projected actions wrapper (`<div nwDialogActions>`) takes no box of its own: its buttons are the frame's
+// flex items, so the frame's gap and its narrow-width stacking (nw-dialog) apply to them.
+.nw-dialog-pane [nwDialogActions] {
+  display: contents;
+}

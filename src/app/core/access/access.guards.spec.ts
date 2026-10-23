@@ -33,6 +33,8 @@ const DEMO_BINDINGS_STUB: DemoBindings = {
     platformCommercial: [],
     organizations: [],
     organizationCommercial: [],
+    platformCommands: [],
+    stepUp: [],
   },
 };
 const DEMO_BUILD: AppEnvironment = {

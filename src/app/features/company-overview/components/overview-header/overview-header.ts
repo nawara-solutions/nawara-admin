@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
 
@@ -19,6 +19,9 @@ export class OverviewHeader {
   readonly isDemo = input(false);
   /** Whether Create platform is shown at all (owner only). */
   readonly canCreate = input(false);
+  /** Whether this build can create a Platform (a demo build: simulated). */
+  readonly createAvailable = input(false);
+  readonly create = output<void>();
   /** The reporting period, once the overview has loaded. */
   readonly periodDays = input<number | null>(null);
 

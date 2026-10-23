@@ -6,6 +6,11 @@ import { NwIconName } from '../../../../shared/ui/icon/icon.registry';
 import { ActivityAction, ActivityEntry } from '../../domain/company-overview.model';
 
 const ACTIONS = {
+  'platform.created': {
+    icon: 'hexagon',
+    accent: 'pink',
+    labelKey: 'companyOverview.activity.actions.platformCreated',
+  },
   'organization.created': {
     icon: 'store',
     accent: 'pink',

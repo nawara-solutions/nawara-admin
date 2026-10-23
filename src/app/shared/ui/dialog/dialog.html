@@ -1,6 +1,13 @@
 <header class="nw-dialog__header">
   <h2 class="nw-dialog__title" [id]="titleId">{{ title() }}</h2>
-  <button nw-icon-button icon="x" type="button" [label]="closeLabel()" (click)="close()"></button>
+  <button
+    nw-icon-button
+    icon="x"
+    type="button"
+    [label]="closeLabel()"
+    [attr.aria-disabled]="busy() || null"
+    (click)="close()"
+  ></button>
 </header>
 <div class="nw-dialog__body">
   <ng-content />

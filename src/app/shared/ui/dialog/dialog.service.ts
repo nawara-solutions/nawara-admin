@@ -9,6 +9,11 @@ export interface NwDialogOptions<D> {
   readonly data?: D;
   /** `alertdialog` for confirmations that interrupt (destructive actions, docs/ARCHITECTURE.md §12). */
   readonly role?: 'dialog' | 'alertdialog';
+  /**
+   * Where focus starts: a CSS selector inside the dialog (its first field, or Cancel in a destructive confirmation).
+   * Default: the first tabbable element, which is the close button of the frame.
+   */
+  readonly autoFocus?: string;
 }
 
 let nextId = 0;
@@ -32,7 +37,7 @@ export class NwDialogService {
       role: options.role ?? 'dialog',
       ariaModal: true,
       ariaLabelledBy: titleId,
-      autoFocus: 'first-tabbable',
+      autoFocus: options.autoFocus ?? 'first-tabbable',
       restoreFocus: true,
       panelClass: 'nw-dialog-pane',
       backdropClass: 'nw-overlay-backdrop',
