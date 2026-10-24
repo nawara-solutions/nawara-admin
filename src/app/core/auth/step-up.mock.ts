@@ -48,6 +48,12 @@ export class MockStepUpGateway extends StepUpGateway {
     if (this.scenario === 'unavailable') return fail({ kind: 'unavailable', status: 503 });
     const valid = proof.method === 'passkey' || proof.code.replace(/\s/g, '') === DEMO_TOTP_CODE;
     if (!valid) return fail({ kind: 'unauthenticated', status: 401 });
+    // Core updates the proving factor's `lastUsedAt` on a step-up too (P9-S4a).
+    this.state.recordFactorUse(
+      signedIn.identity.userId,
+      proof.method === 'passkey' ? 'webauthn' : 'totp',
+      new Date(this.now()).toISOString(),
+    );
     const expiresAt = this.now() + DEMO_STEP_UP_LIFETIME_MS;
     const token = this.state.issueStepUp(
       purpose,

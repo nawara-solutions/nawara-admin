@@ -13,6 +13,39 @@ import { Identity } from './auth.model';
 /** Core's `MAX_CODE_ATTEMPTS`: five wrong guesses kill a working code or a confirmation code (`operator-code.service.ts`). */
 export const CODE_ATTEMPTS = 5;
 
+/**
+ * One of an owner's simulated second factors, shaped after a row of Core's `GET /auth/admin/factors` (P9-S4-0, Core
+ * `304064f`: `id, type, confirmed, createdAt, lastUsedAt`). Metadata only: no TOTP seed, credential, name or secret.
+ * `createdAt` and `lastUsedAt` are only what this demo session saw happen; `null` when it saw nothing (a fixture's
+ * factor predates the demo, so its creation is unknown, never invented).
+ */
+export interface DemoFactorRecord {
+  readonly id: string;
+  readonly type: 'totp' | 'webauthn';
+  confirmed: boolean;
+  readonly createdAt: string | null;
+  lastUsedAt: string | null;
+}
+
+/** The fixture owners' confirmed factors, as their sign-in already implies: one per second-factor method they offer. */
+function fixtureFactors(): Map<string, DemoFactorRecord[]> {
+  const factors = new Map<string, DemoFactorRecord[]>();
+  for (const account of DEMO_ACCOUNTS) {
+    if (account.identity.adminTier !== 'owner' || account.next.kind !== 'mfa') continue;
+    factors.set(
+      account.identity.userId,
+      account.next.methods.map((method) => ({
+        id: crypto.randomUUID(),
+        type: method === 'passkey' ? 'webauthn' : 'totp',
+        confirmed: true,
+        createdAt: null,
+        lastUsedAt: null,
+      })),
+    );
+  }
+  return factors;
+}
+
 /** A pending enrollment: the owner, the factor begun last (if any), and the attempts left on its token. */
 export interface PendingEnrollment {
   readonly account: DemoAccount;
@@ -78,6 +111,12 @@ export class DemoAuthState {
   readonly enrollments = new Map<string, PendingEnrollment>();
   /** Owners who completed enrollment (by user id): their next sign-in asks for the code. */
   readonly enrolledOwners = new Set<string>();
+  /**
+   * Each owner's simulated factors (by user id; P9-S4a): seeded from the fixtures, a TOTP added by enrollment, `lastUsedAt`
+   * set when a factor proves a sign-in or a step-up. Core records, so they survive a sign-out. Read by the Account
+   * security mock only; nothing here is a secret.
+   */
+  readonly ownerFactors = fixtureFactors();
   /** The live working code per operator (by user id): wrong guesses left. Issuing replaces; success consumes. */
   readonly workingCodes = new Map<string, number>();
   /**
@@ -127,6 +166,37 @@ export class DemoAuthState {
    */
   issueConfirmationCode(userId: string): void {
     this.confirmationCodes.set(userId, CODE_ATTEMPTS);
+  }
+
+  /**
+   * Like Core's `enroll/totp`: a new, unconfirmed TOTP factor replaces any earlier unconfirmed one (P9-S4a).
+   * @returns the factor's id
+   */
+  beginTotpFactor(userId: string, at: string): string {
+    const id = crypto.randomUUID();
+    const kept = (this.ownerFactors.get(userId) ?? []).filter(
+      (f) => f.type !== 'totp' || f.confirmed,
+    );
+    this.ownerFactors.set(userId, [
+      ...kept,
+      { id, type: 'totp', confirmed: false, createdAt: at, lastUsedAt: null },
+    ]);
+    return id;
+  }
+
+  /** Like Core's `confirmTotp`: the factor becomes usable, and the proving code counts as its last use. */
+  confirmTotpFactor(userId: string, factorId: string, at: string): void {
+    const factor = this.ownerFactors.get(userId)?.find((f) => f.id === factorId);
+    if (factor) {
+      factor.confirmed = true;
+      factor.lastUsedAt = at;
+    }
+  }
+
+  /** A confirmed factor of this type proved a sign-in or a step-up (Core updates `lastUsedAt` the same way). */
+  recordFactorUse(userId: string, type: DemoFactorRecord['type'], at: string): void {
+    const factor = this.ownerFactors.get(userId)?.find((f) => f.type === type && f.confirmed);
+    if (factor) factor.lastUsedAt = at;
   }
 
   /** Live simulated step-up grants, by token. */

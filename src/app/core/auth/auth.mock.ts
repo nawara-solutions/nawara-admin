@@ -149,6 +149,12 @@ export class MockAuthGateway extends AuthGateway {
     const valid = proof.method === 'passkey' || proof.code.replace(/\s/g, '') === DEMO_TOTP_CODE;
     if (!offered || !valid) return this.fail({ kind: 'unauthenticated', status: 401 });
     this.state.challenges.delete(challenge);
+    // Core updates the proving factor's `lastUsedAt` (P9-S4a: the Account security overview shows it).
+    this.state.recordFactorUse(
+      pending.account.identity.userId,
+      proof.method === 'passkey' ? 'webauthn' : 'totp',
+      new Date(this.now()).toISOString(),
+    );
     this.signIn(pending.account);
     return this.answer(undefined);
   }
@@ -176,7 +182,10 @@ export class MockAuthGateway extends AuthGateway {
     if (scenario === 'alreadyEnrolled') return this.fail(FACTOR_ALREADY_ENROLLED);
     if (scenario === 'beginUnavailable') return this.fail({ kind: 'unavailable', status: 503 });
     if (scenario === 'beginLimited') return this.fail({ kind: 'rate_limited', status: 429 });
-    pending.factorId = crypto.randomUUID();
+    pending.factorId = this.state.beginTotpFactor(
+      pending.account.identity.userId,
+      new Date(this.now()).toISOString(),
+    );
     const issuer = encodeURIComponent(DEMO_TOTP_ISSUER);
     const label = `${issuer}:${encodeURIComponent(pending.account.identity.email)}`;
     return this.answer<TotpEnrollment>({
@@ -203,6 +212,11 @@ export class MockAuthGateway extends AuthGateway {
       return this.fail({ kind: 'validation', messages: [], status: 400 });
     }
     this.state.enrollments.delete(enrollmentToken);
+    this.state.confirmTotpFactor(
+      pending.account.identity.userId,
+      factorId,
+      new Date(this.now()).toISOString(),
+    );
     this.state.enrolledOwners.add(pending.account.identity.userId);
     this.signIn(pending.account);
     return this.answer(undefined);

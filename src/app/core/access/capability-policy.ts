@@ -81,6 +81,11 @@ export type Capability =
    * CF-49). A Platform assignment never confers it.
    */
   | 'company.settings.view'
+  /**
+   * The owner's own account security overview (`/settings/security`, P9-S4a): their factors, read only. Core's factor
+   * routes are `@Actors('owner')` (an operator gets `403`); operators have no factors (they sign in with a working code).
+   */
+  | 'account.security.view'
   /** A Platform's administrative activity: Core's owner audit read; operators have no audit read (CF-04). */
   | 'platform.activity.view'
   /** Operator assignments and admin invitations of a Platform: the owner manages both; operators manage neither. */
@@ -96,6 +101,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.services.view',
   'company.releases.view',
   'company.settings.view',
+  'account.security.view',
   'operator.platformAccess.change',
   'operator.account.block',
   'operator.create',

@@ -204,6 +204,7 @@
     "settingsLanguage": "Langue",
     "settingsAccount": "Votre compte",
     "settingsCompany": "Paramètres de l’entreprise",
+    "settingsSecurity": "Sécurité",
     "workingCode": "Connexion avec un code de travail",
     "workingCodeVerify": "Saisissez votre code de travail",
     "contactConfirmation": "Confirmez votre contact",
@@ -240,6 +241,7 @@
       "language": "Langue",
       "account": "Compte",
       "companySettings": "Paramètres de l’entreprise",
+      "security": "Sécurité",
       "organizations": "Organisations",
       "organization": "Organisation",
       "members": "Membres",
@@ -1370,7 +1372,8 @@
       "account": "Compte",
       "accountDescription": "Sous quelle identité vous êtes connecté, et sur quoi vous pouvez travailler.",
       "company": "Entreprise",
-      "companyDescription": "Le profil de l’entreprise et les pages où elle se gère."
+      "companyDescription": "Le profil de l’entreprise et les pages où elle se gère.",
+      "securityDescription": "Vos facteurs et le fonctionnement de la récupération."
     },
     "language": {
       "title": "Langue",
@@ -1456,6 +1459,52 @@
         "errorDescription": "Réessayez dans un instant.",
         "retry": "Réessayer",
         "forbiddenDescription": "Les paramètres de l’entreprise sont réservés au propriétaire de l’entreprise."
+      }
+    },
+    "security": {
+      "title": "Sécurité",
+      "subtitle": "Vos facteurs, et ce qui protège les actions sensibles. En lecture seule.",
+      "factors": {
+        "title": "Vos facteurs",
+        "confirmedCount": "Facteurs confirmés : {{count}}",
+        "totp": "Application d’authentification",
+        "webauthn": "Clé d’accès",
+        "confirmed": "Confirmé",
+        "unfinished": "Configuration inachevée",
+        "unfinishedNote": "Cette configuration a été commencée mais jamais confirmée. Elle ne peut servir ni à se connecter ni à confirmer une action.",
+        "added": "Ajouté",
+        "lastUsed": "Dernière utilisation",
+        "noUse": "Aucune utilisation enregistrée"
+      },
+      "actions": {
+        "title": "Confirmer les actions sensibles",
+        "signIn": "Chaque connexion à votre compte de propriétaire demande un facteur confirmé après votre mot de passe.",
+        "stepUp": "Les actions sensibles, comme créer une plateforme ou donner un accès à un opérateur, vous demandent de confirmer à nouveau avec un facteur. Une confirmation sert à une seule action et expire en quelques minutes.",
+        "lastFactor": "Selon les règles actuelles de Nawara Core, votre dernier facteur confirmé ne peut pas être retiré."
+      },
+      "recovery": {
+        "title": "Récupérer votre compte",
+        "notGuaranteed": "Avoir un facteur confirmé ne garantit pas que vous pourrez récupérer votre compte si vous en perdez l’accès.",
+        "secretKey": "La récupération nécessite votre clé secrète. Une clé secrète peut exister pour votre compte, mais Admin ne peut pas vérifier si c’est le cas.",
+        "process": "La récupération commence à la connexion avec votre mot de passe et votre clé secrète, puis un délai d’attente, avant que vous configuriez un nouveau facteur. Elle met fin à tous vos facteurs et sessions."
+      },
+      "unavailable": {
+        "title": "Non disponible sur cette page",
+        "factors": "Ajouter ou retirer un facteur, clés d’accès comprises",
+        "secretKey": "Générer ou renouveler votre clé secrète",
+        "password": "Changer votre mot de passe",
+        "recovery": "Lancer ou annuler une récupération"
+      },
+      "states": {
+        "loading": "Chargement de votre sécurité…",
+        "emptyTitle": "Aucun facteur enregistré",
+        "emptyDescription": "Ce compte n’affiche ici aucun second facteur.",
+        "notInBuildTitle": "La sécurité n’est pas disponible",
+        "notInBuildDescription": "Vos facteurs ne peuvent pas être lus depuis Nawara Core dans cette version d’Admin.",
+        "errorTitle": "Votre sécurité n’a pas pu être chargée",
+        "errorDescription": "Réessayez dans un instant.",
+        "retry": "Réessayer",
+        "forbiddenDescription": "La sécurité du compte est réservée au propriétaire de l’entreprise."
       }
     }
   },

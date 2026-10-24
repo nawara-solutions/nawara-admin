@@ -384,11 +384,11 @@ Admin strategy and the decision required before A4.
 | Operator contact confirmation | Auth | 🟢 route; reissue 🔴 (CF-16); docs vs source 🟡 (CF-17) | `operator.controller.ts` `operators/confirm` | mock adapter (A4-S3, development only); HTTP later |
 | Session refresh / logout | Auth | 🟢 Prod | `auth.controller.ts` `refresh`, `logout` | HTTP; storage strategy = decision D-A4 |
 | Current user / grants | Auth | 🟢 Prod | `GET /auth/me`, `GET /auth/grants` | HTTP (A4/A6) |
-| MFA factor management | Auth | 🟢 Prod | `owner.controller.ts` `factors*` | HTTP (A7) |
+| MFA factor management | Auth | 🟢 Prod (verified P9-S4-0, `304064f`) | `owner.controller.ts` `factors*` (list; add TOTP begin/confirm + step-up `owner.factor.enroll`; passkey options/register; remove + step-up `owner.factor.remove`, never the last confirmed) | List: `AccountSecurityGateway.load()`, mock in demo builds over `DemoAuthState` (P9-S4a, read only), unavailable otherwise; add / remove: P9-S4b / S4d (planned); passkeys later; no HTTP adapter (A4). Details: `design/p9-s4-account-security.md` |
 | WebAuthn (passkeys) | Auth | 🟢 Prod | `webauthn-options`, `factors/webauthn*`; RP `nawara-solutions.com` | HTTP + browser WebAuthn API (A4) |
 | Owner step-up | Auth | 🟢 Prod | `POST /auth/admin/step-up`, `x-step-up-token` | `StepUpGateway` (P4-S1): simulated mock in demo builds (opaque in-memory grant, single use, purpose- and user-bound, expiring, never Core evidence), unavailable otherwise; purposes limited to documented ones in use: `platform.create` (P4-S1), `organization.create` (P3b-S1). Both accept TOTP, WebAuthn and secret key (`auth-service/src/owner/step-up.service.ts:23-56`); the demo simulates TOTP only |
 | Operator step-up | Auth | 🟡 | ADR-0042 A.1 accepted, not built | Hide/disable sensitive ops for operators |
-| Secret key rotate / password change | Auth | 🟢 Prod | `secret-key/rotate`, `password/change` | HTTP (A7) |
+| Secret key rotate / password change | Auth | 🟢 Prod (verified P9-S4-0) | `secret-key/rotate` (step-up `owner.secret_key.rotate`, factor only; key returned once; not idempotent), `password/change` (step-up `owner.password.change`, factor only; no current password; ends other sessions) | Planned P9-S4c / S4e; not built. No status read of the key (CF-54); no alert on either (CF-55) |
 | Organization directory (list/search) | Organization | 🔴 | org lists are service-token only | `OrganizationGateway.list(platformId)`, mock in demo builds (P3a); search, filters and sort in the browser; **CF-02** (V2 A5) |
 | Organization detail | Auth (today) → Organization | 🟢 Prod | `GET /auth/admin/organizations/:id` | `OrganizationGateway.load(organizationId)`, mock in demo builds (P3a); the response shape is **not verified yet**, so no HTTP adapter; the UI checks the answer's Platform against the URL |
 | Organization commercial facts (owner): subscription, payment issues, effective assisted-payments policy | Billing / Payment | 🟡 | no staff/owner read route before Core V2 A10/A11 | `OrganizationCommercialGateway`, PROVISIONAL mock contract (P3a); never called for an operator; the directory's subscription filter is a client-side mock capability |
@@ -438,7 +438,7 @@ Admin strategy and the decision required before A4.
 | Edit organization metadata | Organization | 🟢 contract · ⚠ not authoritative | `PATCH /organization/admin/organizations/:id` (§5) | P3b-S2: "Edit details" for the owner and assigned operators (no step-up), minimal patch, `null` clears, no automatic resend; demo-world mock (succeeds by default; `409 not_authoritative`, lost answer and `503` as scenarios); production binds the unavailable adapter (no HTTP adapter) |
 | Organization admin invitations | Auth | 🟢 | `organization.controller.ts:123-148` (§5, verified P3b-S3-0) | P3b-S3: owner-only card on the Organization details; create (step-up `admin_invitation.create`, the code shown once, never stored), list (derived status, `contactBound` only), revoke (destructive confirmation + step-up `admin_invitation.revoke`); no automatic retry after a lost answer; demo-world mock; production binds the unavailable adapter (no HTTP adapter) |
 | Create platform | Organization | 🟢 contract · ⚠ not authoritative | `POST /organization/admin/platforms` (see §5) | P4-S1: the owner's flow (confirm → step-up `platform.create` → idempotent command) against a demo-world mock, `409 not_authoritative` as a scenario; production binds the unavailable adapter (no HTTP adapter: response DTO not verified, writes not authoritative before cutover) |
-| Access & security: owner account security | Auth | 🟢 Prod (page not built) | `GET /auth/admin/factors`, factor add/remove, `secret-key/rotate`, `password/change` (owner only) | Overview row only, action disabled; no score or rating is computed |
+| Access & security: owner account security | Auth | 🟢 Prod (verified P9-S4-0) | `GET /auth/admin/factors` (owner, bearer-scoped) | "Account security" links to `/settings/security` (P9-S4a): the owner's factors read only (type, confirmed or unfinished, added and last used as known); recovery explained without promises; no score; the "2FA enabled" line stays a policy statement, not a read |
 | Access & security: operator assignments vs unique operators | Auth | 🔴 | assignments readable only per operator (`GET /auth/admin/operators/:id/platform-assignments`); no operator directory (CF-03) | Mock; assignments and unique operators kept as separate figures |
 | Attention: access assignments to review | Auth | 🔴 | none (CF-13) | Not shown: removed in P2.5 (no defined source), no replacement |
 | Commercial: active licenses, expiring soon (+ attention item) | Billing | 🟡 | no `License` entity; entitlement read is service-token only, per organization, `{ valid, expiresAt }`; no staff API; not in production | Separate `CommercialSummaryGateway`, mock in demo builds; "license" is a view-model term (§6) |
@@ -997,6 +997,55 @@ Admin requirement: whether owners and operators have a display name, who may set
                   `/settings/account` (P9-S2) shows the contact only and offers no name edit.
 Classification:   🔴 undefined.
 Recommended checkpoint: Core V2 A4.
+
+CF-54  Owner read of the secret key's status                               PROPOSED (P9-S4-0, 2026-10-25)
+Service:          auth-service
+Current behavior: (verified `304064f`) `owner.secretKeyHash` / `secretKeyIssuedAt` exist, but no route reads them; a
+                  bootstrapped owner has no key until the first rotation (ADR-0016).
+Admin requirement: the owner sees whether a key exists and when it was issued, so Settings can say whether recovery is
+                  possible and reconcile a rotation whose answer was lost. Never the key itself.
+Classification:   🔴 undefined.
+Recommended checkpoint: before P9-S4c's HTTP adapter.
+
+CF-55  Alerts for owner credential changes (or corrected documentation)     PROPOSED (P9-S4-0)
+Service:          auth-service
+Current behavior: rotation, password change and factor add / remove write the local and central audit only; no event
+                  is emitted. `docs/sdd/auth-service.md` and `docs/add/auth-service.md` say rotation publishes
+                  `admin.secret_key_rotated` (ADR-0010).
+Admin requirement: the owner is told of every credential change on their account (a stolen session plus a factor
+                  otherwise goes unnoticed), or the documents are corrected to the source.
+Classification:   🟡 documentation drift / security decision.
+Recommended checkpoint: Core V2 A4 (with A8 delivery).
+
+CF-56  Factor labels                                                        PROPOSED (P9-S4-0)
+Service:          auth-service
+Current behavior: `GET /auth/admin/factors` returns id, type, confirmed, createdAt, lastUsedAt; no name.
+Admin requirement: an owner-set label per factor, so removing one (P9-S4d) names the device it belongs to.
+Classification:   🔴 undefined.
+Recommended checkpoint: before P9-S4d.
+
+CF-57  A path for a forgotten owner password                                PROPOSED (P9-S4-0)
+Service:          auth-service
+Current behavior: sign-in and recovery both start with the password; `password/change` needs a live session.
+Admin requirement: a stated, safe path for an owner who forgets their password (or an explicit decision that there is
+                  none beyond an operational procedure).
+Classification:   🔴 undefined.
+Recommended checkpoint: before P9-S4e.
+
+CF-58  Read of a pending recovery request                                   PROPOSED (P9-S4-0)
+Service:          auth-service
+Current behavior: `recovery/cancel` (owner) answers `204` whether or not a request is pending; nothing reads one.
+Admin requirement: the owner sees whether a recovery is pending and its `availableAt`, so a cancel is not blind.
+Classification:   🔴 undefined.
+Recommended checkpoint: before any recovery action in Settings.
+
+CF-59  Declared response schemas for the owner security routes              PROPOSED (P9-S4-0)
+Service:          auth-service
+Current behavior: the owner routes declare no OpenAPI response schema; shapes are known from the source only.
+Admin requirement: declared schemas at `/auth/docs` for `factors*`, `step-up*`, `secret-key/rotate`, `password/change`,
+                  `recovery/*`, verified before any HTTP adapter.
+Classification:   🟡 documentation.
+Recommended checkpoint: before the auth HTTP adapter (A4).
 
 Residual risk recorded with P6-S3: block and unblock require no step-up (Core's deliberate choice for an emergency
 control), so a stolen owner session can block every operator or unblock one. Admin adds no verification Core does not ask

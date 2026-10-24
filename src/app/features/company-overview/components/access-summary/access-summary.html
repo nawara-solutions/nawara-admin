@@ -18,7 +18,12 @@
       <nw-icon name="circle-check" size="sm" />
       {{ 'companyOverview.access.owner.twoFactor' | transloco }}
     </p>
-    <adm-card-link chevron [label]="'companyOverview.access.owner.action' | transloco" />
+    <!-- The owner's read-only Security overview (P9-S4a). -->
+    <adm-card-link
+      chevron
+      link="/settings/security"
+      [label]="'companyOverview.access.owner.action' | transloco"
+    />
   </li>
   <li class="access-summary__item">
     <div class="access-summary__head">

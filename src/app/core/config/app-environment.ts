@@ -15,6 +15,7 @@ export type DemoDomain =
   | 'services'
   | 'releases'
   | 'companySettings'
+  | 'accountSecurity'
   | 'platformDashboard'
   | 'platformCommercial'
   | 'organizations'

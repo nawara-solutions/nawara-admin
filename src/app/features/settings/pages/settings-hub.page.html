@@ -63,6 +63,21 @@
         <nw-icon class="settings-hub__chevron" name="chevron-right" size="sm" />
       </a>
     </li>
+    @if (accountSecurity()) {
+      <!-- The owner only (P9-S4a): operators have no factors, and never see the Security entry. -->
+      <li>
+        <a class="settings-hub__link" routerLink="/settings/security" data-section="security">
+          <span class="settings-hub__mark" aria-hidden="true"><nw-icon name="shield-check" /></span>
+          <span class="settings-hub__text">
+            <span class="settings-hub__name">{{ 'settings.security.title' | transloco }}</span>
+            <span class="settings-hub__description">{{
+              'settings.hub.securityDescription' | transloco
+            }}</span>
+          </span>
+          <nw-icon class="settings-hub__chevron" name="chevron-right" size="sm" />
+        </a>
+      </li>
+    }
   </ul>
 </section>
 

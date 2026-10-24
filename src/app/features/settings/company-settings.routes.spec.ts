@@ -74,8 +74,9 @@ describe('company settings routes (P9-S3)', () => {
       key: 'shell.breadcrumb.settings',
       link: '/settings',
     });
-    // no other Settings section is guarded by an owner capability: personal settings stay open to operators
+    // only the owner's sections are guarded (Security, P9-S4a; Company): personal settings stay open to operators
     expect(SETTINGS_ROUTES.filter((r) => r.canActivate !== undefined).map((r) => r.path)).toEqual([
+      'security',
       'company',
     ]);
   });

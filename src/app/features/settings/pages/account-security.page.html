@@ -1,0 +1,160 @@
+@let view = facade.view();
+<header class="account-security__header">
+  <div class="account-security__titles">
+    <p class="account-security__eyebrow">{{ 'settings.title' | transloco }}</p>
+    <h1 class="account-security__title">{{ 'settings.security.title' | transloco }}</h1>
+    <p class="account-security__subtitle">{{ 'settings.security.subtitle' | transloco }}</p>
+  </div>
+  @if (isDemo()) {
+    <span class="account-security__demo">
+      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+    </span>
+  }
+</header>
+
+@switch (view.status) {
+  @case ('ready') {
+    <section class="account-security__card" aria-labelledby="security-factors" data-factors>
+      <div class="account-security__intro">
+        <h2 id="security-factors" class="account-security__heading">
+          {{ 'settings.security.factors.title' | transloco }}
+        </h2>
+        <p class="account-security__muted" data-confirmed-count>
+          {{
+            'settings.security.factors.confirmedCount'
+              | transloco: { count: (view.confirmedCount | nwNumber) }
+          }}
+        </p>
+      </div>
+      <ul class="account-security__factors" role="list">
+        @for (factor of view.factors; track factor.id) {
+          <li
+            class="account-security__factor"
+            [attr.data-factor]="factor.type"
+            [attr.data-confirmed]="factor.confirmed"
+          >
+            <span class="account-security__mark" aria-hidden="true"
+              ><nw-icon [name]="types[factor.type].icon"
+            /></span>
+            <div class="account-security__factor-body">
+              <div class="account-security__factor-head">
+                <h3 class="account-security__factor-name">
+                  {{ types[factor.type].labelKey | transloco }}
+                </h3>
+                @if (factor.confirmed) {
+                  <nw-status-badge tone="success">{{
+                    'settings.security.factors.confirmed' | transloco
+                  }}</nw-status-badge>
+                } @else {
+                  <nw-status-badge tone="warning">{{
+                    'settings.security.factors.unfinished' | transloco
+                  }}</nw-status-badge>
+                }
+              </div>
+              @if (!factor.confirmed) {
+                <p class="account-security__muted" data-unfinished-note>
+                  {{ 'settings.security.factors.unfinishedNote' | transloco }}
+                </p>
+              }
+              <dl class="account-security__facts">
+                @if (factor.createdAt; as added) {
+                  <div class="account-security__fact" data-added>
+                    <dt>{{ 'settings.security.factors.added' | transloco }}</dt>
+                    <dd>{{ added | nwDate: 'date-time' }}</dd>
+                  </div>
+                }
+                <div class="account-security__fact" data-last-used>
+                  <dt>{{ 'settings.security.factors.lastUsed' | transloco }}</dt>
+                  <dd>
+                    @if (factor.lastUsedAt; as used) {
+                      {{ used | nwDate: 'date-time' }}
+                    } @else {
+                      <span class="account-security__muted">{{
+                        'settings.security.factors.noUse' | transloco
+                      }}</span>
+                    }
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="account-security__card" aria-labelledby="security-actions" data-guidance>
+      <h2 id="security-actions" class="account-security__heading">
+        {{ 'settings.security.actions.title' | transloco }}
+      </h2>
+      <ul class="account-security__list" role="list">
+        <li>{{ 'settings.security.actions.signIn' | transloco }}</li>
+        <li>{{ 'settings.security.actions.stepUp' | transloco }}</li>
+        <li>{{ 'settings.security.actions.lastFactor' | transloco }}</li>
+      </ul>
+    </section>
+
+    <section class="account-security__card" aria-labelledby="security-recovery" data-recovery>
+      <h2 id="security-recovery" class="account-security__heading">
+        {{ 'settings.security.recovery.title' | transloco }}
+      </h2>
+      <ul class="account-security__list" role="list">
+        <li>{{ 'settings.security.recovery.notGuaranteed' | transloco }}</li>
+        <li data-secret-key>{{ 'settings.security.recovery.secretKey' | transloco }}</li>
+        <li>{{ 'settings.security.recovery.process' | transloco }}</li>
+      </ul>
+    </section>
+
+    <section
+      class="account-security__card account-security__card--quiet"
+      aria-labelledby="security-unavailable"
+      data-unavailable
+    >
+      <h2 id="security-unavailable" class="account-security__heading">
+        {{ 'settings.security.unavailable.title' | transloco }}
+      </h2>
+      <ul class="account-security__list" role="list">
+        <li>{{ 'settings.security.unavailable.factors' | transloco }}</li>
+        <li>{{ 'settings.security.unavailable.secretKey' | transloco }}</li>
+        <li>{{ 'settings.security.unavailable.password' | transloco }}</li>
+        <li>{{ 'settings.security.unavailable.recovery' | transloco }}</li>
+      </ul>
+    </section>
+  }
+  @case ('empty') {
+    <nw-data-state
+      state="empty"
+      [title]="'settings.security.states.emptyTitle' | transloco"
+      [description]="'settings.security.states.emptyDescription' | transloco"
+    />
+  }
+  @case ('notInBuild') {
+    <nw-data-state
+      state="empty"
+      [title]="'settings.security.states.notInBuildTitle' | transloco"
+      [description]="'settings.security.states.notInBuildDescription' | transloco"
+    />
+  }
+  @case ('error') {
+    <nw-data-state
+      state="error"
+      [title]="'settings.security.states.errorTitle' | transloco"
+      [description]="'settings.security.states.errorDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'settings.security.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('forbidden') {
+    <nw-data-state
+      state="empty"
+      [title]="'shell.pages.forbidden.title' | transloco"
+      [description]="'settings.security.states.forbiddenDescription' | transloco"
+    />
+  }
+  @default {
+    <nw-data-state state="loading" [title]="'settings.security.states.loading' | transloco" />
+  }
+}
