@@ -1,0 +1,270 @@
+@let current = state();
+<nw-dialog
+  [title]="
+    (current.phase === 'verifying' ? 'actions.stepUp.title' : 'operators.create.title') | transloco
+  "
+  [closeLabel]="'common.close' | transloco"
+  [busy]="busy()"
+>
+  @switch (current.phase) {
+    @case ('verifying') {
+      <form
+        id="operator-create-verify"
+        class="operator-create__body"
+        novalidate
+        (submit)="verify($event)"
+      >
+        <p class="operator-create__purpose" id="operator-create-purpose">
+          <span class="operator-create__purpose-label">{{
+            'actions.stepUp.purposeIntro' | transloco
+          }}</span>
+          <strong>
+            {{ 'operators.create.purpose' | transloco }}
+            <bdi dir="ltr" translate="no">{{ sentText() }}</bdi>
+          </strong>
+        </p>
+        <nw-form-field
+          [label]="'actions.stepUp.codeLabel' | transloco"
+          [hint]="'actions.stepUp.codeHint' | transloco"
+          [error]="
+            failureKey() ? (failureKey()! | transloco: { seconds: retryAfter() }) : undefined
+          "
+        >
+          <input
+            #codeInput
+            nwControl
+            class="operator-create__code"
+            type="text"
+            name="step-up-code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            spellcheck="false"
+            dir="ltr"
+            aria-describedby="operator-create-purpose"
+            [value]="code()"
+            [readOnly]="busy()"
+            (input)="onCode($event)"
+          />
+        </nw-form-field>
+        @if (demoCode(); as demo) {
+          <p class="operator-create__demo" role="note">
+            <nw-icon name="flask-conical" size="sm" />
+            <span>
+              <strong>{{ 'actions.stepUp.demoTitle' | transloco }}</strong>
+              {{ 'actions.stepUp.demoNote' | transloco: { code: demo } }}
+            </span>
+          </p>
+        }
+      </form>
+    }
+    @case ('pending') {
+      <div class="operator-create__body">
+        <p class="operator-create__summary">
+          <span>{{ kindKeys[kind()] | transloco }}</span>
+          <bdi dir="ltr" translate="no">{{ sentText() }}</bdi>
+        </p>
+        <p class="operator-create__status" role="status">
+          <nw-spinner />{{ 'operators.create.creating' | transloco }}
+        </p>
+      </div>
+    }
+    @default {
+      @let failure = current.phase === 'failed' ? current.failure : null;
+      @if (failure && !formFailure()) {
+        <div class="operator-create__body">
+          <nw-inline-alert
+            [tone]="
+              failure.kind === 'outcomeUnknown' || failure.kind === 'refused' ? 'danger' : 'warning'
+            "
+          >
+            {{ failureKey()! | transloco: { seconds: retryAfter() } }}
+          </nw-inline-alert>
+          @if (lost()) {
+            @let known = reconciliation();
+            <p class="operator-create__status" role="status" data-reconciliation>
+              @if (known === null || known.state === 'checking') {
+                <nw-spinner />{{ 'operators.create.checking' | transloco }}
+              } @else if (known.state === 'found') {
+                {{ 'operators.create.found' | transloco }}
+              } @else if (known.state === 'notFound') {
+                {{ 'operators.create.notFound' | transloco }}
+              } @else {
+                {{ 'operators.create.unchecked' | transloco }}
+              }
+            </p>
+            @if (foundId()) {
+              <p class="operator-create__note">
+                <nw-icon name="info" size="sm" />{{ 'operators.create.foundCaveat' | transloco }}
+              </p>
+            }
+            <p class="operator-create__note" data-core-note>
+              <nw-icon name="info" size="sm" />{{ 'operators.create.coreCannotLookUp' | transloco }}
+            </p>
+          }
+        </div>
+      } @else {
+        <form
+          id="operator-create-form"
+          class="operator-create__body"
+          novalidate
+          (submit)="submit($event)"
+        >
+          <p class="operator-create__lead">{{ 'operators.create.lead' | transloco }}</p>
+          @if (formFailure(); as refused) {
+            <nw-inline-alert
+              id="operator-create-refused"
+              [tone]="refused.kind === 'validation' ? 'danger' : 'warning'"
+            >
+              {{ failureKey()! | transloco }}
+            </nw-inline-alert>
+          }
+          <fieldset class="operator-create__kinds">
+            <legend>{{ 'operators.create.kindLegend' | transloco }}</legend>
+            @for (k of kinds; track k) {
+              <label class="operator-create__radio">
+                <input
+                  type="radio"
+                  name="operator-contact-kind"
+                  [value]="k"
+                  [checked]="kind() === k"
+                  (change)="onKind(k)"
+                />
+                <span>{{ kindKeys[k] | transloco }}</span>
+              </label>
+            }
+          </fieldset>
+          @let input = inputs[kind()];
+          <nw-form-field
+            [label]="kindKeys[kind()] | transloco"
+            [hint]="hintKeys[kind()] | transloco"
+            [error]="fieldError() ? (fieldError()! | transloco) : undefined"
+            [errorRef]="formFailure() ? 'operator-create-refused' : undefined"
+            required
+          >
+            <input
+              #valueInput
+              nwControl
+              name="operator-contact"
+              autocomplete="off"
+              spellcheck="false"
+              dir="ltr"
+              [type]="input.type"
+              [attr.inputmode]="input.inputmode"
+              [value]="value()"
+              (input)="onValue($event)"
+            />
+          </nw-form-field>
+
+          <ul class="operator-create__facts" role="list">
+            <li>
+              <nw-icon name="shield-check" size="sm" />{{
+                'operators.create.stepUpNext' | transloco
+              }}
+            </li>
+            <li>
+              <nw-icon name="send" size="sm" />{{ 'operators.create.confirmNext' | transloco }}
+            </li>
+            <li>
+              <nw-icon name="key-round" size="sm" />{{ 'operators.create.noPlatform' | transloco }}
+            </li>
+            <li>
+              <nw-icon name="scroll-text" size="sm" />{{ 'operators.create.recorded' | transloco }}
+            </li>
+          </ul>
+          @if (demoCode()) {
+            <p class="operator-create__demo-chip">
+              <nw-icon name="flask-conical" size="sm" />{{
+                'operators.create.simulated' | transloco
+              }}
+            </p>
+          }
+        </form>
+      }
+    }
+  }
+
+  <div nwDialogActions>
+    @switch (current.phase) {
+      @case ('verifying') {
+        <button
+          nw-button
+          variant="ghost"
+          type="button"
+          [attr.aria-disabled]="busy() || null"
+          (click)="back()"
+        >
+          {{ 'actions.stepUp.back' | transloco }}
+        </button>
+        <button
+          #mainButton
+          nw-button
+          type="submit"
+          form="operator-create-verify"
+          [busy]="busy()"
+          [attr.aria-disabled]="busy() || null"
+        >
+          @if (busy()) {
+            <nw-spinner />{{ 'actions.stepUp.verifying' | transloco }}
+          } @else {
+            {{ 'operators.create.verifyAndCreate' | transloco }}
+          }
+        </button>
+      }
+      @case ('pending') {
+        <button nw-button variant="ghost" type="button" aria-disabled="true">
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button #mainButton nw-button type="button" busy aria-disabled="true">
+          <nw-spinner />{{ 'operators.create.creatingShort' | transloco }}
+        </button>
+      }
+      @default {
+        @if (current.phase === 'failed' && !formFailure()) {
+          @let known = reconciliation();
+          @if (lost() && foundId(); as operatorId) {
+            <button #mainButton nw-button variant="ghost" type="button" (click)="cancel()">
+              {{ 'common.close' | transloco }}
+            </button>
+            <button nw-button type="button" data-open-found (click)="openFound(operatorId)">
+              {{ 'operators.create.openFound' | transloco }}
+            </button>
+          } @else if (lost() && known?.state === 'unchecked') {
+            <button nw-button variant="ghost" type="button" (click)="cancel()">
+              {{ 'common.close' | transloco }}
+            </button>
+            <button #mainButton nw-button type="button" data-check (click)="checkAgain()">
+              <nw-icon name="refresh-cw" size="sm" />{{ 'operators.create.checkAgain' | transloco }}
+            </button>
+          } @else {
+            <button
+              #mainButton
+              nw-button
+              [variant]="retryable() ? 'ghost' : 'primary'"
+              type="button"
+              (click)="cancel()"
+            >
+              {{ 'common.close' | transloco }}
+            </button>
+            @if (retryable()) {
+              <button nw-button type="button" data-retry (click)="tryAgain()">
+                <nw-icon name="refresh-cw" size="sm" />{{ 'actions.retry' | transloco }}
+              </button>
+            }
+          }
+        } @else {
+          <button nw-button variant="ghost" type="button" (click)="cancel()">
+            {{ 'common.cancel' | transloco }}
+          </button>
+          <button nw-button type="submit" form="operator-create-form" data-submit>
+            {{
+              (formFailure() && formFailure()!.kind === 'conflict'
+                ? 'operators.create.submitAnother'
+                : 'operators.create.submit'
+              ) | transloco
+            }}
+          </button>
+        }
+      }
+    }
+  </div>
+</nw-dialog>

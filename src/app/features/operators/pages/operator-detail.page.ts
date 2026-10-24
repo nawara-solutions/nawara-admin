@@ -1,4 +1,4 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { Location, NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -23,8 +23,10 @@ import { NwStatusBadge } from '../../../shared/ui/status-badge/status-badge';
 import { OperatorDetailFacade } from '../application/operator-detail.facade';
 import { OPERATORS_PATH } from '../application/operator-paths';
 import { OperatorBlockAction } from '../application/operator-block.action';
+import { CREATED_OPERATOR_STATE } from '../application/operator-create.action';
 import { PlatformAccessAction } from '../application/platform-access.action';
 import { ACCOUNT_STATE_DISPLAY } from '../components/operator-list/operator-list';
+import { OperatorCreatedPanel } from '../components/operator-created-panel/operator-created-panel';
 import { OperatorsHeader } from '../components/operators-header/operators-header';
 import { OperatorAccountState, OperatorSummary, contactText } from '../domain/operator.model';
 
@@ -35,12 +37,21 @@ const STATE_DESCRIPTION_KEYS = {
   blocked: 'operators.detail.stateDescription.blocked',
 } as const satisfies Record<OperatorAccountState, string>;
 
+/** The operator id the page was opened with right after creating it (navigation state, never the URL), or `null`. */
+function createdOperatorIdOf(state: unknown): string | null {
+  if (typeof state !== 'object' || state === null || !(CREATED_OPERATOR_STATE in state))
+    return null;
+  const id = state[CREATED_OPERATOR_STATE];
+  return typeof id === 'string' ? id : null;
+}
+
 /**
  * One operator (`/operators/:operatorId`; P6 design, artboards Detail and MobileAr), read only: their account (demo
  * data, CF-03), their CURRENT Platform access and their REMOVED access, apart, with when it was given and removed and
  * by whom (the Company owner, as Core records it). The owner gives and removes Platform access here (P6-S2:
  * `PlatformAccessAction`); the other changes are listed as information only. After a change succeeds, focus moves to
- * the "Current Platform access" heading.
+ * the "Current Platform access" heading. Opened right after the owner created the operator (P6-S4), it first says what
+ * happens next: the operator confirms their contact at sign-in, then the owner gives Platform access.
  */
 @Component({
   selector: 'adm-operator-detail-page',
@@ -54,6 +65,7 @@ const STATE_DESCRIPTION_KEYS = {
     NwIcon,
     NwSpinner,
     NwStatusBadge,
+    OperatorCreatedPanel,
     OperatorsHeader,
   ],
   templateUrl: './operator-detail.page.html',
@@ -70,6 +82,13 @@ export class OperatorDetailPage {
   protected readonly stateDescription = STATE_DESCRIPTION_KEYS;
   protected readonly access = inject(PlatformAccessAction);
   protected readonly block = inject(OperatorBlockAction);
+  private readonly createdId = createdOperatorIdOf(inject(Location).getState());
+
+  /** The page shows the operator the owner has just created (the next steps are shown, once, for them only). */
+  protected readonly justCreated = computed(() => {
+    const view = this.facade.view();
+    return view.status === 'ready' && this.createdId === view.operator.id;
+  });
   private readonly accountHeading = viewChild<ElementRef<HTMLElement>>('accountHeading');
   private readonly injector = inject(Injector);
   private readonly currentHeading = viewChild<ElementRef<HTMLElement>>('currentHeading');

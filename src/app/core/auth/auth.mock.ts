@@ -5,6 +5,7 @@ import { DEMO_LATENCY_MS } from '../context/scope-directory.mock';
 import { PlatformId } from '../context/scope.model';
 import { AppError } from '../errors/app-error';
 import { DemoWorld } from '../../demo/world/demo-world';
+import { OperatorProfileRecord } from '../../demo/world/records';
 import { confirmOperatorContact } from '../../demo/world/commands/operator.commands';
 import { grantsOf, operatorProfileOf, platformViewerOf } from '../../demo/world/selectors';
 import { NW_CLOCK } from '../../shared/format/clock';
@@ -70,6 +71,12 @@ const CODE_INVALID: AppError = {
   code: 'operator_code_invalid',
   status: 401,
 };
+
+/** An operator account's one contact as a sign-in identifier (Core: exactly one email or one phone). */
+const profileIdentifier = (profile: OperatorProfileRecord): OperatorIdentifier =>
+  profile.email !== null
+    ? { kind: 'email', email: profile.email }
+    : { kind: 'phone', phone: profile.phone ?? '' };
 
 const sameIdentifier = (a: OperatorIdentifier, b: OperatorIdentifier): boolean =>
   a.kind === 'email'
@@ -322,8 +329,37 @@ export class MockAuthGateway extends AuthGateway {
     );
   }
 
+  /**
+   * The operator account an identifier names: a sign-in fixture first (staff and scenario accounts keep their own user
+   * ids and scenarios); otherwise an operator the OWNER CREATED in the demo world (P6-S4), which signs in under its world
+   * id with the normal scenario. Only an account the world or the fixtures hold is ever found: any other identifier
+   * finds nothing (Core's generic answers), however it is typed.
+   */
   private operator(identifier: OperatorIdentifier): DemoOperator | undefined {
-    return ALL_DEMO_OPERATORS.find((candidate) => sameIdentifier(candidate.identifier, identifier));
+    const fixture = ALL_DEMO_OPERATORS.find((candidate) =>
+      sameIdentifier(candidate.identifier, identifier),
+    );
+    if (fixture !== undefined) return fixture;
+    const created = this.world
+      .snapshot()
+      .operators.find(
+        (profile) =>
+          !ALL_DEMO_OPERATORS.some((a) => a.businessIdentityId === profile.id) &&
+          sameIdentifier(profileIdentifier(profile), identifier),
+      );
+    if (created === undefined) return undefined;
+    return {
+      identifier: profileIdentifier(created),
+      identity: {
+        userId: created.id,
+        email: created.email,
+        phone: created.phone,
+        adminTier: 'operator',
+      },
+      businessIdentityId: created.id,
+      scenario: 'normal',
+      confirmed: created.contactConfirmedAt !== null,
+    };
   }
 
   /** A live token: known, unexpired and not out of attempts (Core consumes it on the fifth refusal). */

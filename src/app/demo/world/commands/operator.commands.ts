@@ -1,14 +1,26 @@
+import {
+  OperatorIdentifier,
+  identifierText,
+  normalizePhone,
+  parseOperatorIdentifier,
+} from '../../../core/auth/operator-identifier';
 import { PlatformId } from '../../../core/context/scope.model';
 import { AppError } from '../../../core/errors/app-error';
 import { CommandOutcome } from '../demo-world';
-import { AdminIdentityId, DemoWorldTables, PlatformAssignmentRecord } from '../records';
+import {
+  AdminIdentityId,
+  DemoWorldTables,
+  OperatorProfileRecord,
+  PlatformAssignmentRecord,
+  adminIdentityId,
+} from '../records';
 import { grantsOf, isActiveAssignment, isCompanyPlatform, operatorProfileOf } from '../selectors';
 
 /**
  * Operator commands of the simulated Core (Auth): the operator's own contact confirmation (Core's public
  * `POST /auth/admin/operators/confirm`), so the confirmed state the owner's directory shows is the one the sign-in flow
  * wrote; the owner's Platform assignment grant and removal (P6-S2); and the owner's block and unblock of an operator
- * account (P6-S3). Creating an operator comes with its own slice.
+ * account (P6-S3); and the owner's creation of an operator account (P6-S4).
  */
 
 /**
@@ -239,3 +251,107 @@ export const blockOperator = (change: OperatorAccountChange) => setOperatorBlock
 
 /** Core's `POST /auth/admin/operators/:id/unblock`. */
 export const unblockOperator = (change: OperatorAccountChange) => setOperatorBlocked(change, false);
+
+/**
+ * A contact as a uniqueness key: Core keeps one email and one phone per user, unique across EVERY account kind (owner,
+ * operator, member), on the normalized value (`users.service.ts`: an email lower-cased, a phone without its formatting).
+ * Never a display label, never shown.
+ */
+export const contactKey = (contact: OperatorIdentifier): string =>
+  contact.kind === 'email'
+    ? `email:${contact.email.trim().toLowerCase()}`
+    : `phone:${normalizePhone(contact.phone)}`;
+
+/** The uniqueness keys of the contacts the world's own accounts hold: its operators and its members. */
+export function worldContactKeys(world: DemoWorldTables): ReadonlySet<string> {
+  const keys = new Set<string>();
+  for (const account of [...world.operators, ...world.members]) {
+    if (account.email !== null) keys.add(contactKey({ kind: 'email', email: account.email }));
+    if (account.phone !== null) keys.add(contactKey({ kind: 'phone', phone: account.phone }));
+  }
+  return keys;
+}
+
+/** Who creates an operator, with which one contact, at what instant (P6-S4). */
+export interface OperatorCreation {
+  /** The asking identity (the signed-in session's business identity). */
+  readonly actor: AdminIdentityId | null;
+  readonly contact: OperatorIdentifier;
+  /**
+   * The uniqueness keys (`contactKey`) of the contacts held by accounts the world does not keep: the sign-in fixtures'
+   * (the owner's, the member's, the scenario accounts'), a snapshot the mock adapter passes in, so the command stays pure.
+   */
+  readonly reservedContacts: ReadonlySet<string>;
+  readonly now: number;
+}
+
+/** What Core's `201` answers: the new operator's id, its normalized contact, and whether the account is active. */
+export interface CreatedOperatorResult {
+  readonly id: AdminIdentityId;
+  readonly email: string | null;
+  readonly phone: string | null;
+  readonly isActive: boolean;
+}
+
+/** Stable, UUID-shaped ids for operators created at run time (never a seed id: those end in two decimal digits). */
+export const createdOperatorId = (sequence: number): AdminIdentityId =>
+  adminIdentityId(`7b3f1d52-4c6e-4a8b-9d0f-${(0x1000 + sequence).toString(16).padStart(12, '0')}`);
+
+/**
+ * Like Core's `POST /auth/admin/operators` (`operator-admin.service.ts`): the owner of the Company only (anyone else,
+ * an owner of another Company or an operator included: `403`); exactly one contact, normalized and well formed (`400`
+ * otherwise); a contact already held by ANY account (`409 account_already_exists`, which never says whose: the caller
+ * learns only that it is taken, as from Core). Then exactly ONE operator account: an `operator` identity of the owner's
+ * Company, its contact unconfirmed, not blocked, with NO Platform assignment, membership or organization-admin role;
+ * and one Company-level `operator.created` activity whose subject is the new id (never the contact). Nothing else
+ * changes. The confirmation code Core issues is sign-in state, never the world's: the mock adapter keeps it in
+ * `DemoAuthState` once this commits. No idempotency key: Core has none for this route.
+ */
+export function createOperator(
+  creation: OperatorCreation,
+): (world: DemoWorldTables) => CommandOutcome<CreatedOperatorResult> {
+  return (world) => {
+    if (creation.actor === null || grantsOf(world, creation.actor).companyId !== world.company.id)
+      return { ok: false, error: FORBIDDEN };
+    const contact = parseOperatorIdentifier(identifierText(creation.contact));
+    if (contact === null || contact.kind !== creation.contact.kind)
+      return { ok: false, error: { kind: 'validation', messages: [], status: 400 } };
+    const key = contactKey(contact);
+    if (creation.reservedContacts.has(key) || worldContactKeys(world).has(key))
+      return {
+        ok: false,
+        error: { kind: 'conflict', code: 'account_already_exists', status: 409 },
+      };
+    const sequence = world.sequence + 1;
+    const at = new Date(creation.now).toISOString();
+    const profile: OperatorProfileRecord = {
+      id: createdOperatorId(sequence),
+      email: contact.kind === 'email' ? contact.email : null,
+      phone: contact.kind === 'phone' ? contact.phone : null,
+      createdAt: at,
+      contactConfirmedAt: null,
+      blocked: false,
+    };
+    return {
+      ok: true,
+      world: {
+        ...world,
+        sequence,
+        identities: [...world.identities, { id: profile.id, kind: 'operator' }],
+        operators: [...world.operators, profile],
+        activity: [
+          ...world.activity,
+          {
+            id: `operator-activity-created-${sequence}`,
+            platformId: null,
+            organizationId: null,
+            action: 'operator.created',
+            subjectId: profile.id,
+            occurredAt: at,
+          },
+        ],
+      },
+      result: { id: profile.id, email: profile.email, phone: profile.phone, isActive: true },
+    };
+  };
+}

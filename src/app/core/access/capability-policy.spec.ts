@@ -27,6 +27,7 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
       'company.platforms.view',
       'company.scope',
       'operator.account.block',
+      'operator.create',
       'operator.platformAccess.change',
       'organization.create',
       'platform.access.view',
@@ -43,6 +44,7 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
     expect(can(operator, 'platform.activity.view')).toBe(false);
     expect(can(operator, 'platform.access.view')).toBe(false);
     expect(can(operator, 'company.overview.view')).toBe(false);
+    expect(can(operator, 'operator.create')).toBe(false);
     expect(can(operator, 'company.platforms.view')).toBe(false);
     // The Company's staff directory is the owner's; an operator's authority is their assignments only (P6-S1).
     expect(can(operator, 'company.operators.view')).toBe(false);

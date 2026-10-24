@@ -395,7 +395,7 @@ Admin strategy and the decision required before A4.
 | Memberships — revoke | Auth | 🟢 Prod | `POST …/memberships/:id/revoke` | `MembershipGateway.revoke(organizationId, id)`, mock in demo builds (P5-S3a); never resent after a lost answer; **CF-26, CF-27** |
 | Join codes / admin invitations | Auth | 🟢 Prod | `organization.controller.ts` | HTTP (A7) |
 | Organization-admin grant/revoke | Auth | 🟢 Prod | `memberships/:id/admin` | `MembershipGateway.setOrganizationAdmin(org, id, admin, { stepUpToken })`, mock in demo builds (P5-S3b); owner only, factor step-up; never resent after a lost answer; **CF-27** |
-| Operators (create/confirm/block/unblock) | Auth | 🟢 Prod (verified P6-S0, `750eb21`) | `operator.controller.ts` | Block / unblock: **P6-S3**, owner-only "Block account" / "Unblock account" against a demo-world mock (no step-up, as Core; codes cancelled and the operator's session ended on block; nothing restored on unblock; lost answers reconcile against the DEMO state and allow only an explicit repeat). **No HTTP adapter**; Admin cannot re-read the account state from Core (CF-03, CF-35). Create (P6-S4) not built |
+| Operators (create/confirm/block/unblock) | Auth | 🟢 Prod (verified P6-S0, `750eb21`) | `operator.controller.ts` | Block / unblock: **P6-S3**, owner-only "Block account" / "Unblock account" against a demo-world mock (no step-up, as Core; codes cancelled and the operator's session ended on block; nothing restored on unblock; lost answers reconcile against the DEMO state and allow only an explicit repeat). **No HTTP adapter**; Admin cannot re-read the account state from Core (CF-03, CF-35). Create: **P6-S4**, owner-only "Create operator…" (one contact, step-up `operator.create` spent on commit, zero assignments, neutral `409`; lost answers reconciled against the DEMO directory only, never resent) against the same mock; production does not offer it (no directory: CF-03; no idempotency or lookup: CF-32) |
 | Signed-in operator's own Platform list after a change | Auth | 🟢 `GET /auth/grants` (live; `401` for an inactive account or an ended session) | `grants.service.ts`, `auth.guard.ts` | **P6-S2b**: `OperatorGrantsRefresh` re-reads it after a refused Platform read, on tab return, on a Platform switch and on "Try again" (single flight, stale answers dropped, never polls); a genuine `401` ends the local session (sign-in, reason `session-expired`); transient failures keep the last list. Display only: Core still authorizes every request. Against the demo `AuthGateway` mock; the HTTP adapter (A4) must map `401` and the unverified `429` |
 | Platform assignment grant / revoke | Auth | 🟢 Prod (verified P6-S0) | `platform.controller.ts` `POST/DELETE …/platform-assignments` | P6-S2: owner-only "Give access" / "Remove access" (step-up `platform_assignment.grant` / `.revoke`, spent on commit; `409` / `404` / `503` / lost answer reconcile by reloading the history, never resent) against a demo-world mock; **no HTTP adapter**; the dialog offers the authenticator code only, though Core also accepts a passkey or the secret key (shared factor selector: separate work item) |
 | Operator assignment history | Auth | 🟢 Prod (verified P6-S0) | `GET /auth/admin/operators/:id/platform-assignments` | `OperatorAssignmentGateway` in Core's shape (P6-S1); mock in demo builds, unavailable adapter otherwise: **no HTTP adapter authorized yet**, and no operator ids without a directory |
@@ -623,7 +623,8 @@ Admin requirement: a way to obtain a new confirmation code (operator-requested a
 Classification:   🔴 missing capability.
 V1 or V2:         to decide by the Core owner.
 Recommended checkpoint: before the A4-S3 HTTP integration and A7 operator administration (the A4-S3 mock prototype is built
-without any reissue: it offers none and points to the company owner).
+without any reissue: it offers none and points to the company owner). P6-S4 (mock creation) offers none either: the
+created operator's page says the code expires and cannot be resent, and that blocking cancels it for good.
 
 CF-17  Operator confirmation: Core documentation versus source
 Service:          auth-service (documentation and source)
@@ -807,7 +808,10 @@ Admin requirement: an Idempotency-Key (replaying the first answer), or the opera
                   reconciled without guessing.
 Classification:   🔴 missing capability.
 V1 or V2:         to decide by the Core owner.
-Recommended checkpoint: before P6-S4 (create operator).
+Recommended checkpoint: before the operator-creation HTTP adapter. P6-S4 (2026-10-24) is a demo mock only: it never
+resends, reads the DEMO directory again and searches for the contact, and states that Core cannot do this; production
+does not offer creation. Needed: an idempotent create (an Idempotency-Key replaying the first answer) or an
+owner-authorized lookup by contact.
 
 CF-33  Operator creation: duplicate-contact disclosure
 Service:          auth-service
@@ -818,7 +822,8 @@ Admin requirement: Core states whether this disclosure to the owner is intended;
                   way.
 Classification:   🟡 security review item.
 V1 or V2:         to decide by the Core owner.
-Recommended checkpoint: before P6-S4.
+Recommended checkpoint: before the operator-creation HTTP adapter. P6-S4 (2026-10-24, mock) says only "already used by a
+Nawara account", never the account kind, and adds no lookup of its own.
 
 CF-34  Documented-only operator endpoints
 Service:          auth-service (documentation versus source)
@@ -836,7 +841,8 @@ Current behavior: (origin/main 750eb21) POST /auth/admin/operators/:id/block|unb
                   read returns an operator's isActive (CF-03). After a lost answer Admin cannot tell whether the account
                   is blocked; a repeat is harmless for the account but writes another audit record.
 Admin requirement: the resulting state in the answer ({ id, isActive }) or an owner read of it, so a lost answer can be
-                  reconciled without a blind repeat.
+                  reconciled without a blind repeat. The same holds after a creation (P6-S4): Admin cannot read whether
+                  the new operator has confirmed their contact, or is blocked, from Core.
 Classification:   🟡 contract addition.
 V1 or V2:         to decide by the Core owner.
 Recommended checkpoint: before the operator administration HTTP adapter.

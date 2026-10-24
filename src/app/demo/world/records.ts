@@ -206,15 +206,16 @@ export interface PlatformActivityRecord {
 }
 
 /**
- * A Company-level administrative event that belongs to no Platform (P6-S3): an operator account blocked or unblocked
- * (Core's `account.disabled` / `account.enabled`, which carry no Platform or Organization). Shown in the Company Overview
- * feed only; never given a fictitious Platform. Its subject is the operator's id, never a contact.
+ * A Company-level administrative event that belongs to no Platform: an operator account created by the owner (P6-S4)
+ * or blocked or unblocked (P6-S3; Core's `account.disabled` / `account.enabled`, which carry no Platform or
+ * Organization). Shown in the Company Overview feed only; never given a fictitious Platform. Its subject is the
+ * operator's id, never a contact.
  */
 export interface CompanyActivityRecord {
   readonly id: string;
   readonly platformId: null;
   readonly organizationId: null;
-  readonly action: 'operator.blocked' | 'operator.unblocked';
+  readonly action: 'operator.created' | 'operator.blocked' | 'operator.unblocked';
   /** The operator the event is about (an id: no contact is ever recorded). */
   readonly subjectId: AdminIdentityId;
   /** UTC instant, ISO 8601 with `Z`. */

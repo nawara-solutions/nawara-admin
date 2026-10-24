@@ -7,6 +7,18 @@
   <p headerMeta class="operator-directory__subtitle">
     {{ 'operators.header.subtitle' | transloco }}
   </p>
+  @if (create.offered()) {
+    <button
+      headerActions
+      nw-button
+      type="button"
+      data-create-operator
+      [attr.aria-disabled]="create.busy() || null"
+      (click)="create.open()"
+    >
+      <nw-icon name="user-plus" size="sm" />{{ 'operators.create.open' | transloco }}
+    </button>
+  }
 </header>
 
 @switch (view.status) {

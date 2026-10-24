@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock; rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation; rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,6 +290,23 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## P6-S4: mock operator creation and confirmation (design approved and implemented 2026-10-24)
+
+**Status: implemented, awaiting review; a development-only mock prototype. Real Core integration is NOT complete**
+(no HTTP adapter; production does not offer creation). Design:
+[`design/p6-s4-operator-creation.md`](design/p6-s4-operator-creation.md).
+
+- "Create operator…" on the directory for the Company owner only (capability, action, mock and command): exactly one
+  contact, email or phone, validated and normalized like sign-in; the owner's step-up `operator.create`, spent only on
+  commit; one unconfirmed operator with zero Platform assignments and one Company-level `operator.created` activity.
+- Uniqueness across every account kind (world operators and members, every sign-in fixture); `409
+  account_already_exists` worded neutrally, never naming the kind.
+- Created operators confirm and sign in through the existing journey: the sign-in mock now resolves them from the demo
+  world; block cancels their codes and session; unblock restores nothing.
+- Lost answers: never resent; the demo directory is read again (found / not found / unchecked); a new attempt is
+  explicit and verifies again. Success opens the operator with the next steps.
+- Follow-ups: CF-03, CF-16, CF-32 (idempotent create or authorized lookup), CF-33, CF-35; shared factor chooser.
+
 ## P6-S3: mock operator block and unblock (design approved and implemented 2026-10-24)
 
 **Status: implemented, awaiting review; a development-only mock prototype.** Design:
@@ -348,8 +365,8 @@ NOT complete** (Core has no directory, CF-03). Design: [`design/p6-operators-and
 - Owner only, direct URLs included; an unknown or foreign operator is "not found"; no operator change of any kind.
 - Demo world: operator accounts and an append-only assignment history (8 records, 5 active: every existing count and
   grant unchanged); a blocked demo operator whose sign-in is refused.
-- Implemented in Core, not yet in Admin: grant / remove Platform access (P6-S2), block / unblock (P6-S3), create
-  operator (P6-S4). Core follow-ups: CF-03, CF-16, CF-32 to CF-34.
+- Implemented in Core, built later in Admin as demo mocks: grant / remove Platform access (P6-S2), block / unblock
+  (P6-S3), create operator (P6-S4). Core follow-ups: CF-03, CF-16, CF-32 to CF-34.
 
 ## P5-S4: member account suspension and restoration — DEFERRED / BLOCKED BY CORE (2026-10-24)
 

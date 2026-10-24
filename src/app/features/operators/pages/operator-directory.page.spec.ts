@@ -48,13 +48,13 @@ describe('OperatorDirectoryPage (P6-S1, read only, provisional)', { timeout: 15_
     expect(text(tableRows(element)[3]?.querySelector('nw-status-badge'))).toBe(
       t.state.awaitingConfirmation,
     );
-    // Says it is provisional demo data, and that changes come later.
+    // Says it is provisional demo data, and where the other changes are made.
     expect(text(element.querySelector('.operator-directory__provisional'))).toBe(t.provisional);
     expect(text(element.querySelector('.operator-directory__later'))).toBe(t.later.directory);
     expect(text(element.querySelector('.operators-header__demo'))).toContain(en.shell.demo.badge);
   });
 
-  it('links each operator by id, never by contact, and offers no operator change', async () => {
+  it('links each operator by id, never by contact; the only change offered here is creating one (P6-S4)', async () => {
     const { element } = await render();
     const hrefs = [
       ...element.querySelectorAll<HTMLAnchorElement>('.operator-list__table .operator-list__link'),
@@ -62,7 +62,9 @@ describe('OperatorDirectoryPage (P6-S1, read only, provisional)', { timeout: 15_
     expect(hrefs).toContain(`/operators/${DEMO_OPERATOR_IDS.multi}`);
     expect(hrefs.every((h) => /^\/operators\/[0-9a-f-]{36}$/.test(h))).toBe(true);
     const buttons = [...element.querySelectorAll('button')].map((b) => text(b));
-    expect(buttons.filter((b) => /give|grant|remove|block|create|resend/i.test(b))).toEqual([]);
+    expect(buttons.filter((b) => /give|grant|remove|block|create|resend/i.test(b))).toEqual([
+      en.operators.create.open,
+    ]);
   });
 
   it('searches by email or phone in the page only: the URL never holds the search', async () => {
