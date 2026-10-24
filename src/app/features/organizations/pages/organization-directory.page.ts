@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { GrantsRefreshNotice } from '../../../layout/grants-refresh-notice/grants-refresh-notice';
 import { can } from '../../../core/access/capability-policy';
 import { homePath } from '../../../core/access/home-path';
 import { AuthSession } from '../../../core/auth/auth-session';
@@ -66,6 +67,7 @@ const pick = <T extends string>(values: readonly T[], value: string): T | null =
 @Component({
   selector: 'adm-organization-directory-page',
   imports: [
+    GrantsRefreshNotice,
     NgTemplateOutlet,
     RouterLink,
     CreateOrganizationButton,

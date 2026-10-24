@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { APP_ENVIRONMENT, isDemo } from '../config/app-environment';
+import { PlatformId } from '../context/scope.model';
 import { Actor } from './actor';
 
 export type SessionState =
@@ -28,6 +29,13 @@ export class AuthSession {
     const state = this.current();
     return state.status === 'signed-in' ? state.actor : null;
   });
+  /**
+   * Which session this is: increments on every sign-in and sign-out (never on a grants refresh), so an answer requested
+   * in one session is recognised, and dropped, once another has started.
+   */
+  private readonly epochs = signal(0);
+  readonly epoch = this.epochs.asReadonly();
+
   readonly isDemo = computed(() => {
     const state = this.current();
     return state.status === 'signed-in' && state.origin === 'demo';
@@ -39,10 +47,38 @@ export class AuthSession {
       throw new Error('Sign-in is not available in this build.');
     }
     this.current.set({ status: 'signed-in', actor, origin: 'demo' });
+    this.epochs.update((n) => n + 1);
+  }
+
+  /**
+   * Replaces a signed-in OPERATOR's Platform assignments with a fresher read of Core's `/auth/grants` (P6-S2b), for the
+   * same user in the same session only. Display state: Core still authorizes every request. A set equal to the current
+   * one (in any order) changes nothing, so nothing that follows the actor reloads. Never changes the user, the kind or
+   * an owner's session, and never signs anyone out.
+   *
+   * @returns whether the list changed
+   */
+  refreshGrants(
+    epoch: number,
+    userId: string,
+    platformAssignments: readonly PlatformId[],
+  ): boolean {
+    const state = this.current();
+    if (epoch !== this.epochs() || state.status !== 'signed-in') return false;
+    const actor = state.actor;
+    if (actor.kind !== 'operator' || actor.userId !== userId) return false;
+    const next = [...new Set(platformAssignments)];
+    const same =
+      next.length === actor.platformAssignments.length &&
+      next.every((id) => actor.platformAssignments.includes(id));
+    if (same) return false;
+    this.current.set({ ...state, actor: { ...actor, platformAssignments: next } });
+    return true;
   }
 
   /** Forgets the session locally. Telling Core (`POST /auth/logout`) is the sign-in flow's job. */
   signOut(): void {
     this.current.set({ status: 'signed-out' });
+    this.epochs.update((n) => n + 1);
   }
 }

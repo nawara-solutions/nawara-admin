@@ -2,7 +2,8 @@
 
 - **Status:** P6-0 design (2026-10-24) · P6-S0 Core verification (2026-10-24, read only) · **P6-S1 implemented** (read
   only, development-only mock prototype). **P6-S2 implemented** (give / remove Platform access, mock;
-  [`p6-s2-platform-access.md`](p6-s2-platform-access.md)). P6-S2b, P6-S3 and P6-S4 not started.
+  [`p6-s2-platform-access.md`](p6-s2-platform-access.md)). **P6-S2b implemented** (signed-in operator Platform-list
+  refresh; [`p6-s2b-operator-scope-refresh.md`](p6-s2b-operator-scope-refresh.md)). P6-S3 and P6-S4 not started.
 - **Core baseline:** `origin/main` **`750eb21`** (2026-10-24), read only in P6-S0. Every Core fact below is from that
   commit unless marked otherwise.
 - **Canvas:** https://claude.ai/artifact/CdL19bNnRfdK2m4gciikVh (7 artboards: Main, Detail, Grant, Remove, MobileEn,

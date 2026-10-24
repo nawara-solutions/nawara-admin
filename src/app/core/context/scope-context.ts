@@ -1,8 +1,23 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { Subject, combineLatest, filter, map, of, shareReplay, startWith, switchMap } from 'rxjs';
+import {
+  Observable,
+  Subject,
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  map,
+  of,
+  shareReplay,
+  skip,
+  startWith,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { AuthSession } from '../auth/auth-session';
+import { OperatorGrantsRefresh } from '../auth/operator-grants-refresh';
+import { toAppError } from '../errors/app-error';
 import { ViewState, toViewState } from '../state/view-state';
 import { ScopeDirectoryGateway } from './scope-directory.gateway';
 import {
@@ -124,6 +139,21 @@ export class ScopeContext {
   /** Where in platform scope the URL is (dashboard, Organization directory, one Organization). */
   readonly platformPage = computed(() => platformPageFromUrl(this.url()));
 
+  constructor() {
+    // An operator switching Platforms (switcher, link or address) re-reads their grants once per switch (P6-S2b). The
+    // first Platform after sign-in is not a switch: the grants were just read.
+    toObservable(this.scope)
+      .pipe(
+        map((scope) => (scope.kind === 'platform' ? scope.platformId : null)),
+        filter((id): id is PlatformId => id !== null),
+        distinctUntilChanged(),
+        skip(1),
+      )
+      .subscribe(() => {
+        if (this.session.actor()?.kind === 'operator') this.grants?.refresh('switch');
+      });
+  }
+
   private readonly companyId = computed(() => {
     const actor = this.session.actor();
     return actor?.kind === 'owner' ? actor.companyId : null;
@@ -168,9 +198,30 @@ export class ScopeContext {
     initialValue: { status: 'idle' } as ViewState<readonly PlatformRef[]>,
   });
 
-  /** Loads the directory (owner) or the assigned Platforms (operator) again. */
+  /**
+   * The signed-in operator's grants refresh (P6-S2b), where the shell provides it. Display state only: it never
+   * replaces Core's authorization of each request.
+   */
+  private readonly grants = inject(OperatorGrantsRefresh, { optional: true });
+
+  /**
+   * Loads the directory (owner) or the assigned Platforms (operator) again. For an operator, "Try again" also re-reads
+   * their grants first (P6-S2b), so the list it reloads is Core's current one.
+   */
   reload(): void {
+    if (this.session.actor()?.kind === 'operator') this.grants?.refresh('retry');
     this.reloads.next();
+  }
+
+  /**
+   * A platform-scope request was refused (Core's collapsed `404`, or `403`) for a Platform the operator's list still
+   * shows: their access may have changed, so their grants are re-read (P6-S2b). The refusal itself stands; nothing is
+   * resent. Nothing happens for an owner or for a Platform the list no longer shows.
+   */
+  platformRefused(platform: PlatformId): void {
+    const actor = this.session.actor();
+    if (actor?.kind === 'operator' && actor.platformAssignments.includes(platform))
+      this.grants?.refresh('refusal', platform);
   }
 
   private readonly changes = signal(0);
@@ -195,4 +246,23 @@ export class ScopeContext {
   organizationsChanged(): void {
     this.changes.update((n) => n + 1);
   }
+}
+
+/**
+ * Reports a refused platform-scope read (Core's collapsed `404`, or `403`) to `ScopeContext.platformRefused`, so a
+ * signed-in operator's grants are re-read (P6-S2b). The error is passed on unchanged: the refusal stands.
+ */
+export function reportsRefusal<T>(
+  scope: ScopeContext,
+  platform: PlatformId,
+): (source: Observable<T>) => Observable<T> {
+  return (source) =>
+    source.pipe(
+      tap({
+        error: (thrown: unknown) => {
+          const kind = toAppError(thrown).kind;
+          if (kind === 'not_found' || kind === 'forbidden') scope.platformRefused(platform);
+        },
+      }),
+    );
 }

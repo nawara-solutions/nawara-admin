@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import { can } from '../../../core/access/capability-policy';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { PlatformAccess, platformAccessOf } from '../../../core/context/platform-access';
-import { ScopeContext } from '../../../core/context/scope-context';
+import { ScopeContext, reportsRefusal } from '../../../core/context/scope-context';
 import { OrganizationId, PlatformId, PlatformRef } from '../../../core/context/scope.model';
 import { ADAPTER_UNAVAILABLE } from '../../../core/errors/app-error';
 import { ViewState } from '../../../core/state/view-state';
@@ -93,7 +93,10 @@ export class OrganizationDirectoryFacade {
     this.showsCommercial() ? this.platformId() : null,
   );
 
-  private readonly raw = keyedLoad(this.platformId, this.reloads, (id) => this.gateway.list(id));
+  // A refused list (an assignment removed meanwhile) re-reads an operator's grants (P6-S2b); the refusal stands.
+  private readonly raw = keyedLoad(this.platformId, this.reloads, (id) =>
+    this.gateway.list(id).pipe(reportsRefusal(this.context, id)),
+  );
   private readonly commercialRaw = keyedLoad(
     this.commercialPlatformId,
     this.commercialReloads,

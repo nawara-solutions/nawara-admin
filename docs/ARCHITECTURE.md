@@ -523,6 +523,16 @@ only ([`design/p6-s2-platform-access.md`](design/p6-s2-platform-access.md)):
   secret-key options for these purposes await a shared factor selector.
 - A signed-in operator's Platform list is read at sign-in (P6-S2b refreshes it); Core's live checks already deny them.
 
+**Operator Platform-list refresh (P6-S2b, 2026-10-24)**
+([`design/p6-s2b-operator-scope-refresh.md`](design/p6-s2b-operator-scope-refresh.md)):
+
+- One shell-scoped `OperatorGrantsRefresh` re-reads `GET /auth/grants` for a signed-in operator after a refused
+  Platform read (`reportsRefusal` → `ScopeContext.platformRefused`), on tab return, on a Platform switch and on "Try
+  again"; `AuthSession.refreshGrants` applies it only for the same user and session (`epoch`) and only when the set
+  differs. Single flight, numbered requests, no polling, never for owners.
+- `401` from that read ends the local session (sign-in, `session-expired`); transient failures keep the last list. It is
+  display state: authorization stays Core's, request by request.
+
 ## 13. Design system: tokens, SCSS and BEM
 
 ### Token architecture
