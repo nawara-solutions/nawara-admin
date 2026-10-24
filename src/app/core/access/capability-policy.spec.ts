@@ -22,6 +22,7 @@ const operator: OperatorActor = {
 describe('CapabilityPolicy (UX only; Core authorizes)', () => {
   it('gives the Company owner company-wide administration, platform and organization creation', () => {
     expect([...capabilitiesOf(owner)].sort()).toEqual([
+      'company.audit.view',
       'company.commercial.view',
       'company.operators.view',
       'company.overview.view',
@@ -47,6 +48,8 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
     expect(can(operator, 'company.overview.view')).toBe(false);
     expect(can(operator, 'operator.create')).toBe(false);
     expect(can(operator, 'company.commercial.view')).toBe(false);
+    // The activity browser (P8-S1) is the owner's: operators have no audit read in Core.
+    expect(can(operator, 'company.audit.view')).toBe(false);
     expect(can(operator, 'company.platforms.view')).toBe(false);
     // The Company's staff directory is the owner's; an operator's authority is their assignments only (P6-S1).
     expect(can(operator, 'company.operators.view')).toBe(false);

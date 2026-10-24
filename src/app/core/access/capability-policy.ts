@@ -59,6 +59,12 @@ export type Capability =
    * No commercial read authority is confirmed for operators (Billing/Payment staff routes are Core V2 A10/A11).
    */
   | 'platform.commercial.view'
+  /**
+   * The Company's administrative activity browser (`/audit`, P8-S1): simulated in demo builds, never Core audit
+   * evidence. Core's audit read is the owner's only (operators have none, ADR-0050 D6); a Platform assignment or an
+   * Organization-admin membership never confers it.
+   */
+  | 'company.audit.view'
   /** A Platform's administrative activity: Core's owner audit read; operators have no audit read (CF-04). */
   | 'platform.activity.view'
   /** Operator assignments and admin invitations of a Platform: the owner manages both; operators manage neither. */
@@ -70,6 +76,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.platforms.view',
   'company.operators.view',
   'company.commercial.view',
+  'company.audit.view',
   'operator.platformAccess.change',
   'operator.account.block',
   'operator.create',

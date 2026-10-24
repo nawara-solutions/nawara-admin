@@ -211,7 +211,7 @@ Organizations are entities of platform scope (amendment, P3a, 2026-10-23): their
 /billing                       payment follow-ups (P7-S3)                     🟡 mock, owner only
 /payments                                                                     🟡
 /releases                      withdraw · minimum version                     🟢 actions · 🔴 catalog
-/audit                         launcher: choose an organization (platform-level audit 🔴)
+/audit                         simulated activity browser (P8-S1)             🟡 mock, owner only; Core audit 🔴 / 🟢 not integrated
 /services                      health                                         🔴 / 🟡
 /monitoring                                                                   🟡
 /settings                      preferences: language, theme, time zone (local)
@@ -561,6 +561,15 @@ only ([`design/p6-s3-operator-block.md`](design/p6-s3-operator-block.md)):
   issues the confirmation code in `DemoAuthState`. The sign-in mock resolves operators it has no fixture for from the
   world, so the world stays the one source of an operator's confirmed and blocked state.
 - Navigation state carries only the new operator's id (the next-steps panel), never a contact.
+
+**Operations: Audit log (P8-S1, 2026-10-24)** ([`design/p8-operations-architecture.md`](design/p8-operations-architecture.md)):
+
+- `/audit` is **simulated administrative activity, never Core audit evidence**: page → `ActivityFacade` →
+  `ActivityGateway` → mock (`companyActivity`) or unavailable adapter. The note saying so is outside every view state.
+- Scope is read from the record (Organization / Platform / Company), never inferred from a parent; Company events are a
+  separate section and never get a Platform or Organization.
+- An Organization's entry is the same browser with `?platform=&organization=` (ids only), not a second route or source.
+- Owner only (`company.audit.view`); operators have no audit read in Core.
 
 **Commercial area (P7-S1, 2026-10-24): Licenses & entitlements**
 ([`design/p7-commercial-architecture.md`](design/p7-commercial-architecture.md)):

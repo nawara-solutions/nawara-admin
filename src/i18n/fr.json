@@ -212,7 +212,8 @@
     "operator": "Opérateur",
     "licenses": "Licences et droits",
     "platformSubscriptions": "Abonnements de la plateforme",
-    "billing": "Facturation et paiements"
+    "billing": "Facturation et paiements",
+    "audit": "Journal d’audit"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -236,7 +237,8 @@
       "operator": "Opérateur",
       "licenses": "Licences et droits",
       "platformSubscriptions": "Abonnements de la plateforme",
-      "billing": "Facturation et paiements"
+      "billing": "Facturation et paiements",
+      "audit": "Journal d’audit"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -1104,6 +1106,7 @@
       "activity": "Activité récente",
       "activityEmpty": "Aucune activité administrative récente pour cette organisation.",
       "activityNote": "Les événements administratifs de cette organisation, les plus récents d’abord.",
+      "openActivity": "Ouvrir dans le navigateur d’activité",
       "about": "À propos",
       "platform": "Plateforme",
       "organizationId": "Identifiant de l’organisation",
@@ -1816,6 +1819,83 @@
       "errorDescription": "Réessayez dans un instant.",
       "retry": "Réessayer",
       "forbiddenDescription": "Les informations de facturation et de paiement ne sont visibles que par le propriétaire de l’entreprise."
+    }
+  },
+  "activity": {
+    "header": {
+      "eyebrow": "Opérations",
+      "title": "Journal d’audit",
+      "subtitle": "Activité administrative de votre entreprise, de ses plateformes et de ses organisations."
+    },
+    "simulated": {
+      "title": "Activité administrative simulée — pas une preuve d’audit de Core.",
+      "body": "Ces événements proviennent des enregistrements de démonstration de cette version. Ce ne sont pas les enregistrements d’audit de Nawara Core : ils ne sont ni immuables, ni vérifiés, ni complets, n’ont aucune garantie de conservation et ne sont pas transmis en temps réel."
+    },
+    "backToOrganization": "Retour à l’organisation",
+    "scoped": {
+      "title": "Activité des plateformes et des organisations",
+      "count": "Événements correspondants : {{count}}",
+      "none": "Aucun événement ne correspond à ces filtres."
+    },
+    "filters": {
+      "platform": "Plateforme",
+      "allPlatforms": "Toutes les plateformes",
+      "organization": "Organisation",
+      "allOrganizations": "Toutes les organisations",
+      "choosePlatform": "Choisissez d’abord une plateforme.",
+      "action": "Action",
+      "allActions": "Toutes les actions",
+      "unknown": "Cette plateforme ou cette organisation n’appartient pas à votre entreprise.",
+      "clear": "Afficher toute l’activité"
+    },
+    "scope": {
+      "organization": "Organisation",
+      "platform": "Plateforme",
+      "company": "Entreprise"
+    },
+    "showMore": "Afficher plus",
+    "company": {
+      "title": "Activité au niveau de l’entreprise",
+      "none": "Aucune activité au niveau de l’entreprise.",
+      "notInScope": "L’activité au niveau de l’entreprise n’appartient à aucune plateforme ni organisation : elle n’est pas affichée pour une sélection.",
+      "viewOperator": "Voir l’opérateur",
+      "note": "Comptes d’opérateur créés, bloqués ou débloqués. Nawara Core n’offre pas encore de lecture de ces événements au propriétaire."
+    },
+    "not": {
+      "title": "Ce que ce n’est pas",
+      "evidence": "Pas une preuve d’audit immuable, vérifiée ou certifiée.",
+      "complete": "Pas un historique complet ou faisant autorité.",
+      "fields": "Aucun identifiant d’audit, acteur, résultat, origine, signature ou détail de modification.",
+      "export": "Aucun export ni téléchargement.",
+      "core": "L’audit de Nawara Core se lit une organisation à la fois ; une lecture à l’échelle de l’entreprise n’existe pas encore."
+    },
+    "actions": {
+      "platformCreated": "Plateforme créée",
+      "organizationCreated": "Organisation créée",
+      "organizationUpdated": "Détails de l’organisation mis à jour",
+      "adminInvitationCreated": "Invitation d’administrateur créée",
+      "adminInvitationRevoked": "Invitation d’administrateur révoquée",
+      "membershipApproved": "Adhésion approuvée",
+      "membershipRejected": "Demande d’adhésion refusée",
+      "membershipRevoked": "Adhésion révoquée",
+      "organizationAdminGranted": "Rôle d’administrateur d’organisation attribué",
+      "organizationAdminRevoked": "Rôle d’administrateur d’organisation retiré",
+      "operatorAssigned": "Accès à la plateforme donné à un opérateur",
+      "operatorUnassigned": "Accès à la plateforme retiré à un opérateur",
+      "operatorCreated": "Compte d’opérateur créé",
+      "operatorBlocked": "Compte d’opérateur bloqué",
+      "operatorUnblocked": "Compte d’opérateur débloqué"
+    },
+    "states": {
+      "loading": "Chargement de l’activité…",
+      "emptyTitle": "Aucune activité administrative pour l’instant",
+      "emptyDescription": "Il n’y a aucune activité simulée à afficher.",
+      "notInBuildTitle": "Non disponible dans cette version",
+      "notInBuildDescription": "Cette version n’a pas d’activité de démonstration, et Nawara Core n’offre pas encore de lecture d’audit à l’échelle de l’entreprise. Rien n’est affiché.",
+      "errorTitle": "L’activité n’a pas pu être chargée",
+      "errorDescription": "Réessayez dans un instant.",
+      "retry": "Réessayer",
+      "forbiddenDescription": "L’activité administrative n’est visible que par le propriétaire de l’entreprise."
     }
   }
 }

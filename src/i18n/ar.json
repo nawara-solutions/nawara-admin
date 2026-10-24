@@ -212,7 +212,8 @@
     "operator": "مشغّل",
     "licenses": "التراخيص والاستحقاقات",
     "platformSubscriptions": "اشتراكات المنصة",
-    "billing": "الفوترة والمدفوعات"
+    "billing": "الفوترة والمدفوعات",
+    "audit": "سجل التدقيق"
   },
   "shell": {
     "skipToContent": "الانتقال إلى المحتوى",
@@ -236,7 +237,8 @@
       "operator": "مشغّل",
       "licenses": "التراخيص والاستحقاقات",
       "platformSubscriptions": "اشتراكات المنصة",
-      "billing": "الفوترة والمدفوعات"
+      "billing": "الفوترة والمدفوعات",
+      "audit": "سجل التدقيق"
     },
     "context": {
       "label": "نطاق الإدارة",
@@ -1104,6 +1106,7 @@
       "activity": "النشاط الأخير",
       "activityEmpty": "لا يوجد نشاط إداري حديث لهذه المؤسسة.",
       "activityNote": "الأحداث الإدارية لهذه المؤسسة، الأحدث أولًا.",
+      "openActivity": "فتح في متصفح النشاط",
       "about": "حول",
       "platform": "المنصة",
       "organizationId": "معرّف المؤسسة",
@@ -1816,6 +1819,83 @@
       "errorDescription": "حاول مجددًا بعد قليل.",
       "retry": "حاول مجددًا",
       "forbiddenDescription": "تُعرض معلومات الفوترة والدفع لمالك الشركة فقط."
+    }
+  },
+  "activity": {
+    "header": {
+      "eyebrow": "العمليات",
+      "title": "سجل التدقيق",
+      "subtitle": "النشاط الإداري لشركتك ومنصاتها ومؤسساتها."
+    },
+    "simulated": {
+      "title": "نشاط إداري محاكى — وليس دليل تدقيق من Core.",
+      "body": "مصدر هذه الأحداث سجلات تجريبية في هذا الإصدار. وهي ليست سجلات التدقيق في Nawara Core: فهي غير ثابتة وغير موثّقة وغير مكتملة، ولا تتمتع بأي ضمان للاحتفاظ، ولا تصل في الوقت الفعلي."
+    },
+    "backToOrganization": "العودة إلى المؤسسة",
+    "scoped": {
+      "title": "نشاط المنصات والمؤسسات",
+      "count": "الأحداث المطابقة: {{count}}",
+      "none": "لا يوجد حدث يطابق هذه التصفيات."
+    },
+    "filters": {
+      "platform": "المنصة",
+      "allPlatforms": "كل المنصات",
+      "organization": "المؤسسة",
+      "allOrganizations": "كل المؤسسات",
+      "choosePlatform": "اختر منصة أولًا.",
+      "action": "الإجراء",
+      "allActions": "كل الإجراءات",
+      "unknown": "هذه المنصة أو المؤسسة لا تتبع شركتك.",
+      "clear": "عرض كل النشاط"
+    },
+    "scope": {
+      "organization": "مؤسسة",
+      "platform": "منصة",
+      "company": "الشركة"
+    },
+    "showMore": "عرض المزيد",
+    "company": {
+      "title": "النشاط على مستوى الشركة",
+      "none": "لا يوجد نشاط على مستوى الشركة.",
+      "notInScope": "لا ينتمي النشاط على مستوى الشركة إلى أي منصة أو مؤسسة، لذا لا يُعرض عند التحديد.",
+      "viewOperator": "عرض المشغّل",
+      "note": "حسابات مشغّلين أُنشئت أو حُظرت أو رُفع حظرها. لا يتيح Nawara Core بعد قراءة هذه الأحداث للمالك."
+    },
+    "not": {
+      "title": "ما ليس عليه هذا السجل",
+      "evidence": "ليس دليل تدقيق ثابتًا أو موثّقًا أو معتمدًا.",
+      "complete": "ليس سجلًا كاملًا أو مرجعيًا.",
+      "fields": "لا معرّف تدقيق ولا فاعل ولا نتيجة ولا مصدر ولا توقيع ولا تفاصيل تغيير.",
+      "export": "لا تصدير ولا تنزيل.",
+      "core": "يُقرأ تدقيق Nawara Core لمؤسسة واحدة في كل مرة؛ ولا توجد بعد قراءة على مستوى الشركة."
+    },
+    "actions": {
+      "platformCreated": "إنشاء منصة",
+      "organizationCreated": "إنشاء مؤسسة",
+      "organizationUpdated": "تحديث تفاصيل المؤسسة",
+      "adminInvitationCreated": "إنشاء دعوة مشرف",
+      "adminInvitationRevoked": "إلغاء دعوة مشرف",
+      "membershipApproved": "الموافقة على عضوية",
+      "membershipRejected": "رفض طلب عضوية",
+      "membershipRevoked": "إلغاء عضوية",
+      "organizationAdminGranted": "منح دور مشرف المؤسسة",
+      "organizationAdminRevoked": "سحب دور مشرف المؤسسة",
+      "operatorAssigned": "منح مشغّل الوصول إلى منصة",
+      "operatorUnassigned": "سحب وصول مشغّل إلى منصة",
+      "operatorCreated": "إنشاء حساب مشغّل",
+      "operatorBlocked": "حظر حساب مشغّل",
+      "operatorUnblocked": "رفع حظر حساب مشغّل"
+    },
+    "states": {
+      "loading": "جارٍ تحميل النشاط…",
+      "emptyTitle": "لا يوجد نشاط إداري بعد",
+      "emptyDescription": "لا يوجد نشاط محاكى لعرضه.",
+      "notInBuildTitle": "غير متاح في هذا الإصدار",
+      "notInBuildDescription": "لا يتضمن هذا الإصدار نشاطًا تجريبيًا، ولا يتيح Nawara Core بعد قراءة تدقيق على مستوى الشركة. لا يُعرض أي شيء.",
+      "errorTitle": "تعذّر تحميل النشاط",
+      "errorDescription": "حاول مجددًا بعد قليل.",
+      "retry": "حاول مجددًا",
+      "forbiddenDescription": "يُعرض النشاط الإداري لمالك الشركة فقط."
     }
   }
 }

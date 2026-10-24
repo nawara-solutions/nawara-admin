@@ -22,6 +22,7 @@ import {
   MockOrganizationCommercialGateway,
   MockOrganizationGateway,
 } from '../../features/organizations/data-access/organization.mock';
+import { MockActivityGateway } from '../../features/activity/data-access/activity.mock';
 import { MockBillingGateway } from '../../features/billing/data-access/billing.mock';
 import { MockLicensesGateway } from '../../features/licenses/data-access/licenses.mock';
 import { DemoWorld } from './demo-world';
@@ -53,6 +54,7 @@ function mocks(signedInAs: AdminIdentityId, tier: 'owner' | 'operator') {
       MockOrganizationCommercialGateway,
       MockLicensesGateway,
       MockBillingGateway,
+      MockActivityGateway,
     ],
   });
   TestBed.inject(DemoAuthState).signedIn.set({
@@ -71,6 +73,7 @@ function mocks(signedInAs: AdminIdentityId, tier: 'owner' | 'operator') {
     organizationCommercial: TestBed.inject(MockOrganizationCommercialGateway),
     licenses: TestBed.inject(MockLicensesGateway),
     billing: TestBed.inject(MockBillingGateway),
+    activity: TestBed.inject(MockActivityGateway),
   };
 }
 
@@ -204,6 +207,33 @@ describe('demo world: cross-feature consistency', () => {
       expect(data(detail.subscription).state).toBe(f.subscription);
       expect(data(detail.entitlement)).toBe(f.entitlement);
     }
+  });
+
+  it('gives the activity browser the same events as the Overview, each dashboard and each Organization (P8-S1)', async () => {
+    const m = mocks(DEMO_OWNER_ID, 'owner');
+    const { entries, organizations } = await firstValueFrom(m.activity.activity(DEMO_COMPANY_ID));
+    const overview = data((await firstValueFrom(m.overview.load(DEMO_COMPANY_ID))).activity);
+    expect(entries.slice(0, overview.length).map((e) => e.id)).toEqual(overview.map((e) => e.id));
+    for (const platform of [DEMO_SCHOOL_PLATFORM_ID, DEMO_DRIVE_PLATFORM_ID]) {
+      const dashboard = data((await firstValueFrom(m.dashboard.load(platform))).activity);
+      expect(entries.filter((e) => e.platformId === platform).map((e) => e.id)).toEqual(
+        dashboard.map((e) => e.id),
+      );
+    }
+    let organizationEvents = 0;
+    for (const organization of organizations) {
+      const detail = await firstValueFrom(m.organizations.load(organization.id));
+      const own = entries.filter((e) => e.organizationId === organization.id);
+      expect(own.map((e) => e.id)).toEqual(data(detail.activity).map((e) => e.id));
+      expect(
+        own.every((e) => e.scope === 'organization' && e.platformId === organization.platformId),
+      ).toBe(true);
+      organizationEvents += own.length;
+    }
+    // Every event is accounted for once: Organization, Platform or Company.
+    expect(organizationEvents + entries.filter((e) => e.scope !== 'organization').length).toBe(
+      entries.length,
+    );
   });
 
   it('lists in the Company activity exactly the newest events of the Platform activity feeds', async () => {

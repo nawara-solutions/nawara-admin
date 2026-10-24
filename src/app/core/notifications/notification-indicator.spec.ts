@@ -38,6 +38,7 @@ const DEMO: DemoBindings = {
     commercialSummary: [],
     licenses: [],
     billing: [],
+    activity: [],
     serviceHealth: [],
     platformDashboard: [],
     platformCommercial: [],

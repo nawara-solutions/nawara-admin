@@ -11,6 +11,7 @@ export type DemoDomain =
   | 'commercialSummary'
   | 'licenses'
   | 'billing'
+  | 'activity'
   | 'serviceHealth'
   | 'platformDashboard'
   | 'platformCommercial'

@@ -128,6 +128,10 @@ export class OrganizationDetailPage {
   protected readonly canOpenPlatforms = computed(() =>
     can(this.session.actor(), 'company.platforms.view'),
   );
+  /** The activity browser (`/audit`, P8-S1): the Company owner's. */
+  protected readonly canBrowseActivity = computed(() =>
+    can(this.session.actor(), 'company.audit.view'),
+  );
   /** The Platform's subscription directory (`/licenses/platforms/:platformId`, P7-S2): the Company owner's. */
   protected readonly canViewSubscriptions = computed(() =>
     can(this.session.actor(), 'company.commercial.view'),
