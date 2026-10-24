@@ -1,14 +1,17 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
+import { capabilityGuard } from '../../core/access/access.guards';
+import { APP_ENVIRONMENT } from '../../core/config/app-environment';
 import { BREADCRUMB_DATA, BREADCRUMB_PARENT_DATA } from '../../layout/breadcrumbs/breadcrumbs';
 
 /** The Settings hub, the parent crumb of every section ("Company › Settings › Language"). */
 const SETTINGS_PARENT = { key: 'shell.breadcrumb.settings', link: '/settings' } as const;
 
 /**
- * Settings (`/settings`, P9-S1, P9-S2; docs/design/p9-settings-architecture.md): the hub, Appearance and Language
- * (browser-local preferences) and the signed-in person's own Account (read only, from the session). Open to every
- * signed-in actor (owner or operator) and granting no administrative capability. Security, Company and Platform
- * settings are later, separately authorized slices.
+ * Settings (`/settings`, P9-S1 to P9-S3; docs/design/p9-settings-architecture.md): the hub, Appearance and Language
+ * (browser-local preferences) and the signed-in person's own Account (read only, from the session), open to every
+ * signed-in actor (owner or operator) and granting no administrative capability; and Company settings (read only), the
+ * owner's only. Security and Platform settings are later, separately authorized slices.
  */
 export const SETTINGS_ROUTES: Routes = [
   {
@@ -47,5 +50,22 @@ export const SETTINGS_ROUTES: Routes = [
       [BREADCRUMB_PARENT_DATA]: SETTINGS_PARENT,
     },
     loadComponent: () => import('./pages/account-settings.page').then((m) => m.AccountSettingsPage),
+  },
+  {
+    // The Company's profile, read only, and links to its existing administration: the owner only, direct URLs included.
+    path: 'company',
+    title: 'titles.settingsCompany',
+    data: {
+      [BREADCRUMB_DATA]: 'shell.breadcrumb.companySettings',
+      [BREADCRUMB_PARENT_DATA]: SETTINGS_PARENT,
+    },
+    canActivate: [capabilityGuard('company.settings.view')],
+    loadChildren: () => {
+      // Read in the router's injection context, before the lazy import resolves.
+      const environment = inject(APP_ENVIRONMENT);
+      return import('./company-settings.routes').then((m) =>
+        m.loadCompanySettingsRoutes(environment),
+      );
+    },
   },
 ];

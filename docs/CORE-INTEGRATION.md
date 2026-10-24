@@ -451,6 +451,7 @@ Admin strategy and the decision required before A4.
 | Releases (`/releases`, P8-S4) | Release | 🟢 actions (not prod, not verified by Admin) · 🔴 catalog (CF-05) | `release/admin/...` withdraw / compatibility policy (`OwnerGuard`) | Owner-only **information page** (`ReleaseInformationGateway`, mock in demo builds, unavailable otherwise): what the service owns and how each capability stands; no release list, no version, no command, enabled or disabled |
 | Personal Settings (`/settings` hub, `/settings/appearance`, `/settings/language`; P9-S1) | none (browser-local) | — | no Core contract involved | Theme, accent and language in the preference registry only (`nw.theme`, `nw.accent`, `nw.locale`); the one `ThemeService` and `LocaleService` state; never synchronized with a Core account. Account, security, Company and Platform settings are later P9 slices: security and Platform settings first need a read-only Core verification (factors, secret key, password; Platform PATCH); CF-49 to CF-53 proposed |
 | Personal Account (`/settings/account`, P9-S2): the signed-in person's own account | Auth | 🟢 `GET /auth/me`, `GET /auth/grants` (the session's facts); 🔴 no further account read used | `auth.controller.ts`, `grants.service.ts` (per §4, §7) | Read only, from `AuthSession` and the shell's `ScopeContext` (Company name: scope directory, CF-02; an operator's Platforms: current grants named by the directory, P6-S2b refresh on "Try again"); no identity parameter; no display name (CF-53); an operator's "contact confirmed" is derived from Core issuing working codes only to confirmed contacts. No HTTP adapter (A4); account-read details beyond `/auth/me` stay deferred |
+| Company settings (`/settings/company`, P9-S3): the Company's name and Platform count, links to existing administration | Organization / Auth | 🔴 no human Company read or edit (CF-02, CF-49) | — | Owner only (`company.settings.view`); `CompanySettingsGateway`, a mock in demo builds over the demo world's scope-directory selector (no session `401`, non-owner `403`, another Company `404`), unavailable otherwise; read only, no edit control; CF-49 stays open |
 
 ## 8. Transport rules Admin must follow
 
@@ -957,7 +958,8 @@ Current behavior: (per §5) no human route lists or reads Companies (CF-02 cover
                   route is documented.
 Admin requirement: the owner reads their own Company's profile (name and any other identity fields Core defines) and,
                   if Core decides it is editable, changes it with stated authority, step-up and idempotency. Until then
-                  `/settings/company` (P9-S3) shows the demo name read only and offers no edit.
+                  `/settings/company` (P9-S3, built 2026-10-25) shows the demo name read only in demo builds, "not
+                  available" in production, and offers no edit.
 Classification:   🔴 undefined.
 Recommended checkpoint: Core V2 A5.
 

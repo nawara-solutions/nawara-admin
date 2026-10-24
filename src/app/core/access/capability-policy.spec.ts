@@ -30,6 +30,7 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
       'company.releases.view',
       'company.scope',
       'company.services.view',
+      'company.settings.view',
       'operator.account.block',
       'operator.create',
       'operator.platformAccess.change',
@@ -54,6 +55,8 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
     expect(can(operator, 'company.audit.view')).toBe(false);
     expect(can(operator, 'company.services.view')).toBe(false);
     expect(can(operator, 'company.releases.view')).toBe(false);
+    // Company settings (P9-S3) are the owner's: an assignment never confers Company configuration authority.
+    expect(can(operator, 'company.settings.view')).toBe(false);
     expect(can(operator, 'company.platforms.view')).toBe(false);
     // The Company's staff directory is the owner's; an operator's authority is their assignments only (P6-S1).
     expect(can(operator, 'company.operators.view')).toBe(false);

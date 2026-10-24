@@ -1,0 +1,106 @@
+@let view = facade.view();
+<header class="company-settings__header">
+  <div class="company-settings__titles">
+    <p class="company-settings__eyebrow">{{ 'settings.title' | transloco }}</p>
+    <h1 class="company-settings__title">{{ 'settings.company.title' | transloco }}</h1>
+    <p class="company-settings__subtitle">{{ 'settings.company.subtitle' | transloco }}</p>
+  </div>
+  @if (isDemo()) {
+    <span class="company-settings__demo">
+      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+    </span>
+  }
+</header>
+
+@switch (view.status) {
+  @case ('ready') {
+    <section class="company-settings__card" aria-labelledby="company-profile" data-profile>
+      <h2 id="company-profile" class="company-settings__heading">
+        {{ 'settings.company.profile' | transloco }}
+      </h2>
+      <dl class="company-settings__facts">
+        <div class="company-settings__fact">
+          <dt>{{ 'settings.company.name' | transloco }}</dt>
+          <dd data-name>
+            <bdi>{{ view.settings.company.name }}</bdi>
+          </dd>
+        </div>
+        <div class="company-settings__fact">
+          <dt>{{ 'settings.company.platforms' | transloco }}</dt>
+          <dd data-platform-count>{{ view.settings.platformCount | nwNumber }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="company-settings__card" aria-labelledby="company-management" data-management>
+      <div class="company-settings__intro">
+        <h2 id="company-management" class="company-settings__heading">
+          {{ 'settings.company.management' | transloco }}
+        </h2>
+        <p class="company-settings__muted">{{ 'settings.company.managementNote' | transloco }}</p>
+      </div>
+      <ul class="company-settings__links" role="list">
+        @for (link of links(); track link.id) {
+          <li>
+            <a class="company-settings__link" [routerLink]="link.path" [attr.data-link]="link.id">
+              <span class="company-settings__mark" aria-hidden="true"
+                ><nw-icon [name]="link.icon"
+              /></span>
+              <span class="company-settings__text">
+                <span class="company-settings__name">{{ link.titleKey | transloco }}</span>
+                <span class="company-settings__muted">{{ link.descriptionKey | transloco }}</span>
+              </span>
+              <nw-icon class="company-settings__chevron" name="chevron-right" size="sm" />
+            </a>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section
+      class="company-settings__card company-settings__card--quiet"
+      aria-labelledby="company-unavailable"
+      data-unavailable
+    >
+      <h2 id="company-unavailable" class="company-settings__heading">
+        {{ 'settings.company.unavailable.title' | transloco }}
+      </h2>
+      <p>{{ 'settings.company.unavailable.body' | transloco }}</p>
+      <ul class="company-settings__list" role="list">
+        <li>{{ 'settings.company.unavailable.identity' | transloco }}</li>
+        <li>{{ 'settings.company.unavailable.branding' | transloco }}</li>
+        <li>{{ 'settings.company.unavailable.business' | transloco }}</li>
+      </ul>
+    </section>
+  }
+  @case ('notInBuild') {
+    <nw-data-state
+      state="empty"
+      [title]="'settings.company.states.notInBuildTitle' | transloco"
+      [description]="'settings.company.states.notInBuildDescription' | transloco"
+    />
+  }
+  @case ('error') {
+    <nw-data-state
+      state="error"
+      [title]="'settings.company.states.errorTitle' | transloco"
+      [description]="'settings.company.states.errorDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'settings.company.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('forbidden') {
+    <nw-data-state
+      state="empty"
+      [title]="'shell.pages.forbidden.title' | transloco"
+      [description]="'settings.company.states.forbiddenDescription' | transloco"
+    />
+  }
+  @default {
+    <nw-data-state state="loading" [title]="'settings.company.states.loading' | transloco" />
+  }
+}

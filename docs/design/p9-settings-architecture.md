@@ -3,9 +3,10 @@
 - **Status:** P9-0 discovery reviewed and the design direction approved (2026-10-24). **P9-S1 implemented** 2026-10-24:
   the Settings hub (`/settings`), Settings → Language (`/settings/language`) and the account menu's Settings item;
   Appearance (`/settings/appearance`) unchanged (§11; PR #42, merged). **P9-S2 implemented** 2026-10-24: the
-  read-only personal Account (`/settings/account`, §12). **P9-S3 to P9-S5 are planned, each separately authorized; S4
-  and S5 are contract-gated** by a read-only Core verification first. No security, Company or Platform setting is
-  implemented; no Core account read is integrated (the Account page shows the session's facts only).
+  read-only personal Account (`/settings/account`, §12; PR #43, merged). **P9-S3 implemented** 2026-10-25: the
+  owner's read-only Company settings (`/settings/company`, §13). **P9-S4 and P9-S5 are planned, each separately
+  authorized and contract-gated** by a read-only Core verification first. No security, Company or Platform setting can
+  be changed; no Core account or Company read is integrated (CF-49 open).
 - **Baseline:** P9-0 read `main` `d0bce78` (PR #41). Core was **not** read: every Core fact below comes from Admin's
   `docs/CORE-INTEGRATION.md` (§3, §4, §5, §7, §9).
 - **Scope:** personal preferences, the signed-in person's account and security, Company configuration and Platform
@@ -95,7 +96,7 @@ data (views keyed on the actor, ARCHITECTURE §11).
 | `/settings/language` | everyone | session | language and direction, the same state as the top-bar menu | **S1 ✅** |
 | `/settings/account` | everyone | session | identity read only: email or phone (machine value, LTR), account kind, scope | **S2 ✅** |
 | `/settings/security` | owner | capability `account.security.manage` (owner) | sign-in methods and step-up methods; an operator gets a collapsed 404 and sees how they sign in on `/settings/account` | S4 |
-| `/settings/company` | owner | capability `company.settings.view` | Company profile read only (demo) and a directory of existing configuration | S3 |
+| `/settings/company` | owner | capability `company.settings.view` | Company profile read only (demo) and a directory of existing configuration | **S3 ✅** |
 | `/platforms/:platformId/settings` | owner | capability `platform.settings.view` + the Platform belongs to the Company; operators: collapsed 404, even when assigned | Platform identity (rename after verification), policies read only | S5 |
 
 Navigation: the sidebar keeps one Settings item (active on every Settings page); the account menu gains "Settings"
@@ -132,7 +133,7 @@ sections; each later slice adds its section to it only when built.
 |---|---|---|
 | **P9-S1** ✅ | Settings hub at `/settings`, Language page, account-menu "Settings". Local only | D1, D2, D3 |
 | **P9-S2** ✅ | `/settings/account`: read-only identity and scope for owner and operator; the operator's sign-in explanation (working code, the shift ends the session) | S1 |
-| P9-S3 | `/settings/company`: read-only demo Company profile and the configuration directory (links to Platforms, Operators & access, Licenses, Billing, Releases) | S1, D4 |
+| **P9-S3** ✅ | `/settings/company`: read-only demo Company profile and the configuration directory (links to Platforms, Operators & access, Licenses, Billing, Releases) | S1, D4 |
 | P9-S4-0 | read-only Core verification of factor management, secret key and password contracts | D6 |
 | P9-S4a | `/settings/security` read only: sign-in methods, step-up methods, recovery explained; Company Overview link enabled | S4-0 |
 | P9-S4b…d | mock commands, one per slice: add / remove factor, rotate secret key, change password | S4a, D7, D10 |
@@ -219,3 +220,33 @@ authorization; the rest wait for their slices.
   phone-only operator; query parameters ignored; a revocation applied at once; unavailable then "Try again" through the
   grants refresh; a `401` signs out; signed-out state; no secret, user id, storage write, network request or demo
   bindings; Arabic RTL with contacts LTR); updated hub and route specs.
+
+## 13. P9-S3 implementation (2026-10-25)
+
+- **Route:** `/settings/company` (title `titles.settingsCompany`, parent crumb "Settings"), the owner only: the new
+  capability `company.settings.view` (owner only; never conferred by a Platform assignment) guards the route (direct
+  URLs give `/forbidden`); the hub shows the "Company" section to the owner only; the facade calls no gateway for
+  anyone else (`forbidden`); the mock refuses anyone but the Company's owner. Personal sections stay unguarded.
+- **Data provenance:** `CompanySettingsGateway.load(companyId)` (the actor's own `companyId` from `/auth/grants`; the
+  only parameter, so no other Company can be named). Demo builds bind `MockCompanySettingsGateway`, which reads the
+  demo world through the scope directory's selector `companyDirectoryOf` (no Company record of its own) and answers the
+  name, the id and the Platform count: no session `401`, any non-owner `403` (operators included, whatever their
+  assignments), another Company the collapsed `404`, `503` as a scenario. Every other build binds
+  `UnavailableCompanySettingsGateway`: the page says Company settings are not available, never a demo Company
+  (`check:production` keeps the mock out of the production bundle). No HTTP adapter; no Core route exists (CF-02,
+  CF-49).
+- **Shown:** the Company's name (`bdi`) and its Platform count; links to where the Company is managed today, each behind
+  its existing capability: Company overview (`/overview`), Platforms & Organizations (`/platforms`), Operators &
+  access (`/operators`), Licenses & entitlements (`/licenses`), Billing & payments (`/billing`), Audit log (`/audit`);
+  a plain "Not available in this version" card (the Company's name and identity, branding, business configuration),
+  explained by the missing Core contract. The Company id is not shown (no existing page shows it).
+- **Not here:** no edit, save or upload control, no field Core does not define (contact, address, legal identity,
+  billing detail, branding), no Platform or operator policy.
+- **States:** loading, ready, not in this build, error with "Try again", forbidden.
+- **Tests:** `company-settings.routes.spec.ts` (owner passes, an operator assigned everywhere is refused, title and
+  crumb, only this section is guarded, production binds the unavailable adapter); `company-settings.mock.spec.ts`
+  (owner answer from the selector, only name / id / count, every operator `403`, no session `401`, another Company
+  `404`, error scenario); `company-settings.page.spec.ts` (owner view and links, no control or unsupported field,
+  operator refused with no gateway call, production not available with no demo name, Try again, Arabic RTL); the hub,
+  routes and capability specs updated. The demo-binding fixtures gained the one `companySettings: []` line their type
+  requires.

@@ -65,3 +65,26 @@
     </li>
   </ul>
 </section>
+
+@if (companySettings()) {
+  <!-- The owner only (P9-S3): an operator never sees the Company section, whatever their Platform assignments. -->
+  <section class="settings-hub__section" aria-labelledby="settings-hub-company">
+    <h2 id="settings-hub-company" class="settings-hub__heading">
+      {{ 'settings.hub.company' | transloco }}
+    </h2>
+    <ul class="settings-hub__list" role="list">
+      <li>
+        <a class="settings-hub__link" routerLink="/settings/company" data-section="company">
+          <span class="settings-hub__mark" aria-hidden="true"><nw-icon name="building-2" /></span>
+          <span class="settings-hub__text">
+            <span class="settings-hub__name">{{ 'settings.company.title' | transloco }}</span>
+            <span class="settings-hub__description">{{
+              'settings.hub.companyDescription' | transloco
+            }}</span>
+          </span>
+          <nw-icon class="settings-hub__chevron" name="chevron-right" size="sm" />
+        </a>
+      </li>
+    </ul>
+  </section>
+}

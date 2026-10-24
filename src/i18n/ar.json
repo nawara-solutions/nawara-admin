@@ -203,6 +203,7 @@
     "settingsAppearance": "المظهر",
     "settingsLanguage": "اللغة",
     "settingsAccount": "حسابك",
+    "settingsCompany": "إعدادات الشركة",
     "workingCode": "تسجيل الدخول برمز عمل",
     "workingCodeVerify": "أدخل رمز العمل",
     "contactConfirmation": "تأكيد جهة الاتصال",
@@ -238,6 +239,7 @@
       "settings": "الإعدادات",
       "language": "اللغة",
       "account": "الحساب",
+      "companySettings": "إعدادات الشركة",
       "organizations": "المؤسسات",
       "organization": "المؤسسة",
       "members": "الأعضاء",
@@ -1366,7 +1368,9 @@
       "languageDescription": "اللغة واتجاه القراءة.",
       "note": "تنطبق التفضيلات الشخصية في هذا المتصفح فقط. لا ترتبط بحسابك ولا تغيّر شيئًا في الشركة أو منصاتها.",
       "account": "الحساب",
-      "accountDescription": "الهوية التي سجّلت الدخول بها، وما يمكنك العمل عليه."
+      "accountDescription": "الهوية التي سجّلت الدخول بها، وما يمكنك العمل عليه.",
+      "company": "الشركة",
+      "companyDescription": "ملف الشركة التعريفي وأماكن إدارتها."
     },
     "language": {
       "title": "اللغة",
@@ -1402,6 +1406,57 @@
       "source": "من جلستك الحالية. هذه الصفحة لا تغيّر شيئًا.",
       "signedOutTitle": "لقد سجّلت الخروج",
       "signedOutDescription": "سجّل الدخول لعرض حسابك."
+    },
+    "company": {
+      "title": "الشركة",
+      "subtitle": "الشركة التي تملكها، وأماكن إدارتها. للقراءة فقط.",
+      "profile": "الملف التعريفي",
+      "name": "الاسم",
+      "platforms": "المنصات",
+      "management": "أين تُدار الشركة",
+      "managementNote": "يُدار كل جانب من الشركة في صفحته الخاصة.",
+      "links": {
+        "overview": {
+          "title": "نظرة عامة على الشركة",
+          "description": "الأرقام ونقاط الانتباه وآخر النشاطات في الشركة."
+        },
+        "platforms": {
+          "title": "المنصات والمؤسسات",
+          "description": "كل منصة ومؤسساتها."
+        },
+        "operators": {
+          "title": "المشغّلون والوصول",
+          "description": "المشغّلون ووصولهم إلى المنصات."
+        },
+        "licenses": {
+          "title": "التراخيص والاستحقاقات",
+          "description": "اشتراكات المؤسسات، للقراءة فقط."
+        },
+        "billing": {
+          "title": "الفوترة والمدفوعات",
+          "description": "متابعة المدفوعات، للقراءة فقط."
+        },
+        "audit": {
+          "title": "سجل التدقيق",
+          "description": "النشاط الإداري في الشركة."
+        }
+      },
+      "unavailable": {
+        "title": "غير متاح في هذا الإصدار",
+        "body": "لا يتيح Nawara Core بعدُ قراءة ملف الشركة أو تغييره، لذا لا يمكن تعديل أيٍّ مما يلي هنا:",
+        "identity": "اسم الشركة وهويتها",
+        "branding": "الهوية البصرية، مثل الشعار أو الألوان",
+        "business": "إعدادات الأعمال، مثل بيانات الفوترة أو السياسات"
+      },
+      "states": {
+        "loading": "جارٍ تحميل الشركة…",
+        "notInBuildTitle": "إعدادات الشركة غير متاحة",
+        "notInBuildDescription": "لا يوفّر Nawara Core ملف الشركة لـ Admin بعد.",
+        "errorTitle": "تعذّر تحميل الشركة",
+        "errorDescription": "أعد المحاولة بعد قليل.",
+        "retry": "أعد المحاولة",
+        "forbiddenDescription": "إعدادات الشركة مخصّصة لمالك الشركة."
+      }
     }
   },
   "operators": {

@@ -203,6 +203,7 @@
     "settingsAppearance": "Appearance",
     "settingsLanguage": "Language",
     "settingsAccount": "Your account",
+    "settingsCompany": "Company settings",
     "workingCode": "Sign in with a working code",
     "workingCodeVerify": "Enter your working code",
     "contactConfirmation": "Confirm your contact",
@@ -238,6 +239,7 @@
       "settings": "Settings",
       "language": "Language",
       "account": "Account",
+      "companySettings": "Company settings",
       "organizations": "Organizations",
       "organization": "Organization",
       "members": "Members",
@@ -1366,7 +1368,9 @@
       "languageDescription": "Language and reading direction.",
       "note": "Personal preferences apply in this browser only. They are not part of your account and change nothing for the Company or its Platforms.",
       "account": "Account",
-      "accountDescription": "Who you are signed in as, and what you can work on."
+      "accountDescription": "Who you are signed in as, and what you can work on.",
+      "company": "Company",
+      "companyDescription": "The Company’s profile and where it is managed."
     },
     "language": {
       "title": "Language",
@@ -1402,6 +1406,57 @@
       "source": "From your current session. This page changes nothing.",
       "signedOutTitle": "You are signed out",
       "signedOutDescription": "Sign in to see your account."
+    },
+    "company": {
+      "title": "Company",
+      "subtitle": "The Company you own, and where it is managed. Read only.",
+      "profile": "Profile",
+      "name": "Name",
+      "platforms": "Platforms",
+      "management": "Where the Company is managed",
+      "managementNote": "Each part of the Company is managed on its own page.",
+      "links": {
+        "overview": {
+          "title": "Company overview",
+          "description": "Figures, attention and recent activity across the Company."
+        },
+        "platforms": {
+          "title": "Platforms & Organizations",
+          "description": "Each Platform and its Organizations."
+        },
+        "operators": {
+          "title": "Operators & access",
+          "description": "Operators and their Platform access."
+        },
+        "licenses": {
+          "title": "Licenses & entitlements",
+          "description": "Organization subscriptions, read only."
+        },
+        "billing": {
+          "title": "Billing & payments",
+          "description": "Payment follow-ups, read only."
+        },
+        "audit": {
+          "title": "Audit log",
+          "description": "Administrative activity across the Company."
+        }
+      },
+      "unavailable": {
+        "title": "Not available in this version",
+        "body": "Nawara Core cannot read or change the Company profile yet, so none of this can be edited here:",
+        "identity": "the Company’s name and identity",
+        "branding": "branding, such as a logo or colours",
+        "business": "business configuration, such as billing details or policies"
+      },
+      "states": {
+        "loading": "Loading the Company…",
+        "notInBuildTitle": "Company settings are not available",
+        "notInBuildDescription": "Nawara Core does not provide the Company’s profile to Admin yet.",
+        "errorTitle": "The Company could not be loaded",
+        "errorDescription": "Try again in a moment.",
+        "retry": "Try again",
+        "forbiddenDescription": "Company settings are for the Company owner."
+      }
     }
   },
   "operators": {

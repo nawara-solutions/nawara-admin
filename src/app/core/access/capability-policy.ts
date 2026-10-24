@@ -75,6 +75,12 @@ export type Capability =
    * commands are the owner's (with step-up) and no catalog read exists (CF-05); the page offers neither.
    */
   | 'company.releases.view'
+  /**
+   * Company settings (`/settings/company`, P9-S3): the Company's profile, read only, and links to the owner's existing
+   * administration. Company configuration is the owner's; no Core route reads or changes the Company profile (CF-02,
+   * CF-49). A Platform assignment never confers it.
+   */
+  | 'company.settings.view'
   /** A Platform's administrative activity: Core's owner audit read; operators have no audit read (CF-04). */
   | 'platform.activity.view'
   /** Operator assignments and admin invitations of a Platform: the owner manages both; operators manage neither. */
@@ -89,6 +95,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.audit.view',
   'company.services.view',
   'company.releases.view',
+  'company.settings.view',
   'operator.platformAccess.change',
   'operator.account.block',
   'operator.create',
