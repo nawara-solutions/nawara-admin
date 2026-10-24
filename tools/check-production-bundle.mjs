@@ -16,6 +16,7 @@ const MARKERS = [
   'admin-invitation-1', // demo invitation record (seed.ts)
   'DEMO_WORLD_SEED', // demo world token (src/app/demo/world/demo-world.ts)
   'DEMO_LATENCY_MS', // mock adapter token (scope-directory.mock.ts)
+  'RELEASES_DEMO_SCENARIO', // Releases information mock token (features/releases/data-access/release-information.mock.ts)
   'SERVICES_DEMO_SCENARIO', // Services & health inventory mock token (core/core-services/service-inventory.mock.ts)
   'COMPANY_OVERVIEW_DEMO_SCENARIO', // mock adapter token (company-overview.mock.ts)
   'PLATFORM_DIRECTORY_DEMO_SCENARIO', // mock adapter token (platform-directory.mock.ts)

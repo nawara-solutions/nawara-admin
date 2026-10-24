@@ -135,6 +135,19 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
           },
         },
         {
+          // Releases (P8-S4): information about Core's Release service, company scope, the owner only, direct URLs included.
+          path: 'releases',
+          title: 'titles.releases',
+          data: { [BREADCRUMB_DATA]: 'shell.breadcrumb.releases' },
+          canActivate: [capabilityGuard('company.releases.view')],
+          loadChildren: () => {
+            const env = inject(APP_ENVIRONMENT);
+            return import('../features/releases/releases.routes').then((m) =>
+              m.loadReleasesRoutes(env),
+            );
+          },
+        },
+        {
           // Notifications (P8-S3): the signed-in person's own count, for every actor; no capability decides it.
           path: 'notifications',
           title: 'titles.notifications',

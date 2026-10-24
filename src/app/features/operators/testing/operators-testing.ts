@@ -97,6 +97,7 @@ const DEMO: DemoBindings = {
     billing: [],
     activity: [],
     services: [],
+    releases: [],
     platformDashboard: [],
     platformCommercial: [],
     organizations: [],

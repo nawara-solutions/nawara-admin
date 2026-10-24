@@ -73,7 +73,12 @@ export const NAVIGATION: readonly NavigationGroup[] = [
   {
     labelKey: 'shell.nav.groups.operations',
     items: [
-      { labelKey: 'shell.nav.releases', icon: 'package', requires: 'company.scope' },
+      {
+        labelKey: 'shell.nav.releases',
+        icon: 'package',
+        path: '/releases',
+        requires: 'company.releases.view',
+      },
       {
         labelKey: 'shell.nav.audit',
         icon: 'scroll-text',

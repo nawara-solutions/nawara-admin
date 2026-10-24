@@ -1,0 +1,96 @@
+@let view = facade.view();
+<header class="releases__header">
+  <span class="releases__mark" aria-hidden="true"><nw-icon name="package" size="lg" /></span>
+  <div class="releases__titles">
+    <p class="releases__eyebrow">{{ 'releases.header.eyebrow' | transloco }}</p>
+    <h1 class="releases__title">{{ 'releases.header.title' | transloco }}</h1>
+    <p class="releases__muted">{{ 'releases.header.subtitle' | transloco }}</p>
+  </div>
+  @if (isDemo()) {
+    <span class="releases__demo">
+      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+    </span>
+  }
+</header>
+
+@switch (view.status) {
+  @case ('ready') {
+    <p class="releases__note" role="note" data-not-catalog>
+      <nw-icon name="info" size="sm" />
+      <span>{{ 'releases.notCatalog' | transloco }}</span>
+    </p>
+
+    <section class="releases__card" aria-labelledby="releases-service">
+      <h2 id="releases-service" class="releases__card-title">
+        {{ 'releases.service.title' | transloco }}
+      </h2>
+      <p>{{ 'coreServices.services.release.owns' | transloco }}</p>
+      <p class="releases__muted">{{ 'releases.service.entitlement' | transloco }}</p>
+    </section>
+
+    <section class="releases__card" aria-labelledby="releases-capabilities">
+      <h2 id="releases-capabilities" class="releases__card-title">
+        {{ 'releases.capabilities.title' | transloco }}
+      </h2>
+      <dl class="releases__capabilities">
+        @for (entry of view.information.capabilities; track entry.capability) {
+          <div class="releases__capability" [attr.data-capability]="entry.capability">
+            <dt>{{ capabilityKeys[entry.capability].title | transloco }}</dt>
+            <dd>
+              <strong class="releases__status">{{ statusKeys[entry.status] | transloco }}</strong>
+              <span>{{ capabilityKeys[entry.capability].body | transloco }}</span>
+            </dd>
+          </div>
+        }
+      </dl>
+    </section>
+
+    <section class="releases__card releases__card--quiet" aria-labelledby="releases-before">
+      <h2 id="releases-before" class="releases__card-title">
+        {{ 'releases.before.title' | transloco }}
+      </h2>
+      <ul class="releases__list" role="list" data-before>
+        <li>{{ 'releases.before.catalog' | transloco }}</li>
+        <li>{{ 'releases.before.contract' | transloco }}</li>
+        <li>{{ 'releases.before.authorization' | transloco }}</li>
+      </ul>
+    </section>
+  }
+  @case ('empty') {
+    <nw-data-state
+      state="empty"
+      [title]="'releases.states.emptyTitle' | transloco"
+      [description]="'releases.states.emptyDescription' | transloco"
+    />
+  }
+  @case ('notInBuild') {
+    <nw-data-state
+      state="empty"
+      [title]="'releases.states.notInBuildTitle' | transloco"
+      [description]="'releases.states.notInBuildDescription' | transloco"
+    />
+  }
+  @case ('error') {
+    <nw-data-state
+      state="error"
+      [title]="'releases.states.errorTitle' | transloco"
+      [description]="'releases.states.errorDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'releases.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('forbidden') {
+    <nw-data-state
+      state="empty"
+      [title]="'shell.pages.forbidden.title' | transloco"
+      [description]="'releases.states.forbiddenDescription' | transloco"
+    />
+  }
+  @default {
+    <nw-data-state state="loading" [title]="'releases.states.loading' | transloco" />
+  }
+}
