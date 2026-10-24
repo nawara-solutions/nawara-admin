@@ -54,6 +54,10 @@ const STATUS = {
  * returns to the members list: a revoked membership is not listable, so this page would read "not found". For the
  * owner the card also changes the organization-admin role (P5-S3b): the page stays, the role badge changes once the
  * lists are reloaded, and focus moves to the facts heading.
+ *
+ * A read-only "Nawara account" card (P5-S4, deferred) says that suspending or restoring the person's whole account is
+ * not available: Nawara Core offers Admin no read of an account's state or of its other memberships. It has no control,
+ * infers nothing from the membership's status, and tells an operator the action is the Company owner's.
  */
 @Component({
   selector: 'adm-membership-detail-page',

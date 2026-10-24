@@ -970,6 +970,13 @@
         },
         "menuItem": "Révoquer l’adhésion…",
         "sectionTitle": "Adhésion"
+      },
+      "account": {
+        "title": "Compte Nawara",
+        "difference": "Révoquer cette adhésion retire uniquement l’accès à cette organisation. Suspendre ou rétablir le compte Nawara de la personne agirait sur toutes ses organisations et toutes ses sessions.",
+        "unavailableTitle": "Pas encore disponible.",
+        "unavailableOwner": "Nawara Core ne permet pas encore à Admin de savoir si ce compte est suspendu ni à quelles autres organisations il appartient : la suspension et le rétablissement du compte ne sont donc pas proposés ici.",
+        "unavailableOperator": "La suspension et le rétablissement d’un compte sont réservés au propriétaire de l’entreprise et ne sont pas encore disponibles dans Nawara Admin."
       }
     },
     "totals": {

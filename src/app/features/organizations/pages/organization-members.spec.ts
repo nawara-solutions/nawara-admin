@@ -16,7 +16,10 @@ import {
 import { MembershipDetailPage } from './membership-detail.page';
 import { OrganizationMembersPage } from './organization-members.page';
 
-describe('OrganizationMembersPage (demo world)', () => {
+// These page tests render the real demo world (École Horizon's 64 active rows, as a table and as cards, each with its
+// membership controls): about a second each on their own, several under the full parallel suite. The timeout covers
+// that rendering cost only; every assertion is unchanged.
+describe('OrganizationMembersPage (demo world)', { timeout: 15_000 }, () => {
   it('shows Active by default with each tab’s count, the admin badge in words, and email or phone identities', async () => {
     const { element, tabs, rows, label } = await render(
       OrganizationMembersPage,
@@ -118,7 +121,7 @@ describe('OrganizationMembersPage (demo world)', () => {
   });
 });
 
-describe('MembershipDetailPage (resolved from the lists)', () => {
+describe('MembershipDetailPage (resolved from the lists)', { timeout: 15_000 }, () => {
   it('shows a membership from the Organization’s lists, with only Core’s fields', async () => {
     const seed = TestBed.inject(DemoWorld).snapshot();
     const pending = seed.memberships.find(

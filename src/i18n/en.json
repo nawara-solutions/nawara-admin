@@ -970,6 +970,13 @@
         },
         "menuItem": "Revoke membership…",
         "sectionTitle": "Membership"
+      },
+      "account": {
+        "title": "Nawara account",
+        "difference": "Revoking this membership removes access to this organization only. Suspending or restoring the person’s Nawara account would act on every organization and every session.",
+        "unavailableTitle": "Not available yet.",
+        "unavailableOwner": "Nawara Core does not yet let Admin see whether this account is suspended or which other organizations it belongs to, so account suspension and restoration are not offered here.",
+        "unavailableOperator": "Account suspension and restoration are reserved for the Company owner, and are not available in Nawara Admin yet."
       }
     },
     "totals": {
