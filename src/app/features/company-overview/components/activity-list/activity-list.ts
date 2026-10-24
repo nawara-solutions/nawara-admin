@@ -31,6 +31,16 @@ const ACTIONS = {
     accent: 'purple',
     labelKey: 'companyOverview.activity.actions.operatorUnassigned',
   },
+  'operator.blocked': {
+    icon: 'lock-keyhole',
+    accent: 'orange',
+    labelKey: 'companyOverview.activity.actions.operatorBlocked',
+  },
+  'operator.unblocked': {
+    icon: 'shield-check',
+    accent: 'green',
+    labelKey: 'companyOverview.activity.actions.operatorUnblocked',
+  },
   'admin_invitation.created': {
     icon: 'mail',
     accent: 'orange',

@@ -38,6 +38,34 @@
   }
 }
 
+.operator-detail__blocked {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-status-danger-bg);
+  color: var(--nw-status-danger-fg);
+  font-size: var(--nw-text-size-sm);
+}
+
+.operator-detail__card h2:focus-visible {
+  outline: 2px solid var(--nw-focus-ring);
+  outline-offset: 4px;
+  border-radius: var(--nw-radius-sm);
+}
+
+// "Block account…" / "Unblock account…" in the Account card; a label that wraps at 320 px.
+.operator-detail__account-action {
+  justify-self: start;
+  min-inline-size: 0;
+  white-space: normal;
+
+  &--danger {
+    --nw-button-fg: var(--nw-status-danger-fg);
+  }
+}
+
 .operator-detail__section-head {
   display: flex;
   flex-wrap: wrap;

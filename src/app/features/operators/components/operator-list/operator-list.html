@@ -65,6 +65,11 @@
         </li>
       }
     </ul>
+    @if (row.accountState === 'blocked') {
+      <span class="operator-list__none" data-ineffective>{{
+        'operators.account.notEffective' | transloco
+      }}</span>
+    }
   } @else {
     <span class="operator-list__none">{{ 'operators.list.noPlatform' | transloco }}</span>
   }

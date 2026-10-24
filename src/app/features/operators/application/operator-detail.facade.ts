@@ -117,8 +117,18 @@ export class OperatorDetailFacade {
     );
   }
 
+  private readonly accountAnswers = signal(0);
+
+  /**
+   * How many account answers have arrived (P6-S3): a reconciliation after a block or unblock waits for one newer than
+   * the failure it follows. The account state is the PROVISIONAL demo read (CF-03); Core has none.
+   */
+  readonly accountSequence = this.accountAnswers.asReadonly();
+
   private readonly account = this.load(this.key, (key) =>
-    this.directory.load(key.company, key.operator),
+    this.directory
+      .load(key.company, key.operator)
+      .pipe(tap(() => this.accountAnswers.update((n) => n + 1))),
   );
 
   readonly view = computed<OperatorDetailView>(() => {

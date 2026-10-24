@@ -105,7 +105,8 @@ export function demoCompanyOverview(world: DemoWorldTables, now: number): Compan
           id: e.id,
           action: e.action,
           organizationName: organizationNameOf(world, e.organizationId),
-          platformName: platformRefOf(world, e.platformId)?.name ?? '',
+          platformName:
+            e.platformId === null ? null : (platformRefOf(world, e.platformId)?.name ?? ''),
           occurredAt: e.occurredAt,
         })),
     },

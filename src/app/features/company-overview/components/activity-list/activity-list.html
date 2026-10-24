@@ -14,7 +14,11 @@
             @if (entry.organizationName; as organization) {
               <bdi>{{ organization }}</bdi> ·
             }
-            <bdi>{{ entry.platformName }}</bdi>
+            @if (entry.platformName !== null) {
+              <bdi>{{ entry.platformName }}</bdi>
+            } @else {
+              {{ 'companyOverview.activity.companyLevel' | transloco }}
+            }
           </span>
         </span>
         <time class="activity-list__time" [attr.datetime]="entry.occurredAt">{{

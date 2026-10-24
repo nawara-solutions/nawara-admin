@@ -1,6 +1,6 @@
 import { platformId } from '../../../core/context/scope.model';
 import { CommandOutcome } from '../demo-world';
-import { DemoWorldTables, adminIdentityId } from '../records';
+import { AdminIdentityId, DemoWorldTables, adminIdentityId } from '../records';
 import {
   DEMO_DRIVE_PLATFORM_ID,
   DEMO_OPERATOR_IDS,
@@ -10,6 +10,8 @@ import {
 } from '../seed';
 import {
   activeAssignments,
+  activityOf,
+  companyActivity,
   assignmentHistoryOf,
   assignmentsOf,
   grantsOf,
@@ -18,7 +20,9 @@ import {
 } from '../selectors';
 import {
   PlatformAssignmentChange,
+  blockOperator,
   createdAssignmentId,
+  unblockOperator,
   grantPlatformAssignment,
   revokePlatformAssignment,
 } from './operator.commands';
@@ -207,5 +211,88 @@ describe('revokePlatformAssignment (P6-S2)', () => {
     const keys = activeAssignments(world).map((a) => `${a.operatorId}/${a.platformId}`);
     expect(new Set(keys).size).toBe(keys.length);
     expect(new Set(world.assignments.map((a) => a.id)).size).toBe(world.assignments.length);
+  });
+});
+
+describe('blockOperator / unblockOperator (P6-S3)', () => {
+  const seed = demoWorldSeed(NOW);
+  const account = (
+    over: Partial<{ actor: AdminIdentityId | null; operatorId: AdminIdentityId }> = {},
+  ) => ({
+    actor: DEMO_OWNER_ID as AdminIdentityId | null,
+    operatorId: ID.school,
+    now: NOW,
+    ...over,
+  });
+
+  it('blocks only the target account, keeps every assignment and records one Company-level activity', () => {
+    const { world, result } = ok(blockOperator(account())(seed));
+    expect(result).toEqual({ operatorId: ID.school, blocked: true, changed: true });
+    expect(world.operators.find((o) => o.id === ID.school)?.blocked).toBe(true);
+    expect(world.operators.filter((o) => o.id !== ID.school)).toEqual(
+      seed.operators.filter((o) => o.id !== ID.school),
+    );
+    expect(world.assignments).toEqual(seed.assignments);
+    for (const table of UNTOUCHED.filter((t) => t !== 'operators'))
+      expect(world[table]).toEqual(seed[table]);
+    expect(world.activity.at(-1)).toEqual({
+      id: 'operator-activity-blocked-1',
+      platformId: null,
+      organizationId: null,
+      action: 'operator.blocked',
+      subjectId: ID.school,
+      occurredAt: new Date(NOW).toISOString(),
+    });
+    expect(JSON.stringify(world.activity.at(-1))).not.toContain('@');
+    // Shown in the Company feed, never in a Platform's or an Organization's (no fictitious Platform).
+    expect(companyActivity(world)[0]?.action).toBe('operator.blocked');
+    expect(activityOf(world, S).some((e) => e.platformId === null)).toBe(false);
+  });
+
+  it('denies every Platform to a blocked operator although the assignment record stays active (D6)', () => {
+    const { world } = ok(blockOperator(account())(seed));
+    expect(platformViewerOf(world, ID.school, S)).toBeNull();
+    // The record is still active: counts of assignment records are unchanged.
+    expect(assignmentsOf(world, S)).toHaveLength(3);
+    const back = ok(unblockOperator(account())(world)).world;
+    expect(platformViewerOf(back, ID.school, S)).toBe('operator');
+    // The owner is never affected.
+    expect(platformViewerOf(world, DEMO_OWNER_ID, S)).toBe('owner');
+  });
+
+  it('answers a repeat with no account change but one more activity, as Core audits every call', () => {
+    const once = ok(blockOperator(account())(seed)).world;
+    const twice = ok(blockOperator(account())(once));
+    expect(twice.result.changed).toBe(false);
+    expect(twice.world.operators).toBe(once.operators);
+    expect(twice.world.activity).toHaveLength(once.activity.length + 1);
+    const unblockActive = ok(unblockOperator(account())(seed));
+    expect(unblockActive.result.changed).toBe(false);
+  });
+
+  it('never confirms an unconfirmed operator on unblock', () => {
+    const blocked = ok(blockOperator(account({ operatorId: ID.awaitingConfirmation }))(seed)).world;
+    const back = ok(
+      unblockOperator(account({ operatorId: ID.awaitingConfirmation }))(blocked),
+    ).world;
+    expect(back.operators.find((o) => o.id === ID.awaitingConfirmation)).toMatchObject({
+      blocked: false,
+      contactConfirmedAt: null,
+    });
+  });
+
+  it('is the owner’s only (403, an operator on their own record included) and Company-scoped (404)', () => {
+    for (const actor of [ID.school, ID.multi, null]) {
+      const outcome = blockOperator(account({ actor, operatorId: ID.school }))(seed);
+      expect(outcome.ok ? null : outcome.error.status).toBe(403);
+    }
+    for (const operatorId of [adminIdentityId('another-company-operator'), DEMO_OWNER_ID]) {
+      const outcome = unblockOperator(account({ operatorId }))(seed);
+      expect(outcome.ok ? null : outcome.error).toEqual({
+        kind: 'not_found',
+        code: 'not_found',
+        status: 404,
+      });
+    }
   });
 });

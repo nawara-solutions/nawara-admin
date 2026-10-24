@@ -7,7 +7,8 @@ import { grantsOf, isActiveAssignment, isCompanyPlatform, operatorProfileOf } fr
 /**
  * Operator commands of the simulated Core (Auth): the operator's own contact confirmation (Core's public
  * `POST /auth/admin/operators/confirm`), so the confirmed state the owner's directory shows is the one the sign-in flow
- * wrote; and the owner's Platform assignment grant and removal (P6-S2). Blocking and creating come with their own slices.
+ * wrote; the owner's Platform assignment grant and removal (P6-S2); and the owner's block and unblock of an operator
+ * account (P6-S3). Creating an operator comes with its own slice.
  */
 
 /**
@@ -170,3 +171,71 @@ export function revokePlatformAssignment(
     };
   };
 }
+
+/** Who blocks or unblocks which operator, at what instant (P6-S3). */
+export interface OperatorAccountChange {
+  /** The asking identity (the signed-in session's business identity). */
+  readonly actor: AdminIdentityId | null;
+  readonly operatorId: AdminIdentityId;
+  readonly now: number;
+}
+
+/** What a block or unblock did to the account: whether its state changed (a repeat changes nothing). */
+export interface OperatorAccountResult {
+  readonly operatorId: AdminIdentityId;
+  readonly blocked: boolean;
+  readonly changed: boolean;
+}
+
+/**
+ * Like Core's `setBlocked` (`operator-admin.service.ts`): the owner of the Company only (anyone else, operators on their
+ * own record included: `403`), an operator of that Company only (collapsed `404`). Sets the account's `blocked` flag and
+ * nothing else in the world: assignments (kept, ineffective while blocked), the contact and its confirmation, memberships
+ * and commercial records are untouched; unblocking never confirms anyone. Core writes its audit record on EVERY call, a
+ * repeat of the current state included, so every committed call records one Company-level `operator.blocked` /
+ * `operator.unblocked` activity (subject: the operator's id, never a contact), while a repeat leaves the account as it is.
+ *
+ * What Core does outside the account row (ending sessions, cancelling unused codes) is sign-in state, never the world's:
+ * the mock adapter applies it in `DemoAuthState` once this commits.
+ */
+export function setOperatorBlocked(
+  change: OperatorAccountChange,
+  blocked: boolean,
+): (world: DemoWorldTables) => CommandOutcome<OperatorAccountResult> {
+  return (world) => {
+    if (change.actor === null || grantsOf(world, change.actor).companyId !== world.company.id)
+      return { ok: false, error: FORBIDDEN };
+    const profile = operatorProfileOf(world, change.operatorId);
+    if (profile === undefined) return { ok: false, error: NOT_FOUND };
+    const sequence = world.sequence + 1;
+    const changed = profile.blocked !== blocked;
+    return {
+      ok: true,
+      world: {
+        ...world,
+        sequence,
+        operators: changed
+          ? world.operators.map((o) => (o.id === change.operatorId ? { ...o, blocked } : o))
+          : world.operators,
+        activity: [
+          ...world.activity,
+          {
+            id: `operator-activity-${blocked ? 'blocked' : 'unblocked'}-${sequence}`,
+            platformId: null,
+            organizationId: null,
+            action: blocked ? 'operator.blocked' : 'operator.unblocked',
+            subjectId: change.operatorId,
+            occurredAt: new Date(change.now).toISOString(),
+          },
+        ],
+      },
+      result: { operatorId: change.operatorId, blocked, changed },
+    };
+  };
+}
+
+/** Core's `POST /auth/admin/operators/:id/block` (an emergency control: no step-up). */
+export const blockOperator = (change: OperatorAccountChange) => setOperatorBlocked(change, true);
+
+/** Core's `POST /auth/admin/operators/:id/unblock`. */
+export const unblockOperator = (change: OperatorAccountChange) => setOperatorBlocked(change, false);

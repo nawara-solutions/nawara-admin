@@ -14,6 +14,7 @@ import {
   OperatorProfileRecord,
   OrganizationRecord,
   OrganizationSubscriptionRecord,
+  PlatformActivityRecord,
   PlatformAssignmentRecord,
 } from './records';
 
@@ -206,6 +207,9 @@ export function platformViewerOf(
 ): 'owner' | 'operator' | null {
   const grants = grantsOf(world, identity);
   if (grants.companyId === world.company.id && isCompanyPlatform(world, platform)) return 'owner';
+  // Core's live check (`platform-access.service.ts`): an operator needs an ACTIVE account AND an active assignment of
+  // this Platform (`DENY_ACCOUNT_INACTIVE` otherwise). A blocked operator's kept assignments grant nothing (P6-S3).
+  if (identity !== null && operatorProfileOf(world, identity)?.blocked === true) return null;
   if (grants.platformAssignments.includes(platform) && isCompanyPlatform(world, platform))
     return 'operator';
   return null;
@@ -325,22 +329,34 @@ export function assistedPaymentsOf(
 const newestEventFirst = (a: ActivityRecord, b: ActivityRecord): number =>
   b.occurredAt.localeCompare(a.occurredAt) || a.id.localeCompare(b.id);
 
+/** Whether an event belongs to a Platform (every event but the Company-level operator account ones, P6-S3). */
+export const isPlatformActivity = (e: ActivityRecord): e is PlatformActivityRecord =>
+  e.platformId !== null;
+
 export const activityOf = (
   world: DemoWorldTables,
   platform: PlatformId,
-): readonly ActivityRecord[] =>
-  world.activity.filter((e) => e.platformId === platform).sort(newestEventFirst);
+): readonly PlatformActivityRecord[] =>
+  world.activity
+    .filter(isPlatformActivity)
+    .filter((e) => e.platformId === platform)
+    .sort(newestEventFirst);
 
-/** The Company's activity: every Platform's events, in one order. */
+/** The Company's activity: every Platform's events and the Company-level ones (P6-S3), in one order. */
 export const companyActivity = (world: DemoWorldTables): readonly ActivityRecord[] =>
-  world.activity.filter((e) => isCompanyPlatform(world, e.platformId)).sort(newestEventFirst);
+  world.activity
+    .filter((e) => !isPlatformActivity(e) || isCompanyPlatform(world, e.platformId))
+    .sort(newestEventFirst);
 
 /** One Organization's events, newest first (ties by id). */
 export const activityOfOrganization = (
   world: DemoWorldTables,
   organization: OrganizationId,
-): readonly ActivityRecord[] =>
-  world.activity.filter((e) => e.organizationId === organization).sort(newestEventFirst);
+): readonly PlatformActivityRecord[] =>
+  world.activity
+    .filter(isPlatformActivity)
+    .filter((e) => e.organizationId === organization)
+    .sort(newestEventFirst);
 
 export const organizationNameOf = (
   world: DemoWorldTables,

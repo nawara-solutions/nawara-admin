@@ -533,6 +533,19 @@ only ([`design/p6-s2-platform-access.md`](design/p6-s2-platform-access.md)):
 - `401` from that read ends the local session (sign-in, `session-expired`); transient failures keep the last list. It is
   display state: authorization stays Core's, request by request.
 
+**Thirteenth and fourteenth actions (P6-S3, 2026-10-24): block and unblock an operator**, Auth-owned, the Company owner
+only ([`design/p6-s3-operator-block.md`](design/p6-s3-operator-block.md)):
+
+- `OperatorBlockAction`: one `ActionRun` with no step-up (Core asks none); owner authority also inside
+  `setOperatorBlocked`. After an uncertain answer the account is reloaded in place (`accountSequence`), and a repeat is
+  a separate, explicit action.
+- **Effective access = active account AND active assignment** (`platformViewerOf`); assignment records and their counts
+  are unchanged by a block.
+- **World versus sign-in state:** the block command changes the account row only; the mock adapter then applies Core's
+  side effects to `DemoAuthState` (`endOperatorSignIn`: unused codes cancelled, the operator's session ended).
+- **Company-level activity:** `ActivityRecord` is `PlatformActivityRecord | CompanyActivityRecord` (`platformId:
+  null`); Platform and Organization feeds read Platform records only.
+
 ## 13. Design system: tokens, SCSS and BEM
 
 ### Token architecture

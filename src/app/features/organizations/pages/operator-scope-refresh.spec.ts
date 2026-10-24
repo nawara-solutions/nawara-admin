@@ -13,7 +13,9 @@ import { organizationsPath } from '../../../core/context/scope-context';
 import {
   grantPlatformAssignment,
   revokePlatformAssignment,
+  setOperatorBlocked,
 } from '../../../demo/world/commands/operator.commands';
+import { DemoAuthState } from '../../../core/auth/auth.mock-state';
 import { DEMO_WORLD_SEED, DemoWorld } from '../../../demo/world/demo-world';
 import { AdminIdentityId, DemoWorldTables } from '../../../demo/world/records';
 import {
@@ -175,15 +177,16 @@ describe('Signed-in operator Platform list refresh (P6-S2b)', { timeout: 15_000 
   });
 
   it('ends the session on a genuine 401 (the operator was blocked) and opens sign-in', async () => {
-    const s = await setUp(
-      operatorOf(ID.multi, [S, D]),
-      ID.multi,
-      organizationsPath(S),
-      changedWorld((world) => ({
+    const s = await setUp(operatorOf(ID.multi, [S, D]), ID.multi, organizationsPath(S));
+    // The owner blocks the operator elsewhere: the account is inactive, the session is still held here.
+    s.world.commit((world) => ({
+      ok: true,
+      world: {
         ...world,
         operators: world.operators.map((o) => (o.id === ID.multi ? { ...o, blocked: true } : o)),
-      })),
-    );
+      },
+      result: undefined,
+    }));
     // This test bed has no sign-in route: the navigation asked for is what is checked.
     const navigate = vi.spyOn(s.router, 'navigate').mockResolvedValue(true);
     await s.visible();
@@ -191,6 +194,36 @@ describe('Signed-in operator Platform list refresh (P6-S2b)', { timeout: 15_000 
     expect(navigate).toHaveBeenCalledWith(['/login'], {
       queryParams: { reason: 'session-expired' },
     });
+  });
+
+  it('ends the session after a refused read once a block revoked it (P6-S3): 401 → grants 401 → sign-in', async () => {
+    const s = await setUp(operatorOf(ID.multi, [S, D]), ID.multi, organizationsPath(S));
+    expect(s.session.actor()).not.toBeNull();
+    const navigate = vi.spyOn(s.router, 'navigate').mockResolvedValue(true);
+    // What the block command and its sign-in effects do (the mock adapter applies both).
+    s.world.commit(
+      setOperatorBlocked({ actor: DEMO_OWNER_ID, operatorId: ID.multi, now: NOW }, true),
+    );
+    TestBed.inject(DemoAuthState).endOperatorSignIn(ID.multi);
+    // The next protected read is refused with 401: it asks for the grants, which answer 401 too.
+    TestBed.inject(OrganizationDirectoryFacade).reload();
+    await s.settle(60);
+    expect(s.grants).toHaveBeenCalledTimes(1);
+    expect(s.session.actor()).toBeNull();
+    expect(navigate).toHaveBeenCalledWith(['/login'], {
+      queryParams: { reason: 'session-expired' },
+    });
+  });
+
+  it('never ends the session on an ordinary Platform 404 or 403 (only the grants read decides)', async () => {
+    const s = await setUp(
+      operatorOf(ID.multi, [S, D]),
+      ID.multi,
+      organizationsPath(D),
+      changedWorld(revoked(ID.multi, D)),
+    );
+    expect(s.session.actor()).not.toBeNull();
+    expect(s.platforms()).toEqual([S]);
   });
 
   it('keeps the list and the refusal on a transient failure, says so, and retries on request', async () => {

@@ -7,7 +7,7 @@ import {
   platformId,
 } from '../../core/context/scope.model';
 import {
-  ActivityRecord,
+  PlatformActivityRecord,
   AdminIdentityId,
   DemoWorldTables,
   OrganizationRecord,
@@ -501,7 +501,9 @@ const ADMIN_INVITATIONS: readonly {
   },
 ];
 
-const ACTIVITY: readonly (Omit<ActivityRecord, 'occurredAt'> & { readonly hoursAgo: number })[] = [
+const ACTIVITY: readonly (Omit<PlatformActivityRecord, 'occurredAt'> & {
+  readonly hoursAgo: number;
+})[] = [
   {
     id: 'platform-activity-s1',
     platformId: S,

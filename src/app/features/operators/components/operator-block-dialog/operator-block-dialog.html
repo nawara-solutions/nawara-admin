@@ -1,0 +1,166 @@
+@let current = state();
+<nw-dialog
+  [title]="(block ? 'operators.account.blockTitle' : 'operators.account.unblockTitle') | transloco"
+  [closeLabel]="'common.close' | transloco"
+  [busy]="busy()"
+>
+  @switch (current.phase) {
+    @case ('pending') {
+      <div class="operator-block__body">
+        <p class="operator-block__status" role="status">
+          <nw-spinner />{{
+            (block ? 'operators.account.blocking' : 'operators.account.unblocking') | transloco
+          }}
+        </p>
+        <p class="operator-block__note">{{ 'operators.account.pendingNote' | transloco }}</p>
+      </div>
+    }
+    @case ('failed') {
+      <div class="operator-block__body">
+        <nw-inline-alert [tone]="current.failure.kind === 'outcomeUnknown' ? 'danger' : 'warning'">
+          {{ failureKey()! | transloco }}
+        </nw-inline-alert>
+        @if (reconciling()) {
+          @let known = reconciliation();
+          <p class="operator-block__status" role="status" data-reconciliation>
+            @if (known === null || known.state === 'checking') {
+              <nw-spinner />{{ 'operators.account.checking' | transloco }}
+            } @else if (known.state === 'gone') {
+              {{ 'operators.account.gone' | transloco }}
+            } @else if (known.state === 'unchecked') {
+              {{ 'operators.account.unchecked' | transloco }}
+            } @else if (reached()) {
+              {{
+                (block ? 'operators.account.nowBlocked' : 'operators.account.nowActive') | transloco
+              }}
+            } @else {
+              {{
+                (block ? 'operators.account.stillActive' : 'operators.account.stillBlocked')
+                  | transloco
+              }}
+            }
+          </p>
+          <p class="operator-block__note" data-core-note>
+            <nw-icon name="info" size="sm" />{{ 'operators.account.coreCannotReread' | transloco }}
+          </p>
+          @if (repeatable()) {
+            <p class="operator-block__note" data-repeat-warning>
+              <nw-icon name="circle-alert" size="sm" />{{
+                'operators.account.repeatWarning' | transloco
+              }}
+            </p>
+          }
+        }
+      </div>
+    }
+    @default {
+      <div class="operator-block__body">
+        <p id="operator-block-description" class="operator-block__lead">
+          {{
+            (block ? 'operators.account.blockBody' : 'operators.account.unblockBody') | transloco
+          }}
+          <bdi class="operator-block__contact" dir="ltr" translate="no">{{ contact }}</bdi>
+        </p>
+        @if (block) {
+          <ul class="operator-block__list">
+            <li>{{ 'operators.account.blockSessions' | transloco }}</li>
+            <li>{{ 'operators.account.blockCodes' | transloco }}</li>
+            <li>{{ 'operators.account.blockPlatforms' | transloco }}</li>
+            <li>{{ 'operators.account.blockNoMembership' | transloco }}</li>
+          </ul>
+          @if (input.unconfirmed) {
+            <nw-inline-alert tone="warning" data-warning="unconfirmed">
+              <strong>{{ 'operators.account.unconfirmedTitle' | transloco }}</strong>
+              {{ 'operators.account.unconfirmedBody' | transloco }}
+            </nw-inline-alert>
+          }
+          <p class="operator-block__note" role="note">
+            <nw-icon name="info" size="sm" />{{ 'operators.account.blockUnblockLater' | transloco }}
+          </p>
+          <p class="operator-block__note">
+            <nw-icon name="shield-check" size="sm" />{{ 'operators.account.noStepUp' | transloco }}
+          </p>
+        } @else {
+          <ul class="operator-block__list">
+            <li>{{ 'operators.account.unblockSignIn' | transloco }}</li>
+            <li>{{ 'operators.account.unblockPlatforms' | transloco }}</li>
+            <li>{{ 'operators.account.unblockNothingElse' | transloco }}</li>
+          </ul>
+          @if (input.unconfirmed) {
+            <nw-inline-alert tone="warning" data-warning="unconfirmed">
+              <strong>{{ 'operators.account.unconfirmedUnblockTitle' | transloco }}</strong>
+              {{ 'operators.account.unconfirmedUnblockBody' | transloco }}
+            </nw-inline-alert>
+          }
+        }
+        <p class="operator-block__note">
+          <nw-icon name="flask-conical" size="sm" />{{ 'operators.account.demoState' | transloco }}
+        </p>
+      </div>
+    }
+  }
+
+  <div nwDialogActions>
+    @switch (current.phase) {
+      @case ('pending') {
+        <button nw-button variant="ghost" type="button" aria-disabled="true">
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button nw-button type="button" busy aria-disabled="true">
+          <nw-spinner />{{
+            (block ? 'operators.account.blockingShort' : 'operators.account.unblockingShort')
+              | transloco
+          }}
+        </button>
+      }
+      @case ('failed') {
+        @if (repeatable()) {
+          <button #mainButton nw-button variant="secondary" type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+          <button
+            nw-button
+            type="button"
+            data-repeat
+            [variant]="block ? 'danger' : 'primary'"
+            (click)="repeat()"
+          >
+            {{
+              (reached()
+                ? block
+                  ? 'operators.account.blockAgain'
+                  : 'operators.account.unblockAgain'
+                : 'actions.retry'
+              ) | transloco
+            }}
+          </button>
+        } @else if (reconciling()) {
+          <button nw-button variant="ghost" type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+          <button #mainButton nw-button type="button" data-check (click)="checkStatus()">
+            <nw-icon name="refresh-cw" size="sm" />{{ 'operators.account.checkAgain' | transloco }}
+          </button>
+        } @else {
+          <button #mainButton nw-button type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+        }
+      }
+      @default {
+        <button nw-button variant="secondary" type="button" data-cancel (click)="close()">
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button
+          nw-button
+          type="button"
+          data-confirm
+          [variant]="block ? 'danger' : 'primary'"
+          (click)="confirm()"
+        >
+          {{ (block ? 'operators.account.block' : 'operators.account.unblock') | transloco }}
+        </button>
+      }
+    }
+  </div>
+</nw-dialog>
