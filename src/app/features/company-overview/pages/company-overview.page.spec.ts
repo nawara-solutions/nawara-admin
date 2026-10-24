@@ -17,9 +17,15 @@ import {
   CompanyOverviewDemoScenario,
   MockCommercialSummaryGateway,
   MockCompanyOverviewGateway,
-  MockServiceHealthGateway,
 } from '../data-access/company-overview.mock';
-import { ServiceHealthGateway } from '../data-access/service-health.gateway';
+import { DemoAuthState } from '../../../core/auth/auth.mock-state';
+import { ServiceInventoryGateway } from '../../../core/core-services/service-inventory.gateway';
+import {
+  MockServiceInventoryGateway,
+  SERVICES_DEMO_SCENARIO,
+} from '../../../core/core-services/service-inventory.mock';
+import { CORE_SERVICES } from '../../../core/core-services/core-service.model';
+import { DEMO_OWNER_ID } from '../../../demo/world/seed';
 import { createPlatformTestProviders } from '../../platforms/testing/create-platform-testing';
 import { CompanyOverviewPage } from './company-overview.page';
 
@@ -55,7 +61,7 @@ const DEMO: DemoBindings = {
     licenses: [],
     billing: [],
     activity: [],
-    serviceHealth: [],
+    services: [],
     platformDashboard: [],
     platformCommercial: [],
     organizations: [],
@@ -91,12 +97,22 @@ async function render(actor: Actor, scenario: CompanyOverviewDemoScenario = 'nor
       { provide: COMPANY_OVERVIEW_DEMO_SCENARIO, useValue: scenario },
       { provide: CompanyOverviewGateway, useClass: MockCompanyOverviewGateway },
       { provide: CommercialSummaryGateway, useClass: MockCommercialSummaryGateway },
-      { provide: ServiceHealthGateway, useClass: MockServiceHealthGateway },
+      {
+        provide: SERVICES_DEMO_SCENARIO,
+        useValue: scenario === 'sections-unavailable' ? 'error' : 'normal',
+      },
+      { provide: ServiceInventoryGateway, useClass: MockServiceInventoryGateway },
       CompanyOverviewFacade,
       ...createPlatformTestProviders(false),
     ],
   });
   TestBed.inject(AuthSession).establish(actor);
+  // The shared service inventory's mock (P8-S2) answers the simulated session: the demo owner, for an owner.
+  if (actor.kind === 'owner')
+    TestBed.inject(DemoAuthState).signedIn.set({
+      identity: { userId: DEMO_OWNER_ID, email: null, phone: null, adminTier: 'owner' },
+      businessIdentityId: DEMO_OWNER_ID,
+    });
   const fixture = TestBed.createComponent(CompanyOverviewPage);
   // First render subscribes the facade; then let the zero-latency mocks (`delay(0)`) answer.
   await fixture.whenStable();
@@ -210,13 +226,23 @@ describe('CompanyOverviewPage', () => {
     );
   });
 
-  it('says the service statuses are illustrative, counts them, and lists Auth', async () => {
+  it('lists the documented services and says live health is unavailable, with no status of any kind (P8-S2)', async () => {
     const { page } = await render(owner);
     expect(page.textContent).toContain(en.companyOverview.health.subtitle);
-    expect(text(page.querySelector('.company-overview__pill--warning'))).toBe('7 of 8 operational');
-    const services = Array.from(page.querySelectorAll('.service-health-strip__name')).map(text);
-    expect(services[0]).toBe(en.companyOverview.health.services.auth);
-    expect(services.length).toBe(8);
+    const card = page.querySelector('#overview-health')?.closest('adm-overview-card');
+    const services = Array.from(card?.querySelectorAll('.service-health-strip__item') ?? []).map(
+      text,
+    );
+    expect(services).toEqual(CORE_SERVICES.map((s) => en.coreServices.services[s].name));
+    expect(text(card?.querySelector('[data-live-health]'))).toBe(
+      en.coreServices.liveHealth.unavailable,
+    );
+    // No illustrative status, count or colour: nothing is observed.
+    expect(text(card)).not.toMatch(
+      /operational|delayed|degraded|outage|down|uptime|latency|\d+ of \d+/i,
+    );
+    expect(card?.querySelector('[class*="dot"], [class*="pill"]')).toBeNull();
+    expect(card?.querySelector('a[href="/services"]')).not.toBeNull();
   });
 
   it('opens platforms into the platform scope', async () => {

@@ -7,7 +7,7 @@ import { Metric, Section } from '../../../shared/dashboard/metric';
  * Provisional frontend model. Core V1 has no human contract for any of these aggregates (docs/CORE-INTEGRATION.md
  * §7, follow-ups CF-02, CF-03, CF-04, CF-11 to CF-13); the only adapter is a mock with fictional data. When Core defines
  * the contracts, this model changes deliberately where their semantics differ. Commercial and service-health summaries
- * are separate domains with their own gateways (commercial-summary.model.ts, service-health.model.ts).
+ * are separate domains with their own gateways (commercial-summary.model.ts; the shared Core service inventory, core/core-services/).
  */
 
 /** Shared with the platform dashboard (shared/dashboard): a count or section that may be unavailable. */

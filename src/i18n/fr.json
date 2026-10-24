@@ -213,7 +213,8 @@
     "licenses": "Licences et droits",
     "platformSubscriptions": "Abonnements de la plateforme",
     "billing": "Facturation et paiements",
-    "audit": "Journal d’audit"
+    "audit": "Journal d’audit",
+    "services": "Services et santé"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -238,7 +239,8 @@
       "licenses": "Licences et droits",
       "platformSubscriptions": "Abonnements de la plateforme",
       "billing": "Facturation et paiements",
-      "audit": "Journal d’audit"
+      "audit": "Journal d’audit",
+      "services": "Services et santé"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -433,25 +435,8 @@
     },
     "health": {
       "title": "Services et santé",
-      "subtitle": "Statuts indicatifs des services Nawara Core, pas leur état réel.",
-      "viewServices": "Voir les services",
-      "services": {
-        "auth": "Auth",
-        "organization": "Organisation",
-        "release": "Versions",
-        "billing": "Facturation",
-        "payment": "Paiement",
-        "file": "Fichiers",
-        "notification": "Notifications",
-        "audit": "Audit"
-      },
-      "status": {
-        "operational": "Opérationnel",
-        "delayed": "Retardé",
-        "unavailable": "Indisponible",
-        "unknown": "Inconnu"
-      },
-      "operationalCount": "{{count}} sur {{total}} opérationnels"
+      "subtitle": "Les services Nawara Core documentés. L’état en direct n’est pas disponible.",
+      "viewServices": "Voir les services"
     },
     "sectionUnavailable": "Pas encore disponible : Nawara Core ne fournit pas cette information.",
     "periodUnavailable": "Les autres périodes ne sont pas encore disponibles."
@@ -1896,6 +1881,78 @@
       "errorDescription": "Réessayez dans un instant.",
       "retry": "Réessayer",
       "forbiddenDescription": "L’activité administrative n’est visible que par le propriétaire de l’entreprise."
+    }
+  },
+  "coreServices": {
+    "liveHealth": {
+      "unavailable": "État en direct indisponible"
+    },
+    "services": {
+      "auth": {
+        "name": "Auth",
+        "owns": "Comptes et connexion, vérification renforcée, opérateurs, adhésions et droits d’accès."
+      },
+      "organization": {
+        "name": "Organisation",
+        "owns": "L’entreprise, ses plateformes et leurs organisations."
+      },
+      "release": {
+        "name": "Versions",
+        "owns": "Produits, composants, versions et leur politique de compatibilité."
+      },
+      "billing": {
+        "name": "Facturation",
+        "owns": "Catalogue des offres, prix, factures, demandes de paiement, abonnements et droits."
+      },
+      "payment": {
+        "name": "Paiement",
+        "owns": "Tentatives de paiement et règlement."
+      },
+      "file": {
+        "name": "Fichiers",
+        "owns": "Stockage des fichiers des applications produit, par accès de service et tickets d’accès."
+      },
+      "notification": {
+        "name": "Notifications",
+        "owns": "Envoi de messages aux personnes."
+      },
+      "audit": {
+        "name": "Audit",
+        "owns": "Enregistrements d’audit immuables des actions administratives."
+      }
+    }
+  },
+  "services": {
+    "header": {
+      "eyebrow": "Opérations",
+      "title": "Services et santé",
+      "subtitle": "Ce dont chaque service Nawara Core est responsable."
+    },
+    "live": {
+      "body": "Admin ne dispose d’aucune lecture autorisée et prête pour la production de l’état en direct des services. Core n’expose que des sondes d’infrastructure, que ce navigateur n’appelle jamais : aucun service n’est donc présenté comme opérationnel, retardé ou en panne."
+    },
+    "list": {
+      "title": "Services Nawara Core",
+      "documentation": "D’après la documentation d’architecture d’Admin : ce dont chaque service est responsable, pas s’il fonctionne.",
+      "liveHealth": "État en direct",
+      "unavailable": "indisponible"
+    },
+    "later": {
+      "title": "Après l’intégration avec Core",
+      "status": "Quand Nawara Core publiera une lecture d’état authentifiée et agrégée, cette page pourra afficher l’état de chaque service tel que Core le rapporte.",
+      "notHere": "Disponibilité, latence, incidents et alertes relèvent de la supervision, qui ne fait pas partie de cette page et n’est pas encore disponible.",
+      "never": "Admin n’appelle jamais de sonde d’infrastructure depuis le navigateur et n’affiche jamais de noms d’hôte, d’adresses ni de détails de déploiement."
+    },
+    "states": {
+      "loading": "Chargement des services…",
+      "emptyTitle": "Aucun service listé",
+      "emptyDescription": "Il n’y a aucun service à afficher.",
+      "notInBuildTitle": "Non disponible dans cette version",
+      "notInBuildDescription": "Cette version n’a pas d’inventaire de services de démonstration, et Nawara Core n’offre pas encore de lecture de l’état des services. Rien n’est affiché.",
+      "errorTitle": "Les services n’ont pas pu être chargés",
+      "errorDescription": "Réessayez dans un instant.",
+      "retry": "Réessayer",
+      "forbiddenDescription": "Services et santé n’est visible que par le propriétaire de l’entreprise."
     }
   }
 }

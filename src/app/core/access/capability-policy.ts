@@ -65,6 +65,11 @@ export type Capability =
    * Organization-admin membership never confers it.
    */
   | 'company.audit.view'
+  /**
+   * Services & health (`/services`, P8-S2): the documented Core services; live health is unavailable (CF-06). Company
+   * infrastructure, so the owner only; a Platform assignment never confers it.
+   */
+  | 'company.services.view'
   /** A Platform's administrative activity: Core's owner audit read; operators have no audit read (CF-04). */
   | 'platform.activity.view'
   /** Operator assignments and admin invitations of a Platform: the owner manages both; operators manage neither. */
@@ -77,6 +82,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.operators.view',
   'company.commercial.view',
   'company.audit.view',
+  'company.services.view',
   'operator.platformAccess.change',
   'operator.account.block',
   'operator.create',

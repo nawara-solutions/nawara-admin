@@ -6,12 +6,12 @@ import { AuthSession } from '../../../core/auth/auth-session';
 import { ScopeContext } from '../../../core/context/scope-context';
 import { CompanyId } from '../../../core/context/scope.model';
 import { ViewState, toViewState } from '../../../core/state/view-state';
+import { ServiceInventory } from '../../../core/core-services/core-service.model';
+import { ServiceInventoryGateway } from '../../../core/core-services/service-inventory.gateway';
 import { CommercialSummaryGateway } from '../data-access/commercial-summary.gateway';
 import { CompanyOverviewGateway } from '../data-access/company-overview.gateway';
-import { ServiceHealthGateway } from '../data-access/service-health.gateway';
 import { CommercialSummary } from '../domain/commercial-summary.model';
 import { AttentionKind, CompanyOverview, Section } from '../domain/company-overview.model';
-import { ServiceHealthSummary } from '../domain/service-health.model';
 
 /** An attention item as shown: the overview's own kinds plus the commercial "licenses expiring soon". */
 export type AttentionView = AttentionKind | 'licenses_expiring';
@@ -36,7 +36,7 @@ const IDLE = { status: 'idle' } as const;
 export class CompanyOverviewFacade {
   private readonly overviewGateway = inject(CompanyOverviewGateway);
   private readonly commercialGateway = inject(CommercialSummaryGateway);
-  private readonly healthGateway = inject(ServiceHealthGateway);
+  private readonly servicesGateway = inject(ServiceInventoryGateway);
   private readonly session = inject(AuthSession);
   private readonly reloads = new Subject<void>();
 
@@ -67,7 +67,8 @@ export class CompanyOverviewFacade {
 
   readonly state = this.load<CompanyOverview>((id) => this.overviewGateway.load(id));
   readonly commercial = this.load<CommercialSummary>((id) => this.commercialGateway.load(id));
-  readonly health = this.load<ServiceHealthSummary>(() => this.healthGateway.load());
+  /** The documented Core services (P8-S2's shared inventory, as on `/services`); live health is never observed. */
+  readonly health = this.load<ServiceInventory>((id) => this.servicesGateway.inventory(id));
 
   /**
    * "Needs attention": the overview's items, then "licenses expiring soon" when the commercial summary has a positive

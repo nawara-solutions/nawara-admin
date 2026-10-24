@@ -213,7 +213,8 @@
     "licenses": "Licenses & entitlements",
     "platformSubscriptions": "Platform subscriptions",
     "billing": "Billing & payments",
-    "audit": "Audit log"
+    "audit": "Audit log",
+    "services": "Services & health"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -238,7 +239,8 @@
       "licenses": "Licenses & entitlements",
       "platformSubscriptions": "Platform subscriptions",
       "billing": "Billing & payments",
-      "audit": "Audit log"
+      "audit": "Audit log",
+      "services": "Services & health"
     },
     "context": {
       "label": "Administration scope",
@@ -433,25 +435,8 @@
     },
     "health": {
       "title": "Services & health",
-      "subtitle": "Illustrative statuses of Nawara Core services, not live health.",
-      "viewServices": "View services",
-      "services": {
-        "auth": "Auth",
-        "organization": "Organization",
-        "release": "Release",
-        "billing": "Billing",
-        "payment": "Payment",
-        "file": "Files",
-        "notification": "Notification",
-        "audit": "Audit"
-      },
-      "status": {
-        "operational": "Operational",
-        "delayed": "Delayed",
-        "unavailable": "Unavailable",
-        "unknown": "Unknown"
-      },
-      "operationalCount": "{{count}} of {{total}} operational"
+      "subtitle": "The documented Nawara Core services. Live health is not available.",
+      "viewServices": "View services"
     },
     "sectionUnavailable": "Not available yet: Nawara Core does not provide this information.",
     "periodUnavailable": "Other periods are not available yet."
@@ -1896,6 +1881,78 @@
       "errorDescription": "Try again in a moment.",
       "retry": "Try again",
       "forbiddenDescription": "Administrative activity is shown to the Company owner only."
+    }
+  },
+  "coreServices": {
+    "liveHealth": {
+      "unavailable": "Live health unavailable"
+    },
+    "services": {
+      "auth": {
+        "name": "Auth",
+        "owns": "Accounts and sign-in, step-up verification, operators, memberships and access grants."
+      },
+      "organization": {
+        "name": "Organization",
+        "owns": "The Company, its Platforms and their Organizations."
+      },
+      "release": {
+        "name": "Release",
+        "owns": "Products, components, releases and their compatibility policy."
+      },
+      "billing": {
+        "name": "Billing",
+        "owns": "Plan catalog, prices, invoices, payment requests, subscriptions and entitlement."
+      },
+      "payment": {
+        "name": "Payment",
+        "owns": "Payment attempts and settlement."
+      },
+      "file": {
+        "name": "Files",
+        "owns": "File storage for the product apps, reached through service access and access tickets."
+      },
+      "notification": {
+        "name": "Notification",
+        "owns": "Delivering messages to people."
+      },
+      "audit": {
+        "name": "Audit",
+        "owns": "Immutable audit records of administrative actions."
+      }
+    }
+  },
+  "services": {
+    "header": {
+      "eyebrow": "Operations",
+      "title": "Services & health",
+      "subtitle": "What each Nawara Core service is responsible for."
+    },
+    "live": {
+      "body": "Admin has no authorized, production-ready read of live service health. Core exposes only infrastructure probes, which this browser never calls, so no service is shown as working, delayed or down."
+    },
+    "list": {
+      "title": "Nawara Core services",
+      "documentation": "From Admin’s architecture documentation: what each service owns, not whether it is running.",
+      "liveHealth": "Live health",
+      "unavailable": "unavailable"
+    },
+    "later": {
+      "title": "After Core integration",
+      "status": "When Nawara Core publishes an authenticated, aggregated status read, this page can show each service’s status as Core reports it.",
+      "notHere": "Uptime, latency, incidents and alerts belong to monitoring, which is not part of this page and is not available yet.",
+      "never": "Admin never calls infrastructure probes from the browser and never shows hostnames, addresses or deployment details."
+    },
+    "states": {
+      "loading": "Loading services…",
+      "emptyTitle": "No services listed",
+      "emptyDescription": "There is no service to show.",
+      "notInBuildTitle": "Not available in this build",
+      "notInBuildDescription": "This build has no demo service inventory, and Nawara Core offers no service-health read yet. Nothing is shown.",
+      "errorTitle": "Services could not be loaded",
+      "errorDescription": "Try again in a moment.",
+      "retry": "Try again",
+      "forbiddenDescription": "Services & health is shown to the Company owner only."
     }
   }
 }

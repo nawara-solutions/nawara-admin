@@ -122,7 +122,7 @@ describe('ScopeContext: the Platforms the actor may see', () => {
       licenses: [],
       billing: [],
       activity: [],
-      serviceHealth: [],
+      services: [],
       platformDashboard: [],
       platformCommercial: [],
       organizations: [],
