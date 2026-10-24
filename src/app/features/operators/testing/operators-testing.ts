@@ -14,7 +14,8 @@ import {
   DEMO_LATENCY_MS,
   MockScopeDirectoryGateway,
 } from '../../../core/context/scope-directory.mock';
-import { AdminIdentityId } from '../../../demo/world/records';
+import { DEMO_WORLD_SEED } from '../../../demo/world/demo-world';
+import { AdminIdentityId, DemoWorldTables } from '../../../demo/world/records';
 import {
   DEMO_COMPANY_ID,
   DEMO_DRIVE_PLATFORM_ID,
@@ -45,7 +46,11 @@ import {
 } from '../data-access/operator.mock';
 import { OperatorBlockAction } from '../application/operator-block.action';
 import { PlatformAccessAction } from '../application/platform-access.action';
-import { OperatorAccountGateway } from '../data-access/operator-account.gateway';
+import { OperatorCreateAction } from '../application/operator-create.action';
+import {
+  OperatorAccountGateway,
+  UnavailableOperatorAccountGateway,
+} from '../data-access/operator-account.gateway';
 import { StepUpGateway } from '../../../core/auth/step-up.gateway';
 import { MockStepUpGateway } from '../../../core/auth/step-up.mock';
 
@@ -109,8 +114,14 @@ export interface RenderOptions {
   readonly scenario?: OperatorDirectoryDemoScenario;
   /** How Platform access changes are answered (P6-S2). */
   readonly changes?: OperatorAssignmentDemoScenario;
-  /** How block and unblock are answered (P6-S3). */
+  /** How block, unblock (P6-S3) and creation (P6-S4) are answered. */
   readonly account?: OperatorAccountDemoScenario;
+  /** `unavailable`: a build without the account mock (nothing can be created, blocked or unblocked). */
+  readonly accountGateway?: 'mock' | 'unavailable';
+  /** Navigation state the page is opened with (P6-S4: the id of an operator just created). */
+  readonly state?: Record<string, unknown>;
+  /** The world to start from instead of the canonical seed. */
+  readonly seed?: (now: number) => DemoWorldTables;
   readonly latency?: number;
 }
 
@@ -125,6 +136,9 @@ export async function renderOperators<T>(
     scenario = 'normal',
     changes = 'normal',
     account = 'normal',
+    accountGateway = 'mock',
+    state,
+    seed,
     latency = 0,
   }: RenderOptions = {},
 ) {
@@ -148,6 +162,7 @@ export async function renderOperators<T>(
         useValue: { production: false, demo: { load: async () => DEMO } },
       },
       { provide: DEMO_LATENCY_MS, useValue: latency },
+      ...(seed === undefined ? [] : [{ provide: DEMO_WORLD_SEED, useValue: seed }]),
       { provide: OPERATOR_ASSIGNMENT_DEMO_SCENARIO, useValue: changes },
       { provide: StepUpGateway, useClass: MockStepUpGateway },
       { provide: NW_CLOCK, useValue: () => Date.parse('2026-10-23T12:00:00Z') },
@@ -168,8 +183,15 @@ export async function renderOperators<T>(
       OperatorDetailFacade,
       PlatformAccessAction,
       OperatorBlockAction,
+      OperatorCreateAction,
       { provide: OPERATOR_ACCOUNT_DEMO_SCENARIO, useValue: account },
-      { provide: OperatorAccountGateway, useClass: MockOperatorAccountGateway },
+      {
+        provide: OperatorAccountGateway,
+        useClass:
+          accountGateway === 'mock'
+            ? MockOperatorAccountGateway
+            : UnavailableOperatorAccountGateway,
+      },
     ],
   });
   TestBed.inject(AuthSession).establish(actor);
@@ -184,8 +206,9 @@ export async function renderOperators<T>(
   const revokeSpy = vi.spyOn(TestBed.inject(OperatorAssignmentGateway), 'revoke');
   const blockSpy = vi.spyOn(TestBed.inject(OperatorAccountGateway), 'block');
   const unblockSpy = vi.spyOn(TestBed.inject(OperatorAccountGateway), 'unblock');
+  const createSpy = vi.spyOn(TestBed.inject(OperatorAccountGateway), 'create');
   const router = TestBed.inject(Router);
-  await router.navigateByUrl(url);
+  await router.navigateByUrl(url, state === undefined ? {} : { state });
   const fixture = TestBed.createComponent(page);
   const settle = async (ms = 5) => {
     await fixture.whenStable();
@@ -206,6 +229,7 @@ export async function renderOperators<T>(
     revokeSpy,
     blockSpy,
     unblockSpy,
+    createSpy,
   };
 }
 

@@ -1,11 +1,12 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
 import { Observable, defer, delay, map, of, switchMap, throwError, timer } from 'rxjs';
-import { DemoAuthState } from '../../../core/auth/auth.mock-state';
+import { DEMO_SIGN_IN_CONTACT_KEYS, DemoAuthState } from '../../../core/auth/auth.mock-state';
 import { DEMO_LATENCY_MS } from '../../../core/context/scope-directory.mock';
 import { CompanyId, PlatformId } from '../../../core/context/scope.model';
 import { AppError } from '../../../core/errors/app-error';
 import {
   PlatformAssignmentChange,
+  createOperator,
   grantPlatformAssignment,
   revokePlatformAssignment,
   setOperatorBlocked,
@@ -28,10 +29,15 @@ import {
 import { NW_CLOCK } from '../../../shared/format/clock';
 import {
   OperatorAccountState,
+  OperatorContact,
   OperatorSummary,
   PlatformAssignment,
 } from '../domain/operator.model';
-import { OperatorAccountGateway } from './operator-account.gateway';
+import {
+  CreateOperatorRequest,
+  CreatedOperator,
+  OperatorAccountGateway,
+} from './operator-account.gateway';
 import { AssignmentChangeRequest, OperatorAssignmentGateway } from './operator-assignment.gateway';
 import { OperatorDirectoryGateway } from './operator-directory.gateway';
 
@@ -271,7 +277,8 @@ export class MockOperatorAssignmentGateway extends OperatorAssignmentGateway {
 }
 
 /**
- * Which answer a block or unblock gets (P6-S3). Demo builds use `normal`, which SUCCEEDS. The others:
+ * Which answer a block, an unblock (P6-S3) or a creation (P6-S4) gets. Demo builds use `normal`, which SUCCEEDS. The
+ * others:
  * - `outcomeUnknown`: the change commits (and its sign-in effects apply) but the answer is lost;
  * - `auditFailure`: Core's `500` when its audit write fails: the transaction rolls back, nothing changes (Core's
  *   verified test); Admin cannot tell this `500` from any other, so it still reconciles;
@@ -306,6 +313,44 @@ export class MockOperatorAccountGateway extends OperatorAccountGateway {
 
   unblock(operator: string): Observable<void> {
     return defer(() => this.change(operator, false));
+  }
+
+  /**
+   * Core's `POST /auth/admin/operators`, in Core's order: the session (`401`), the owner-only guard (`403`), the
+   * service (`503`), the step-up of exactly `operator.create`, for this user, live (`403 step_up_required`; CHECKED, not
+   * spent), then `createOperator` (`400`, `409 account_already_exists`: Core rolls back, so the step-up stays unspent;
+   * an audit failure likewise), and only once it commits is the step-up spent and the confirmation code issued
+   * (sign-in state: `DemoAuthState`, never the world). Uniqueness covers the world's accounts AND the sign-in fixtures'.
+   * Never replays a creation.
+   */
+  create(contact: OperatorContact, request: CreateOperatorRequest): Observable<CreatedOperator> {
+    return defer(() => {
+      const refused = callerError(this.auth, this.world.snapshot());
+      if (refused !== null) return this.fail(refused);
+      if (this.scenario === 'unavailable') return this.fail({ kind: 'unavailable', status: 503 });
+      const signedIn = this.auth.signedIn();
+      const userId = signedIn?.identity.userId ?? '';
+      const now = this.now();
+      if (!this.auth.checkStepUp(request.stepUpToken, 'operator.create', userId, now))
+        return this.fail({ kind: 'forbidden', code: 'step_up_required', status: 403 });
+      const command = createOperator({
+        actor: signedIn?.businessIdentityId ?? null,
+        contact,
+        reservedContacts: DEMO_SIGN_IN_CONTACT_KEYS,
+        now,
+      });
+      // Core's audit write fails inside the transaction: it rolls back, nothing changes, nothing is spent.
+      if (this.scenario === 'auditFailure') {
+        const dryRun = command(this.world.snapshot());
+        return this.fail(dryRun.ok ? { kind: 'unexpected', status: 500 } : dryRun.error);
+      }
+      const outcome = this.world.commit(command);
+      if (!outcome.ok) return this.fail(outcome.error);
+      this.auth.consumeStepUp(request.stepUpToken, 'operator.create', userId, now);
+      this.auth.issueConfirmationCode(outcome.result.id);
+      if (this.scenario === 'outcomeUnknown') return this.fail({ kind: 'network', status: 0 });
+      return of<CreatedOperator>(outcome.result).pipe(delay(this.latency));
+    });
   }
 
   private change(operator: string, blocked: boolean): Observable<void> {

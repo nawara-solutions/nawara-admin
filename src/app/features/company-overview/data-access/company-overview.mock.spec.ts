@@ -1,4 +1,5 @@
-import { demoWorldSeed } from '../../../demo/world/seed';
+import { createOperator } from '../../../demo/world/commands/operator.commands';
+import { DEMO_OWNER_ID, demoWorldSeed } from '../../../demo/world/seed';
 import { Metric } from '../domain/company-overview.model';
 import { CORE_SERVICES } from '../domain/service-health.model';
 import { DEMO_SERVICE_HEALTH } from './company-overview.fixtures';
@@ -80,6 +81,26 @@ describe('Company Overview of the demo world (derived from its records)', () => 
       platformName: 'Nawara School',
       occurredAt: '2026-10-23T10:00:00.000Z',
     });
+  });
+
+  it('shows a created operator as a Company-level event, with no Platform and no contact (P6-S4)', () => {
+    const created = createOperator({
+      actor: DEMO_OWNER_ID,
+      contact: { kind: 'email', email: 'feed@demo.nawara.invalid' },
+      reservedContacts: new Set(),
+      now: NOW,
+    })(world);
+    if (!created.ok) throw new Error('not created');
+    const next = demoCompanyOverview(created.world, NOW);
+    if (next.activity.status !== 'available') throw new Error('expected activity');
+    expect(next.activity.data[0]).toEqual({
+      id: `operator-activity-created-${created.world.sequence}`,
+      action: 'operator.created',
+      organizationName: null,
+      platformName: null,
+      occurredAt: new Date(NOW).toISOString(),
+    });
+    expect(JSON.stringify(next.activity.data)).not.toContain('feed@');
   });
 
   it('derives the commercial summary from subscription end dates and payment records', () => {

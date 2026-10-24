@@ -5,6 +5,7 @@ import { OperatorDetailFacade } from './application/operator-detail.facade';
 import { OperatorDirectoryFacade } from './application/operator-directory.facade';
 import { OPERATORS_PATH } from './application/operator-paths';
 import { OperatorBlockAction } from './application/operator-block.action';
+import { OperatorCreateAction } from './application/operator-create.action';
 import { PlatformAccessAction } from './application/platform-access.action';
 import {
   OperatorAccountGateway,
@@ -24,7 +25,8 @@ import {
  * Operators & access (`/operators[/:operatorId]`; P6-S1, read only), company scope, the owner only (the shell route's
  * capability guard covers direct URLs). The operator gateways and the owner's step-up gateway are bound here
  * (docs/ARCHITECTURE.md §3): the mock adapters in a demo build, the `unavailable` adapters otherwise. The detail route
- * holds the Platform access action (P6-S2: give and remove, owner only).
+ * holds the Platform access action (P6-S2: give and remove, owner only) and the account action (P6-S3: block and
+ * unblock); the directory route holds the creation action (P6-S4: create an operator, owner only).
  */
 export async function loadOperatorsRoutes(environment: AppEnvironment): Promise<Routes> {
   const [operators, stepUp] = await Promise.all([
@@ -47,7 +49,7 @@ export async function loadOperatorsRoutes(environment: AppEnvironment): Promise<
           pathMatch: 'full',
           title: 'titles.operators',
           data: { [BREADCRUMB_DATA]: 'shell.breadcrumb.operators' },
-          providers: [OperatorDirectoryFacade],
+          providers: [OperatorDirectoryFacade, OperatorCreateAction],
           loadComponent: () =>
             import('./pages/operator-directory.page').then((m) => m.OperatorDirectoryPage),
         },

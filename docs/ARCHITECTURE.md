@@ -546,7 +546,21 @@ only ([`design/p6-s3-operator-block.md`](design/p6-s3-operator-block.md)):
 - **Company-level activity:** `ActivityRecord` is `PlatformActivityRecord | CompanyActivityRecord` (`platformId:
   null`); Platform and Organization feeds read Platform records only.
 
-## 13. Design system: tokens, SCSS and BEM
+**Fifteenth action (P6-S4, 2026-10-24): create an operator**, Auth-owned, the Company owner only
+([`design/p6-s4-operator-creation.md`](design/p6-s4-operator-creation.md)):
+
+- `OperatorCreateAction` on the directory route: one `ActionRun` with step-up `operator.create`; owner authority also
+  inside `createOperator`. No idempotency key exists (Core): after an uncertain answer the action reads the provisional
+  directory again and searches for the normalized contact; it never resends, and a new attempt verifies again.
+- **Uniqueness is checked on normalized values** (`contactKey`) across the world and a snapshot of the sign-in fixtures'
+  contacts passed into the pure command; a conflict is Core's `409 account_already_exists`, shown without the account
+  kind.
+- **World versus sign-in state:** the command writes the operator identity, the account and the activity; the mock then
+  issues the confirmation code in `DemoAuthState`. The sign-in mock resolves operators it has no fixture for from the
+  world, so the world stays the one source of an operator's confirmed and blocked state.
+- Navigation state carries only the new operator's id (the next-steps panel), never a contact.
+
+
 
 ### Token architecture
 

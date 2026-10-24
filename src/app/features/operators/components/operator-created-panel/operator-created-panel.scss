@@ -1,0 +1,41 @@
+// The next steps shown on a just-created operator's page (P6-S4 design, artboard Created).
+:host {
+  display: grid;
+  gap: var(--nw-space-3);
+  padding: var(--nw-space-4) var(--nw-space-5);
+  border: 1px solid var(--nw-border-default);
+  border-inline-start: 4px solid var(--nw-status-success-fg);
+  border-radius: var(--nw-radius-lg);
+  background-color: var(--nw-surface-raised);
+}
+
+.operator-created__title {
+  font-size: var(--nw-text-size-md);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.operator-created__steps {
+  display: grid;
+  gap: var(--nw-space-1);
+  margin: 0;
+  padding-inline-start: var(--nw-space-5);
+  font-size: var(--nw-text-size-sm);
+}
+
+.operator-created__note,
+.operator-created__demo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  font-size: var(--nw-text-size-sm);
+}
+
+.operator-created__note {
+  color: var(--nw-text-secondary);
+}
+
+.operator-created__demo {
+  padding: var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+}

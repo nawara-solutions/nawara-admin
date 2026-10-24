@@ -1,6 +1,13 @@
 import { Injectable, signal } from '@angular/core';
+import { contactKey } from '../../demo/world/commands/operator.commands';
 import { AdminIdentityId } from '../../demo/world/records';
-import { DEMO_NEW_OPERATORS, DEMO_OPERATORS, DemoAccount, DemoOperator } from './auth.fixtures';
+import {
+  DEMO_ACCOUNTS,
+  DEMO_NEW_OPERATORS,
+  DEMO_OPERATORS,
+  DemoAccount,
+  DemoOperator,
+} from './auth.fixtures';
 import { Identity } from './auth.model';
 
 /** Core's `MAX_CODE_ATTEMPTS`: five wrong guesses kill a working code or a confirmation code (`operator-code.service.ts`). */
@@ -42,6 +49,16 @@ export const ALL_DEMO_OPERATORS: readonly DemoOperator[] = [
 ];
 
 /**
+ * The uniqueness keys of every sign-in fixture's contact (the owner's and its scenario accounts', the member's, every
+ * operator account's), for the accounts the demo world does not keep: Core's contacts are unique across all account
+ * kinds, so an operator can never be created with one of them (P6-S4). Never shown: it only answers "taken".
+ */
+export const DEMO_SIGN_IN_CONTACT_KEYS: ReadonlySet<string> = new Set([
+  ...DEMO_ACCOUNTS.map((a) => contactKey({ kind: 'email', email: a.identity.email })),
+  ...ALL_DEMO_OPERATORS.map((o) => contactKey(o.identifier)),
+]);
+
+/**
  * What the simulated Core remembers (demo builds only): ONE instance for the whole app, so the sign-in routes and the
  * shell, which each bind their own `MockAuthGateway`, talk to the same simulated Auth service. Root-provided, and
  * imported only by the demo mock adapters (reached only through the demo bindings), so a production build never
@@ -72,7 +89,10 @@ export class DemoAuthState {
       (o) => o.identity.userId,
     ),
   );
-  /** The confirmation code of each unconfirmed operator: wrong guesses left. Core never reissues it (CF-16). */
+  /**
+   * The confirmation code of each unconfirmed operator (by user id): wrong guesses left. Core issues it once, when the
+   * owner creates the operator (P6-S4: `issueConfirmationCode`), and never reissues it (CF-16).
+   */
   readonly confirmationCodes = new Map(
     ALL_DEMO_OPERATORS.filter((o) => !o.confirmed).map((o) => [o.identity.userId, CODE_ATTEMPTS]),
   );
@@ -86,12 +106,27 @@ export class DemoAuthState {
    * needs a new working code, and a cancelled confirmation code stays cancelled (CF-16: nothing reissues one).
    */
   endOperatorSignIn(operator: AdminIdentityId): void {
-    for (const account of ALL_DEMO_OPERATORS) {
-      if (account.businessIdentityId !== operator) continue;
-      this.workingCodes.delete(account.identity.userId);
-      this.confirmationCodes.delete(account.identity.userId);
+    // A fixture account signs in under its own user id; an operator the owner created signs in under its world id.
+    const userIds = [
+      ...ALL_DEMO_OPERATORS.filter((a) => a.businessIdentityId === operator).map(
+        (a) => a.identity.userId,
+      ),
+      operator,
+    ];
+    for (const userId of userIds) {
+      this.workingCodes.delete(userId);
+      this.confirmationCodes.delete(userId);
     }
     if (this.signedIn()?.businessIdentityId === operator) this.signedIn.set(null);
+  }
+
+  /**
+   * The one confirmation code Core sends a new operator's contact when the owner creates them (P6-S4): the demo's is
+   * `DEMO_CONFIRMATION_CODE`, which only the demo sign-in page lists; only its attempts are kept here, never in the
+   * world, a URL, storage or a log. Issued once: nothing reissues it (CF-16).
+   */
+  issueConfirmationCode(userId: string): void {
+    this.confirmationCodes.set(userId, CODE_ATTEMPTS);
   }
 
   /** Live simulated step-up grants, by token. */
@@ -163,6 +198,8 @@ export const DEMO_STEP_UP_METHODS: Readonly<Record<string, readonly DemoStepUpMe
   // An operator's Platform assignments (P6-S0, Core 750eb21): the secret key is accepted too.
   'platform_assignment.grant': ['totp', 'webauthn', 'secret_key'],
   'platform_assignment.revoke': ['totp', 'webauthn', 'secret_key'],
+  // Creating an operator (P6-S4; Core 750eb21): the secret key is accepted too.
+  'operator.create': ['totp', 'webauthn', 'secret_key'],
 };
 
 const stepUpMethodAllowed = (purpose: string, method: DemoStepUpMethod) =>

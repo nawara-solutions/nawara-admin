@@ -380,7 +380,8 @@
         "adminRemoved": "Rôle d’administrateur d’organisation retiré",
         "platformCreated": "Plateforme créée",
         "operatorBlocked": "Opérateur bloqué",
-        "operatorUnblocked": "Opérateur débloqué"
+        "operatorUnblocked": "Opérateur débloqué",
+        "operatorCreated": "Opérateur créé"
       },
       "auditLog": "Journal d’audit",
       "companyLevel": "Entreprise"
@@ -1398,7 +1399,7 @@
       "noResultsDescription": "Vérifiez l’orthographe ou modifiez les filtres.",
       "clearFilters": "Effacer la recherche et les filtres",
       "emptyTitle": "Aucun opérateur pour le moment",
-      "emptyDescription": "Votre entreprise n’a aucun opérateur de plateforme. La création d’opérateurs arrive dans une version ultérieure d’Admin.",
+      "emptyDescription": "Votre entreprise n’a pas encore d’opérateurs de plateforme.",
       "notInBuildTitle": "Non disponible dans cette version",
       "notInBuildDescription": "Nawara Core ne liste pas encore les opérateurs d’une entreprise et ne lit pas le compte d’un opérateur : cette page n’a rien à afficher.",
       "errorTitle": "Les opérateurs n’ont pas pu être chargés",
@@ -1411,7 +1412,7 @@
     },
     "footnote": "L’accès à une plateforme est une autorité sur la plateforme et ses organisations. Ce n’est ni une adhésion à une organisation ni un rôle d’administrateur d’organisation.",
     "later": {
-      "directory": "Lecture seule : la création d’opérateurs, l’octroi ou le retrait d’un accès et le blocage arrivent dans des versions ultérieures d’Admin."
+      "directory": "Donnez ou retirez l’accès aux plateformes et bloquez un compte depuis la page de chaque opérateur. L’envoi d’un nouveau code de confirmation n’est pas encore pris en charge par Nawara Core."
     },
     "detail": {
       "eyebrow": "Opérateur de plateforme",
@@ -1458,7 +1459,6 @@
       "later": {
         "title": "Modifications de cet opérateur",
         "intro": "Non disponibles dans cette version d’Admin :",
-        "create": "Créer un opérateur (pris en charge par Nawara Core).",
         "resend": "Envoyer un nouveau code de confirmation (pas encore pris en charge par Nawara Core)."
       }
     },
@@ -1570,6 +1570,53 @@
         "refused": "Nawara Core n’a pas appliqué la modification à cet opérateur. La demande n’a pas été renvoyée."
       },
       "keptHint": "Attributions enregistrées. Elles n’accordent rien tant que le compte est bloqué, et s’appliquent à nouveau une fois le compte débloqué et l’opérateur reconnecté."
+    },
+    "create": {
+      "open": "Créer un opérateur…",
+      "title": "Créer un opérateur",
+      "lead": "Indiquez un seul contact : une adresse e-mail ou un numéro de téléphone. Nawara Core y envoie un code à usage unique pour le confirmer.",
+      "kindLegend": "Moyen de contact",
+      "kindEmail": "Adresse e-mail",
+      "kindPhone": "Numéro de téléphone",
+      "emailHint": "L’opérateur se connecte avec cette adresse. Elle est enregistrée en minuscules.",
+      "phoneHint": "Avec l’indicatif du pays, par exemple +33 6 12 34 56 78. Les espaces, parenthèses et tirets sont retirés.",
+      "emailRequired": "Saisissez une adresse e-mail.",
+      "emailInvalid": "Saisissez une adresse e-mail valide, comme nom@exemple.com.",
+      "phoneRequired": "Saisissez un numéro de téléphone.",
+      "phoneInvalid": "Saisissez un numéro de téléphone valide : 8 à 15 chiffres, éventuellement précédés de +.",
+      "stepUpNext": "Ensuite, vous confirmerez votre identité.",
+      "confirmNext": "L’opérateur confirme son contact avec le code avant de pouvoir se connecter.",
+      "noPlatform": "Il commence sans accès à aucune plateforme : donnez-le après sa création.",
+      "recorded": "Cette action est enregistrée dans le journal d’activité.",
+      "simulated": "Démo : la création d’opérateur est simulée ; aucun message n’est envoyé.",
+      "submit": "Continuer",
+      "submitAnother": "Continuer avec un autre contact",
+      "verifyAndCreate": "Vérifier et créer",
+      "purpose": "Création d’un opérateur avec le contact",
+      "creating": "Création de l’opérateur…",
+      "creatingShort": "Création…",
+      "created": "Opérateur créé. Il doit confirmer son contact avant de se connecter.",
+      "notCreated": "L’opérateur n’a pas été créé.",
+      "failure": {
+        "duplicate": "Ce contact est déjà utilisé par un compte Nawara : aucun opérateur n’a été créé. Utilisez une autre adresse e-mail ou un autre numéro.",
+        "unknown": "Aucune réponse n’est revenue. Nawara Core a peut-être créé l’opérateur, ou non. La demande n’a pas été renvoyée.",
+        "unavailable": "Le service est indisponible. Aucun opérateur n’a été créé. Réessayez dans un instant.",
+        "refused": "Vous ne pouvez plus créer d’opérateurs : vos accès ont peut-être changé. Rien n’a été créé."
+      },
+      "checking": "Vérification de la liste des opérateurs…",
+      "found": "Un opérateur avec ce contact existe maintenant.",
+      "foundCaveat": "Cela n’indique pas si c’est votre demande qui l’a créé.",
+      "notFound": "Aucun opérateur avec ce contact n’apparaît dans la liste. Le résultat reste incertain. Vous pouvez réessayer : vous vérifierez à nouveau votre identité.",
+      "unchecked": "La liste des opérateurs n’a pas pu être vérifiée.",
+      "coreCannotLookUp": "Liste de démo uniquement : Nawara Core ne permet pas encore de retrouver un opérateur par son contact, et renvoyer la demande pourrait être refusé comme « déjà utilisé » dans tous les cas.",
+      "checkAgain": "Vérifier à nouveau",
+      "openFound": "Ouvrir l’opérateur",
+      "nextTitle": "Opérateur créé. Prochaines étapes :",
+      "nextCode": "Nawara Core envoie un code de confirmation à usage unique à son contact. Admin ne le voit jamais.",
+      "nextConfirm": "L’opérateur confirme son contact depuis la page de connexion (« Confirmez votre contact »), puis demande un code de travail.",
+      "nextAccess": "Donnez-lui accès à une plateforme : d’ici là, il peut se connecter mais n’agir sur rien.",
+      "nextNoResend": "Le code expire au bout d’un certain temps, et Nawara Core ne peut pas encore en envoyer un nouveau. Bloquer le compte l’annule définitivement.",
+      "nextDemo": "Démo : aucun message n’est envoyé. L’opérateur confirme avec le code de confirmation de démo affiché sur la page de connexion."
     }
   }
 }

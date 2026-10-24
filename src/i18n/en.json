@@ -380,7 +380,8 @@
         "adminRemoved": "Organization-admin role removed",
         "platformCreated": "Platform created",
         "operatorBlocked": "Operator blocked",
-        "operatorUnblocked": "Operator unblocked"
+        "operatorUnblocked": "Operator unblocked",
+        "operatorCreated": "Operator created"
       },
       "auditLog": "Audit log",
       "companyLevel": "Company"
@@ -1398,7 +1399,7 @@
       "noResultsDescription": "Check the spelling, or change the filters.",
       "clearFilters": "Clear the search and filters",
       "emptyTitle": "No operators yet",
-      "emptyDescription": "Your company has no Platform operators. Creating operators comes in a later version of Admin.",
+      "emptyDescription": "Your company has no Platform operators yet.",
       "notInBuildTitle": "Not available in this build",
       "notInBuildDescription": "Nawara Core does not list a company’s operators or read one operator’s account yet, so this page has nothing to show.",
       "errorTitle": "Operators could not be loaded",
@@ -1411,7 +1412,7 @@
     },
     "footnote": "Platform access is authority on a Platform and its organizations. It is not an organization membership or an organization admin role.",
     "later": {
-      "directory": "Read only: creating operators, giving or removing Platform access and blocking come in later versions of Admin."
+      "directory": "Give or remove Platform access and block an account from each operator’s page. Sending a new confirmation code is not supported by Nawara Core yet."
     },
     "detail": {
       "eyebrow": "Platform operator",
@@ -1458,7 +1459,6 @@
       "later": {
         "title": "Changes to this operator",
         "intro": "Not available in this version of Admin:",
-        "create": "Create an operator (supported by Nawara Core).",
         "resend": "Send a new confirmation code (not supported by Nawara Core yet)."
       }
     },
@@ -1570,6 +1570,53 @@
         "refused": "Nawara Core did not apply the change to this operator. It was not sent again."
       },
       "keptHint": "Recorded assignments. They grant nothing while the account is blocked, and apply again once it is unblocked and the operator signs in."
+    },
+    "create": {
+      "open": "Create operator…",
+      "title": "Create an operator",
+      "lead": "Give one contact: an email address or a phone number. Nawara Core sends it a one-time code to confirm it.",
+      "kindLegend": "Contact method",
+      "kindEmail": "Email address",
+      "kindPhone": "Phone number",
+      "emailHint": "The operator signs in with this address. It is saved in lower case.",
+      "phoneHint": "With the country code, for example +33 6 12 34 56 78. Spaces, brackets and dashes are removed.",
+      "emailRequired": "Enter an email address.",
+      "emailInvalid": "Enter a valid email address, like name@example.com.",
+      "phoneRequired": "Enter a phone number.",
+      "phoneInvalid": "Enter a valid phone number: 8 to 15 digits, optionally starting with +.",
+      "stepUpNext": "Next, you’ll confirm it’s you.",
+      "confirmNext": "They confirm their contact with the code before they can sign in.",
+      "noPlatform": "They start with no Platform access: give it after creating them.",
+      "recorded": "This action is recorded in the activity log.",
+      "simulated": "Demo: operator creation is simulated; no message is sent.",
+      "submit": "Continue",
+      "submitAnother": "Continue with another contact",
+      "verifyAndCreate": "Verify and create",
+      "purpose": "Creating an operator with the contact",
+      "creating": "Creating the operator…",
+      "creatingShort": "Creating…",
+      "created": "Operator created. They must confirm their contact before signing in.",
+      "notCreated": "The operator was not created.",
+      "failure": {
+        "duplicate": "This contact is already used by a Nawara account, so no operator was created. Use another email address or phone number.",
+        "unknown": "No answer came back. Nawara Core may or may not have created the operator. It was not sent again.",
+        "unavailable": "The service is unavailable. No operator was created. Try again in a moment.",
+        "refused": "You can’t create operators any more: your access may have changed. Nothing was created."
+      },
+      "checking": "Checking the operator list…",
+      "found": "An operator with this contact now exists.",
+      "foundCaveat": "This does not show whether your request created it.",
+      "notFound": "No operator with this contact appears in the list. The outcome is still uncertain. You can try again: you will verify again.",
+      "unchecked": "The operator list could not be checked.",
+      "coreCannotLookUp": "Demo list only: Nawara Core cannot look an operator up by contact yet, and sending the request again could be refused as “already used” either way.",
+      "checkAgain": "Check again",
+      "openFound": "Open the operator",
+      "nextTitle": "Operator created. Next steps:",
+      "nextCode": "Nawara Core sends a one-time confirmation code to their contact. Admin never sees it.",
+      "nextConfirm": "They confirm their contact from the sign-in page (“Confirm your contact”), then request a working code.",
+      "nextAccess": "Give them access to a Platform: until then they can sign in but act on nothing.",
+      "nextNoResend": "The code expires after a while, and Nawara Core cannot send a new one yet. Blocking the account cancels it for good.",
+      "nextDemo": "Demo: no message is sent. The operator confirms with the demo confirmation code shown on the sign-in page."
     }
   }
 }

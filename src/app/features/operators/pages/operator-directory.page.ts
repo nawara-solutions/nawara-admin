@@ -5,6 +5,7 @@ import { NwButton } from '../../../shared/ui/button/button';
 import { NwDataState } from '../../../shared/ui/data-state/data-state';
 import { NwControl, NwFormField } from '../../../shared/ui/form-field/form-field';
 import { NwIcon } from '../../../shared/ui/icon/icon';
+import { OperatorCreateAction } from '../application/operator-create.action';
 import { OperatorDirectoryFacade } from '../application/operator-directory.facade';
 import {
   AccountStateFilter,
@@ -33,7 +34,9 @@ const STATE_FILTER_KEYS = {
 /**
  * Operators & access (`/operators`; P6 design, artboards Main and MobileEn): the owner's read-only directory of the
  * Company's operators and the Platforms each is assigned to. PROVISIONAL (CF-03): Core has no operator directory, so
- * a demo build reads the demo world and any other build says it is not available. There is no action in this slice.
+ * a demo build reads the demo world and any other build says it is not available. The owner creates an operator from
+ * the header (P6-S4: `OperatorCreateAction`, demo builds only: without a directory a created operator could not be
+ * found again, so no other build offers it).
  *
  * The search filters the loaded list by email or phone and stays in the page (contacts never go into a URL); the
  * Platform filter, the account-state filter and the sort are URL parameters. The count is announced politely.
@@ -57,6 +60,7 @@ const STATE_FILTER_KEYS = {
 })
 export class OperatorDirectoryPage {
   protected readonly facade = inject(OperatorDirectoryFacade);
+  protected readonly create = inject(OperatorCreateAction);
   protected readonly sorts = OPERATOR_SORTS;
   protected readonly sortKeys = SORT_KEYS;
   protected readonly stateFilters = STATE_FILTERS;

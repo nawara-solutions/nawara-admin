@@ -31,6 +31,11 @@ const ACTIONS = {
     accent: 'purple',
     labelKey: 'companyOverview.activity.actions.operatorUnassigned',
   },
+  'operator.created': {
+    icon: 'user-plus',
+    accent: 'purple',
+    labelKey: 'companyOverview.activity.actions.operatorCreated',
+  },
   'operator.blocked': {
     icon: 'lock-keyhole',
     accent: 'orange',

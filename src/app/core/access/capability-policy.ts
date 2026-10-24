@@ -32,6 +32,11 @@ export type Capability =
    */
   | 'operator.account.block'
   /**
+   * Creating an operator account: Core's `POST /auth/admin/operators` is `@Actors('owner')` with step-up
+   * `operator.create` (`403` for anyone else, an operator included).
+   */
+  | 'operator.create'
+  /**
    * Creating a Platform: Core `POST /organization/admin/platforms` allows only the owner of the Company
    * (`canCreatePlatform`), with step-up `platform.create` and an `Idempotency-Key`.
    */
@@ -60,6 +65,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.operators.view',
   'operator.platformAccess.change',
   'operator.account.block',
+  'operator.create',
   'platform.create',
   'organization.create',
   'platform.commercial.view',

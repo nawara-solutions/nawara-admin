@@ -73,13 +73,14 @@ describe('OperatorDetailPage (P6-S1, read only)', { timeout: 15_000 }, () => {
     );
   });
 
-  it('lists the changes still to come as information only; the controls are Platform access and the account (P6-S2, P6-S3)', async () => {
+  it('lists the change still to come as information only; the controls are Platform access and the account (P6-S2, P6-S3)', async () => {
     const { element } = await render(ID.awaitingConfirmation);
     expect(text(element.querySelector('.operator-detail__badges'))).toBe(
       t.state.awaitingConfirmation,
     );
     const later = [...element.querySelectorAll('.operator-detail__later li')].map((li) => text(li));
-    expect(later).toEqual([t.detail.later.create, t.detail.later.resend]);
+    // Creating an operator is on the directory now (P6-S4); a new confirmation code is still not possible (CF-16).
+    expect(later).toEqual([t.detail.later.resend]);
     expect([...element.querySelectorAll('button')].map((b) => text(b))).toEqual([
       t.access.give,
       t.access.remove,

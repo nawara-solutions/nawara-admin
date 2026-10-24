@@ -18,6 +18,9 @@
         <nw-icon name="arrow-left" size="sm" />{{ 'operators.detail.back' | transloco }}
       </a>
     </header>
+    @if (justCreated()) {
+      <section adm-operator-created-panel data-created-next-steps></section>
+    }
     @if (operator.accountState === 'blocked') {
       <p class="operator-detail__blocked" role="note" data-blocked-banner>
         <nw-icon name="lock-keyhole" size="sm" />
@@ -309,7 +312,6 @@
           <h2 id="operator-later">{{ 'operators.detail.later.title' | transloco }}</h2>
           <p class="operator-detail__explain">{{ 'operators.detail.later.intro' | transloco }}</p>
           <ul class="operator-detail__later" role="list">
-            <li>{{ 'operators.detail.later.create' | transloco }}</li>
             <li>{{ 'operators.detail.later.resend' | transloco }}</li>
           </ul>
         </section>
