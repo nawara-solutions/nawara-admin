@@ -109,6 +109,19 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
           },
         },
         {
+          // Licenses & entitlements (P7-S1): Company commercial area, the owner only, direct URLs included.
+          path: 'licenses',
+          title: 'titles.licenses',
+          data: { [BREADCRUMB_DATA]: 'shell.breadcrumb.licenses' },
+          canActivate: [capabilityGuard('company.commercial.view')],
+          loadChildren: () => {
+            const env = inject(APP_ENVIRONMENT);
+            return import('../features/licenses/licenses.routes').then((m) =>
+              m.loadLicensesRoutes(env),
+            );
+          },
+        },
+        {
           // A Platform's Organizations (an entity of platform scope, never a scope of its own); access as below.
           path: 'platforms/:platformId/organizations',
           loadChildren: () => {

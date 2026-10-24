@@ -70,6 +70,7 @@ const DEMO: DemoBindings = {
     platformDirectory: [],
     companyOverview: [],
     commercialSummary: [],
+    licenses: [],
     serviceHealth: [],
     platformDashboard: [],
     platformCommercial: [],
@@ -165,10 +166,14 @@ describe('Sidebar', () => {
   it('links only the built pages; the other approved destinations are not links', async () => {
     const { sidebar } = await render(owner);
     const links = Array.from(sidebar.querySelectorAll('nav a'));
-    expect(links.map((a) => a.getAttribute('href'))).toEqual(['/overview', '/operators']);
+    expect(links.map((a) => a.getAttribute('href'))).toEqual([
+      '/overview',
+      '/operators',
+      '/licenses',
+    ]);
     expect(sidebar.querySelector('.sidebar__footer a')?.getAttribute('href')).toBe('/settings');
     const inert = sidebar.querySelectorAll('.sidebar__item--unavailable');
-    expect(inert.length).toBe(10);
+    expect(inert.length).toBe(9);
     expect(Array.from(inert).every((item) => item.tagName === 'SPAN')).toBe(true);
     expect(inert[0]?.textContent).toContain(en.shell.notAvailableYet);
   });
@@ -205,6 +210,10 @@ describe('Sidebar', () => {
       expect(sidebar.textContent).not.toContain(en.shell.nav.notifications);
       // The Company's operators are the owner's: an operator has no link to them (P6-S1).
       expect(sidebar.textContent).not.toContain(en.shell.nav.operators);
+      // No Commercial destination either (P7-S1): commercial authority is the owner's, never an assignment's.
+      expect(sidebar.textContent).not.toContain(en.shell.nav.licenses);
+      expect(sidebar.textContent).not.toContain(en.shell.nav.billing);
+      expect(sidebar.textContent).not.toContain(en.shell.nav.groups.commercial);
       expect(text(sidebar.querySelector('#sidebar-group-assigned'))).toBe(
         en.shell.context.assigned,
       );

@@ -209,7 +209,8 @@
     "members": "Members",
     "membership": "Membership",
     "operators": "Operators & access",
-    "operator": "Operator"
+    "operator": "Operator",
+    "licenses": "Licenses & entitlements"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -230,7 +231,8 @@
       "members": "Members",
       "membership": "Membership",
       "operators": "Operators & access",
-      "operator": "Operator"
+      "operator": "Operator",
+      "licenses": "Licenses & entitlements"
     },
     "context": {
       "label": "Administration scope",
@@ -416,12 +418,12 @@
     },
     "commercial": {
       "title": "Commercial overview",
-      "activeLicenses": "Active licenses",
+      "activeSubscriptions": "Active subscriptions",
       "expiringSoon": "Expiring soon",
       "withinDays": "Within {{days}} days",
       "paymentIssues": "Payment issues",
       "followUp": "Needs follow-up",
-      "billing": "Billing"
+      "licenses": "Licenses & entitlements"
     },
     "health": {
       "title": "Services & health",
@@ -1617,6 +1619,78 @@
       "nextAccess": "Give them access to a Platform: until then they can sign in but act on nothing.",
       "nextNoResend": "The code expires after a while, and Nawara Core cannot send a new one yet. Blocking the account cancels it for good.",
       "nextDemo": "Demo: no message is sent. The operator confirms with the demo confirmation code shown on the sign-in page."
+    }
+  },
+  "licenses": {
+    "demoExplanation": "the figures on this page are fictional demo records",
+    "header": {
+      "eyebrow": "Commercial",
+      "title": "Licenses & entitlements",
+      "subtitle": "Organization subscriptions across your Platforms, and whether each Organization is entitled now."
+    },
+    "provisional": "Provisional view: Nawara Core’s Billing service has no owner read of subscriptions yet. These figures come from demo records.",
+    "figures": {
+      "label": "Subscription figures",
+      "organizations": "Organizations",
+      "organizationsCaption": "On your Platforms",
+      "active": "Active subscriptions",
+      "activeCaption": "Not ended",
+      "grace": "In grace",
+      "graceCaption": "Ended, entitled for {{hours}} more hours at most",
+      "none": "No subscription",
+      "noneCaption": "Not entitled",
+      "endingSoon": "Ending soon",
+      "endingSoonCaption": "Active, ending within {{days}} days"
+    },
+    "entitledNow": "Entitled now: {{entitled}} of {{total}} Organizations ({{active}} active, {{grace}} in grace).",
+    "platforms": {
+      "title": "By Platform",
+      "caption": "Organization subscriptions by Platform, and each Platform’s Personal Premium count",
+      "platform": "Platform",
+      "organizations": "Organizations",
+      "active": "Active",
+      "grace": "In grace",
+      "none": "None",
+      "endingSoon": "Ending ≤ {{days}} days",
+      "entitled": "Entitled now",
+      "personalPremium": "Personal Premium (people)",
+      "premiumNote": "Personal Premium is a person’s own subscription in a product: a separate demo count, never added to Organization subscriptions and unrelated to memberships."
+    },
+    "attention": {
+      "title": "Needs attention",
+      "graceEnds": "Grace ends {{at}}",
+      "ends": "Ends {{when}}",
+      "unknownPlatform": "Unknown Platform",
+      "none": "No subscription is in grace or ending within {{days}} days."
+    },
+    "meaning": {
+      "title": "What these states mean",
+      "activeTerm": "Active",
+      "active": "The Organization’s one subscription has not ended. It is entitled.",
+      "graceTerm": "In grace",
+      "grace": "It ended less than {{hours}} hours ago. It stays entitled until the grace ends; it is not counted as active.",
+      "noneTerm": "No subscription",
+      "none": "No subscription, or its grace has ended. It is not entitled.",
+      "membership": "Membership is not paid access: members stay members whatever the entitlement says, and no figure here counts people or customers."
+    },
+    "unavailable": {
+      "title": "Not available yet",
+      "intro": "Nawara Core offers no owner contract for these, so Admin shows nothing in their place:",
+      "plans": "Plans and prices (Billing’s catalog).",
+      "allocation": "License or seat allocation: Core has no license entity; an Organization is entitled or not.",
+      "changes": "Creating, renewing, extending or ending a subscription.",
+      "revenue": "Revenue: payment attempts are never revenue, and settled payments are not readable."
+    },
+    "states": {
+      "loading": "Loading subscriptions…",
+      "emptyTitle": "No Organizations yet",
+      "emptyDescription": "Your Platforms have no Organizations, so there is no subscription to show.",
+      "notInBuildTitle": "Not available in this build",
+      "notInBuildDescription": "Nawara Core’s Billing service does not offer an owner read of subscriptions yet, so there is nothing to show. No figure is estimated.",
+      "errorTitle": "Subscriptions could not be loaded",
+      "errorDescription": "Try again in a moment.",
+      "retry": "Try again",
+      "forbiddenDescription": "Subscriptions and entitlements are shown to the Company owner only."
     }
   }
 }

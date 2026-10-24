@@ -9,8 +9,8 @@ import { Metric } from './company-overview.model';
  * API for Billing or Payment before Core V2 A10/A11. "Licenses" here are FRONTEND VIEW-MODEL terms, not Core fields.
  */
 export interface CommercialSummary {
-  /** Organizations with a currently valid entitlement ("active licenses" in the view). */
-  readonly activeLicenses: Metric;
+  /** Organizations whose subscription is active (grace excluded: an Organization in grace is not counted here). */
+  readonly activeSubscriptions: Metric;
   /** Valid entitlements whose end falls within `expiringWithinDays`. */
   readonly expiringSoon: Metric;
   readonly expiringWithinDays: number;

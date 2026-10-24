@@ -127,7 +127,11 @@
         headingId="overview-commercial"
         [heading]="'companyOverview.commercial.title' | transloco"
       >
-        <adm-card-link cardActions [label]="'companyOverview.commercial.billing' | transloco" />
+        <adm-card-link
+          cardActions
+          link="/licenses"
+          [label]="'companyOverview.commercial.licenses' | transloco"
+        />
         @if (commercial.status === 'success') {
           <adm-commercial-summary [summary]="commercial.data" />
         } @else if (commercial.status === 'idle' || commercial.status === 'loading') {

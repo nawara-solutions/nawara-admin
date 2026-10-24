@@ -206,7 +206,7 @@ Organizations are entities of platform scope (amendment, P3a, 2026-10-23): their
 /operators/:operatorId
 /members/:userId               member security: suspend / restore             🟢 (reached from memberships)
 
-/licenses                      license wizard and overview                    🟡
+/licenses                      subscriptions & entitlement overview (P7-S1)   🟡 mock, owner only
 /billing  /payments                                                            🟡
 /releases                      withdraw · minimum version                     🟢 actions · 🔴 catalog
 /audit                         launcher: choose an organization (platform-level audit 🔴)
@@ -560,7 +560,19 @@ only ([`design/p6-s3-operator-block.md`](design/p6-s3-operator-block.md)):
   world, so the world stays the one source of an operator's confirmed and blocked state.
 - Navigation state carries only the new operator's id (the next-steps panel), never a contact.
 
+**Commercial area (P7-S1, 2026-10-24): Licenses & entitlements**
+([`design/p7-commercial-architecture.md`](design/p7-commercial-architecture.md)):
 
+- Read only, the Company owner only (`company.commercial.view`; never from Platform assignments or memberships):
+  page → `LicensesFacade` → `LicensesGateway` → mock (demo world) or unavailable adapter.
+- **Three concepts apart:** the subscription state (active / grace / none), the entitlement (`entitlementOf`: active,
+  or grace temporarily) and the timeline (when a subscription or its grace ends). Grace is never counted as active.
+- **One distribution:** `subscriptionDistribution` in `demo/world/selectors.ts` feeds both `/licenses` and the Company
+  Overview's card, so they cannot disagree; Personal Premium stays a separate per-Platform count.
+- No invented commercial data (plans, prices, seats, revenue) and no commercial command: what Core lacks is said once,
+  without controls.
+
+## 13. Design system: tokens, SCSS and BEM
 
 ### Token architecture
 

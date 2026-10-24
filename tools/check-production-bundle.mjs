@@ -36,6 +36,7 @@ const MARKERS = [
   'membership-activity-', // demo decision activity ids (demo/world/commands/membership.commands.ts)
   'example.invalid', // synthetic member contacts (demo/world/seed-memberships.ts)
   '8c4f2e10-6b3a-4d5e-9f01-', // synthetic member identity ids (demo/world/seed-memberships.ts)
+  'LICENSES_DEMO_SCENARIO', // Licenses & entitlements mock token (features/licenses/data-access/licenses.mock.ts)
   'OPERATOR_DIRECTORY_DEMO_SCENARIO', // provisional operator directory mock token (operator.mock.ts)
   'OPERATOR_HISTORY_DEMO_SCENARIO', // assignment history mock token (operator.mock.ts)
   'OPERATOR_ASSIGNMENT_DEMO_SCENARIO', // Platform access change mock token (operator.mock.ts)

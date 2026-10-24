@@ -190,7 +190,7 @@ describe('a created Platform across the views (demo world)', () => {
     const commercial = await firstValueFrom(
       TestBed.inject(MockCommercialSummaryGateway).load(DEMO_COMPANY_ID),
     );
-    expect(commercial.activeLicenses).toEqual({ status: 'available', value: 20 });
+    expect(commercial.activeSubscriptions).toEqual({ status: 'available', value: 20 });
   });
 
   it('opens as an empty Platform dashboard, with its creation in its activity', async () => {

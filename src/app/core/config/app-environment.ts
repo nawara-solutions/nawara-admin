@@ -9,6 +9,7 @@ export type DemoDomain =
   | 'companyOverview'
   | 'platformDirectory'
   | 'commercialSummary'
+  | 'licenses'
   | 'serviceHealth'
   | 'platformDashboard'
   | 'platformCommercial'

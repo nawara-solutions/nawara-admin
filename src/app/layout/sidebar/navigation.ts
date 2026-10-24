@@ -44,7 +44,12 @@ export const NAVIGATION: readonly NavigationGroup[] = [
   {
     labelKey: 'shell.nav.groups.commercial',
     items: [
-      { labelKey: 'shell.nav.licenses', icon: 'file-badge', requires: 'company.scope' },
+      {
+        labelKey: 'shell.nav.licenses',
+        icon: 'file-badge',
+        path: '/licenses',
+        requires: 'company.commercial.view',
+      },
       { labelKey: 'shell.nav.billing', icon: 'credit-card', requires: 'company.scope' },
     ],
   },

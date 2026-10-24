@@ -370,7 +370,7 @@ describe('a created Organization across the views (demo world)', () => {
     );
     const licensesBefore = (
       await firstValueFrom(TestBed.inject(MockCommercialSummaryGateway).load(DEMO_COMPANY_ID))
-    ).activeLicenses;
+    ).activeSubscriptions;
     await before.create();
 
     const dashboard = await firstValueFrom(
@@ -405,7 +405,7 @@ describe('a created Organization across the views (demo world)', () => {
     // No financial record is created.
     const licenses = (
       await firstValueFrom(TestBed.inject(MockCommercialSummaryGateway).load(DEMO_COMPANY_ID))
-    ).activeLicenses;
+    ).activeSubscriptions;
     expect(licenses).toEqual(licensesBefore);
   });
 });

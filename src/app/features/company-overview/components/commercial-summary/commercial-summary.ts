@@ -5,7 +5,7 @@ import { MetricValue } from '../../../../shared/dashboard/metric-value/metric-va
 
 /**
  * Commercial overview: three figures from the commercial summary (its own gateway; Core 🟡). The design's usage bar
- * under "Active licenses" is left out: no total exists to measure it against.
+ * under "Active subscriptions" is left out: no total exists to measure it against.
  */
 @Component({
   selector: 'adm-commercial-summary',

@@ -209,7 +209,8 @@
     "members": "Membres",
     "membership": "Adhésion",
     "operators": "Opérateurs et accès",
-    "operator": "Opérateur"
+    "operator": "Opérateur",
+    "licenses": "Licences et droits"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -230,7 +231,8 @@
       "members": "Membres",
       "membership": "Adhésion",
       "operators": "Opérateurs et accès",
-      "operator": "Opérateur"
+      "operator": "Opérateur",
+      "licenses": "Licences et droits"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -416,12 +418,12 @@
     },
     "commercial": {
       "title": "Vue commerciale",
-      "activeLicenses": "Licences actives",
+      "activeSubscriptions": "Abonnements actifs",
       "expiringSoon": "Échéance proche",
       "withinDays": "Sous {{days}} jours",
       "paymentIssues": "Problèmes de paiement",
       "followUp": "À suivre",
-      "billing": "Facturation"
+      "licenses": "Licences et droits"
     },
     "health": {
       "title": "Services et santé",
@@ -1617,6 +1619,78 @@
       "nextAccess": "Donnez-lui accès à une plateforme : d’ici là, il peut se connecter mais n’agir sur rien.",
       "nextNoResend": "Le code expire au bout d’un certain temps, et Nawara Core ne peut pas encore en envoyer un nouveau. Bloquer le compte l’annule définitivement.",
       "nextDemo": "Démo : aucun message n’est envoyé. L’opérateur confirme avec le code de confirmation de démo affiché sur la page de connexion."
+    }
+  },
+  "licenses": {
+    "demoExplanation": "les chiffres de cette page sont des données de démonstration fictives",
+    "header": {
+      "eyebrow": "Commercial",
+      "title": "Licences et droits",
+      "subtitle": "Les abonnements des organisations sur vos plateformes, et si chaque organisation y a droit maintenant."
+    },
+    "provisional": "Vue provisoire : le service Billing de Nawara Core n’offre pas encore de lecture des abonnements au propriétaire. Ces chiffres proviennent de données de démonstration.",
+    "figures": {
+      "label": "Chiffres des abonnements",
+      "organizations": "Organisations",
+      "organizationsCaption": "Sur vos plateformes",
+      "active": "Abonnements actifs",
+      "activeCaption": "Non terminés",
+      "grace": "En période de grâce",
+      "graceCaption": "Terminés, droits maintenus {{hours}} heures au plus",
+      "none": "Sans abonnement",
+      "noneCaption": "Sans droits",
+      "endingSoon": "Échéance proche",
+      "endingSoonCaption": "Actifs, se terminent sous {{days}} jours"
+    },
+    "entitledNow": "Avec droits maintenant : {{entitled}} organisations sur {{total}} ({{active}} actives, {{grace}} en période de grâce).",
+    "platforms": {
+      "title": "Par plateforme",
+      "caption": "Abonnements des organisations par plateforme, et le nombre Personal Premium de chaque plateforme",
+      "platform": "Plateforme",
+      "organizations": "Organisations",
+      "active": "Actifs",
+      "grace": "En grâce",
+      "none": "Aucun",
+      "endingSoon": "Fin ≤ {{days}} jours",
+      "entitled": "Avec droits",
+      "personalPremium": "Personal Premium (personnes)",
+      "premiumNote": "Personal Premium est l’abonnement personnel d’une personne dans un produit : un chiffre de démonstration à part, jamais ajouté aux abonnements des organisations et sans lien avec les adhésions."
+    },
+    "attention": {
+      "title": "À surveiller",
+      "graceEnds": "Fin de la grâce {{at}}",
+      "ends": "Se termine {{when}}",
+      "unknownPlatform": "Plateforme inconnue",
+      "none": "Aucun abonnement en période de grâce ni se terminant sous {{days}} jours."
+    },
+    "meaning": {
+      "title": "Ce que signifient ces états",
+      "activeTerm": "Actif",
+      "active": "L’abonnement unique de l’organisation n’est pas terminé. Elle a des droits.",
+      "graceTerm": "En période de grâce",
+      "grace": "Il s’est terminé il y a moins de {{hours}} heures. L’organisation garde ses droits jusqu’à la fin de la grâce ; il n’est pas compté comme actif.",
+      "noneTerm": "Sans abonnement",
+      "none": "Aucun abonnement, ou sa période de grâce est terminée. L’organisation n’a pas de droits.",
+      "membership": "L’adhésion n’est pas un accès payé : les membres restent membres quels que soient les droits, et aucun chiffre ici ne compte des personnes ou des clients."
+    },
+    "unavailable": {
+      "title": "Pas encore disponible",
+      "intro": "Nawara Core n’offre aucun contrat au propriétaire pour ces fonctions, donc Admin n’affiche rien à leur place :",
+      "plans": "Les offres et les prix (catalogue de Billing).",
+      "allocation": "L’attribution de licences ou de places : Core n’a pas d’entité licence ; une organisation a des droits ou non.",
+      "changes": "Créer, renouveler, prolonger ou mettre fin à un abonnement.",
+      "revenue": "Le chiffre d’affaires : une tentative de paiement n’est jamais un revenu, et les paiements réglés ne sont pas lisibles."
+    },
+    "states": {
+      "loading": "Chargement des abonnements…",
+      "emptyTitle": "Aucune organisation pour l’instant",
+      "emptyDescription": "Vos plateformes n’ont aucune organisation : il n’y a donc aucun abonnement à afficher.",
+      "notInBuildTitle": "Non disponible dans cette version",
+      "notInBuildDescription": "Le service Billing de Nawara Core n’offre pas encore de lecture des abonnements au propriétaire : il n’y a rien à afficher. Aucun chiffre n’est estimé.",
+      "errorTitle": "Les abonnements n’ont pas pu être chargés",
+      "errorDescription": "Réessayez dans un instant.",
+      "retry": "Réessayer",
+      "forbiddenDescription": "Les abonnements et les droits ne sont visibles que par le propriétaire de l’entreprise."
     }
   }
 }

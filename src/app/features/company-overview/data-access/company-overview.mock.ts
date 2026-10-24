@@ -19,8 +19,7 @@ import {
   platformRefOf,
   platformRefs,
   platformsWithOperators,
-  subscriptionStateOf,
-  subscriptionsEndingWithin,
+  subscriptionDistribution,
   uniqueAssignedOperators,
 } from '../../../demo/world/selectors';
 import { NW_CLOCK } from '../../../shared/format/clock';
@@ -116,11 +115,11 @@ export function demoCompanyOverview(world: DemoWorldTables, now: number): Compan
 /** The Company's commercial summary at `now`, from the subscription and payment records. */
 export function demoCommercialSummary(world: DemoWorldTables, now: number): CommercialSummary {
   const organizations = organizationsOfCompany(world);
+  // The one canonical distribution (selectors.ts), so the Licenses page and this card agree by construction.
+  const distribution = subscriptionDistribution(world, organizations, now, EXPIRING_WITHIN_DAYS);
   return {
-    activeLicenses: count(
-      organizations.filter((o) => subscriptionStateOf(world, o.id, now).state === 'active').length,
-    ),
-    expiringSoon: count(subscriptionsEndingWithin(world, organizations, now, EXPIRING_WITHIN_DAYS)),
+    activeSubscriptions: count(distribution.active),
+    expiringSoon: count(distribution.endingSoon),
     expiringWithinDays: EXPIRING_WITHIN_DAYS,
     paymentIssues: count(paymentIssuesOf(world, organizations).length),
   };

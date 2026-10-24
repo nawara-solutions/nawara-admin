@@ -105,13 +105,13 @@ describe('Company Overview of the demo world (derived from its records)', () => 
 
   it('derives the commercial summary from subscription end dates and payment records', () => {
     const commercial = demoCommercialSummary(world, NOW);
-    expect(value(commercial.activeLicenses)).toBe(20);
+    expect(value(commercial.activeSubscriptions)).toBe(20);
     expect(value(commercial.expiringSoon)).toBe(4);
     expect(commercial.expiringWithinDays).toBe(14);
     expect(value(commercial.paymentIssues)).toBe(2);
     // Twenty days on, the subscriptions that were expiring have ended.
     const later = demoCommercialSummary(world, NOW + 20 * 86_400_000);
-    expect(value(later.activeLicenses)).toBe(15);
+    expect(value(later.activeSubscriptions)).toBe(15);
   });
 
   it('lists every Core service in the health strip, Auth included', () => {

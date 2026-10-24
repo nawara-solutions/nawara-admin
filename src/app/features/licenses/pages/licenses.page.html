@@ -1,0 +1,255 @@
+@let view = facade.view();
+<header class="licenses__header">
+  <span class="licenses__mark" aria-hidden="true"><nw-icon name="file-badge" size="lg" /></span>
+  <div class="licenses__titles">
+    <p class="licenses__eyebrow">{{ 'licenses.header.eyebrow' | transloco }}</p>
+    <h1 class="licenses__title">{{ 'licenses.header.title' | transloco }}</h1>
+    <p class="licenses__subtitle">{{ 'licenses.header.subtitle' | transloco }}</p>
+  </div>
+  @if (isDemo()) {
+    <span class="licenses__demo">
+      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+      <span class="nw-visually-hidden">: {{ 'licenses.demoExplanation' | transloco }}</span>
+    </span>
+  }
+</header>
+
+@switch (view.status) {
+  @case ('ready') {
+    @let overview = view.overview;
+    @let company = overview.company;
+    @let figures = this.figures()!;
+    <p class="licenses__note" role="note">
+      <nw-icon name="info" size="sm" />
+      <span>{{ 'licenses.provisional' | transloco }}</span>
+    </p>
+
+    <section class="licenses__figures" [attr.aria-label]="'licenses.figures.label' | transloco">
+      <adm-summary-card
+        icon="building-2"
+        [label]="'licenses.figures.organizations' | transloco"
+        [metric]="figures.organizations"
+        [caption]="'licenses.figures.organizationsCaption' | transloco"
+      />
+      <adm-summary-card
+        icon="badge-check"
+        [label]="'licenses.figures.active' | transloco"
+        [metric]="figures.active"
+        [caption]="'licenses.figures.activeCaption' | transloco"
+      />
+      <adm-summary-card
+        icon="hourglass"
+        accent="orange"
+        [label]="'licenses.figures.grace' | transloco"
+        [metric]="figures.grace"
+        [caption]="'licenses.figures.graceCaption' | transloco: { hours: overview.graceHours }"
+      />
+      <adm-summary-card
+        icon="circle-x"
+        accent="purple"
+        [label]="'licenses.figures.none' | transloco"
+        [metric]="figures.none"
+        [caption]="'licenses.figures.noneCaption' | transloco"
+      />
+      <adm-summary-card
+        icon="timer-off"
+        accent="orange"
+        [label]="'licenses.figures.endingSoon' | transloco"
+        [metric]="figures.endingSoon"
+        [caption]="
+          'licenses.figures.endingSoonCaption' | transloco: { days: overview.endingWithinDays }
+        "
+      />
+    </section>
+    <p class="licenses__entitled" data-entitled>
+      <nw-icon name="shield-check" size="sm" />
+      <span>{{
+        'licenses.entitledNow'
+          | transloco
+            : {
+                entitled: (company.entitled | nwNumber),
+                total: (company.organizations | nwNumber),
+                active: (company.active | nwNumber),
+                grace: (company.grace | nwNumber),
+              }
+      }}</span>
+    </p>
+
+    <section class="licenses__card" aria-labelledby="licenses-platforms">
+      <h2 id="licenses-platforms" class="licenses__card-title">
+        {{ 'licenses.platforms.title' | transloco }}
+      </h2>
+      <div class="licenses__table-box" tabindex="0" [attr.aria-labelledby]="'licenses-platforms'">
+        <table class="licenses__table">
+          <caption class="nw-visually-hidden">
+            {{
+              'licenses.platforms.caption' | transloco
+            }}
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'licenses.platforms.platform' | transloco }}</th>
+              <th scope="col" class="licenses__number">
+                {{ 'licenses.platforms.organizations' | transloco }}
+              </th>
+              <th scope="col" class="licenses__number">
+                {{ 'licenses.platforms.active' | transloco }}
+              </th>
+              <th scope="col" class="licenses__number">
+                {{ 'licenses.platforms.grace' | transloco }}
+              </th>
+              <th scope="col" class="licenses__number">
+                {{ 'licenses.platforms.none' | transloco }}
+              </th>
+              <th scope="col" class="licenses__number">
+                {{
+                  'licenses.platforms.endingSoon' | transloco: { days: overview.endingWithinDays }
+                }}
+              </th>
+              <th scope="col" class="licenses__number">
+                {{ 'licenses.platforms.entitled' | transloco }}
+              </th>
+              <th scope="col" class="licenses__number licenses__premium-head">
+                {{ 'licenses.platforms.personalPremium' | transloco }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of overview.platforms; track row.platform.id) {
+              @let d = row.distribution;
+              <tr [attr.data-platform]="row.platform.id">
+                <th scope="row">
+                  <a [routerLink]="platformPath(row.platform.id)"
+                    ><bdi>{{ row.platform.name }}</bdi></a
+                  >
+                </th>
+                <td class="licenses__number">{{ d.organizations | nwNumber }}</td>
+                <td class="licenses__number">{{ d.active | nwNumber }}</td>
+                <td class="licenses__number">{{ d.grace | nwNumber }}</td>
+                <td class="licenses__number">{{ d.none | nwNumber }}</td>
+                <td class="licenses__number">{{ d.endingSoon | nwNumber }}</td>
+                <td class="licenses__number">{{ d.entitled | nwNumber }}</td>
+                <td class="licenses__number licenses__premium" data-premium>
+                  <adm-metric-value [metric]="row.personalPremium" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="licenses__hint">
+        <nw-icon name="info" size="sm" />
+        <span>{{ 'licenses.platforms.premiumNote' | transloco }}</span>
+      </p>
+    </section>
+
+    <div class="licenses__columns">
+      <section class="licenses__card" aria-labelledby="licenses-attention">
+        <h2 id="licenses-attention" class="licenses__card-title">
+          {{ 'licenses.attention.title' | transloco }}
+        </h2>
+        @if (overview.attention.length > 0) {
+          <ul class="licenses__attention" role="list">
+            @for (item of overview.attention; track item.organizationId) {
+              <li class="licenses__attention-item" [attr.data-attention]="item.reason">
+                <span class="licenses__attention-name">
+                  <a [routerLink]="organizationPath(item.platformId, item.organizationId)"
+                    ><bdi>{{ item.organizationName }}</bdi></a
+                  >
+                  <span class="licenses__attention-platform"
+                    ><bdi>{{
+                      facade.platformName(item.platformId) ??
+                        ('licenses.attention.unknownPlatform' | transloco)
+                    }}</bdi></span
+                  >
+                </span>
+                @if (item.reason === 'graceEnds') {
+                  <nw-status-badge tone="warning">{{
+                    'licenses.attention.graceEnds'
+                      | transloco: { at: (item.at | nwDate: 'date-time') }
+                  }}</nw-status-badge>
+                } @else {
+                  <span class="licenses__attention-when">{{
+                    'licenses.attention.ends' | transloco: { when: (item.at | nwDate: 'until') }
+                  }}</span>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="licenses__empty" data-empty="attention">
+            {{ 'licenses.attention.none' | transloco: { days: overview.endingWithinDays } }}
+          </p>
+        }
+      </section>
+
+      <section class="licenses__card" aria-labelledby="licenses-meaning">
+        <h2 id="licenses-meaning" class="licenses__card-title">
+          {{ 'licenses.meaning.title' | transloco }}
+        </h2>
+        <dl class="licenses__meaning">
+          <dt>{{ 'licenses.meaning.activeTerm' | transloco }}</dt>
+          <dd>{{ 'licenses.meaning.active' | transloco }}</dd>
+          <dt>{{ 'licenses.meaning.graceTerm' | transloco }}</dt>
+          <dd>{{ 'licenses.meaning.grace' | transloco: { hours: overview.graceHours } }}</dd>
+          <dt>{{ 'licenses.meaning.noneTerm' | transloco }}</dt>
+          <dd>{{ 'licenses.meaning.none' | transloco }}</dd>
+        </dl>
+        <p class="licenses__hint">
+          <nw-icon name="users" size="sm" />
+          <span>{{ 'licenses.meaning.membership' | transloco }}</span>
+        </p>
+      </section>
+    </div>
+
+    <section class="licenses__card licenses__card--quiet" aria-labelledby="licenses-unavailable">
+      <h2 id="licenses-unavailable" class="licenses__card-title">
+        {{ 'licenses.unavailable.title' | transloco }}
+      </h2>
+      <p class="licenses__hint">{{ 'licenses.unavailable.intro' | transloco }}</p>
+      <ul class="licenses__unavailable" role="list" data-unavailable>
+        <li>{{ 'licenses.unavailable.plans' | transloco }}</li>
+        <li>{{ 'licenses.unavailable.allocation' | transloco }}</li>
+        <li>{{ 'licenses.unavailable.changes' | transloco }}</li>
+        <li>{{ 'licenses.unavailable.revenue' | transloco }}</li>
+      </ul>
+    </section>
+  }
+  @case ('empty') {
+    <nw-data-state
+      state="empty"
+      [title]="'licenses.states.emptyTitle' | transloco"
+      [description]="'licenses.states.emptyDescription' | transloco"
+    />
+  }
+  @case ('notInBuild') {
+    <nw-data-state
+      state="empty"
+      [title]="'licenses.states.notInBuildTitle' | transloco"
+      [description]="'licenses.states.notInBuildDescription' | transloco"
+    />
+  }
+  @case ('error') {
+    <nw-data-state
+      state="error"
+      [title]="'licenses.states.errorTitle' | transloco"
+      [description]="'licenses.states.errorDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'licenses.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('forbidden') {
+    <nw-data-state
+      state="empty"
+      [title]="'shell.pages.forbidden.title' | transloco"
+      [description]="'licenses.states.forbiddenDescription' | transloco"
+    />
+  }
+  @default {
+    <nw-data-state state="loading" [title]="'licenses.states.loading' | transloco" />
+  }
+}
