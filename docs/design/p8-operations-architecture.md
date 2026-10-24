@@ -4,8 +4,9 @@
   implemented** 2026-10-24 as a development-only, mock-first prototype (`/audit`, simulated administrative activity,
   owner only; §13; PR #38, merged). **P8-S2 implemented** 2026-10-24 (`/services`, the documented service inventory,
   live health unavailable; §14; PR #39, merged). **P8-S3 implemented** 2026-10-24 (`/notifications`, personal demo
-  unread count, no inbox; §15). **Core Audit integration, live service health and a personal inbox are NOT
-  implemented.** P8-S4 not started; monitoring and alerting deferred.
+  unread count, no inbox; §15; PR #40, merged). **P8-S4 implemented** 2026-10-24 (`/releases`, an owner information
+  page; §16). **Core Audit integration, live service health, a personal inbox, a release catalog and every release
+  or deployment command are NOT implemented.** Files, monitoring and alerting stay deferred.
 - **Baseline:** P8-0 read `main` content `a0b2d76` (PR #37). Core was **not** read: every Core fact below comes from Admin's `docs/CORE-INTEGRATION.md`
   (§3, §5 Audit / File / Notification / Release / Health, §7 matrix, §9 CF-04, CF-05, CF-06, CF-07, CF-14).
 - **Scope:** the six Operations destinations: Releases, Audit log, Files, Notifications, Services & health, Monitoring.
@@ -268,3 +269,21 @@ never given a Platform or Organization (D3); capability `company.audit.view` (D8
   "Notifications", and the page says the read is not available in this build (CF-14).
 - **Proposed follow-ups** (CORE-INTEGRATION §9, not existing APIs): CF-44 inbox content safety; CF-48 a personal inbox
   read with delivery, read-state and retention semantics.
+
+## 16. P8-S4 as built (2026-10-24)
+
+- **Feature** `features/releases/`: `ReleaseInformation { capabilities: { capability, status }[] }` — documentation
+  only (catalog `notAvailable`, publish `ciOnly`, withdraw `notInAdmin`, minimum version `notInAdmin`); a model with no
+  field for a release, version, compatibility value, deployment state or URL. Abstract
+  `ReleaseInformationGateway.information(company)`; `MockReleaseInformationGateway` (owner only: `401`, `403` for any
+  operator, collapsed `404`; scenario `error`; one read, no command); `UnavailableReleaseInformationGateway` in every
+  other build. Demo domain `releases`; production marker `RELEASES_DEMO_SCENARIO`.
+- **Page** `/releases` (`ReleasesFacade`, `ReleasesPage`; capability `company.releases.view`; shell guard; sidebar
+  entry live for the owner): "an information page, not a release catalog or deployment console"; the Release
+  service's documented responsibility (shared copy with `/services`) and that a release is never entitlement; each
+  capability's standing (catalog not available, CF-05; publishing by CI only; withdraw and minimum-version change are
+  the owner's in Core with a security verification, not available in Admin); what must happen first (an owner
+  catalog read, the commands' contracts, authority and step-up verified against Core, a separately authorized stage).
+  No control at all, enabled or disabled; no list of releases. Loading, empty, error (retry), not in build, forbidden.
+- **Blocked:** the catalog (CF-05, open), withdraw and minimum-version commands, and any deployment action, until
+  their Core contracts, authority and security requirements are separately verified and an HTTP stage is authorized.

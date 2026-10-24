@@ -215,7 +215,8 @@
     "billing": "Billing & payments",
     "audit": "Audit log",
     "services": "Services & health",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "releases": "Releases"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -242,7 +243,8 @@
       "billing": "Billing & payments",
       "audit": "Audit log",
       "services": "Services & health",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "releases": "Releases"
     },
     "context": {
       "label": "Administration scope",
@@ -1986,6 +1988,61 @@
       "errorDescription": "Try again in a moment.",
       "retry": "Try again",
       "forbiddenDescription": "Your notification summary could not be read for this session."
+    }
+  },
+  "releases": {
+    "header": {
+      "eyebrow": "Operations",
+      "title": "Releases",
+      "subtitle": "What Nawara Core’s Release service does, and what Admin can offer today."
+    },
+    "notCatalog": "This is an information page, not a release catalog or deployment console: no release, version or deployment is listed, and nothing can be published, withdrawn or changed here.",
+    "service": {
+      "title": "The Release service",
+      "entitlement": "A release says which app versions exist and which are still supported. It never decides who may use a product: that is entitlement, owned by Billing."
+    },
+    "capabilities": {
+      "title": "Release management in Admin"
+    },
+    "capability": {
+      "catalog": {
+        "title": "Release catalog and history",
+        "body": "Nawara Core offers no owner read of products, components or releases yet, so Admin cannot list them or show what could be withdrawn."
+      },
+      "publish": {
+        "title": "Publishing a release",
+        "body": "Releases are registered and published by the build pipeline (CI), never from Admin."
+      },
+      "withdraw": {
+        "title": "Withdrawing a release",
+        "body": "Core reserves this for the Company owner, with a security verification. It is not available in Admin yet."
+      },
+      "minimumVersion": {
+        "title": "Changing the minimum supported version",
+        "body": "Core reserves this for the Company owner, with a security verification. It is not available in Admin yet."
+      }
+    },
+    "status": {
+      "notAvailable": "Not available",
+      "ciOnly": "Controlled by CI",
+      "notInAdmin": "Not available in Admin"
+    },
+    "before": {
+      "title": "Before release management can be offered",
+      "catalog": "An owner-readable release catalog from Nawara Core, so a target is chosen from real records, never guessed.",
+      "contract": "The current withdraw and minimum-version contracts, their authority and their security verification, checked against Core.",
+      "authorization": "A separately authorized Admin stage for these actions."
+    },
+    "states": {
+      "loading": "Loading release information…",
+      "emptyTitle": "No release information",
+      "emptyDescription": "There is nothing to show.",
+      "notInBuildTitle": "Not available in this build",
+      "notInBuildDescription": "This build has no demo release information, and Nawara Core offers no owner read of releases yet. Nothing is shown.",
+      "errorTitle": "Release information could not be loaded",
+      "errorDescription": "Try again in a moment.",
+      "retry": "Try again",
+      "forbiddenDescription": "Releases is shown to the Company owner only."
     }
   }
 }

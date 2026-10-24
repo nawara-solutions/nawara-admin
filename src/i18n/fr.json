@@ -215,7 +215,8 @@
     "billing": "Facturation et paiements",
     "audit": "Journal d’audit",
     "services": "Services et santé",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "releases": "Versions"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -242,7 +243,8 @@
       "billing": "Facturation et paiements",
       "audit": "Journal d’audit",
       "services": "Services et santé",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "releases": "Versions"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -1986,6 +1988,61 @@
       "errorDescription": "Réessayez dans un instant.",
       "retry": "Réessayer",
       "forbiddenDescription": "Votre résumé de notifications n’a pas pu être lu pour cette session."
+    }
+  },
+  "releases": {
+    "header": {
+      "eyebrow": "Opérations",
+      "title": "Versions",
+      "subtitle": "Ce que fait le service Release de Nawara Core, et ce qu’Admin peut proposer aujourd’hui."
+    },
+    "notCatalog": "Ceci est une page d’information, pas un catalogue de versions ni une console de déploiement : aucune version ni aucun déploiement n’est listé, et rien ne peut être publié, retiré ou modifié ici.",
+    "service": {
+      "title": "Le service Release",
+      "entitlement": "Une version indique quelles versions d’application existent et lesquelles sont encore prises en charge. Elle ne décide jamais qui peut utiliser un produit : ce sont les droits, gérés par la facturation."
+    },
+    "capabilities": {
+      "title": "Gestion des versions dans Admin"
+    },
+    "capability": {
+      "catalog": {
+        "title": "Catalogue et historique des versions",
+        "body": "Nawara Core n’offre pas encore de lecture des produits, composants ou versions au propriétaire : Admin ne peut donc pas les lister ni montrer ce qui pourrait être retiré."
+      },
+      "publish": {
+        "title": "Publier une version",
+        "body": "Les versions sont enregistrées et publiées par la chaîne de construction (CI), jamais depuis Admin."
+      },
+      "withdraw": {
+        "title": "Retirer une version",
+        "body": "Core réserve cette action au propriétaire de l’entreprise, avec une vérification de sécurité. Elle n’est pas encore disponible dans Admin."
+      },
+      "minimumVersion": {
+        "title": "Modifier la version minimale prise en charge",
+        "body": "Core réserve cette action au propriétaire de l’entreprise, avec une vérification de sécurité. Elle n’est pas encore disponible dans Admin."
+      }
+    },
+    "status": {
+      "notAvailable": "Non disponible",
+      "ciOnly": "Contrôlé par la CI",
+      "notInAdmin": "Non disponible dans Admin"
+    },
+    "before": {
+      "title": "Avant de pouvoir proposer la gestion des versions",
+      "catalog": "Un catalogue de versions lisible par le propriétaire, fourni par Nawara Core, afin que la cible soit choisie parmi des enregistrements réels, jamais devinée.",
+      "contract": "Les contrats actuels de retrait et de version minimale, leur autorité et leur vérification de sécurité, vérifiés auprès de Core.",
+      "authorization": "Une étape Admin autorisée séparément pour ces actions."
+    },
+    "states": {
+      "loading": "Chargement des informations sur les versions…",
+      "emptyTitle": "Aucune information sur les versions",
+      "emptyDescription": "Il n’y a rien à afficher.",
+      "notInBuildTitle": "Non disponible dans cette version",
+      "notInBuildDescription": "Cette version n’a pas d’informations de démonstration sur les versions, et Nawara Core n’offre pas encore de lecture des versions au propriétaire. Rien n’est affiché.",
+      "errorTitle": "Les informations sur les versions n’ont pas pu être chargées",
+      "errorDescription": "Réessayez dans un instant.",
+      "retry": "Réessayer",
+      "forbiddenDescription": "Versions n’est visible que par le propriétaire de l’entreprise."
     }
   }
 }

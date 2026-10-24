@@ -13,6 +13,7 @@ export type DemoDomain =
   | 'billing'
   | 'activity'
   | 'services'
+  | 'releases'
   | 'platformDashboard'
   | 'platformCommercial'
   | 'organizations'

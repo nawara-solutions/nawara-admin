@@ -210,7 +210,7 @@ Organizations are entities of platform scope (amendment, P3a, 2026-10-23): their
 /licenses/platforms/:platformId one Platform's Organization subscriptions (P7-S2) 🟡 mock, owner only
 /billing                       payment follow-ups (P7-S3)                     🟡 mock, owner only
 /payments                                                                     🟡
-/releases                      withdraw · minimum version                     🟢 actions · 🔴 catalog
+/releases                      Release information (P8-S4)                    🟡 mock, owner only; catalog 🔴 (CF-05); no command
 /audit                         simulated activity browser (P8-S1)             🟡 mock, owner only; Core audit 🔴 / 🟢 not integrated
 /services                      service inventory (P8-S2)                      🟡 mock, owner only; live health 🔴 (CF-06)
 /notifications                 personal unread count (P8-S3)                  🟡 mock, every signed-in person (own count only)
@@ -562,6 +562,11 @@ only ([`design/p6-s3-operator-block.md`](design/p6-s3-operator-block.md)):
   issues the confirmation code in `DemoAuthState`. The sign-in mock resolves operators it has no fixture for from the
   world, so the world stays the one source of an operator's confirmed and blocked state.
 - Navigation state carries only the new operator's id (the next-steps panel), never a contact.
+
+**Operations: Releases (P8-S4, 2026-10-24):** `/releases` is an information page (page → `ReleasesFacade` →
+`ReleaseInformationGateway` → mock or unavailable adapter): the service's responsibility and each capability's standing,
+documentation only. No catalog (CF-05), no release or deployment command, and no disabled control that would suggest
+one is near. Owner only (`company.releases.view`).
 
 **Personal: Notifications (P8-S3, 2026-10-24):** `/notifications`, the bell and the sidebar badge read one signal,
 `NotificationIndicator` (core/notifications), whose gateway takes no identity (the session's own count). Every

@@ -448,7 +448,7 @@ Admin strategy and the decision required before A4.
 | Platform dashboard, commercial (owner): Organization subscriptions, Personal Premium, payment issues, assisted-payments policy (read only) | Billing / Payment | 🟡 | no staff/owner read route before Core V2 A10/A11; rules from the Core V2 architecture (24-hour grace, Personal Premium without grace, Platform-controlled assisted payments) | `PlatformCommercialGateway`, mock in demo builds; operators never ask |
 | Platform directory (`/platforms`): Platforms with organizations, memberships, operator assignments | Organization / Auth | 🔴 | no human route lists a Company's Platforms or their counts (CF-02, CF-03, CF-11) | `PlatformDirectoryGateway`, mock in demo builds; "unavailable" otherwise |
 | Unread notification count (sidebar badge, top-bar bell, `/notifications`) | Notification | 🟡 | delivery only; no human inbox or unread-count route (CF-14) | `NotificationSummaryGateway` through the shell's one `NotificationIndicator`, mock in demo builds (the signed-in session's own count; no identity parameter); unavailable otherwise: no badge, no dot, and the page says so. **P8-S3:** a personal count only, no message, no read/dismiss action (CF-44, CF-48 proposed) |
-| Releases (navigation) | Release | 🟢 actions (not prod) · 🔴 catalog (CF-05) | `release/admin/...` withdraw / compatibility policy (`OwnerGuard`) | Sidebar entry only, not a link |
+| Releases (`/releases`, P8-S4) | Release | 🟢 actions (not prod, not verified by Admin) · 🔴 catalog (CF-05) | `release/admin/...` withdraw / compatibility policy (`OwnerGuard`) | Owner-only **information page** (`ReleaseInformationGateway`, mock in demo builds, unavailable otherwise): what the service owns and how each capability stands; no release list, no version, no command, enabled or disabled |
 
 ## 8. Transport rules Admin must follow
 
@@ -511,8 +511,10 @@ Recommended checkpoint: Core V2 A7.
 CF-05  Release catalog read for the owner
 Service:          release-service
 Current behavior: owner can withdraw and change policy but cannot list products/components/releases/policies.
-Admin requirement: render the release history to choose what to withdraw.
-Classification:   🔴
+Admin requirement: render the release history to choose what to withdraw. Until then `/releases` (P8-S4) only
+                  explains the service; withdraw and minimum-version stay unoffered until their contracts, authority
+                  and step-up are separately verified.
+Classification:   🔴 OPEN
 V1 or V2:         V2 (A16/A15) or a scoped V1 addition if the owner authorizes.
 Recommended checkpoint: owner decision; default V2.
 

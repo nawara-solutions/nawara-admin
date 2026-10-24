@@ -74,6 +74,7 @@ const DEMO: DemoBindings = {
     billing: [],
     activity: [],
     services: [],
+    releases: [],
     platformDashboard: [],
     platformCommercial: [],
     organizations: [],
@@ -173,13 +174,14 @@ describe('Sidebar', () => {
       '/operators',
       '/licenses',
       '/billing',
+      '/releases',
       '/audit',
       '/notifications',
       '/services',
     ]);
     expect(sidebar.querySelector('.sidebar__footer a')?.getAttribute('href')).toBe('/settings');
     const inert = sidebar.querySelectorAll('.sidebar__item--unavailable');
-    expect(inert.length).toBe(5);
+    expect(inert.length).toBe(4);
     expect(Array.from(inert).every((item) => item.tagName === 'SPAN')).toBe(true);
     expect(inert[0]?.textContent).toContain(en.shell.notAvailableYet);
   });
