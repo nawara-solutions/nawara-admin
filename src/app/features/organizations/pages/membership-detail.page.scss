@@ -1,6 +1,8 @@
 // One membership (P5-S1 design, artboard 3): header, then its facts and the limits of what can be shown.
 :host {
   display: grid;
+  // One column that never grows past the page (long labels wrap instead of widening it at 320 px).
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: 0.875rem;
   container-type: inline-size;
@@ -113,4 +115,26 @@
 .membership-detail__subhead {
   margin: var(--nw-space-2) 0 0;
   font-size: var(--nw-text-size-md);
+}
+
+// The read-only "Nawara account" card (P5-S4, deferred): an explanation, no control.
+.membership-detail__account-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  font-size: var(--nw-text-size-sm);
+
+  strong {
+    font-weight: var(--nw-font-weight-semibold);
+  }
+}
+
+// The card actions' labels can be long (French, Arabic): let them wrap rather than widen the card at 320 px.
+.membership-detail__decision > [nw-button] {
+  min-inline-size: 0;
+  white-space: normal;
+  text-align: center;
 }

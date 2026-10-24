@@ -240,8 +240,29 @@ Admin strategy and the decision required before A4.
     Audit `organization.admin.granted|revoked`, central `membership.admin_granted|admin_revoked`. No row lock, no last-
     admin rule; the grant does not check contact verification, while `organizationAuthority` requires it for an
     organization admin when `REQUIRE_CONTACT_VERIFICATION` is on (so such an admin may have no effective authority).
-  - Suspend / restore `POST /auth/admin/members/:id/suspend|restore`: owner + factor step-up; reasons
-    `compromised_account | security_incident | policy_violation`; **account-wide**, not one Organization.
+  - Suspend / restore (source on record from P5-S0, `members/member-security.controller.ts:1-60`,
+    `member-security.service.ts:1-114`; **not built in Admin: P5-S4 is DEFERRED / BLOCKED BY CORE**, see
+    [`design/p5-s4-account-suspension.md`](design/p5-s4-account-suspension.md)):
+    - `POST /auth/admin/members/:id/suspend` with body `{ reason }`, reason ∈ `compromised_account | security_incident |
+      policy_violation` (closed, `@IsIn`; free text `400`); `POST /auth/admin/members/:id/restore`, no body. `:id` is the
+      member's **user id**. Both answer `200 { id, suspended, changed }` with `Cache-Control: no-store`.
+    - **Owner only**: `@Actors('owner')`, so operators and members are refused by the guard with **`403`** (not a
+      collapsed `404`).
+    - Step-up `x-step-up-token`, purposes **`account.suspend` / `account.restore`**, **TOTP or WebAuthn only** (never the
+      secret key), consumed inside the transaction.
+    - Order: the owner's Company (none: `404`) → step-up consumed (`403`) → target locked `FOR UPDATE` → eligibility,
+      else `404` with the transaction rolled back (**step-up not spent**) → already in that state: `200 changed:
+      false`, nothing written (**step-up spent**) → `isActive` set; on suspend **every refresh-token family is revoked**
+      (access tokens stop on the next request); restore does **not** recreate sessions → audit `account.disabled|
+      enabled` (reason code only), central audit with `organizationId: null`.
+    - Eligibility: `kind = member`, **at least one active membership in an Organization of the owner's Company**, and
+      **no active or pending membership under another Company** (suspension is global). Unknown id, not a member, the
+      owner, another Company's member and a shared identity are one indistinguishable `404`.
+    - **Account-wide**: every Organization and every session of the person, not one membership; memberships, roles,
+      subscriptions and payments are not changed.
+    - Not available to Admin: the account's current state (no owner read; the membership list has no `isActive`), the
+      person's other memberships, a member lookup (CF-03), a list of suspended accounts; no throttle on record.
+      Hence CF-28 to CF-31.
   - Audience (owner clarification, 2026-10-23, from the Core join-code investigation): join codes carry an opaque
     `audience`, `requiresApproval` (pending vs active at registration) and `requiresSubscription` (a hint, not
     authorization). Nawara School's standard codes: `student` without approval, `teacher` with approval; a product
@@ -348,7 +369,7 @@ Admin strategy and the decision required before A4.
 | Operators (create/confirm/block/unblock) | Auth | 🟢 Prod | `operator.controller.ts` | HTTP (A7) |
 | Operator directory | Auth | 🔴 | no list route | Mock; **CF-03** |
 | Platform assignments | Auth | 🟢 Prod | `platform.controller.ts` | HTTP (A7) |
-| Member suspend / restore | Auth | 🟢 Prod | `member-security.controller.ts` | HTTP (A7) |
+| Member suspend / restore | Auth | 🟢 Prod | `POST /auth/admin/members/:id/suspend\|restore` | **Deferred / blocked by Core** (P5-S4): no owner read of an account's state; a read-only "Nawara account" card only; **CF-28–CF-31** |
 | User search / identity directory | Auth | 🔴 | none | Mock; **CF-03** |
 | Roles / permissions catalog | Authorization | 🟡 | V2 A6 | UX capability model from grants |
 | Audit — one organization (owner) | Audit | 🟢 Prod | `owner-query.controller.ts` | HTTP (A9) |
@@ -693,6 +714,48 @@ Admin requirement: Core confirms the intended authority. Residual risk: a stolen
 Classification:   🟡 security review item.
 V1 or V2:         to decide by the Core owner.
 Recommended checkpoint: before the membership HTTP integration.
+
+CF-28  No owner read of a member account's state
+Service:          auth-service
+Current behavior: (origin/main b91b7bf) POST /auth/admin/members/:id/suspend|restore act on the whole account, but no owner read
+                  returns whether an account is suspended (the membership list projection has no isActive), which
+                  Organizations of the Company it belongs to, or whether it is eligible.
+Admin requirement: an owner read of a member account, e.g. GET /auth/admin/members/:id → { id, suspended, suspendedAt, reason?,
+                  eligible, organizationsInCompany: count }, or the account state on owner membership rows. Until then Admin
+                  offers no suspend or restore (P5-S4 deferred; a read-only card explains it).
+Classification:   🔴 missing contract (blocks P5-S4).
+V1 or V2:         to decide by the Core owner.
+Recommended checkpoint: before P5-S4.
+
+CF-29  Eligibility is known only after the step-up
+Service:          auth-service
+Current behavior: (origin/main b91b7bf) an ineligible target (no active membership in this Company, a membership under another
+                  Company, not a member) is a 404 returned after the owner has verified (the step-up is rolled back, not
+                  spent).
+Admin requirement: an eligibility answer before verification (part of CF-28's read), or confirmation that the post-verification
+                  404 is intended.
+Classification:   🟡 contract addition / UX.
+V1 or V2:         to decide by the Core owner.
+Recommended checkpoint: before P5-S4.
+
+CF-30  No list of suspended accounts
+Service:          auth-service
+Current behavior: (origin/main b91b7bf) nothing lists suspended member accounts for the owner; a restore needs the person's id
+                  from some membership page.
+Admin requirement: an owner list of the Company's suspended member accounts (id, suspendedAt, reason code), so a suspension
+                  is never forgotten.
+Classification:   🟡 contract addition.
+V1 or V2:         to decide by the Core owner.
+Recommended checkpoint: before P5-S4.
+
+CF-31  Throttle and repeat semantics of suspend / restore
+Service:          auth-service
+Current behavior: (origin/main b91b7bf) no throttle bucket is on record for these routes; a repeat of the current state answers
+                  200 changed: false and spends the owner's step-up.
+Admin requirement: Core confirms the bucket (or its absence) and whether a no-op should spend the step-up.
+Classification:   🟡 documentation / security review item.
+V1 or V2:         to decide by the Core owner.
+Recommended checkpoint: before P5-S4.
 ```
 
 ## 10. Undefined architectural decisions (Core side)

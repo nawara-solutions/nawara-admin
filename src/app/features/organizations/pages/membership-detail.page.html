@@ -238,6 +238,29 @@
           <nw-icon name="info" size="sm" />{{ 'organizations.members.detail.readOnly' | transloco }}
         </p>
       </section>
+      <section
+        class="membership-detail__card membership-detail__account"
+        aria-labelledby="membership-detail-account"
+      >
+        <h2 id="membership-detail-account">
+          {{ 'organizations.members.account.title' | transloco }}
+        </h2>
+        <p class="membership-detail__note">
+          {{ 'organizations.members.account.difference' | transloco }}
+        </p>
+        <p class="membership-detail__account-note" role="note">
+          <nw-icon name="lock-keyhole" size="sm" />
+          <span>
+            <strong>{{ 'organizations.members.account.unavailableTitle' | transloco }}</strong>
+            {{
+              (authority() === 'owner'
+                ? 'organizations.members.account.unavailableOwner'
+                : 'organizations.members.account.unavailableOperator'
+              ) | transloco
+            }}
+          </span>
+        </p>
+      </section>
     </div>
   } @else if (view.status === 'ready' && found.status === 'notFound') {
     <h1 class="nw-visually-hidden">

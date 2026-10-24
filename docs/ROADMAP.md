@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role implemented, awaiting review; rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,9 +290,24 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## P5-S4: member account suspension and restoration — DEFERRED / BLOCKED BY CORE (2026-10-24)
+
+**Status: DEFERRED / BLOCKED BY CORE. Not implemented, not complete.** Design, verified contract and feasibility:
+[`design/p5-s4-account-suspension.md`](design/p5-s4-account-suspension.md).
+
+- Core's `POST /auth/admin/members/:id/suspend|restore` (owner only, `403` otherwise; step-up `account.suspend` /
+  `account.restore`, TOTP or passkey; closed reason; `200 { id, suspended, changed }`; account-wide: every session and
+  Organization) cannot be presented faithfully: no owner read shows an account's state, its other memberships or its
+  eligibility. The owner deferred the actions and rejected a limited "state unknown" variant (Option L).
+- Shipped: a read-only "Nawara account" card on a membership's details explaining the difference from revoking and why
+  account actions are not offered (an operator is told they are the Company owner's). No control, no mock account
+  state, no endpoint.
+- Unblocks when Core answers **CF-28** (owner account read), with CF-29 (eligibility before step-up), CF-30 (suspended
+  list) and CF-31 (throttle and repeat semantics).
+
 ## P5-S3b: mock organization-admin role (implemented 2026-10-24)
 
-**Status: implemented as a development-only mock prototype, awaiting review.** Design:
+**Status: complete (PR #28), a development-only mock prototype.** Design:
 [`design/p5-s3-revocation-and-admin-role.md`](design/p5-s3-revocation-and-admin-role.md).
 
 - "Make organization admin…" and "Remove admin role…" for the Company owner only, from each Active row's "Actions" menu

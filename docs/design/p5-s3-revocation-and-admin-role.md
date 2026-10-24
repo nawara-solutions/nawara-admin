@@ -1,8 +1,8 @@
 # P5-S3 — Membership revocation and the organization-admin role (design specification)
 
 - **Status:** design approved by the owner (2026-10-24, all seven decisions in §11). **P5-S3a (revocation) complete**
-  (PR #27); **P5-S3b (the organization-admin role) implemented** as a development-only mock prototype on `main`
-  `372b13b`. Production binds the unavailable adapter.
+  (PR #27); **P5-S3b (the organization-admin role) complete** (PR #28), both development-only mock prototypes.
+  Production binds the unavailable adapter.
 - **Why this file exists:** the design canvas (9 artboards) has already become unavailable; this text is the durable
   record and prevails.
 - **Contract source:** the P5-S0 read-only Core verification (nawara-core `origin/main` `b91b7bf`): `CORE-INTEGRATION.md`
