@@ -210,7 +210,8 @@
     "membership": "Membership",
     "operators": "Operators & access",
     "operator": "Operator",
-    "licenses": "Licenses & entitlements"
+    "licenses": "Licenses & entitlements",
+    "platformSubscriptions": "Platform subscriptions"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -232,7 +233,8 @@
       "membership": "Membership",
       "operators": "Operators & access",
       "operator": "Operator",
-      "licenses": "Licenses & entitlements"
+      "licenses": "Licenses & entitlements",
+      "platformSubscriptions": "Platform subscriptions"
     },
     "context": {
       "label": "Administration scope",
@@ -1047,6 +1049,11 @@
       "ends": "Ends {{when}}",
       "graceEnds": "Access ends {{when}}"
     },
+    "entitlement": {
+      "entitled": "Yes",
+      "entitledInGrace": "Yes, until the grace period ends",
+      "notEntitled": "No"
+    },
     "policy": {
       "enabled": "Enabled",
       "disabled": "Disabled",
@@ -1102,9 +1109,13 @@
       "subscription": "Subscription",
       "subscriptionState": "Organization subscription",
       "endsAt": "Ends",
-      "graceEndsAt": "Access ends",
-      "graceNote": "When it ends, members keep access for a 24-hour grace period.",
-      "noSubscriptionNote": "This organization has no subscription.",
+      "endedAt": "Ended",
+      "graceEndsAt": "Grace ends",
+      "entitledNow": "Entitled now",
+      "activeNote": "Entitled while active. When it ends, the Organization stays entitled for a 24-hour grace period.",
+      "graceNote": "Ended: still entitled until the grace period ends; not counted as active. Members stay members.",
+      "noSubscriptionNote": "This organization has no subscription, so it is not entitled. Its members stay members.",
+      "platformSubscriptions": "All subscriptions on this platform",
       "payments": "Payments",
       "paymentIssues": "Payments needing attention",
       "paymentIssuesNote": "Payment details are not available in this release.",
@@ -1691,6 +1702,49 @@
       "errorDescription": "Try again in a moment.",
       "retry": "Try again",
       "forbiddenDescription": "Subscriptions and entitlements are shown to the Company owner only."
+    },
+    "platform": {
+      "title": "Organization subscriptions",
+      "subtitle": "Every Organization of this Platform: its subscription, when it ends, and whether it is entitled now.",
+      "back": "Licenses & entitlements",
+      "dashboard": "Platform dashboard",
+      "listTitle": "Organizations",
+      "caption": "Each Organization’s subscription state, timeline and entitlement",
+      "searchLabel": "Search by name",
+      "searchPlaceholder": "Organization name",
+      "filterLabel": "Subscription",
+      "filter": {
+        "all": "All ({{count}})",
+        "active": "Active ({{count}})",
+        "endingSoon": "Ending within {{days}} days ({{count}})",
+        "grace": "In grace ({{count}})",
+        "none": "No subscription ({{count}})"
+      },
+      "count": "Showing {{shown}} of {{total}} Organizations",
+      "organization": "Organization",
+      "subscription": "Subscription",
+      "timeline": "Ends",
+      "entitled": "Entitled now",
+      "state": {
+        "active": "Active",
+        "grace": "In grace",
+        "none": "No subscription"
+      },
+      "entitlement": {
+        "entitled": "Yes",
+        "entitledInGrace": "Yes, until the grace ends",
+        "notEntitled": "No"
+      },
+      "endsOn": "Ends {{date}}",
+      "endedOn": "Ended {{date}}",
+      "noEnd": "No end date",
+      "noMatch": "No Organization matches this search and filter.",
+      "clear": "Clear search and filter",
+      "independence": "Memberships, Personal Premium and payment issues are separate: a payment issue never changes a subscription state here, and members stay members whatever the entitlement.",
+      "emptyTitle": "No Organizations on this Platform",
+      "emptyDescription": "There is no subscription to show.",
+      "notFoundTitle": "Platform not found",
+      "notFoundDescription": "This Platform does not exist or is not one of your Company’s."
     }
   }
 }

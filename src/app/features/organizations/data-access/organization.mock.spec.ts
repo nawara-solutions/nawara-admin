@@ -173,6 +173,7 @@ describe('MockOrganizationCommercialGateway (demo world, owner only)', () => {
     expect(data(riad.paymentIssues)).toEqual({ status: 'available', value: 1 });
     expect(data((await firstValueFrom(commercial.load(AL_AMAL))).subscription)).toEqual({
       state: 'grace',
+      endsAt: '2026-10-23T06:00:00.000Z',
       graceEndsAt: '2026-10-24T06:00:00.000Z',
     });
   });

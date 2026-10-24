@@ -1,8 +1,9 @@
 # P7 — Licenses, entitlements and subscriptions (Commercial architecture)
 
-- **Status:** P7-0 discovery reviewed; decisions D1–D9 approved 2026-10-24. **P7-S1 implemented** 2026-10-24 as a
-  development-only, mock-first prototype (`/licenses`, read only). P7-S2 and P7-S3 not started; **P7-S4 blocked** on Core
-  contract verification. No Core HTTP integration.
+- **Status:** P7-0 discovery reviewed; decisions D1–D9 approved 2026-10-24. **P7-S1 implemented** 2026-10-24 (PR #35,
+  merged) and **P7-S2 implemented** 2026-10-24 as development-only, mock-first prototypes (`/licenses`,
+  `/licenses/platforms/:platformId` and the Organization detail's Subscription section, all read only). P7-S3 not
+  started; **P7-S4 blocked** on Core contract verification. No Core HTTP integration.
 - **Baselines:** Admin `main` `6b30c7b` (P6-S4, PR #34). Core was not read: every Core fact here comes from
   [`../CORE-INTEGRATION.md`](../CORE-INTEGRATION.md) §5–§7.
 - **Canvas:** https://claude.ai/artifact/Krg8QrAeHKKWgNCo6F8tsM (9 artboards; private, may expire). This text prevails.
@@ -46,6 +47,8 @@
 | | Owner | Operator (any assignments) | Non-demo build |
 |---|---|---|---|
 | `/licenses` | read (demo) | no nav entry; route guard → `/forbidden`; facade calls no gateway; mock `403` | "Not available in this build" |
+| `/licenses/platforms/:platformId` | read (demo); unknown or another Company's Platform: collapsed `404` | same guard (parent route); facade calls no gateway; mock `403`, even for an operator assigned to that Platform | "Not available in this build" |
+| Organization detail, Subscription section | read (demo) | no section, no request (existing `platform.commercial.view`) | section unavailable |
 | Any commercial change | none | none | none |
 
 Capability `company.commercial.view` (owner only). Commercial authority is never derived from Platform assignments or
@@ -82,10 +85,34 @@ memberships.
 - **Route** `/licenses` (shell, `capabilityGuard('company.commercial.view')`); demo domain `licenses`; sidebar entry
   live; production marker `LICENSES_DEMO_SCENARIO`.
 
+## 6b. P7-S2 as built
+
+- **Selectors:** `subscriptionEndsWithin(world, org, now, days)`, now the one test behind `subscriptionsEndingWithin`,
+  the attention list and each entry's ending-soon flag. No new record, no second count.
+- **Gateway:** `LicensesGateway.platform(company, platform)` → `PlatformSubscriptions { platform, endingWithinDays,
+  graceHours, distribution, organizations: OrganizationSubscriptionEntry[] }`; each entry has only `state`, `endsAt`
+  (active: ends; grace: ended), `graceEndsAt`, `endingSoon` and `entitlement` beside the Organization's id and name (no
+  plan, price, subscription id or payment history). `distribution` is the same `subscriptionDistribution` as the
+  overview's row. Mock: `401` / `403` (operators, whatever their assignments) / collapsed `404` (another Company, or a
+  Platform that is not the Company's) / `503`; scenarios `empty` and `error`. Unavailable adapter in other builds.
+- **Page** `/licenses/platforms/:platformId` (`PlatformSubscriptionsFacade`, `PlatformSubscriptionsPage`), reached from
+  the overview's by-Platform table (the Platform name now links here; the page links back and to the Platform
+  dashboard): five figures and "Entitled now" for the Platform; a search (local, accent- and case-insensitive, requests
+  nothing) and a state filter (`?state=active|endingSoon|grace|none`, options counted from the distribution); a table
+  by name: Organization (link to its detail), subscription state as text, timeline ("Ends …" with "Ends in N days"
+  when within 14 days; "Ended …" and "Grace ends …"; "No end date"), "Entitled now" (Yes / Yes, until the grace ends /
+  No); a note that memberships, Personal Premium and payment issues are separate. No sort or pagination contract is
+  assumed; no control beyond search, filter and "clear". Loading, empty, not found, error (retry), not in build,
+  forbidden. Breadcrumb Company › Licenses & entitlements › Platform subscriptions.
+- **Organization detail** (D4, no new route): the existing Subscription card now shows the state, its timeline (ends;
+  or ended and grace ends) and **Entitled now** as its own row (`OrganizationCommercial.entitlement`, from
+  `entitlementOf`), a per-state explanation (active, grace, none: "members stay members"), and, for the owner, a link
+  to the Platform's subscriptions. The membership card is unchanged; payment issues stay in their own card.
+- **Newly created Organizations** have no subscription record, so they are listed as `none` / not entitled; nothing is
+  invented.
+
 ## 7. Later slices
 
-- **P7-S2** one Platform's subscriptions (`/licenses/platforms/:platformId`: state, ending-soon and search filters,
-  sort) and the Subscription section of the Organization detail.
 - **P7-S3** `/billing`: payment follow-ups (no amounts) and unavailable invoices, settlement, refunds, disputes.
 - **P7-S4 — BLOCKED BY CORE:** catalog, renewals, extensions, plan changes, Personal Premium detail, revenue; only after
   Core V2 A10/A11 publishes owner contracts (CF-36 to CF-42) and they are verified.
@@ -100,9 +127,17 @@ memberships.
 - Browser: EN/FR/AR, RTL, light/dark/system, 1440/834/390/320, keyboard; operator direct URL forbidden; links reach
   the Platform dashboard and Organization detail. Results in the PR.
 
+**P7-S2 acceptance:** the directory adds up to the overview's row (School 16 / 13 / 1 / 2 / 3, entitled 14; Drive 8 /
+7 / 0 / 1 / 1, entitled 7) and lists exactly the Platform's Organizations; each entry agrees with the Organizations
+directory and with the Organization detail (state, end, grace end, entitlement; `consistency.spec.ts`); a payment issue
+leaves the state unchanged; a created Organization is `none`; owner only (guard, facade, mock `403` for an assigned
+operator, collapsed `404`); production binds the unavailable adapter; filter in the URL, search local; EN/FR/AR, RTL,
+320 px and keyboard in the browser.
+
 ## 9. Risks and proposed Core follow-ups
 
 CF-36 to CF-42 in [`../CORE-INTEGRATION.md`](../CORE-INTEGRATION.md) §9, all **proposed**, none an existing endpoint.
 Risks: "license" wording suggests seats Core lacks (mitigated by D1 and the explanation); demo figures read as real
 (Demo data badge, provisional note); grace semantics come from the V2 architecture, not a published contract; no
-pagination exists for any future owner list.
+pagination exists for any future owner list (the P7-S2 directory filters a whole Platform in the browser, which CF-36
+must replace with a paginated, filterable read).

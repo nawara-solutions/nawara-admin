@@ -250,19 +250,26 @@ export function subscriptionStateOf(
     : { state: 'none' };
 }
 
+/** Whether the Organization's subscription is active and ends within `days` days after `now`. */
+export function subscriptionEndsWithin(
+  world: DemoWorldTables,
+  organization: OrganizationId,
+  now: number,
+  days: number,
+): boolean {
+  const subscription = subscriptionOf(world, organization);
+  if (!subscription) return false;
+  const ends = Date.parse(subscription.endsAt);
+  return ends > now && ends <= now + days * DAY_MS;
+}
+
 /** Active subscriptions that end within `days` days after `now`. */
 export const subscriptionsEndingWithin = (
   world: DemoWorldTables,
   organizations: readonly OrganizationRecord[],
   now: number,
   days: number,
-): number =>
-  organizations.filter((o) => {
-    const subscription = subscriptionOf(world, o.id);
-    if (!subscription) return false;
-    const ends = Date.parse(subscription.endsAt);
-    return ends > now && ends <= now + days * DAY_MS;
-  }).length;
+): number => organizations.filter((o) => subscriptionEndsWithin(world, o.id, now, days)).length;
 
 /**
  * Whether an Organization is entitled now, kept apart from its subscription state: an active subscription entitles it; a

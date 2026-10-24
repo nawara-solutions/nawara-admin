@@ -15,11 +15,17 @@ export type OrganizationSubscriptionState = 'active' | 'grace' | 'none';
 
 export interface OrganizationSubscription {
   readonly state: OrganizationSubscriptionState;
-  /** `active`: when it ends (UTC instant). */
+  /** `active`: when it ends; `grace`: when it ended (UTC instants). */
   readonly endsAt?: string;
   /** `grace`: when the 24-hour grace period ends (UTC instant). */
   readonly graceEndsAt?: string;
 }
+
+/**
+ * Whether the Organization is entitled now, a separate fact from its subscription state (P7-S2): active entitles, grace
+ * entitles temporarily, none does not. Billing's (proposed CF-37); never derived from memberships or payments.
+ */
+export type OrganizationEntitlement = 'entitled' | 'entitledInGrace' | 'notEntitled';
 
 export type AssistedPaymentsSetting = 'enabled' | 'disabled';
 
@@ -47,6 +53,7 @@ export interface OrganizationCommercial {
   readonly organizationId: OrganizationId;
   readonly platformId: PlatformId;
   readonly subscription: Section<OrganizationSubscription>;
+  readonly entitlement: Section<OrganizationEntitlement>;
   /** Payments of this Organization that failed or await action (a Payment fact; details are not available). */
   readonly paymentIssues: Section<Metric>;
   readonly assistedPayments: Section<EffectiveAssistedPayments>;

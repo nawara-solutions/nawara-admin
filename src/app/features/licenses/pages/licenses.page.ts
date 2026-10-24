@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthSession } from '../../../core/auth/auth-session';
-import { organizationPath, platformPath } from '../../../core/context/scope-context';
+import { organizationPath, platformSubscriptionsPath } from '../../../core/context/scope-context';
 import { Metric } from '../../../shared/dashboard/metric';
 import { MetricValue } from '../../../shared/dashboard/metric-value/metric-value';
 import { SummaryCard } from '../../../shared/dashboard/summary-card/summary-card';
@@ -46,7 +46,7 @@ const count = (value: number): Metric => ({ status: 'available', value });
 export class LicensesPage {
   protected readonly facade = inject(LicensesFacade);
   protected readonly isDemo = inject(AuthSession).isDemo;
-  protected readonly platformPath = platformPath;
+  protected readonly platformSubscriptionsPath = platformSubscriptionsPath;
   protected readonly organizationPath = organizationPath;
   protected readonly count = count;
 

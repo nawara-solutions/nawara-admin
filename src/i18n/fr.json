@@ -210,7 +210,8 @@
     "membership": "Adhésion",
     "operators": "Opérateurs et accès",
     "operator": "Opérateur",
-    "licenses": "Licences et droits"
+    "licenses": "Licences et droits",
+    "platformSubscriptions": "Abonnements de la plateforme"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -232,7 +233,8 @@
       "membership": "Adhésion",
       "operators": "Opérateurs et accès",
       "operator": "Opérateur",
-      "licenses": "Licences et droits"
+      "licenses": "Licences et droits",
+      "platformSubscriptions": "Abonnements de la plateforme"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -1047,6 +1049,11 @@
       "ends": "Se termine {{when}}",
       "graceEnds": "Accès jusqu’au {{when}}"
     },
+    "entitlement": {
+      "entitled": "Oui",
+      "entitledInGrace": "Oui, jusqu’à la fin de la période de grâce",
+      "notEntitled": "Non"
+    },
     "policy": {
       "enabled": "Activés",
       "disabled": "Désactivés",
@@ -1102,9 +1109,13 @@
       "subscription": "Abonnement",
       "subscriptionState": "Abonnement de l’organisation",
       "endsAt": "Se termine",
-      "graceEndsAt": "Accès jusqu’au",
-      "graceNote": "À son terme, les membres gardent l’accès pendant une période de grâce de 24 heures.",
-      "noSubscriptionNote": "Cette organisation n’a pas d’abonnement.",
+      "endedAt": "Terminé le",
+      "graceEndsAt": "Fin de la grâce",
+      "entitledNow": "Droits maintenant",
+      "activeNote": "Droits tant qu’il est actif. À son terme, l’organisation garde ses droits pendant une période de grâce de 24 heures.",
+      "graceNote": "Terminé : droits maintenus jusqu’à la fin de la période de grâce ; non compté comme actif. Les membres restent membres.",
+      "noSubscriptionNote": "Cette organisation n’a pas d’abonnement : elle n’a donc pas de droits. Ses membres restent membres.",
+      "platformSubscriptions": "Tous les abonnements de cette plateforme",
       "payments": "Paiements",
       "paymentIssues": "Paiements à traiter",
       "paymentIssuesNote": "Le détail des paiements n’est pas disponible dans cette version.",
@@ -1691,6 +1702,49 @@
       "errorDescription": "Réessayez dans un instant.",
       "retry": "Réessayer",
       "forbiddenDescription": "Les abonnements et les droits ne sont visibles que par le propriétaire de l’entreprise."
+    },
+    "platform": {
+      "title": "Abonnements des organisations",
+      "subtitle": "Chaque organisation de cette plateforme : son abonnement, sa date de fin et si elle a des droits maintenant.",
+      "back": "Licences et droits",
+      "dashboard": "Tableau de bord de la plateforme",
+      "listTitle": "Organisations",
+      "caption": "État de l’abonnement, échéance et droits de chaque organisation",
+      "searchLabel": "Rechercher par nom",
+      "searchPlaceholder": "Nom de l’organisation",
+      "filterLabel": "Abonnement",
+      "filter": {
+        "all": "Toutes ({{count}})",
+        "active": "Actifs ({{count}})",
+        "endingSoon": "Se terminant sous {{days}} jours ({{count}})",
+        "grace": "En période de grâce ({{count}})",
+        "none": "Sans abonnement ({{count}})"
+      },
+      "count": "{{shown}} organisations affichées sur {{total}}",
+      "organization": "Organisation",
+      "subscription": "Abonnement",
+      "timeline": "Échéance",
+      "entitled": "Droits maintenant",
+      "state": {
+        "active": "Actif",
+        "grace": "En période de grâce",
+        "none": "Sans abonnement"
+      },
+      "entitlement": {
+        "entitled": "Oui",
+        "entitledInGrace": "Oui, jusqu’à la fin de la grâce",
+        "notEntitled": "Non"
+      },
+      "endsOn": "Se termine le {{date}}",
+      "endedOn": "Terminé le {{date}}",
+      "noEnd": "Aucune date de fin",
+      "noMatch": "Aucune organisation ne correspond à cette recherche et à ce filtre.",
+      "clear": "Effacer la recherche et le filtre",
+      "independence": "Les adhésions, Personal Premium et les incidents de paiement sont distincts : un incident de paiement ne change jamais l’état d’un abonnement ici, et les membres restent membres quels que soient les droits.",
+      "emptyTitle": "Aucune organisation sur cette plateforme",
+      "emptyDescription": "Il n’y a aucun abonnement à afficher.",
+      "notFoundTitle": "Plateforme introuvable",
+      "notFoundDescription": "Cette plateforme n’existe pas ou n’appartient pas à votre entreprise."
     }
   }
 }

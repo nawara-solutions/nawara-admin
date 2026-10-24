@@ -72,7 +72,7 @@ async function render(
     providers: [
       provideRouter([
         { path: 'licenses', component: Blank },
-        { path: 'platforms/:platformId', component: Blank },
+        { path: 'licenses/platforms/:platformId', component: Blank },
         { path: 'platforms/:platformId/organizations/:organizationId', component: Blank },
       ]),
       {
@@ -136,7 +136,7 @@ describe('Licenses & entitlements page (P7-S1)', { timeout: 15_000 }, () => {
     expect(text(element.querySelector('.licenses__note'))).toBe(t.provisional);
   });
 
-  it('lists each Platform, linked to its dashboard, with its own Personal Premium count beside the subscriptions', async () => {
+  it('lists each Platform, linked to its Organization subscriptions, with its own Personal Premium count beside the subscriptions', async () => {
     const { element } = await render();
     const rows = [...element.querySelectorAll('tbody tr')].map((r) =>
       [...r.querySelectorAll('th, td')].map((c) => text(c)),
@@ -146,8 +146,8 @@ describe('Licenses & entitlements page (P7-S1)', { timeout: 15_000 }, () => {
       ['Nawara Drive', '8', '7', '0', '1', '1', '7', '9'],
     ]);
     expect([...element.querySelectorAll('tbody th a')].map((a) => a.getAttribute('href'))).toEqual([
-      `/platforms/${DEMO_SCHOOL_PLATFORM_ID}`,
-      `/platforms/${DEMO_DRIVE_PLATFORM_ID}`,
+      `/licenses/platforms/${DEMO_SCHOOL_PLATFORM_ID}`,
+      `/licenses/platforms/${DEMO_DRIVE_PLATFORM_ID}`,
     ]);
     expect(text(element.querySelector('.licenses__card .licenses__hint'))).toBe(
       t.platforms.premiumNote,

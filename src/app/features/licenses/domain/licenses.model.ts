@@ -57,3 +57,37 @@ export interface LicensesOverview {
   /** Grace first, then ending soon; each by when it ends. */
   readonly attention: readonly SubscriptionAttention[];
 }
+
+/** An Organization's subscription state (a frontend view value, not a Core enum). */
+export type SubscriptionState = 'active' | 'grace' | 'none';
+
+/** Entitled now: active entitles; grace entitles temporarily; none does not. Never derived from memberships. */
+export type EntitlementState = 'entitled' | 'entitledInGrace' | 'notEntitled';
+
+/** One Organization of a Platform's subscription directory (`/licenses/platforms/:platformId`, P7-S2). */
+export interface OrganizationSubscriptionEntry {
+  readonly organizationId: OrganizationId;
+  /** User data: never translated. */
+  readonly organizationName: string;
+  readonly state: SubscriptionState;
+  /** `active`: when it ends; `grace`: when it ended (UTC instants). `null` without a subscription. */
+  readonly endsAt: string | null;
+  /** `grace`: when the grace period ends; otherwise `null`. */
+  readonly graceEndsAt: string | null;
+  /** Active and ending within `endingWithinDays` (counted in the distribution's `endingSoon`). */
+  readonly endingSoon: boolean;
+  readonly entitlement: EntitlementState;
+}
+
+/**
+ * One Platform's Organization subscriptions (P7-S2), for the Company owner only. Every Organization of the Platform is
+ * listed, with or without a subscription; `distribution` is the same canonical count as the Company overview's row.
+ * No plan, price, identifier or payment history exists here (none is offered by Core).
+ */
+export interface PlatformSubscriptions {
+  readonly platform: PlatformRef;
+  readonly endingWithinDays: number;
+  readonly graceHours: number;
+  readonly distribution: SubscriptionDistribution;
+  readonly organizations: readonly OrganizationSubscriptionEntry[];
+}

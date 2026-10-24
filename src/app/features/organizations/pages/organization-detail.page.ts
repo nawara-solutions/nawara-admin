@@ -19,6 +19,7 @@ import {
   membersPath,
   organizationsPath,
   platformPath,
+  platformSubscriptionsPath,
 } from '../../../core/context/scope-context';
 import { OverviewCard } from '../../../shared/dashboard/overview-card/overview-card';
 import { SummaryCard } from '../../../shared/dashboard/summary-card/summary-card';
@@ -40,7 +41,11 @@ import {
 import { AdminInvitationsCard } from '../components/admin-invitations-card/admin-invitations-card';
 import { OrganizationActivity } from '../components/organization-activity/organization-activity';
 import { OrganizationsHeader } from '../components/organizations-header/organizations-header';
-import { OrganizationSubscription } from '../domain/organization-commercial.model';
+import {
+  OrganizationEntitlement,
+  OrganizationSubscription,
+  OrganizationSubscriptionState,
+} from '../domain/organization-commercial.model';
 import { OrganizationMetadata } from '../domain/organization.model';
 
 const UNAVAILABLE: Metric = { status: 'unavailable' };
@@ -56,6 +61,20 @@ const METADATA_FIELDS = [
   readonly label: string;
   readonly ltr: boolean;
 }[];
+
+/** Catalog keys of the entitlement (P7-S2), listed in full. */
+const ENTITLEMENT_KEYS = {
+  entitled: 'organizations.entitlement.entitled',
+  entitledInGrace: 'organizations.entitlement.entitledInGrace',
+  notEntitled: 'organizations.entitlement.notEntitled',
+} as const satisfies Record<OrganizationEntitlement, string>;
+
+/** What each subscription state means for the Organization, under the section's rows. */
+const SUBSCRIPTION_NOTE_KEYS = {
+  active: 'organizations.detail.activeNote',
+  grace: 'organizations.detail.graceNote',
+  none: 'organizations.detail.noSubscriptionNote',
+} as const satisfies Record<OrganizationSubscriptionState, string>;
 
 /**
  * One Organization (`/platforms/:platformId/organizations/:organizationId`; P3a design, artboards 2, 4, 7, 8, 9), read
@@ -97,6 +116,9 @@ export class OrganizationDetailPage {
   private readonly now = inject(NW_CLOCK);
   protected readonly badges = SUBSCRIPTION_BADGES;
   protected readonly policyKeys = policyKeys;
+  protected readonly entitlementKeys = ENTITLEMENT_KEYS;
+  protected readonly subscriptionNoteKeys = SUBSCRIPTION_NOTE_KEYS;
+  protected readonly platformSubscriptionsPath = platformSubscriptionsPath;
   protected readonly platformPath = platformPath;
   protected readonly metadataFields = METADATA_FIELDS;
   protected readonly organizationsPath = organizationsPath;
@@ -105,6 +127,10 @@ export class OrganizationDetailPage {
   protected readonly home = computed(() => homePath(this.session.actor()));
   protected readonly canOpenPlatforms = computed(() =>
     can(this.session.actor(), 'company.platforms.view'),
+  );
+  /** The Platform's subscription directory (`/licenses/platforms/:platformId`, P7-S2): the Company owner's. */
+  protected readonly canViewSubscriptions = computed(() =>
+    can(this.session.actor(), 'company.commercial.view'),
   );
   protected readonly accessKey = computed(() =>
     this.session.actor()?.kind === 'operator'

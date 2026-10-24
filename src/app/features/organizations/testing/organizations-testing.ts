@@ -163,6 +163,7 @@ export const commercialOf = (
     status: 'available',
     data: { state: 'active', endsAt: new Date(NOW + 6 * DAY).toISOString() },
   },
+  entitlement: { status: 'available', data: 'entitled' },
   paymentIssues: { status: 'available', data: count(1) },
   assistedPayments: {
     status: 'available',
