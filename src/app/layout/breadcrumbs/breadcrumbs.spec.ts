@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Component } from '@angular/core';
-import { Router, provideRouter } from '@angular/router';
+import { Router, Routes, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import en from '../../../i18n/en.json';
 import { Actor } from '../../core/auth/actor';
@@ -15,7 +15,7 @@ import {
   MockScopeDirectoryGateway,
 } from '../../core/context/scope-directory.mock';
 import { platformId } from '../../core/context/scope.model';
-import { Breadcrumbs } from './breadcrumbs';
+import { BREADCRUMB_DATA, BREADCRUMB_PARENT_DATA, Breadcrumbs } from './breadcrumbs';
 
 const DEMO: DemoBindings = {
   signIn: {
@@ -43,6 +43,7 @@ const DEMO: DemoBindings = {
     organizationCommands: [],
     adminInvitations: [],
     memberships: [],
+    operators: [],
     stepUp: [],
   },
 };
@@ -50,7 +51,11 @@ const DEMO: DemoBindings = {
 @Component({ template: '' })
 class Blank {}
 
-async function render(actor: Actor, url?: string) {
+async function render(
+  actor: Actor,
+  url?: string,
+  routes: Routes = [{ path: '**', component: Blank }],
+) {
   TestBed.configureTestingModule({
     imports: [
       Breadcrumbs,
@@ -61,7 +66,7 @@ async function render(actor: Actor, url?: string) {
       }),
     ],
     providers: [
-      provideRouter([{ path: '**', component: Blank }]),
+      provideRouter(routes),
       {
         provide: APP_ENVIRONMENT,
         useValue: { production: false, demo: { load: async () => DEMO } },
@@ -95,6 +100,24 @@ const OWNER: Actor = {
 };
 
 describe('Breadcrumbs', () => {
+  it('shows a company-scope page below its parent page, linked (an operator, never by contact)', async () => {
+    const nav = await render(OWNER, '/operators/some-id', [
+      {
+        path: 'operators/:operatorId',
+        component: Blank,
+        data: {
+          [BREADCRUMB_DATA]: 'shell.breadcrumb.operator',
+          [BREADCRUMB_PARENT_DATA]: { key: 'shell.breadcrumb.operators', link: '/operators' },
+        },
+      },
+    ]);
+    expect(crumbs(nav)).toEqual([
+      { text: en.shell.breadcrumb.company, href: '/overview' },
+      { text: en.shell.breadcrumb.operators, href: '/operators' },
+      { text: en.shell.breadcrumb.operator, href: null },
+    ]);
+  });
+
   it('shows an owner the Company, linked to the overview', async () => {
     const nav = await render({
       kind: 'owner',

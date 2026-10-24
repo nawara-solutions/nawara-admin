@@ -1,0 +1,258 @@
+@let view = facade.view();
+@switch (view.status) {
+  @case ('ready') {
+    @let operator = view.operator;
+    @let history = facade.historyView();
+    <header
+      adm-operators-header
+      [eyebrow]="'operators.detail.eyebrow' | transloco"
+      [heading]="contact(operator.contact)"
+      [contact]="true"
+    >
+      <p headerMeta class="operator-detail__badges">
+        <nw-status-badge [tone]="state[operator.accountState].tone">{{
+          state[operator.accountState].key | transloco
+        }}</nw-status-badge>
+      </p>
+      <a headerActions nw-button variant="secondary" [routerLink]="directoryPath">
+        <nw-icon name="arrow-left" size="sm" />{{ 'operators.detail.back' | transloco }}
+      </a>
+    </header>
+
+    <div class="operator-detail__grid">
+      <div class="operator-detail__column">
+        <section class="operator-detail__card" aria-labelledby="operator-current">
+          <h2 id="operator-current">{{ 'operators.detail.current.title' | transloco }}</h2>
+          <p class="operator-detail__hint">{{ 'operators.detail.current.hint' | transloco }}</p>
+          @switch (history.status) {
+            @case ('ready') {
+              @if (history.current.length > 0) {
+                <ul class="operator-detail__assignments" role="list">
+                  @for (a of history.current; track a.id) {
+                    <li class="operator-detail__assignment" data-assignment="active">
+                      <span class="operator-detail__platform">
+                        <a [routerLink]="platformPath(a.platformId)">
+                          <bdi>{{
+                            platformName(a.platformId) ??
+                              ('operators.list.unknownPlatform' | transloco)
+                          }}</bdi>
+                        </a>
+                        <nw-status-badge tone="success">{{
+                          'operators.detail.active' | transloco
+                        }}</nw-status-badge>
+                      </span>
+                      <span class="operator-detail__when">
+                        {{
+                          'operators.detail.given'
+                            | transloco: { date: (a.assignedAt | nwDate: 'date') }
+                        }}
+                      </span>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="operator-detail__empty" data-empty="current">
+                  {{
+                    (operator.accountState === 'blocked'
+                      ? 'operators.detail.current.noneBlocked'
+                      : 'operators.detail.current.none'
+                    ) | transloco
+                  }}
+                </p>
+              }
+            }
+            @case ('notInBuild') {
+              <p class="operator-detail__empty">
+                {{ 'operators.detail.history.notInBuild' | transloco }}
+              </p>
+            }
+            @case ('error') {
+              <p class="operator-detail__error" role="alert">
+                <nw-icon name="circle-alert" size="sm" />
+                <span>{{ 'operators.detail.history.error' | transloco }}</span>
+                <button nw-button variant="ghost" size="sm" type="button" (click)="facade.reload()">
+                  {{ 'operators.states.retry' | transloco }}
+                </button>
+              </p>
+            }
+            @default {
+              <p class="operator-detail__empty" role="status">
+                {{ 'operators.detail.history.loading' | transloco }}
+              </p>
+            }
+          }
+        </section>
+
+        <section class="operator-detail__card" aria-labelledby="operator-history">
+          <h2 id="operator-history">{{ 'operators.detail.removed.title' | transloco }}</h2>
+          <p class="operator-detail__hint">{{ 'operators.detail.removed.hint' | transloco }}</p>
+          @if (history.status === 'ready') {
+            @if (history.removed.length > 0) {
+              <ul class="operator-detail__assignments" role="list">
+                @for (a of history.removed; track a.id) {
+                  <li class="operator-detail__assignment" data-assignment="removed">
+                    <span class="operator-detail__platform">
+                      <bdi>{{
+                        platformName(a.platformId) ?? ('operators.list.unknownPlatform' | transloco)
+                      }}</bdi>
+                      <nw-status-badge tone="info">{{
+                        'operators.detail.removedBadge' | transloco
+                      }}</nw-status-badge>
+                    </span>
+                    <span class="operator-detail__when">
+                      {{
+                        'operators.detail.given'
+                          | transloco: { date: (a.assignedAt | nwDate: 'date') }
+                      }}
+                    </span>
+                    @if (a.revokedAt) {
+                      <span class="operator-detail__when">
+                        {{
+                          'operators.detail.removedOn'
+                            | transloco: { date: (a.revokedAt | nwDate: 'date') }
+                        }}
+                      </span>
+                    }
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="operator-detail__empty" data-empty="removed">
+                {{ 'operators.detail.removed.none' | transloco }}
+              </p>
+            }
+          } @else if (history.status === 'loading') {
+            <p class="operator-detail__empty">
+              {{ 'operators.detail.history.loading' | transloco }}
+            </p>
+          } @else {
+            <p class="operator-detail__empty">
+              {{ 'operators.detail.history.elsewhere' | transloco }}
+            </p>
+          }
+          <p class="operator-detail__note">
+            <nw-icon name="info" size="sm" />
+            <span>{{ 'operators.detail.byOwner' | transloco }}</span>
+          </p>
+        </section>
+      </div>
+
+      <div class="operator-detail__column">
+        <section class="operator-detail__card" aria-labelledby="operator-account">
+          <h2 id="operator-account">{{ 'operators.detail.account.title' | transloco }}</h2>
+          <dl class="operator-detail__rows">
+            <div>
+              <dt>
+                {{
+                  (operator.contact.kind === 'email'
+                    ? 'operators.detail.account.email'
+                    : 'operators.detail.account.phone'
+                  ) | transloco
+                }}
+              </dt>
+              <dd>
+                <bdi dir="ltr" translate="no">{{ contact(operator.contact) }}</bdi>
+              </dd>
+            </div>
+            <div>
+              <dt>{{ 'operators.detail.account.state' | transloco }}</dt>
+              <dd>{{ state[operator.accountState].key | transloco }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'operators.detail.account.added' | transloco }}</dt>
+              <dd>{{ operator.createdAt | nwDate: 'date' }}</dd>
+            </div>
+          </dl>
+          <p class="operator-detail__explain">
+            {{ stateDescription[operator.accountState] | transloco }}
+          </p>
+          <p class="operator-detail__notice" role="note">
+            <nw-icon name="flask-conical" size="sm" />
+            <span>{{ 'operators.detail.account.provisional' | transloco }}</span>
+          </p>
+        </section>
+
+        <section class="operator-detail__card" aria-labelledby="operator-authority">
+          <h2 id="operator-authority">{{ 'operators.detail.authority.title' | transloco }}</h2>
+          <p class="operator-detail__explain">
+            {{ 'operators.detail.authority.body' | transloco }}
+          </p>
+        </section>
+
+        <section class="operator-detail__card" aria-labelledby="operator-later">
+          <h2 id="operator-later">{{ 'operators.detail.later.title' | transloco }}</h2>
+          <p class="operator-detail__explain">{{ 'operators.detail.later.intro' | transloco }}</p>
+          <ul class="operator-detail__later" role="list">
+            <li>{{ 'operators.detail.later.grant' | transloco }}</li>
+            <li>{{ 'operators.detail.later.remove' | transloco }}</li>
+            <li>{{ 'operators.detail.later.block' | transloco }}</li>
+            <li>{{ 'operators.detail.later.create' | transloco }}</li>
+            <li>{{ 'operators.detail.later.resend' | transloco }}</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  }
+  @case ('notFound') {
+    <ng-container
+      *ngTemplateOutlet="
+        unavailable;
+        context: {
+          title: 'operators.states.notFoundTitle',
+          description: 'operators.states.notFoundDescription',
+        }
+      "
+    />
+  }
+  @case ('notInBuild') {
+    <ng-container
+      *ngTemplateOutlet="
+        unavailable;
+        context: {
+          title: 'operators.states.notInBuildTitle',
+          description: 'operators.states.notInBuildDescription',
+        }
+      "
+    />
+  }
+  @case ('forbidden') {
+    <ng-container
+      *ngTemplateOutlet="
+        unavailable;
+        context: {
+          title: 'shell.pages.forbidden.title',
+          description: 'operators.states.forbiddenDescription',
+        }
+      "
+    />
+  }
+  @case ('error') {
+    <h1 class="nw-visually-hidden">{{ 'operators.states.detailErrorTitle' | transloco }}</h1>
+    <nw-data-state
+      state="error"
+      [title]="'operators.states.detailErrorTitle' | transloco"
+      [description]="'operators.states.errorDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'operators.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @default {
+    <h1 class="nw-visually-hidden">{{ 'operators.states.detailLoading' | transloco }}</h1>
+    <nw-data-state state="loading" [title]="'operators.states.detailLoading' | transloco" />
+  }
+}
+
+<ng-template #unavailable let-title="title" let-description="description">
+  <h1 class="nw-visually-hidden">{{ title | transloco }}</h1>
+  <nw-data-state state="empty" [title]="title | transloco" [description]="description | transloco">
+    <div nwDataStateActions>
+      <a nw-button variant="secondary" [routerLink]="directoryPath">
+        <nw-icon name="arrow-left" size="sm" />{{ 'operators.detail.back' | transloco }}
+      </a>
+    </div>
+  </nw-data-state>
+</ng-template>

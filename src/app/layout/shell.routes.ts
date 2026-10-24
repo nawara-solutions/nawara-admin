@@ -96,6 +96,17 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
           },
         },
         {
+          // The Company's operators and their Platform access (P6): the owner only, direct URLs included.
+          path: 'operators',
+          canActivate: [capabilityGuard('company.operators.view')],
+          loadChildren: () => {
+            const env = inject(APP_ENVIRONMENT);
+            return import('../features/operators/operators.routes').then((m) =>
+              m.loadOperatorsRoutes(env),
+            );
+          },
+        },
+        {
           // A Platform's Organizations (an entity of platform scope, never a scope of its own); access as below.
           path: 'platforms/:platformId/organizations',
           loadChildren: () => {

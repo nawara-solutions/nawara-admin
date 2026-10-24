@@ -7,6 +7,7 @@ import { DemoWorld } from '../../../demo/world/demo-world';
 import { DemoWorldTables } from '../../../demo/world/records';
 import {
   activeAdminInvitationsOf,
+  activeAssignments,
   assignmentsOf,
   companyActivity,
   growthSeries,
@@ -77,7 +78,7 @@ export function demoCompanyOverview(world: DemoWorldTables, now: number): Compan
     access: {
       status: 'available',
       data: {
-        operatorAssignments: count(world.assignments.length),
+        operatorAssignments: count(activeAssignments(world).length),
         uniqueOperators: count(uniqueAssignedOperators(world)),
         platformsWithOperators: count(platformsWithOperators(world)),
       },

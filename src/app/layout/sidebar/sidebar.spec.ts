@@ -79,6 +79,7 @@ const DEMO: DemoBindings = {
     organizationCommands: [],
     adminInvitations: [],
     memberships: [],
+    operators: [],
     stepUp: [],
   },
 };
@@ -164,10 +165,10 @@ describe('Sidebar', () => {
   it('links only the built pages; the other approved destinations are not links', async () => {
     const { sidebar } = await render(owner);
     const links = Array.from(sidebar.querySelectorAll('nav a'));
-    expect(links.map((a) => a.getAttribute('href'))).toEqual(['/overview']);
+    expect(links.map((a) => a.getAttribute('href'))).toEqual(['/overview', '/operators']);
     expect(sidebar.querySelector('.sidebar__footer a')?.getAttribute('href')).toBe('/settings');
     const inert = sidebar.querySelectorAll('.sidebar__item--unavailable');
-    expect(inert.length).toBe(11);
+    expect(inert.length).toBe(10);
     expect(Array.from(inert).every((item) => item.tagName === 'SPAN')).toBe(true);
     expect(inert[0]?.textContent).toContain(en.shell.notAvailableYet);
   });
@@ -202,6 +203,8 @@ describe('Sidebar', () => {
       expect(sidebar.querySelectorAll('.sidebar__item--unavailable').length).toBe(0);
       expect(sidebar.textContent).not.toContain(en.shell.nav.organizations);
       expect(sidebar.textContent).not.toContain(en.shell.nav.notifications);
+      // The Company's operators are the owner's: an operator has no link to them (P6-S1).
+      expect(sidebar.textContent).not.toContain(en.shell.nav.operators);
       expect(text(sidebar.querySelector('#sidebar-group-assigned'))).toBe(
         en.shell.context.assigned,
       );

@@ -1,6 +1,11 @@
 import { DemoSignInHint } from '../config/app-environment';
 import { AdminIdentityId } from '../../demo/world/records';
-import { DEMO_OPERATOR_IDS, DEMO_OWNER_ID } from '../../demo/world/seed';
+import {
+  DEMO_OPERATOR_CONFIRMED,
+  DEMO_OPERATOR_CONTACTS,
+  DEMO_OPERATOR_IDS,
+  DEMO_OWNER_ID,
+} from '../../demo/world/seed';
 import { Identity, MfaMethod } from './auth.model';
 import { OperatorIdentifier } from './operator-identifier';
 
@@ -194,17 +199,34 @@ const operator = (
 const email = (value: string): OperatorIdentifier => ({ kind: 'email', email: value });
 
 /**
+ * A staff operator's sign-in account: its contact and whether it starts confirmed are the demo world's (seed.ts), the one
+ * source; only the sign-in account itself (user id, scenario) is defined here.
+ */
+const staff = (n: number, key: keyof typeof DEMO_OPERATOR_IDS): DemoOperator => {
+  const contact = DEMO_OPERATOR_CONTACTS[key];
+  return operator(
+    n,
+    'email' in contact ? email(contact.email) : { kind: 'phone', phone: contact.phone },
+    DEMO_OPERATOR_IDS[key],
+    'normal',
+    DEMO_OPERATOR_CONFIRMED[key],
+  );
+};
+
+/**
  * FICTIONAL operators (development builds only). Emails use the reserved `.invalid` domain; the phone-only operator uses
  * the unassigned `+999` country code, so no identifier here can reach a real person.
  */
 export const DEMO_OPERATORS: readonly DemoOperator[] = [
-  operator(1, email('operator.school@demo.nawara.invalid'), DEMO_OPERATOR_IDS.school),
-  operator(2, email('operator.multi@demo.nawara.invalid'), DEMO_OPERATOR_IDS.multi),
-  operator(3, { kind: 'phone', phone: '+99900000001' }, DEMO_OPERATOR_IDS.phone),
-  operator(4, email('operator.unassigned@demo.nawara.invalid'), DEMO_OPERATOR_IDS.unassigned),
+  staff(1, 'school'),
+  staff(2, 'multi'),
+  staff(3, 'phone'),
+  staff(4, 'unassigned'),
   operator(5, email('operator.busy@demo.nawara.invalid'), null, 'requestLimited'),
   operator(6, email('operator.limited@demo.nawara.invalid'), null, 'verifyLimited'),
   operator(7, email('operator.offline@demo.nawara.invalid'), null, 'verifyUnavailable'),
+  // Staff the owner blocked: Core issues no working code and redeems none (P6-S0), so sign-in always fails.
+  staff(11, 'blocked'),
 ];
 
 /**
@@ -212,13 +234,7 @@ export const DEMO_OPERATORS: readonly DemoOperator[] = [
  * `DEMO_CONFIRMATION_CODE`, then request a working code like any operator.
  */
 export const DEMO_NEW_OPERATORS: readonly DemoOperator[] = [
-  operator(
-    8,
-    email('operator.new@demo.nawara.invalid'),
-    DEMO_OPERATOR_IDS.awaitingConfirmation,
-    'normal',
-    false,
-  ),
+  staff(8, 'awaitingConfirmation'),
   operator(9, email('operator.new.limited@demo.nawara.invalid'), null, 'confirmLimited', false),
   operator(
     10,
@@ -243,6 +259,7 @@ const OPERATOR_ROLE_KEYS = [
   'auth.demo.operatorRequestLimited',
   'auth.demo.operatorVerifyLimited',
   'auth.demo.operatorUnavailable',
+  'auth.demo.operatorBlocked',
 ] as const;
 
 export const DEMO_SIGN_IN_HINT: DemoSignInHint = {

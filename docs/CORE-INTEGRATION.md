@@ -271,7 +271,31 @@ Admin strategy and the decision required before A4.
   - Throttle `membership_op_actor` 120 per 900 s. A member may hold memberships in several Organizations (ADR-0030); no
     administrative read finds them, and nothing counts distinct people.
 - Operators (owner): create (step-up `operator.create`), confirm, block / unblock (deliberately no step-up), platform assignments
-  grant / revoke (step-up) and history.
+  grant / revoke (step-up) and history. Verified in P6-S0 at **origin/main `750eb21`** (2026-10-24, read only):
+  - **Identity:** a `user` of kind `operator` (no password) plus an `operator` row (`userId` primary key, `companyId`,
+    `contactVerifiedAt`): exactly one Company per operator; one email or one phone, unique across every account kind. Blocked
+    is `user.isActive = false`; confirmed is `contactVerifiedAt`. Separate from members; never a membership.
+  - **Assignments** (`platform_assignment`): an independent, append-only record (`id, operatorId, platformId, companyId,
+    assignedBy, assignedAt, revokedAt, revokedBy, active`); a removal marks it, a re-grant inserts a new row; at most one active
+    per operator and Platform (`platform_assignment_one_active`); same-Company composite keys make cross-Company assignments
+    unrepresentable.
+  - **Reads:** only `GET /auth/admin/operators/:id/platform-assignments` (owner; `200` every record oldest first; collapsed `404`
+    for an unknown or another Company's operator) and the caller's own `GET /auth/grants`. **No** operator list, no single
+    operator read, no read of blocked or confirmed state, no list of a Platform's operators (CF-03).
+  - **Grant** `POST …/operators/:id/platform-assignments` `{platformId}`, header `X-Step-Up-Token` (`platform_assignment.grant`):
+    `201 {id, platformId, assignedBy, assignedAt, revokedAt, active}`; `409 assignment_conflict` when already active; collapsed
+    `404`; `503 hierarchy_unavailable` when the first touch of the Platform cannot reach Organization Service. **Revoke**
+    `DELETE …/platform-assignments/:platformId` (`platform_assignment.revoke`): `204`; `404` when not active. One transaction
+    each; the step-up is spent only on commit. Removal stops access on the operator's next request (live check) but ends no
+    session.
+  - **Create** `POST /auth/admin/operators` `{email}` or `{phone}` (exactly one), `operator.create`: `201 {id, email, phone,
+    isActive}`; `409 account_already_exists` (any account kind; CF-33); no idempotency key (CF-32).
+  - **Block / unblock** `POST …/operators/:id/block|unblock`, no body, no step-up, `204`, repeatable: block sets `isActive =
+    false`, supersedes every unused code (login **and confirmation**) and revokes every session; assignments are kept; unblock
+    restores no session.
+  - **Factors:** `operator.create`, `platform_assignment.grant` and `.revoke` accept TOTP, a passkey **or the secret key**.
+  - **No** last-operator rule, no self-assignment (operators get `403`; the owner is never an operator); only the coarse per-IP
+    throttle plus the step-up buckets apply.
 - Member security (owner + factor step-up, closed reason code): suspend / restore (`auth-service/src/members/member-security.controller.ts`).
 - **Missing:** no directory of operators, no user search, no member directory outside one organization (CF-03).
 
@@ -366,8 +390,10 @@ Admin strategy and the decision required before A4.
 | Memberships — revoke | Auth | 🟢 Prod | `POST …/memberships/:id/revoke` | `MembershipGateway.revoke(organizationId, id)`, mock in demo builds (P5-S3a); never resent after a lost answer; **CF-26, CF-27** |
 | Join codes / admin invitations | Auth | 🟢 Prod | `organization.controller.ts` | HTTP (A7) |
 | Organization-admin grant/revoke | Auth | 🟢 Prod | `memberships/:id/admin` | `MembershipGateway.setOrganizationAdmin(org, id, admin, { stepUpToken })`, mock in demo builds (P5-S3b); owner only, factor step-up; never resent after a lost answer; **CF-27** |
-| Operators (create/confirm/block/unblock) | Auth | 🟢 Prod | `operator.controller.ts` | HTTP (A7) |
-| Operator directory | Auth | 🔴 | no list route | Mock; **CF-03** |
+| Operators (create/confirm/block/unblock) | Auth | 🟢 Prod (verified P6-S0, `750eb21`) | `operator.controller.ts` | **Implemented in Core, not in Admin**: create (P6-S4), block/unblock (P6-S3) are later slices |
+| Platform assignment grant / revoke | Auth | 🟢 Prod (verified P6-S0) | `platform.controller.ts` `POST/DELETE …/platform-assignments` | **Implemented in Core, not in Admin** (P6-S2) |
+| Operator assignment history | Auth | 🟢 Prod (verified P6-S0) | `GET /auth/admin/operators/:id/platform-assignments` | `OperatorAssignmentGateway` in Core's shape (P6-S1); mock in demo builds, unavailable adapter otherwise: **no HTTP adapter authorized yet**, and no operator ids without a directory |
+| Operator directory and one operator's account (contact, blocked, confirmed) | Auth | 🔴 | no list or single read; documented only (ADR-0012, SDD, TDD) | `OperatorDirectoryGateway`, PROVISIONAL mock contract (P6-S1) over the demo world; production "not available"; **CF-03** |
 | Platform assignments | Auth | 🟢 Prod | `platform.controller.ts` | HTTP (A7) |
 | Member suspend / restore | Auth | 🟢 Prod | `POST /auth/admin/members/:id/suspend\|restore` | **Deferred / blocked by Core** (P5-S4): no owner read of an account's state; a read-only "Nawara account" card only; **CF-28–CF-31** |
 | User search / identity directory | Auth | 🔴 | none | Mock; **CF-03** |
@@ -451,7 +477,13 @@ Recommended checkpoint: Core V2 A5.
 CF-03  Owner-scoped operator and member directories
 Service:          auth-service
 Current behavior: operators can be created/blocked but not listed; members visible only per organization.
-Admin requirement: list/search operators of the Company; find a user across the owner's organizations (minimized projection, ADR-0050 D11).
+                  P6-S0 (origin/main 750eb21): no route lists a Company's operators, reads one operator, exposes an
+                  operator's blocked (user.isActive) or confirmed (contactVerifiedAt) state, or lists a Platform's operators.
+                  GET /auth/admin/operators and GET /auth/admin/operators/:id exist only in ADR-0012, the SDD and the TDD.
+                  Admin P6-S1 builds the directory on a provisional mock and shows "not available" in production.
+Admin requirement: list/search operators of the Company, and read one, with id, contact, created date, blocked and confirmed
+                  state and active Platform ids; find a user across the owner's organizations (minimized projection,
+                  ADR-0050 D11).
 Classification:   🔴
 V1 or V2:         V2 A4/A5/A6.
 Recommended checkpoint: Core V2 A5.
@@ -576,6 +608,9 @@ Current behavior: 🟢 (source, origin/main 763e1a8) the confirmation code is is
                   (operator-admin.service.ts:31; default lifetime 8 h, OPERATOR_CONFIRMATION_TTL_SEC). No route resends or
                   reissues it; Core's ADD says a resend endpoint "is not designed". Blocking cancels it; unblocking issues none.
                   An operator whose code expired, was killed by 5 wrong guesses, or was blocked before confirming has no path.
+                  P6-S0 (origin/main 750eb21) confirms it: block supersedes every unused code of both purposes
+                  (operator-admin.service.ts:51) and unblock issues none, so an operator blocked before confirming can never
+                  confirm, even after an unblock. No Core test covers that sequence.
 Admin requirement: a way to obtain a new confirmation code (operator-requested and/or owner-triggered), with the same
                   enumeration and rate-limit care as request-code. Whether re-creating the same identifier is refused is
                   🟡 unverified.
@@ -756,6 +791,38 @@ Admin requirement: Core confirms the bucket (or its absence) and whether a no-op
 Classification:   🟡 documentation / security review item.
 V1 or V2:         to decide by the Core owner.
 Recommended checkpoint: before P5-S4.
+
+CF-32  Operator creation: recovery after a lost answer
+Service:          auth-service
+Current behavior: (origin/main 750eb21) POST /auth/admin/operators has no idempotency key; a retry after a lost answer gets
+                  409 account_already_exists, which proves the operator exists but returns no id, and no read can find it
+                  (CF-03).
+Admin requirement: an Idempotency-Key (replaying the first answer), or the operator directory, so a lost creation can be
+                  reconciled without guessing.
+Classification:   🔴 missing capability.
+V1 or V2:         to decide by the Core owner.
+Recommended checkpoint: before P6-S4 (create operator).
+
+CF-33  Operator creation: duplicate-contact disclosure
+Service:          auth-service
+Current behavior: (origin/main 750eb21) email and phone are unique across every account kind; creating an operator with a
+                  member's (or the owner's) contact answers 409 account_already_exists, telling the owner that an account
+                  with that contact exists. The step-up is not spent.
+Admin requirement: Core states whether this disclosure to the owner is intended; Admin will word the refusal neutrally either
+                  way.
+Classification:   🟡 security review item.
+V1 or V2:         to decide by the Core owner.
+Recommended checkpoint: before P6-S4.
+
+CF-34  Documented-only operator endpoints
+Service:          auth-service (documentation versus source)
+Current behavior: (origin/main 750eb21) ADR-0012, the SDD and the TDD describe GET /auth/admin/operators, GET …/operators/:id,
+                  PATCH …/operators/:id/contact, and owner-only schedule and time-off routes; none is implemented (the
+                  operator_schedule and operator_time_off tables exist and the login availability check reads them).
+Admin requirement: Core marks them planned or withdrawn; Admin builds none of them until they exist.
+Classification:   🟡 documentation.
+V1 or V2:         to decide by the Core owner.
+Recommended checkpoint: with CF-03.
 ```
 
 ## 10. Undefined architectural decisions (Core side)

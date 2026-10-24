@@ -5,7 +5,9 @@ import { DEMO_LATENCY_MS } from '../context/scope-directory.mock';
 import { PlatformId } from '../context/scope.model';
 import { AppError } from '../errors/app-error';
 import { DemoWorld } from '../../demo/world/demo-world';
-import { grantsOf, platformViewerOf } from '../../demo/world/selectors';
+import { confirmOperatorContact } from '../../demo/world/commands/operator.commands';
+import { grantsOf, operatorProfileOf, platformViewerOf } from '../../demo/world/selectors';
+import { NW_CLOCK } from '../../shared/format/clock';
 import {
   DEMO_ACCOUNTS,
   DEMO_CONFIRMATION_CODE,
@@ -88,6 +90,7 @@ export class MockAuthGateway extends AuthGateway {
   private readonly latency = inject(DEMO_LATENCY_MS);
   private readonly state = inject(DemoAuthState);
   private readonly world = inject(DemoWorld);
+  private readonly now = inject(NW_CLOCK);
 
   login(email: string, password: string): Observable<LoginOutcome> {
     const account = DEMO_ACCOUNTS.find(
@@ -203,7 +206,7 @@ export class MockAuthGateway extends AuthGateway {
     const found = this.operator(identifier);
     if (found?.scenario === 'requestLimited')
       return this.fail({ kind: 'rate_limited', status: 429 });
-    if (found && this.state.confirmedOperators.has(found.identity.userId))
+    if (found && this.confirmed(found) && !this.blocked(found))
       this.state.workingCodes.set(found.identity.userId, CODE_ATTEMPTS);
     return this.answer(undefined);
   }
@@ -215,7 +218,8 @@ export class MockAuthGateway extends AuthGateway {
     if (found?.scenario === 'verifyUnavailable')
       return this.fail({ kind: 'unavailable', status: 503 });
     const left = found ? this.state.workingCodes.get(found.identity.userId) : undefined;
-    if (!found || left === undefined || left <= 0) return this.fail(CODE_INVALID);
+    if (!found || this.blocked(found) || left === undefined || left <= 0)
+      return this.fail(CODE_INVALID);
     if (code !== DEMO_WORKING_CODE) {
       this.state.workingCodes.set(found.identity.userId, left - 1);
       return this.fail(CODE_INVALID);
@@ -238,8 +242,8 @@ export class MockAuthGateway extends AuthGateway {
       return this.fail({ kind: 'rate_limited', status: 429 });
     if (found?.scenario === 'confirmUnavailable')
       return this.fail({ kind: 'unavailable', status: 503 });
-    if (found && this.state.confirmedOperators.has(found.identity.userId))
-      return this.answer(undefined);
+    if (found && this.blocked(found)) return this.fail(CODE_INVALID);
+    if (found && this.confirmed(found)) return this.answer(undefined);
     const left = found ? this.state.confirmationCodes.get(found.identity.userId) : undefined;
     if (!found || left === undefined || left <= 0) return this.fail(CODE_INVALID);
     if (code !== DEMO_CONFIRMATION_CODE) {
@@ -247,7 +251,8 @@ export class MockAuthGateway extends AuthGateway {
       return this.fail(CODE_INVALID);
     }
     this.state.confirmationCodes.delete(found.identity.userId);
-    this.state.confirmedOperators.add(found.identity.userId);
+    if (found.businessIdentityId === null) this.state.confirmedOperators.add(found.identity.userId);
+    else this.world.commit(confirmOperatorContact(found.businessIdentityId, this.now()));
     return this.answer(undefined);
   }
 
@@ -285,6 +290,26 @@ export class MockAuthGateway extends AuthGateway {
       identity: account.identity,
       businessIdentityId: account.businessIdentityId,
     });
+  }
+
+  /**
+   * Whether the operator's contact is confirmed: for a staff operator, the demo world's account (the directory shows the
+   * same); for a scenario account that is not staff, the sign-in state.
+   */
+  private confirmed(found: DemoOperator): boolean {
+    if (found.businessIdentityId === null)
+      return this.state.confirmedOperators.has(found.identity.userId);
+    return (
+      operatorProfileOf(this.world.snapshot(), found.businessIdentityId)?.contactConfirmedAt != null
+    );
+  }
+
+  /** Whether the owner blocked the operator (Core: `isActive = false`; no code is issued, none redeemed). */
+  private blocked(found: DemoOperator): boolean {
+    return (
+      found.businessIdentityId !== null &&
+      operatorProfileOf(this.world.snapshot(), found.businessIdentityId)?.blocked === true
+    );
   }
 
   private operator(identifier: OperatorIdentifier): DemoOperator | undefined {

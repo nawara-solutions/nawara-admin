@@ -63,9 +63,14 @@ export class DemoAuthState {
   readonly enrolledOwners = new Set<string>();
   /** The live working code per operator (by user id): wrong guesses left. Issuing replaces; success consumes. */
   readonly workingCodes = new Map<string, number>();
-  /** Operators whose contact is confirmed (by user id). Core issues working codes only to them. */
+  /**
+   * Scenario operators (not staff) whose contact is confirmed (by user id). Core issues working codes only to confirmed
+   * operators. A staff operator's confirmation is the demo world's (`OperatorProfileRecord`), never kept here.
+   */
   readonly confirmedOperators = new Set(
-    ALL_DEMO_OPERATORS.filter((o) => o.confirmed).map((o) => o.identity.userId),
+    ALL_DEMO_OPERATORS.filter((o) => o.businessIdentityId === null && o.confirmed).map(
+      (o) => o.identity.userId,
+    ),
   );
   /** The confirmation code of each unconfirmed operator: wrong guesses left. Core never reissues it (CF-16). */
   readonly confirmationCodes = new Map(

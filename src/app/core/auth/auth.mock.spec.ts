@@ -354,16 +354,50 @@ describe('MockAuthGateway: one simulated Auth service across route injectors (A3
     expect(next.kind).toBe('mfa_required');
   });
 
-  it('keeps a confirmed operator contact through a sign-out', async () => {
-    const { signInRoute, shell, state } = twoRoutes();
+  it('keeps a confirmed operator contact through a sign-out, in the demo world the directory reads', async () => {
+    const { signInRoute, shell } = twoRoutes();
     const fresh: OperatorIdentifier = { kind: 'email', email: 'operator.new@demo.nawara.invalid' };
-    const userId = DEMO_NEW_OPERATORS[0]?.identity.userId ?? '';
-    expect(state.confirmedOperators.has(userId)).toBe(false);
+    const operatorId = DEMO_NEW_OPERATORS[0]?.businessIdentityId ?? null;
+    if (operatorId === null) throw new Error('expected a staff operator');
+    const confirmedAt = () =>
+      TestBed.inject(DemoWorld)
+        .snapshot()
+        .operators.find((o) => o.id === operatorId)?.contactConfirmedAt;
+    expect(confirmedAt()).toBeNull();
     await firstValueFrom(signInRoute.confirmOperatorContact(fresh, DEMO_CONFIRMATION_CODE));
     await firstValueFrom(shell.logout());
-    expect(state.confirmedOperators.has(userId)).toBe(true);
+    expect(confirmedAt()).toMatch(/Z$/);
     // Already confirmed: 204 without checking the code, as Core answers.
     await firstValueFrom(signInRoute.confirmOperatorContact(fresh, '000000'));
+    // Confirmed now: a working code is issued and redeemed.
+    await firstValueFrom(signInRoute.requestWorkingCode(fresh));
+    await firstValueFrom(signInRoute.verifyWorkingCode(fresh, DEMO_WORKING_CODE));
+    expect((await firstValueFrom(shell.me())).email).toBe('operator.new@demo.nawara.invalid');
+  });
+
+  it('issues no working code to, and confirms nothing for, an operator the owner blocked', async () => {
+    const { signInRoute } = twoRoutes();
+    const world = TestBed.inject(DemoWorld);
+    const school = DEMO_OPERATORS[0];
+    if (school?.businessIdentityId == null) throw new Error('expected a staff operator');
+    const id = school.businessIdentityId;
+    // Blocking is not built in P6-S1 (P6-S3): the spec sets the world's record directly.
+    world.commit((tables) => ({
+      ok: true,
+      world: {
+        ...tables,
+        operators: tables.operators.map((o) => (o.id === id ? { ...o, blocked: true } : o)),
+      },
+      result: undefined,
+    }));
+    await firstValueFrom(signInRoute.requestWorkingCode(SCHOOL_OPERATOR));
+    expect(
+      (await error(signInRoute.verifyWorkingCode(SCHOOL_OPERATOR, DEMO_WORKING_CODE))).status,
+    ).toBe(401);
+    expect(
+      (await error(signInRoute.confirmOperatorContact(SCHOOL_OPERATOR, DEMO_CONFIRMATION_CODE)))
+        .status,
+    ).toBe(401);
   });
 });
 

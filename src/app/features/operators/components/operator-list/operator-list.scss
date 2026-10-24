@@ -1,0 +1,99 @@
+// The operators (P6 design): cards on a narrow card, a table from 40rem, sized by the card's own width.
+:host {
+  display: block;
+  container-type: inline-size;
+}
+
+.operator-list__table {
+  display: none;
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--nw-text-size-sm);
+
+  th,
+  td {
+    padding: var(--nw-space-3) var(--nw-space-2);
+    border-block-end: 1px solid var(--nw-border-subtle);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  thead th {
+    color: var(--nw-text-secondary);
+    font-weight: var(--nw-font-weight-medium);
+  }
+
+  tbody th {
+    font-weight: var(--nw-font-weight-regular);
+  }
+}
+
+.operator-list__cards {
+  display: grid;
+  gap: var(--nw-space-2);
+}
+
+.operator-list__card {
+  display: grid;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-raised);
+}
+
+// A 44 px tall target on cards; the link text wraps anywhere (long emails at 320 px).
+.operator-list__link {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 2.75rem;
+  color: var(--nw-text-link);
+  font-weight: var(--nw-font-weight-semibold);
+  overflow-wrap: anywhere;
+
+  &:focus-visible {
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.operator-list__table .operator-list__link {
+  min-block-size: 0;
+}
+
+.operator-list__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nw-space-1);
+}
+
+.operator-list__pill {
+  padding: 0.125rem var(--nw-space-2);
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-surface-sunken);
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-medium);
+}
+
+.operator-list__none,
+.operator-list__meta {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.operator-list__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-2);
+}
+
+@container (min-width: 40rem) {
+  .operator-list__table {
+    display: table;
+  }
+
+  .operator-list__cards {
+    display: none;
+  }
+}

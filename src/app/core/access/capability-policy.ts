@@ -16,6 +16,11 @@ export type Capability =
   /** The Company's Platform directory (`/platforms`): company scope, so the owner only. */
   | 'company.platforms.view'
   /**
+   * The Company's operators and their Platform access (`/operators`): the owner only. Core's operator routes are all
+   * `@Actors('owner')` (an operator gets `403`); an operator's own authority is their assignments, never this list.
+   */
+  | 'company.operators.view'
+  /**
    * Creating a Platform: Core `POST /organization/admin/platforms` allows only the owner of the Company
    * (`canCreatePlatform`), with step-up `platform.create` and an `Idempotency-Key`.
    */
@@ -41,6 +46,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.scope',
   'company.overview.view',
   'company.platforms.view',
+  'company.operators.view',
   'platform.create',
   'organization.create',
   'platform.commercial.view',

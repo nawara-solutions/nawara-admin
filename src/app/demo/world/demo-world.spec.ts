@@ -11,6 +11,9 @@ import {
   demoWorldSeed,
 } from './seed';
 import {
+  activeAssignments,
+  assignedPlatformsOf,
+  assignmentHistoryOf,
   assignmentsOf,
   companyActivity,
   createdWithin,
@@ -70,7 +73,52 @@ describe('demo world: canonical seed invariants', () => {
     expect(
       world.assignments.every((a) => operators.has(a.operatorId) && platforms.has(a.platformId)),
     ).toBe(true);
-    expect(unique(world.assignments.map((a) => `${a.operatorId}/${a.platformId}`))).toBe(true);
+    // Core's `platform_assignment_one_active`: at most one ACTIVE assignment per operator and Platform; the history
+    // may hold removed ones too (a re-grant is a new record).
+    expect(unique(activeAssignments(world).map((a) => `${a.operatorId}/${a.platformId}`))).toBe(
+      true,
+    );
+    expect(unique(world.assignments.map((a) => a.id))).toBe(true);
+    expect(world.assignments.every((a) => /^[0-9a-f-]{36}$/.test(a.id))).toBe(true);
+  });
+
+  it('keeps an append-only assignment history, granted and removed by the owner, in order', () => {
+    for (const a of world.assignments) {
+      expect(a.assignedBy).toBe(world.company.ownerId);
+      expect(a.revokedBy === null).toBe(a.revokedAt === null);
+      if (a.revokedAt !== null) expect(a.revokedAt >= a.assignedAt).toBe(true);
+      if (a.revokedBy !== null) expect(a.revokedBy).toBe(world.company.ownerId);
+    }
+    expect(world.assignments.filter((a) => a.revokedAt !== null)).toHaveLength(3);
+    // The phone operator's Drive access was removed, then given again: two records, one active.
+    const phoneDrive = assignmentHistoryOf(world, DEMO_OPERATOR_IDS.phone);
+    expect(phoneDrive.map((a) => a.revokedAt === null)).toEqual([false, true]);
+    expect(phoneDrive.map((a) => a.assignedAt)).toEqual(
+      [...phoneDrive.map((a) => a.assignedAt)].sort(),
+    );
+  });
+
+  it('gives every operator identity exactly one account, with one fictional contact', () => {
+    const operators = world.identities.filter((i) => i.kind === 'operator').map((i) => i.id);
+    expect(world.operators.map((o) => o.id).sort()).toEqual([...operators].sort());
+    for (const o of world.operators) {
+      expect((o.email === null) !== (o.phone === null)).toBe(true);
+      expect(o.email === null || o.email.endsWith('.invalid')).toBe(true);
+      expect(o.phone === null || o.phone.startsWith('+999')).toBe(true);
+      expect(o.contactConfirmedAt === null || o.contactConfirmedAt > o.createdAt).toBe(true);
+      // An account exists before any of its assignments.
+      expect(assignmentHistoryOf(world, o.id).every((a) => a.assignedAt > o.createdAt)).toBe(true);
+    }
+    expect(unique(world.operators.map((o) => o.email ?? o.phone ?? ''))).toBe(true);
+    expect(world.operators.filter((o) => o.blocked).map((o) => o.id)).toEqual([
+      DEMO_OPERATOR_IDS.blocked,
+    ]);
+    expect(world.operators.filter((o) => o.contactConfirmedAt === null).map((o) => o.id)).toEqual([
+      DEMO_OPERATOR_IDS.awaitingConfirmation,
+    ]);
+    // Blocked and unassigned operators keep only removed assignments: they count nowhere.
+    expect(assignedPlatformsOf(world, DEMO_OPERATOR_IDS.blocked)).toEqual([]);
+    expect(assignedPlatformsOf(world, DEMO_OPERATOR_IDS.unassigned)).toEqual([]);
   });
 
   it('gives an Organization at most one subscription', () => {
@@ -91,9 +139,21 @@ describe('demo world: derived figures', () => {
   it('derives operator assignments from the canonical assignment records', () => {
     expect(assignmentsOf(world, S)).toHaveLength(3);
     expect(assignmentsOf(world, D)).toHaveLength(2);
-    expect(world.assignments).toHaveLength(5);
+    expect(activeAssignments(world)).toHaveLength(5);
+    expect(world.assignments).toHaveLength(8);
     expect(uniqueAssignedOperators(world)).toBe(4);
     expect(platformsWithOperators(world)).toBe(2);
+  });
+
+  it('keeps every operator’s grants from active assignments only (P6-S1: history does not grant)', () => {
+    const platformsOf = (id: (typeof DEMO_OPERATOR_IDS)[keyof typeof DEMO_OPERATOR_IDS]) =>
+      grantsOf(world, id).platformAssignments;
+    expect(platformsOf(DEMO_OPERATOR_IDS.school)).toEqual([S]);
+    expect(platformsOf(DEMO_OPERATOR_IDS.multi)).toEqual([S, D]);
+    expect(platformsOf(DEMO_OPERATOR_IDS.phone)).toEqual([D]);
+    expect(platformsOf(DEMO_OPERATOR_IDS.unassigned)).toEqual([]);
+    expect(platformsOf(DEMO_OPERATOR_IDS.awaitingConfirmation)).toEqual([S]);
+    expect(platformsOf(DEMO_OPERATOR_IDS.blocked)).toEqual([]);
   });
 
   it('answers grants live from the records, and none for an identity that is not staff', () => {

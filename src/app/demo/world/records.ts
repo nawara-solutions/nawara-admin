@@ -94,10 +94,40 @@ export interface AdminIdentityRecord {
   readonly kind: 'owner' | 'operator';
 }
 
-/** An active Platform assignment of an operator (Auth's `platform_assignment`). */
+/**
+ * A Platform operator's account (Auth `user` of kind `operator` with its `operator` row; P6-S0, Core `750eb21`): one
+ * email OR one phone (never a name, never a password), whether the contact is confirmed (`contactVerifiedAt`), and
+ * whether the owner has blocked the account (`user.isActive = false`). An operator belongs to exactly one Company.
+ * Core has NO read that exposes these fields to the owner (CF-03): the directory built on them is provisional.
+ *
+ * Not here: working codes, confirmation codes and their attempts (sign-in state, `DemoAuthState`).
+ */
+export interface OperatorProfileRecord {
+  readonly id: AdminIdentityId;
+  readonly email: string | null;
+  readonly phone: string | null;
+  /** UTC instants, ISO 8601 with `Z`. */
+  readonly createdAt: string;
+  readonly contactConfirmedAt: string | null;
+  readonly blocked: boolean;
+}
+
+/**
+ * One Platform assignment of an operator (Auth `platform_assignment`, append-only; P6-S0): granted by the Company owner,
+ * removed by marking it (`revokedAt`, `revokedBy`), never deleted; a re-grant is a new record. At most one ACTIVE
+ * assignment per operator and Platform. Only active ones grant Platform authority; `active` is derived
+ * (`revokedAt === null`), as Core's `pa_active_iff_not_revoked` keeps them equal.
+ */
 export interface PlatformAssignmentRecord {
+  readonly id: string;
   readonly operatorId: AdminIdentityId;
   readonly platformId: PlatformId;
+  /** The granting and removing owner's user id (Core derives both from the session, never from a request). */
+  readonly assignedBy: AdminIdentityId;
+  /** UTC instants, ISO 8601 with `Z`. */
+  readonly assignedAt: string;
+  readonly revokedAt: string | null;
+  readonly revokedBy: AdminIdentityId | null;
 }
 
 /**
@@ -198,6 +228,9 @@ export interface DemoWorldTables {
   readonly platforms: readonly PlatformRecord[];
   readonly organizations: readonly OrganizationRecord[];
   readonly identities: readonly AdminIdentityRecord[];
+  /** The operators' accounts, one per operator identity (P6-S1). */
+  readonly operators: readonly OperatorProfileRecord[];
+  /** Every Platform assignment ever made, active and removed (P6-S1: append-only history). */
   readonly assignments: readonly PlatformAssignmentRecord[];
   readonly subscriptions: readonly OrganizationSubscriptionRecord[];
   readonly adminInvitations: readonly AdminInvitationRecord[];

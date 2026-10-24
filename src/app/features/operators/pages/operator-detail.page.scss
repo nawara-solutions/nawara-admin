@@ -1,0 +1,155 @@
+// One operator (P6 design, artboards Detail and MobileAr): header, then current access, removed access, the account
+// and what comes later; two columns from 48rem, one below (nothing widens the page at 320 px).
+:host {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 0.875rem;
+  container-type: inline-size;
+}
+
+.operator-detail__badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-2);
+}
+
+.operator-detail__grid,
+.operator-detail__column {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: var(--nw-space-4);
+}
+
+.operator-detail__card {
+  display: grid;
+  align-content: start;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-4) var(--nw-space-5);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-lg);
+  background-color: var(--nw-surface-raised);
+
+  h2 {
+    font-size: var(--nw-text-size-md);
+    font-weight: var(--nw-font-weight-semibold);
+  }
+}
+
+.operator-detail__hint,
+.operator-detail__when,
+.operator-detail__empty {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.operator-detail__assignments {
+  display: grid;
+}
+
+.operator-detail__assignment {
+  display: grid;
+  gap: var(--nw-space-1);
+  padding-block: var(--nw-space-3);
+  border-block-end: 1px solid var(--nw-border-subtle);
+
+  &:last-child {
+    border-block-end: 0;
+  }
+}
+
+.operator-detail__platform {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-2);
+  font-weight: var(--nw-font-weight-semibold);
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    color: var(--nw-text-link);
+
+    &:focus-visible {
+      outline: 2px solid var(--nw-focus-ring);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.operator-detail__rows {
+  display: grid;
+
+  div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--nw-space-1) var(--nw-space-3);
+    padding-block: var(--nw-space-3);
+    border-block-end: 1px solid var(--nw-border-subtle);
+  }
+
+  div:last-child {
+    border-block-end: 0;
+  }
+
+  dt {
+    color: var(--nw-text-secondary);
+  }
+
+  dd {
+    min-inline-size: 0;
+    font-weight: var(--nw-font-weight-medium);
+    overflow-wrap: anywhere;
+  }
+}
+
+.operator-detail__explain {
+  font-size: var(--nw-text-size-sm);
+}
+
+.operator-detail__error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+// The icon stays beside its text, which wraps next to it.
+.operator-detail__note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.operator-detail__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  font-size: var(--nw-text-size-sm);
+}
+
+.operator-detail__later {
+  display: grid;
+  gap: var(--nw-space-1);
+  padding-inline-start: var(--nw-space-5);
+  font-size: var(--nw-text-size-sm);
+  list-style: disc;
+}
+
+@container (min-width: 48rem) {
+  .operator-detail__grid {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
