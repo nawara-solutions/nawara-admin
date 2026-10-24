@@ -202,6 +202,7 @@
     "settings": "Paramètres",
     "settingsAppearance": "Apparence",
     "settingsLanguage": "Langue",
+    "settingsAccount": "Votre compte",
     "workingCode": "Connexion avec un code de travail",
     "workingCodeVerify": "Saisissez votre code de travail",
     "contactConfirmation": "Confirmez votre contact",
@@ -236,6 +237,7 @@
       "appearance": "Apparence",
       "settings": "Paramètres",
       "language": "Langue",
+      "account": "Compte",
       "organizations": "Organisations",
       "organization": "Organisation",
       "members": "Membres",
@@ -1362,7 +1364,9 @@
       "appearanceDescription": "Thème et couleur d’accent.",
       "appearanceValue": "{{mode}} · {{accent}}",
       "languageDescription": "Langue et sens de lecture.",
-      "note": "Les préférences personnelles s’appliquent uniquement dans ce navigateur. Elles ne font pas partie de votre compte et ne changent rien pour l’entreprise ni pour ses plateformes."
+      "note": "Les préférences personnelles s’appliquent uniquement dans ce navigateur. Elles ne font pas partie de votre compte et ne changent rien pour l’entreprise ni pour ses plateformes.",
+      "account": "Compte",
+      "accountDescription": "Sous quelle identité vous êtes connecté, et sur quoi vous pouvez travailler."
     },
     "language": {
       "title": "Langue",
@@ -1370,6 +1374,34 @@
       "ltr": "De gauche à droite",
       "rtl": "De droite à gauche",
       "note": "Enregistré uniquement dans ce navigateur. Ce réglage ne fait pas partie de votre compte et n’est pas partagé avec vos autres appareils."
+    },
+    "account": {
+      "title": "Votre compte",
+      "subtitle": "Sous quelle identité vous êtes connecté, et sur quoi vous pouvez travailler. En lecture seule.",
+      "identity": "Identité",
+      "type": "Type de compte",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "none": "Aucun",
+      "contactState": "Contact",
+      "confirmed": "Confirmé",
+      "confirmedNote": "Un code de travail n’est envoyé qu’à un contact confirmé.",
+      "access": "Accès",
+      "company": "Entreprise",
+      "companyUnavailable": "Non disponible",
+      "scope": "Périmètre",
+      "ownerScope": "Toute l’entreprise : chacune de ses plateformes.",
+      "platformCount": "{{count}} plateformes aujourd’hui",
+      "platforms": "Plateformes sur lesquelles vous pouvez travailler",
+      "noPlatforms": "Aucune plateforme ne vous est attribuée. Le propriétaire de l’entreprise donne l’accès aux plateformes.",
+      "retry": "Réessayer",
+      "managedByOwner": "Le propriétaire de l’entreprise gère votre contact et votre accès aux plateformes.",
+      "signIn": "Comment vous vous connectez",
+      "ownerSignIn": "Avec votre mot de passe et un second facteur : votre application d’authentification ou une clé d’accès.",
+      "operatorSignIn": "Avec un code de travail à usage unique envoyé à votre contact. Votre session se termine à la fin de votre service.",
+      "source": "D’après votre session actuelle. Cette page ne modifie rien.",
+      "signedOutTitle": "Vous êtes déconnecté",
+      "signedOutDescription": "Connectez-vous pour voir votre compte."
     }
   },
   "operators": {

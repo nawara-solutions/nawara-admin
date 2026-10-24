@@ -42,3 +42,26 @@
   </ul>
   <p class="settings-hub__note">{{ 'settings.hub.note' | transloco }}</p>
 </section>
+
+<section class="settings-hub__section" aria-labelledby="settings-hub-account">
+  <h2 id="settings-hub-account" class="settings-hub__heading">
+    {{ 'settings.hub.account' | transloco }}
+  </h2>
+  <ul class="settings-hub__list" role="list">
+    <li>
+      <a class="settings-hub__link" routerLink="/settings/account" data-section="account">
+        <span class="settings-hub__mark" aria-hidden="true"><nw-icon name="user-round" /></span>
+        <span class="settings-hub__text">
+          <span class="settings-hub__name">{{ 'settings.account.title' | transloco }}</span>
+          <span class="settings-hub__description">{{
+            'settings.hub.accountDescription' | transloco
+          }}</span>
+          @if (roleKey(); as role) {
+            <span class="settings-hub__value" data-value>{{ role | transloco }}</span>
+          }
+        </span>
+        <nw-icon class="settings-hub__chevron" name="chevron-right" size="sm" />
+      </a>
+    </li>
+  </ul>
+</section>

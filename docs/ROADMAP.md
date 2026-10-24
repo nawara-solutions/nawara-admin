@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation (PR #34); P7-S1 mock Licenses & entitlements overview (PR #35); P7-S2 Platform and Organization subscriptions (PR #36); P7-S3 Billing & payment follow-ups (PR #37); P8-S1 simulated administrative activity browser (PR #38); P8-S2 Services & health inventory (PR #39); P8-S3 personal Notifications (PR #40); P8-S4 Releases information page (PR #41); P9-S1 Settings hub & Language; rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation (PR #34); P7-S1 mock Licenses & entitlements overview (PR #35); P7-S2 Platform and Organization subscriptions (PR #36); P7-S3 Billing & payment follow-ups (PR #37); P8-S1 simulated administrative activity browser (PR #38); P8-S2 Services & health inventory (PR #39); P8-S3 personal Notifications (PR #40); P8-S4 Releases information page (PR #41); P9-S1 Settings hub & Language (PR #42); P9-S2 personal Account (read only); rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,9 +290,22 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## P9-S2: personal Account, read only (implemented 2026-10-24)
+
+**Status: implemented, awaiting review.** Design: [`design/p9-settings-architecture.md`](design/p9-settings-architecture.md) §12.
+
+- `/settings/account`, every signed-in owner or operator, their own account only (no identity parameter, no
+  capability): account type, the email and phone Core holds, an operator's derived contact confirmation, the owner's
+  Company (scope directory) and an operator's currently granted Platforms (the canonical `ScopeContext` list filtered
+  by the session's current assignments; unavailable state and P6-S2b "Try again" when it cannot be read).
+- From the session only: no Core account read is integrated, no facade or gateway was added, and no credential,
+  code, secret, token, grant or challenge is shown. The hub gains an "Account" section.
+- Next (each separately authorized): P9-S3 read-only Company settings; P9-S4 security (S4-0 Core verification first);
+  P9-S5 Platform settings (S5-0 first).
+
 ## P9-S1: Settings hub and Language (P9-0 reviewed, implemented 2026-10-24)
 
-**Status: implemented, awaiting review.** Personal, browser-local preferences only. Design:
+**Status: implemented (PR #42, merged).** Personal, browser-local preferences only. Design:
 [`design/p9-settings-architecture.md`](design/p9-settings-architecture.md) (§11 for this slice).
 
 - `/settings` is the Settings hub (no longer a redirect): Appearance and Language, each with its current value, for
