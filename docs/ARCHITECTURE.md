@@ -219,7 +219,7 @@ Organizations are entities of platform scope (amendment, P3a, 2026-10-23): their
 /settings/appearance           theme mode and accent palette                  local, every signed-in person
 /settings/language             language and direction (P9-S1)                 local, every signed-in person
 /settings/account              own identity and scope, read only (P9-S2)      🟢 /auth/me, /auth/grants (session) · built
-/settings/security             owner factors, secret key, password (P9-S4)    🟢 contracts unverified · planned
+/settings/security             owner factors, read only (P9-S4a)              🟢 verified (P9-S4-0) · built, mock only
 /settings/company              Company profile, read only, owner (P9-S3)      🔴 (CF-02, CF-49) · built, mock only
 /platforms/:platformId/settings Platform identity and policies, owner (P9-S5) 🟢 PATCH unverified · ⚠ cutover · planned
 ```

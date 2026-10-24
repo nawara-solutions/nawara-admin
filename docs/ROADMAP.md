@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation (PR #34); P7-S1 mock Licenses & entitlements overview (PR #35); P7-S2 Platform and Organization subscriptions (PR #36); P7-S3 Billing & payment follow-ups (PR #37); P8-S1 simulated administrative activity browser (PR #38); P8-S2 Services & health inventory (PR #39); P8-S3 personal Notifications (PR #40); P8-S4 Releases information page (PR #41); P9-S1 Settings hub & Language (PR #42); P9-S2 personal Account (PR #43); P9-S3 Company settings (read only, owner); rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation (PR #34); P7-S1 mock Licenses & entitlements overview (PR #35); P7-S2 Platform and Organization subscriptions (PR #36); P7-S3 Billing & payment follow-ups (PR #37); P8-S1 simulated administrative activity browser (PR #38); P8-S2 Services & health inventory (PR #39); P8-S3 personal Notifications (PR #40); P8-S4 Releases information page (PR #41); P9-S1 Settings hub & Language (PR #42); P9-S2 personal Account (PR #43); P9-S3 Company settings (PR #44); P9-S4a owner Security overview (read only); rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,9 +290,24 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
+## P9-S4a: owner Security overview, read only (P9-S4-0 verified, implemented 2026-10-25)
+
+**Status: implemented, awaiting review.** Design: [`design/p9-s4-account-security.md`](design/p9-s4-account-security.md)
+(the verified Core contracts, Core `304064f`, and §9 for this slice).
+
+- `/settings/security`, the Company owner only (capability `account.security.view`: route guard, hub entry in the
+  Account section, facade, mock `403` for any operator): the owner's own factors from Core's factor-list shape (type,
+  confirmed or an unfinished setup, added and last used only as the demo saw them), how factors protect sign-in and
+  sensitive actions, and recovery explained without promises (a secret key may exist; Admin cannot check). The Company
+  Overview's "Account security" now opens it.
+- No management control; no seed, code, key, token or grant in the read model; demo factors live in `DemoAuthState`;
+  production binds the unavailable adapter. Proposed CF-54 to CF-59 recorded.
+- Next (each separately authorized): P9-S4b add an authenticator, S4c secret key, S4d remove a factor, S4e password;
+  passkeys later; P9-S5 Platform settings (S5-0 first).
+
 ## P9-S3: Company settings, read only (implemented 2026-10-25)
 
-**Status: implemented, awaiting review.** Design: [`design/p9-settings-architecture.md`](design/p9-settings-architecture.md) §13.
+**Status: implemented (PR #44, merged).** Design: [`design/p9-settings-architecture.md`](design/p9-settings-architecture.md) §13.
 
 - `/settings/company`, the Company owner only (capability `company.settings.view`: route guard, hub entry, facade,
   mock `403` for any operator whatever their assignments): the Company's name and Platform count (demo world through

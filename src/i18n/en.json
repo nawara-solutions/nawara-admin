@@ -204,6 +204,7 @@
     "settingsLanguage": "Language",
     "settingsAccount": "Your account",
     "settingsCompany": "Company settings",
+    "settingsSecurity": "Security",
     "workingCode": "Sign in with a working code",
     "workingCodeVerify": "Enter your working code",
     "contactConfirmation": "Confirm your contact",
@@ -240,6 +241,7 @@
       "language": "Language",
       "account": "Account",
       "companySettings": "Company settings",
+      "security": "Security",
       "organizations": "Organizations",
       "organization": "Organization",
       "members": "Members",
@@ -1370,7 +1372,8 @@
       "account": "Account",
       "accountDescription": "Who you are signed in as, and what you can work on.",
       "company": "Company",
-      "companyDescription": "The Company’s profile and where it is managed."
+      "companyDescription": "The Company’s profile and where it is managed.",
+      "securityDescription": "Your factors and how recovery works."
     },
     "language": {
       "title": "Language",
@@ -1456,6 +1459,52 @@
         "errorDescription": "Try again in a moment.",
         "retry": "Try again",
         "forbiddenDescription": "Company settings are for the Company owner."
+      }
+    },
+    "security": {
+      "title": "Security",
+      "subtitle": "Your factors, and what protects sensitive actions. Read only.",
+      "factors": {
+        "title": "Your factors",
+        "confirmedCount": "Confirmed factors: {{count}}",
+        "totp": "Authenticator app",
+        "webauthn": "Passkey",
+        "confirmed": "Confirmed",
+        "unfinished": "Setup not finished",
+        "unfinishedNote": "This setup was begun but never confirmed. It can’t be used to sign in or to confirm an action.",
+        "added": "Added",
+        "lastUsed": "Last used",
+        "noUse": "No use recorded"
+      },
+      "actions": {
+        "title": "Confirming sensitive actions",
+        "signIn": "Every sign-in to your owner account asks for a confirmed factor after your password.",
+        "stepUp": "Sensitive actions, such as creating a Platform or giving an operator access, ask you to confirm again with a factor. A confirmation serves one action and expires within minutes.",
+        "lastFactor": "Under Nawara Core’s current rules, your last confirmed factor can’t be removed."
+      },
+      "recovery": {
+        "title": "Recovering your account",
+        "notGuaranteed": "Having a confirmed factor does not guarantee that you can recover your account if you lose access to it.",
+        "secretKey": "Recovery needs your secret key. A secret key may exist for your account, but Admin can’t check whether one does.",
+        "process": "Recovery starts at sign-in with your password and your secret key, then a waiting period, before you set up a new factor. It ends every factor and session you had."
+      },
+      "unavailable": {
+        "title": "Not available on this page",
+        "factors": "Adding or removing a factor, passkeys included",
+        "secretKey": "Generating or rotating your secret key",
+        "password": "Changing your password",
+        "recovery": "Starting or cancelling a recovery"
+      },
+      "states": {
+        "loading": "Loading your security…",
+        "emptyTitle": "No factor is recorded",
+        "emptyDescription": "This account shows no second factor here.",
+        "notInBuildTitle": "Security is not available",
+        "notInBuildDescription": "Your factors can’t be read from Nawara Core in this version of Admin.",
+        "errorTitle": "Your security could not be loaded",
+        "errorDescription": "Try again in a moment.",
+        "retry": "Try again",
+        "forbiddenDescription": "Account security is for the Company owner."
       }
     }
   },

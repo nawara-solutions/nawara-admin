@@ -135,7 +135,7 @@ describe('Settings pages (P9-S1)', () => {
     ['assigned operator', operator],
     ['operator without an assignment', unassigned],
   ] as const) {
-    it(`the hub is a page of its own for the ${name}: Appearance, Language, their own Account and, for the owner only, Company`, async () => {
+    it(`the hub is a page of its own for the ${name}: Appearance, Language, their own Account and, for the owner only, Security and Company`, async () => {
       const { harness, root } = await setup(actor);
       await harness.navigateByUrl('/settings');
       expect(TestBed.inject(Router).url).toBe('/settings');
@@ -145,14 +145,20 @@ describe('Settings pages (P9-S1)', () => {
         ['language', '/settings/language'],
         ['account', '/settings/account'],
         // P9-S3: Company settings are the owner's; an operator never sees the entry, whatever their assignments
-        ...(actor.kind === 'owner' ? [['company', '/settings/company']] : []),
+        // P9-S4a: the owner's Security sits in the Account section; operators have no factors and no entry
+        ...(actor.kind === 'owner'
+          ? [
+              ['security', '/settings/security'],
+              ['company', '/settings/company'],
+            ]
+          : []),
       ]);
       // P9-S2: the Account link names the actor's own account type
       expect(text(root().querySelector('[data-section="account"] [data-value]'))).toBe(
         actor.kind === 'owner' ? en.shell.role.owner : en.shell.role.operator,
       );
       // No account security or Platform setting is offered.
-      expect(root().querySelectorAll('a, button')).toHaveLength(actor.kind === 'owner' ? 4 : 3);
+      expect(root().querySelectorAll('a, button')).toHaveLength(actor.kind === 'owner' ? 5 : 3);
     });
   }
 
@@ -179,7 +185,7 @@ describe('Settings pages (P9-S1)', () => {
 
     location.back();
     await until(() => router.url === '/settings');
-    expect(links(root())).toHaveLength(4);
+    expect(links(root())).toHaveLength(5);
 
     location.forward();
     await until(() => router.url === '/settings/language');

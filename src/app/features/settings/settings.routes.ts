@@ -11,7 +11,8 @@ const SETTINGS_PARENT = { key: 'shell.breadcrumb.settings', link: '/settings' } 
  * Settings (`/settings`, P9-S1 to P9-S3; docs/design/p9-settings-architecture.md): the hub, Appearance and Language
  * (browser-local preferences) and the signed-in person's own Account (read only, from the session), open to every
  * signed-in actor (owner or operator) and granting no administrative capability; and Company settings (read only), the
- * owner's only. Security and Platform settings are later, separately authorized slices.
+ * owner's only; and the owner's own Account security overview (P9-S4a, read only). Platform settings are a later,
+ * separately authorized slice.
  */
 export const SETTINGS_ROUTES: Routes = [
   {
@@ -50,6 +51,23 @@ export const SETTINGS_ROUTES: Routes = [
       [BREADCRUMB_PARENT_DATA]: SETTINGS_PARENT,
     },
     loadComponent: () => import('./pages/account-settings.page').then((m) => m.AccountSettingsPage),
+  },
+  {
+    // The owner's own factors, read only (P9-S4a): the owner only, direct URLs included; no identity parameter.
+    path: 'security',
+    title: 'titles.settingsSecurity',
+    data: {
+      [BREADCRUMB_DATA]: 'shell.breadcrumb.security',
+      [BREADCRUMB_PARENT_DATA]: SETTINGS_PARENT,
+    },
+    canActivate: [capabilityGuard('account.security.view')],
+    loadChildren: () => {
+      // Read in the router's injection context, before the lazy import resolves.
+      const environment = inject(APP_ENVIRONMENT);
+      return import('./account-security.routes').then((m) =>
+        m.loadAccountSecurityRoutes(environment),
+      );
+    },
   },
   {
     // The Company's profile, read only, and links to its existing administration: the owner only, direct URLs included.

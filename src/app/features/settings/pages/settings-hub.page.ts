@@ -33,7 +33,8 @@ const ROLE_KEYS = {
  * The Settings hub (`/settings`, P9-S1, P9-S2): the personal settings that exist, Appearance and Language, each a
  * link with its current value read from the one ThemeService and LocaleService state (never a copy), and the
  * signed-in person's own Account (their account type, from the session); and, for the owner only, Company settings
- * (P9-S3). No unavailable security or business setting is offered.
+ * (P9-S3) and their read-only account Security overview (P9-S4a). No unavailable security or business setting is
+ * offered.
  */
 @Component({
   selector: 'adm-settings-hub-page',
@@ -56,6 +57,10 @@ export class SettingsHubPage {
     const kind = this.session.actor()?.kind;
     return kind === undefined ? null : ROLE_KEYS[kind];
   });
+  /** Account security (P9-S4a): the owner only. */
+  protected readonly accountSecurity = computed(() =>
+    can(this.session.actor(), 'account.security.view'),
+  );
   /** Company settings (P9-S3): the owner only. */
   protected readonly companySettings = computed(() =>
     can(this.session.actor(), 'company.settings.view'),

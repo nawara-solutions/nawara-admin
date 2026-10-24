@@ -34,6 +34,7 @@ const DEMO_BINDINGS_STUB: DemoBindings = {
     services: [],
     releases: [],
     companySettings: [],
+    accountSecurity: [],
     platformDashboard: [],
     platformCommercial: [],
     organizations: [],

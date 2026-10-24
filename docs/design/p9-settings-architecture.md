@@ -4,8 +4,10 @@
   the Settings hub (`/settings`), Settings → Language (`/settings/language`) and the account menu's Settings item;
   Appearance (`/settings/appearance`) unchanged (§11; PR #42, merged). **P9-S2 implemented** 2026-10-24: the
   read-only personal Account (`/settings/account`, §12; PR #43, merged). **P9-S3 implemented** 2026-10-25: the
-  owner's read-only Company settings (`/settings/company`, §13). **P9-S4 and P9-S5 are planned, each separately
-  authorized and contract-gated** by a read-only Core verification first. No security, Company or Platform setting can
+  owner's read-only Company settings (`/settings/company`, §13; PR #44, merged). **P9-S4-0** verified the owner
+  security contracts (2026-10-25) and **P9-S4a implemented** the owner's read-only Security overview
+  (`/settings/security`): see [`p9-s4-account-security.md`](p9-s4-account-security.md). **P9-S4b to S4e and P9-S5 are
+  planned, each separately authorized**; P9-S5 stays contract-gated (S5-0). No security, Company or Platform setting can
   be changed; no Core account or Company read is integrated (CF-49 open).
 - **Baseline:** P9-0 read `main` `d0bce78` (PR #41). Core was **not** read: every Core fact below comes from Admin's
   `docs/CORE-INTEGRATION.md` (§3, §4, §5, §7, §9).
@@ -95,7 +97,7 @@ data (views keyed on the actor, ARCHITECTURE §11).
 | `/settings/appearance` | everyone | session | unchanged | exists |
 | `/settings/language` | everyone | session | language and direction, the same state as the top-bar menu | **S1 ✅** |
 | `/settings/account` | everyone | session | identity read only: email or phone (machine value, LTR), account kind, scope | **S2 ✅** |
-| `/settings/security` | owner | capability `account.security.manage` (owner) | sign-in methods and step-up methods; an operator gets a collapsed 404 and sees how they sign in on `/settings/account` | S4 |
+| `/settings/security` | owner | capability `account.security.view` (owner) | the owner's factors, read only (S4a); an operator gets `/forbidden` and sees how they sign in on `/settings/account` | **S4a ✅** |
 | `/settings/company` | owner | capability `company.settings.view` | Company profile read only (demo) and a directory of existing configuration | **S3 ✅** |
 | `/platforms/:platformId/settings` | owner | capability `platform.settings.view` + the Platform belongs to the Company; operators: collapsed 404, even when assigned | Platform identity (rename after verification), policies read only | S5 |
 
@@ -134,8 +136,8 @@ sections; each later slice adds its section to it only when built.
 | **P9-S1** ✅ | Settings hub at `/settings`, Language page, account-menu "Settings". Local only | D1, D2, D3 |
 | **P9-S2** ✅ | `/settings/account`: read-only identity and scope for owner and operator; the operator's sign-in explanation (working code, the shift ends the session) | S1 |
 | **P9-S3** ✅ | `/settings/company`: read-only demo Company profile and the configuration directory (links to Platforms, Operators & access, Licenses, Billing, Releases) | S1, D4 |
-| P9-S4-0 | read-only Core verification of factor management, secret key and password contracts | D6 |
-| P9-S4a | `/settings/security` read only: sign-in methods, step-up methods, recovery explained; Company Overview link enabled | S4-0 |
+| **P9-S4-0** ✅ | read-only Core verification of factor management, secret key and password contracts ([p9-s4-account-security.md](p9-s4-account-security.md)) | D6 |
+| **P9-S4a** ✅ | `/settings/security` read only: factors, step-up and recovery explained; Company Overview link enabled | S4-0 |
 | P9-S4b…d | mock commands, one per slice: add / remove factor, rotate secret key, change password | S4a, D7, D10 |
 | P9-S5-0 / S5 | verify the Platform PATCH contract, then `/platforms/:platformId/settings`: identity, owner-only mock rename, policies read only | D5, D6 |
 
