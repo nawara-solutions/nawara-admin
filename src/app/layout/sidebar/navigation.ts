@@ -102,7 +102,10 @@ export const NAVIGATION: readonly NavigationGroup[] = [
 /** An operator's personal Notifications entry (their sidebar has no Operations group). */
 export const NOTIFICATIONS_ITEM: NavigationItem = NOTIFICATIONS_LINK;
 
-/** Personal settings (Appearance in this slice): for every signed-in actor, so it requires no capability. */
+/**
+ * Personal settings (the hub, Appearance and Language; P9-S1): for every signed-in actor, so it requires no capability.
+ * Active on every Settings page (`routerLinkActive` is not exact).
+ */
 export const SETTINGS_ITEM: NavigationItem = {
   labelKey: 'shell.nav.settings',
   icon: 'settings',

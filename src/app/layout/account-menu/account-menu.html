@@ -18,6 +18,10 @@
     </div>
   }
   <div class="account-menu__separator" aria-hidden="true"></div>
+  <button nw-menu-item class="account-menu__item" (triggered)="openSettings()">
+    <nw-icon name="settings" size="sm" />
+    <span>{{ 'shell.account.settings' | transloco }}</span>
+  </button>
   <button nw-menu-item class="account-menu__item" (triggered)="openAppearance()">
     <nw-icon name="palette" size="sm" />
     <span>{{ 'shell.account.appearance' | transloco }}</span>

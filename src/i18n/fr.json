@@ -199,7 +199,9 @@
     "verify": "Vérifiez votre connexion",
     "noAccess": "Accès administratif indisponible",
     "platformChoice": "Choisissez une plateforme",
+    "settings": "Paramètres",
     "settingsAppearance": "Apparence",
+    "settingsLanguage": "Langue",
     "workingCode": "Connexion avec un code de travail",
     "workingCodeVerify": "Saisissez votre code de travail",
     "contactConfirmation": "Confirmez votre contact",
@@ -232,6 +234,8 @@
       "platform": "Plateforme",
       "platforms": "Plateformes",
       "appearance": "Apparence",
+      "settings": "Paramètres",
+      "language": "Langue",
       "organizations": "Organisations",
       "organization": "Organisation",
       "members": "Membres",
@@ -266,6 +270,7 @@
     "account": {
       "trigger": "Compte : {{name}}, {{role}}",
       "menuLabel": "Compte",
+      "settings": "Paramètres",
       "appearance": "Apparence",
       "signOut": "Se déconnecter",
       "signingOut": "Déconnexion…"
@@ -1350,6 +1355,21 @@
     "appearance": {
       "title": "Apparence",
       "subtitle": "Choisissez l’apparence de Nawara Admin dans ce navigateur."
+    },
+    "hub": {
+      "subtitle": "Vos préférences personnelles pour Nawara Admin.",
+      "personal": "Préférences personnelles",
+      "appearanceDescription": "Thème et couleur d’accent.",
+      "appearanceValue": "{{mode}} · {{accent}}",
+      "languageDescription": "Langue et sens de lecture.",
+      "note": "Les préférences personnelles s’appliquent uniquement dans ce navigateur. Elles ne font pas partie de votre compte et ne changent rien pour l’entreprise ni pour ses plateformes."
+    },
+    "language": {
+      "title": "Langue",
+      "subtitle": "Choisissez la langue de Nawara Admin dans ce navigateur. C’est le même choix que le menu de langue de la barre supérieure.",
+      "ltr": "De gauche à droite",
+      "rtl": "De droite à gauche",
+      "note": "Enregistré uniquement dans ce navigateur. Ce réglage ne fait pas partie de votre compte et n’est pas partagé avec vos autres appareils."
     }
   },
   "operators": {

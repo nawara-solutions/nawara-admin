@@ -7,14 +7,16 @@ import { NwIcon } from '../../shared/ui/icon/icon';
 import { NwMenu, NwMenuItem } from '../../shared/ui/menu/menu';
 import { profileOf } from '../sidebar/profile';
 
-/** The route of personal appearance settings (features/settings). */
+/** The Settings hub and its personal appearance section (features/settings). */
+export const SETTINGS_PATH = '/settings';
 export const APPEARANCE_SETTINGS_PATH = '/settings/appearance';
 
 /**
  * The account menu's content (A3-S3 design), opened by the sidebar profile card and by the top-bar avatar
- * (`nwMenuTriggerFor`): who is signed in, Appearance and Sign out. The header repeats what the trigger's accessible name
- * already says, so it is hidden from assistive technology; the identifier (email or phone) is a machine value, kept
- * left-to-right and never translated. Sign out is not styled as dangerous: nothing is lost by it.
+ * (`nwMenuTriggerFor`): who is signed in, Settings (the hub, P9-S1), Appearance and Sign out. The header repeats what
+ * the trigger's accessible name already says, so it is hidden from assistive technology; the identifier (email or
+ * phone) is a machine value, kept left-to-right and never translated. Sign out is not styled as dangerous: nothing is
+ * lost by it.
  */
 @Component({
   selector: 'adm-account-menu',
@@ -42,6 +44,10 @@ export class AccountMenu {
     const actor = this.session.actor();
     return actor !== null && actor.displayName === undefined;
   });
+
+  protected openSettings(): void {
+    void this.router.navigateByUrl(SETTINGS_PATH);
+  }
 
   protected openAppearance(): void {
     void this.router.navigateByUrl(APPEARANCE_SETTINGS_PATH);

@@ -215,8 +215,13 @@ Organizations are entities of platform scope (amendment, P3a, 2026-10-23): their
 /services                      service inventory (P8-S2)                      🟡 mock, owner only; live health 🔴 (CF-06)
 /notifications                 personal unread count (P8-S3)                  🟡 mock, every signed-in person (own count only)
 /monitoring                                                                   🟡
-/settings                      preferences: language, theme, time zone (local)
-/account/security              owner factors, secret key, password            🟢
+/settings                      Settings hub: personal preferences (P9-S1)     local, every signed-in person
+/settings/appearance           theme mode and accent palette                  local, every signed-in person
+/settings/language             language and direction (P9-S1)                 local, every signed-in person
+/settings/account              own identity and scope, read only (P9-S2)      🟢 /auth/me · planned
+/settings/security             owner factors, secret key, password (P9-S4)    🟢 contracts unverified · planned
+/settings/company              Company profile, read only (P9-S3)             🔴 (CF-02, CF-49) · planned
+/platforms/:platformId/settings Platform identity and policies, owner (P9-S5) 🟢 PATCH unverified · ⚠ cutover · planned
 ```
 
 - Guards: `authGuard` (a session exists), `capabilityGuard(cap)` (UX only), `availabilityGuard(domain)` (adapter available in this
@@ -727,7 +732,8 @@ src/styles/
   flower) is `position: fixed` to the visible workspace (below the top bar, beside the sidebar, inside the scrollbar),
   under the content column, so it stays put while the document scrolls, without scroll script.
 - **One appearance state, three entry points:** `ThemeService` holds mode and accent; the Appearance popover (beside the
-  language control on the sign-in pages and in the top bar) and Settings → Appearance edit the same state. It is
+  language control on the sign-in pages and in the top bar) and Settings → Appearance edit the same state, and the
+  Settings hub (P9-S1) shows it. It is
   browser-local (`nw.theme`, `nw.accent` in the preference registry), validated on read, applied before first paint by
   `index.html`, and independent of the session, role and scope: sign-in, sign-out, reload and scope changes keep it.
   It is not synchronized with a Core account.
@@ -770,6 +776,10 @@ Consequences to honour in A2, because Transloco checks translations at runtime r
 - Translation keys are stable and meaningful (`organizations.list.empty`) and never derived from English text.
 - The locale preference is explicit (a language switcher) with `navigator.languages` as the first-visit default. It is persisted in
   the preference registry. `Accept-Language` sent to Core always equals the UI locale.
+- **One language state, two entry points (P9-S1):** the language menu (top bar, sign-in pages) and Settings → Language
+  both call `LocaleService.use()`, which applies the catalog, `<html lang dir>` and CDK `Directionality` together and
+  keeps the choice under `nw.locale`. Neither keeps a copy; Settings stores nothing itself. Times follow the device's
+  time zone; there is no separate region or time-zone setting.
 - **Shared (share-ready) primitives own no copy.** Labels arrive through inputs or a provided `NwUiLabels` token, so a shared
   package never ships its own catalog.
 - **Machine values are never translated:** ids, `code`s, enum values, request/correlation ids, service and product identifiers, audit

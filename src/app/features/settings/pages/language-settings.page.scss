@@ -1,0 +1,121 @@
+// Settings → Language (P9-S1, docs/design/p9-settings-architecture.md), sized by its own width (container queries, §15).
+@use 'abstracts' as nw;
+
+:host {
+  display: grid;
+  align-content: start;
+  gap: var(--nw-space-5);
+  max-inline-size: 40rem;
+  min-inline-size: 0;
+  container-type: inline-size;
+}
+
+.language-settings__header {
+  display: grid;
+  gap: var(--nw-space-2);
+}
+
+.language-settings__eyebrow {
+  color: var(--nw-text-brand);
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.language-settings__title {
+  font-size: 1.625rem;
+  font-weight: var(--nw-font-weight-bold);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+
+  &:lang(ar) {
+    letter-spacing: 0;
+  }
+}
+
+.language-settings__subtitle {
+  color: var(--nw-text-label);
+  font-size: 0.90625rem;
+}
+
+.language-settings__card {
+  display: grid;
+  gap: var(--nw-space-4);
+  min-inline-size: 0;
+  padding: var(--nw-space-4);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: 1.125rem;
+  background-color: var(--nw-surface-raised);
+  box-shadow: var(--nw-shadow-card);
+}
+
+.language-settings__group {
+  display: grid;
+  gap: var(--nw-space-2);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.language-settings__legend {
+  margin-block-end: var(--nw-space-2);
+  padding: 0;
+  color: var(--nw-text-label);
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+// The native radio stays in the accessibility tree and takes the keyboard; the label is the visible control.
+.language-settings__input {
+  @include nw.visually-hidden;
+}
+
+.language-settings__option {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-1) var(--nw-space-3);
+  min-block-size: 3rem;
+  padding: var(--nw-space-2) var(--nw-space-4);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-raised);
+  color: var(--nw-text-primary);
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--nw-border-default);
+  }
+
+  &:has(:checked) {
+    border-color: var(--nw-border-brand);
+    background-color: var(--nw-surface-brand-subtle);
+  }
+
+  &:has(:focus-visible) {
+    @include nw.focus-ring;
+  }
+}
+
+.language-settings__name {
+  flex: 1 1 auto;
+  font-size: var(--nw-text-size-md);
+  font-weight: var(--nw-font-weight-medium);
+}
+
+.language-settings__option:has(:checked) .language-settings__name {
+  color: var(--nw-text-brand);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.language-settings__direction,
+.language-settings__note {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+@container (min-width: 30rem) {
+  .language-settings__card {
+    padding: var(--nw-space-6);
+  }
+}

@@ -1,0 +1,44 @@
+<header class="settings-hub__header">
+  <h1 class="settings-hub__title">{{ 'settings.title' | transloco }}</h1>
+  <p class="settings-hub__subtitle">{{ 'settings.hub.subtitle' | transloco }}</p>
+</header>
+
+<section class="settings-hub__section" aria-labelledby="settings-hub-personal">
+  <h2 id="settings-hub-personal" class="settings-hub__heading">
+    {{ 'settings.hub.personal' | transloco }}
+  </h2>
+  <ul class="settings-hub__list" role="list">
+    <li>
+      <a class="settings-hub__link" routerLink="/settings/appearance" data-section="appearance">
+        <span class="settings-hub__mark" aria-hidden="true"><nw-icon name="palette" /></span>
+        <span class="settings-hub__text">
+          <span class="settings-hub__name">{{ 'settings.appearance.title' | transloco }}</span>
+          <span class="settings-hub__description">{{
+            'settings.hub.appearanceDescription' | transloco
+          }}</span>
+          <span class="settings-hub__value" data-value>{{
+            'settings.hub.appearanceValue'
+              | transloco: { mode: (modeKey() | transloco), accent: (accentKey() | transloco) }
+          }}</span>
+        </span>
+        <nw-icon class="settings-hub__chevron" name="chevron-right" size="sm" />
+      </a>
+    </li>
+    <li>
+      <a class="settings-hub__link" routerLink="/settings/language" data-section="language">
+        <span class="settings-hub__mark" aria-hidden="true"><nw-icon name="globe" /></span>
+        <span class="settings-hub__text">
+          <span class="settings-hub__name">{{ 'settings.language.title' | transloco }}</span>
+          <span class="settings-hub__description">{{
+            'settings.hub.languageDescription' | transloco
+          }}</span>
+          <span class="settings-hub__value" data-value [attr.lang]="currentLocale()">{{
+            language()
+          }}</span>
+        </span>
+        <nw-icon class="settings-hub__chevron" name="chevron-right" size="sm" />
+      </a>
+    </li>
+  </ul>
+  <p class="settings-hub__note">{{ 'settings.hub.note' | transloco }}</p>
+</section>

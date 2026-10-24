@@ -449,6 +449,7 @@ Admin strategy and the decision required before A4.
 | Platform directory (`/platforms`): Platforms with organizations, memberships, operator assignments | Organization / Auth | 🔴 | no human route lists a Company's Platforms or their counts (CF-02, CF-03, CF-11) | `PlatformDirectoryGateway`, mock in demo builds; "unavailable" otherwise |
 | Unread notification count (sidebar badge, top-bar bell, `/notifications`) | Notification | 🟡 | delivery only; no human inbox or unread-count route (CF-14) | `NotificationSummaryGateway` through the shell's one `NotificationIndicator`, mock in demo builds (the signed-in session's own count; no identity parameter); unavailable otherwise: no badge, no dot, and the page says so. **P8-S3:** a personal count only, no message, no read/dismiss action (CF-44, CF-48 proposed) |
 | Releases (`/releases`, P8-S4) | Release | 🟢 actions (not prod, not verified by Admin) · 🔴 catalog (CF-05) | `release/admin/...` withdraw / compatibility policy (`OwnerGuard`) | Owner-only **information page** (`ReleaseInformationGateway`, mock in demo builds, unavailable otherwise): what the service owns and how each capability stands; no release list, no version, no command, enabled or disabled |
+| Personal Settings (`/settings` hub, `/settings/appearance`, `/settings/language`; P9-S1) | none (browser-local) | — | no Core contract involved | Theme, accent and language in the preference registry only (`nw.theme`, `nw.accent`, `nw.locale`); the one `ThemeService` and `LocaleService` state; never synchronized with a Core account. Account, security, Company and Platform settings are later P9 slices: security and Platform settings first need a read-only Core verification (factors, secret key, password; Platform PATCH); CF-49 to CF-53 proposed |
 
 ## 8. Transport rules Admin must follow
 
@@ -948,6 +949,51 @@ Admin requirement: for the signed-in owner or operator only (bearer-scoped, no i
                   history is kept, what zero unread means). Until then `/notifications` shows a demo count only.
 Classification:   🟡 planned capability (V2 A8).
 Recommended checkpoint: before any notification HTTP adapter.
+
+CF-49  Owner read and edit of the Company profile                         PROPOSED (P9-0, 2026-10-24)
+Service:          organization-service (Auth is authoritative today)
+Current behavior: (per §5) no human route lists or reads Companies (CF-02 covers hierarchy reads); no Company edit
+                  route is documented.
+Admin requirement: the owner reads their own Company's profile (name and any other identity fields Core defines) and,
+                  if Core decides it is editable, changes it with stated authority, step-up and idempotency. Until then
+                  `/settings/company` (P9-S3) shows the demo name read only and offers no edit.
+Classification:   🔴 undefined.
+Recommended checkpoint: Core V2 A5.
+
+CF-50  A person's notification preferences                                 PROPOSED (P9-0)
+Service:          notification-service
+Current behavior: (per §5) service-token send / status / cancel only; no human route.
+Admin requirement: for the signed-in owner or operator only: which channels and kinds they receive, and which they may
+                  opt out of (sign-in and security codes presumably never). Until then Admin offers no notification
+                  preference.
+Classification:   🟡 planned capability (V2 A8); with CF-14, CF-48.
+Recommended checkpoint: before any notification preference UI.
+
+CF-51  A person's own sessions                                             PROPOSED (P9-0)
+Service:          auth-service
+Current behavior: `POST /auth/logout` ends the presented session; block and suspend end an account's sessions (§5); no
+                  route lists the signed-in person's sessions or ends another one of theirs.
+Admin requirement: the signed-in owner or operator lists their own sessions (no tokens, no raw addresses) and ends one
+                  or all others. Until then Settings says signing out ends this session only.
+Classification:   🔴 undefined.
+Recommended checkpoint: Core V2 A4.
+
+CF-52  Operator policy configuration                                       PROPOSED (P9-0)
+Service:          auth-service (with V2 A6 authorization)
+Current behavior: operator sessions end at the shift ceiling (`session_ceiling_reached`, §4); whether the shift or the
+                  working-code rules are configurable, and by whom, is not documented; no operator capability sets.
+Admin requirement: a stated answer: fixed by Core, or configurable by the Company owner through a defined contract.
+                  Until then Admin shows no operator policy setting.
+Classification:   🔴 undefined / 🟡 V2 A6.
+Recommended checkpoint: Core V2 A6.
+
+CF-53  Display name for Admin identities                                   PROPOSED (P9-0)
+Service:          auth-service
+Current behavior: (per §7) `GET /auth/me` returns email and phone only; the UI falls back to the email.
+Admin requirement: whether owners and operators have a display name, who may set it, and its limits. Until then
+                  `/settings/account` (P9-S2) shows the contact only and offers no name edit.
+Classification:   🔴 undefined.
+Recommended checkpoint: Core V2 A4.
 
 Residual risk recorded with P6-S3: block and unblock require no step-up (Core's deliberate choice for an emergency
 control), so a stolen owner session can block every operator or unblock one. Admin adds no verification Core does not ask

@@ -199,7 +199,9 @@
     "verify": "تحقّق من تسجيل دخولك",
     "noAccess": "الوصول الإداري غير متاح",
     "platformChoice": "اختر منصة",
+    "settings": "الإعدادات",
     "settingsAppearance": "المظهر",
+    "settingsLanguage": "اللغة",
     "workingCode": "تسجيل الدخول برمز عمل",
     "workingCodeVerify": "أدخل رمز العمل",
     "contactConfirmation": "تأكيد جهة الاتصال",
@@ -232,6 +234,8 @@
       "platform": "المنصة",
       "platforms": "المنصات",
       "appearance": "المظهر",
+      "settings": "الإعدادات",
+      "language": "اللغة",
       "organizations": "المؤسسات",
       "organization": "المؤسسة",
       "members": "الأعضاء",
@@ -266,6 +270,7 @@
     "account": {
       "trigger": "الحساب: {{name}}، {{role}}",
       "menuLabel": "الحساب",
+      "settings": "الإعدادات",
       "appearance": "المظهر",
       "signOut": "تسجيل الخروج",
       "signingOut": "جارٍ تسجيل الخروج…"
@@ -1350,6 +1355,21 @@
     "appearance": {
       "title": "المظهر",
       "subtitle": "اختر مظهر Nawara Admin في هذا المتصفح."
+    },
+    "hub": {
+      "subtitle": "تفضيلاتك الشخصية في Nawara Admin.",
+      "personal": "التفضيلات الشخصية",
+      "appearanceDescription": "السمة ولون التمييز.",
+      "appearanceValue": "{{mode}} · {{accent}}",
+      "languageDescription": "اللغة واتجاه القراءة.",
+      "note": "تنطبق التفضيلات الشخصية في هذا المتصفح فقط. لا ترتبط بحسابك ولا تغيّر شيئًا في الشركة أو منصاتها."
+    },
+    "language": {
+      "title": "اللغة",
+      "subtitle": "اختر لغة Nawara Admin في هذا المتصفح. إنه الاختيار نفسه الموجود في قائمة اللغة في الشريط العلوي.",
+      "ltr": "من اليسار إلى اليمين",
+      "rtl": "من اليمين إلى اليسار",
+      "note": "يُحفَظ في هذا المتصفح فقط. لا يرتبط بحسابك ولا يُشارَك مع أجهزتك الأخرى."
     }
   },
   "operators": {
