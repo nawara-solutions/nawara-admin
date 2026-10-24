@@ -10,15 +10,18 @@ describe('settings routes (P9-S1)', () => {
     const route = shell?.children?.find((r) => r.path === 'settings');
     expect(route).toBeDefined();
     expect(route?.canActivate).toBeUndefined();
-    for (const child of SETTINGS_ROUTES) expect(child.canActivate).toBeUndefined();
+    // Personal settings have no capability guard; only Company settings (P9-S3) are the owner's.
+    for (const child of SETTINGS_ROUTES.filter((r) => r.path !== 'company'))
+      expect(child.canActivate).toBeUndefined();
   });
 
-  it('makes /settings a page (the hub), not a redirect, with Appearance, Language and Account below it', () => {
+  it('makes /settings a page (the hub), not a redirect, with Appearance, Language, Account and Company below it', () => {
     expect(SETTINGS_ROUTES.map((r) => [r.path, r.title, r.redirectTo])).toEqual([
       ['', 'titles.settings', undefined],
       ['appearance', 'titles.settingsAppearance', undefined],
       ['language', 'titles.settingsLanguage', undefined],
       ['account', 'titles.settingsAccount', undefined],
+      ['company', 'titles.settingsCompany', undefined],
     ]);
     // P9-S2: the own account only; no route takes an identity parameter
     for (const route of SETTINGS_ROUTES) expect(route.path).not.toContain(':');

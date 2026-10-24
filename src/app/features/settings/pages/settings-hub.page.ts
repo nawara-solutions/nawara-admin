@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { Actor } from '../../../core/auth/actor';
+import { can } from '../../../core/access/capability-policy';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { LOCALE_ENDONYMS } from '../../../core/i18n/locale';
 import { LocaleService } from '../../../core/i18n/locale.service';
@@ -31,8 +32,8 @@ const ROLE_KEYS = {
 /**
  * The Settings hub (`/settings`, P9-S1, P9-S2): the personal settings that exist, Appearance and Language, each a
  * link with its current value read from the one ThemeService and LocaleService state (never a copy), and the
- * signed-in person's own Account (their account type, from the session). Nothing here is a Company or Platform
- * setting, and no unavailable security or business setting is offered.
+ * signed-in person's own Account (their account type, from the session); and, for the owner only, Company settings
+ * (P9-S3). No unavailable security or business setting is offered.
  */
 @Component({
   selector: 'adm-settings-hub-page',
@@ -55,4 +56,8 @@ export class SettingsHubPage {
     const kind = this.session.actor()?.kind;
     return kind === undefined ? null : ROLE_KEYS[kind];
   });
+  /** Company settings (P9-S3): the owner only. */
+  protected readonly companySettings = computed(() =>
+    can(this.session.actor(), 'company.settings.view'),
+  );
 }

@@ -14,6 +14,7 @@ export type DemoDomain =
   | 'activity'
   | 'services'
   | 'releases'
+  | 'companySettings'
   | 'platformDashboard'
   | 'platformCommercial'
   | 'organizations'

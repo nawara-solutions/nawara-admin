@@ -203,6 +203,7 @@
     "settingsAppearance": "Apparence",
     "settingsLanguage": "Langue",
     "settingsAccount": "Votre compte",
+    "settingsCompany": "Paramètres de l’entreprise",
     "workingCode": "Connexion avec un code de travail",
     "workingCodeVerify": "Saisissez votre code de travail",
     "contactConfirmation": "Confirmez votre contact",
@@ -238,6 +239,7 @@
       "settings": "Paramètres",
       "language": "Langue",
       "account": "Compte",
+      "companySettings": "Paramètres de l’entreprise",
       "organizations": "Organisations",
       "organization": "Organisation",
       "members": "Membres",
@@ -1366,7 +1368,9 @@
       "languageDescription": "Langue et sens de lecture.",
       "note": "Les préférences personnelles s’appliquent uniquement dans ce navigateur. Elles ne font pas partie de votre compte et ne changent rien pour l’entreprise ni pour ses plateformes.",
       "account": "Compte",
-      "accountDescription": "Sous quelle identité vous êtes connecté, et sur quoi vous pouvez travailler."
+      "accountDescription": "Sous quelle identité vous êtes connecté, et sur quoi vous pouvez travailler.",
+      "company": "Entreprise",
+      "companyDescription": "Le profil de l’entreprise et les pages où elle se gère."
     },
     "language": {
       "title": "Langue",
@@ -1402,6 +1406,57 @@
       "source": "D’après votre session actuelle. Cette page ne modifie rien.",
       "signedOutTitle": "Vous êtes déconnecté",
       "signedOutDescription": "Connectez-vous pour voir votre compte."
+    },
+    "company": {
+      "title": "Entreprise",
+      "subtitle": "L’entreprise dont vous êtes propriétaire, et les pages où elle se gère. En lecture seule.",
+      "profile": "Profil",
+      "name": "Nom",
+      "platforms": "Plateformes",
+      "management": "Où l’entreprise se gère",
+      "managementNote": "Chaque aspect de l’entreprise se gère sur sa propre page.",
+      "links": {
+        "overview": {
+          "title": "Vue d’ensemble de l’entreprise",
+          "description": "Chiffres, points d’attention et activité récente de l’entreprise."
+        },
+        "platforms": {
+          "title": "Plateformes et organisations",
+          "description": "Chaque plateforme et ses organisations."
+        },
+        "operators": {
+          "title": "Opérateurs et accès",
+          "description": "Les opérateurs et leur accès aux plateformes."
+        },
+        "licenses": {
+          "title": "Licences et droits",
+          "description": "Abonnements des organisations, en lecture seule."
+        },
+        "billing": {
+          "title": "Facturation et paiements",
+          "description": "Suivi des paiements, en lecture seule."
+        },
+        "audit": {
+          "title": "Journal d’audit",
+          "description": "Activité administrative de l’entreprise."
+        }
+      },
+      "unavailable": {
+        "title": "Non disponible dans cette version",
+        "body": "Nawara Core ne permet pas encore de lire ni de modifier le profil de l’entreprise ; rien de ceci n’est donc modifiable ici :",
+        "identity": "le nom et l’identité de l’entreprise",
+        "branding": "l’identité visuelle, comme un logo ou des couleurs",
+        "business": "la configuration métier, comme les informations de facturation ou les règles"
+      },
+      "states": {
+        "loading": "Chargement de l’entreprise…",
+        "notInBuildTitle": "Les paramètres de l’entreprise ne sont pas disponibles",
+        "notInBuildDescription": "Nawara Core ne fournit pas encore le profil de l’entreprise à Admin.",
+        "errorTitle": "L’entreprise n’a pas pu être chargée",
+        "errorDescription": "Réessayez dans un instant.",
+        "retry": "Réessayer",
+        "forbiddenDescription": "Les paramètres de l’entreprise sont réservés au propriétaire de l’entreprise."
+      }
     }
   },
   "operators": {

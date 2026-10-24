@@ -35,6 +35,7 @@ const DEMO: DemoBindings = {
     activity: [],
     services: [],
     releases: [],
+    companySettings: [],
     platformDashboard: [],
     platformCommercial: [],
     organizations: [],
