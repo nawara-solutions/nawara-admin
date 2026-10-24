@@ -318,7 +318,8 @@ Admin strategy and the decision required before A4.
 - Record: `eventId, occurredAt, recordedAt, action, category, sourceService, actor{type,id,userKind?}, organizationId, resource,
   subject, outcome, changes, correlationId, causationId`.
 - **Not available to humans:** platform-level records (null organization, e.g. `owner.*`, `account.*`), cross-organization sweeps,
-  any operator read. Needs Company attribution in the audit contract (CF-04).
+  any operator read. Needs Company attribution in the audit contract (CF-04). Admin's `/audit` (P8-S1) is simulated
+  activity only, never evidence that a Company- or Platform-wide read exists.
 
 ### File
 
@@ -432,6 +433,7 @@ Admin strategy and the decision required before A4.
 | Organization growth history | Organization | 🔴 | no history or time-series route (CF-12) | Mock, derived from the demo world's Organization creation dates (P2.5) |
 | "Needs attention" signals | Auth / Organization | 🔴 | none (CF-13) | Mock, fictional items |
 | Recent administrative activity, company-wide | Audit | 🔴 | owner reads one organization per request, ≤ 31 days; platform-level records service-only (CF-04) | Mock: the demo world's Platform events, newest first (P2.5) |
+| Audit log page (`/audit`, P8-S1) | Audit | 🔴 Company / Platform-wide (CF-04) · 🟢 one organization (not integrated) | the owner's one-Organization read is not called; no Company- or Platform-wide read exists | **Simulated** administrative activity (`ActivityGateway`, mock in demo builds, unavailable otherwise), labelled "not Core audit evidence"; no export, no change field (CF-45), no Core window semantics claimed (CF-47). Core Audit integration is NOT done |
 | Create organization | Organization | 🟢 contract · ⚠ not authoritative | `POST /organization/admin/organizations` (see §5, verified P3b-0) | P3b-S1: the owner's flow (name + optional metadata → step-up `organization.create` → idempotent command) against a demo-world mock that succeeds by default, `409 not_authoritative` as a scenario; operators see it disabled (no operator step-up, CF-08); production binds the unavailable adapter (no HTTP adapter yet) |
 | Edit organization metadata | Organization | 🟢 contract · ⚠ not authoritative | `PATCH /organization/admin/organizations/:id` (§5) | P3b-S2: "Edit details" for the owner and assigned operators (no step-up), minimal patch, `null` clears, no automatic resend; demo-world mock (succeeds by default; `409 not_authoritative`, lost answer and `503` as scenarios); production binds the unavailable adapter (no HTTP adapter) |
 | Organization admin invitations | Auth | 🟢 | `organization.controller.ts:123-148` (§5, verified P3b-S3-0) | P3b-S3: owner-only card on the Organization details; create (step-up `admin_invitation.create`, the code shown once, never stored), list (derived status, `contactBound` only), revoke (destructive confirmation + step-up `admin_invitation.revoke`); no automatic retry after a lost answer; demo-world mock; production binds the unavailable adapter (no HTTP adapter) |
@@ -906,6 +908,24 @@ Current behavior: no License entity; an Organization is entitled or not.
 Admin requirement: Core states whether seat allocation and consumption will exist; Admin shows none until then.
 Classification:   🟡 architectural decision.
 Recommended checkpoint: before P7-S4.
+
+CF-45  Safe browser projection of audit change fields                     PROPOSED (P8-0, 2026-10-24)
+Service:          audit-service
+Current behavior: (per §5 Audit) owner records carry `changes`, `actor`, `subject`, `resource`; no documented rule
+                  for which fields may reach a browser.
+Admin requirement: a stated projection (contacts and secrets redacted or absent) before Admin renders any change detail;
+                  until then the activity browser (P8-S1, simulated) shows no change field, and an HTTP adapter would
+                  show none either.
+Classification:   🟡 contract clarification.
+Recommended checkpoint: before the owner audit HTTP adapter (A9).
+
+CF-47  Exact audit query time-window rules                                 PROPOSED (P8-0)
+Service:          audit-service
+Current behavior: (per §5 Audit) `from`/`to` UTC, at most 31 days, `limit` ≤ 100, opaque cursor.
+Admin requirement: verified bounds (inclusive / exclusive), the 31-day measure, cursor stability when records arrive,
+                  and the error for an oversized window, so the browser can present them in the owner's time zone.
+Classification:   🟡 contract verification.
+Recommended checkpoint: before the owner audit HTTP adapter (A9).
 
 Residual risk recorded with P6-S3: block and unblock require no step-up (Core's deliberate choice for an emergency
 control), so a stolen owner session can block every operator or unblock one. Admin adds no verification Core does not ask

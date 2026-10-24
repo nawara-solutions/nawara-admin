@@ -212,7 +212,8 @@
     "operator": "Operator",
     "licenses": "Licenses & entitlements",
     "platformSubscriptions": "Platform subscriptions",
-    "billing": "Billing & payments"
+    "billing": "Billing & payments",
+    "audit": "Audit log"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -236,7 +237,8 @@
       "operator": "Operator",
       "licenses": "Licenses & entitlements",
       "platformSubscriptions": "Platform subscriptions",
-      "billing": "Billing & payments"
+      "billing": "Billing & payments",
+      "audit": "Audit log"
     },
     "context": {
       "label": "Administration scope",
@@ -1104,6 +1106,7 @@
       "activity": "Recent activity",
       "activityEmpty": "No recent administrative activity for this organization.",
       "activityNote": "This organization’s administrative events, newest first.",
+      "openActivity": "Open in the activity browser",
       "about": "About",
       "platform": "Platform",
       "organizationId": "Organization ID",
@@ -1816,6 +1819,83 @@
       "errorDescription": "Try again in a moment.",
       "retry": "Try again",
       "forbiddenDescription": "Billing and payment information is shown to the Company owner only."
+    }
+  },
+  "activity": {
+    "header": {
+      "eyebrow": "Operations",
+      "title": "Audit log",
+      "subtitle": "Administrative activity of your Company, its Platforms and Organizations."
+    },
+    "simulated": {
+      "title": "Simulated administrative activity — not Core audit evidence.",
+      "body": "These events come from this build’s demo records. They are not Nawara Core’s audit records: they are not immutable, verified or complete, carry no retention guarantee and are not delivered in real time."
+    },
+    "backToOrganization": "Back to the Organization",
+    "scoped": {
+      "title": "Platform and Organization activity",
+      "count": "Matching events: {{count}}",
+      "none": "No event matches these filters."
+    },
+    "filters": {
+      "platform": "Platform",
+      "allPlatforms": "All Platforms",
+      "organization": "Organization",
+      "allOrganizations": "All Organizations",
+      "choosePlatform": "Choose a Platform first.",
+      "action": "Action",
+      "allActions": "All actions",
+      "unknown": "This Platform or Organization is not one of your Company’s.",
+      "clear": "Show all activity"
+    },
+    "scope": {
+      "organization": "Organization",
+      "platform": "Platform",
+      "company": "Company"
+    },
+    "showMore": "Show more",
+    "company": {
+      "title": "Company-level activity",
+      "none": "No Company-level activity.",
+      "notInScope": "Company-level activity belongs to no Platform or Organization, so it is not shown for a selection.",
+      "viewOperator": "View operator",
+      "note": "Operator accounts created, blocked or unblocked. Nawara Core has no owner read of these events yet."
+    },
+    "not": {
+      "title": "What this is not",
+      "evidence": "Not immutable, verified or certified audit evidence.",
+      "complete": "Not a complete or authoritative history.",
+      "fields": "No audit identifier, actor, outcome, origin, signature or change details.",
+      "export": "No export or download.",
+      "core": "Nawara Core’s audit can be read for one Organization at a time; a Company-wide read does not exist yet."
+    },
+    "actions": {
+      "platformCreated": "Platform created",
+      "organizationCreated": "Organization created",
+      "organizationUpdated": "Organization details updated",
+      "adminInvitationCreated": "Admin invitation created",
+      "adminInvitationRevoked": "Admin invitation revoked",
+      "membershipApproved": "Membership approved",
+      "membershipRejected": "Membership request rejected",
+      "membershipRevoked": "Membership revoked",
+      "organizationAdminGranted": "Organization admin role given",
+      "organizationAdminRevoked": "Organization admin role removed",
+      "operatorAssigned": "Operator given Platform access",
+      "operatorUnassigned": "Operator Platform access removed",
+      "operatorCreated": "Operator account created",
+      "operatorBlocked": "Operator account blocked",
+      "operatorUnblocked": "Operator account unblocked"
+    },
+    "states": {
+      "loading": "Loading activity…",
+      "emptyTitle": "No administrative activity yet",
+      "emptyDescription": "There is no simulated activity to show.",
+      "notInBuildTitle": "Not available in this build",
+      "notInBuildDescription": "This build has no demo activity, and Nawara Core offers no Company-wide audit read yet. Nothing is shown.",
+      "errorTitle": "Activity could not be loaded",
+      "errorDescription": "Try again in a moment.",
+      "retry": "Try again",
+      "forbiddenDescription": "Administrative activity is shown to the Company owner only."
     }
   }
 }

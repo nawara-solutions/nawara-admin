@@ -122,6 +122,19 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
           },
         },
         {
+          // Audit log (P8-S1): simulated administrative activity, company scope, the owner only, direct URLs included.
+          path: 'audit',
+          title: 'titles.audit',
+          data: { [BREADCRUMB_DATA]: 'shell.breadcrumb.audit' },
+          canActivate: [capabilityGuard('company.audit.view')],
+          loadChildren: () => {
+            const env = inject(APP_ENVIRONMENT);
+            return import('../features/activity/activity.routes').then((m) =>
+              m.loadActivityRoutes(env),
+            );
+          },
+        },
+        {
           // Billing & payments (P7-S3): payment follow-ups, Company commercial area, the owner only, direct URLs included.
           path: 'billing',
           title: 'titles.billing',

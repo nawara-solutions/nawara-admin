@@ -202,6 +202,17 @@
             headingId="organization-activity"
             [heading]="'organizations.detail.activity' | transloco"
           >
+            @if (canBrowseActivity()) {
+              <!-- P8-S1: the one activity browser, with this Organization preselected (ids only in the URL). -->
+              <a
+                cardActions
+                class="organization-detail__link"
+                routerLink="/audit"
+                [queryParams]="{ platform: platform.id, organization: detail.id }"
+                data-activity-browser
+                >{{ 'organizations.detail.openActivity' | transloco }}</a
+              >
+            }
             @if (detail.activity.status === 'available') {
               <adm-organization-activity [entries]="detail.activity.data" />
             } @else {

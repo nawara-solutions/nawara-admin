@@ -309,6 +309,19 @@ describe('OrganizationDetailPage', () => {
     expect(text(element).toLowerCase()).not.toMatch(/\b(suspended|archived|provisioned)\b/);
   });
 
+  it('links the owner’s activity card to the activity browser with this Organization preselected (P8-S1)', async () => {
+    const { element, organizations, settle } = await render(
+      OrganizationDetailPage,
+      owner,
+      '/platforms/school/organizations/riad',
+    );
+    organizations.loads[0]?.answer.next(detailOf());
+    await settle();
+    const link = element.querySelector('[data-activity-browser]');
+    expect(text(link)).toBe(en.organizations.detail.openActivity);
+    expect(link?.getAttribute('href')).toBe('/audit?platform=school&organization=riad');
+  });
+
   it('shows an operator the hierarchy facts only', async () => {
     const { element, organizations, commercial, settle } = await render(
       OrganizationDetailPage,
@@ -327,8 +340,9 @@ describe('OrganizationDetailPage', () => {
       en.organizations.detail.membership,
       en.organizations.detail.about,
     ]);
-    // No invitation card for operators (Core refuses them).
+    // No invitation card for operators (Core refuses them), and no activity browser link.
     expect(element.querySelector('adm-admin-invitations-card')).toBeNull();
+    expect(element.querySelector('[data-activity-browser]')).toBeNull();
     expect(text(element.querySelector('.organization-detail__access'))).toBe(
       en.organizations.header.accessOperator,
     );

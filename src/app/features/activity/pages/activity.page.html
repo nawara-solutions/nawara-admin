@@ -1,0 +1,236 @@
+@let view = facade.view();
+<header class="activity__header">
+  <span class="activity__mark" aria-hidden="true"><nw-icon name="scroll-text" size="lg" /></span>
+  <div class="activity__titles">
+    <p class="activity__eyebrow">{{ 'activity.header.eyebrow' | transloco }}</p>
+    <h1 class="activity__title">{{ 'activity.header.title' | transloco }}</h1>
+    <p class="activity__muted">{{ 'activity.header.subtitle' | transloco }}</p>
+  </div>
+  @if (isDemo()) {
+    <span class="activity__demo">
+      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+    </span>
+  }
+</header>
+
+<!-- Every state, every width: the content is simulated, never Core audit evidence. -->
+<p class="activity__note" role="note" data-simulated>
+  <nw-icon name="info" size="sm" />
+  <span
+    ><strong>{{ 'activity.simulated.title' | transloco }}</strong>
+    {{ 'activity.simulated.body' | transloco }}</span
+  >
+</p>
+
+@switch (view.status) {
+  @case ('ready') {
+    @let activity = view.activity;
+    @let query = facade.query();
+    @let selection = facade.selection();
+    @let names = this.names();
+    @if (selection.status === 'organization') {
+      <p class="activity__context" data-context>
+        <span
+          ><bdi>{{ selection.organization.name }}</bdi> ·
+          <bdi>{{ names.platforms.get(selection.platformId) }}</bdi></span
+        >
+        <a
+          nw-button
+          variant="secondary"
+          size="sm"
+          [routerLink]="
+            organizationPath(selection.organization.platformId, selection.organization.id)
+          "
+        >
+          <nw-icon name="arrow-left" size="sm" />{{ 'activity.backToOrganization' | transloco }}
+        </a>
+      </p>
+    }
+
+    <section class="activity__card" aria-labelledby="activity-scoped">
+      <h2 id="activity-scoped" class="activity__card-title">
+        {{ 'activity.scoped.title' | transloco }}
+      </h2>
+      <div class="activity__toolbar">
+        <nw-form-field class="activity__select" [label]="'activity.filters.platform' | transloco">
+          <select nwControl aria-controls="activity-list" (change)="onPlatform($event)">
+            <option value="" [selected]="query.platform === null">
+              {{ 'activity.filters.allPlatforms' | transloco }}
+            </option>
+            @for (platform of activity.platforms; track platform.id) {
+              <option [value]="platform.id" [selected]="platform.id === query.platform">
+                {{ platform.name }}
+              </option>
+            }
+          </select>
+        </nw-form-field>
+        <nw-form-field
+          class="activity__select"
+          [label]="'activity.filters.organization' | transloco"
+          [hint]="
+            query.platform === null ? ('activity.filters.choosePlatform' | transloco) : undefined
+          "
+        >
+          <select
+            nwControl
+            aria-controls="activity-list"
+            [disabled]="query.platform === null"
+            (change)="onOrganization($event)"
+          >
+            <option value="" [selected]="query.organization === null">
+              {{ 'activity.filters.allOrganizations' | transloco }}
+            </option>
+            @for (organization of organizationOptions(); track organization.id) {
+              <option [value]="organization.id" [selected]="organization.id === query.organization">
+                {{ organization.name }}
+              </option>
+            }
+          </select>
+        </nw-form-field>
+        <nw-form-field class="activity__select" [label]="'activity.filters.action' | transloco">
+          <select nwControl aria-controls="activity-list" (change)="onAction($event)">
+            <option value="" [selected]="query.action === null">
+              {{ 'activity.filters.allActions' | transloco }}
+            </option>
+            @for (action of actions; track action) {
+              <option [value]="action" [selected]="action === query.action">
+                {{ actionKeys[action] | transloco }}
+              </option>
+            }
+          </select>
+        </nw-form-field>
+        <p class="activity__muted activity__count" role="status" aria-live="polite">
+          {{ 'activity.scoped.count' | transloco: { count: (facade.entries().length | nwNumber) } }}
+        </p>
+      </div>
+
+      @if (selection.status === 'unknown') {
+        <div class="activity__no-match" data-unknown>
+          <p>{{ 'activity.filters.unknown' | transloco }}</p>
+          <button nw-button variant="secondary" size="sm" type="button" (click)="clear()">
+            {{ 'activity.filters.clear' | transloco }}
+          </button>
+        </div>
+      } @else if (facade.entries().length === 0) {
+        <div class="activity__no-match" data-no-match>
+          <p>{{ 'activity.scoped.none' | transloco }}</p>
+          <button nw-button variant="secondary" size="sm" type="button" (click)="clear()">
+            {{ 'activity.filters.clear' | transloco }}
+          </button>
+        </div>
+      } @else {
+        <ol id="activity-list" class="activity__list" role="list">
+          @for (entry of visible(); track entry.id) {
+            <li class="activity__item" [attr.data-scope]="entry.scope">
+              <span class="activity__action">{{ actionKeys[entry.action] | transloco }}</span>
+              <span class="activity__where">
+                @if (entry.scope === 'organization' && entry.organizationId && entry.platformId) {
+                  {{ 'activity.scope.organization' | transloco }} ·
+                  <a [routerLink]="organizationPath(entry.platformId, entry.organizationId)"
+                    ><bdi>{{ names.organizations.get(entry.organizationId) }}</bdi></a
+                  >
+                  · <bdi>{{ names.platforms.get(entry.platformId) }}</bdi>
+                } @else if (entry.platformId) {
+                  {{ 'activity.scope.platform' | transloco }} ·
+                  <a [routerLink]="platformPath(entry.platformId)"
+                    ><bdi>{{ names.platforms.get(entry.platformId) }}</bdi></a
+                  >
+                }
+              </span>
+              <time class="activity__when" [attr.datetime]="entry.occurredAt">{{
+                entry.occurredAt | nwDate: 'date-time'
+              }}</time>
+            </li>
+          }
+        </ol>
+        @if (facade.entries().length > visible().length) {
+          <button nw-button variant="secondary" type="button" (click)="facade.showMore()">
+            {{ 'activity.showMore' | transloco }}
+          </button>
+        }
+      }
+    </section>
+
+    <section class="activity__card" aria-labelledby="activity-company" data-company>
+      <h2 id="activity-company" class="activity__card-title">
+        {{ 'activity.company.title' | transloco }}
+      </h2>
+      @if (selection.status !== 'all') {
+        <p class="activity__muted">{{ 'activity.company.notInScope' | transloco }}</p>
+      } @else if (facade.companyEntries().length === 0) {
+        <p class="activity__muted">{{ 'activity.company.none' | transloco }}</p>
+      } @else {
+        <ol class="activity__list" role="list">
+          @for (entry of facade.companyEntries(); track entry.id) {
+            <li class="activity__item" data-scope="company">
+              <span class="activity__action">{{ actionKeys[entry.action] | transloco }}</span>
+              <span class="activity__where">
+                {{ 'activity.scope.company' | transloco }}
+                @if (entry.operatorId) {
+                  ·
+                  <a [routerLink]="['/operators', entry.operatorId]">{{
+                    'activity.company.viewOperator' | transloco
+                  }}</a>
+                }
+              </span>
+              <time class="activity__when" [attr.datetime]="entry.occurredAt">{{
+                entry.occurredAt | nwDate: 'date-time'
+              }}</time>
+            </li>
+          }
+        </ol>
+      }
+      <p class="activity__muted">{{ 'activity.company.note' | transloco }}</p>
+    </section>
+
+    <section class="activity__card activity__card--quiet" aria-labelledby="activity-not">
+      <h2 id="activity-not" class="activity__card-title">
+        {{ 'activity.not.title' | transloco }}
+      </h2>
+      <ul class="activity__not" role="list" data-not>
+        <li>{{ 'activity.not.evidence' | transloco }}</li>
+        <li>{{ 'activity.not.complete' | transloco }}</li>
+        <li>{{ 'activity.not.fields' | transloco }}</li>
+        <li>{{ 'activity.not.export' | transloco }}</li>
+        <li>{{ 'activity.not.core' | transloco }}</li>
+      </ul>
+    </section>
+  }
+  @case ('empty') {
+    <nw-data-state
+      state="empty"
+      [title]="'activity.states.emptyTitle' | transloco"
+      [description]="'activity.states.emptyDescription' | transloco"
+    />
+  }
+  @case ('notInBuild') {
+    <nw-data-state
+      state="empty"
+      [title]="'activity.states.notInBuildTitle' | transloco"
+      [description]="'activity.states.notInBuildDescription' | transloco"
+    />
+  }
+  @case ('error') {
+    <nw-data-state
+      state="error"
+      [title]="'activity.states.errorTitle' | transloco"
+      [description]="'activity.states.errorDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'activity.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('forbidden') {
+    <nw-data-state
+      state="empty"
+      [title]="'shell.pages.forbidden.title' | transloco"
+      [description]="'activity.states.forbiddenDescription' | transloco"
+    />
+  }
+  @default {
+    <nw-data-state state="loading" [title]="'activity.states.loading' | transloco" />
+  }
+}

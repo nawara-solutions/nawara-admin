@@ -30,6 +30,7 @@ const DEMO_BINDINGS_STUB: DemoBindings = {
     commercialSummary: [],
     licenses: [],
     billing: [],
+    activity: [],
     serviceHealth: [],
     platformDashboard: [],
     platformCommercial: [],
