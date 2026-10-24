@@ -199,7 +199,9 @@
     "verify": "Verify your sign-in",
     "noAccess": "Administrative access unavailable",
     "platformChoice": "Choose a platform",
+    "settings": "Settings",
     "settingsAppearance": "Appearance",
+    "settingsLanguage": "Language",
     "workingCode": "Sign in with a working code",
     "workingCodeVerify": "Enter your working code",
     "contactConfirmation": "Confirm your contact",
@@ -232,6 +234,8 @@
       "platform": "Platform",
       "platforms": "Platforms",
       "appearance": "Appearance",
+      "settings": "Settings",
+      "language": "Language",
       "organizations": "Organizations",
       "organization": "Organization",
       "members": "Members",
@@ -266,6 +270,7 @@
     "account": {
       "trigger": "Account: {{name}}, {{role}}",
       "menuLabel": "Account",
+      "settings": "Settings",
       "appearance": "Appearance",
       "signOut": "Sign out",
       "signingOut": "Signing out…"
@@ -1350,6 +1355,21 @@
     "appearance": {
       "title": "Appearance",
       "subtitle": "Choose how Nawara Admin looks in this browser."
+    },
+    "hub": {
+      "subtitle": "Your personal preferences for Nawara Admin.",
+      "personal": "Personal preferences",
+      "appearanceDescription": "Theme and accent colour.",
+      "appearanceValue": "{{mode}} · {{accent}}",
+      "languageDescription": "Language and reading direction.",
+      "note": "Personal preferences apply in this browser only. They are not part of your account and change nothing for the Company or its Platforms."
+    },
+    "language": {
+      "title": "Language",
+      "subtitle": "Choose the language of Nawara Admin in this browser. It is the same choice as the language menu in the top bar.",
+      "ltr": "Left to right",
+      "rtl": "Right to left",
+      "note": "Saved in this browser only. It is not part of your account and is not shared with other devices."
     }
   },
   "operators": {

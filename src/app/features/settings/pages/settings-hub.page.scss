@@ -1,0 +1,126 @@
+// The Settings hub (P9-S1, docs/design/p9-settings-architecture.md), sized by its own width (container queries, §15).
+@use 'abstracts' as nw;
+
+:host {
+  display: grid;
+  align-content: start;
+  gap: var(--nw-space-5);
+  max-inline-size: 52rem;
+  min-inline-size: 0;
+  container-type: inline-size;
+}
+
+.settings-hub__header {
+  display: grid;
+  gap: var(--nw-space-2);
+}
+
+.settings-hub__title {
+  font-size: 1.625rem;
+  font-weight: var(--nw-font-weight-bold);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+
+  &:lang(ar) {
+    letter-spacing: 0;
+  }
+}
+
+.settings-hub__subtitle,
+.settings-hub__note {
+  color: var(--nw-text-label);
+  font-size: 0.90625rem;
+}
+
+.settings-hub__note {
+  font-size: var(--nw-text-size-sm);
+}
+
+.settings-hub__section {
+  display: grid;
+  gap: var(--nw-space-3);
+  min-inline-size: 0;
+}
+
+.settings-hub__heading {
+  color: var(--nw-text-label);
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.settings-hub__list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--nw-space-3);
+}
+
+.settings-hub__link {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-3);
+  min-block-size: 3.5rem;
+  padding: var(--nw-space-4);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: 1.125rem;
+  background-color: var(--nw-surface-raised);
+  box-shadow: var(--nw-shadow-card);
+  color: var(--nw-text-primary);
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--nw-border-brand);
+  }
+
+  &:focus-visible {
+    @include nw.focus-ring;
+  }
+}
+
+.settings-hub__mark {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-brand-subtle);
+  color: var(--nw-text-brand);
+}
+
+.settings-hub__text {
+  display: grid;
+  flex: 1;
+  gap: 0.125rem;
+  min-inline-size: 0;
+}
+
+.settings-hub__name {
+  font-size: var(--nw-text-size-md);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.settings-hub__description {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.settings-hub__value {
+  color: var(--nw-text-brand);
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-medium);
+}
+
+.settings-hub__chevron {
+  flex: none;
+  color: var(--nw-text-secondary);
+}
+
+@container (min-width: 36rem) {
+  .settings-hub__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .settings-hub__link {
+    padding: var(--nw-space-5);
+  }
+}

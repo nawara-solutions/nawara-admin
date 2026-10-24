@@ -10,7 +10,7 @@ import { SignOut } from '../../core/auth/sign-out';
 import { APP_ENVIRONMENT, DemoBindings } from '../../core/config/app-environment';
 import { companyId, platformId } from '../../core/context/scope.model';
 import { NwMenuTrigger } from '../../shared/ui/menu/menu';
-import { APPEARANCE_SETTINGS_PATH, AccountMenu } from './account-menu';
+import { APPEARANCE_SETTINGS_PATH, AccountMenu, SETTINGS_PATH } from './account-menu';
 
 const DEMO: DemoBindings = {
   signIn: {
@@ -118,7 +118,7 @@ describe('AccountMenu', () => {
     document.querySelector('.cdk-overlay-container')?.replaceChildren();
   });
 
-  it('shows who is signed in, then Appearance and Sign out as menu items', async () => {
+  it('shows who is signed in, then Settings, Appearance and Sign out as menu items', async () => {
     const { menu, items } = await open(owner);
     expect(menu()?.getAttribute('aria-label')).toBe(en.shell.account.menuLabel);
     const header = menu()?.querySelector('.account-menu__header');
@@ -128,6 +128,7 @@ describe('AccountMenu', () => {
     expect(header?.querySelector('.account-menu__identifier')?.getAttribute('dir')).toBe('ltr');
     expect(text(header?.querySelector('.account-menu__role'))).toBe(en.shell.role.owner);
     expect(items().map((item) => text(item))).toEqual([
+      en.shell.account.settings,
       en.shell.account.appearance,
       en.shell.account.signOut,
     ]);
@@ -149,10 +150,23 @@ describe('AccountMenu', () => {
     expect(name?.getAttribute('dir')).toBe('ltr');
   });
 
+  for (const [name, actor] of [
+    ['owner', owner],
+    ['operator', emailOperator],
+  ] as const) {
+    it(`opens the Settings hub for the ${name} (P9-S1)`, async () => {
+      const { items, fixture } = await open(actor);
+      const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+      items()[0]?.click();
+      await fixture.whenStable();
+      expect(navigate).toHaveBeenCalledWith(SETTINGS_PATH);
+    });
+  }
+
   it('opens Appearance settings', async () => {
     const { items, fixture } = await open(owner);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
-    items()[0]?.click();
+    items()[1]?.click();
     await fixture.whenStable();
     expect(navigate).toHaveBeenCalledWith(APPEARANCE_SETTINGS_PATH);
   });
@@ -160,7 +174,7 @@ describe('AccountMenu', () => {
   it('signs out through the one SignOut', async () => {
     const { items, fixture } = await open(owner);
     const run = vi.spyOn(TestBed.inject(SignOut), 'run').mockResolvedValue();
-    items()[1]?.click();
+    items()[2]?.click();
     await fixture.whenStable();
     expect(run).toHaveBeenCalledTimes(1);
   });
