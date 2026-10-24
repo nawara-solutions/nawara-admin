@@ -210,7 +210,8 @@
     "membership": "العضوية",
     "operators": "المشغّلون والوصول",
     "operator": "مشغّل",
-    "licenses": "التراخيص والاستحقاقات"
+    "licenses": "التراخيص والاستحقاقات",
+    "platformSubscriptions": "اشتراكات المنصة"
   },
   "shell": {
     "skipToContent": "الانتقال إلى المحتوى",
@@ -232,7 +233,8 @@
       "membership": "العضوية",
       "operators": "المشغّلون والوصول",
       "operator": "مشغّل",
-      "licenses": "التراخيص والاستحقاقات"
+      "licenses": "التراخيص والاستحقاقات",
+      "platformSubscriptions": "اشتراكات المنصة"
     },
     "context": {
       "label": "نطاق الإدارة",
@@ -1047,6 +1049,11 @@
       "ends": "ينتهي {{when}}",
       "graceEnds": "ينتهي الوصول {{when}}"
     },
+    "entitlement": {
+      "entitled": "نعم",
+      "entitledInGrace": "نعم، حتى تنتهي فترة السماح",
+      "notEntitled": "لا"
+    },
     "policy": {
       "enabled": "مفعّل",
       "disabled": "معطّل",
@@ -1102,9 +1109,13 @@
       "subscription": "الاشتراك",
       "subscriptionState": "اشتراك المؤسسة",
       "endsAt": "ينتهي",
-      "graceEndsAt": "ينتهي الوصول",
-      "graceNote": "عند انتهائه، يحتفظ الأعضاء بالوصول خلال فترة سماح مدتها 24 ساعة.",
-      "noSubscriptionNote": "لا يوجد اشتراك لهذه المؤسسة.",
+      "endedAt": "انتهى في",
+      "graceEndsAt": "تنتهي فترة السماح",
+      "entitledNow": "مستحقة الآن",
+      "activeNote": "مستحقة ما دام الاشتراك نشطًا. عند انتهائه تبقى المؤسسة مستحقة خلال فترة سماح مدتها 24 ساعة.",
+      "graceNote": "انتهى: تبقى المؤسسة مستحقة حتى تنتهي فترة السماح، ولا يُحسب نشطًا. يبقى الأعضاء أعضاء.",
+      "noSubscriptionNote": "لا يوجد اشتراك لهذه المؤسسة، لذا فهي غير مستحقة. يبقى أعضاؤها أعضاء.",
+      "platformSubscriptions": "كل اشتراكات هذه المنصة",
       "payments": "المدفوعات",
       "paymentIssues": "مدفوعات تحتاج إلى متابعة",
       "paymentIssuesNote": "تفاصيل الدفع غير متاحة في هذا الإصدار.",
@@ -1691,6 +1702,49 @@
       "errorDescription": "حاول مجددًا بعد قليل.",
       "retry": "حاول مجددًا",
       "forbiddenDescription": "تُعرض الاشتراكات والاستحقاقات لمالك الشركة فقط."
+    },
+    "platform": {
+      "title": "اشتراكات المؤسسات",
+      "subtitle": "كل مؤسسة في هذه المنصة: اشتراكها، وموعد انتهائه، وهل هي مستحقة الآن.",
+      "back": "التراخيص والاستحقاقات",
+      "dashboard": "لوحة المنصة",
+      "listTitle": "المؤسسات",
+      "caption": "حالة اشتراك كل مؤسسة وموعده واستحقاقها",
+      "searchLabel": "البحث بالاسم",
+      "searchPlaceholder": "اسم المؤسسة",
+      "filterLabel": "الاشتراك",
+      "filter": {
+        "all": "الكل ({{count}})",
+        "active": "نشطة ({{count}})",
+        "endingSoon": "تنتهي خلال {{days}} يومًا ({{count}})",
+        "grace": "في فترة السماح ({{count}})",
+        "none": "بلا اشتراك ({{count}})"
+      },
+      "count": "عرض {{shown}} من {{total}} مؤسسة",
+      "organization": "المؤسسة",
+      "subscription": "الاشتراك",
+      "timeline": "الانتهاء",
+      "entitled": "مستحقة الآن",
+      "state": {
+        "active": "نشط",
+        "grace": "في فترة السماح",
+        "none": "بلا اشتراك"
+      },
+      "entitlement": {
+        "entitled": "نعم",
+        "entitledInGrace": "نعم، حتى تنتهي فترة السماح",
+        "notEntitled": "لا"
+      },
+      "endsOn": "ينتهي في {{date}}",
+      "endedOn": "انتهى في {{date}}",
+      "noEnd": "لا تاريخ انتهاء",
+      "noMatch": "لا توجد مؤسسة تطابق هذا البحث وهذه التصفية.",
+      "clear": "مسح البحث والتصفية",
+      "independence": "العضويات وPersonal Premium ومشكلات الدفع أمور منفصلة: لا تغيّر مشكلة دفع حالة أي اشتراك هنا، ويبقى الأعضاء أعضاء أيًّا كان الاستحقاق.",
+      "emptyTitle": "لا توجد مؤسسات في هذه المنصة",
+      "emptyDescription": "لا يوجد اشتراك لعرضه.",
+      "notFoundTitle": "المنصة غير موجودة",
+      "notFoundDescription": "هذه المنصة غير موجودة أو لا تتبع شركتك."
     }
   }
 }

@@ -12,6 +12,7 @@ import {
   activeMembershipCount,
   pendingRequestCount,
   assistedPaymentsOf,
+  entitlementOf,
   newestFirst,
   organizationOf,
   organizationsOf,
@@ -101,7 +102,8 @@ function subscriptionOf(
   const { state, graceEndsAt } = subscriptionStateOf(world, organization, now);
   const endsAt = subscriptionEndOf(world, organization);
   if (state === 'active' && endsAt !== null) return { state, endsAt };
-  if (state === 'grace' && graceEndsAt !== undefined) return { state, graceEndsAt };
+  if (state === 'grace' && endsAt !== null && graceEndsAt !== undefined)
+    return { state, endsAt, graceEndsAt };
   return { state: 'none' };
 }
 
@@ -236,6 +238,10 @@ export class MockOrganizationCommercialGateway extends OrganizationCommercialGat
         this.scenario === 'partial'
           ? UNAVAILABLE
           : { status: 'available', data: subscriptionOf(world, record.id, this.now()) },
+      entitlement:
+        this.scenario === 'partial'
+          ? UNAVAILABLE
+          : { status: 'available', data: entitlementOf(world, record.id, this.now()) },
       paymentIssues: { status: 'available', data: count(paymentIssuesOf(world, [record]).length) },
       assistedPayments:
         assistedPayments === null ? UNAVAILABLE : { status: 'available', data: assistedPayments },

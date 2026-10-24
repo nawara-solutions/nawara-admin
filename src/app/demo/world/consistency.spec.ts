@@ -150,6 +150,38 @@ describe('demo world: cross-feature consistency', () => {
     }
   });
 
+  it('gives each Platform’s subscription directory the Licenses row, the Organizations directory and each detail section (P7-S2)', async () => {
+    const m = mocks(DEMO_OWNER_ID, 'owner');
+    const licenses = await firstValueFrom(m.licenses.overview(DEMO_COMPANY_ID));
+    let total = 0;
+    for (const row of licenses.platforms) {
+      const subscriptions = await firstValueFrom(
+        m.licenses.platform(DEMO_COMPANY_ID, row.platform.id),
+      );
+      expect(subscriptions.distribution).toEqual(row.distribution);
+      total += subscriptions.organizations.length;
+      // Every Organization of the Platform, no more, no fewer.
+      const listed = await firstValueFrom(m.organizations.list(row.platform.id));
+      expect(subscriptions.organizations.map((e) => e.organizationId).sort()).toEqual(
+        listed.organizations.map((o) => o.id).sort(),
+      );
+      const directory = await firstValueFrom(m.organizationCommercial.list(row.platform.id));
+      for (const entry of subscriptions.organizations) {
+        const summary = directory.organizations.find(
+          (o) => o.organizationId === entry.organizationId,
+        );
+        expect(summary?.subscription.state).toBe(entry.state);
+        const detail = await firstValueFrom(m.organizationCommercial.load(entry.organizationId));
+        const subscription = data(detail.subscription);
+        expect(subscription.state).toBe(entry.state);
+        expect(subscription.endsAt ?? null).toBe(entry.endsAt);
+        expect(subscription.graceEndsAt ?? null).toBe(entry.graceEndsAt);
+        expect(data(detail.entitlement)).toBe(entry.entitlement);
+      }
+    }
+    expect(total).toBe(licenses.company.organizations);
+  });
+
   it('lists in the Company activity exactly the newest events of the Platform activity feeds', async () => {
     const m = mocks(DEMO_OWNER_ID, 'owner');
     const overview = data((await firstValueFrom(m.overview.load(DEMO_COMPANY_ID))).activity);

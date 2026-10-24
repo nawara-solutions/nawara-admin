@@ -1,0 +1,284 @@
+@let view = facade.view();
+@let platform = view.status === 'ready' ? view.subscriptions.platform : null;
+<header class="platform-subscriptions__header">
+  <div class="platform-subscriptions__titles">
+    <p class="platform-subscriptions__eyebrow">
+      @if (platform) {
+        <bdi>{{ platform.name }}</bdi>
+      } @else {
+        {{ 'licenses.header.title' | transloco }}
+      }
+    </p>
+    <h1 class="platform-subscriptions__title">{{ 'licenses.platform.title' | transloco }}</h1>
+    <p class="platform-subscriptions__subtitle">{{ 'licenses.platform.subtitle' | transloco }}</p>
+  </div>
+  <div class="platform-subscriptions__actions">
+    @if (isDemo()) {
+      <span class="platform-subscriptions__demo">
+        <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+        <span class="nw-visually-hidden">: {{ 'licenses.demoExplanation' | transloco }}</span>
+      </span>
+    }
+    <a nw-button variant="secondary" routerLink="/licenses">
+      <nw-icon name="arrow-left" size="sm" />{{ 'licenses.platform.back' | transloco }}
+    </a>
+    @if (platform) {
+      <a nw-button variant="ghost" [routerLink]="platformPath(platform.id)">
+        {{ 'licenses.platform.dashboard' | transloco }}
+      </a>
+    }
+  </div>
+</header>
+
+@switch (view.status) {
+  @case ('ready') {
+    @let subscriptions = view.subscriptions;
+    @let d = subscriptions.distribution;
+    <p class="platform-subscriptions__note" role="note">
+      <nw-icon name="info" size="sm" />
+      <span>{{ 'licenses.provisional' | transloco }}</span>
+    </p>
+
+    <dl
+      class="platform-subscriptions__totals"
+      [attr.aria-label]="'licenses.figures.label' | transloco"
+    >
+      <div class="platform-subscriptions__total">
+        <dt>{{ 'licenses.figures.organizations' | transloco }}</dt>
+        <dd>{{ d.organizations | nwNumber }}</dd>
+      </div>
+      <div class="platform-subscriptions__total">
+        <dt>{{ 'licenses.figures.active' | transloco }}</dt>
+        <dd>{{ d.active | nwNumber }}</dd>
+      </div>
+      <div class="platform-subscriptions__total">
+        <dt>{{ 'licenses.figures.grace' | transloco }}</dt>
+        <dd>{{ d.grace | nwNumber }}</dd>
+      </div>
+      <div class="platform-subscriptions__total">
+        <dt>{{ 'licenses.figures.none' | transloco }}</dt>
+        <dd>{{ d.none | nwNumber }}</dd>
+      </div>
+      <div class="platform-subscriptions__total">
+        <dt>
+          {{
+            'licenses.platforms.endingSoon' | transloco: { days: subscriptions.endingWithinDays }
+          }}
+        </dt>
+        <dd>{{ d.endingSoon | nwNumber }}</dd>
+      </div>
+    </dl>
+    <p class="platform-subscriptions__entitled" data-entitled>
+      <nw-icon name="shield-check" size="sm" />
+      <span>{{
+        'licenses.entitledNow'
+          | transloco
+            : {
+                entitled: (d.entitled | nwNumber),
+                total: (d.organizations | nwNumber),
+                active: (d.active | nwNumber),
+                grace: (d.grace | nwNumber),
+              }
+      }}</span>
+    </p>
+
+    @if (d.organizations === 0) {
+      <nw-data-state
+        state="empty"
+        [title]="'licenses.platform.emptyTitle' | transloco"
+        [description]="'licenses.platform.emptyDescription' | transloco"
+      />
+    } @else {
+      <section class="platform-subscriptions__card" aria-labelledby="platform-subscriptions-list">
+        <h2 id="platform-subscriptions-list" class="platform-subscriptions__card-title">
+          {{ 'licenses.platform.listTitle' | transloco }}
+        </h2>
+        <div class="platform-subscriptions__toolbar" role="search">
+          <nw-form-field
+            class="platform-subscriptions__select"
+            [label]="'licenses.platform.searchLabel' | transloco"
+          >
+            <input
+              nwControl
+              type="search"
+              maxlength="200"
+              aria-controls="platform-subscriptions-table"
+              [placeholder]="'licenses.platform.searchPlaceholder' | transloco"
+              [value]="facade.search()"
+              (input)="onSearch($event)"
+            />
+          </nw-form-field>
+          <nw-form-field
+            class="platform-subscriptions__select"
+            [label]="'licenses.platform.filterLabel' | transloco"
+          >
+            <select
+              nwControl
+              aria-controls="platform-subscriptions-table"
+              (change)="onFilter($event)"
+            >
+              @for (filter of filters; track filter) {
+                <option [value]="filter" [selected]="filter === facade.filter()">
+                  {{
+                    filterKeys[filter]
+                      | transloco
+                        : {
+                            days: subscriptions.endingWithinDays,
+                            count: (filterCount(d, filter) | nwNumber),
+                          }
+                  }}
+                </option>
+              }
+            </select>
+          </nw-form-field>
+          <p class="platform-subscriptions__count" role="status" aria-live="polite">
+            {{
+              'licenses.platform.count'
+                | transloco
+                  : {
+                      shown: (facade.rows().length | nwNumber),
+                      total: (d.organizations | nwNumber),
+                    }
+            }}
+          </p>
+        </div>
+
+        @if (facade.rows().length > 0) {
+          <div
+            class="platform-subscriptions__table-box"
+            tabindex="0"
+            aria-labelledby="platform-subscriptions-list"
+          >
+            <table id="platform-subscriptions-table" class="platform-subscriptions__table">
+              <caption class="nw-visually-hidden">
+                {{
+                  'licenses.platform.caption' | transloco
+                }}
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'licenses.platform.organization' | transloco }}</th>
+                  <th scope="col">{{ 'licenses.platform.subscription' | transloco }}</th>
+                  <th scope="col">{{ 'licenses.platform.timeline' | transloco }}</th>
+                  <th scope="col">{{ 'licenses.platform.entitled' | transloco }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of facade.rows(); track row.organizationId) {
+                  <tr [attr.data-organization]="row.organizationId" [attr.data-state]="row.state">
+                    <th scope="row">
+                      <a
+                        [routerLink]="
+                          organizationPath(subscriptions.platform.id, row.organizationId)
+                        "
+                        ><bdi>{{ row.organizationName }}</bdi></a
+                      >
+                    </th>
+                    <td data-column="state">
+                      <span
+                        class="platform-subscriptions__state"
+                        [class.platform-subscriptions__state--grace]="row.state === 'grace'"
+                        [class.platform-subscriptions__state--none]="row.state === 'none'"
+                        >{{ stateKeys[row.state] | transloco }}</span
+                      >
+                    </td>
+                    <td data-column="timeline">
+                      @if (row.state === 'active' && row.endsAt) {
+                        <div>
+                          {{
+                            'licenses.platform.endsOn'
+                              | transloco: { date: (row.endsAt | nwDate: 'date') }
+                          }}
+                        </div>
+                        @if (row.endingSoon) {
+                          <span class="platform-subscriptions__soon" data-ending-soon>
+                            <nw-icon name="timer-off" size="sm" />{{
+                              'licenses.attention.ends'
+                                | transloco: { when: (row.endsAt | nwDate: 'until') }
+                            }}
+                          </span>
+                        }
+                      } @else if (row.state === 'grace') {
+                        @if (row.endsAt) {
+                          <div>
+                            {{
+                              'licenses.platform.endedOn'
+                                | transloco: { date: (row.endsAt | nwDate: 'date') }
+                            }}
+                          </div>
+                        }
+                        @if (row.graceEndsAt) {
+                          <span class="platform-subscriptions__soon">
+                            <nw-icon name="hourglass" size="sm" />{{
+                              'licenses.attention.graceEnds'
+                                | transloco: { at: (row.graceEndsAt | nwDate: 'date-time') }
+                            }}
+                          </span>
+                        }
+                      } @else {
+                        <span class="platform-subscriptions__muted">{{
+                          'licenses.platform.noEnd' | transloco
+                        }}</span>
+                      }
+                    </td>
+                    <td data-column="entitlement">
+                      {{ entitlementKeys[row.entitlement] | transloco }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="platform-subscriptions__no-match" data-no-match>
+            <p>{{ 'licenses.platform.noMatch' | transloco }}</p>
+            <button nw-button variant="secondary" size="sm" type="button" (click)="clearAll()">
+              {{ 'licenses.platform.clear' | transloco }}
+            </button>
+          </div>
+        }
+        <p class="platform-subscriptions__hint">
+          <nw-icon name="info" size="sm" />
+          <span>{{ 'licenses.platform.independence' | transloco }}</span>
+        </p>
+      </section>
+    }
+  }
+  @case ('notFound') {
+    <nw-data-state
+      state="empty"
+      [title]="'licenses.platform.notFoundTitle' | transloco"
+      [description]="'licenses.platform.notFoundDescription' | transloco"
+    />
+  }
+  @case ('notInBuild') {
+    <nw-data-state
+      state="empty"
+      [title]="'licenses.states.notInBuildTitle' | transloco"
+      [description]="'licenses.states.notInBuildDescription' | transloco"
+    />
+  }
+  @case ('error') {
+    <nw-data-state
+      state="error"
+      [title]="'licenses.states.errorTitle' | transloco"
+      [description]="'licenses.states.errorDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'licenses.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('forbidden') {
+    <nw-data-state
+      state="empty"
+      [title]="'shell.pages.forbidden.title' | transloco"
+      [description]="'licenses.states.forbiddenDescription' | transloco"
+    />
+  }
+  @default {
+    <nw-data-state state="loading" [title]="'licenses.states.loading' | transloco" />
+  }
+}

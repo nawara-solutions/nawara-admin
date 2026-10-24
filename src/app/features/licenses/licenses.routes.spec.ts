@@ -8,7 +8,7 @@ import {
   UrlTree,
   provideRouter,
 } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { Actor } from '../../core/auth/actor';
 import { AuthSession } from '../../core/auth/auth-session';
 import { APP_ENVIRONMENT, AppEnvironment } from '../../core/config/app-environment';
@@ -16,6 +16,7 @@ import { companyId, platformId } from '../../core/context/scope.model';
 import { ADAPTER_UNAVAILABLE } from '../../core/errors/app-error';
 import { loadShellRoutes } from '../../layout/shell.routes';
 import { LicensesFacade } from './application/licenses.facade';
+import { PlatformSubscriptionsFacade } from './application/platform-subscriptions.facade';
 import { UnavailableLicensesGateway } from './data-access/licenses.gateway';
 import { loadLicensesRoutes } from './licenses.routes';
 
@@ -59,9 +60,13 @@ function guardResult(route: Route, actor: Actor) {
   return result instanceof UrlTree ? result.toString() : result;
 }
 
-describe('licenses routes (P7-S1)', () => {
-  it('guards /licenses: the owner only, direct URLs included; an operator assigned everywhere is refused', async () => {
+describe('licenses routes (P7-S1, P7-S2)', () => {
+  it('guards /licenses and its Platform pages: the owner only, direct URLs included; an operator assigned everywhere is refused', async () => {
     const route = await licensesRoute();
+    // One guard on the parent covers `/licenses` and `/licenses/platforms/:platformId` alike.
+    const [root] = await loadLicensesRoutes(PRODUCTION);
+    expect(root?.children?.map((c) => c.path)).toEqual(['', 'platforms/:platformId']);
+    expect(root?.children?.every((c) => c.canActivate === undefined)).toBe(true);
     expect(guardResult(route, owner)).toBe(true);
     TestBed.resetTestingModule();
     expect(guardResult(route, operator)).toBe('/forbidden');
@@ -69,16 +74,18 @@ describe('licenses routes (P7-S1)', () => {
 
   it('binds only the unavailable adapter in a production build: no demo record, no request', async () => {
     const [root] = await loadLicensesRoutes(PRODUCTION);
-    const providers = (root?.providers ?? []) as (Provider & { useClass?: unknown })[];
-    expect(providers.map((p) => (typeof p === 'function' ? p : p.useClass))).toEqual([
-      UnavailableLicensesGateway,
-      LicensesFacade,
-    ]);
-    await expect(firstValueFrom(new UnavailableLicensesGateway().overview())).rejects.toMatchObject(
-      {
+    const classes = (route: Route | undefined) =>
+      ((route?.providers ?? []) as (Provider & { useClass?: unknown })[]).map((p) =>
+        typeof p === 'function' ? p : p.useClass,
+      );
+    expect(classes(root)).toEqual([UnavailableLicensesGateway]);
+    expect(root?.children?.map(classes)).toEqual([[LicensesFacade], [PlatformSubscriptionsFacade]]);
+    const unavailable = new UnavailableLicensesGateway();
+    const reads: Observable<unknown>[] = [unavailable.overview(), unavailable.platform()];
+    for (const read of reads)
+      await expect(firstValueFrom(read)).rejects.toMatchObject({
         kind: 'unavailable',
         code: ADAPTER_UNAVAILABLE,
-      },
-    );
+      });
   });
 });

@@ -283,9 +283,11 @@
             @switch (commercial.status) {
               @case ('success') {
                 @let subscription = commercial.data.subscription;
+                @let entitlement = commercial.data.entitlement;
                 @if (subscription.status === 'available') {
                   @let current = subscription.data;
-                  <dl class="organization-detail__rows">
+                  <!-- P7-S2: the state, its timeline and the entitlement, each its own row. -->
+                  <dl class="organization-detail__rows" data-subscription>
                     <div class="organization-detail__row">
                       <dt>{{ 'organizations.detail.subscriptionState' | transloco }}</dt>
                       <dd>
@@ -308,21 +310,41 @@
                         </dd>
                       </div>
                     }
-                    @if (current.state === 'grace' && current.graceEndsAt) {
-                      <div class="organization-detail__row">
-                        <dt>{{ 'organizations.detail.graceEndsAt' | transloco }}</dt>
-                        <dd>{{ current.graceEndsAt | nwDate: 'date-time' }}</dd>
-                      </div>
+                    @if (current.state === 'grace') {
+                      @if (current.endsAt) {
+                        <div class="organization-detail__row">
+                          <dt>{{ 'organizations.detail.endedAt' | transloco }}</dt>
+                          <dd>{{ current.endsAt | nwDate: 'date' }}</dd>
+                        </div>
+                      }
+                      @if (current.graceEndsAt) {
+                        <div class="organization-detail__row">
+                          <dt>{{ 'organizations.detail.graceEndsAt' | transloco }}</dt>
+                          <dd>{{ current.graceEndsAt | nwDate: 'date-time' }}</dd>
+                        </div>
+                      }
                     }
+                    <div class="organization-detail__row" data-entitlement>
+                      <dt>{{ 'organizations.detail.entitledNow' | transloco }}</dt>
+                      <dd>
+                        @if (entitlement.status === 'available') {
+                          {{ entitlementKeys[entitlement.data] | transloco }}
+                        } @else {
+                          {{ 'organizations.table.unavailable' | transloco }}
+                        }
+                      </dd>
+                    </div>
                   </dl>
-                  <p class="organization-detail__note">
-                    {{
-                      (current.state === 'none'
-                        ? 'organizations.detail.noSubscriptionNote'
-                        : 'organizations.detail.graceNote'
-                      ) | transloco
-                    }}
+                  <p class="organization-detail__note" data-subscription-note>
+                    {{ subscriptionNoteKeys[current.state] | transloco }}
                   </p>
+                  @if (canViewSubscriptions()) {
+                    <a
+                      class="organization-detail__link"
+                      [routerLink]="platformSubscriptionsPath(platform.id)"
+                      >{{ 'organizations.detail.platformSubscriptions' | transloco }}</a
+                    >
+                  }
                 } @else {
                   <ng-container
                     [ngTemplateOutlet]="sectionUnavailable"

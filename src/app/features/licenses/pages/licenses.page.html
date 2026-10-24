@@ -119,7 +119,7 @@
               @let d = row.distribution;
               <tr [attr.data-platform]="row.platform.id">
                 <th scope="row">
-                  <a [routerLink]="platformPath(row.platform.id)"
+                  <a [routerLink]="platformSubscriptionsPath(row.platform.id)"
                     ><bdi>{{ row.platform.name }}</bdi></a
                   >
                 </th>

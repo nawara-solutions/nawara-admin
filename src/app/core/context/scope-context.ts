@@ -59,6 +59,13 @@ export const membershipPath = (
   membership: string,
 ): string => `${membersPath(platform, organization)}/${encodeURIComponent(membership)}`;
 
+/**
+ * One Platform's Organization subscriptions (P7-S2): a company-scope commercial page (the owner's), never platform scope,
+ * so it lives under `/licenses` and an operator assigned to the Platform never reaches it through the Platform's URLs.
+ */
+export const platformSubscriptionsPath = (platform: PlatformId): string =>
+  `/licenses/${PLATFORM_SCOPE_SEGMENT}/${encodeURIComponent(platform)}`;
+
 /** Where in platform scope a URL is: the dashboard, the Organization directory, or one Organization. */
 export type PlatformPage =
   | { readonly kind: 'dashboard' }

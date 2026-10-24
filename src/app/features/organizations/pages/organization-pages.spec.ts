@@ -334,6 +334,66 @@ describe('OrganizationDetailPage', () => {
     );
   });
 
+  it('shows the subscription, its timeline and the entitlement as separate rows, per state (P7-S2)', async () => {
+    const d = en.organizations.detail;
+    const HOUR = 3_600_000;
+    const cases = [
+      {
+        subscription: { state: 'active', endsAt: new Date(NOW + 6 * 24 * HOUR).toISOString() },
+        entitlement: 'entitled',
+        rows: [d.subscriptionState, d.endsAt, d.entitledNow],
+        value: en.organizations.entitlement.entitled,
+        note: d.activeNote,
+      },
+      {
+        subscription: {
+          state: 'grace',
+          endsAt: new Date(NOW - 6 * HOUR).toISOString(),
+          graceEndsAt: new Date(NOW + 18 * HOUR).toISOString(),
+        },
+        entitlement: 'entitledInGrace',
+        rows: [d.subscriptionState, d.endedAt, d.graceEndsAt, d.entitledNow],
+        value: en.organizations.entitlement.entitledInGrace,
+        note: d.graceNote,
+      },
+      {
+        subscription: { state: 'none' },
+        entitlement: 'notEntitled',
+        rows: [d.subscriptionState, d.entitledNow],
+        value: en.organizations.entitlement.notEntitled,
+        note: d.noSubscriptionNote,
+      },
+    ] as const;
+    for (const c of cases) {
+      const { element, organizations, commercial, settle } = await render(
+        OrganizationDetailPage,
+        owner,
+        '/platforms/school/organizations/riad',
+      );
+      organizations.loads[0]?.answer.next(detailOf());
+      await settle();
+      commercial.loads[0]?.answer.next({
+        ...commercialOf(),
+        subscription: { status: 'available', data: c.subscription },
+        entitlement: { status: 'available', data: c.entitlement },
+      });
+      await settle();
+      const section = element.querySelector('[data-subscription]');
+      expect([...(section?.querySelectorAll('dt') ?? [])].map((dt) => text(dt))).toEqual(c.rows);
+      expect(text(element.querySelector('[data-entitlement] dd'))).toBe(c.value);
+      expect(text(element.querySelector('[data-subscription-note]'))).toBe(c.note);
+      const link = [...element.querySelectorAll('adm-overview-card a')].find(
+        (a) => text(a) === d.platformSubscriptions,
+      );
+      expect(link?.getAttribute('href')).toBe('/licenses/platforms/school');
+      // Membership stays its own card, with the same figures whatever the subscription.
+      expect(
+        text(element.querySelector('#organization-membership')?.closest('adm-overview-card')),
+      ).toContain(d.activeMemberships);
+      TestBed.resetTestingModule();
+    }
+  });
+
   it('keeps a failed commercial section to itself, with “Try again”', async () => {
     const { element, organizations, commercial, settle } = await render(
       OrganizationDetailPage,
