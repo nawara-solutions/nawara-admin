@@ -20,6 +20,7 @@ import {
 import { MOCK_ADMIN_INVITATION_PROVIDERS } from '../features/organizations/data-access/admin-invitation.mock';
 import { MOCK_MEMBERSHIP_PROVIDERS } from '../features/organizations/data-access/membership.mock';
 import { MOCK_ORGANIZATION_COMMAND_PROVIDERS } from '../features/organizations/data-access/organization-command.mock';
+import { MOCK_BILLING_PROVIDERS } from '../features/billing/data-access/billing.mock';
 import { MOCK_LICENSES_PROVIDERS } from '../features/licenses/data-access/licenses.mock';
 import { MOCK_OPERATOR_PROVIDERS } from '../features/operators/data-access/operator.mock';
 import { MOCK_PLATFORM_COMMAND_PROVIDERS } from '../features/platforms/data-access/platform-command.mock';
@@ -39,6 +40,7 @@ export const DEMO_BINDINGS: DemoBindings = {
     platformDirectory: MOCK_PLATFORM_DIRECTORY_PROVIDERS,
     commercialSummary: MOCK_COMMERCIAL_SUMMARY_PROVIDERS,
     licenses: MOCK_LICENSES_PROVIDERS,
+    billing: MOCK_BILLING_PROVIDERS,
     serviceHealth: MOCK_SERVICE_HEALTH_PROVIDERS,
     platformDashboard: MOCK_PLATFORM_DASHBOARD_PROVIDERS,
     platformCommercial: MOCK_PLATFORM_COMMERCIAL_PROVIDERS,

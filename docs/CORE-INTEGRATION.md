@@ -413,7 +413,7 @@ Admin strategy and the decision required before A4.
 | Files | File | 🟡 | V2 A9; V1 service-token only | Mock (A12) |
 | Notifications | Notification | 🟡 | V2 A8; V1 service-token only | Mock (A12) |
 | Billing administration | Billing | 🟡 | V2 A10; V1 payer/service only | Mock (A11) |
-| Payments administration | Payment | 🟡 | V2 A11; V1 payer/Billing only | Mock (A11) |
+| Payments administration | Payment | 🟡 | V2 A11; V1 payer/Billing only | Mock (A11); **P7-S3**: owner-only read-only `/billing` payment follow-ups (`BillingGateway`, mock in demo builds, unavailable otherwise): Organization, Platform, failed / awaiting action only; no amount, invoice, settlement, refund or operation (CF-40 proposed) |
 | License / entitlement | Billing (decided) | 🟡 contract TBD | ADR-0038/0044; roadmap "Licenses" | **P7-S1**: owner-only read-only `/licenses` overview (`LicensesGateway`, mock in demo builds, unavailable otherwise): subscription states, entitlement (active or grace), per-Platform distribution, declared Personal Premium; **P7-S2**: one Platform's Organization subscriptions (`LicensesGateway.platform`) and the Organization detail's entitlement row (`OrganizationCommercialGateway.load`); no wizard, no command (CF-36 to CF-42 proposed) |
 | Release withdraw / minimum version | Release | 🟢 (not Prod) | `release-service/src/admin/admin.controller.ts` | HTTP (A10) |
 | Release catalog / history read | Release | 🔴 | none for humans | Mock; **CF-05** |
@@ -887,7 +887,8 @@ CF-40  Owner reads of billing and payment facts                            PROPO
 Service:          billing-service, payment-service
 Current behavior: payer-only invoice and payment routes; settlement is Payment's only; no refund or dispute contract.
 Admin requirement: separate owner reads of invoices, payment attempts, verified settlement, refunds and disputes, never
-                  merged, so P7-S3 (payment follow-ups) can move off its mock and no attempt is shown as revenue.
+                  merged, so P7-S3 (`/billing` payment follow-ups, demo mock today) can move off its mock and no
+                  attempt is shown as revenue. P7-S3 needs at least each open attempt's Organization and state.
 Classification:   🟡 planned capability (V2 A10/A11).
 Recommended checkpoint: before P7-S3's HTTP adapter.
 

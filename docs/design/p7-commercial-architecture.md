@@ -1,9 +1,10 @@
 # P7 — Licenses, entitlements and subscriptions (Commercial architecture)
 
 - **Status:** P7-0 discovery reviewed; decisions D1–D9 approved 2026-10-24. **P7-S1 implemented** 2026-10-24 (PR #35,
-  merged) and **P7-S2 implemented** 2026-10-24 as development-only, mock-first prototypes (`/licenses`,
-  `/licenses/platforms/:platformId` and the Organization detail's Subscription section, all read only). P7-S3 not
-  started; **P7-S4 blocked** on Core contract verification. No Core HTTP integration.
+  merged), **P7-S2 implemented** 2026-10-24 (PR #36, merged) and **P7-S3 implemented** 2026-10-24 as
+  development-only, mock-first prototypes (`/licenses`, `/licenses/platforms/:platformId`, the Organization detail's
+  Subscription section and `/billing`, all read only). **P7-S4 blocked** on Core contract verification. No Core HTTP
+  integration; no invoice, amount, settlement, refund, revenue or payment operation exists in Admin.
 - **Baselines:** Admin `main` `6b30c7b` (P6-S4, PR #34). Core was not read: every Core fact here comes from
   [`../CORE-INTEGRATION.md`](../CORE-INTEGRATION.md) §5–§7.
 - **Canvas:** https://claude.ai/artifact/Krg8QrAeHKKWgNCo6F8tsM (9 artboards; private, may expire). This text prevails.
@@ -49,6 +50,7 @@
 | `/licenses` | read (demo) | no nav entry; route guard → `/forbidden`; facade calls no gateway; mock `403` | "Not available in this build" |
 | `/licenses/platforms/:platformId` | read (demo); unknown or another Company's Platform: collapsed `404` | same guard (parent route); facade calls no gateway; mock `403`, even for an operator assigned to that Platform | "Not available in this build" |
 | Organization detail, Subscription section | read (demo) | no section, no request (existing `platform.commercial.view`) | section unavailable |
+| `/billing` (payment follow-ups) | read (demo) | no nav entry; route guard → `/forbidden`; facade calls no gateway; mock `403` | "Not available in this build" |
 | Any commercial change | none | none | none |
 
 Capability `company.commercial.view` (owner only). Commercial authority is never derived from Platform assignments or
@@ -111,9 +113,34 @@ memberships.
 - **Newly created Organizations** have no subscription record, so they are listed as `none` / not entitled; nothing is
   invented.
 
+## 6c. P7-S3 as built
+
+- **Data:** exactly the world's `PaymentIssueRecord`s (`{ id, organizationId, kind: failed | awaiting_action }`) of the
+  Company's Organizations, through `paymentIssuesOf` as the Company Overview counts them (2: Collège Riad, School,
+  failed; Auto-École du Port, Drive, awaiting action). Nothing is derived from grace, an ending or a missing
+  subscription, and an issue changes no state: Collège Riad stays active and entitled. The record id is a demo id and is
+  not shown.
+- **Feature** `features/billing/`: `PaymentFollowUp { organizationId, organizationName, platform, kind, subscription,
+  entitlement }` (the last two from `subscriptionStateOf` / `entitlementOf`, shown as separate columns); abstract
+  `BillingGateway.followUps(company)`; `MockBillingGateway` (owner only: `401`, `403` for any operator, `404` another
+  Company; scenarios `normal`, `empty`, `error`; no other method); `UnavailableBillingGateway` in every other build;
+  `BillingFacade` (owner only, no gateway call otherwise; a local issue filter); `BillingPage`.
+- **Page** `/billing`: header with the Demo data badge; provisional note; "2 payment follow-ups: 1 failed, 1 awaiting
+  action"; a table (Organization → detail, Platform → dashboard, payment issue, subscription, entitled now) with an
+  issue filter counted from the list; a note that an issue is not a charge or a balance and never changes a
+  subscription; what the two issues mean; one "Not available yet" section (invoices, amounts and balances, methods /
+  references / settlement, refunds and disputes, retrying or collecting, revenue) without controls. Loading, empty,
+  no match, error (retry), not in build, forbidden.
+- **Route** `/billing` (shell, `capabilityGuard('company.commercial.view')`); demo domain `billing`; sidebar entry live
+  for the owner only; production marker `BILLING_DEMO_SCENARIO`.
+- **Acceptance:** exactly two follow-ups with their Organization and Platform; the Company Overview, both Platform
+  dashboards and each Organization detail count the same issues; the failed issue sits beside an active, entitled
+  subscription; only the supported fields (no amount, currency, invoice, reference, method, date or balance); owner only
+  (guard, facade, mock); no payment operation; production binds the unavailable adapter; EN/FR/AR, RTL, 320 px and
+  keyboard in the browser.
+
 ## 7. Later slices
 
-- **P7-S3** `/billing`: payment follow-ups (no amounts) and unavailable invoices, settlement, refunds, disputes.
 - **P7-S4 — BLOCKED BY CORE:** catalog, renewals, extensions, plan changes, Personal Premium detail, revenue; only after
   Core V2 A10/A11 publishes owner contracts (CF-36 to CF-42) and they are verified.
 

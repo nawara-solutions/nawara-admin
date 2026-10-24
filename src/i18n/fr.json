@@ -211,7 +211,8 @@
     "operators": "Opérateurs et accès",
     "operator": "Opérateur",
     "licenses": "Licences et droits",
-    "platformSubscriptions": "Abonnements de la plateforme"
+    "platformSubscriptions": "Abonnements de la plateforme",
+    "billing": "Facturation et paiements"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -234,7 +235,8 @@
       "operators": "Opérateurs et accès",
       "operator": "Opérateur",
       "licenses": "Licences et droits",
-      "platformSubscriptions": "Abonnements de la plateforme"
+      "platformSubscriptions": "Abonnements de la plateforme",
+      "billing": "Facturation et paiements"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -1745,6 +1747,75 @@
       "emptyDescription": "Il n’y a aucun abonnement à afficher.",
       "notFoundTitle": "Plateforme introuvable",
       "notFoundDescription": "Cette plateforme n’existe pas ou n’appartient pas à votre entreprise."
+    }
+  },
+  "billing": {
+    "demoExplanation": "les suivis de cette page sont des enregistrements de démonstration fictifs",
+    "header": {
+      "eyebrow": "Commercial",
+      "title": "Facturation et paiements",
+      "subtitle": "Suivis de paiement de vos organisations : les paiements échoués ou en attente d’action."
+    },
+    "provisional": "Vue provisoire : les services Payment et Billing de Nawara Core n’offrent pas encore de lecture au propriétaire. Ces suivis proviennent d’enregistrements de démonstration et ne comportent aucun montant.",
+    "summary": "{{total}} suivis de paiement : {{failed}} échoués, {{awaiting}} en attente d’action.",
+    "filter": {
+      "label": "Incident de paiement",
+      "all": "Tous ({{count}})",
+      "failed": "Échoués ({{count}})",
+      "awaitingAction": "En attente d’action ({{count}})"
+    },
+    "list": {
+      "title": "Suivis de paiement",
+      "caption": "Organisation, plateforme et incident de paiement de chaque suivi, avec l’abonnement et les droits de l’organisation comme faits distincts",
+      "count": "{{shown}} suivis affichés sur {{total}}",
+      "organization": "Organisation",
+      "platform": "Plateforme",
+      "issue": "Incident de paiement",
+      "subscription": "Abonnement",
+      "entitled": "Droits maintenant",
+      "noMatch": "Aucun suivi ne correspond à ce filtre.",
+      "clear": "Afficher tous les suivis",
+      "separate": "Un incident de paiement n’est ni un débit ni un solde, et il ne change jamais un abonnement : une organisation peut avoir un paiement échoué et rester abonnée et avec des droits."
+    },
+    "kind": {
+      "failed": "Échoué",
+      "awaitingAction": "En attente d’action"
+    },
+    "subscription": {
+      "active": "Actif",
+      "grace": "En période de grâce",
+      "none": "Sans abonnement"
+    },
+    "entitlement": {
+      "entitled": "Oui",
+      "entitledInGrace": "Oui, jusqu’à la fin de la grâce",
+      "notEntitled": "Non"
+    },
+    "meaning": {
+      "title": "Ce que signifient ces incidents",
+      "failed": "Une tentative de paiement pour cette organisation a échoué. Son montant, sa raison et sa date ne sont pas disponibles ici.",
+      "awaitingAction": "Un paiement pour cette organisation attend une action de son payeur. Rien n’a été encaissé ni réglé."
+    },
+    "unavailable": {
+      "title": "Pas encore disponible",
+      "intro": "Nawara Core n’offre aucun contrat au propriétaire pour ces éléments : Admin n’affiche donc rien à leur place :",
+      "invoices": "Factures et numéros de facture.",
+      "amounts": "Montants, devises et soldes.",
+      "settlement": "Moyens de paiement, références du prestataire et règlement.",
+      "refunds": "Remboursements et litiges.",
+      "operations": "Relancer ou encaisser un paiement.",
+      "revenue": "Chiffre d’affaires : une tentative de paiement n’est jamais un revenu."
+    },
+    "states": {
+      "loading": "Chargement des suivis de paiement…",
+      "emptyTitle": "Aucun suivi de paiement",
+      "emptyDescription": "Aucun paiement de vos organisations n’a échoué ni n’attend d’action.",
+      "notInBuildTitle": "Non disponible dans cette version",
+      "notInBuildDescription": "Les services Payment et Billing de Nawara Core n’offrent pas encore de lecture au propriétaire : il n’y a rien à afficher.",
+      "errorTitle": "Les suivis de paiement n’ont pas pu être chargés",
+      "errorDescription": "Réessayez dans un instant.",
+      "retry": "Réessayer",
+      "forbiddenDescription": "Les informations de facturation et de paiement ne sont visibles que par le propriétaire de l’entreprise."
     }
   }
 }

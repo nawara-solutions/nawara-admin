@@ -1,0 +1,180 @@
+// The P7 Billing & payments page (artboard Billing), sized by its own width (container queries, §15).
+:host {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 0.875rem;
+  container-type: inline-size;
+}
+
+.billing__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--nw-space-3) var(--nw-space-5);
+}
+
+.billing__mark {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 3.5rem;
+  block-size: 3.5rem;
+  border-radius: var(--nw-radius-lg);
+  background-color: var(--nw-surface-brand-subtle);
+  color: var(--nw-text-brand);
+}
+
+.billing__titles {
+  display: grid;
+  flex: 1 1 18rem;
+  gap: var(--nw-space-1);
+  min-inline-size: 0;
+}
+
+.billing__eyebrow {
+  color: var(--nw-text-brand);
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.billing__title {
+  font-size: clamp(var(--nw-text-size-2xl), 6cqi, var(--nw-text-size-3xl));
+  font-weight: var(--nw-font-weight-semibold);
+  line-height: var(--nw-line-height-tight);
+}
+
+.billing__muted,
+.billing__hint,
+.billing__no-match {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.billing__demo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-block-size: 2.25rem;
+  padding-inline: 0.75rem;
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-accent-orange-bg);
+  color: var(--nw-accent-orange-fg);
+  font-size: 0.8125rem;
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.billing__note,
+.billing__summary,
+.billing__hint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+}
+
+.billing__note {
+  padding: var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.billing__summary {
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.billing__card {
+  display: grid;
+  align-content: start;
+  gap: var(--nw-space-3);
+  min-inline-size: 0;
+  padding: var(--nw-space-4);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-lg);
+  background-color: var(--nw-surface-raised);
+
+  &--quiet {
+    border-style: dashed;
+    background-color: transparent;
+  }
+}
+
+.billing__card-title {
+  font-size: var(--nw-text-size-md);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.billing__toolbar,
+.billing__no-match {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--nw-space-3);
+}
+
+.billing__select {
+  flex: 0 1 16rem;
+  min-inline-size: 0;
+}
+
+.billing__table-box {
+  overflow-x: auto;
+
+  &:focus-visible {
+    outline: 2px solid var(--nw-focus-ring);
+  }
+}
+
+.billing__table {
+  inline-size: 100%;
+  min-inline-size: 36rem;
+  border-collapse: collapse;
+  font-size: var(--nw-text-size-sm);
+
+  th,
+  td {
+    padding: 0.625rem 0.5rem;
+    border-block-start: 1px solid var(--nw-border-hairline);
+    text-align: start;
+  }
+
+  thead th {
+    border-block-start: 0;
+    color: var(--nw-text-secondary);
+    font-weight: var(--nw-font-weight-medium);
+  }
+}
+
+.billing__issue {
+  color: var(--nw-status-danger-fg);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.billing__columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: 0.875rem;
+}
+
+.billing__meaning {
+  display: grid;
+  gap: var(--nw-space-1);
+  font-size: var(--nw-text-size-sm);
+
+  dd {
+    margin: 0 0 var(--nw-space-2);
+    color: var(--nw-text-secondary);
+  }
+
+  dt {
+    font-weight: var(--nw-font-weight-semibold);
+  }
+}
+
+.billing__unavailable {
+  display: grid;
+  gap: var(--nw-space-1);
+  padding-inline-start: var(--nw-space-5);
+  font-size: var(--nw-text-size-sm);
+  list-style: disc;
+}

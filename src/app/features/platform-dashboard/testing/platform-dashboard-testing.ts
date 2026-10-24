@@ -55,6 +55,7 @@ export const DEMO: DemoBindings = {
     companyOverview: [],
     commercialSummary: [],
     licenses: [],
+    billing: [],
     serviceHealth: [],
     platformDashboard: [],
     platformCommercial: [],
