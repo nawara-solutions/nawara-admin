@@ -75,7 +75,12 @@ export const NAVIGATION: readonly NavigationGroup[] = [
         requires: 'company.scope',
         unreadBadge: true,
       },
-      { labelKey: 'shell.nav.services', icon: 'heart-pulse', requires: 'company.scope' },
+      {
+        labelKey: 'shell.nav.services',
+        icon: 'heart-pulse',
+        path: '/services',
+        requires: 'company.services.view',
+      },
       { labelKey: 'shell.nav.monitoring', icon: 'chart-line', requires: 'company.scope' },
     ],
   },

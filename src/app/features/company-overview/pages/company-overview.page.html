@@ -14,7 +14,6 @@
     @let health = facade.health();
     @let attention = facade.attention();
     @let trend = facade.organizationsTrend();
-    @let operational = health.status === 'success' ? operationalCount(health.data) : 0;
     <section
       class="company-overview__summary"
       [attr.aria-label]="'companyOverview.summary.label' | transloco"
@@ -147,23 +146,13 @@
       [heading]="'companyOverview.health.title' | transloco"
       [subtitle]="'companyOverview.health.subtitle' | transloco"
     >
+      <adm-card-link
+        cardActions
+        link="/services"
+        [label]="'companyOverview.health.viewServices' | transloco"
+      />
       @if (health.status === 'success') {
-        <span
-          cardActions
-          class="company-overview__pill"
-          [class.company-overview__pill--warning]="operational < health.data.services.length"
-          [class.company-overview__pill--success]="operational === health.data.services.length"
-        >
-          <span class="company-overview__pill-dot"></span>
-          {{
-            'companyOverview.health.operationalCount'
-              | transloco: { count: operational, total: health.data.services.length }
-          }}
-        </span>
-      }
-      <adm-card-link cardActions [label]="'companyOverview.health.viewServices' | transloco" />
-      @if (health.status === 'success') {
-        <adm-service-health-strip [summary]="health.data" />
+        <adm-service-health-strip [inventory]="health.data" />
       } @else if (health.status === 'idle' || health.status === 'loading') {
         <nw-data-state state="loading" [title]="'companyOverview.states.loading' | transloco" />
       } @else {

@@ -39,7 +39,7 @@ const bindings: DemoBindings = {
     licenses: [],
     billing: [],
     activity: [],
-    serviceHealth: [],
+    services: [],
     platformDashboard: [],
     platformCommercial: [],
     organizations: [],

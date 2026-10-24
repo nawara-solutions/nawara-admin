@@ -28,6 +28,7 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
       'company.overview.view',
       'company.platforms.view',
       'company.scope',
+      'company.services.view',
       'operator.account.block',
       'operator.create',
       'operator.platformAccess.change',
@@ -50,6 +51,7 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
     expect(can(operator, 'company.commercial.view')).toBe(false);
     // The activity browser (P8-S1) is the owner's: operators have no audit read in Core.
     expect(can(operator, 'company.audit.view')).toBe(false);
+    expect(can(operator, 'company.services.view')).toBe(false);
     expect(can(operator, 'company.platforms.view')).toBe(false);
     // The Company's staff directory is the owner's; an operator's authority is their assignments only (P6-S1).
     expect(can(operator, 'company.operators.view')).toBe(false);

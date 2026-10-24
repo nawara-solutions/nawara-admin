@@ -2,7 +2,9 @@
 
 - **Status:** P8-0 discovery reviewed; decisions **D1–D9 approved 2026-10-24** with the clarifications in §12. **P8-S1
   implemented** 2026-10-24 as a development-only, mock-first prototype (`/audit`, simulated administrative activity,
-  owner only; §13). **Core Audit integration is NOT implemented.** P8-S2 to P8-S4 not started.
+  owner only; §13; PR #38, merged). **P8-S2 implemented** 2026-10-24 (`/services`, the documented service inventory,
+  live health unavailable; §14). **Core Audit integration and live service health are NOT implemented.** P8-S3 and
+  P8-S4 not started; monitoring and alerting deferred.
 - **Baseline:** P8-0 read `main` content `a0b2d76` (PR #37). Core was **not** read: every Core fact below comes from Admin's `docs/CORE-INTEGRATION.md`
   (§3, §5 Audit / File / Notification / Release / Health, §7 matrix, §9 CF-04, CF-05, CF-06, CF-07, CF-14).
 - **Scope:** the six Operations destinations: Releases, Audit log, Files, Notifications, Services & health, Monitoring.
@@ -217,3 +219,29 @@ never given a Platform or Organization (D3); capability `company.audit.view` (D8
   every Organization detail (`consistency.spec.ts`); owner only (guard, facade, mock); cross-Company isolation; the
   note in every state; no export, download or audit-only field; production binds the unavailable adapter; EN/FR/AR,
   RTL, light/dark/system, 1440/834/390/320 and keyboard in the browser.
+
+## 14. P8-S2 as built (2026-10-24)
+
+- **One inventory** (`core/core-services/`): `CORE_SERVICES` (auth, organization, release, billing, payment, file,
+  notification, audit — the order of CORE-INTEGRATION §7) and `ServiceInventory { services, liveHealth: 'unavailable' }`,
+  a model with no field for a status, uptime, latency, incident, version or endpoint. Responsibilities are catalog
+  copy taken from CORE-INTEGRATION §5 (`coreServices.services.<id>.owns`). Abstract `ServiceInventoryGateway.inventory
+  (company)`; `MockServiceInventoryGateway` (owner only: `401`, `403` for any operator, collapsed `404`; scenario
+  `error`; documented services only, no status, no request, no polling); `UnavailableServiceInventoryGateway` in every
+  other build. Demo domain `services` (renamed from `serviceHealth`); production marker `SERVICES_DEMO_SCENARIO`.
+- **Page** `/services` (`ServicesFacade`, `ServicesPage`; capability `company.services.view`; shell guard; sidebar
+  entry live for the owner): "Live health unavailable" with why (no authorized, production-ready read; probes are never
+  called from the browser); the eight services with their documented responsibility and "Live health: unavailable";
+  "After Core integration" (a Core-reported status once CF-06 exists; uptime, latency, incidents and alerts belong to
+  monitoring, deferred; never probes, hostnames, addresses or deployment details). No control, no link to an internal
+  system. Loading, empty, error (retry), not in build, forbidden. It loads once; nothing refreshes.
+- **Company Overview:** its Services & health card reads the SAME gateway: the service names, "Live health
+  unavailable", and a live "View services" link to `/services`; the subtitle now says "The documented Nawara Core
+  services. Live health is not available." The illustrative fixture (`DEMO_SERVICE_HEALTH`: seven "operational", one
+  "delayed"), its status dots and the "7 of 8 operational" count are removed.
+- **Fixture discrepancy, resolved by the documentation:** the old fixture used the states `operational` and `delayed`;
+  CORE-INTEGRATION §7 records that Core has no aggregation and no "delayed" state, and that several services are not in
+  production. The canonical documentation wins: no status is shown. The service list itself matched.
+- **Acceptance:** the eight services in order with their responsibilities on both views; no status word, colour, count,
+  uptime, latency, incident, version, address or URL; no `fetch`/XHR and a single gateway call; owner only (guard,
+  facade, mock); production binds the unavailable adapter; EN/FR/AR, RTL, themes, 320 px and keyboard in the browser.

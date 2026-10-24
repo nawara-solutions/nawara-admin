@@ -22,12 +22,17 @@ import {
   CompanyOverviewDemoScenario,
   MockCommercialSummaryGateway,
   MockCompanyOverviewGateway,
-  MockServiceHealthGateway,
 } from '../data-access/company-overview.mock';
+import { DemoAuthState } from '../../../core/auth/auth.mock-state';
 import {
-  ServiceHealthGateway,
-  UnavailableServiceHealthGateway,
-} from '../data-access/service-health.gateway';
+  ServiceInventoryGateway,
+  UnavailableServiceInventoryGateway,
+} from '../../../core/core-services/service-inventory.gateway';
+import {
+  MockServiceInventoryGateway,
+  SERVICES_DEMO_SCENARIO,
+} from '../../../core/core-services/service-inventory.mock';
+import { DEMO_OWNER_ID } from '../../../demo/world/seed';
 import { CompanyOverviewFacade } from './company-overview.facade';
 import { ScopeContext } from '../../../core/context/scope-context';
 import { ScopeDirectoryGateway } from '../../../core/context/scope-directory.gateway';
@@ -64,7 +69,7 @@ const DEMO: DemoBindings = {
     licenses: [],
     billing: [],
     activity: [],
-    serviceHealth: [],
+    services: [],
     platformDashboard: [],
     platformCommercial: [],
     organizations: [],
@@ -101,8 +106,12 @@ function setUp(
         useClass: mock ? MockCommercialSummaryGateway : UnavailableCommercialSummaryGateway,
       },
       {
-        provide: ServiceHealthGateway,
-        useClass: mock ? MockServiceHealthGateway : UnavailableServiceHealthGateway,
+        provide: SERVICES_DEMO_SCENARIO,
+        useValue: scenario === 'sections-unavailable' ? 'error' : 'normal',
+      },
+      {
+        provide: ServiceInventoryGateway,
+        useClass: mock ? MockServiceInventoryGateway : UnavailableServiceInventoryGateway,
       },
       CompanyOverviewFacade,
       // The shell's scope context: the overview reloads when the hierarchy changes.
@@ -111,6 +120,12 @@ function setUp(
     ],
   });
   TestBed.inject(AuthSession).establish(actor);
+  // The shared service inventory's mock (P8-S2) answers the simulated session: the demo owner, for an owner.
+  if (actor.kind === 'owner')
+    TestBed.inject(DemoAuthState).signedIn.set({
+      identity: { userId: DEMO_OWNER_ID, email: null, phone: null, adminTier: 'owner' },
+      businessIdentityId: DEMO_OWNER_ID,
+    });
   return TestBed.inject(CompanyOverviewFacade);
 }
 
@@ -154,7 +169,7 @@ describe('CompanyOverviewFacade', () => {
     const calls = [
       vi.spyOn(MockCompanyOverviewGateway.prototype, 'load'),
       vi.spyOn(MockCommercialSummaryGateway.prototype, 'load'),
-      vi.spyOn(MockServiceHealthGateway.prototype, 'load'),
+      vi.spyOn(MockServiceInventoryGateway.prototype, 'inventory'),
     ];
     const facade = setUp(operator);
     await settle();

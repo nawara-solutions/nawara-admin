@@ -22,7 +22,6 @@ import { OverviewHeader } from '../components/overview-header/overview-header';
 import { PlatformList } from '../components/platform-list/platform-list';
 import { ServiceHealthStrip } from '../components/service-health-strip/service-health-strip';
 import { SummaryCard } from '../../../shared/dashboard/summary-card/summary-card';
-import { ServiceHealthSummary } from '../domain/service-health.model';
 
 /**
  * Company Overview (`/overview`): the owner's company-wide view, built to the owner's design (claude.ai design
@@ -80,7 +79,4 @@ export class CompanyOverviewPage {
     const actor = this.session.actor();
     return actor ? actorLabel(actor) : null;
   });
-
-  protected readonly operationalCount = (summary: ServiceHealthSummary): number =>
-    summary.services.filter((s) => s.status === 'operational').length;
 }

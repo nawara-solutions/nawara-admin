@@ -1,8 +1,6 @@
 import { createOperator } from '../../../demo/world/commands/operator.commands';
 import { DEMO_OWNER_ID, demoWorldSeed } from '../../../demo/world/seed';
 import { Metric } from '../domain/company-overview.model';
-import { CORE_SERVICES } from '../domain/service-health.model';
-import { DEMO_SERVICE_HEALTH } from './company-overview.fixtures';
 import {
   RECENT_ACTIVITY,
   demoCommercialSummary,
@@ -112,9 +110,5 @@ describe('Company Overview of the demo world (derived from its records)', () => 
     // Twenty days on, the subscriptions that were expiring have ended.
     const later = demoCommercialSummary(world, NOW + 20 * 86_400_000);
     expect(value(later.activeSubscriptions)).toBe(15);
-  });
-
-  it('lists every Core service in the health strip, Auth included', () => {
-    expect(DEMO_SERVICE_HEALTH.services.map((s) => s.service)).toEqual([...CORE_SERVICES]);
   });
 });

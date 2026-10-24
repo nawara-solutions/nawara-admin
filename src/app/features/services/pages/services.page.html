@@ -1,0 +1,92 @@
+@let view = facade.view();
+<header class="services__header">
+  <span class="services__mark" aria-hidden="true"><nw-icon name="heart-pulse" size="lg" /></span>
+  <div class="services__titles">
+    <p class="services__eyebrow">{{ 'services.header.eyebrow' | transloco }}</p>
+    <h1 class="services__title">{{ 'services.header.title' | transloco }}</h1>
+    <p class="services__muted">{{ 'services.header.subtitle' | transloco }}</p>
+  </div>
+  @if (isDemo()) {
+    <span class="services__demo">
+      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+    </span>
+  }
+</header>
+
+@switch (view.status) {
+  @case ('ready') {
+    <section class="services__live" aria-labelledby="services-live" data-live-health>
+      <h2 id="services-live" class="services__card-title">
+        <nw-icon name="info" size="sm" />{{ 'coreServices.liveHealth.unavailable' | transloco }}
+      </h2>
+      <p>{{ 'services.live.body' | transloco }}</p>
+    </section>
+
+    <section class="services__card" aria-labelledby="services-list">
+      <h2 id="services-list" class="services__card-title">
+        {{ 'services.list.title' | transloco }}
+      </h2>
+      <p class="services__muted">{{ 'services.list.documentation' | transloco }}</p>
+      <ul class="services__list" role="list">
+        @for (service of view.inventory.services; track service) {
+          <li class="services__item" [attr.data-service]="service">
+            <h3 class="services__name">{{ nameKeys[service] | transloco }}</h3>
+            <p class="services__owns">{{ responsibilityKeys[service] | transloco }}</p>
+            <p class="services__muted">
+              {{ 'services.list.liveHealth' | transloco }}:
+              {{ 'services.list.unavailable' | transloco }}
+            </p>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="services__card services__card--quiet" aria-labelledby="services-later">
+      <h2 id="services-later" class="services__card-title">
+        {{ 'services.later.title' | transloco }}
+      </h2>
+      <ul class="services__later" role="list" data-later>
+        <li>{{ 'services.later.status' | transloco }}</li>
+        <li>{{ 'services.later.notHere' | transloco }}</li>
+        <li>{{ 'services.later.never' | transloco }}</li>
+      </ul>
+    </section>
+  }
+  @case ('empty') {
+    <nw-data-state
+      state="empty"
+      [title]="'services.states.emptyTitle' | transloco"
+      [description]="'services.states.emptyDescription' | transloco"
+    />
+  }
+  @case ('notInBuild') {
+    <nw-data-state
+      state="empty"
+      [title]="'services.states.notInBuildTitle' | transloco"
+      [description]="'services.states.notInBuildDescription' | transloco"
+    />
+  }
+  @case ('error') {
+    <nw-data-state
+      state="error"
+      [title]="'services.states.errorTitle' | transloco"
+      [description]="'services.states.errorDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'services.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('forbidden') {
+    <nw-data-state
+      state="empty"
+      [title]="'shell.pages.forbidden.title' | transloco"
+      [description]="'services.states.forbiddenDescription' | transloco"
+    />
+  }
+  @default {
+    <nw-data-state state="loading" [title]="'services.states.loading' | transloco" />
+  }
+}

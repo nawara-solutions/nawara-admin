@@ -3,11 +3,11 @@ import { MOCK_AUTH_PROVIDERS } from '../core/auth/auth.mock';
 import { DemoBindings } from '../core/config/app-environment';
 import { MOCK_STEP_UP_PROVIDERS } from '../core/auth/step-up.mock';
 import { MOCK_SCOPE_DIRECTORY_PROVIDERS } from '../core/context/scope-directory.mock';
+import { MOCK_SERVICE_INVENTORY_PROVIDERS } from '../core/core-services/service-inventory.mock';
 import { MOCK_NOTIFICATION_SUMMARY_PROVIDERS } from '../core/notifications/notification-summary.mock';
 import {
   MOCK_COMMERCIAL_SUMMARY_PROVIDERS,
   MOCK_COMPANY_OVERVIEW_PROVIDERS,
-  MOCK_SERVICE_HEALTH_PROVIDERS,
 } from '../features/company-overview/data-access/company-overview.mock';
 import {
   MOCK_PLATFORM_COMMERCIAL_PROVIDERS,
@@ -43,7 +43,7 @@ export const DEMO_BINDINGS: DemoBindings = {
     licenses: MOCK_LICENSES_PROVIDERS,
     billing: MOCK_BILLING_PROVIDERS,
     activity: MOCK_ACTIVITY_PROVIDERS,
-    serviceHealth: MOCK_SERVICE_HEALTH_PROVIDERS,
+    services: MOCK_SERVICE_INVENTORY_PROVIDERS,
     platformDashboard: MOCK_PLATFORM_DASHBOARD_PROVIDERS,
     platformCommercial: MOCK_PLATFORM_COMMERCIAL_PROVIDERS,
     organizations: MOCK_ORGANIZATION_PROVIDERS,

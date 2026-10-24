@@ -11,9 +11,9 @@ import {
   UnavailableCompanyOverviewGateway,
 } from './data-access/company-overview.gateway';
 import {
-  ServiceHealthGateway,
-  UnavailableServiceHealthGateway,
-} from './data-access/service-health.gateway';
+  ServiceInventoryGateway,
+  UnavailableServiceInventoryGateway,
+} from '../../core/core-services/service-inventory.gateway';
 
 /**
  * Company Overview routes. The three gateways (overview, commercial summary, service health) are bound here
@@ -27,8 +27,8 @@ export async function loadCompanyOverviewRoutes(environment: AppEnvironment): Pr
     adapterProviders(environment, 'commercialSummary', [
       { provide: CommercialSummaryGateway, useClass: UnavailableCommercialSummaryGateway },
     ]),
-    adapterProviders(environment, 'serviceHealth', [
-      { provide: ServiceHealthGateway, useClass: UnavailableServiceHealthGateway },
+    adapterProviders(environment, 'services', [
+      { provide: ServiceInventoryGateway, useClass: UnavailableServiceInventoryGateway },
     ]),
     createPlatformProviders(environment),
   ]);

@@ -25,11 +25,8 @@ import {
 import { NW_CLOCK } from '../../../shared/format/clock';
 import { CommercialSummary } from '../domain/commercial-summary.model';
 import { CompanyOverview } from '../domain/company-overview.model';
-import { ServiceHealthSummary } from '../domain/service-health.model';
 import { CommercialSummaryGateway } from './commercial-summary.gateway';
 import { CompanyOverviewGateway } from './company-overview.gateway';
-import { DEMO_SERVICE_HEALTH } from './company-overview.fixtures';
-import { ServiceHealthGateway } from './service-health.gateway';
 
 /** Which answer the mocks give, so every view state can be exercised (§3). Demo builds use `normal`. */
 export type CompanyOverviewDemoScenario = 'normal' | 'error' | 'forbidden' | 'sections-unavailable';
@@ -178,26 +175,9 @@ export class MockCommercialSummaryGateway extends CommercialSummaryGateway {
   }
 }
 
-/** Mock adapter of service health (demo builds only): illustrative statuses, never live health. */
-export class MockServiceHealthGateway extends ServiceHealthGateway {
-  private readonly latency = inject(DEMO_LATENCY_MS);
-  private readonly scenario = inject(COMPANY_OVERVIEW_DEMO_SCENARIO);
-
-  load(): Observable<ServiceHealthSummary> {
-    if (this.scenario === 'sections-unavailable') {
-      const unavailable: AppError = { kind: 'unavailable', status: 503 };
-      return throwError(() => unavailable).pipe(delay(this.latency));
-    }
-    return of(DEMO_SERVICE_HEALTH).pipe(delay(this.latency));
-  }
-}
-
 export const MOCK_COMPANY_OVERVIEW_PROVIDERS: readonly Provider[] = [
   { provide: CompanyOverviewGateway, useClass: MockCompanyOverviewGateway },
 ];
 export const MOCK_COMMERCIAL_SUMMARY_PROVIDERS: readonly Provider[] = [
   { provide: CommercialSummaryGateway, useClass: MockCommercialSummaryGateway },
-];
-export const MOCK_SERVICE_HEALTH_PROVIDERS: readonly Provider[] = [
-  { provide: ServiceHealthGateway, useClass: MockServiceHealthGateway },
 ];

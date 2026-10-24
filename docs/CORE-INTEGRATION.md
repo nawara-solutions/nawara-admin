@@ -443,7 +443,7 @@ Admin strategy and the decision required before A4.
 | Attention: access assignments to review | Auth | 🔴 | none (CF-13) | Not shown: removed in P2.5 (no defined source), no replacement |
 | Commercial: active licenses, expiring soon (+ attention item) | Billing | 🟡 | no `License` entity; entitlement read is service-token only, per organization, `{ valid, expiresAt }`; no staff API; not in production | Separate `CommercialSummaryGateway`, mock in demo builds; "license" is a view-model term (§6) |
 | Commercial: payment issues | Payment / Billing | 🟡 | payer-only human routes; no staff API; not in production | Same gateway, mock |
-| Services & health (Auth, Organization, Release, Billing, Payment, File, Notification, Audit) | all / observability | 🟡 (CF-06, V2 A12) | each service: unauthenticated `/health` → `{status:'ok'}`, `/ready` → `ready \| unavailable` (service kit); no aggregation, no "delayed" state, not an operator API; billing, payment, file, notification, release not in production | Separate `ServiceHealthGateway`, mock in demo builds; the card says "Illustrative statuses of Nawara Core services, not live health" beside the "n of 8 operational" count; never presented as live health, readiness or deployment |
+| Services & health (Auth, Organization, Release, Billing, Payment, File, Notification, Audit) | all / observability | 🟡 (CF-06, V2 A12) | each service: unauthenticated `/health` → `{status:'ok'}`, `/ready` → `ready \| unavailable` (service kit); no aggregation, no "delayed" state, not an operator API; billing, payment, file, notification, release not in production | **P8-S2:** one shared `ServiceInventoryGateway` (mock in demo builds, unavailable otherwise) for `/services` and the Company Overview card: the eight documented services and their responsibilities, and "Live health unavailable"; no status, count, uptime, latency or version; the illustrative fixture is removed; the browser never calls the probes |
 | Platform dashboard (`/platforms/:platformId`): figures, newest Organizations, attention, activity | Organization / Auth / Audit | 🔴 | no human route lists or aggregates a Platform's Organizations, memberships or signals (CF-02, CF-03, CF-11, CF-13); no platform-level or operator audit read (CF-04) | `PlatformDashboardGateway`, mock in demo builds; "unavailable" otherwise |
 | Platform dashboard, commercial (owner): Organization subscriptions, Personal Premium, payment issues, assisted-payments policy (read only) | Billing / Payment | 🟡 | no staff/owner read route before Core V2 A10/A11; rules from the Core V2 architecture (24-hour grace, Personal Premium without grace, Platform-controlled assisted payments) | `PlatformCommercialGateway`, mock in demo builds; operators never ask |
 | Platform directory (`/platforms`): Platforms with organizations, memberships, operator assignments | Organization / Auth | 🔴 | no human route lists a Company's Platforms or their counts (CF-02, CF-03, CF-11) | `PlatformDirectoryGateway`, mock in demo builds; "unavailable" otherwise |
@@ -519,8 +519,9 @@ Recommended checkpoint: owner decision; default V2.
 CF-06  Operator-facing service health
 Service:          all / observability
 Current behavior: /health and /ready probes only.
-Admin requirement: an authenticated, aggregated, read-only health/status view.
-Classification:   🟡 (V2 A12).
+Admin requirement: an authenticated, aggregated, read-only health/status view. Until then `/services` (P8-S2) shows
+                  the documented inventory with "Live health unavailable", and the probes are never called.
+Classification:   🟡 (V2 A12). OPEN.
 V1 or V2:         V2 A12.
 Recommended checkpoint: Core V2 A12.
 

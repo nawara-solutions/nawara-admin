@@ -135,6 +135,19 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
           },
         },
         {
+          // Services & health (P8-S2): the documented Core services, company scope, the owner only, direct URLs included.
+          path: 'services',
+          title: 'titles.services',
+          data: { [BREADCRUMB_DATA]: 'shell.breadcrumb.services' },
+          canActivate: [capabilityGuard('company.services.view')],
+          loadChildren: () => {
+            const env = inject(APP_ENVIRONMENT);
+            return import('../features/services/services.routes').then((m) =>
+              m.loadServicesRoutes(env),
+            );
+          },
+        },
+        {
           // Billing & payments (P7-S3): payment follow-ups, Company commercial area, the owner only, direct URLs included.
           path: 'billing',
           title: 'titles.billing',

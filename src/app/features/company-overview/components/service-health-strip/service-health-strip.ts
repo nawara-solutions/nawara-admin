@@ -1,43 +1,23 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import {
-  CoreService,
-  ServiceHealthSummary,
-  ServiceStatus,
-} from '../../domain/service-health.model';
-
-const LABEL_KEYS = {
-  auth: 'companyOverview.health.services.auth',
-  organization: 'companyOverview.health.services.organization',
-  release: 'companyOverview.health.services.release',
-  billing: 'companyOverview.health.services.billing',
-  payment: 'companyOverview.health.services.payment',
-  file: 'companyOverview.health.services.file',
-  notification: 'companyOverview.health.services.notification',
-  audit: 'companyOverview.health.services.audit',
-} as const satisfies Record<CoreService, string>;
-
-const STATUS_KEYS = {
-  operational: 'companyOverview.health.status.operational',
-  delayed: 'companyOverview.health.status.delayed',
-  unavailable: 'companyOverview.health.status.unavailable',
-  unknown: 'companyOverview.health.status.unknown',
-} as const satisfies Record<ServiceStatus, string>;
+import { CORE_SERVICE_NAME_KEYS } from '../../../../core/core-services/core-service-labels';
+import { ServiceInventory } from '../../../../core/core-services/core-service.model';
+import { NwIcon } from '../../../../shared/ui/icon/icon';
 
 /**
- * Services & health: one illustrative status per Core service, from the service-health gateway. Status is text plus a
- * coloured dot (never colour alone). These are demo statuses, not live health (CF-06).
+ * Services & health on the Company Overview: the documented Core services, from the same inventory as `/services`
+ * (P8-S2), and one plain statement that live health is unavailable (CF-06). No status, colour or count is shown for a
+ * service: nothing is observed.
  */
 @Component({
   selector: 'adm-service-health-strip',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, NwIcon],
   templateUrl: './service-health-strip.html',
   styleUrl: './service-health-strip.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'service-health-strip' },
 })
 export class ServiceHealthStrip {
-  readonly summary = input.required<ServiceHealthSummary>();
-  protected readonly labelKeys = LABEL_KEYS;
-  protected readonly statusKeys = STATUS_KEYS;
+  readonly inventory = input.required<ServiceInventory>();
+  protected readonly nameKeys = CORE_SERVICE_NAME_KEYS;
 }

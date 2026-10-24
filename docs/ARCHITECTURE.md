@@ -212,7 +212,7 @@ Organizations are entities of platform scope (amendment, P3a, 2026-10-23): their
 /payments                                                                     🟡
 /releases                      withdraw · minimum version                     🟢 actions · 🔴 catalog
 /audit                         simulated activity browser (P8-S1)             🟡 mock, owner only; Core audit 🔴 / 🟢 not integrated
-/services                      health                                         🔴 / 🟡
+/services                      service inventory (P8-S2)                      🟡 mock, owner only; live health 🔴 (CF-06)
 /monitoring                                                                   🟡
 /settings                      preferences: language, theme, time zone (local)
 /account/security              owner factors, secret key, password            🟢
@@ -561,6 +561,11 @@ only ([`design/p6-s3-operator-block.md`](design/p6-s3-operator-block.md)):
   issues the confirmation code in `DemoAuthState`. The sign-in mock resolves operators it has no fixture for from the
   world, so the world stays the one source of an operator's confirmed and blocked state.
 - Navigation state carries only the new operator's id (the next-steps panel), never a contact.
+
+**Operations: Services & health (P8-S2, 2026-10-24):** `/services` and the Company Overview card share one inventory
+(`core/core-services/`: `CORE_SERVICES`, `ServiceInventoryGateway`), documentation only: the services and their
+responsibilities, with live health always `unavailable`. The model has no status field; the browser never calls
+`/health` or `/ready`; nothing polls. Owner only (`company.services.view`).
 
 **Operations: Audit log (P8-S1, 2026-10-24)** ([`design/p8-operations-architecture.md`](design/p8-operations-architecture.md)):
 

@@ -12,7 +12,7 @@ export type DemoDomain =
   | 'licenses'
   | 'billing'
   | 'activity'
-  | 'serviceHealth'
+  | 'services'
   | 'platformDashboard'
   | 'platformCommercial'
   | 'organizations'
