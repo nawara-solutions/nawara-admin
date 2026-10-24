@@ -17,7 +17,9 @@ import { UnavailableOperatorAssignmentGateway } from './data-access/operator-ass
 import { UnavailableOperatorDirectoryGateway } from './data-access/operator-directory.gateway';
 import { UnavailableStepUpGateway } from '../../core/auth/step-up.gateway';
 import { OperatorDetailFacade } from './application/operator-detail.facade';
+import { OperatorBlockAction } from './application/operator-block.action';
 import { PlatformAccessAction } from './application/platform-access.action';
+import { UnavailableOperatorAccountGateway } from './data-access/operator-account.gateway';
 import { loadOperatorsRoutes } from './operators.routes';
 
 const PRODUCTION: AppEnvironment = { production: true, demo: null };
@@ -74,10 +76,15 @@ describe('operators routes (P6-S1)', () => {
     expect(providers.map((p) => p.useClass)).toEqual([
       UnavailableOperatorDirectoryGateway,
       UnavailableOperatorAssignmentGateway,
+      UnavailableOperatorAccountGateway,
       UnavailableStepUpGateway,
     ]);
-    // The Platform access action lives on the detail route, with its facade.
-    expect(root?.children?.[1]?.providers).toEqual([OperatorDetailFacade, PlatformAccessAction]);
+    // The Platform access and account actions live on the detail route, with its facade.
+    expect(root?.children?.[1]?.providers).toEqual([
+      OperatorDetailFacade,
+      PlatformAccessAction,
+      OperatorBlockAction,
+    ]);
     expect(root?.children?.map((r) => r.path)).toEqual(['', ':operatorId']);
   });
 });

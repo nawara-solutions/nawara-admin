@@ -182,8 +182,8 @@ export interface PlatformCommercialRecord {
   readonly assistedPayments: 'enabled' | 'disabled';
 }
 
-/** An administrative event on a Platform (the source of every activity feed). */
-export interface ActivityRecord {
+/** An administrative event on a Platform (the source of the Platform, Organization and Company feeds). */
+export interface PlatformActivityRecord {
   readonly id: string;
   readonly platformId: PlatformId;
   readonly organizationId: OrganizationId | null;
@@ -204,6 +204,25 @@ export interface ActivityRecord {
   /** UTC instant, ISO 8601 with `Z`. */
   readonly occurredAt: string;
 }
+
+/**
+ * A Company-level administrative event that belongs to no Platform (P6-S3): an operator account blocked or unblocked
+ * (Core's `account.disabled` / `account.enabled`, which carry no Platform or Organization). Shown in the Company Overview
+ * feed only; never given a fictitious Platform. Its subject is the operator's id, never a contact.
+ */
+export interface CompanyActivityRecord {
+  readonly id: string;
+  readonly platformId: null;
+  readonly organizationId: null;
+  readonly action: 'operator.blocked' | 'operator.unblocked';
+  /** The operator the event is about (an id: no contact is ever recorded). */
+  readonly subjectId: AdminIdentityId;
+  /** UTC instant, ISO 8601 with `Z`. */
+  readonly occurredAt: string;
+}
+
+/** Any administrative event of the demo world. */
+export type ActivityRecord = PlatformActivityRecord | CompanyActivityRecord;
 
 /** Unread notifications of an administrative identity (a declared count: no inbox records yet, CF-14). */
 export interface NotificationInboxRecord {

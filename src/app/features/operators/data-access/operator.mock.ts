@@ -8,6 +8,7 @@ import {
   PlatformAssignmentChange,
   grantPlatformAssignment,
   revokePlatformAssignment,
+  setOperatorBlocked,
 } from '../../../demo/world/commands/operator.commands';
 import { CommandOutcome, DemoWorld } from '../../../demo/world/demo-world';
 import {
@@ -30,6 +31,7 @@ import {
   OperatorSummary,
   PlatformAssignment,
 } from '../domain/operator.model';
+import { OperatorAccountGateway } from './operator-account.gateway';
 import { AssignmentChangeRequest, OperatorAssignmentGateway } from './operator-assignment.gateway';
 import { OperatorDirectoryGateway } from './operator-directory.gateway';
 
@@ -268,7 +270,70 @@ export class MockOperatorAssignmentGateway extends OperatorAssignmentGateway {
   }
 }
 
+/**
+ * Which answer a block or unblock gets (P6-S3). Demo builds use `normal`, which SUCCEEDS. The others:
+ * - `outcomeUnknown`: the change commits (and its sign-in effects apply) but the answer is lost;
+ * - `auditFailure`: Core's `500` when its audit write fails: the transaction rolls back, nothing changes (Core's
+ *   verified test); Admin cannot tell this `500` from any other, so it still reconciles;
+ * - `unavailable`: `503` before anything is applied.
+ */
+export type OperatorAccountDemoScenario =
+  'normal' | 'outcomeUnknown' | 'auditFailure' | 'unavailable';
+
+export const OPERATOR_ACCOUNT_DEMO_SCENARIO = new InjectionToken<OperatorAccountDemoScenario>(
+  'OPERATOR_ACCOUNT_DEMO_SCENARIO',
+  { factory: () => 'normal' },
+);
+
+/**
+ * Mock adapter of Core's block and unblock (demo builds only), in Core's order: the session (`401`), the owner-only
+ * guard (`403 forbidden`, an operator on their own record included), then `setOperatorBlocked` (the collapsed `404`;
+ * owner authority again inside), all in one step. No step-up. Once a BLOCK commits, what Core does outside the account
+ * row is applied to the sign-in state (`DemoAuthState.endOperatorSignIn`: unused codes cancelled, their session ended);
+ * an unblock restores nothing there. Never replays a change.
+ */
+export class MockOperatorAccountGateway extends OperatorAccountGateway {
+  readonly available = true;
+  private readonly latency = inject(DEMO_LATENCY_MS);
+  private readonly scenario = inject(OPERATOR_ACCOUNT_DEMO_SCENARIO);
+  private readonly auth = inject(DemoAuthState);
+  private readonly world = inject(DemoWorld);
+  private readonly now = inject(NW_CLOCK);
+
+  block(operator: string): Observable<void> {
+    return defer(() => this.change(operator, true));
+  }
+
+  unblock(operator: string): Observable<void> {
+    return defer(() => this.change(operator, false));
+  }
+
+  private change(operator: string, blocked: boolean): Observable<void> {
+    const refused = callerError(this.auth, this.world.snapshot());
+    if (refused !== null) return this.fail(refused);
+    if (this.scenario === 'unavailable') return this.fail({ kind: 'unavailable', status: 503 });
+    // Core's audit write fails inside the transaction: everything rolls back, nothing changes.
+    if (this.scenario === 'auditFailure') return this.fail({ kind: 'unexpected', status: 500 });
+    const operatorId = adminIdentityId(operator);
+    const outcome = this.world.commit(
+      setOperatorBlocked(
+        { actor: this.auth.signedIn()?.businessIdentityId ?? null, operatorId, now: this.now() },
+        blocked,
+      ),
+    );
+    if (!outcome.ok) return this.fail(outcome.error);
+    if (blocked) this.auth.endOperatorSignIn(operatorId);
+    if (this.scenario === 'outcomeUnknown') return this.fail({ kind: 'network', status: 0 });
+    return of(undefined).pipe(delay(this.latency));
+  }
+
+  private fail(error: AppError): Observable<never> {
+    return timer(this.latency).pipe(switchMap(() => throwError(() => error)));
+  }
+}
+
 export const MOCK_OPERATOR_PROVIDERS: readonly Provider[] = [
   { provide: OperatorDirectoryGateway, useClass: MockOperatorDirectoryGateway },
   { provide: OperatorAssignmentGateway, useClass: MockOperatorAssignmentGateway },
+  { provide: OperatorAccountGateway, useClass: MockOperatorAccountGateway },
 ];

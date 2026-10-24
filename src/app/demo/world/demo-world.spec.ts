@@ -55,7 +55,10 @@ describe('demo world: canonical seed invariants', () => {
     expect(world.organizations.every((o) => platforms.has(o.platformId))).toBe(true);
     for (const records of [world.subscriptions, world.adminInvitations, world.paymentIssues])
       expect(records.every((r) => organizations.has(r.organizationId))).toBe(true);
-    expect(world.activity.every((e) => platforms.has(e.platformId))).toBe(true);
+    // Every event is a Company Platform's, or Company-level (`platformId: null`, P6-S3: none in the seed).
+    expect(world.activity.every((e) => e.platformId === null || platforms.has(e.platformId))).toBe(
+      true,
+    );
     expect(
       world.activity.every((e) => e.organizationId === null || organizations.has(e.organizationId)),
     ).toBe(true);

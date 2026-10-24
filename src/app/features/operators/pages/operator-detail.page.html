@@ -18,13 +18,24 @@
         <nw-icon name="arrow-left" size="sm" />{{ 'operators.detail.back' | transloco }}
       </a>
     </header>
+    @if (operator.accountState === 'blocked') {
+      <p class="operator-detail__blocked" role="note" data-blocked-banner>
+        <nw-icon name="lock-keyhole" size="sm" />
+        <span>{{ 'operators.account.blockedBanner' | transloco }}</span>
+      </p>
+    }
 
     <div class="operator-detail__grid">
       <div class="operator-detail__column">
         <section class="operator-detail__card" aria-labelledby="operator-current">
           <div class="operator-detail__section-head">
             <h2 id="operator-current" #currentHeading tabindex="-1">
-              {{ 'operators.detail.current.title' | transloco }}
+              {{
+                (operator.accountState === 'blocked'
+                  ? 'operators.account.keptTitle'
+                  : 'operators.detail.current.title'
+                ) | transloco
+              }}
             </h2>
             @if (access.offered()) {
               @let nothingLeft = history.status === 'ready' && eligible().length === 0;
@@ -53,7 +64,14 @@
               'operators.access.waiting' | transloco
             }}</span>
           }
-          <p class="operator-detail__hint">{{ 'operators.detail.current.hint' | transloco }}</p>
+          <p class="operator-detail__hint">
+            {{
+              (operator.accountState === 'blocked'
+                ? 'operators.account.keptHint'
+                : 'operators.detail.current.hint'
+              ) | transloco
+            }}
+          </p>
           @switch (history.status) {
             @case ('ready') {
               @if (history.current.length > 0) {
@@ -67,9 +85,15 @@
                               ('operators.list.unknownPlatform' | transloco)
                           }}</bdi>
                         </a>
-                        <nw-status-badge tone="success">{{
-                          'operators.detail.active' | transloco
-                        }}</nw-status-badge>
+                        @if (operator.accountState === 'blocked') {
+                          <nw-status-badge tone="info" data-ineffective>{{
+                            'operators.account.inactiveWhileBlocked' | transloco
+                          }}</nw-status-badge>
+                        } @else {
+                          <nw-status-badge tone="success">{{
+                            'operators.detail.active' | transloco
+                          }}</nw-status-badge>
+                        }
                       </span>
                       <span class="operator-detail__when">
                         {{
@@ -203,7 +227,9 @@
 
       <div class="operator-detail__column">
         <section class="operator-detail__card" aria-labelledby="operator-account">
-          <h2 id="operator-account">{{ 'operators.detail.account.title' | transloco }}</h2>
+          <h2 id="operator-account" #accountHeading tabindex="-1">
+            {{ 'operators.detail.account.title' | transloco }}
+          </h2>
           <dl class="operator-detail__rows">
             <div>
               <dt>
@@ -230,6 +256,42 @@
           <p class="operator-detail__explain">
             {{ stateDescription[operator.accountState] | transloco }}
           </p>
+          @if (block.offered()) {
+            <p class="operator-detail__explain" data-account-effect>
+              {{
+                (operator.accountState === 'blocked'
+                  ? 'operators.account.unblockEffect'
+                  : 'operators.account.blockEffect'
+                ) | transloco
+              }}
+            </p>
+            @if (block.busy()) {
+              <span class="nw-visually-hidden" id="operator-block-waiting">{{
+                'operators.account.waiting' | transloco
+              }}</span>
+            }
+            <button
+              nw-button
+              type="button"
+              class="operator-detail__account-action"
+              [class.operator-detail__account-action--danger]="operator.accountState !== 'blocked'"
+              [attr.data-account-action]="operator.accountState === 'blocked' ? 'unblock' : 'block'"
+              variant="secondary"
+              [attr.aria-disabled]="block.busy() || null"
+              [attr.aria-describedby]="block.busy() ? 'operator-block-waiting' : null"
+              (click)="openBlock(operator)"
+            >
+              <nw-icon
+                [name]="operator.accountState === 'blocked' ? 'shield-check' : 'lock-keyhole'"
+                size="sm"
+              />{{
+                (operator.accountState === 'blocked'
+                  ? 'operators.account.unblockOpen'
+                  : 'operators.account.blockOpen'
+                ) | transloco
+              }}
+            </button>
+          }
           <p class="operator-detail__notice" role="note">
             <nw-icon name="flask-conical" size="sm" />
             <span>{{ 'operators.detail.account.provisional' | transloco }}</span>
@@ -247,7 +309,6 @@
           <h2 id="operator-later">{{ 'operators.detail.later.title' | transloco }}</h2>
           <p class="operator-detail__explain">{{ 'operators.detail.later.intro' | transloco }}</p>
           <ul class="operator-detail__later" role="list">
-            <li>{{ 'operators.detail.later.block' | transloco }}</li>
             <li>{{ 'operators.detail.later.create' | transloco }}</li>
             <li>{{ 'operators.detail.later.resend' | transloco }}</li>
           </ul>

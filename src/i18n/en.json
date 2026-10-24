@@ -378,9 +378,12 @@
         "membershipRevoked": "Membership revoked",
         "adminGranted": "Organization-admin role granted",
         "adminRemoved": "Organization-admin role removed",
-        "platformCreated": "Platform created"
+        "platformCreated": "Platform created",
+        "operatorBlocked": "Operator blocked",
+        "operatorUnblocked": "Operator unblocked"
       },
-      "auditLog": "Audit log"
+      "auditLog": "Audit log",
+      "companyLevel": "Company"
     },
     "states": {
       "loading": "Loading the company overview",
@@ -1455,7 +1458,6 @@
       "later": {
         "title": "Changes to this operator",
         "intro": "Not available in this version of Admin:",
-        "block": "Block or unblock the account (supported by Nawara Core).",
         "create": "Create an operator (supported by Nawara Core).",
         "resend": "Send a new confirmation code (not supported by Nawara Core yet)."
       }
@@ -1511,6 +1513,63 @@
         "unavailable": "The service could not check the Platform right now, so nothing was confirmed. It was not sent again.",
         "rateLimited": "Too many requests right now. Try again in a moment."
       }
+    },
+    "account": {
+      "blockOpen": "Block account…",
+      "unblockOpen": "Unblock account…",
+      "blockEffect": "Blocking stops this operator everywhere at once: sign-in, every open session and every Platform. Their Platform access is kept for when you unblock them.",
+      "unblockEffect": "Unblocking lets them sign in again with a new working code. Sessions ended by the block stay ended.",
+      "waiting": "Wait: an account change is being sent.",
+      "blockTitle": "Block this operator?",
+      "unblockTitle": "Unblock this operator?",
+      "blockBody": "This operator will be stopped everywhere, at once:",
+      "unblockBody": "This operator will be able to sign in again:",
+      "blockSessions": "They are signed out of every open session, and cannot sign in.",
+      "blockCodes": "Any unused working code or confirmation code they were sent is cancelled.",
+      "blockPlatforms": "They can act on no Platform while blocked. Their Platform assignments stay recorded.",
+      "blockNoMembership": "No organization membership or admin role changes.",
+      "blockUnblockLater": "Unblocking later requires a fresh sign-in: it does not bring back the sessions this ends.",
+      "noStepUp": "Nawara Core asks no verification for this emergency control.",
+      "unconfirmedTitle": "This operator has not confirmed their account.",
+      "unconfirmedBody": "Blocking cancels their confirmation code. Until Nawara Core supports confirmation-code recovery (CF-16), unblocking does not provide a way to complete confirmation.",
+      "unblockSignIn": "They sign in with a new working code: sessions ended by the block stay ended, and cancelled codes stay cancelled.",
+      "unblockPlatforms": "Their retained Platform assignments become effective again once the account is active and they sign in successfully.",
+      "unblockNothingElse": "Unblocking does not confirm an account, and changes nothing else.",
+      "unconfirmedUnblockTitle": "This operator has not confirmed their account.",
+      "unconfirmedUnblockBody": "If a block cancelled their confirmation code, they cannot confirm until Nawara Core supports confirmation-code recovery (CF-16). Admin offers no resend.",
+      "demoState": "The account state shown is demo data: Nawara Core does not show it to Admin yet.",
+      "block": "Block account",
+      "unblock": "Unblock account",
+      "blocking": "Blocking the account…",
+      "unblocking": "Unblocking the account…",
+      "blockingShort": "Blocking…",
+      "unblockingShort": "Unblocking…",
+      "pendingNote": "Sent to Nawara Core. Closing this dialog does not stop it.",
+      "blocked": "Operator blocked. They are signed out everywhere.",
+      "unblocked": "Operator unblocked. They can sign in again with a new working code.",
+      "notConfirmed": "The account change was not confirmed.",
+      "checking": "Checking the account…",
+      "gone": "This operator is no longer one of your operators.",
+      "unchecked": "The account could not be checked. Use Check again, or open the operator again later.",
+      "nowBlocked": "The account now shows as blocked, possibly from your request.",
+      "nowActive": "The account now shows as not blocked, possibly from your request.",
+      "stillActive": "The account still shows as not blocked.",
+      "stillBlocked": "The account still shows as blocked.",
+      "coreCannotReread": "This is the demo state. With Nawara Core, Admin cannot re-read an operator’s account state yet, so it could not confirm either way.",
+      "repeatWarning": "Sending it again is a separate request: the earlier one may already have applied, and Nawara Core records every request, so this can add another audit entry.",
+      "blockAgain": "Block again",
+      "unblockAgain": "Unblock again",
+      "checkAgain": "Check again",
+      "blockedBanner": "This account is blocked: the operator cannot sign in and can act on no Platform, including those listed below.",
+      "keptTitle": "Platform access (kept while blocked)",
+      "inactiveWhileBlocked": "Inactive while blocked",
+      "notEffective": "Not effective while blocked",
+      "failure": {
+        "unknown": "No answer came back. Nawara Core may or may not have applied the change. It was not sent again.",
+        "unavailable": "The service did not confirm the change, so it may not have applied. It was not sent again.",
+        "refused": "Nawara Core did not apply the change to this operator. It was not sent again."
+      },
+      "keptHint": "Recorded assignments. They grant nothing while the account is blocked, and apply again once it is unblocked and the operator signs in."
     }
   }
 }

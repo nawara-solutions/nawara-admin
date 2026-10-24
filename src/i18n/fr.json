@@ -378,9 +378,12 @@
         "membershipRevoked": "Adhésion révoquée",
         "adminGranted": "Rôle d’administrateur d’organisation accordé",
         "adminRemoved": "Rôle d’administrateur d’organisation retiré",
-        "platformCreated": "Plateforme créée"
+        "platformCreated": "Plateforme créée",
+        "operatorBlocked": "Opérateur bloqué",
+        "operatorUnblocked": "Opérateur débloqué"
       },
-      "auditLog": "Journal d’audit"
+      "auditLog": "Journal d’audit",
+      "companyLevel": "Entreprise"
     },
     "states": {
       "loading": "Chargement de la vue d’ensemble de l’entreprise",
@@ -1455,7 +1458,6 @@
       "later": {
         "title": "Modifications de cet opérateur",
         "intro": "Non disponibles dans cette version d’Admin :",
-        "block": "Bloquer ou débloquer le compte (pris en charge par Nawara Core).",
         "create": "Créer un opérateur (pris en charge par Nawara Core).",
         "resend": "Envoyer un nouveau code de confirmation (pas encore pris en charge par Nawara Core)."
       }
@@ -1511,6 +1513,63 @@
         "unavailable": "Le service n’a pas pu vérifier la plateforme pour le moment : rien n’a été confirmé. La demande n’a pas été renvoyée.",
         "rateLimited": "Trop de demandes pour le moment. Réessayez dans un instant."
       }
+    },
+    "account": {
+      "blockOpen": "Bloquer le compte…",
+      "unblockOpen": "Débloquer le compte…",
+      "blockEffect": "Le blocage arrête cet opérateur partout et immédiatement : connexion, sessions ouvertes et plateformes. Ses accès aux plateformes sont conservés pour le jour où vous le débloquerez.",
+      "unblockEffect": "Le déblocage lui permet de se reconnecter avec un nouveau code de travail. Les sessions terminées par le blocage restent terminées.",
+      "waiting": "Patientez : une modification du compte est en cours d’envoi.",
+      "blockTitle": "Bloquer cet opérateur ?",
+      "unblockTitle": "Débloquer cet opérateur ?",
+      "blockBody": "Cet opérateur sera arrêté partout, immédiatement :",
+      "unblockBody": "Cet opérateur pourra se reconnecter :",
+      "blockSessions": "Il est déconnecté de toutes ses sessions et ne peut plus se connecter.",
+      "blockCodes": "Tout code de travail ou de confirmation non utilisé qui lui a été envoyé est annulé.",
+      "blockPlatforms": "Il n’agit sur aucune plateforme tant qu’il est bloqué. Ses attributions restent enregistrées.",
+      "blockNoMembership": "Aucune adhésion ni aucun rôle d’administrateur ne change.",
+      "blockUnblockLater": "Un déblocage ultérieur exige une nouvelle connexion : il ne rétablit pas les sessions terminées.",
+      "noStepUp": "Nawara Core ne demande aucune vérification pour ce contrôle d’urgence.",
+      "unconfirmedTitle": "Cet opérateur n’a pas confirmé son compte.",
+      "unconfirmedBody": "Le blocage annule son code de confirmation. Tant que Nawara Core ne permet pas de récupérer un code de confirmation (CF-16), le déblocage ne lui permet pas de terminer la confirmation.",
+      "unblockSignIn": "Il se connecte avec un nouveau code de travail : les sessions terminées par le blocage restent terminées et les codes annulés le restent.",
+      "unblockPlatforms": "Ses attributions conservées redeviennent effectives une fois le compte actif et sa connexion réussie.",
+      "unblockNothingElse": "Le déblocage ne confirme aucun compte et ne change rien d’autre.",
+      "unconfirmedUnblockTitle": "Cet opérateur n’a pas confirmé son compte.",
+      "unconfirmedUnblockBody": "Si un blocage a annulé son code de confirmation, il ne peut pas confirmer tant que Nawara Core ne permet pas de récupérer ce code (CF-16). Admin ne propose aucun renvoi.",
+      "demoState": "L’état du compte affiché est une donnée de démonstration : Nawara Core ne le montre pas encore à Admin.",
+      "block": "Bloquer le compte",
+      "unblock": "Débloquer le compte",
+      "blocking": "Blocage du compte…",
+      "unblocking": "Déblocage du compte…",
+      "blockingShort": "Blocage…",
+      "unblockingShort": "Déblocage…",
+      "pendingNote": "Envoyé à Nawara Core. Fermer cette fenêtre ne l’arrête pas.",
+      "blocked": "Opérateur bloqué. Il est déconnecté partout.",
+      "unblocked": "Opérateur débloqué. Il peut se reconnecter avec un nouveau code de travail.",
+      "notConfirmed": "La modification du compte n’a pas été confirmée.",
+      "checking": "Vérification du compte…",
+      "gone": "Cet opérateur ne fait plus partie de vos opérateurs.",
+      "unchecked": "Le compte n’a pas pu être vérifié. Utilisez Vérifier à nouveau, ou rouvrez l’opérateur plus tard.",
+      "nowBlocked": "Le compte apparaît maintenant comme bloqué, peut-être à la suite de votre demande.",
+      "nowActive": "Le compte apparaît maintenant comme non bloqué, peut-être à la suite de votre demande.",
+      "stillActive": "Le compte apparaît toujours comme non bloqué.",
+      "stillBlocked": "Le compte apparaît toujours comme bloqué.",
+      "coreCannotReread": "Il s’agit de l’état de démonstration. Avec Nawara Core, Admin ne peut pas encore relire l’état du compte d’un opérateur : il ne pourrait le confirmer ni dans un sens ni dans l’autre.",
+      "repeatWarning": "Le renvoyer est une demande distincte : la précédente a peut-être déjà été appliquée, et Nawara Core enregistre chaque demande, ce qui peut ajouter une entrée d’audit.",
+      "blockAgain": "Bloquer à nouveau",
+      "unblockAgain": "Débloquer à nouveau",
+      "checkAgain": "Vérifier à nouveau",
+      "blockedBanner": "Ce compte est bloqué : l’opérateur ne peut pas se connecter et n’agit sur aucune plateforme, y compris celles listées ci-dessous.",
+      "keptTitle": "Accès aux plateformes (conservés pendant le blocage)",
+      "inactiveWhileBlocked": "Inactif pendant le blocage",
+      "notEffective": "Sans effet pendant le blocage",
+      "failure": {
+        "unknown": "Aucune réponse n’est revenue. Nawara Core a peut-être appliqué la modification, ou non. La demande n’a pas été renvoyée.",
+        "unavailable": "Le service n’a pas confirmé la modification : elle n’a peut-être pas été appliquée. La demande n’a pas été renvoyée.",
+        "refused": "Nawara Core n’a pas appliqué la modification à cet opérateur. La demande n’a pas été renvoyée."
+      },
+      "keptHint": "Attributions enregistrées. Elles n’accordent rien tant que le compte est bloqué, et s’appliquent à nouveau une fois le compte débloqué et l’opérateur reconnecté."
     }
   }
 }

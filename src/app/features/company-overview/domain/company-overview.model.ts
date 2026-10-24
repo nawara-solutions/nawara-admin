@@ -85,6 +85,9 @@ export type ActivityAction =
   | 'organization.updated'
   | 'operator.assigned'
   | 'operator.unassigned'
+  /** Company-level: an operator account blocked or unblocked (P6-S3); no Platform. */
+  | 'operator.blocked'
+  | 'operator.unblocked'
   | 'admin_invitation.created'
   | 'admin_invitation.revoked'
   | 'membership.approved'
@@ -98,7 +101,8 @@ export interface ActivityEntry {
   readonly action: ActivityAction;
   /** Name of the affected Organization, if any (user data: rendered isolated, never translated). */
   readonly organizationName: string | null;
-  readonly platformName: string;
+  /** The Platform's name, or `null` for a Company-level event (an operator account blocked or unblocked). */
+  readonly platformName: string | null;
   /** UTC instant, ISO 8601 with `Z`. */
   readonly occurredAt: string;
 }

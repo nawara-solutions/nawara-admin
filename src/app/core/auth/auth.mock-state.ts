@@ -79,6 +79,21 @@ export class DemoAuthState {
   /** The simulated Core session; other demo mocks read whose data to answer with from it. */
   readonly signedIn = signal<DemoSignedIn | null>(null);
 
+  /**
+   * What Core's block does outside the account row (`operator-admin.service.ts`, P6-S3), for one operator: every unused
+   * code is cancelled (working codes and the confirmation code: Core supersedes both) and every session of theirs is
+   * revoked (the demo holds at most the one in this tab). Nothing here is ever restored by an unblock: the operator
+   * needs a new working code, and a cancelled confirmation code stays cancelled (CF-16: nothing reissues one).
+   */
+  endOperatorSignIn(operator: AdminIdentityId): void {
+    for (const account of ALL_DEMO_OPERATORS) {
+      if (account.businessIdentityId !== operator) continue;
+      this.workingCodes.delete(account.identity.userId);
+      this.confirmationCodes.delete(account.identity.userId);
+    }
+    if (this.signedIn()?.businessIdentityId === operator) this.signedIn.set(null);
+  }
+
   /** Live simulated step-up grants, by token. */
   private readonly stepUps = new Map<string, DemoStepUp>();
 

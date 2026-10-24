@@ -27,6 +27,11 @@ export type Capability =
    */
   | 'operator.platformAccess.change'
   /**
+   * Blocking and unblocking an operator account: Core's `POST …/operators/:id/block|unblock` are `@Actors('owner')`
+   * (`403` for anyone else, an operator on their own record included), with no step-up.
+   */
+  | 'operator.account.block'
+  /**
    * Creating a Platform: Core `POST /organization/admin/platforms` allows only the owner of the Company
    * (`canCreatePlatform`), with step-up `platform.create` and an `Idempotency-Key`.
    */
@@ -54,6 +59,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.platforms.view',
   'company.operators.view',
   'operator.platformAccess.change',
+  'operator.account.block',
   'platform.create',
   'organization.create',
   'platform.commercial.view',

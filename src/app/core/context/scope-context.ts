@@ -249,7 +249,7 @@ export class ScopeContext {
 }
 
 /**
- * Reports a refused platform-scope read (Core's collapsed `404`, or `403`) to `ScopeContext.platformRefused`, so a
+ * Reports a refused platform-scope read (Core's collapsed `404`, a `403`, or a `401`) to `ScopeContext.platformRefused`, so a
  * signed-in operator's grants are re-read (P6-S2b). The error is passed on unchanged: the refusal stands.
  */
 export function reportsRefusal<T>(
@@ -261,7 +261,10 @@ export function reportsRefusal<T>(
       tap({
         error: (thrown: unknown) => {
           const kind = toAppError(thrown).kind;
-          if (kind === 'not_found' || kind === 'forbidden') scope.platformRefused(platform);
+          // A `401` too (P6-S3): Core refuses every request of an operator whose session it ended (a block). The
+          // grants read that follows answers `401` as well, and only THAT ends the local session.
+          if (kind === 'not_found' || kind === 'forbidden' || kind === 'unauthenticated')
+            scope.platformRefused(platform);
         },
       }),
     );

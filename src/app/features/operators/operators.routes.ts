@@ -4,7 +4,12 @@ import { BREADCRUMB_DATA, BREADCRUMB_PARENT_DATA } from '../../layout/breadcrumb
 import { OperatorDetailFacade } from './application/operator-detail.facade';
 import { OperatorDirectoryFacade } from './application/operator-directory.facade';
 import { OPERATORS_PATH } from './application/operator-paths';
+import { OperatorBlockAction } from './application/operator-block.action';
 import { PlatformAccessAction } from './application/platform-access.action';
+import {
+  OperatorAccountGateway,
+  UnavailableOperatorAccountGateway,
+} from './data-access/operator-account.gateway';
 import { StepUpGateway, UnavailableStepUpGateway } from '../../core/auth/step-up.gateway';
 import {
   OperatorAssignmentGateway,
@@ -26,6 +31,7 @@ export async function loadOperatorsRoutes(environment: AppEnvironment): Promise<
     adapterProviders(environment, 'operators', [
       { provide: OperatorDirectoryGateway, useClass: UnavailableOperatorDirectoryGateway },
       { provide: OperatorAssignmentGateway, useClass: UnavailableOperatorAssignmentGateway },
+      { provide: OperatorAccountGateway, useClass: UnavailableOperatorAccountGateway },
     ]),
     adapterProviders(environment, 'stepUp', [
       { provide: StepUpGateway, useClass: UnavailableStepUpGateway },
@@ -52,7 +58,7 @@ export async function loadOperatorsRoutes(environment: AppEnvironment): Promise<
             [BREADCRUMB_DATA]: 'shell.breadcrumb.operator',
             [BREADCRUMB_PARENT_DATA]: { key: 'shell.breadcrumb.operators', link: OPERATORS_PATH },
           },
-          providers: [OperatorDetailFacade, PlatformAccessAction],
+          providers: [OperatorDetailFacade, PlatformAccessAction, OperatorBlockAction],
           loadComponent: () =>
             import('./pages/operator-detail.page').then((m) => m.OperatorDetailPage),
         },

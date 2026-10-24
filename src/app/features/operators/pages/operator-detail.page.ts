@@ -22,6 +22,7 @@ import { NwSpinner } from '../../../shared/ui/spinner/spinner';
 import { NwStatusBadge } from '../../../shared/ui/status-badge/status-badge';
 import { OperatorDetailFacade } from '../application/operator-detail.facade';
 import { OPERATORS_PATH } from '../application/operator-paths';
+import { OperatorBlockAction } from '../application/operator-block.action';
 import { PlatformAccessAction } from '../application/platform-access.action';
 import { ACCOUNT_STATE_DISPLAY } from '../components/operator-list/operator-list';
 import { OperatorsHeader } from '../components/operators-header/operators-header';
@@ -68,6 +69,8 @@ export class OperatorDetailPage {
   protected readonly state = ACCOUNT_STATE_DISPLAY;
   protected readonly stateDescription = STATE_DESCRIPTION_KEYS;
   protected readonly access = inject(PlatformAccessAction);
+  protected readonly block = inject(OperatorBlockAction);
+  private readonly accountHeading = viewChild<ElementRef<HTMLElement>>('accountHeading');
   private readonly injector = inject(Injector);
   private readonly currentHeading = viewChild<ElementRef<HTMLElement>>('currentHeading');
 
@@ -78,11 +81,23 @@ export class OperatorDetailPage {
 
   constructor() {
     effect(() => {
+      if (this.block.succeeded() === null) return;
+      afterNextRender(() => this.accountHeading()?.nativeElement.focus(), {
+        injector: this.injector,
+      });
+    });
+    effect(() => {
       if (this.access.succeeded() === null) return;
       afterNextRender(() => this.currentHeading()?.nativeElement.focus(), {
         injector: this.injector,
       });
     });
+  }
+
+  /** Block (or unblock) the operator; the dialog names how many Platform assignments are kept. */
+  protected openBlock(operator: OperatorSummary): void {
+    const history = this.facade.historyView();
+    this.block.open(operator, history.status === 'ready' ? history.current.length : 0);
   }
 
   protected giveAccess(operator: OperatorSummary): void {

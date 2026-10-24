@@ -33,14 +33,19 @@ import {
   UnavailableOperatorDirectoryGateway,
 } from '../data-access/operator-directory.gateway';
 import {
+  MockOperatorAccountGateway,
   MockOperatorAssignmentGateway,
   MockOperatorDirectoryGateway,
+  OPERATOR_ACCOUNT_DEMO_SCENARIO,
   OPERATOR_ASSIGNMENT_DEMO_SCENARIO,
+  OperatorAccountDemoScenario,
   OPERATOR_DIRECTORY_DEMO_SCENARIO,
   OperatorAssignmentDemoScenario,
   OperatorDirectoryDemoScenario,
 } from '../data-access/operator.mock';
+import { OperatorBlockAction } from '../application/operator-block.action';
 import { PlatformAccessAction } from '../application/platform-access.action';
+import { OperatorAccountGateway } from '../data-access/operator-account.gateway';
 import { StepUpGateway } from '../../../core/auth/step-up.gateway';
 import { MockStepUpGateway } from '../../../core/auth/step-up.mock';
 
@@ -104,6 +109,8 @@ export interface RenderOptions {
   readonly scenario?: OperatorDirectoryDemoScenario;
   /** How Platform access changes are answered (P6-S2). */
   readonly changes?: OperatorAssignmentDemoScenario;
+  /** How block and unblock are answered (P6-S3). */
+  readonly account?: OperatorAccountDemoScenario;
   readonly latency?: number;
 }
 
@@ -117,6 +124,7 @@ export async function renderOperators<T>(
     history = 'mock',
     scenario = 'normal',
     changes = 'normal',
+    account = 'normal',
     latency = 0,
   }: RenderOptions = {},
 ) {
@@ -159,6 +167,9 @@ export async function renderOperators<T>(
       OperatorDirectoryFacade,
       OperatorDetailFacade,
       PlatformAccessAction,
+      OperatorBlockAction,
+      { provide: OPERATOR_ACCOUNT_DEMO_SCENARIO, useValue: account },
+      { provide: OperatorAccountGateway, useClass: MockOperatorAccountGateway },
     ],
   });
   TestBed.inject(AuthSession).establish(actor);
@@ -171,6 +182,8 @@ export async function renderOperators<T>(
   const historySpy = vi.spyOn(TestBed.inject(OperatorAssignmentGateway), 'history');
   const grantSpy = vi.spyOn(TestBed.inject(OperatorAssignmentGateway), 'grant');
   const revokeSpy = vi.spyOn(TestBed.inject(OperatorAssignmentGateway), 'revoke');
+  const blockSpy = vi.spyOn(TestBed.inject(OperatorAccountGateway), 'block');
+  const unblockSpy = vi.spyOn(TestBed.inject(OperatorAccountGateway), 'unblock');
   const router = TestBed.inject(Router);
   await router.navigateByUrl(url);
   const fixture = TestBed.createComponent(page);
@@ -182,7 +195,18 @@ export async function renderOperators<T>(
   const element = fixture.nativeElement as HTMLElement;
   for (let i = 0; i < 20 && !element.querySelector('h1'); i++) await settle(10);
   await settle(10);
-  return { element, router, settle, listSpy, loadSpy, historySpy, grantSpy, revokeSpy };
+  return {
+    element,
+    router,
+    settle,
+    listSpy,
+    loadSpy,
+    historySpy,
+    grantSpy,
+    revokeSpy,
+    blockSpy,
+    unblockSpy,
+  };
 }
 
 /** The visible text of an element, without the isolation marks and with spaces collapsed. */

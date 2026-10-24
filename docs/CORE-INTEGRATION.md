@@ -395,7 +395,7 @@ Admin strategy and the decision required before A4.
 | Memberships — revoke | Auth | 🟢 Prod | `POST …/memberships/:id/revoke` | `MembershipGateway.revoke(organizationId, id)`, mock in demo builds (P5-S3a); never resent after a lost answer; **CF-26, CF-27** |
 | Join codes / admin invitations | Auth | 🟢 Prod | `organization.controller.ts` | HTTP (A7) |
 | Organization-admin grant/revoke | Auth | 🟢 Prod | `memberships/:id/admin` | `MembershipGateway.setOrganizationAdmin(org, id, admin, { stepUpToken })`, mock in demo builds (P5-S3b); owner only, factor step-up; never resent after a lost answer; **CF-27** |
-| Operators (create/confirm/block/unblock) | Auth | 🟢 Prod (verified P6-S0, `750eb21`) | `operator.controller.ts` | **Implemented in Core, not in Admin**: create (P6-S4), block/unblock (P6-S3) are later slices |
+| Operators (create/confirm/block/unblock) | Auth | 🟢 Prod (verified P6-S0, `750eb21`) | `operator.controller.ts` | Block / unblock: **P6-S3**, owner-only "Block account" / "Unblock account" against a demo-world mock (no step-up, as Core; codes cancelled and the operator's session ended on block; nothing restored on unblock; lost answers reconcile against the DEMO state and allow only an explicit repeat). **No HTTP adapter**; Admin cannot re-read the account state from Core (CF-03, CF-35). Create (P6-S4) not built |
 | Signed-in operator's own Platform list after a change | Auth | 🟢 `GET /auth/grants` (live; `401` for an inactive account or an ended session) | `grants.service.ts`, `auth.guard.ts` | **P6-S2b**: `OperatorGrantsRefresh` re-reads it after a refused Platform read, on tab return, on a Platform switch and on "Try again" (single flight, stale answers dropped, never polls); a genuine `401` ends the local session (sign-in, reason `session-expired`); transient failures keep the last list. Display only: Core still authorizes every request. Against the demo `AuthGateway` mock; the HTTP adapter (A4) must map `401` and the unverified `429` |
 | Platform assignment grant / revoke | Auth | 🟢 Prod (verified P6-S0) | `platform.controller.ts` `POST/DELETE …/platform-assignments` | P6-S2: owner-only "Give access" / "Remove access" (step-up `platform_assignment.grant` / `.revoke`, spent on commit; `409` / `404` / `503` / lost answer reconcile by reloading the history, never resent) against a demo-world mock; **no HTTP adapter**; the dialog offers the authenticator code only, though Core also accepts a passkey or the secret key (shared factor selector: separate work item) |
 | Operator assignment history | Auth | 🟢 Prod (verified P6-S0) | `GET /auth/admin/operators/:id/platform-assignments` | `OperatorAssignmentGateway` in Core's shape (P6-S1); mock in demo builds, unavailable adapter otherwise: **no HTTP adapter authorized yet**, and no operator ids without a directory |
@@ -829,6 +829,21 @@ Admin requirement: Core marks them planned or withdrawn; Admin builds none of th
 Classification:   🟡 documentation.
 V1 or V2:         to decide by the Core owner.
 Recommended checkpoint: with CF-03.
+
+CF-35  Operator block / unblock: authoritative account-state reconciliation
+Service:          auth-service
+Current behavior: (origin/main 750eb21) POST /auth/admin/operators/:id/block|unblock answer 204 with no body; no owner
+                  read returns an operator's isActive (CF-03). After a lost answer Admin cannot tell whether the account
+                  is blocked; a repeat is harmless for the account but writes another audit record.
+Admin requirement: the resulting state in the answer ({ id, isActive }) or an owner read of it, so a lost answer can be
+                  reconciled without a blind repeat.
+Classification:   🟡 contract addition.
+V1 or V2:         to decide by the Core owner.
+Recommended checkpoint: before the operator administration HTTP adapter.
+
+Residual risk recorded with P6-S3: block and unblock require no step-up (Core's deliberate choice for an emergency
+control), so a stolen owner session can block every operator or unblock one. Admin adds no verification Core does not ask
+for; this is for the Core owner's security review, not an Admin change.
 ```
 
 ## 10. Undefined architectural decisions (Core side)
