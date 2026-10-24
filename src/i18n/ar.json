@@ -300,6 +300,11 @@
     },
     "notifications": {
       "unread": "الإشعارات غير المقروءة: {{count}}"
+    },
+    "grantsRefresh": {
+      "refreshed": "ربما تغيّر وصولك. حُدّثت قائمة منصاتك.",
+      "unavailable": "تعذّر تحديث قائمة منصاتك حاليًا.",
+      "retry": "إعادة المحاولة"
     }
   },
   "companyOverview": {

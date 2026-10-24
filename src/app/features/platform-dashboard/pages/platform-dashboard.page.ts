@@ -2,6 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { GrantsRefreshNotice } from '../../../layout/grants-refresh-notice/grants-refresh-notice';
 import { homePath } from '../../../core/access/home-path';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { organizationsPath } from '../../../core/context/scope-context';
@@ -37,6 +38,7 @@ const UNAVAILABLE: Metric = { status: 'unavailable' };
 @Component({
   selector: 'adm-platform-dashboard-page',
   imports: [
+    GrantsRefreshNotice,
     NgTemplateOutlet,
     RouterLink,
     TranslocoPipe,

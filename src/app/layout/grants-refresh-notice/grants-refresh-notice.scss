@@ -1,0 +1,26 @@
+// The operator's Platform list notice (P6-S2b), above a page's "not accessible" state.
+:host {
+  display: block;
+}
+
+.grants-refresh-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-2);
+  margin-block-end: var(--nw-space-3);
+  padding: var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+
+  span {
+    flex: 1 1 12rem;
+  }
+
+  &--warning {
+    background-color: var(--nw-status-warning-bg);
+    color: var(--nw-status-warning-fg);
+  }
+}

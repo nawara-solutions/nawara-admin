@@ -300,6 +300,11 @@
     },
     "notifications": {
       "unread": "Notifications non lues : {{count}}"
+    },
+    "grantsRefresh": {
+      "refreshed": "Votre accès a peut-être changé. Votre liste de plateformes a été actualisée.",
+      "unavailable": "Votre liste de plateformes n’a pas pu être actualisée pour le moment.",
+      "retry": "Réessayer"
     }
   },
   "companyOverview": {

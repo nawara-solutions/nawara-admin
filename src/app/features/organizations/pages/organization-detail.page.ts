@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { GrantsRefreshNotice } from '../../../layout/grants-refresh-notice/grants-refresh-notice';
 import { can } from '../../../core/access/capability-policy';
 import { homePath } from '../../../core/access/home-path';
 import { AuthSession } from '../../../core/auth/auth-session';
@@ -65,6 +66,7 @@ const METADATA_FIELDS = [
 @Component({
   selector: 'adm-organization-detail-page',
   imports: [
+    GrantsRefreshNotice,
     NgTemplateOutlet,
     RouterLink,
     AdminInvitationsCard,

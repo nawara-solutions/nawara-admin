@@ -3,7 +3,11 @@ import { Subject } from 'rxjs';
 import { can } from '../../../core/access/capability-policy';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { PlatformAccess, platformAccessOf } from '../../../core/context/platform-access';
-import { ScopeContext, organizationOfPage } from '../../../core/context/scope-context';
+import {
+  ScopeContext,
+  organizationOfPage,
+  reportsRefusal,
+} from '../../../core/context/scope-context';
 import { OrganizationId, PlatformRef } from '../../../core/context/scope.model';
 import { ADAPTER_UNAVAILABLE } from '../../../core/errors/app-error';
 import { ViewState } from '../../../core/state/view-state';
@@ -66,9 +70,14 @@ export class OrganizationDetailFacade {
     this.access().status === 'granted' ? organizationOfPage(this.context.platformPage()) : null,
   );
 
-  private readonly raw = keyedLoad(this.organizationId, this.reloads, (id) =>
-    this.gateway.load(id),
-  );
+  // A refused Organization (an assignment removed meanwhile) re-reads an operator's grants (P6-S2b).
+  private readonly raw = keyedLoad(this.organizationId, this.reloads, (id) => {
+    const access = this.access();
+    const load = this.gateway.load(id);
+    return access.status === 'granted'
+      ? load.pipe(reportsRefusal(this.context, access.platform.id))
+      : load;
+  });
 
   readonly view = computed<OrganizationDetailView>(() => {
     const access = this.access();

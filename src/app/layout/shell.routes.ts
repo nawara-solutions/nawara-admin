@@ -4,6 +4,7 @@ import { capabilityGuard, sessionGuard } from '../core/access/access.guards';
 import { homePath } from '../core/access/home-path';
 import { AuthGateway, UnavailableAuthGateway } from '../core/auth/auth.gateway';
 import { AuthSession } from '../core/auth/auth-session';
+import { OperatorGrantsRefresh } from '../core/auth/operator-grants-refresh';
 import { SignOut } from '../core/auth/sign-out';
 import { APP_ENVIRONMENT, AppEnvironment, adapterProviders } from '../core/config/app-environment';
 import { EntityLabel } from '../core/context/entity-label';
@@ -56,6 +57,7 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
         ...auth,
         ...directory,
         ...notifications,
+        OperatorGrantsRefresh,
         ScopeContext,
         EntityLabel,
         NotificationIndicator,

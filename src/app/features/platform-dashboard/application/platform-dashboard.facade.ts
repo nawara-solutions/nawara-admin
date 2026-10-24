@@ -4,7 +4,7 @@ import { Observable, Subject, combineLatest, of, startWith, switchMap } from 'rx
 import { can } from '../../../core/access/capability-policy';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { PlatformAccess, platformAccessOf } from '../../../core/context/platform-access';
-import { ScopeContext } from '../../../core/context/scope-context';
+import { ScopeContext, reportsRefusal } from '../../../core/context/scope-context';
 import { PlatformId } from '../../../core/context/scope.model';
 import { ViewState, toViewState } from '../../../core/state/view-state';
 import { Section } from '../../../shared/dashboard/metric';
@@ -76,8 +76,9 @@ export class PlatformDashboardFacade {
     this.showsCommercial() ? this.platformId() : null,
   );
 
+  // A refused dashboard (an assignment removed meanwhile) re-reads an operator's grants (P6-S2b); the refusal stands.
   private readonly dashboardRaw = this.load(
-    (id) => this.dashboardGateway.load(id),
+    (id) => this.dashboardGateway.load(id).pipe(reportsRefusal(this.context, id)),
     this.platformId,
   );
   private readonly commercialRaw = this.load(

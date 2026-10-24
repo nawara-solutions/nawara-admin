@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { APP_ENVIRONMENT, AppEnvironment, DemoBindings } from '../config/app-environment';
-import { companyId } from '../context/scope.model';
+import { companyId, platformId } from '../context/scope.model';
 import { Actor } from './actor';
 import { AuthSession } from './auth-session';
 
@@ -71,5 +71,48 @@ describe('AuthSession', () => {
     s.signOut();
     expect(s.actor()).toBeNull();
     expect(s.isDemo()).toBe(false);
+  });
+});
+
+describe('AuthSession.refreshGrants (P6-S2b)', () => {
+  const school = platformId('school');
+  const drive = platformId('drive');
+  const operator: Actor = {
+    kind: 'operator',
+    userId: 'p',
+    email: 'p@x.invalid',
+    platformAssignments: [school, drive],
+  };
+  const demo = () => session({ production: false, demo: { load: async () => DEMO_BINDINGS_STUB } });
+
+  it('replaces a signed-in operator’s Platforms only when the set differs, keeping everything else', () => {
+    const s = demo();
+    s.establish(operator);
+    const epoch = s.epoch();
+    const before = s.actor();
+    expect(s.refreshGrants(epoch, 'p', [drive, school])).toBe(false);
+    expect(s.actor()).toBe(before);
+    expect(s.refreshGrants(epoch, 'p', [school])).toBe(true);
+    expect(s.actor()).toEqual({ ...operator, platformAssignments: [school] });
+    expect(s.epoch()).toBe(epoch);
+    expect(s.refreshGrants(epoch, 'p', [])).toBe(true);
+    expect(s.actor()).toMatchObject({ kind: 'operator', platformAssignments: [] });
+  });
+
+  it('never touches an owner, another user, a signed-out or a replaced session', () => {
+    const s = demo();
+    s.establish(owner);
+    expect(s.refreshGrants(s.epoch(), 'o', [school])).toBe(false);
+    expect(s.actor()).toEqual(owner);
+    s.establish(operator);
+    const epoch = s.epoch();
+    expect(s.refreshGrants(epoch, 'someone-else', [])).toBe(false);
+    s.signOut();
+    expect(s.epoch()).toBeGreaterThan(epoch);
+    expect(s.refreshGrants(epoch, 'p', [])).toBe(false);
+    s.establish(operator);
+    // An answer requested in the earlier session is never applied to the new one.
+    expect(s.refreshGrants(epoch, 'p', [])).toBe(false);
+    expect(s.actor()).toEqual(operator);
   });
 });

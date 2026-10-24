@@ -300,6 +300,11 @@
     },
     "notifications": {
       "unread": "Unread notifications: {{count}}"
+    },
+    "grantsRefresh": {
+      "refreshed": "Your access may have changed. Your Platform list has been refreshed.",
+      "unavailable": "Your Platform list could not be refreshed right now.",
+      "retry": "Try again"
     }
   },
   "companyOverview": {

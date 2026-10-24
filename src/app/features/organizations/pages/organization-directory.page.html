@@ -257,6 +257,7 @@
 
 <ng-template #notAccessible>
   <h1 class="nw-visually-hidden">{{ 'organizations.states.notAccessibleTitle' | transloco }}</h1>
+  <adm-grants-refresh-notice />
   <nw-data-state
     state="empty"
     [title]="'organizations.states.notAccessibleTitle' | transloco"

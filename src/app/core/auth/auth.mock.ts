@@ -263,11 +263,21 @@ export class MockAuthGateway extends AuthGateway {
       : this.fail({ kind: 'unauthenticated', status: 401 });
   }
 
+  /**
+   * Like Core's `GET /auth/grants`, live from the world at each call (P6-S2b re-reads it during a session). An operator
+   * the owner blocked has no session any more (Core's guard answers `401` for an inactive account, and the block
+   * revoked every session), so the simulated session ends too.
+   */
   grants(): Observable<Grants> {
     const signedIn = this.state.signedIn();
-    return signedIn
-      ? this.answer(grantsOf(this.world.snapshot(), signedIn.businessIdentityId))
-      : this.fail({ kind: 'unauthenticated', status: 401 });
+    if (!signedIn) return this.fail({ kind: 'unauthenticated', status: 401 });
+    const world = this.world.snapshot();
+    const id = signedIn.businessIdentityId;
+    if (id !== null && operatorProfileOf(world, id)?.blocked === true) {
+      this.state.signedIn.set(null);
+      return this.fail({ kind: 'unauthenticated', status: 401 });
+    }
+    return this.answer(grantsOf(world, id));
   }
 
   /** Like Core: the owner for a Platform of their Company, an operator for an assigned Platform; else `false`. */
