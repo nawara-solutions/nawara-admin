@@ -1,0 +1,184 @@
+@let view = facade.view();
+<header class="billing__header">
+  <span class="billing__mark" aria-hidden="true"><nw-icon name="credit-card" size="lg" /></span>
+  <div class="billing__titles">
+    <p class="billing__eyebrow">{{ 'billing.header.eyebrow' | transloco }}</p>
+    <h1 class="billing__title">{{ 'billing.header.title' | transloco }}</h1>
+    <p class="billing__muted">{{ 'billing.header.subtitle' | transloco }}</p>
+  </div>
+  @if (isDemo()) {
+    <span class="billing__demo">
+      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+      <span class="nw-visually-hidden">: {{ 'billing.demoExplanation' | transloco }}</span>
+    </span>
+  }
+</header>
+
+@switch (view.status) {
+  @case ('ready') {
+    <p class="billing__note" role="note">
+      <nw-icon name="info" size="sm" />
+      <span>{{ 'billing.provisional' | transloco }}</span>
+    </p>
+    <p class="billing__summary" data-summary>
+      <nw-icon name="circle-alert" size="sm" />
+      <span>{{
+        'billing.summary'
+          | transloco
+            : {
+                total: (facade.count('all') | nwNumber),
+                failed: (facade.count('failed') | nwNumber),
+                awaiting: (facade.count('awaiting_action') | nwNumber),
+              }
+      }}</span>
+    </p>
+
+    <section class="billing__card" aria-labelledby="billing-follow-ups">
+      <h2 id="billing-follow-ups" class="billing__card-title">
+        {{ 'billing.list.title' | transloco }}
+      </h2>
+      <div class="billing__toolbar">
+        <nw-form-field class="billing__select" [label]="'billing.filter.label' | transloco">
+          <select nwControl aria-controls="billing-table" (change)="onFilter($event)">
+            @for (filter of filters; track filter) {
+              <option [value]="filter" [selected]="filter === facade.filter()">
+                {{ filterKeys[filter] | transloco: { count: (facade.count(filter) | nwNumber) } }}
+              </option>
+            }
+          </select>
+        </nw-form-field>
+        <p class="billing__muted" role="status" aria-live="polite">
+          {{
+            'billing.list.count'
+              | transloco
+                : {
+                    shown: (facade.rows().length | nwNumber),
+                    total: (facade.count('all') | nwNumber),
+                  }
+          }}
+        </p>
+      </div>
+      @if (facade.rows().length > 0) {
+        <div class="billing__table-box" tabindex="0" aria-labelledby="billing-follow-ups">
+          <table id="billing-table" class="billing__table">
+            <caption class="nw-visually-hidden">
+              {{
+                'billing.list.caption' | transloco
+              }}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'billing.list.organization' | transloco }}</th>
+                <th scope="col">{{ 'billing.list.platform' | transloco }}</th>
+                <th scope="col">{{ 'billing.list.issue' | transloco }}</th>
+                <th scope="col">{{ 'billing.list.subscription' | transloco }}</th>
+                <th scope="col">{{ 'billing.list.entitled' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of facade.rows(); track row.organizationId + row.kind) {
+                <tr [attr.data-kind]="row.kind">
+                  <th scope="row">
+                    <a [routerLink]="organizationPath(row.platform.id, row.organizationId)"
+                      ><bdi>{{ row.organizationName }}</bdi></a
+                    >
+                  </th>
+                  <td>
+                    <a [routerLink]="platformPath(row.platform.id)"
+                      ><bdi>{{ row.platform.name }}</bdi></a
+                    >
+                  </td>
+                  <td class="billing__issue">{{ kindKeys[row.kind] | transloco }}</td>
+                  <td>{{ subscriptionKeys[row.subscription] | transloco }}</td>
+                  <td>{{ entitlementKeys[row.entitlement] | transloco }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="billing__no-match" data-no-match>
+          <p>{{ 'billing.list.noMatch' | transloco }}</p>
+          <button
+            nw-button
+            variant="secondary"
+            size="sm"
+            type="button"
+            (click)="facade.filter.set('all')"
+          >
+            {{ 'billing.list.clear' | transloco }}
+          </button>
+        </div>
+      }
+      <p class="billing__hint">
+        <nw-icon name="info" size="sm" />
+        <span>{{ 'billing.list.separate' | transloco }}</span>
+      </p>
+    </section>
+
+    <div class="billing__columns">
+      <section class="billing__card" aria-labelledby="billing-meaning">
+        <h2 id="billing-meaning" class="billing__card-title">
+          {{ 'billing.meaning.title' | transloco }}
+        </h2>
+        <dl class="billing__meaning">
+          <dt>{{ 'billing.kind.failed' | transloco }}</dt>
+          <dd>{{ 'billing.meaning.failed' | transloco }}</dd>
+          <dt>{{ 'billing.kind.awaitingAction' | transloco }}</dt>
+          <dd>{{ 'billing.meaning.awaitingAction' | transloco }}</dd>
+        </dl>
+      </section>
+      <section class="billing__card billing__card--quiet" aria-labelledby="billing-unavailable">
+        <h2 id="billing-unavailable" class="billing__card-title">
+          {{ 'billing.unavailable.title' | transloco }}
+        </h2>
+        <p class="billing__muted">{{ 'billing.unavailable.intro' | transloco }}</p>
+        <ul class="billing__unavailable" role="list" data-unavailable>
+          <li>{{ 'billing.unavailable.invoices' | transloco }}</li>
+          <li>{{ 'billing.unavailable.amounts' | transloco }}</li>
+          <li>{{ 'billing.unavailable.settlement' | transloco }}</li>
+          <li>{{ 'billing.unavailable.refunds' | transloco }}</li>
+          <li>{{ 'billing.unavailable.operations' | transloco }}</li>
+          <li>{{ 'billing.unavailable.revenue' | transloco }}</li>
+        </ul>
+      </section>
+    </div>
+  }
+  @case ('empty') {
+    <nw-data-state
+      state="empty"
+      [title]="'billing.states.emptyTitle' | transloco"
+      [description]="'billing.states.emptyDescription' | transloco"
+    />
+  }
+  @case ('notInBuild') {
+    <nw-data-state
+      state="empty"
+      [title]="'billing.states.notInBuildTitle' | transloco"
+      [description]="'billing.states.notInBuildDescription' | transloco"
+    />
+  }
+  @case ('error') {
+    <nw-data-state
+      state="error"
+      [title]="'billing.states.errorTitle' | transloco"
+      [description]="'billing.states.errorDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'billing.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('forbidden') {
+    <nw-data-state
+      state="empty"
+      [title]="'shell.pages.forbidden.title' | transloco"
+      [description]="'billing.states.forbiddenDescription' | transloco"
+    />
+  }
+  @default {
+    <nw-data-state state="loading" [title]="'billing.states.loading' | transloco" />
+  }
+}

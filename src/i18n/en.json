@@ -211,7 +211,8 @@
     "operators": "Operators & access",
     "operator": "Operator",
     "licenses": "Licenses & entitlements",
-    "platformSubscriptions": "Platform subscriptions"
+    "platformSubscriptions": "Platform subscriptions",
+    "billing": "Billing & payments"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -234,7 +235,8 @@
       "operators": "Operators & access",
       "operator": "Operator",
       "licenses": "Licenses & entitlements",
-      "platformSubscriptions": "Platform subscriptions"
+      "platformSubscriptions": "Platform subscriptions",
+      "billing": "Billing & payments"
     },
     "context": {
       "label": "Administration scope",
@@ -1745,6 +1747,75 @@
       "emptyDescription": "There is no subscription to show.",
       "notFoundTitle": "Platform not found",
       "notFoundDescription": "This Platform does not exist or is not one of your Company’s."
+    }
+  },
+  "billing": {
+    "demoExplanation": "the follow-ups on this page are fictional demo records",
+    "header": {
+      "eyebrow": "Commercial",
+      "title": "Billing & payments",
+      "subtitle": "Payment follow-ups of your Organizations: which payments failed or await action."
+    },
+    "provisional": "Provisional view: Nawara Core’s Payment and Billing services have no owner read yet. These follow-ups come from demo records and carry no amount.",
+    "summary": "{{total}} payment follow-ups: {{failed}} failed, {{awaiting}} awaiting action.",
+    "filter": {
+      "label": "Payment issue",
+      "all": "All ({{count}})",
+      "failed": "Failed ({{count}})",
+      "awaitingAction": "Awaiting action ({{count}})"
+    },
+    "list": {
+      "title": "Payment follow-ups",
+      "caption": "Each follow-up’s Organization, Platform and payment issue, with the Organization’s subscription and entitlement as separate facts",
+      "count": "Showing {{shown}} of {{total}} follow-ups",
+      "organization": "Organization",
+      "platform": "Platform",
+      "issue": "Payment issue",
+      "subscription": "Subscription",
+      "entitled": "Entitled now",
+      "noMatch": "No follow-up matches this filter.",
+      "clear": "Show all follow-ups",
+      "separate": "A payment issue is not a charge or a balance, and it never changes a subscription: an Organization can have a failed payment and still be actively subscribed and entitled."
+    },
+    "kind": {
+      "failed": "Failed",
+      "awaitingAction": "Awaiting action"
+    },
+    "subscription": {
+      "active": "Active",
+      "grace": "In grace",
+      "none": "No subscription"
+    },
+    "entitlement": {
+      "entitled": "Yes",
+      "entitledInGrace": "Yes, until the grace ends",
+      "notEntitled": "No"
+    },
+    "meaning": {
+      "title": "What these issues mean",
+      "failed": "A payment attempt for this Organization failed. Its amount, reason and date are not available here.",
+      "awaitingAction": "A payment for this Organization awaits action by its payer. Nothing has been collected or settled."
+    },
+    "unavailable": {
+      "title": "Not available yet",
+      "intro": "Nawara Core offers no owner contract for these, so Admin shows nothing in their place:",
+      "invoices": "Invoices and invoice numbers.",
+      "amounts": "Amounts, currencies and balances.",
+      "settlement": "Payment methods, provider references and settlement.",
+      "refunds": "Refunds and disputes.",
+      "operations": "Retrying or collecting a payment.",
+      "revenue": "Revenue: a payment attempt is never revenue."
+    },
+    "states": {
+      "loading": "Loading payment follow-ups…",
+      "emptyTitle": "No payment follow-ups",
+      "emptyDescription": "No payment of your Organizations failed or awaits action.",
+      "notInBuildTitle": "Not available in this build",
+      "notInBuildDescription": "Nawara Core’s Payment and Billing services do not offer an owner read yet, so there is nothing to show.",
+      "errorTitle": "Payment follow-ups could not be loaded",
+      "errorDescription": "Try again in a moment.",
+      "retry": "Try again",
+      "forbiddenDescription": "Billing and payment information is shown to the Company owner only."
     }
   }
 }

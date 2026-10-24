@@ -37,6 +37,7 @@ const bindings: DemoBindings = {
     companyOverview: [{ provide: Gateway, useClass: Mock }],
     commercialSummary: [],
     licenses: [],
+    billing: [],
     serviceHealth: [],
     platformDashboard: [],
     platformCommercial: [],

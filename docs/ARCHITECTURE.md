@@ -208,7 +208,8 @@ Organizations are entities of platform scope (amendment, P3a, 2026-10-23): their
 
 /licenses                      subscriptions & entitlement overview (P7-S1)   🟡 mock, owner only
 /licenses/platforms/:platformId one Platform's Organization subscriptions (P7-S2) 🟡 mock, owner only
-/billing  /payments                                                            🟡
+/billing                       payment follow-ups (P7-S3)                     🟡 mock, owner only
+/payments                                                                     🟡
 /releases                      withdraw · minimum version                     🟢 actions · 🔴 catalog
 /audit                         launcher: choose an organization (platform-level audit 🔴)
 /services                      health                                         🔴 / 🟡
@@ -572,6 +573,9 @@ only ([`design/p6-s3-operator-block.md`](design/p6-s3-operator-block.md)):
   Overview's card, so they cannot disagree; Personal Premium stays a separate per-Platform count.
 - No invented commercial data (plans, prices, seats, revenue) and no commercial command: what Core lacks is said once,
   without controls.
+- **P7-S3:** `/billing` (page → `BillingFacade` → `BillingGateway` → mock or unavailable adapter) lists the world's
+  payment-issue records only, beside the Organization's subscription and entitlement as separate facts; no amount,
+  invoice, settlement or payment operation exists in Admin.
 - **P7-S2:** one Platform's subscriptions live in company scope (`/licenses/platforms/:platformId`, path
   `platformSubscriptionsPath`), never under `/platforms/:platformId`, so a Platform assignment never reaches them. The
   same gateway serves them (`LicensesGateway.platform`); the Organization's own subscription stays a section of its

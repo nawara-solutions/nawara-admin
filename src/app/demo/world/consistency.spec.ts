@@ -22,6 +22,7 @@ import {
   MockOrganizationCommercialGateway,
   MockOrganizationGateway,
 } from '../../features/organizations/data-access/organization.mock';
+import { MockBillingGateway } from '../../features/billing/data-access/billing.mock';
 import { MockLicensesGateway } from '../../features/licenses/data-access/licenses.mock';
 import { DemoWorld } from './demo-world';
 import { AdminIdentityId } from './records';
@@ -51,6 +52,7 @@ function mocks(signedInAs: AdminIdentityId, tier: 'owner' | 'operator') {
       MockOrganizationGateway,
       MockOrganizationCommercialGateway,
       MockLicensesGateway,
+      MockBillingGateway,
     ],
   });
   TestBed.inject(DemoAuthState).signedIn.set({
@@ -68,6 +70,7 @@ function mocks(signedInAs: AdminIdentityId, tier: 'owner' | 'operator') {
     organizations: TestBed.inject(MockOrganizationGateway),
     organizationCommercial: TestBed.inject(MockOrganizationCommercialGateway),
     licenses: TestBed.inject(MockLicensesGateway),
+    billing: TestBed.inject(MockBillingGateway),
   };
 }
 
@@ -180,6 +183,27 @@ describe('demo world: cross-feature consistency', () => {
       }
     }
     expect(total).toBe(licenses.company.organizations);
+  });
+
+  it('gives Billing exactly the payment issues the Overview, each dashboard and each Organization count (P7-S3)', async () => {
+    const m = mocks(DEMO_OWNER_ID, 'owner');
+    const { followUps } = await firstValueFrom(m.billing.followUps(DEMO_COMPANY_ID));
+    const company = await firstValueFrom(m.commercial.load(DEMO_COMPANY_ID));
+    expect(followUps).toHaveLength(2);
+    expect(value(company.paymentIssues)).toBe(followUps.length);
+    for (const platform of [DEMO_SCHOOL_PLATFORM_ID, DEMO_DRIVE_PLATFORM_ID]) {
+      const facts = await firstValueFrom(m.platformCommercial.load(platform));
+      expect(value(data(facts.paymentIssues))).toBe(
+        followUps.filter((f) => f.platform.id === platform).length,
+      );
+    }
+    for (const f of followUps) {
+      const detail = await firstValueFrom(m.organizationCommercial.load(f.organizationId));
+      expect(value(data(detail.paymentIssues))).toBeGreaterThan(0);
+      // The issue sits beside the subscription and entitlement the detail shows, never changing them.
+      expect(data(detail.subscription).state).toBe(f.subscription);
+      expect(data(detail.entitlement)).toBe(f.entitlement);
+    }
   });
 
   it('lists in the Company activity exactly the newest events of the Platform activity feeds', async () => {
