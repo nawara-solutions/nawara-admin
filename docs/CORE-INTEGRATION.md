@@ -447,7 +447,7 @@ Admin strategy and the decision required before A4.
 | Platform dashboard (`/platforms/:platformId`): figures, newest Organizations, attention, activity | Organization / Auth / Audit | 🔴 | no human route lists or aggregates a Platform's Organizations, memberships or signals (CF-02, CF-03, CF-11, CF-13); no platform-level or operator audit read (CF-04) | `PlatformDashboardGateway`, mock in demo builds; "unavailable" otherwise |
 | Platform dashboard, commercial (owner): Organization subscriptions, Personal Premium, payment issues, assisted-payments policy (read only) | Billing / Payment | 🟡 | no staff/owner read route before Core V2 A10/A11; rules from the Core V2 architecture (24-hour grace, Personal Premium without grace, Platform-controlled assisted payments) | `PlatformCommercialGateway`, mock in demo builds; operators never ask |
 | Platform directory (`/platforms`): Platforms with organizations, memberships, operator assignments | Organization / Auth | 🔴 | no human route lists a Company's Platforms or their counts (CF-02, CF-03, CF-11) | `PlatformDirectoryGateway`, mock in demo builds; "unavailable" otherwise |
-| Unread notification count (sidebar badge, top-bar bell) | Notification | 🟡 | delivery only; no human inbox or unread-count route (CF-14) | `NotificationSummaryGateway`, mock in demo builds; no badge or bell when unavailable |
+| Unread notification count (sidebar badge, top-bar bell, `/notifications`) | Notification | 🟡 | delivery only; no human inbox or unread-count route (CF-14) | `NotificationSummaryGateway` through the shell's one `NotificationIndicator`, mock in demo builds (the signed-in session's own count; no identity parameter); unavailable otherwise: no badge, no dot, and the page says so. **P8-S3:** a personal count only, no message, no read/dismiss action (CF-44, CF-48 proposed) |
 | Releases (navigation) | Release | 🟢 actions (not prod) · 🔴 catalog (CF-05) | `release/admin/...` withdraw / compatibility policy (`OwnerGuard`) | Sidebar entry only, not a link |
 
 ## 8. Transport rules Admin must follow
@@ -597,7 +597,7 @@ Current behavior: delivers notifications; no human route reads a person's inbox 
 Admin requirement: an unread count for the signed-in owner/operator (shell badge and bell), later the inbox itself.
 Classification:   🟡 (the service exists; the human read model does not).
 V1 or V2:         V2.
-Recommended checkpoint: with the Notifications page (Admin stage to be planned).
+Recommended checkpoint: with the Notifications page. P8-S3 (`/notifications`) shows the demo count only; OPEN.
 
 CF-15  Owner sign-in contract details (verify before the auth HTTP adapter)
 Service:          auth-service
@@ -927,6 +927,25 @@ Admin requirement: verified bounds (inclusive / exclusive), the 31-day measure, 
                   and the error for an oversized window, so the browser can present them in the owner's time zone.
 Classification:   🟡 contract verification.
 Recommended checkpoint: before the owner audit HTTP adapter (A9).
+
+CF-44  Inbox content safety                                                PROPOSED (P8-0)
+Service:          notification-service
+Current behavior: delivers notifications to people, including sign-in, verification and confirmation codes; no human
+                  read exists.
+Admin requirement: a person's inbox read never returns codes, challenges, recovery secrets or token-bearing links, so
+                  Admin can list messages without exposing secrets.
+Classification:   🟡 contract decision.
+Recommended checkpoint: with CF-48.
+
+CF-48  Personal inbox read, read state and retention                       PROPOSED (P8-S3, 2026-10-24)
+Service:          notification-service
+Current behavior: (per §5) service-token send / status / cancel only.
+Admin requirement: for the signed-in owner or operator only (bearer-scoped, no identity parameter): an unread count,
+                  then a paginated list of their own messages, with stated delivery semantics (which channels count),
+                  read-state rules (what marks a message read, whether it syncs across devices) and retention (how long
+                  history is kept, what zero unread means). Until then `/notifications` shows a demo count only.
+Classification:   🟡 planned capability (V2 A8).
+Recommended checkpoint: before any notification HTTP adapter.
 
 Residual risk recorded with P6-S3: block and unblock require no step-up (Core's deliberate choice for an emergency
 control), so a stolen owner session can block every operator or unblock one. Admin adds no verification Core does not ask

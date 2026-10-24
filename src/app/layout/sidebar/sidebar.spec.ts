@@ -174,11 +174,12 @@ describe('Sidebar', () => {
       '/licenses',
       '/billing',
       '/audit',
+      '/notifications',
       '/services',
     ]);
     expect(sidebar.querySelector('.sidebar__footer a')?.getAttribute('href')).toBe('/settings');
     const inert = sidebar.querySelectorAll('.sidebar__item--unavailable');
-    expect(inert.length).toBe(6);
+    expect(inert.length).toBe(5);
     expect(Array.from(inert).every((item) => item.tagName === 'SPAN')).toBe(true);
     expect(inert[0]?.textContent).toContain(en.shell.notAvailableYet);
   });
@@ -202,6 +203,10 @@ describe('Sidebar', () => {
   it('badges Notifications with the owner’s unread count, and shows no badge without a count', async () => {
     const { sidebar: withCount } = await render(owner);
     expect(withCount.querySelector('.sidebar__badge')?.textContent?.trim()).toBe('4');
+    // The badge sits on the working Notifications link (P8-S3).
+    expect(
+      withCount.querySelector('a[href="/notifications"] .sidebar__badge')?.textContent?.trim(),
+    ).toBe('4');
     TestBed.resetTestingModule();
     const { sidebar: without } = await render(owner, { notifications: 'unavailable' });
     expect(without.querySelector('.sidebar__badge')).toBeNull();
@@ -212,7 +217,10 @@ describe('Sidebar', () => {
       const { sidebar } = await render(operator);
       expect(sidebar.querySelectorAll('.sidebar__item--unavailable').length).toBe(0);
       expect(sidebar.textContent).not.toContain(en.shell.nav.organizations);
-      expect(sidebar.textContent).not.toContain(en.shell.nav.notifications);
+      // No Operations group (P8): its destinations are the owner's.
+      expect(sidebar.textContent).not.toContain(en.shell.nav.groups.operations);
+      expect(sidebar.textContent).not.toContain(en.shell.nav.audit);
+      expect(sidebar.textContent).not.toContain(en.shell.nav.services);
       // The Company's operators are the owner's: an operator has no link to them (P6-S1).
       expect(sidebar.textContent).not.toContain(en.shell.nav.operators);
       // No Commercial destination either (P7-S1): commercial authority is the owner's, never an assignment's.
@@ -227,8 +235,10 @@ describe('Sidebar', () => {
         ['/platforms/school', 'Nawara School'],
         ['/platforms/drive', 'Nawara Drive'],
       ]);
-      // Personal settings are open to operators too: they grant no administrative capability.
-      expect(sidebar.querySelector('.sidebar__footer a')?.getAttribute('href')).toBe('/settings');
+      // Personal Notifications (P8-S3) and settings are open to operators too: they grant no capability.
+      expect(
+        [...sidebar.querySelectorAll('.sidebar__footer a')].map((a) => a.getAttribute('href')),
+      ).toEqual(['/notifications', '/settings']);
       expect(sidebar.querySelector('.sidebar__name')?.textContent).toBe('operator@x.invalid');
       expect(sidebar.querySelector('.sidebar__role')?.textContent).toBe(en.shell.role.operator);
     });

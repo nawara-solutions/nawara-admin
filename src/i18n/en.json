@@ -214,7 +214,8 @@
     "platformSubscriptions": "Platform subscriptions",
     "billing": "Billing & payments",
     "audit": "Audit log",
-    "services": "Services & health"
+    "services": "Services & health",
+    "notifications": "Notifications"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -240,7 +241,8 @@
       "platformSubscriptions": "Platform subscriptions",
       "billing": "Billing & payments",
       "audit": "Audit log",
-      "services": "Services & health"
+      "services": "Services & health",
+      "notifications": "Notifications"
     },
     "context": {
       "label": "Administration scope",
@@ -309,7 +311,9 @@
       "placeholder": "Search organizations, users…"
     },
     "notifications": {
-      "unread": "Unread notifications: {{count}}"
+      "unread": "Unread notifications: {{count}}",
+      "bell": "Notifications",
+      "bellUnread": "Notifications, {{count}} unread"
     },
     "grantsRefresh": {
       "refreshed": "Your access may have changed. Your Platform list has been refreshed.",
@@ -1953,6 +1957,35 @@
       "errorDescription": "Try again in a moment.",
       "retry": "Try again",
       "forbiddenDescription": "Services & health is shown to the Company owner only."
+    }
+  },
+  "notifications": {
+    "header": {
+      "eyebrow": "Personal",
+      "title": "Notifications",
+      "subtitle": "Your own notification summary. Only you see it."
+    },
+    "count": {
+      "label": "Unread notifications (demo count)",
+      "note": "A demo count from this build’s records, not from Nawara Core. The messages behind it are not available.",
+      "zero": "No unread notifications are counted for you in this demo. That does not mean you have never received one: message history is not available."
+    },
+    "inbox": {
+      "title": "Your inbox is not available yet",
+      "body": "Nawara Core delivers notifications but offers no read of a person’s messages yet, so Admin shows a count only.",
+      "contents": "No message, sender or time is shown.",
+      "actions": "Marking as read, dismissing and preferences are not available.",
+      "codes": "Sign-in, verification and confirmation codes are never shown here."
+    },
+    "separate": "Notifications are not audit records or administrative activity: nothing here comes from the activity log.",
+    "states": {
+      "loading": "Loading your notifications…",
+      "notInBuildTitle": "Not available in this build",
+      "notInBuildDescription": "Nawara Core offers no read of your notifications or of an unread count yet, so nothing is shown.",
+      "errorTitle": "Your notifications could not be loaded",
+      "errorDescription": "Try again in a moment.",
+      "retry": "Try again",
+      "forbiddenDescription": "Your notification summary could not be read for this session."
     }
   }
 }

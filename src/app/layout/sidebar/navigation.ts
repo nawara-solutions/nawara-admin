@@ -21,6 +21,18 @@ export interface NavigationGroup {
   readonly items: readonly NavigationItem[];
 }
 
+/**
+ * Personal Notifications (`/notifications`, P8-S3): every signed-in person's own unread count, so it requires no
+ * capability. The owner finds it in Operations (the approved order); an operator, beside Settings, so no other
+ * Operations destination is shown to them.
+ */
+const NOTIFICATIONS_LINK: NavigationItem = {
+  labelKey: 'shell.nav.notifications',
+  icon: 'bell',
+  path: '/notifications',
+  unreadBadge: true,
+};
+
 export const NAVIGATION: readonly NavigationGroup[] = [
   {
     labelKey: 'shell.nav.groups.platform',
@@ -69,12 +81,8 @@ export const NAVIGATION: readonly NavigationGroup[] = [
         requires: 'company.audit.view',
       },
       { labelKey: 'shell.nav.files', icon: 'folder', requires: 'company.scope' },
-      {
-        labelKey: 'shell.nav.notifications',
-        icon: 'bell',
-        requires: 'company.scope',
-        unreadBadge: true,
-      },
+      // The owner's place for their personal Notifications (P8-S3); an operator gets NOTIFICATIONS_ITEM instead.
+      { ...NOTIFICATIONS_LINK, requires: 'company.scope' },
       {
         labelKey: 'shell.nav.services',
         icon: 'heart-pulse',
@@ -85,6 +93,9 @@ export const NAVIGATION: readonly NavigationGroup[] = [
     ],
   },
 ];
+
+/** An operator's personal Notifications entry (their sidebar has no Operations group). */
+export const NOTIFICATIONS_ITEM: NavigationItem = NOTIFICATIONS_LINK;
 
 /** Personal settings (Appearance in this slice): for every signed-in actor, so it requires no capability. */
 export const SETTINGS_ITEM: NavigationItem = {

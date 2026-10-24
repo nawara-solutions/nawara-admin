@@ -213,6 +213,7 @@ Organizations are entities of platform scope (amendment, P3a, 2026-10-23): their
 /releases                      withdraw · minimum version                     🟢 actions · 🔴 catalog
 /audit                         simulated activity browser (P8-S1)             🟡 mock, owner only; Core audit 🔴 / 🟢 not integrated
 /services                      service inventory (P8-S2)                      🟡 mock, owner only; live health 🔴 (CF-06)
+/notifications                 personal unread count (P8-S3)                  🟡 mock, every signed-in person (own count only)
 /monitoring                                                                   🟡
 /settings                      preferences: language, theme, time zone (local)
 /account/security              owner factors, secret key, password            🟢
@@ -561,6 +562,11 @@ only ([`design/p6-s3-operator-block.md`](design/p6-s3-operator-block.md)):
   issues the confirmation code in `DemoAuthState`. The sign-in mock resolves operators it has no fixture for from the
   world, so the world stays the one source of an operator's confirmed and blocked state.
 - Navigation state carries only the new operator's id (the next-steps panel), never a contact.
+
+**Personal: Notifications (P8-S3, 2026-10-24):** `/notifications`, the bell and the sidebar badge read one signal,
+`NotificationIndicator` (core/notifications), whose gateway takes no identity (the session's own count). Every
+signed-in actor reaches it (no capability); an operator's entry sits beside Settings, outside Operations. A count only:
+no messages, no read actions (CF-14, CF-48).
 
 **Operations: Services & health (P8-S2, 2026-10-24):** `/services` and the Company Overview card share one inventory
 (`core/core-services/`: `CORE_SERVICES`, `ServiceInventoryGateway`), documentation only: the services and their

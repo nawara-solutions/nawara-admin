@@ -1,0 +1,79 @@
+@let view = facade.view();
+<header class="notifications__header">
+  <span class="notifications__mark" aria-hidden="true"><nw-icon name="bell" size="lg" /></span>
+  <div class="notifications__titles">
+    <p class="notifications__eyebrow">{{ 'notifications.header.eyebrow' | transloco }}</p>
+    <h1 class="notifications__title">{{ 'notifications.header.title' | transloco }}</h1>
+    <p class="notifications__muted">{{ 'notifications.header.subtitle' | transloco }}</p>
+  </div>
+  @if (isDemo()) {
+    <span class="notifications__demo">
+      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+    </span>
+  }
+</header>
+
+@switch (view.status) {
+  @case ('ready') {
+    <div class="notifications__grid">
+      <section class="notifications__card" aria-labelledby="notifications-unread" data-unread>
+        <h2 id="notifications-unread" class="notifications__label">
+          {{ 'notifications.count.label' | transloco }}
+        </h2>
+        <p class="notifications__value">{{ view.unread | nwNumber }}</p>
+        <p class="notifications__muted">
+          {{
+            (view.unread === 0 ? 'notifications.count.zero' : 'notifications.count.note')
+              | transloco
+          }}
+        </p>
+      </section>
+      <section
+        class="notifications__card notifications__card--quiet"
+        aria-labelledby="notifications-inbox"
+        data-inbox
+      >
+        <h2 id="notifications-inbox" class="notifications__heading">
+          {{ 'notifications.inbox.title' | transloco }}
+        </h2>
+        <p>{{ 'notifications.inbox.body' | transloco }}</p>
+        <ul class="notifications__list" role="list">
+          <li>{{ 'notifications.inbox.contents' | transloco }}</li>
+          <li>{{ 'notifications.inbox.actions' | transloco }}</li>
+          <li>{{ 'notifications.inbox.codes' | transloco }}</li>
+        </ul>
+      </section>
+    </div>
+    <p class="notifications__muted">{{ 'notifications.separate' | transloco }}</p>
+  }
+  @case ('notInBuild') {
+    <nw-data-state
+      state="empty"
+      [title]="'notifications.states.notInBuildTitle' | transloco"
+      [description]="'notifications.states.notInBuildDescription' | transloco"
+    />
+  }
+  @case ('error') {
+    <nw-data-state
+      state="error"
+      [title]="'notifications.states.errorTitle' | transloco"
+      [description]="'notifications.states.errorDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'notifications.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('forbidden') {
+    <nw-data-state
+      state="empty"
+      [title]="'shell.pages.forbidden.title' | transloco"
+      [description]="'notifications.states.forbiddenDescription' | transloco"
+    />
+  }
+  @default {
+    <nw-data-state state="loading" [title]="'notifications.states.loading' | transloco" />
+  }
+}

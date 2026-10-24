@@ -24,7 +24,7 @@ import { NwMenuTrigger } from '../../shared/ui/menu/menu';
 import { NwSkeleton } from '../../shared/ui/skeleton/skeleton';
 import { NwSpinner } from '../../shared/ui/spinner/spinner';
 import { AccountMenu } from '../account-menu/account-menu';
-import { NAVIGATION, NavigationItem, SETTINGS_ITEM } from './navigation';
+import { NAVIGATION, NOTIFICATIONS_ITEM, NavigationItem, SETTINGS_ITEM } from './navigation';
 import { profileOf } from './profile';
 
 /**
@@ -73,6 +73,7 @@ export class Sidebar {
     );
   });
   protected readonly settings = SETTINGS_ITEM;
+  protected readonly notifications = NOTIFICATIONS_ITEM;
   protected readonly profile = computed(() => profileOf(this.session.actor()));
   protected readonly signingOut = inject(SignOut).busy;
 
