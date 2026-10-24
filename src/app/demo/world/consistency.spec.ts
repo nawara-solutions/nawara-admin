@@ -22,6 +22,7 @@ import {
   MockOrganizationCommercialGateway,
   MockOrganizationGateway,
 } from '../../features/organizations/data-access/organization.mock';
+import { MockLicensesGateway } from '../../features/licenses/data-access/licenses.mock';
 import { DemoWorld } from './demo-world';
 import { AdminIdentityId } from './records';
 import {
@@ -49,6 +50,7 @@ function mocks(signedInAs: AdminIdentityId, tier: 'owner' | 'operator') {
       MockPlatformCommercialGateway,
       MockOrganizationGateway,
       MockOrganizationCommercialGateway,
+      MockLicensesGateway,
     ],
   });
   TestBed.inject(DemoAuthState).signedIn.set({
@@ -65,6 +67,7 @@ function mocks(signedInAs: AdminIdentityId, tier: 'owner' | 'operator') {
     platformCommercial: TestBed.inject(MockPlatformCommercialGateway),
     organizations: TestBed.inject(MockOrganizationGateway),
     organizationCommercial: TestBed.inject(MockOrganizationCommercialGateway),
+    licenses: TestBed.inject(MockLicensesGateway),
   };
 }
 
@@ -118,8 +121,33 @@ describe('demo world: cross-feature consistency', () => {
       active += subscriptionCounts(data(facts.organizationSubscriptions)).active;
       issues += value(data(facts.paymentIssues));
     }
-    expect(value(company.activeLicenses)).toBe(active);
+    expect(value(company.activeSubscriptions)).toBe(active);
     expect(value(company.paymentIssues)).toBe(issues);
+  });
+
+  it('gives Licenses the same subscription figures as the Overview, each dashboard and each directory (P7-S1)', async () => {
+    const m = mocks(DEMO_OWNER_ID, 'owner');
+    const licenses = await firstValueFrom(m.licenses.overview(DEMO_COMPANY_ID));
+    const company = await firstValueFrom(m.commercial.load(DEMO_COMPANY_ID));
+    expect(value(company.activeSubscriptions)).toBe(licenses.company.active);
+    expect(value(company.expiringSoon)).toBe(licenses.company.endingSoon);
+    expect(company.expiringWithinDays).toBe(licenses.endingWithinDays);
+    for (const row of licenses.platforms) {
+      const facts = await firstValueFrom(m.platformCommercial.load(row.platform.id));
+      const counts = subscriptionCounts(data(facts.organizationSubscriptions));
+      expect([counts.active, counts.grace, counts.none, counts.total]).toEqual([
+        row.distribution.active,
+        row.distribution.grace,
+        row.distribution.none,
+        row.distribution.organizations,
+      ]);
+      expect(data(facts.personalPremium)).toEqual(row.personalPremium);
+      const directory = await firstValueFrom(m.organizationCommercial.list(row.platform.id));
+      const states = directory.organizations.map((o) => o.subscription.state);
+      expect(states.filter((s) => s === 'active').length).toBe(row.distribution.active);
+      expect(states.filter((s) => s === 'grace').length).toBe(row.distribution.grace);
+      expect(states.filter((s) => s === 'none').length).toBe(row.distribution.none);
+    }
   });
 
   it('lists in the Company activity exactly the newest events of the Platform activity feeds', async () => {

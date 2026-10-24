@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation; rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation (PR #34); P7-S1 mock Licenses & entitlements overview; rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -64,7 +64,7 @@ A15 Admin release certification                       ⏳
 | **A8** Organizations & platforms | detail, metadata edit, create flows wired to `/organization/admin/*` and **disabled by config until the cutover**; directory still mocked | no production write before the organization-service cutover (G6/G7) |
 | **A9** Audit | owner per-organization audit browser: UTC range ≤ 31 days in the operator's time zone, filters, cursor paging, record detail, correlation display | platform-level audit shown as unavailable (CF-04) |
 | **A10** Releases | withdraw and minimum-version change with step-up; catalog mocked (CF-05) | — |
-| **A11** Licenses / Billing / Payments | license wizard, subscription/entitlement view, invoices, payments, all 🟡 mocks with domain separation preserved | swapped to HTTP only when Core V2 A10/A11 publishes contracts |
+| **A11** Licenses / Billing / Payments | subscription/entitlement views, then billing and payment facts, all 🟡 mocks with domain separation preserved; started as P7 ([design](design/p7-commercial-architecture.md): P7-S1 Company overview built; S2, S3 next; S4 mutations and catalog blocked by Core). The earlier "license wizard" is superseded: Core has no License entity and no owner commercial command (CF-41, CF-42) | swapped to HTTP only when Core V2 A10/A11 publishes contracts and they are verified |
 | **A12** Files / Notifications | 🟡 mocks | per Core V2 A9/A8 |
 | **A13** Services / Monitoring | 🟡/🔴 placeholders and mocks | per Core V2 A12 |
 | **A14** Integration hardening | replace mocks as V2 contracts land; production session model (C or D); CSP and hosting headers; Core origin enablement (CF-07); performance and a11y audit | no mock bound in production config |
@@ -289,6 +289,23 @@ the frontend only and shows "sign-in not available": no mock authentication, dem
 stylesheet budget warnings were resolved by component decomposition (Platforms page header; sign-in brand panel and demo
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
+
+## P7-S1: mock Licenses & entitlements overview (P7-0 reviewed, D1–D9 approved, implemented 2026-10-24)
+
+**Status: implemented, awaiting review; a development-only, mock-first prototype. No Core contract exists** (proposed
+CF-36 to CF-42). Design: [`design/p7-commercial-architecture.md`](design/p7-commercial-architecture.md).
+
+- `/licenses`, the Company owner only (capability `company.commercial.view`, route guard, facade, mock): Organizations,
+  active subscriptions, subscriptions in grace (never counted as active), no subscription, ending within 14 days; the
+  entitlement (active + grace) said apart; per-Platform distribution with each Platform's declared Personal Premium
+  count; what needs attention, linked to each Organization; one short "Not available yet" section (plans, allocation,
+  changes, revenue) without controls.
+- Canonical selectors `subscriptionDistribution` and `entitlementOf`; the Company Overview card now uses the same
+  distribution, is renamed "Active subscriptions" (D1) and links to `/licenses`. Agreement with the Platform dashboards
+  and the Organization directory is tested.
+- Production binds the unavailable adapter ("Not available in this build"); no request, no demo record.
+- Next: P7-S2 (one Platform's subscriptions, Organization subscription section), P7-S3 (Billing & payments follow-ups).
+  **P7-S4 (catalog, renewals, plan changes, revenue) is blocked** until Core contracts exist and are verified.
 
 ## P6-S4: mock operator creation and confirmation (design approved and implemented 2026-10-24)
 

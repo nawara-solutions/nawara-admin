@@ -21,6 +21,7 @@ const DEMO_BINDINGS_STUB: DemoBindings = {
     platformDirectory: [],
     companyOverview: [],
     commercialSummary: [],
+    licenses: [],
     serviceHealth: [],
     platformDashboard: [],
     platformCommercial: [],

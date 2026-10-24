@@ -365,6 +365,9 @@ Admin strategy and the decision required before A4.
   Admin decision. Admin's wizard (organization → product → plan/entitlements → validity → review → activate) is built as 🟡 UI over a
   frontend `LicenseGateway` with a mock adapter. Fields such as `maxUsers`, `features`, `validity` are **frontend view-model fields
   only** and are not proposed as backend fields.
+- **Superseded for P7 (owner decisions D1–D9, 2026-10-24):** no license wizard is built. Admin shows Organization subscriptions
+  and their entitlement read only (P7-S1, `/licenses`, demo mock), and says plainly that plans, seat allocation, subscription
+  changes and revenue are not available. Proposed follow-ups CF-36 to CF-42 (§9); none is an existing endpoint.
 
 ## 7. Contract matrix
 
@@ -410,7 +413,7 @@ Admin strategy and the decision required before A4.
 | Notifications | Notification | 🟡 | V2 A8; V1 service-token only | Mock (A12) |
 | Billing administration | Billing | 🟡 | V2 A10; V1 payer/service only | Mock (A11) |
 | Payments administration | Payment | 🟡 | V2 A11; V1 payer/Billing only | Mock (A11) |
-| License / entitlement | Billing (decided) | 🟡 contract TBD | ADR-0038/0044; roadmap "Licenses" | Mock wizard (A11) |
+| License / entitlement | Billing (decided) | 🟡 contract TBD | ADR-0038/0044; roadmap "Licenses" | **P7-S1**: owner-only read-only `/licenses` overview (`LicensesGateway`, mock in demo builds, unavailable otherwise): subscription states, entitlement (active or grace), per-Platform distribution, declared Personal Premium; no wizard, no command (CF-36 to CF-42 proposed) |
 | Release withdraw / minimum version | Release | 🟢 (not Prod) | `release-service/src/admin/admin.controller.ts` | HTTP (A10) |
 | Release catalog / history read | Release | 🔴 | none for humans | Mock; **CF-05** |
 | Client compatibility (Admin's own build) | Release | 🟢 (not Prod) | `compatibility.controller.ts` | Optional: Admin registers as a web component (CF-07) |
@@ -846,6 +849,58 @@ Admin requirement: the resulting state in the answer ({ id, isActive }) or an ow
 Classification:   🟡 contract addition.
 V1 or V2:         to decide by the Core owner.
 Recommended checkpoint: before the operator administration HTTP adapter.
+
+CF-36  Owner read of Organization subscriptions                         PROPOSED (P7-0, 2026-10-24)
+Service:          billing-service
+Current behavior: (per §5) human routes exist only for an invoice's payer; no owner or staff read of subscriptions.
+Admin requirement: a Company- and Platform-scoped, paginated owner read of each Organization's subscription (state, end,
+                  grace end), so `/licenses` (P7-S1, demo mock today) can bind an HTTP adapter.
+Classification:   🟡 planned capability (V2 A10).
+Recommended checkpoint: before any P7 HTTP adapter.
+
+CF-37  Owner read of entitlement state                                     PROPOSED (P7-0)
+Service:          billing-service
+Current behavior: (per §6) entitlement is readable only by service token, per Organization ({ valid, expiresAt }).
+Admin requirement: the same facts for the owner, including whether an Organization is entitled through its grace period.
+Classification:   🟡 contract addition.
+Recommended checkpoint: with CF-36.
+
+CF-38  Owner read of the plan catalog                                      PROPOSED (P7-0)
+Service:          billing-service
+Current behavior: Billing owns catalog and prices; no owner read.
+Admin requirement: a read of plans (and prices, if the owner may see them) so plans are never invented in Admin.
+Classification:   🟡 planned capability (V2 A10).
+Recommended checkpoint: before P7-S4.
+
+CF-39  Personal Premium aggregate per Platform                             PROPOSED (P7-0)
+Service:          billing-service
+Current behavior: Personal Premium is a per-person subscription; no aggregate read.
+Admin requirement: a count per product/Platform with no personal data, and a decision on what the owner may see.
+Classification:   🟡 contract addition / privacy decision.
+Recommended checkpoint: before P7-S4.
+
+CF-40  Owner reads of billing and payment facts                            PROPOSED (P7-0)
+Service:          billing-service, payment-service
+Current behavior: payer-only invoice and payment routes; settlement is Payment's only; no refund or dispute contract.
+Admin requirement: separate owner reads of invoices, payment attempts, verified settlement, refunds and disputes, never
+                  merged, so P7-S3 (payment follow-ups) can move off its mock and no attempt is shown as revenue.
+Classification:   🟡 planned capability (V2 A10/A11).
+Recommended checkpoint: before P7-S3's HTTP adapter.
+
+CF-41  Owner subscription commands                                         PROPOSED (P7-0)
+Service:          billing-service
+Current behavior: staff commercial mutations are excluded from V1 (ADR-0050 D12).
+Admin requirement: create / renew / extend / end an Organization subscription, owner only, with a purpose-bound step-up
+                  and an idempotency key (a lost answer must be replayable, unlike CF-32).
+Classification:   🔴 missing capability (V2 A10 with A6).
+Recommended checkpoint: before P7-S4 (blocked until then).
+
+CF-42  Whether licenses or seats exist                                     PROPOSED (P7-0)
+Service:          billing-service (architecture decision, ADR-0044)
+Current behavior: no License entity; an Organization is entitled or not.
+Admin requirement: Core states whether seat allocation and consumption will exist; Admin shows none until then.
+Classification:   🟡 architectural decision.
+Recommended checkpoint: before P7-S4.
 
 Residual risk recorded with P6-S3: block and unblock require no step-up (Core's deliberate choice for an emergency
 control), so a stolen owner session can block every operator or unblock one. Admin adds no verification Core does not ask

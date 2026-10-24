@@ -264,6 +264,56 @@ export const subscriptionsEndingWithin = (
     return ends > now && ends <= now + days * DAY_MS;
   }).length;
 
+/**
+ * Whether an Organization is entitled now, kept apart from its subscription state: an active subscription entitles it; a
+ * subscription in its 24-hour grace still entitles it, temporarily (the Core V2 policy above); none does not. Never
+ * derived from memberships: a member of an Organization without a subscription is still a member.
+ */
+export type EntitlementState = 'entitled' | 'entitledInGrace' | 'notEntitled';
+
+export function entitlementOf(
+  world: DemoWorldTables,
+  organization: OrganizationId,
+  now: number,
+): EntitlementState {
+  const { state } = subscriptionStateOf(world, organization, now);
+  return state === 'active' ? 'entitled' : state === 'grace' ? 'entitledInGrace' : 'notEntitled';
+}
+
+/**
+ * How these Organizations' subscriptions are distributed at `now`. `active + grace + none` is always `organizations`
+ * (one subscription per Organization at most); `entitled` is `active + grace` (a separate fact, never added to them);
+ * `endingSoon` counts active subscriptions ending within `endingWithinDays` (a subset of `active`).
+ */
+export interface SubscriptionDistribution {
+  readonly organizations: number;
+  readonly active: number;
+  readonly grace: number;
+  readonly none: number;
+  readonly endingSoon: number;
+  readonly entitled: number;
+}
+
+export function subscriptionDistribution(
+  world: DemoWorldTables,
+  organizations: readonly OrganizationRecord[],
+  now: number,
+  endingWithinDays: number,
+): SubscriptionDistribution {
+  const states = organizations.map((o) => subscriptionStateOf(world, o.id, now).state);
+  const count = (state: SubscriptionState) => states.filter((s) => s === state).length;
+  const active = count('active');
+  const grace = count('grace');
+  return {
+    organizations: organizations.length,
+    active,
+    grace,
+    none: count('none'),
+    endingSoon: subscriptionsEndingWithin(world, organizations, now, endingWithinDays),
+    entitled: active + grace,
+  };
+}
+
 const ofOrganizations = <T extends { readonly organizationId: OrganizationId }>(
   records: readonly T[],
   organizations: readonly OrganizationRecord[],

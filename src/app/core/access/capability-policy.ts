@@ -49,6 +49,12 @@ export type Capability =
    */
   | 'organization.create'
   /**
+   * The Company's commercial area (`/licenses`, P7): Organization subscriptions, entitlement and Personal Premium across
+   * every Platform. Company scope, so the owner only; no commercial read authority is confirmed for operators, and a
+   * Platform assignment or an Organization membership never confers it.
+   */
+  | 'company.commercial.view'
+  /**
    * A Platform's commercial facts and policies (subscriptions, Personal Premium, payments, assisted payments): the owner.
    * No commercial read authority is confirmed for operators (Billing/Payment staff routes are Core V2 A10/A11).
    */
@@ -63,6 +69,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.overview.view',
   'company.platforms.view',
   'company.operators.view',
+  'company.commercial.view',
   'operator.platformAccess.change',
   'operator.account.block',
   'operator.create',
