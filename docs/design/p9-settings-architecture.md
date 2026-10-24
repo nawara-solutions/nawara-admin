@@ -2,9 +2,10 @@
 
 - **Status:** P9-0 discovery reviewed and the design direction approved (2026-10-24). **P9-S1 implemented** 2026-10-24:
   the Settings hub (`/settings`), Settings → Language (`/settings/language`) and the account menu's Settings item;
-  Appearance (`/settings/appearance`) unchanged (§11). **P9-S2 to P9-S5 are planned, each separately authorized; S4 and
-  S5 are contract-gated** by a read-only Core verification first. No account, security, Company or Platform setting
-  is implemented.
+  Appearance (`/settings/appearance`) unchanged (§11; PR #42, merged). **P9-S2 implemented** 2026-10-24: the
+  read-only personal Account (`/settings/account`, §12). **P9-S3 to P9-S5 are planned, each separately authorized; S4
+  and S5 are contract-gated** by a read-only Core verification first. No security, Company or Platform setting is
+  implemented; no Core account read is integrated (the Account page shows the session's facts only).
 - **Baseline:** P9-0 read `main` `d0bce78` (PR #41). Core was **not** read: every Core fact below comes from Admin's
   `docs/CORE-INTEGRATION.md` (§3, §4, §5, §7, §9).
 - **Scope:** personal preferences, the signed-in person's account and security, Company configuration and Platform
@@ -92,7 +93,7 @@ data (views keyed on the actor, ARCHITECTURE §11).
 | `/settings` | everyone | session | Hub: the sections the actor has, as cards (replaces the redirect) | **S1 ✅** |
 | `/settings/appearance` | everyone | session | unchanged | exists |
 | `/settings/language` | everyone | session | language and direction, the same state as the top-bar menu | **S1 ✅** |
-| `/settings/account` | everyone | session | identity read only: email or phone (machine value, LTR), account kind, scope | S2 |
+| `/settings/account` | everyone | session | identity read only: email or phone (machine value, LTR), account kind, scope | **S2 ✅** |
 | `/settings/security` | owner | capability `account.security.manage` (owner) | sign-in methods and step-up methods; an operator gets a collapsed 404 and sees how they sign in on `/settings/account` | S4 |
 | `/settings/company` | owner | capability `company.settings.view` | Company profile read only (demo) and a directory of existing configuration | S3 |
 | `/platforms/:platformId/settings` | owner | capability `platform.settings.view` + the Platform belongs to the Company; operators: collapsed 404, even when assigned | Platform identity (rename after verification), policies read only | S5 |
@@ -130,7 +131,7 @@ sections; each later slice adds its section to it only when built.
 | Slice | Scope | Depends on |
 |---|---|---|
 | **P9-S1** ✅ | Settings hub at `/settings`, Language page, account-menu "Settings". Local only | D1, D2, D3 |
-| P9-S2 | `/settings/account`: read-only identity and scope for owner and operator; the operator's sign-in explanation (working code, the shift ends the session) | S1 |
+| **P9-S2** ✅ | `/settings/account`: read-only identity and scope for owner and operator; the operator's sign-in explanation (working code, the shift ends the session) | S1 |
 | P9-S3 | `/settings/company`: read-only demo Company profile and the configuration directory (links to Platforms, Operators & access, Licenses, Billing, Releases) | S1, D4 |
 | P9-S4-0 | read-only Core verification of factor management, secret key and password contracts | D6 |
 | P9-S4a | `/settings/security` read only: sign-in methods, step-up methods, recovery explained; Company Overview link enabled | S4-0 |
@@ -186,3 +187,35 @@ authorization; the rest wait for their slices.
   current values; navigation and browser back / forward; the language radio group; Arabic RTL and back to LTR; two-way
   sync with the top-bar menu; only `nw.locale` written, nothing in session storage, the session unchanged and the demo
   bindings never loaded); `account-menu.spec.ts` (the Settings item, owner and operator).
+
+## 12. P9-S2 implementation (2026-10-24)
+
+- **Route:** `/settings/account` (`AccountSettingsPage`, title `titles.settingsAccount`, parent crumb "Settings"). No
+  guard beyond the shell's session guard, no capability, no route parameter: the page reads only the signed-in
+  session, so no one else's account can be asked for (query parameters are ignored). The hub gains an "Account"
+  section whose link shows the actor's account type.
+- **Sources, no copies:** `AuthSession.actor()` (Core's `/auth/me` and `/auth/grants`) and the shell's
+  `ScopeContext`: `directory()` names the owner's Company (demo mock; unavailable in production, CF-02) and
+  `platforms()` names an operator's granted Platforms. A pure `accountView(actor, directory, platforms)`
+  (`features/settings/application/account-view.ts`) composes them; no facade, gateway, DemoWorld model or state was
+  added.
+- **Shown:** the account type (Company owner, Platform operator); the email and phone Core holds (machine values, LTR;
+  "None" when absent; no display name, which Core does not keep, CF-53); for an operator, "Contact: Confirmed",
+  derived (Core sends a working code only to a confirmed contact) and labelled so; for the owner, the Company and
+  "Company-wide" with its Platform count; for an operator, the Platforms they may work on now, and that the Company
+  owner manages their contact and access; how each signs in. A note says the page shows the current session and
+  changes nothing.
+- **Effective access:** the operator's list is the scope directory's names filtered by the actor's CURRENT
+  assignments, so a revoked Platform disappears as soon as the grants change, before any list reloads, and the list
+  is never widened beyond them. A list that cannot be read shows the existing "Platforms unavailable" state with "Try
+  again" (`ScopeContext.reload()`: the P6-S2b refresh with its `retry` trigger, then the list); a `401` from the
+  grants read (e.g. a blocked operator) ends the session as P6-S2b does. No new refresh trigger.
+- **Never shown or stored:** passwords, TOTP secrets, secret keys, working or confirmation codes, tokens, step-up
+  grants, challenges, the user id. Nothing is written to browser storage; no request is sent by the page.
+- **Deferred:** a real Core account read (the HTTP adapter, A4), contact editing, the operator's confirmation date, the
+  owner's factors (P9-S4), sessions (CF-51).
+- **Tests:** `account-view.spec.ts` (signed out; owner and operator views; phone-only contact; revoked and stale
+  Platforms; never widened; unreadable access kept as such); `account-settings.page.spec.ts` (owner, operator,
+  phone-only operator; query parameters ignored; a revocation applied at once; unavailable then "Try again" through the
+  grants refresh; a `401` signs out; signed-out state; no secret, user id, storage write, network request or demo
+  bindings; Arabic RTL with contacts LTR); updated hub and route specs.

@@ -202,6 +202,7 @@
     "settings": "Settings",
     "settingsAppearance": "Appearance",
     "settingsLanguage": "Language",
+    "settingsAccount": "Your account",
     "workingCode": "Sign in with a working code",
     "workingCodeVerify": "Enter your working code",
     "contactConfirmation": "Confirm your contact",
@@ -236,6 +237,7 @@
       "appearance": "Appearance",
       "settings": "Settings",
       "language": "Language",
+      "account": "Account",
       "organizations": "Organizations",
       "organization": "Organization",
       "members": "Members",
@@ -1362,7 +1364,9 @@
       "appearanceDescription": "Theme and accent colour.",
       "appearanceValue": "{{mode}} · {{accent}}",
       "languageDescription": "Language and reading direction.",
-      "note": "Personal preferences apply in this browser only. They are not part of your account and change nothing for the Company or its Platforms."
+      "note": "Personal preferences apply in this browser only. They are not part of your account and change nothing for the Company or its Platforms.",
+      "account": "Account",
+      "accountDescription": "Who you are signed in as, and what you can work on."
     },
     "language": {
       "title": "Language",
@@ -1370,6 +1374,34 @@
       "ltr": "Left to right",
       "rtl": "Right to left",
       "note": "Saved in this browser only. It is not part of your account and is not shared with other devices."
+    },
+    "account": {
+      "title": "Your account",
+      "subtitle": "Who you are signed in as, and what you can work on. Read only.",
+      "identity": "Identity",
+      "type": "Account type",
+      "email": "Email",
+      "phone": "Phone",
+      "none": "None",
+      "contactState": "Contact",
+      "confirmed": "Confirmed",
+      "confirmedNote": "A working code is sent only to a confirmed contact.",
+      "access": "Access",
+      "company": "Company",
+      "companyUnavailable": "Not available",
+      "scope": "Scope",
+      "ownerScope": "Company-wide: every Platform of the Company.",
+      "platformCount": "{{count}} Platforms today",
+      "platforms": "Platforms you can work on",
+      "noPlatforms": "No Platform is assigned to you. The Company owner gives Platform access.",
+      "retry": "Try again",
+      "managedByOwner": "The Company owner manages your contact and your Platform access.",
+      "signIn": "How you sign in",
+      "ownerSignIn": "With your password and a second factor: your authenticator app or a passkey.",
+      "operatorSignIn": "With a one-time working code sent to your contact. Your session ends at the end of your shift.",
+      "source": "From your current session. This page changes nothing.",
+      "signedOutTitle": "You are signed out",
+      "signedOutDescription": "Sign in to see your account."
     }
   },
   "operators": {

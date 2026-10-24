@@ -5,9 +5,10 @@ import { BREADCRUMB_DATA, BREADCRUMB_PARENT_DATA } from '../../layout/breadcrumb
 const SETTINGS_PARENT = { key: 'shell.breadcrumb.settings', link: '/settings' } as const;
 
 /**
- * Settings (`/settings`, P9-S1; docs/design/p9-settings-architecture.md). Personal, browser-local preferences only,
- * open to every signed-in actor (owner or operator) and granting no administrative capability: the hub, Appearance
- * and Language. Account, security, Company and Platform settings are later, separately authorized slices.
+ * Settings (`/settings`, P9-S1, P9-S2; docs/design/p9-settings-architecture.md): the hub, Appearance and Language
+ * (browser-local preferences) and the signed-in person's own Account (read only, from the session). Open to every
+ * signed-in actor (owner or operator) and granting no administrative capability. Security, Company and Platform
+ * settings are later, separately authorized slices.
  */
 export const SETTINGS_ROUTES: Routes = [
   {
@@ -36,5 +37,15 @@ export const SETTINGS_ROUTES: Routes = [
     },
     loadComponent: () =>
       import('./pages/language-settings.page').then((m) => m.LanguageSettingsPage),
+  },
+  {
+    // The signed-in person's own account: no identity parameter exists, so no one else's can be asked for.
+    path: 'account',
+    title: 'titles.settingsAccount',
+    data: {
+      [BREADCRUMB_DATA]: 'shell.breadcrumb.account',
+      [BREADCRUMB_PARENT_DATA]: SETTINGS_PARENT,
+    },
+    loadComponent: () => import('./pages/account-settings.page').then((m) => m.AccountSettingsPage),
   },
 ];

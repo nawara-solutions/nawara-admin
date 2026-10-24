@@ -1,0 +1,197 @@
+@let account = view();
+<header class="account-settings__header">
+  <div class="account-settings__titles">
+    <p class="account-settings__eyebrow">{{ 'settings.title' | transloco }}</p>
+    <h1 class="account-settings__title">{{ 'settings.account.title' | transloco }}</h1>
+    <p class="account-settings__subtitle">{{ 'settings.account.subtitle' | transloco }}</p>
+  </div>
+  @if (isDemo()) {
+    <span class="account-settings__demo">
+      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+    </span>
+  }
+</header>
+
+@if (account.kind === 'signedOut') {
+  <nw-data-state
+    state="empty"
+    [title]="'settings.account.signedOutTitle' | transloco"
+    [description]="'settings.account.signedOutDescription' | transloco"
+  />
+} @else {
+  <section class="account-settings__card" aria-labelledby="account-identity" data-identity>
+    <h2 id="account-identity" class="account-settings__heading">
+      {{ 'settings.account.identity' | transloco }}
+    </h2>
+    <dl class="account-settings__facts">
+      <div class="account-settings__fact">
+        <dt>{{ 'settings.account.type' | transloco }}</dt>
+        <dd data-type>
+          {{ (account.kind === 'owner' ? 'shell.role.owner' : 'shell.role.operator') | transloco }}
+        </dd>
+      </div>
+      <div class="account-settings__fact">
+        <dt>{{ 'settings.account.email' | transloco }}</dt>
+        <dd data-email>
+          @if (account.contact.email; as email) {
+            <span class="account-settings__machine" dir="ltr" translate="no">{{ email }}</span>
+          } @else {
+            <span class="account-settings__muted">{{ 'settings.account.none' | transloco }}</span>
+          }
+        </dd>
+      </div>
+      <div class="account-settings__fact">
+        <dt>{{ 'settings.account.phone' | transloco }}</dt>
+        <dd data-phone>
+          @if (account.contact.phone; as phone) {
+            <span class="account-settings__machine" dir="ltr" translate="no">{{ phone }}</span>
+          } @else {
+            <span class="account-settings__muted">{{ 'settings.account.none' | transloco }}</span>
+          }
+        </dd>
+      </div>
+      @if (account.kind === 'operator') {
+        <!-- Derived, not read: Core sends a working code only to a confirmed contact, so a signed-in operator has one. -->
+        <div class="account-settings__fact">
+          <dt>{{ 'settings.account.contactState' | transloco }}</dt>
+          <dd data-confirmation>
+            {{ 'settings.account.confirmed' | transloco }}
+            <span class="account-settings__hint">{{
+              'settings.account.confirmedNote' | transloco
+            }}</span>
+          </dd>
+        </div>
+      }
+    </dl>
+  </section>
+
+  <section class="account-settings__card" aria-labelledby="account-access" data-access>
+    <h2 id="account-access" class="account-settings__heading">
+      {{ 'settings.account.access' | transloco }}
+    </h2>
+    @if (account.kind === 'owner') {
+      @let company = account.company;
+      <dl class="account-settings__facts">
+        <div class="account-settings__fact">
+          <dt>{{ 'settings.account.company' | transloco }}</dt>
+          <dd data-company>
+            @switch (company.status) {
+              @case ('success') {
+                <bdi>{{ company.data.name }}</bdi>
+              }
+              @case ('error') {
+                <span class="account-settings__muted">{{
+                  'settings.account.companyUnavailable' | transloco
+                }}</span>
+              }
+              @case ('forbidden') {
+                <span class="account-settings__muted">{{
+                  'settings.account.companyUnavailable' | transloco
+                }}</span>
+              }
+              @default {
+                <span class="account-settings__loading" role="status">
+                  <span class="nw-visually-hidden">{{ 'shell.context.loading' | transloco }}</span>
+                  <nw-skeleton />
+                </span>
+              }
+            }
+          </dd>
+        </div>
+        <div class="account-settings__fact">
+          <dt>{{ 'settings.account.scope' | transloco }}</dt>
+          <dd data-scope>
+            {{ 'settings.account.ownerScope' | transloco }}
+            @if (company.status === 'success') {
+              <span class="account-settings__hint">{{
+                'settings.account.platformCount'
+                  | transloco: { count: (company.data.platformCount | nwNumber) }
+              }}</span>
+            }
+          </dd>
+        </div>
+      </dl>
+    } @else {
+      @let platforms = account.platforms;
+      <p class="account-settings__label" id="account-platforms">
+        {{ 'settings.account.platforms' | transloco }}
+      </p>
+      @switch (platforms.status) {
+        @case ('success') {
+          <ul class="account-settings__platforms" role="list" aria-labelledby="account-platforms">
+            @for (platform of platforms.data; track platform.id) {
+              <li class="account-settings__platform" data-platform>
+                <nw-icon
+                  [name]="platform.product === 'drive' ? 'car' : 'hexagon'"
+                  size="sm"
+                  aria-hidden="true"
+                />
+                <bdi>{{ platform.name }}</bdi>
+              </li>
+            }
+          </ul>
+        }
+        @case ('empty') {
+          <p class="account-settings__muted" data-no-platforms>
+            {{ 'settings.account.noPlatforms' | transloco }}
+          </p>
+        }
+        @case ('error') {
+          <div class="account-settings__unavailable" data-platforms-unavailable>
+            <p class="account-settings__muted">
+              {{ 'shell.nav.platformsUnavailable' | transloco }}
+            </p>
+            <button
+              nw-button
+              variant="secondary"
+              size="sm"
+              type="button"
+              (click)="context.reload()"
+            >
+              <nw-icon name="refresh-cw" size="sm" />{{ 'settings.account.retry' | transloco }}
+            </button>
+          </div>
+        }
+        @case ('forbidden') {
+          <div class="account-settings__unavailable" data-platforms-unavailable>
+            <p class="account-settings__muted">
+              {{ 'shell.nav.platformsUnavailable' | transloco }}
+            </p>
+            <button
+              nw-button
+              variant="secondary"
+              size="sm"
+              type="button"
+              (click)="context.reload()"
+            >
+              <nw-icon name="refresh-cw" size="sm" />{{ 'settings.account.retry' | transloco }}
+            </button>
+          </div>
+        }
+        @default {
+          <div class="account-settings__loading" role="status">
+            <span class="nw-visually-hidden">{{ 'shell.nav.platformsLoading' | transloco }}</span>
+            <nw-skeleton [lines]="2" />
+          </div>
+        }
+      }
+      <p class="account-settings__hint">{{ 'settings.account.managedByOwner' | transloco }}</p>
+    }
+  </section>
+
+  <section class="account-settings__card" aria-labelledby="account-sign-in" data-sign-in>
+    <h2 id="account-sign-in" class="account-settings__heading">
+      {{ 'settings.account.signIn' | transloco }}
+    </h2>
+    <p>
+      {{
+        (account.kind === 'owner'
+          ? 'settings.account.ownerSignIn'
+          : 'settings.account.operatorSignIn'
+        ) | transloco
+      }}
+    </p>
+  </section>
+
+  <p class="account-settings__muted">{{ 'settings.account.source' | transloco }}</p>
+}

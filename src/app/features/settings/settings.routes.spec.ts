@@ -13,12 +13,15 @@ describe('settings routes (P9-S1)', () => {
     for (const child of SETTINGS_ROUTES) expect(child.canActivate).toBeUndefined();
   });
 
-  it('makes /settings a page (the hub), not a redirect, with Appearance and Language below it', () => {
+  it('makes /settings a page (the hub), not a redirect, with Appearance, Language and Account below it', () => {
     expect(SETTINGS_ROUTES.map((r) => [r.path, r.title, r.redirectTo])).toEqual([
       ['', 'titles.settings', undefined],
       ['appearance', 'titles.settingsAppearance', undefined],
       ['language', 'titles.settingsLanguage', undefined],
+      ['account', 'titles.settingsAccount', undefined],
     ]);
+    // P9-S2: the own account only; no route takes an identity parameter
+    for (const route of SETTINGS_ROUTES) expect(route.path).not.toContain(':');
     const [hub, ...sections] = SETTINGS_ROUTES;
     expect(hub?.pathMatch).toBe('full');
     expect(hub?.data?.[BREADCRUMB_DATA]).toBe('shell.breadcrumb.settings');
