@@ -1,0 +1,138 @@
+// The Platform access dialog's content (P6-S2 design): the choice or confirmation, the verification, pending, result.
+.platform-access__body {
+  display: grid;
+  gap: var(--nw-space-4);
+}
+
+.platform-access__lead,
+.platform-access__contact {
+  overflow-wrap: anywhere;
+}
+
+.platform-access__contact {
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.platform-access__choices {
+  display: grid;
+  gap: var(--nw-space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+
+.platform-access__legend {
+  margin-block-end: var(--nw-space-2);
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+// Each choice is a 52 px target; the radio is the control, the whole row its label.
+.platform-access__choice {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-3);
+  min-block-size: 3.25rem;
+  padding-inline: var(--nw-space-3);
+  border: 1px solid var(--nw-border-strong);
+  border-radius: var(--nw-radius-md);
+  cursor: pointer;
+
+  input {
+    flex: none;
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    margin: 0;
+    accent-color: var(--nw-color-primary);
+  }
+
+  &:has(input:checked) {
+    border-color: var(--nw-color-primary);
+    box-shadow: inset 0 0 0 1px var(--nw-color-primary);
+  }
+
+  &:has(input:focus-visible) {
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &--disabled {
+    border-color: var(--nw-border-subtle);
+    background-color: var(--nw-surface-sunken);
+    color: var(--nw-text-secondary);
+    cursor: default;
+  }
+}
+
+.platform-access__choice-text {
+  display: grid;
+  min-inline-size: 0;
+}
+
+.platform-access__choice-name {
+  font-weight: var(--nw-font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.platform-access__choice-note {
+  font-size: var(--nw-text-size-xs);
+}
+
+.platform-access__list {
+  margin: 0;
+  padding-inline-start: var(--nw-space-5);
+  font-size: var(--nw-text-size-sm);
+}
+
+.platform-access__purpose {
+  display: grid;
+  gap: 2px;
+  padding: var(--nw-space-3) var(--nw-space-4);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+
+  strong {
+    font-weight: var(--nw-font-weight-semibold);
+    overflow-wrap: anywhere;
+  }
+}
+
+.platform-access__purpose-label {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+}
+
+.platform-access__otp {
+  font-family: var(--nw-font-mono);
+  font-size: var(--nw-text-size-xl);
+  letter-spacing: 0.3em;
+  text-align: center;
+}
+
+.platform-access__demo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-accent-orange-bg);
+  color: var(--nw-accent-orange-fg);
+  font-size: var(--nw-text-size-sm);
+}
+
+.platform-access__note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.platform-access__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-2);
+}

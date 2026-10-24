@@ -73,20 +73,17 @@ describe('OperatorDetailPage (P6-S1, read only)', { timeout: 15_000 }, () => {
     );
   });
 
-  it('lists the later changes as information only: no control for them', async () => {
+  it('lists the changes still to come as information only; the only controls are Platform access (P6-S2)', async () => {
     const { element } = await render(ID.awaitingConfirmation);
     expect(text(element.querySelector('.operator-detail__badges'))).toBe(
       t.state.awaitingConfirmation,
     );
     const later = [...element.querySelectorAll('.operator-detail__later li')].map((li) => text(li));
-    expect(later).toEqual([
-      t.detail.later.grant,
-      t.detail.later.remove,
-      t.detail.later.block,
-      t.detail.later.create,
-      t.detail.later.resend,
+    expect(later).toEqual([t.detail.later.block, t.detail.later.create, t.detail.later.resend]);
+    expect([...element.querySelectorAll('button')].map((b) => text(b))).toEqual([
+      t.access.give,
+      t.access.remove,
     ]);
-    expect([...element.querySelectorAll('button')]).toHaveLength(0);
     expect([...element.querySelectorAll('a')].map((a) => a.getAttribute('href'))).toEqual([
       '/operators',
       `/platforms/${SCHOOL}`,

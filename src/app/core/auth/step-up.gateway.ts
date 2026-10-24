@@ -7,8 +7,11 @@ import { FactorProof } from './auth.model';
  * those a built action uses (docs/CORE-INTEGRATION.md §4, §5): `platform.create` for `POST /organization/admin/platforms`,
  * `organization.create` for `POST /organization/admin/organizations`, `admin_invitation.create` / `.revoke` for the
  * organization-admin invitations of `/auth/organizations/:id/admin-invitations`, and `organization.admin.grant` /
- * `.revoke` for the organization-admin role of `…/memberships/:id/admin` (P5-S3b); the last four are factor only: TOTP
- * or a passkey, never the secret key. Machine values.
+ * `.revoke` for the organization-admin role of `…/memberships/:id/admin` (P5-S3b), those four factor only (TOTP or a
+ * passkey, never the secret key); and `platform_assignment.grant` / `.revoke` for an operator's Platform assignments
+ * (P6-S2), which Core lets the owner prove with TOTP, a passkey OR the secret key. Admin's dialogs offer the
+ * authenticator code only today (a shared factor chooser is a separate work item); the contract does not narrow Core's
+ * factors. Machine values.
  */
 export type StepUpPurpose =
   | 'platform.create'
@@ -16,7 +19,9 @@ export type StepUpPurpose =
   | 'admin_invitation.create'
   | 'admin_invitation.revoke'
   | 'organization.admin.grant'
-  | 'organization.admin.revoke';
+  | 'organization.admin.revoke'
+  | 'platform_assignment.grant'
+  | 'platform_assignment.revoke';
 
 /** A step-up grant: sent once, immediately, with the one operation of its purpose; never stored. */
 export interface StepUpGrant {

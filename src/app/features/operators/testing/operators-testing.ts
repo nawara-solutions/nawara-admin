@@ -35,9 +35,14 @@ import {
 import {
   MockOperatorAssignmentGateway,
   MockOperatorDirectoryGateway,
+  OPERATOR_ASSIGNMENT_DEMO_SCENARIO,
   OPERATOR_DIRECTORY_DEMO_SCENARIO,
+  OperatorAssignmentDemoScenario,
   OperatorDirectoryDemoScenario,
 } from '../data-access/operator.mock';
+import { PlatformAccessAction } from '../application/platform-access.action';
+import { StepUpGateway } from '../../../core/auth/step-up.gateway';
+import { MockStepUpGateway } from '../../../core/auth/step-up.mock';
 
 /** Test-only: the operator pages over the demo world, signed in as a given actor. Imported by specs and nothing else. */
 
@@ -97,6 +102,9 @@ export interface RenderOptions {
   readonly directory?: 'mock' | 'unavailable';
   readonly history?: 'mock' | 'unavailable';
   readonly scenario?: OperatorDirectoryDemoScenario;
+  /** How Platform access changes are answered (P6-S2). */
+  readonly changes?: OperatorAssignmentDemoScenario;
+  readonly latency?: number;
 }
 
 export async function renderOperators<T>(
@@ -104,7 +112,13 @@ export async function renderOperators<T>(
   actor: Actor,
   identity: AdminIdentityId,
   url: string,
-  { directory = 'mock', history = 'mock', scenario = 'normal' }: RenderOptions = {},
+  {
+    directory = 'mock',
+    history = 'mock',
+    scenario = 'normal',
+    changes = 'normal',
+    latency = 0,
+  }: RenderOptions = {},
 ) {
   TestBed.configureTestingModule({
     imports: [
@@ -125,7 +139,9 @@ export async function renderOperators<T>(
         provide: APP_ENVIRONMENT,
         useValue: { production: false, demo: { load: async () => DEMO } },
       },
-      { provide: DEMO_LATENCY_MS, useValue: 0 },
+      { provide: DEMO_LATENCY_MS, useValue: latency },
+      { provide: OPERATOR_ASSIGNMENT_DEMO_SCENARIO, useValue: changes },
+      { provide: StepUpGateway, useClass: MockStepUpGateway },
       { provide: NW_CLOCK, useValue: () => Date.parse('2026-10-23T12:00:00Z') },
       { provide: OPERATOR_DIRECTORY_DEMO_SCENARIO, useValue: scenario },
       { provide: ScopeDirectoryGateway, useClass: MockScopeDirectoryGateway },
@@ -142,6 +158,7 @@ export async function renderOperators<T>(
       ScopeContext,
       OperatorDirectoryFacade,
       OperatorDetailFacade,
+      PlatformAccessAction,
     ],
   });
   TestBed.inject(AuthSession).establish(actor);
@@ -152,6 +169,8 @@ export async function renderOperators<T>(
   const listSpy = vi.spyOn(TestBed.inject(OperatorDirectoryGateway), 'list');
   const loadSpy = vi.spyOn(TestBed.inject(OperatorDirectoryGateway), 'load');
   const historySpy = vi.spyOn(TestBed.inject(OperatorAssignmentGateway), 'history');
+  const grantSpy = vi.spyOn(TestBed.inject(OperatorAssignmentGateway), 'grant');
+  const revokeSpy = vi.spyOn(TestBed.inject(OperatorAssignmentGateway), 'revoke');
   const router = TestBed.inject(Router);
   await router.navigateByUrl(url);
   const fixture = TestBed.createComponent(page);
@@ -163,7 +182,7 @@ export async function renderOperators<T>(
   const element = fixture.nativeElement as HTMLElement;
   for (let i = 0; i < 20 && !element.querySelector('h1'); i++) await settle(10);
   await settle(10);
-  return { element, router, settle, listSpy, loadSpy, historySpy };
+  return { element, router, settle, listSpy, loadSpy, historySpy, grantSpy, revokeSpy };
 }
 
 /** The visible text of an element, without the isolation marks and with spaces collapsed. */

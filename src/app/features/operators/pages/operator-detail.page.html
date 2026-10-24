@@ -22,7 +22,37 @@
     <div class="operator-detail__grid">
       <div class="operator-detail__column">
         <section class="operator-detail__card" aria-labelledby="operator-current">
-          <h2 id="operator-current">{{ 'operators.detail.current.title' | transloco }}</h2>
+          <div class="operator-detail__section-head">
+            <h2 id="operator-current" #currentHeading tabindex="-1">
+              {{ 'operators.detail.current.title' | transloco }}
+            </h2>
+            @if (access.offered()) {
+              @let nothingLeft = history.status === 'ready' && eligible().length === 0;
+              <button
+                nw-button
+                type="button"
+                data-give-access
+                [attr.aria-disabled]="
+                  history.status !== 'ready' || nothingLeft || access.busy() || null
+                "
+                [attr.aria-describedby]="
+                  nothingLeft
+                    ? 'operator-give-reason'
+                    : access.busy()
+                      ? 'operator-access-waiting'
+                      : null
+                "
+                (click)="giveAccess(operator)"
+              >
+                <nw-icon name="user-plus" size="sm" />{{ 'operators.access.give' | transloco }}
+              </button>
+            }
+          </div>
+          @if (access.busy()) {
+            <span class="nw-visually-hidden" id="operator-access-waiting">{{
+              'operators.access.waiting' | transloco
+            }}</span>
+          }
           <p class="operator-detail__hint">{{ 'operators.detail.current.hint' | transloco }}</p>
           @switch (history.status) {
             @case ('ready') {
@@ -47,9 +77,43 @@
                             | transloco: { date: (a.assignedAt | nwDate: 'date') }
                         }}
                       </span>
+                      @if (access.offered()) {
+                        @let name =
+                          platformName(a.platformId) ??
+                          ('operators.list.unknownPlatform' | transloco);
+                        @if (access.sendingPlatformId() === a.platformId) {
+                          <span class="operator-detail__sending" role="status">
+                            <nw-spinner />{{ 'operators.access.removing' | transloco }}
+                          </span>
+                        } @else {
+                          <span class="operator-detail__row-action">
+                            <button
+                              nw-button
+                              variant="ghost"
+                              type="button"
+                              class="operator-detail__remove"
+                              data-remove-access
+                              [attr.data-platform]="a.platformId"
+                              [attr.aria-label]="'operators.access.removeFor' | transloco: { name }"
+                              [attr.aria-disabled]="access.busy() || null"
+                              [attr.aria-describedby]="
+                                access.busy() ? 'operator-access-waiting' : null
+                              "
+                              (click)="removeAccess(operator, a.platformId)"
+                            >
+                              {{ 'operators.access.remove' | transloco }}
+                            </button>
+                          </span>
+                        }
+                      }
                     </li>
                   }
                 </ul>
+                @if (access.offered() && eligible().length === 0) {
+                  <p class="operator-detail__hint" id="operator-give-reason">
+                    {{ 'operators.access.nothingLeft' | transloco }}
+                  </p>
+                }
               } @else {
                 <p class="operator-detail__empty" data-empty="current">
                   {{
@@ -183,8 +247,6 @@
           <h2 id="operator-later">{{ 'operators.detail.later.title' | transloco }}</h2>
           <p class="operator-detail__explain">{{ 'operators.detail.later.intro' | transloco }}</p>
           <ul class="operator-detail__later" role="list">
-            <li>{{ 'operators.detail.later.grant' | transloco }}</li>
-            <li>{{ 'operators.detail.later.remove' | transloco }}</li>
             <li>{{ 'operators.detail.later.block' | transloco }}</li>
             <li>{{ 'operators.detail.later.create' | transloco }}</li>
             <li>{{ 'operators.detail.later.resend' | transloco }}</li>

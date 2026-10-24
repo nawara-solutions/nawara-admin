@@ -4,6 +4,8 @@ import { BREADCRUMB_DATA, BREADCRUMB_PARENT_DATA } from '../../layout/breadcrumb
 import { OperatorDetailFacade } from './application/operator-detail.facade';
 import { OperatorDirectoryFacade } from './application/operator-directory.facade';
 import { OPERATORS_PATH } from './application/operator-paths';
+import { PlatformAccessAction } from './application/platform-access.action';
+import { StepUpGateway, UnavailableStepUpGateway } from '../../core/auth/step-up.gateway';
 import {
   OperatorAssignmentGateway,
   UnavailableOperatorAssignmentGateway,
@@ -15,18 +17,24 @@ import {
 
 /**
  * Operators & access (`/operators[/:operatorId]`; P6-S1, read only), company scope, the owner only (the shell route's
- * capability guard covers direct URLs). Both gateways are bound here (docs/ARCHITECTURE.md §3): the mock adapters in a
- * demo build, the `unavailable` adapters otherwise. No operator change exists in this slice.
+ * capability guard covers direct URLs). The operator gateways and the owner's step-up gateway are bound here
+ * (docs/ARCHITECTURE.md §3): the mock adapters in a demo build, the `unavailable` adapters otherwise. The detail route
+ * holds the Platform access action (P6-S2: give and remove, owner only).
  */
 export async function loadOperatorsRoutes(environment: AppEnvironment): Promise<Routes> {
-  const operators = await adapterProviders(environment, 'operators', [
-    { provide: OperatorDirectoryGateway, useClass: UnavailableOperatorDirectoryGateway },
-    { provide: OperatorAssignmentGateway, useClass: UnavailableOperatorAssignmentGateway },
+  const [operators, stepUp] = await Promise.all([
+    adapterProviders(environment, 'operators', [
+      { provide: OperatorDirectoryGateway, useClass: UnavailableOperatorDirectoryGateway },
+      { provide: OperatorAssignmentGateway, useClass: UnavailableOperatorAssignmentGateway },
+    ]),
+    adapterProviders(environment, 'stepUp', [
+      { provide: StepUpGateway, useClass: UnavailableStepUpGateway },
+    ]),
   ]);
   return [
     {
       path: '',
-      providers: operators,
+      providers: [...operators, ...stepUp],
       children: [
         {
           path: '',
@@ -44,7 +52,7 @@ export async function loadOperatorsRoutes(environment: AppEnvironment): Promise<
             [BREADCRUMB_DATA]: 'shell.breadcrumb.operator',
             [BREADCRUMB_PARENT_DATA]: { key: 'shell.breadcrumb.operators', link: OPERATORS_PATH },
           },
-          providers: [OperatorDetailFacade],
+          providers: [OperatorDetailFacade, PlatformAccessAction],
           loadComponent: () =>
             import('./pages/operator-detail.page').then((m) => m.OperatorDetailPage),
         },

@@ -511,6 +511,18 @@ confirm (severity-appropriate dialog)
 - **Contacts stay local:** the search is page state; filters and sort are URL parameters; operator pages link by id; the
   breadcrumb says "Operator", never a contact.
 
+**Eleventh and twelfth actions (P6-S2, 2026-10-24): give and remove Platform access**, Auth-owned, the Company owner
+only ([`design/p6-s2-platform-access.md`](design/p6-s2-platform-access.md)):
+
+- `PlatformAccessAction` (detail route, with `OperatorDetailFacade`): one `ActionRun` whose step-up purpose follows the
+  direction (`platform_assignment.grant` / `.revoke`); one dialog, an alertdialog for removal. Owner authority is also
+  enforced inside the demo-world commands, not only in the UI.
+- **Reconcile by history:** after a `409`, `404`, `503` or lost answer the history is reloaded in place and the dialog
+  waits for an answer newer than the failure (`historySequence`); a match is never presented as this attempt's doing.
+- **Step-up factor coverage:** the dialog asks for the authenticator code, like every Admin step-up; Core's passkey and
+  secret-key options for these purposes await a shared factor selector.
+- A signed-in operator's Platform list is read at sign-in (P6-S2b refreshes it); Core's live checks already deny them.
+
 ## 13. Design system: tokens, SCSS and BEM
 
 ### Token architecture

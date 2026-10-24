@@ -1,5 +1,15 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Injector,
+  afterNextRender,
+  computed,
+  effect,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { PlatformId } from '../../../core/context/scope.model';
@@ -8,12 +18,14 @@ import { NwDatePipe } from '../../../shared/format/format.pipes';
 import { NwButton } from '../../../shared/ui/button/button';
 import { NwDataState } from '../../../shared/ui/data-state/data-state';
 import { NwIcon } from '../../../shared/ui/icon/icon';
+import { NwSpinner } from '../../../shared/ui/spinner/spinner';
 import { NwStatusBadge } from '../../../shared/ui/status-badge/status-badge';
 import { OperatorDetailFacade } from '../application/operator-detail.facade';
 import { OPERATORS_PATH } from '../application/operator-paths';
+import { PlatformAccessAction } from '../application/platform-access.action';
 import { ACCOUNT_STATE_DISPLAY } from '../components/operator-list/operator-list';
 import { OperatorsHeader } from '../components/operators-header/operators-header';
-import { OperatorAccountState, contactText } from '../domain/operator.model';
+import { OperatorAccountState, OperatorSummary, contactText } from '../domain/operator.model';
 
 /** What each account state means, said in words (catalog keys, listed in full). */
 const STATE_DESCRIPTION_KEYS = {
@@ -25,8 +37,9 @@ const STATE_DESCRIPTION_KEYS = {
 /**
  * One operator (`/operators/:operatorId`; P6 design, artboards Detail and MobileAr), read only: their account (demo
  * data, CF-03), their CURRENT Platform access and their REMOVED access, apart, with when it was given and removed and
- * by whom (the Company owner, as Core records it). The changes Core supports, and the one it does not, are listed as
- * information only: P6-S1 has no control for them.
+ * by whom (the Company owner, as Core records it). The owner gives and removes Platform access here (P6-S2:
+ * `PlatformAccessAction`); the other changes are listed as information only. After a change succeeds, focus moves to
+ * the "Current Platform access" heading.
  */
 @Component({
   selector: 'adm-operator-detail-page',
@@ -38,6 +51,7 @@ const STATE_DESCRIPTION_KEYS = {
     NwDataState,
     NwDatePipe,
     NwIcon,
+    NwSpinner,
     NwStatusBadge,
     OperatorsHeader,
   ],
@@ -53,6 +67,40 @@ export class OperatorDetailPage {
   protected readonly contact = contactText;
   protected readonly state = ACCOUNT_STATE_DISPLAY;
   protected readonly stateDescription = STATE_DESCRIPTION_KEYS;
+  protected readonly access = inject(PlatformAccessAction);
+  private readonly injector = inject(Injector);
+  private readonly currentHeading = viewChild<ElementRef<HTMLElement>>('currentHeading');
+
+  /** The Company's Platforms the operator has no active assignment on (the choices of "Give access"). */
+  protected readonly eligible = computed(() =>
+    this.facade.companyPlatforms().filter((p) => this.facade.isAssigned(p.id) === false),
+  );
+
+  constructor() {
+    effect(() => {
+      if (this.access.succeeded() === null) return;
+      afterNextRender(() => this.currentHeading()?.nativeElement.focus(), {
+        injector: this.injector,
+      });
+    });
+  }
+
+  protected giveAccess(operator: OperatorSummary): void {
+    const platform = this.eligible()[0];
+    if (platform === undefined) return;
+    this.access.open({ operatorId: operator.id, contact: operator.contact, platform, grant: true });
+  }
+
+  protected removeAccess(operator: OperatorSummary, platformId: PlatformId): void {
+    const platform = this.facade.companyPlatforms().find((p) => p.id === platformId);
+    if (platform === undefined) return;
+    this.access.open({
+      operatorId: operator.id,
+      contact: operator.contact,
+      platform,
+      grant: false,
+    });
+  }
 
   protected platformName(id: PlatformId): string | null {
     return this.facade.platformName(id);

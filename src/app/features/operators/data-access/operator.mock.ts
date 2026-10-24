@@ -1,13 +1,19 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { Observable, defer, delay, of, switchMap, throwError, timer } from 'rxjs';
+import { Observable, defer, delay, map, of, switchMap, throwError, timer } from 'rxjs';
 import { DemoAuthState } from '../../../core/auth/auth.mock-state';
 import { DEMO_LATENCY_MS } from '../../../core/context/scope-directory.mock';
-import { CompanyId } from '../../../core/context/scope.model';
+import { CompanyId, PlatformId } from '../../../core/context/scope.model';
 import { AppError } from '../../../core/errors/app-error';
-import { DemoWorld } from '../../../demo/world/demo-world';
+import {
+  PlatformAssignmentChange,
+  grantPlatformAssignment,
+  revokePlatformAssignment,
+} from '../../../demo/world/commands/operator.commands';
+import { CommandOutcome, DemoWorld } from '../../../demo/world/demo-world';
 import {
   DemoWorldTables,
   OperatorProfileRecord,
+  PlatformAssignmentRecord,
   adminIdentityId,
 } from '../../../demo/world/records';
 import {
@@ -15,14 +21,16 @@ import {
   assignmentHistoryOf,
   grantsOf,
   isActiveAssignment,
+  isCompanyPlatform,
   operatorProfileOf,
 } from '../../../demo/world/selectors';
+import { NW_CLOCK } from '../../../shared/format/clock';
 import {
   OperatorAccountState,
   OperatorSummary,
   PlatformAssignment,
 } from '../domain/operator.model';
-import { OperatorAssignmentGateway } from './operator-assignment.gateway';
+import { AssignmentChangeRequest, OperatorAssignmentGateway } from './operator-assignment.gateway';
 import { OperatorDirectoryGateway } from './operator-directory.gateway';
 
 /** Which answer the directory mock gives, so every view state can be exercised. Demo builds use `normal`. */
@@ -30,6 +38,29 @@ export type OperatorDirectoryDemoScenario = 'normal' | 'empty' | 'error';
 
 export const OPERATOR_DIRECTORY_DEMO_SCENARIO = new InjectionToken<OperatorDirectoryDemoScenario>(
   'OPERATOR_DIRECTORY_DEMO_SCENARIO',
+  { factory: () => 'normal' },
+);
+
+/**
+ * Which answer a Platform assignment change gets. Demo builds use `normal`, which SUCCEEDS. The others:
+ * - `changedElsewhere`: another writer makes the same change just before (`409 assignment_conflict` for a grant, the
+ *   collapsed `404` for a removal);
+ * - `outcomeUnknown`: the change commits but its answer is lost (nothing replays it: Core has no idempotency key);
+ * - `hierarchyUnavailable`: a grant's first touch of the Platform cannot reach Organization Service (`503
+ *   hierarchy_unavailable`, before anything is checked or written); a removal is not affected;
+ * - `unavailable`: the service refuses either change before applying anything (`503`, no code);
+ * - `rateLimited`: `429` with no detail (Core has only a coarse per-IP throttle here; its answer is unverified).
+ */
+export type OperatorAssignmentDemoScenario =
+  | 'normal'
+  | 'changedElsewhere'
+  | 'outcomeUnknown'
+  | 'hierarchyUnavailable'
+  | 'unavailable'
+  | 'rateLimited';
+
+export const OPERATOR_ASSIGNMENT_DEMO_SCENARIO = new InjectionToken<OperatorAssignmentDemoScenario>(
+  'OPERATOR_ASSIGNMENT_DEMO_SCENARIO',
   { factory: () => 'normal' },
 );
 
@@ -123,16 +154,102 @@ export class MockOperatorDirectoryGateway extends OperatorDirectoryGateway {
   }
 }
 
+const toAssignment = (a: PlatformAssignmentRecord): PlatformAssignment => ({
+  id: a.id,
+  platformId: a.platformId,
+  assignedBy: a.assignedBy,
+  assignedAt: a.assignedAt,
+  revokedAt: a.revokedAt,
+  revokedBy: a.revokedBy,
+  active: isActiveAssignment(a),
+});
+
 /**
- * Mock adapter of Core's assignment history (`GET /auth/admin/operators/:id/platform-assignments`; demo builds only),
- * answering what Core answers: the owner only (`403` otherwise), the collapsed `404` for an operator that is not the
- * owner's Company's, else every record, active and removed, oldest first, in Core's field names.
+ * Mock adapter of Core's assignment routes (demo builds only), over the demo world at request time.
+ *
+ * - `history`: the owner only (`403` otherwise), the collapsed `404` for an operator that is not the owner's Company's,
+ *   else every record, active and removed, oldest first, in Core's field names.
+ * - `grant` / `revoke`, in Core's order (`assignment.service.ts`): the session (`401`), the owner-only guard (`403
+ *   forbidden`, an operator on their own record included), [grant: the hierarchy check, `503 hierarchy_unavailable`],
+ *   the operator (and for a grant the Platform) in the owner's Company (collapsed `404`), the step-up of exactly this
+ *   purpose, for this user, live (`403 step_up_required`; CHECKED, not spent), then the command (`409` / `404`: Core
+ *   rolls back, so the step-up stays unspent), and only once it commits is the step-up spent. Never replays a change.
  */
 export class MockOperatorAssignmentGateway extends OperatorAssignmentGateway {
+  readonly available = true;
   private readonly latency = inject(DEMO_LATENCY_MS);
   private readonly scenario = inject(OPERATOR_HISTORY_DEMO_SCENARIO);
+  private readonly changes = inject(OPERATOR_ASSIGNMENT_DEMO_SCENARIO);
   private readonly auth = inject(DemoAuthState);
   private readonly world = inject(DemoWorld);
+  private readonly now = inject(NW_CLOCK);
+
+  grant(
+    operator: string,
+    platform: PlatformId,
+    request: AssignmentChangeRequest,
+  ): Observable<PlatformAssignment> {
+    return defer(() =>
+      this.change('platform_assignment.grant', operator, platform, request, (change) =>
+        grantPlatformAssignment(change),
+      ).pipe(map(toAssignment)),
+    );
+  }
+
+  revoke(
+    operator: string,
+    platform: PlatformId,
+    request: AssignmentChangeRequest,
+  ): Observable<void> {
+    return defer(() =>
+      this.change('platform_assignment.revoke', operator, platform, request, (change) =>
+        revokePlatformAssignment(change),
+      ).pipe(map(() => undefined)),
+    );
+  }
+
+  private change(
+    purpose: 'platform_assignment.grant' | 'platform_assignment.revoke',
+    operator: string,
+    platform: PlatformId,
+    request: AssignmentChangeRequest,
+    command: (
+      change: PlatformAssignmentChange,
+    ) => (world: DemoWorldTables) => CommandOutcome<PlatformAssignmentRecord>,
+  ): Observable<PlatformAssignmentRecord> {
+    const world = this.world.snapshot();
+    const refused = callerError(this.auth, world);
+    if (refused !== null) return this.fail(refused);
+    if (this.changes === 'rateLimited') return this.fail({ kind: 'rate_limited', status: 429 });
+    const grant = purpose === 'platform_assignment.grant';
+    if (grant && this.changes === 'hierarchyUnavailable')
+      return this.fail({ kind: 'unavailable', code: 'hierarchy_unavailable', status: 503 });
+    if (this.changes === 'unavailable') return this.fail({ kind: 'unavailable', status: 503 });
+    const operatorId = adminIdentityId(operator);
+    if (
+      operatorProfileOf(world, operatorId) === undefined ||
+      (grant && !isCompanyPlatform(world, platform))
+    )
+      return this.fail(NOT_FOUND);
+    const signedIn = this.auth.signedIn();
+    const userId = signedIn?.identity.userId ?? '';
+    const now = this.now();
+    if (!this.auth.checkStepUp(request.stepUpToken, purpose, userId, now))
+      return this.fail({ kind: 'forbidden', code: 'step_up_required', status: 403 });
+    const change = {
+      actor: signedIn?.businessIdentityId ?? null,
+      operatorId,
+      platformId: platform,
+      now,
+    };
+    if (this.changes === 'changedElsewhere') this.world.commit(command(change));
+    const outcome = this.world.commit(command(change));
+    // Nothing changed: Core rolls the transaction back, so the step-up is not spent.
+    if (!outcome.ok) return this.fail(outcome.error);
+    this.auth.consumeStepUp(request.stepUpToken, purpose, userId, now);
+    if (this.changes === 'outcomeUnknown') return this.fail({ kind: 'network', status: 0 });
+    return of(outcome.result).pipe(delay(this.latency));
+  }
 
   history(operator: string): Observable<readonly PlatformAssignment[]> {
     return defer(() => {
@@ -142,16 +259,7 @@ export class MockOperatorAssignmentGateway extends OperatorAssignmentGateway {
       const id = adminIdentityId(operator);
       if (operatorProfileOf(world, id) === undefined) return this.fail(NOT_FOUND);
       if (this.scenario === 'error') return this.fail({ kind: 'unavailable', status: 503 });
-      const records = assignmentHistoryOf(world, id).map((a): PlatformAssignment => ({
-        id: a.id,
-        platformId: a.platformId,
-        assignedBy: a.assignedBy,
-        assignedAt: a.assignedAt,
-        revokedAt: a.revokedAt,
-        revokedBy: a.revokedBy,
-        active: isActiveAssignment(a),
-      }));
-      return of(records).pipe(delay(this.latency));
+      return of(assignmentHistoryOf(world, id).map(toAssignment)).pipe(delay(this.latency));
     });
   }
 

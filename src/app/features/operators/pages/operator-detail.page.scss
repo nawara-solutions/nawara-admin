@@ -38,6 +38,43 @@
   }
 }
 
+.operator-detail__section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nw-space-2) var(--nw-space-3);
+
+  h2:focus-visible {
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: 4px;
+    border-radius: var(--nw-radius-sm);
+  }
+}
+
+// "Remove access…" at the end of an active row; full width on narrow cards.
+.operator-detail__row-action {
+  display: flex;
+  justify-content: flex-end;
+
+  > [nw-button] {
+    min-inline-size: 0;
+    white-space: normal;
+  }
+}
+
+.operator-detail__row-action .operator-detail__remove {
+  --nw-button-fg: var(--nw-status-danger-fg);
+}
+
+.operator-detail__sending {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
 .operator-detail__hint,
 .operator-detail__when,
 .operator-detail__empty {
@@ -51,6 +88,7 @@
 
 .operator-detail__assignment {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--nw-space-1);
   padding-block: var(--nw-space-3);
   border-block-end: 1px solid var(--nw-border-subtle);
@@ -151,5 +189,20 @@
   .operator-detail__grid {
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
     align-items: start;
+  }
+}
+
+// Wide enough: "Remove access…" sits at the end of its row instead of below it (active rows only).
+@container (min-width: 36rem) {
+  .operator-detail__assignment:has(> .operator-detail__row-action, > .operator-detail__sending) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--nw-space-3);
+  }
+
+  .operator-detail__row-action,
+  .operator-detail__assignment > .operator-detail__sending {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
   }
 }

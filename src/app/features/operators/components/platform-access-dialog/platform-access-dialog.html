@@ -1,0 +1,252 @@
+@let current = state();
+<nw-dialog
+  [title]="
+    current.phase === 'verifying'
+      ? ('actions.stepUp.title' | transloco)
+      : grant
+        ? ('operators.access.grantTitle' | transloco)
+        : ('operators.access.removeTitle' | transloco: { name: isolatedPlatform() })
+  "
+  [closeLabel]="'common.close' | transloco"
+  [busy]="busy()"
+>
+  @switch (current.phase) {
+    @case ('verifying') {
+      <form
+        id="platform-access-verify"
+        class="platform-access__body"
+        novalidate
+        (submit)="verify($event)"
+      >
+        <p class="platform-access__purpose" id="platform-access-purpose">
+          <span class="platform-access__purpose-label">{{
+            'actions.stepUp.purposeIntro' | transloco
+          }}</span>
+          <strong>
+            {{
+              (grant ? 'operators.access.grantPurpose' : 'operators.access.removePurpose')
+                | transloco: { name: isolatedPlatform() }
+            }}
+            <bdi dir="ltr" translate="no">{{ contact }}</bdi>
+          </strong>
+        </p>
+        <nw-form-field
+          [label]="'actions.stepUp.codeLabel' | transloco"
+          [hint]="'operators.access.factorHint' | transloco"
+          [error]="failureKey() ? (failureKey()! | transloco) : undefined"
+        >
+          <input
+            #codeInput
+            nwControl
+            class="platform-access__otp"
+            type="text"
+            name="step-up-code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            spellcheck="false"
+            dir="ltr"
+            aria-describedby="platform-access-purpose"
+            [value]="code()"
+            [readOnly]="busy()"
+            (input)="onCode($event)"
+          />
+        </nw-form-field>
+        @if (demoCode(); as demo) {
+          <p class="platform-access__demo" role="note">
+            <nw-icon name="flask-conical" size="sm" />
+            <span>
+              <strong>{{ 'actions.stepUp.demoTitle' | transloco }}</strong>
+              {{ 'actions.stepUp.demoNote' | transloco: { code: demo } }}
+            </span>
+          </p>
+        }
+      </form>
+    }
+    @case ('pending') {
+      <div class="platform-access__body">
+        <p class="platform-access__status" role="status">
+          <nw-spinner />{{
+            (grant ? 'operators.access.granting' : 'operators.access.removing') | transloco
+          }}
+        </p>
+        <p class="platform-access__note">{{ 'operators.access.pendingNote' | transloco }}</p>
+      </div>
+    }
+    @case ('failed') {
+      <div class="platform-access__body">
+        <nw-inline-alert [tone]="current.failure.kind === 'outcomeUnknown' ? 'danger' : 'warning'">
+          {{ failureKey()! | transloco }}
+        </nw-inline-alert>
+        @if (reconciling()) {
+          @let known = reconciliation();
+          <p class="platform-access__status" role="status" data-reconciliation>
+            @if (known === null || known.state === 'checking') {
+              <nw-spinner />{{ 'operators.access.checking' | transloco }}
+            } @else if (known.state === 'unchecked') {
+              {{ 'operators.access.unchecked' | transloco }}
+            } @else if (known.assigned === grant) {
+              {{
+                (grant ? 'operators.access.nowAssigned' : 'operators.access.nowRemoved')
+                  | transloco: { name: isolatedPlatform() }
+              }}
+            } @else {
+              {{
+                (grant ? 'operators.access.stillUnassigned' : 'operators.access.stillAssigned')
+                  | transloco: { name: isolatedPlatform() }
+              }}
+            }
+          </p>
+        }
+      </div>
+    }
+    @default {
+      <div class="platform-access__body">
+        <p id="platform-access-description" class="platform-access__lead">
+          {{
+            (grant ? 'operators.access.grantBody' : 'operators.access.removeBody')
+              | transloco: { name: isolatedPlatform() }
+          }}
+          <bdi class="platform-access__contact" dir="ltr" translate="no">{{ contact }}</bdi>
+        </p>
+        @if (grant) {
+          <fieldset class="platform-access__choices">
+            <legend class="platform-access__legend">
+              {{ 'operators.access.platform' | transloco }}
+            </legend>
+            @for (choice of choices(); track choice.platform.id) {
+              <label
+                class="platform-access__choice"
+                [class.platform-access__choice--disabled]="choice.assigned"
+              >
+                <input
+                  type="radio"
+                  name="platform-access-platform"
+                  [value]="choice.platform.id"
+                  [checked]="choice.platform.id === platform().id"
+                  [disabled]="choice.assigned"
+                  (change)="onChoose(choice.platform)"
+                />
+                <span class="platform-access__choice-text">
+                  <bdi class="platform-access__choice-name">{{ choice.platform.name }}</bdi>
+                  @if (choice.assigned) {
+                    <span class="platform-access__choice-note">{{
+                      'operators.access.alreadyAssigned' | transloco
+                    }}</span>
+                  }
+                </span>
+              </label>
+            }
+          </fieldset>
+          <ul class="platform-access__list">
+            <li>{{ 'operators.access.grantNotMembership' | transloco }}</li>
+            <li>{{ 'operators.access.grantKeepsOthers' | transloco }}</li>
+          </ul>
+        } @else {
+          <ul class="platform-access__list">
+            <li>{{ 'operators.access.removeNoBlock' | transloco }}</li>
+            <li>{{ 'operators.access.removeNoMembership' | transloco }}</li>
+            <li>{{ 'operators.access.removeHistory' | transloco }}</li>
+          </ul>
+          @if (onlyPlatform()) {
+            <nw-inline-alert tone="warning" data-warning="only-platform">
+              <strong>{{ 'operators.access.onlyPlatformTitle' | transloco }}</strong>
+              {{ 'operators.access.onlyPlatformBody' | transloco }}
+            </nw-inline-alert>
+          }
+          @if (lastListed()) {
+            <nw-inline-alert tone="warning" data-warning="last-listed">
+              <strong>{{
+                'operators.access.lastListedTitle' | transloco: { name: isolatedPlatform() }
+              }}</strong>
+              {{ 'operators.access.lastListedBody' | transloco }}
+            </nw-inline-alert>
+          }
+        }
+        <p class="platform-access__note">
+          <nw-icon name="shield-check" size="sm" />{{ 'operators.access.stepUpNext' | transloco }}
+        </p>
+      </div>
+    }
+  }
+
+  <div nwDialogActions>
+    @switch (current.phase) {
+      @case ('verifying') {
+        <button
+          nw-button
+          variant="ghost"
+          type="button"
+          [attr.aria-disabled]="busy() || null"
+          (click)="back()"
+        >
+          {{ 'actions.stepUp.back' | transloco }}
+        </button>
+        <button
+          nw-button
+          type="submit"
+          form="platform-access-verify"
+          [variant]="grant ? 'primary' : 'danger'"
+          [busy]="busy()"
+          [attr.aria-disabled]="busy() || null"
+        >
+          @if (busy()) {
+            <nw-spinner />{{ 'actions.stepUp.verifying' | transloco }}
+          } @else {
+            {{
+              (grant ? 'operators.access.verifyAndGrant' : 'operators.access.verifyAndRemove')
+                | transloco
+            }}
+          }
+        </button>
+      }
+      @case ('pending') {
+        <button nw-button variant="ghost" type="button" aria-disabled="true">
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button nw-button type="button" busy aria-disabled="true">
+          <nw-spinner />{{
+            (grant ? 'operators.access.grantingShort' : 'operators.access.removingShort')
+              | transloco
+          }}
+        </button>
+      }
+      @case ('failed') {
+        @if (retryable()) {
+          <button nw-button variant="ghost" type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+          <button #mainButton nw-button type="button" data-retry (click)="tryAgain()">
+            <nw-icon name="refresh-cw" size="sm" />{{ 'actions.retry' | transloco }}
+          </button>
+        } @else if (reconciling()) {
+          <button nw-button variant="ghost" type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+          <button #mainButton nw-button type="button" data-check (click)="checkStatus()">
+            <nw-icon name="refresh-cw" size="sm" />{{ 'operators.access.checkAgain' | transloco }}
+          </button>
+        } @else {
+          <button #mainButton nw-button type="button" (click)="close()">
+            {{ 'common.close' | transloco }}
+          </button>
+        }
+      }
+      @default {
+        <button nw-button variant="secondary" type="button" data-cancel (click)="close()">
+          {{ 'common.cancel' | transloco }}
+        </button>
+        <button
+          nw-button
+          type="button"
+          data-confirm
+          [variant]="grant ? 'primary' : 'danger'"
+          (click)="confirm()"
+        >
+          {{
+            (grant ? 'operators.access.continue' : 'operators.access.continueRemove') | transloco
+          }}
+        </button>
+      }
+    }
+  </div>
+</nw-dialog>

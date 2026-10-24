@@ -1,6 +1,6 @@
-import { Injectable, Signal, computed, inject } from '@angular/core';
+import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { Observable, Subject, combineLatest, of, startWith, switchMap } from 'rxjs';
+import { Observable, Subject, combineLatest, map, of, skip, startWith, switchMap, tap } from 'rxjs';
 import { can } from '../../../core/access/capability-policy';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { ScopeContext } from '../../../core/context/scope-context';
@@ -74,16 +74,44 @@ export class OperatorDetailFacade {
     return { company: actor.companyId, operator };
   });
 
-  private load<T>(key: Signal<Key | null>, request: (key: Key) => Observable<T>) {
+  /** "Check again" after a change: the history only, refreshed in place. */
+  private readonly historyReloads = new Subject<void>();
+
+  /**
+   * One load per key. "Try again" shows loading; a hierarchy change (`ScopeContext.revision`) or a `refreshes` emission
+   * for the same key refreshes in place: the current state stays shown until the new answer, so the page does not
+   * flash and focus stays where it is (after a Platform access change).
+   */
+  private load<T>(
+    key: Signal<Key | null>,
+    request: (key: Key) => Observable<T>,
+    refreshes: Observable<void> = new Subject<void>(),
+  ) {
+    let lastKey: string | null = null;
+    let lastRevision: number | null = null;
+    let lastRefresh = 0;
+    let refreshCount = 0;
     return toSignal(
       combineLatest([
         toObservable(key),
         toObservable(this.context.revision),
         this.reloads.pipe(startWith(undefined)),
-      ]).pipe(
-        switchMap(([key]) =>
-          key === null ? of<ViewState<T>>({ status: 'forbidden' }) : toViewState(request(key)),
+        refreshes.pipe(
+          map(() => ++refreshCount),
+          startWith(0),
         ),
+      ]).pipe(
+        switchMap(([k, revision, , refresh]) => {
+          const id = k === null ? null : `${k.company}/${k.operator}`;
+          const inPlace =
+            id !== null && id === lastKey && (revision !== lastRevision || refresh !== lastRefresh);
+          lastKey = id;
+          lastRevision = revision;
+          lastRefresh = refresh;
+          if (k === null) return of<ViewState<T>>({ status: 'forbidden' });
+          const states = toViewState(request(k));
+          return inPlace ? states.pipe(skip(1)) : states;
+        }),
       ),
       { initialValue: { status: 'idle' } as ViewState<T> },
     );
@@ -121,8 +149,19 @@ export class OperatorDetailFacade {
     { equal: (a, b) => a?.operator === b?.operator && a?.company === b?.company },
   );
 
-  private readonly history = this.load(this.historyKey, (key) =>
-    this.assignments.history(key.operator),
+  private readonly answers = signal(0);
+
+  /**
+   * How many history answers have arrived: a reconciliation waits for one newer than the failure it follows (the value
+   * when it asked), so it never reads an answer that was already on screen.
+   */
+  readonly historySequence = this.answers.asReadonly();
+
+  private readonly history = this.load(
+    this.historyKey,
+    (key) =>
+      this.assignments.history(key.operator).pipe(tap(() => this.answers.update((n) => n + 1))),
+    this.historyReloads,
   );
 
   readonly historyView = computed<AssignmentHistoryView>(() => {
@@ -159,4 +198,23 @@ export class OperatorDetailFacade {
   reload(): void {
     this.reloads.next();
   }
+
+  /** Reloads the assignment history in place (after a Platform access change, or to reconcile one). */
+  refreshHistory(): void {
+    this.historyReloads.next();
+  }
+
+  /**
+   * Whether the loaded history shows an ACTIVE assignment of this Platform, or `null` while it is not loaded. A match
+   * says what Core holds now, not who caused it.
+   */
+  isAssigned(platform: PlatformId): boolean | null {
+    const history = this.historyView();
+    return history.status === 'ready'
+      ? history.current.some((a) => a.platformId === platform)
+      : null;
+  }
+
+  /** The Company's Platforms, as the scope directory lists them (the choices of "Give access"). */
+  readonly companyPlatforms = computed<readonly PlatformRef[]>(() => this.platforms());
 }

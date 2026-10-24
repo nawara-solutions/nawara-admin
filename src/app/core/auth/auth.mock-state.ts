@@ -145,6 +145,9 @@ export const DEMO_STEP_UP_METHODS: Readonly<Record<string, readonly DemoStepUpMe
   'admin_invitation.revoke': ['totp', 'webauthn'],
   'organization.admin.grant': ['totp', 'webauthn'],
   'organization.admin.revoke': ['totp', 'webauthn'],
+  // An operator's Platform assignments (P6-S0, Core 750eb21): the secret key is accepted too.
+  'platform_assignment.grant': ['totp', 'webauthn', 'secret_key'],
+  'platform_assignment.revoke': ['totp', 'webauthn', 'secret_key'],
 };
 
 const stepUpMethodAllowed = (purpose: string, method: DemoStepUpMethod) =>
