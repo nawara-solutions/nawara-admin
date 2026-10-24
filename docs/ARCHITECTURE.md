@@ -123,8 +123,8 @@ neither belongs to the feature that uses it.
 - The **mock adapter** implements the same gateway with typed fixtures. It simulates latency, empty results, `403`, `404`, `409`,
   `429`, `503` and validation failures, so every UI state can be exercised. Mocks live **only** in `*.mock.ts` / `*.fixtures.ts`.
 - **Demo world** (`src/app/demo/world/`, development builds only, P2.5): one root, signal-based `DemoWorld` holds the simulated
-  Core's persistent records (Company, Platforms, Organizations, staff identities, Platform assignments, subscriptions,
-  invitations, payment issues, activity). Mocks that show business data read it at request time through pure selectors and
+  Core's persistent records (Company, Platforms, Organizations, staff identities, operator accounts, the append-only
+  Platform assignment history, subscriptions, invitations, payment issues, activity). Mocks that show business data read it at request time through pure selectors and
   map the results to their own feature models, so the Overview, the directory and the Platform dashboards agree by
   construction. It is seeded deterministically from `NW_CLOCK`, survives a sign-out, and is separate from `DemoAuthState`
   (session and sign-in workflow), which refers to it by business identity only. ESLint stops production-facing code from
@@ -495,6 +495,21 @@ confirm (severity-appropriate dialog)
   Core's transaction does; a `404` leaves it usable.
 - The role is authority within one Organization: it never touches Company owner or Platform operator authority,
   membership status or counts.
+
+**Operators & access (P6-S1, 2026-10-24), read only**, Auth-owned, the Company owner only
+([`design/p6-operators-and-access.md`](design/p6-operators-and-access.md)):
+
+- Company-scope routes `/operators` and `/operators/:operatorId`, guarded by `company.operators.view` (owner only), so a
+  direct URL sends an operator to the forbidden page and no operator request is made.
+- **Two gateways, two availabilities:** `OperatorDirectoryGateway` (`list`, `load`) is a PROVISIONAL contract (no Core
+  route, CF-03); `OperatorAssignmentGateway.history` is Core's verified owner read, in Core's field names. Both bind the
+  unavailable adapter outside demo builds; no HTTP adapter is authorized yet.
+- **Demo world:** `OperatorProfileRecord` (contact, `contactConfirmedAt`, `blocked`) is the one source of staff
+  operators' stable facts; the sign-in fixtures read contacts and starting confirmation from the seed, and a confirmation
+  in the sign-in flow commits to the world. Codes and attempts stay in `DemoAuthState`. Assignments are append-only
+  records; only active ones (`revokedAt === null`) grant or count anywhere.
+- **Contacts stay local:** the search is page state; filters and sort are URL parameters; operator pages link by id; the
+  breadcrumb says "Operator", never a contact.
 
 ## 13. Design system: tokens, SCSS and BEM
 

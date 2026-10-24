@@ -207,7 +207,9 @@
     "organizations": "Organisations",
     "organization": "Organisation",
     "members": "Membres",
-    "membership": "Adhésion"
+    "membership": "Adhésion",
+    "operators": "Opérateurs et accès",
+    "operator": "Opérateur"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -226,7 +228,9 @@
       "organizations": "Organisations",
       "organization": "Organisation",
       "members": "Membres",
-      "membership": "Adhésion"
+      "membership": "Adhésion",
+      "operators": "Opérateurs et accès",
+      "operator": "Opérateur"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -1230,6 +1234,7 @@
       "operatorRequestLimited": "Simule trop de demandes",
       "operatorVerifyLimited": "Simule trop de tentatives",
       "operatorUnavailable": "Simule un service indisponible",
+      "operatorBlocked": "Opérateur bloqué par le propriétaire : la connexion est refusée",
       "newOperators": "Nouveaux opérateurs (confirmation du contact)",
       "confirmationCode": "Code de confirmation",
       "operatorNew": "Nouvel opérateur, contact non confirmé"
@@ -1325,6 +1330,130 @@
     "appearance": {
       "title": "Apparence",
       "subtitle": "Choisissez l’apparence de Nawara Admin dans ce navigateur."
+    }
+  },
+  "operators": {
+    "demoExplanation": "Données de démonstration : opérateurs et accès aux plateformes fictifs. Nawara Core ne liste pas encore les opérateurs.",
+    "header": {
+      "eyebrow": "Entreprise",
+      "title": "Opérateurs et accès",
+      "subtitle": "Les opérateurs de plateforme de votre entreprise et les plateformes sur lesquelles chacun peut agir."
+    },
+    "provisional": "Vue provisoire : Nawara Core ne liste pas encore les opérateurs d’une entreprise et n’affiche pas l’état de leur compte. Cette liste est une donnée de démonstration.",
+    "totals": {
+      "label": "Totaux des opérateurs",
+      "operators": "Opérateurs",
+      "assignments": "Attributions de plateforme actives",
+      "withoutAccess": "Sans accès à une plateforme"
+    },
+    "list": {
+      "label": "Opérateurs",
+      "operator": "Opérateur",
+      "platforms": "Plateformes actives",
+      "state": "Compte (démo)",
+      "added": "Ajouté le",
+      "unknownPlatform": "Plateforme",
+      "noPlatform": "Aucun accès à une plateforme"
+    },
+    "toolbar": {
+      "searchLabel": "Rechercher des opérateurs par e-mail ou téléphone",
+      "searchPlaceholder": "Rechercher par e-mail ou téléphone",
+      "clear": "Effacer la recherche",
+      "platform": "Plateforme",
+      "state": "Compte (démo)",
+      "sort": "Trier",
+      "count": "{{shown}} sur {{total}}"
+    },
+    "platformFilter": {
+      "any": "Toutes les plateformes",
+      "none": "Aucun accès à une plateforme"
+    },
+    "stateFilter": {
+      "any": "Tous les états de compte"
+    },
+    "state": {
+      "canSignIn": "Peut se connecter",
+      "awaitingConfirmation": "Contact à confirmer",
+      "blocked": "Bloqué"
+    },
+    "sort": {
+      "contact": "E-mail ou téléphone (A–Z)",
+      "platforms": "Le plus de plateformes",
+      "newest": "Les plus récents"
+    },
+    "states": {
+      "loading": "Chargement des opérateurs",
+      "detailLoading": "Chargement de l’opérateur",
+      "noResultsTitle": "Aucun opérateur ne correspond",
+      "noResultsDescription": "Vérifiez l’orthographe ou modifiez les filtres.",
+      "clearFilters": "Effacer la recherche et les filtres",
+      "emptyTitle": "Aucun opérateur pour le moment",
+      "emptyDescription": "Votre entreprise n’a aucun opérateur de plateforme. La création d’opérateurs arrive dans une version ultérieure d’Admin.",
+      "notInBuildTitle": "Non disponible dans cette version",
+      "notInBuildDescription": "Nawara Core ne liste pas encore les opérateurs d’une entreprise et ne lit pas le compte d’un opérateur : cette page n’a rien à afficher.",
+      "errorTitle": "Les opérateurs n’ont pas pu être chargés",
+      "detailErrorTitle": "Cet opérateur n’a pas pu être chargé",
+      "errorDescription": "Cela ne signifie pas que quelque chose a changé. Réessayez dans un instant.",
+      "retry": "Réessayer",
+      "forbiddenDescription": "Les opérateurs et leur accès aux plateformes sont gérés par le propriétaire de l’entreprise.",
+      "notFoundTitle": "Opérateur introuvable",
+      "notFoundDescription": "Cet opérateur n’existe pas ou n’est pas un opérateur de votre entreprise."
+    },
+    "footnote": "L’accès à une plateforme est une autorité sur la plateforme et ses organisations. Ce n’est ni une adhésion à une organisation ni un rôle d’administrateur d’organisation.",
+    "later": {
+      "directory": "Lecture seule : la création d’opérateurs, l’octroi ou le retrait d’un accès et le blocage arrivent dans des versions ultérieures d’Admin."
+    },
+    "detail": {
+      "eyebrow": "Opérateur de plateforme",
+      "back": "Retour aux opérateurs",
+      "active": "Actif",
+      "removedBadge": "Retiré",
+      "given": "Accordé le {{date}}",
+      "removedOn": "Retiré le {{date}}",
+      "byOwner": "L’accès aux plateformes est accordé et retiré par le propriétaire de l’entreprise ; Nawara Core enregistre quand et par qui.",
+      "current": {
+        "title": "Accès actuel aux plateformes",
+        "hint": "L’opérateur peut agir dès maintenant sur ces plateformes et leurs organisations.",
+        "none": "Aucun accès actuel : l’opérateur peut se connecter, mais n’agit sur aucune plateforme.",
+        "noneBlocked": "Aucun accès actuel à une plateforme."
+      },
+      "removed": {
+        "title": "Accès retirés",
+        "hint": "Les accès antérieurs, conservés dans l’historique. Ils n’accordent rien.",
+        "none": "Aucun accès retiré."
+      },
+      "history": {
+        "loading": "Chargement des accès aux plateformes…",
+        "error": "Les accès aux plateformes n’ont pas pu être chargés.",
+        "notInBuild": "L’historique des accès n’est pas disponible dans cette version.",
+        "elsewhere": "Les accès aux plateformes ne sont pas affichés pour le moment."
+      },
+      "account": {
+        "title": "Compte",
+        "email": "E-mail",
+        "phone": "Téléphone",
+        "state": "État du compte (démo)",
+        "added": "Ajouté le",
+        "provisional": "Démo uniquement : Nawara Core conserve l’état du compte d’un opérateur mais ne le montre pas encore à Admin."
+      },
+      "stateDescription": {
+        "canSignIn": "Son contact est confirmé et le compte n’est pas bloqué : il se connecte avec un code de travail.",
+        "awaitingConfirmation": "Il n’a pas encore confirmé son contact : il ne peut pas obtenir de code de travail. Un accès peut tout de même lui être accordé.",
+        "blocked": "Le propriétaire a bloqué ce compte : la connexion est refusée et ses sessions ont pris fin. Le blocage conserve les accès tels quels."
+      },
+      "authority": {
+        "title": "Ce que signifie l’accès à une plateforme",
+        "body": "Un opérateur attribué peut agir sur cette plateforme et ses organisations, dès sa requête suivante. Ce n’est ni une adhésion à une organisation ni un rôle d’administrateur d’organisation, et cela ne donne aucun accès à l’échelle de l’entreprise."
+      },
+      "later": {
+        "title": "Modifications de cet opérateur",
+        "intro": "Non disponibles dans cette version d’Admin :",
+        "grant": "Accorder l’accès à une plateforme (pris en charge par Nawara Core).",
+        "remove": "Retirer un accès (pris en charge par Nawara Core).",
+        "block": "Bloquer ou débloquer le compte (pris en charge par Nawara Core).",
+        "create": "Créer un opérateur (pris en charge par Nawara Core).",
+        "resend": "Envoyer un nouveau code de confirmation (pas encore pris en charge par Nawara Core)."
+      }
     }
   }
 }

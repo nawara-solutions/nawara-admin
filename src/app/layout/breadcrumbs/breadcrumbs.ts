@@ -19,6 +19,24 @@ import { NwIcon } from '../../shared/ui/icon/icon';
 /** Route data key: the catalog key of the page's last breadcrumb ("Overview"). */
 export const BREADCRUMB_DATA = 'breadcrumb';
 
+/** Route data key: the company-scope page above it, as `{ key, link }` ("Operators & access" above "Operator"). */
+export const BREADCRUMB_PARENT_DATA = 'breadcrumbParent';
+
+interface PageCrumbs {
+  readonly key: string;
+  readonly parent: { readonly key: string; readonly link: string } | null;
+}
+
+const parentOf = (value: unknown): PageCrumbs['parent'] =>
+  typeof value === 'object' &&
+  value !== null &&
+  'key' in value &&
+  typeof value.key === 'string' &&
+  'link' in value &&
+  typeof value.link === 'string'
+    ? { key: value.key, link: value.link }
+    : null;
+
 interface Crumb {
   readonly label: string;
   readonly translate: boolean;
@@ -55,7 +73,9 @@ export class Breadcrumbs {
         let route = this.route.snapshot;
         while (route.firstChild) route = route.firstChild;
         const key: unknown = route.data[BREADCRUMB_DATA];
-        return typeof key === 'string' ? key : null;
+        return typeof key === 'string'
+          ? ({ key, parent: parentOf(route.data[BREADCRUMB_PARENT_DATA]) } satisfies PageCrumbs)
+          : null;
       }),
     ),
     { initialValue: null },
@@ -125,6 +145,10 @@ export class Breadcrumbs {
       ];
     }
     const page = this.pageKey();
-    return page ? [company, { label: page, translate: true }] : [company];
+    if (page === null) return [company];
+    const parent: Crumb[] = page.parent
+      ? [{ label: page.parent.key, translate: true, link: page.parent.link }]
+      : [];
+    return [company, ...parent, { label: page.key, translate: true }];
   });
 }

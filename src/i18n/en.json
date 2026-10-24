@@ -207,7 +207,9 @@
     "organizations": "Organizations",
     "organization": "Organization",
     "members": "Members",
-    "membership": "Membership"
+    "membership": "Membership",
+    "operators": "Operators & access",
+    "operator": "Operator"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -226,7 +228,9 @@
       "organizations": "Organizations",
       "organization": "Organization",
       "members": "Members",
-      "membership": "Membership"
+      "membership": "Membership",
+      "operators": "Operators & access",
+      "operator": "Operator"
     },
     "context": {
       "label": "Administration scope",
@@ -1230,6 +1234,7 @@
       "operatorRequestLimited": "Simulates too many requests",
       "operatorVerifyLimited": "Simulates too many attempts",
       "operatorUnavailable": "Simulates an unavailable service",
+      "operatorBlocked": "Operator blocked by the owner: sign-in is refused",
       "newOperators": "New operators (contact confirmation)",
       "confirmationCode": "Confirmation code",
       "operatorNew": "New operator, contact not confirmed"
@@ -1325,6 +1330,130 @@
     "appearance": {
       "title": "Appearance",
       "subtitle": "Choose how Nawara Admin looks in this browser."
+    }
+  },
+  "operators": {
+    "demoExplanation": "Demo data: fictional operators and Platform access. Nawara Core does not list operators yet.",
+    "header": {
+      "eyebrow": "Company",
+      "title": "Operators & access",
+      "subtitle": "Your company’s Platform operators and the Platforms each one can act on."
+    },
+    "provisional": "Provisional view: Nawara Core does not list a company’s operators or show their account state yet. This list is demo data.",
+    "totals": {
+      "label": "Operator totals",
+      "operators": "Operators",
+      "assignments": "Active Platform assignments",
+      "withoutAccess": "Without Platform access"
+    },
+    "list": {
+      "label": "Operators",
+      "operator": "Operator",
+      "platforms": "Active Platforms",
+      "state": "Account (demo)",
+      "added": "Added",
+      "unknownPlatform": "Platform",
+      "noPlatform": "No Platform access"
+    },
+    "toolbar": {
+      "searchLabel": "Search operators by email or phone",
+      "searchPlaceholder": "Search by email or phone",
+      "clear": "Clear the search",
+      "platform": "Platform",
+      "state": "Account (demo)",
+      "sort": "Sort",
+      "count": "Showing {{shown}} of {{total}}"
+    },
+    "platformFilter": {
+      "any": "All Platforms",
+      "none": "No Platform access"
+    },
+    "stateFilter": {
+      "any": "Any account state"
+    },
+    "state": {
+      "canSignIn": "Can sign in",
+      "awaitingConfirmation": "Contact to confirm",
+      "blocked": "Blocked"
+    },
+    "sort": {
+      "contact": "Email or phone (A–Z)",
+      "platforms": "Most Platforms",
+      "newest": "Newest first"
+    },
+    "states": {
+      "loading": "Loading operators",
+      "detailLoading": "Loading the operator",
+      "noResultsTitle": "No operator matches",
+      "noResultsDescription": "Check the spelling, or change the filters.",
+      "clearFilters": "Clear the search and filters",
+      "emptyTitle": "No operators yet",
+      "emptyDescription": "Your company has no Platform operators. Creating operators comes in a later version of Admin.",
+      "notInBuildTitle": "Not available in this build",
+      "notInBuildDescription": "Nawara Core does not list a company’s operators or read one operator’s account yet, so this page has nothing to show.",
+      "errorTitle": "Operators could not be loaded",
+      "detailErrorTitle": "This operator could not be loaded",
+      "errorDescription": "This does not mean anything changed. Try again in a moment.",
+      "retry": "Try again",
+      "forbiddenDescription": "Operators and their Platform access are managed by the Company owner.",
+      "notFoundTitle": "Operator not found",
+      "notFoundDescription": "This operator does not exist, or is not one of your company’s operators."
+    },
+    "footnote": "Platform access is authority on a Platform and its organizations. It is not an organization membership or an organization admin role.",
+    "later": {
+      "directory": "Read only: creating operators, giving or removing Platform access and blocking come in later versions of Admin."
+    },
+    "detail": {
+      "eyebrow": "Platform operator",
+      "back": "Back to operators",
+      "active": "Active",
+      "removedBadge": "Removed",
+      "given": "Given on {{date}}",
+      "removedOn": "Removed on {{date}}",
+      "byOwner": "Platform access is given and removed by the Company owner; Nawara Core records when, and by whom.",
+      "current": {
+        "title": "Current Platform access",
+        "hint": "The operator can act on these Platforms and their organizations now.",
+        "none": "No current Platform access: the operator can sign in, but can act on no Platform.",
+        "noneBlocked": "No current Platform access."
+      },
+      "removed": {
+        "title": "Removed access",
+        "hint": "Earlier Platform access, kept in the history. It grants nothing.",
+        "none": "No removed Platform access."
+      },
+      "history": {
+        "loading": "Loading the Platform access…",
+        "error": "The Platform access could not be loaded.",
+        "notInBuild": "The Platform access history is not available in this build.",
+        "elsewhere": "The Platform access is not shown right now."
+      },
+      "account": {
+        "title": "Account",
+        "email": "Email",
+        "phone": "Phone",
+        "state": "Account state (demo)",
+        "added": "Added",
+        "provisional": "Demo only: Nawara Core keeps an operator’s account state but does not show it to Admin yet."
+      },
+      "stateDescription": {
+        "canSignIn": "Their contact is confirmed and the account is not blocked: they sign in with a working code.",
+        "awaitingConfirmation": "They have not confirmed their contact yet, so they cannot get a working code. Platform access can be given all the same.",
+        "blocked": "The owner blocked this account: sign-in is refused and their sessions ended. Blocking keeps Platform access as it is."
+      },
+      "authority": {
+        "title": "What Platform access means",
+        "body": "An assigned operator can act on that Platform and its organizations, from their next request. It is not an organization membership or an organization admin role, and it gives no company-wide access."
+      },
+      "later": {
+        "title": "Changes to this operator",
+        "intro": "Not available in this version of Admin:",
+        "grant": "Give access to a Platform (supported by Nawara Core).",
+        "remove": "Remove Platform access (supported by Nawara Core).",
+        "block": "Block or unblock the account (supported by Nawara Core).",
+        "create": "Create an operator (supported by Nawara Core).",
+        "resend": "Send a new confirmation code (not supported by Nawara Core yet)."
+      }
     }
   }
 }

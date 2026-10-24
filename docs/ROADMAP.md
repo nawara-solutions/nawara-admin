@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -289,6 +289,21 @@ the frontend only and shows "sign-in not available": no mock authentication, dem
 stylesheet budget warnings were resolved by component decomposition (Platforms page header; sign-in brand panel and demo
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
+
+## P6-S1: read-only Operators & access (Core verified in P6-S0 at `750eb21`; implemented 2026-10-24)
+
+**Status: implemented, awaiting review; a development-only mock prototype. Production Operator directory integration is
+NOT complete** (Core has no directory, CF-03). Design: [`design/p6-operators-and-access.md`](design/p6-operators-and-access.md).
+
+- The owner's "Operators & access" (`/operators`): every operator with active Platforms, demo account state and totals;
+  local search by email or phone; Platform, account-state and sort filters in the URL; table and cards.
+- Operator details (`/operators/:operatorId`): current Platform access and removed access apart, with dates; the account
+  as demo data; what Platform access means; the later changes listed as information only (no control).
+- Owner only, direct URLs included; an unknown or foreign operator is "not found"; no operator change of any kind.
+- Demo world: operator accounts and an append-only assignment history (8 records, 5 active: every existing count and
+  grant unchanged); a blocked demo operator whose sign-in is refused.
+- Implemented in Core, not yet in Admin: grant / remove Platform access (P6-S2), block / unblock (P6-S3), create
+  operator (P6-S4). Core follow-ups: CF-03, CF-16, CF-32 to CF-34.
 
 ## P5-S4: member account suspension and restoration — DEFERRED / BLOCKED BY CORE (2026-10-24)
 

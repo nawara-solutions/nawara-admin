@@ -11,8 +11,10 @@ import {
   AdminInvitationRecord,
   MembershipRecord,
   DemoWorldTables,
+  OperatorProfileRecord,
   OrganizationRecord,
   OrganizationSubscriptionRecord,
+  PlatformAssignmentRecord,
 } from './records';
 
 /**
@@ -140,20 +142,45 @@ export function growthSeries(
 
 // ── Access: identities and Platform assignments ───────────────────────────────────────────────────────────────────
 
+/** Whether an assignment grants authority now: Core's `active`, never a removed record of the history. */
+export const isActiveAssignment = (assignment: PlatformAssignmentRecord): boolean =>
+  assignment.revokedAt === null;
+
+/** The assignments that grant authority now (the history keeps the removed ones too). */
+export const activeAssignments = (world: DemoWorldTables): readonly PlatformAssignmentRecord[] =>
+  world.assignments.filter(isActiveAssignment);
+
 export const assignmentsOf = (world: DemoWorldTables, platform: PlatformId) =>
-  world.assignments.filter((a) => a.platformId === platform);
+  activeAssignments(world).filter((a) => a.platformId === platform);
 
 export const assignedPlatformsOf = (
   world: DemoWorldTables,
   operator: AdminIdentityId,
 ): readonly PlatformId[] =>
-  world.assignments.filter((a) => a.operatorId === operator).map((a) => a.platformId);
+  activeAssignments(world)
+    .filter((a) => a.operatorId === operator)
+    .map((a) => a.platformId);
 
 export const uniqueAssignedOperators = (world: DemoWorldTables): number =>
-  new Set(world.assignments.map((a) => a.operatorId)).size;
+  new Set(activeAssignments(world).map((a) => a.operatorId)).size;
 
 export const platformsWithOperators = (world: DemoWorldTables): number =>
-  new Set(world.assignments.map((a) => a.platformId)).size;
+  new Set(activeAssignments(world).map((a) => a.platformId)).size;
+
+/** An operator's account, or `undefined` for an id that is not one of the Company's operators. */
+export const operatorProfileOf = (
+  world: DemoWorldTables,
+  operator: AdminIdentityId,
+): OperatorProfileRecord | undefined => world.operators.find((o) => o.id === operator);
+
+/** An operator's whole assignment history, oldest first (Core orders by `assignedAt`), active and removed. */
+export const assignmentHistoryOf = (
+  world: DemoWorldTables,
+  operator: AdminIdentityId,
+): readonly PlatformAssignmentRecord[] =>
+  world.assignments
+    .filter((a) => a.operatorId === operator)
+    .sort((a, b) => a.assignedAt.localeCompare(b.assignedAt) || a.id.localeCompare(b.id));
 
 /**
  * What Core's `/auth/grants` would answer for a business identity, from the records, live: the Company it owns, or the

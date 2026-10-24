@@ -37,6 +37,7 @@ const DEMO_BINDINGS_STUB: DemoBindings = {
     organizationCommands: [],
     adminInvitations: [],
     memberships: [],
+    operators: [],
     stepUp: [],
   },
 };
@@ -109,5 +110,13 @@ describe('access guards (navigation controls, not security)', () => {
   it('keeps an operator out of the Company overview', () => {
     setUp(operator);
     expect(path(run(capabilityGuard('company.overview.view')))).toBe('/forbidden');
+  });
+
+  it('opens Operators & access to the owner only, direct URLs included (P6-S1)', () => {
+    setUp(owner);
+    expect(run(capabilityGuard('company.operators.view'))).toBe(true);
+    TestBed.resetTestingModule();
+    setUp(operator);
+    expect(path(run(capabilityGuard('company.operators.view')))).toBe('/forbidden');
   });
 });

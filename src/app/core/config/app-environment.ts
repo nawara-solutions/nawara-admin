@@ -18,6 +18,7 @@ export type DemoDomain =
   | 'organizationCommands'
   | 'adminInvitations'
   | 'memberships'
+  | 'operators'
   | 'stepUp';
 
 /** The fictional accounts a demo build's sign-in page lists, so a reviewer can sign in (catalog keys for roles). */

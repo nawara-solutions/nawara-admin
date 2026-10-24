@@ -1,0 +1,188 @@
+@let view = facade.view();
+<header
+  adm-operators-header
+  [eyebrow]="'operators.header.eyebrow' | transloco"
+  [heading]="'operators.header.title' | transloco"
+>
+  <p headerMeta class="operator-directory__subtitle">
+    {{ 'operators.header.subtitle' | transloco }}
+  </p>
+</header>
+
+@switch (view.status) {
+  @case ('ready') {
+    @let totals = facade.totals();
+    <p class="operator-directory__provisional" role="note">
+      <nw-icon name="info" size="sm" />
+      <span>{{ 'operators.provisional' | transloco }}</span>
+    </p>
+    @if (totals) {
+      <dl
+        class="operator-directory__totals"
+        [attr.aria-label]="'operators.totals.label' | transloco"
+      >
+        <div class="operator-directory__total">
+          <dt>{{ 'operators.totals.operators' | transloco }}</dt>
+          <dd>{{ totals.operators }}</dd>
+        </div>
+        <div class="operator-directory__total">
+          <dt>{{ 'operators.totals.assignments' | transloco }}</dt>
+          <dd>{{ totals.assignments }}</dd>
+        </div>
+        <div class="operator-directory__total">
+          <dt>{{ 'operators.totals.withoutAccess' | transloco }}</dt>
+          <dd>{{ totals.withoutAccess }}</dd>
+        </div>
+      </dl>
+    }
+
+    <section class="operator-directory__card" aria-labelledby="operator-directory-label">
+      <h2 id="operator-directory-label" class="nw-visually-hidden">
+        {{ 'operators.list.label' | transloco }}
+      </h2>
+      @let query = facade.query();
+      <div class="operator-directory__toolbar" role="search">
+        <label class="operator-directory__search">
+          <nw-icon name="search" size="sm" />
+          <span class="nw-visually-hidden">{{ 'operators.toolbar.searchLabel' | transloco }}</span>
+          <input
+            class="operator-directory__search-input"
+            type="search"
+            autocomplete="off"
+            aria-controls="operator-directory-list"
+            [placeholder]="'operators.toolbar.searchPlaceholder' | transloco"
+            [value]="facade.search()"
+            (input)="onSearch($event)"
+          />
+          @if (facade.search()) {
+            <button
+              type="button"
+              class="operator-directory__clear"
+              [attr.aria-label]="'operators.toolbar.clear' | transloco"
+              (click)="facade.search.set('')"
+            >
+              <nw-icon name="x" size="sm" />
+            </button>
+          }
+        </label>
+        <nw-form-field
+          class="operator-directory__select"
+          [label]="'operators.toolbar.platform' | transloco"
+        >
+          <select nwControl data-filter="platform" (change)="onPlatform($event)">
+            <option value="any" [selected]="query.platform === 'any'">
+              {{ 'operators.platformFilter.any' | transloco }}
+            </option>
+            @for (platform of facade.platforms(); track platform.id) {
+              <option [value]="platform.id" [selected]="query.platform === platform.id">
+                {{ platform.name }}
+              </option>
+            }
+            <option value="none" [selected]="query.platform === 'none'">
+              {{ 'operators.platformFilter.none' | transloco }}
+            </option>
+          </select>
+        </nw-form-field>
+        <nw-form-field
+          class="operator-directory__select"
+          [label]="'operators.toolbar.state' | transloco"
+        >
+          <select nwControl data-filter="state" (change)="onState($event)">
+            @for (filter of stateFilters; track filter) {
+              <option [value]="filter" [selected]="filter === query.state">
+                {{ stateFilterKeys[filter] | transloco }}
+              </option>
+            }
+          </select>
+        </nw-form-field>
+        <nw-form-field
+          class="operator-directory__select"
+          [label]="'operators.toolbar.sort' | transloco"
+        >
+          <select nwControl data-filter="sort" (change)="onSort($event)">
+            @for (sort of sorts; track sort) {
+              <option [value]="sort" [selected]="sort === query.sort">
+                {{ sortKeys[sort] | transloco }}
+              </option>
+            }
+          </select>
+        </nw-form-field>
+        <p class="operator-directory__count" role="status" aria-live="polite">
+          {{
+            'operators.toolbar.count'
+              | transloco: { shown: facade.rows().length, total: view.operators.length }
+          }}
+        </p>
+      </div>
+
+      @if (facade.rows().length > 0) {
+        <adm-operator-list
+          listId="operator-directory-list"
+          [rows]="facade.rows()"
+          [platformName]="platformName"
+        />
+      } @else {
+        <div id="operator-directory-list">
+          <nw-data-state
+            state="empty"
+            [title]="'operators.states.noResultsTitle' | transloco"
+            [description]="'operators.states.noResultsDescription' | transloco"
+          >
+            @if (facade.filtered()) {
+              <div nwDataStateActions>
+                <button nw-button variant="secondary" type="button" (click)="facade.clearFilters()">
+                  {{ 'operators.states.clearFilters' | transloco }}
+                </button>
+              </div>
+            }
+          </nw-data-state>
+        </div>
+      }
+      <p class="operator-directory__footnote">
+        <nw-icon name="info" size="sm" />
+        <span>{{ 'operators.footnote' | transloco }}</span>
+      </p>
+    </section>
+    <p class="operator-directory__later" role="note">
+      <nw-icon name="circle-alert" size="sm" />
+      <span>{{ 'operators.later.directory' | transloco }}</span>
+    </p>
+  }
+  @case ('empty') {
+    <nw-data-state
+      state="empty"
+      [title]="'operators.states.emptyTitle' | transloco"
+      [description]="'operators.states.emptyDescription' | transloco"
+    />
+  }
+  @case ('notInBuild') {
+    <nw-data-state
+      state="empty"
+      [title]="'operators.states.notInBuildTitle' | transloco"
+      [description]="'operators.states.notInBuildDescription' | transloco"
+    />
+  }
+  @case ('error') {
+    <nw-data-state
+      state="error"
+      [title]="'operators.states.errorTitle' | transloco"
+      [description]="'operators.states.errorDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'operators.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('forbidden') {
+    <nw-data-state
+      state="empty"
+      [title]="'shell.pages.forbidden.title' | transloco"
+      [description]="'operators.states.forbiddenDescription' | transloco"
+    />
+  }
+  @default {
+    <nw-data-state state="loading" [title]="'operators.states.loading' | transloco" />
+  }
+}

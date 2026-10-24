@@ -1,0 +1,71 @@
+<div [id]="listId()">
+  <table class="operator-list__table">
+    <caption class="nw-visually-hidden">
+      {{
+        'operators.list.label' | transloco
+      }}
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">{{ 'operators.list.operator' | transloco }}</th>
+        <th scope="col">{{ 'operators.list.platforms' | transloco }}</th>
+        <th scope="col">{{ 'operators.list.state' | transloco }}</th>
+        <th scope="col">{{ 'operators.list.added' | transloco }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track row.id) {
+        <tr>
+          <th scope="row">
+            <ng-container *ngTemplateOutlet="link; context: { $implicit: row }" />
+          </th>
+          <td><ng-container *ngTemplateOutlet="platforms; context: { $implicit: row }" /></td>
+          <td>
+            <nw-status-badge [tone]="state[row.accountState].tone">{{
+              state[row.accountState].key | transloco
+            }}</nw-status-badge>
+          </td>
+          <td>{{ row.createdAt | nwDate: 'date' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  <ul class="operator-list__cards" role="list">
+    @for (row of rows(); track row.id) {
+      <li class="operator-list__card">
+        <ng-container *ngTemplateOutlet="link; context: { $implicit: row }" />
+        <ng-container *ngTemplateOutlet="platforms; context: { $implicit: row }" />
+        <span class="operator-list__meta">
+          <nw-status-badge [tone]="state[row.accountState].tone">{{
+            state[row.accountState].key | transloco
+          }}</nw-status-badge>
+          <span>{{ 'operators.list.added' | transloco }} {{ row.createdAt | nwDate: 'date' }}</span>
+        </span>
+      </li>
+    }
+  </ul>
+</div>
+
+<ng-template #link let-row>
+  <a class="operator-list__link" [routerLink]="path(row.id)">
+    <bdi dir="ltr" translate="no">{{ contact(row.contact) }}</bdi>
+  </a>
+</ng-template>
+
+<ng-template #platforms let-row>
+  @if (row.activePlatformIds.length > 0) {
+    <ul
+      class="operator-list__pills"
+      role="list"
+      [attr.aria-label]="'operators.list.platforms' | transloco"
+    >
+      @for (id of row.activePlatformIds; track id) {
+        <li class="operator-list__pill">
+          <bdi>{{ platformName()(id) ?? ('operators.list.unknownPlatform' | transloco) }}</bdi>
+        </li>
+      }
+    </ul>
+  } @else {
+    <span class="operator-list__none">{{ 'operators.list.noPlatform' | transloco }}</span>
+  }
+</ng-template>

@@ -45,7 +45,97 @@ export const DEMO_OPERATOR_IDS = {
   unassigned: adminIdentityId(`${USER}14`),
   /** Created by the owner, contact not confirmed yet: assigned all the same (confirmation is not assignment). */
   awaitingConfirmation: adminIdentityId(`${USER}18`),
+  /** Blocked by the owner after their Drive access was removed: staff, but with no sign-in account in the demo. */
+  blocked: adminIdentityId(`${USER}21`),
 } as const;
+
+type DemoOperatorKey = keyof typeof DEMO_OPERATOR_IDS;
+
+/** An operator's one contact (Core: exactly one email or one phone). */
+export type DemoOperatorContact = { readonly email: string } | { readonly phone: string };
+
+/**
+ * The operators' FICTIONAL contacts: reserved `.invalid` emails and the unassigned `+999` country code. The sign-in
+ * fixtures read the staff operators' contacts from here (core/auth/auth.fixtures.ts), so there is one source.
+ */
+export const DEMO_OPERATOR_CONTACTS: Readonly<Record<DemoOperatorKey, DemoOperatorContact>> = {
+  school: { email: 'operator.school@demo.nawara.invalid' },
+  multi: { email: 'operator.multi@demo.nawara.invalid' },
+  phone: { phone: '+99900000001' },
+  unassigned: { email: 'operator.unassigned@demo.nawara.invalid' },
+  awaitingConfirmation: { email: 'operator.new@demo.nawara.invalid' },
+  blocked: { email: 'operator.blocked@demo.nawara.invalid' },
+};
+
+/** Whether each operator's contact starts confirmed (Core issues working codes only to confirmed operators). */
+export const DEMO_OPERATOR_CONFIRMED: Readonly<Record<DemoOperatorKey, boolean>> = {
+  school: true,
+  multi: true,
+  phone: true,
+  unassigned: true,
+  awaitingConfirmation: false,
+  blocked: true,
+};
+
+/** When each operator's account was created, in hours before the clock (its contact confirmed one hour later). */
+const OPERATOR_CREATED_HOURS_AGO: Readonly<Record<DemoOperatorKey, number>> = {
+  school: 200 * 24,
+  multi: 170 * 24,
+  phone: 220 * 24,
+  unassigned: 165 * 24,
+  awaitingConfirmation: 76,
+  blocked: 120 * 24,
+};
+
+/**
+ * The assignment history (append-only, like Core's): who was given which Platform, when, and when it was removed. Only
+ * the active ones count anywhere (5 assignments, 4 operators): the phone operator's Drive access was removed, then given
+ * again (a new record); the unassigned and the blocked operators kept only removed ones.
+ */
+const ASSIGNMENTS: readonly {
+  readonly n: number;
+  readonly operator: DemoOperatorKey;
+  readonly platformId: PlatformId;
+  readonly assignedHoursAgo: number;
+  readonly revokedHoursAgo?: number;
+}[] = [
+  {
+    n: 1,
+    operator: 'phone',
+    platformId: DEMO_DRIVE_PLATFORM_ID,
+    assignedHoursAgo: 210 * 24,
+    revokedHoursAgo: 120 * 24,
+  },
+  { n: 2, operator: 'school', platformId: DEMO_SCHOOL_PLATFORM_ID, assignedHoursAgo: 180 * 24 },
+  {
+    n: 3,
+    operator: 'unassigned',
+    platformId: DEMO_SCHOOL_PLATFORM_ID,
+    assignedHoursAgo: 160 * 24,
+    revokedHoursAgo: 30 * 24,
+  },
+  { n: 4, operator: 'multi', platformId: DEMO_SCHOOL_PLATFORM_ID, assignedHoursAgo: 150 * 24 },
+  {
+    n: 5,
+    operator: 'blocked',
+    platformId: DEMO_DRIVE_PLATFORM_ID,
+    assignedHoursAgo: 100 * 24,
+    revokedHoursAgo: 10 * 24,
+  },
+  { n: 6, operator: 'multi', platformId: DEMO_DRIVE_PLATFORM_ID, assignedHoursAgo: 90 * 24 },
+  { n: 7, operator: 'phone', platformId: DEMO_DRIVE_PLATFORM_ID, assignedHoursAgo: 60 * 24 },
+  // The seeded `operator.assigned` activity (platform-activity-s4).
+  {
+    n: 8,
+    operator: 'awaitingConfirmation',
+    platformId: DEMO_SCHOOL_PLATFORM_ID,
+    assignedHoursAgo: 75,
+  },
+];
+
+/** Stable, UUID-shaped assignment ids, like Core's. */
+const assignmentId = (n: number) =>
+  `6a2e9c40-1b3d-4e5f-8a7b-0c1d2e3f40${n.toString().padStart(2, '0')}`;
 
 const HOUR_MS = 3_600_000;
 const DAY = 24;
@@ -519,13 +609,27 @@ export function demoWorldSeed(now: number): DemoWorldTables {
       { id: DEMO_OWNER_ID, kind: 'owner' },
       ...Object.values(DEMO_OPERATOR_IDS).map((id) => ({ id, kind: 'operator' as const })),
     ],
-    assignments: [
-      { operatorId: DEMO_OPERATOR_IDS.school, platformId: S },
-      { operatorId: DEMO_OPERATOR_IDS.multi, platformId: S },
-      { operatorId: DEMO_OPERATOR_IDS.multi, platformId: D },
-      { operatorId: DEMO_OPERATOR_IDS.phone, platformId: D },
-      { operatorId: DEMO_OPERATOR_IDS.awaitingConfirmation, platformId: S },
-    ],
+    operators: (Object.keys(DEMO_OPERATOR_IDS) as DemoOperatorKey[]).map((key) => {
+      const contact = DEMO_OPERATOR_CONTACTS[key];
+      const created = OPERATOR_CREATED_HOURS_AGO[key];
+      return {
+        id: DEMO_OPERATOR_IDS[key],
+        email: 'email' in contact ? contact.email : null,
+        phone: 'phone' in contact ? contact.phone : null,
+        createdAt: at(-created),
+        contactConfirmedAt: DEMO_OPERATOR_CONFIRMED[key] ? at(-created + 1) : null,
+        blocked: key === 'blocked',
+      };
+    }),
+    assignments: ASSIGNMENTS.map((a) => ({
+      id: assignmentId(a.n),
+      operatorId: DEMO_OPERATOR_IDS[a.operator],
+      platformId: a.platformId,
+      assignedBy: DEMO_OWNER_ID,
+      assignedAt: at(-a.assignedHoursAgo),
+      revokedAt: a.revokedHoursAgo === undefined ? null : at(-a.revokedHoursAgo),
+      revokedBy: a.revokedHoursAgo === undefined ? null : DEMO_OWNER_ID,
+    })),
     subscriptions: ORGANIZATIONS.flatMap((o) =>
       o.subscriptionEndsInHours === undefined
         ? []

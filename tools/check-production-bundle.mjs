@@ -36,6 +36,10 @@ const MARKERS = [
   'membership-activity-', // demo decision activity ids (demo/world/commands/membership.commands.ts)
   'example.invalid', // synthetic member contacts (demo/world/seed-memberships.ts)
   '8c4f2e10-6b3a-4d5e-9f01-', // synthetic member identity ids (demo/world/seed-memberships.ts)
+  'OPERATOR_DIRECTORY_DEMO_SCENARIO', // provisional operator directory mock token (operator.mock.ts)
+  'OPERATOR_HISTORY_DEMO_SCENARIO', // assignment history mock token (operator.mock.ts)
+  '6a2e9c40-1b3d-4e5f-8a7b-0c1d2e3f40', // demo Platform assignment ids (demo/world/seed.ts)
+  '9e1d7c55-2a4b-4c3d-8e9f-0a1b2c3d4e', // demo owner and operator user ids (seed.ts, auth.fixtures.ts)
 ];
 
 if (!existsSync(DIST)) {

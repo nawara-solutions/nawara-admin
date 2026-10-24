@@ -63,6 +63,7 @@ export const DEMO: DemoBindings = {
     organizationCommands: [],
     adminInvitations: [],
     memberships: [],
+    operators: [],
     stepUp: [],
   },
 };

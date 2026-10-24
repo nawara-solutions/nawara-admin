@@ -33,7 +33,12 @@ export const NAVIGATION: readonly NavigationGroup[] = [
       },
       { labelKey: 'shell.nav.organizations', icon: 'building-2', requires: 'company.scope' },
       { labelKey: 'shell.nav.users', icon: 'users', requires: 'company.scope' },
-      { labelKey: 'shell.nav.operators', icon: 'shield-check', requires: 'company.scope' },
+      {
+        labelKey: 'shell.nav.operators',
+        icon: 'shield-check',
+        path: '/operators',
+        requires: 'company.operators.view',
+      },
     ],
   },
   {
