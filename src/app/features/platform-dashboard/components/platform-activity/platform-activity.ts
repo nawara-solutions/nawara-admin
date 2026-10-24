@@ -47,6 +47,10 @@ const ACTIONS = {
     key: 'platformDashboard.activity.adminRemoved',
   },
   'operator.assigned': { icon: 'shield-check', key: 'platformDashboard.activity.operatorAssigned' },
+  'operator.unassigned': {
+    icon: 'shield-off',
+    key: 'platformDashboard.activity.operatorUnassigned',
+  },
 } as const satisfies Record<
   PlatformActivityAction,
   { readonly icon: NwIconName; readonly key: string }

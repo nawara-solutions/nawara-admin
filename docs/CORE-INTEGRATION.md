@@ -294,6 +294,11 @@ Admin strategy and the decision required before A4.
     false`, supersedes every unused code (login **and confirmation**) and revokes every session; assignments are kept; unblock
     restores no session.
   - **Factors:** `operator.create`, `platform_assignment.grant` and `.revoke` accept TOTP, a passkey **or the secret key**.
+    Admin (P6-S2) offers the authenticator code only; every Admin step-up dialog does (passkey and secret-key step-up
+    need a shared factor selector, a separate work item).
+  - **Not verified:** the exact `429` answer of these routes (only the coarse per-IP throttle applies; Admin shows a
+    generic "too many requests"); `503 hierarchy_unavailable` is verified for **grant only** (Admin treats any other
+    `5xx` as unknown and reconciles).
   - **No** last-operator rule, no self-assignment (operators get `403`; the owner is never an operator); only the coarse per-IP
     throttle plus the step-up buckets apply.
 - Member security (owner + factor step-up, closed reason code): suspend / restore (`auth-service/src/members/member-security.controller.ts`).
@@ -391,7 +396,8 @@ Admin strategy and the decision required before A4.
 | Join codes / admin invitations | Auth | 🟢 Prod | `organization.controller.ts` | HTTP (A7) |
 | Organization-admin grant/revoke | Auth | 🟢 Prod | `memberships/:id/admin` | `MembershipGateway.setOrganizationAdmin(org, id, admin, { stepUpToken })`, mock in demo builds (P5-S3b); owner only, factor step-up; never resent after a lost answer; **CF-27** |
 | Operators (create/confirm/block/unblock) | Auth | 🟢 Prod (verified P6-S0, `750eb21`) | `operator.controller.ts` | **Implemented in Core, not in Admin**: create (P6-S4), block/unblock (P6-S3) are later slices |
-| Platform assignment grant / revoke | Auth | 🟢 Prod (verified P6-S0) | `platform.controller.ts` `POST/DELETE …/platform-assignments` | **Implemented in Core, not in Admin** (P6-S2) |
+| Signed-in operator's own Platform list after a change | Auth | 🟢 `GET /auth/grants` (live) | `grants.service.ts` | Admin reads it at sign-in only: a removed Platform stays in another session's list until refused or re-signed-in (Core denies the request). **P6-S2b** re-reads it |
+| Platform assignment grant / revoke | Auth | 🟢 Prod (verified P6-S0) | `platform.controller.ts` `POST/DELETE …/platform-assignments` | P6-S2: owner-only "Give access" / "Remove access" (step-up `platform_assignment.grant` / `.revoke`, spent on commit; `409` / `404` / `503` / lost answer reconcile by reloading the history, never resent) against a demo-world mock; **no HTTP adapter**; the dialog offers the authenticator code only, though Core also accepts a passkey or the secret key (shared factor selector: separate work item) |
 | Operator assignment history | Auth | 🟢 Prod (verified P6-S0) | `GET /auth/admin/operators/:id/platform-assignments` | `OperatorAssignmentGateway` in Core's shape (P6-S1); mock in demo builds, unavailable adapter otherwise: **no HTTP adapter authorized yet**, and no operator ids without a directory |
 | Operator directory and one operator's account (contact, blocked, confirmed) | Auth | 🔴 | no list or single read; documented only (ADR-0012, SDD, TDD) | `OperatorDirectoryGateway`, PROVISIONAL mock contract (P6-S1) over the demo world; production "not available"; **CF-03** |
 | Platform assignments | Auth | 🟢 Prod | `platform.controller.ts` | HTTP (A7) |

@@ -15,6 +15,9 @@ import { companyId, platformId } from '../../core/context/scope.model';
 import { loadShellRoutes } from '../../layout/shell.routes';
 import { UnavailableOperatorAssignmentGateway } from './data-access/operator-assignment.gateway';
 import { UnavailableOperatorDirectoryGateway } from './data-access/operator-directory.gateway';
+import { UnavailableStepUpGateway } from '../../core/auth/step-up.gateway';
+import { OperatorDetailFacade } from './application/operator-detail.facade';
+import { PlatformAccessAction } from './application/platform-access.action';
 import { loadOperatorsRoutes } from './operators.routes';
 
 const PRODUCTION: AppEnvironment = { production: true, demo: null };
@@ -71,7 +74,10 @@ describe('operators routes (P6-S1)', () => {
     expect(providers.map((p) => p.useClass)).toEqual([
       UnavailableOperatorDirectoryGateway,
       UnavailableOperatorAssignmentGateway,
+      UnavailableStepUpGateway,
     ]);
+    // The Platform access action lives on the detail route, with its facade.
+    expect(root?.children?.[1]?.providers).toEqual([OperatorDetailFacade, PlatformAccessAction]);
     expect(root?.children?.map((r) => r.path)).toEqual(['', ':operatorId']);
   });
 });

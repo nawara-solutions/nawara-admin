@@ -26,6 +26,7 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
       'company.overview.view',
       'company.platforms.view',
       'company.scope',
+      'operator.platformAccess.change',
       'organization.create',
       'platform.access.view',
       'platform.activity.view',
@@ -44,6 +45,8 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
     expect(can(operator, 'company.platforms.view')).toBe(false);
     // The Company's staff directory is the owner's; an operator's authority is their assignments only (P6-S1).
     expect(can(operator, 'company.operators.view')).toBe(false);
+    // Platform access is changed by the owner only (P6-S2): never by an operator, on any record.
+    expect(can(operator, 'operator.platformAccess.change')).toBe(false);
     expect(can(operator, 'platform.create')).toBe(false);
     // Core authorizes an assigned operator to create Organizations, but no operator step-up exists (CF-08).
     expect(can(operator, 'organization.create')).toBe(false);

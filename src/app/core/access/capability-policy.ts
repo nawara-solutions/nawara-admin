@@ -21,6 +21,12 @@ export type Capability =
    */
   | 'company.operators.view'
   /**
+   * Giving and removing an operator's Platform access: Core's `POST|DELETE …/operators/:id/platform-assignments` are
+   * `@Actors('owner')` with step-up `platform_assignment.grant` / `.revoke`; an operator (even on their own record) gets
+   * `403`, and memberships or the organization-admin role never confer it.
+   */
+  | 'operator.platformAccess.change'
+  /**
    * Creating a Platform: Core `POST /organization/admin/platforms` allows only the owner of the Company
    * (`canCreatePlatform`), with step-up `platform.create` and an `Idempotency-Key`.
    */
@@ -47,6 +53,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.overview.view',
   'company.platforms.view',
   'company.operators.view',
+  'operator.platformAccess.change',
   'platform.create',
   'organization.create',
   'platform.commercial.view',

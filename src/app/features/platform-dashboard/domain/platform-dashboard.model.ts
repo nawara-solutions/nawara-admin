@@ -44,7 +44,8 @@ export type PlatformActivityAction =
   | 'membership.revoked'
   | 'organization.admin.granted'
   | 'organization.admin.revoked'
-  | 'operator.assigned';
+  | 'operator.assigned'
+  | 'operator.unassigned';
 
 export interface PlatformActivityEntry {
   readonly id: string;

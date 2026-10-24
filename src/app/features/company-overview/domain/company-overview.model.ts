@@ -84,6 +84,7 @@ export type ActivityAction =
   | 'organization.created'
   | 'organization.updated'
   | 'operator.assigned'
+  | 'operator.unassigned'
   | 'admin_invitation.created'
   | 'admin_invitation.revoked'
   | 'membership.approved'

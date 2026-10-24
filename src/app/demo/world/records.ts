@@ -198,7 +198,9 @@ export interface ActivityRecord {
     | 'membership.revoked'
     | 'organization.admin.granted'
     | 'organization.admin.revoked'
-    | 'operator.assigned';
+    | 'operator.assigned'
+    /** A Platform assignment removed by the owner (P6-S2). */
+    | 'operator.unassigned';
   /** UTC instant, ISO 8601 with `Z`. */
   readonly occurredAt: string;
 }

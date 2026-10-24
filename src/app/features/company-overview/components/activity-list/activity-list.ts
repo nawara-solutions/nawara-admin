@@ -26,6 +26,11 @@ const ACTIONS = {
     accent: 'purple',
     labelKey: 'companyOverview.activity.actions.operatorAssigned',
   },
+  'operator.unassigned': {
+    icon: 'shield-off',
+    accent: 'purple',
+    labelKey: 'companyOverview.activity.actions.operatorUnassigned',
+  },
   'admin_invitation.created': {
     icon: 'mail',
     accent: 'orange',
