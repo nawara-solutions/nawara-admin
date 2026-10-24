@@ -32,16 +32,23 @@
 <adm-context-switcher class="top-bar__context" />
 <adm-preference-menus />
 
-@if (unread(); as count) {
-  <span
-    class="top-bar__bell"
-    role="img"
-    [attr.aria-label]="'shell.notifications.unread' | transloco: { count: count }"
-  >
-    <nw-icon name="bell" />
+<!-- The bell opens the signed-in person's Notifications (P8-S3); its dot and label follow the shell's one count. -->
+<a
+  class="top-bar__bell"
+  routerLink="/notifications"
+  routerLinkActive="top-bar__bell--active"
+  ariaCurrentWhenActive="page"
+  [attr.aria-label]="
+    unread()
+      ? ('shell.notifications.bellUnread' | transloco: { count: unread() })
+      : ('shell.notifications.bell' | transloco)
+  "
+>
+  <nw-icon name="bell" />
+  @if (unread()) {
     <span class="top-bar__dot"></span>
-  </span>
-}
+  }
+</a>
 @if (profile(); as person) {
   <!-- The account menu's second trigger (the sidebar profile card is the first); shown from the tablet breakpoint. -->
   <button

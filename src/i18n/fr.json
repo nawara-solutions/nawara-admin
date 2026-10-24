@@ -214,7 +214,8 @@
     "platformSubscriptions": "Abonnements de la plateforme",
     "billing": "Facturation et paiements",
     "audit": "Journal d’audit",
-    "services": "Services et santé"
+    "services": "Services et santé",
+    "notifications": "Notifications"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -240,7 +241,8 @@
       "platformSubscriptions": "Abonnements de la plateforme",
       "billing": "Facturation et paiements",
       "audit": "Journal d’audit",
-      "services": "Services et santé"
+      "services": "Services et santé",
+      "notifications": "Notifications"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -309,7 +311,9 @@
       "placeholder": "Rechercher des organisations, des utilisateurs…"
     },
     "notifications": {
-      "unread": "Notifications non lues : {{count}}"
+      "unread": "Notifications non lues : {{count}}",
+      "bell": "Notifications",
+      "bellUnread": "Notifications, {{count}} non lues"
     },
     "grantsRefresh": {
       "refreshed": "Votre accès a peut-être changé. Votre liste de plateformes a été actualisée.",
@@ -1953,6 +1957,35 @@
       "errorDescription": "Réessayez dans un instant.",
       "retry": "Réessayer",
       "forbiddenDescription": "Services et santé n’est visible que par le propriétaire de l’entreprise."
+    }
+  },
+  "notifications": {
+    "header": {
+      "eyebrow": "Personnel",
+      "title": "Notifications",
+      "subtitle": "Votre propre résumé de notifications. Vous seul le voyez."
+    },
+    "count": {
+      "label": "Notifications non lues (compte de démonstration)",
+      "note": "Un compte de démonstration issu des enregistrements de cette version, pas de Nawara Core. Les messages correspondants ne sont pas disponibles.",
+      "zero": "Aucune notification non lue n’est comptée pour vous dans cette démonstration. Cela ne signifie pas que vous n’en avez jamais reçu : l’historique des messages n’est pas disponible."
+    },
+    "inbox": {
+      "title": "Votre boîte de réception n’est pas encore disponible",
+      "body": "Nawara Core envoie des notifications mais n’offre pas encore de lecture des messages d’une personne : Admin n’affiche donc qu’un compte.",
+      "contents": "Aucun message, expéditeur ni horaire n’est affiché.",
+      "actions": "Marquer comme lu, ignorer et les préférences ne sont pas disponibles.",
+      "codes": "Les codes de connexion, de vérification et de confirmation ne sont jamais affichés ici."
+    },
+    "separate": "Les notifications ne sont ni des enregistrements d’audit ni de l’activité administrative : rien ici ne provient du journal d’activité.",
+    "states": {
+      "loading": "Chargement de vos notifications…",
+      "notInBuildTitle": "Non disponible dans cette version",
+      "notInBuildDescription": "Nawara Core n’offre pas encore de lecture de vos notifications ni d’un compte de non-lues : rien n’est affiché.",
+      "errorTitle": "Vos notifications n’ont pas pu être chargées",
+      "errorDescription": "Réessayez dans un instant.",
+      "retry": "Réessayer",
+      "forbiddenDescription": "Votre résumé de notifications n’a pas pu être lu pour cette session."
     }
   }
 }

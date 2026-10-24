@@ -135,6 +135,16 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
           },
         },
         {
+          // Notifications (P8-S3): the signed-in person's own count, for every actor; no capability decides it.
+          path: 'notifications',
+          title: 'titles.notifications',
+          data: { [BREADCRUMB_DATA]: 'shell.breadcrumb.notifications' },
+          loadChildren: () =>
+            import('../features/notifications/notifications.routes').then(
+              (m) => m.NOTIFICATIONS_ROUTES,
+            ),
+        },
+        {
           // Services & health (P8-S2): the documented Core services, company scope, the owner only, direct URLs included.
           path: 'services',
           title: 'titles.services',

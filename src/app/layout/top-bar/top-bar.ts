@@ -8,6 +8,7 @@ import {
   output,
   viewChild,
 } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthSession } from '../../core/auth/auth-session';
 import { SignOut } from '../../core/auth/sign-out';
@@ -29,6 +30,8 @@ import { profileOf } from '../sidebar/profile';
 @Component({
   selector: 'adm-top-bar',
   imports: [
+    RouterLink,
+    RouterLinkActive,
     TranslocoPipe,
     NwIcon,
     NwIconButton,

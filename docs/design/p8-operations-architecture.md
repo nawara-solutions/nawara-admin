@@ -3,8 +3,9 @@
 - **Status:** P8-0 discovery reviewed; decisions **D1–D9 approved 2026-10-24** with the clarifications in §12. **P8-S1
   implemented** 2026-10-24 as a development-only, mock-first prototype (`/audit`, simulated administrative activity,
   owner only; §13; PR #38, merged). **P8-S2 implemented** 2026-10-24 (`/services`, the documented service inventory,
-  live health unavailable; §14). **Core Audit integration and live service health are NOT implemented.** P8-S3 and
-  P8-S4 not started; monitoring and alerting deferred.
+  live health unavailable; §14; PR #39, merged). **P8-S3 implemented** 2026-10-24 (`/notifications`, personal demo
+  unread count, no inbox; §15). **Core Audit integration, live service health and a personal inbox are NOT
+  implemented.** P8-S4 not started; monitoring and alerting deferred.
 - **Baseline:** P8-0 read `main` content `a0b2d76` (PR #37). Core was **not** read: every Core fact below comes from Admin's `docs/CORE-INTEGRATION.md`
   (§3, §5 Audit / File / Notification / Release / Health, §7 matrix, §9 CF-04, CF-05, CF-06, CF-07, CF-14).
 - **Scope:** the six Operations destinations: Releases, Audit log, Files, Notifications, Services & health, Monitoring.
@@ -245,3 +246,25 @@ never given a Platform or Organization (D3); capability `company.audit.view` (D8
 - **Acceptance:** the eight services in order with their responsibilities on both views; no status word, colour, count,
   uptime, latency, incident, version, address or URL; no `fetch`/XHR and a single gateway call; owner only (guard,
   facade, mock); production binds the unavailable adapter; EN/FR/AR, RTL, themes, 320 px and keyboard in the browser.
+
+## 15. P8-S3 as built (2026-10-24)
+
+- **One count:** the shell's `NotificationIndicator` (core/notifications) is the only source of the sidebar badge, the
+  top-bar bell and the page; it now exposes its view state (`summary`) and `reload()`. Its gateway,
+  `NotificationSummaryGateway.summary()`, takes NO identity: the mock answers for the signed-in session's business
+  identity only (`unreadOf`: the declared `NotificationInboxRecord`, owner 4, operators 0), so nobody can ask for
+  another person's count. No notification record was added.
+- **Page** `/notifications` (`NotificationsFacade` over the indicator, `NotificationsPage`; no capability guard, under
+  the shell's session guard, so every signed-in owner or operator sees only their own): "Unread notifications (demo
+  count)" with the number; for 0, "No unread notifications are counted for you in this demo. That does not mean you
+  have never received one"; "Your inbox is not available yet" (no message, sender or time; no mark as read, dismiss or
+  preferences; codes are never shown); notifications are not audit or activity. Loading, error (retry), not in build,
+  forbidden. No control besides "Try again".
+- **Navigation:** the bell is now a link to `/notifications` for every actor (always shown from the tablet breakpoint;
+  label "Notifications" or "Notifications, N unread"; the dot only when N > 0; `aria-current` on the page). The owner's
+  Operations entry is a working link with its badge; an operator gets a personal entry beside Settings, never the
+  Operations group.
+- **Production:** the shell binds `UnavailableNotificationSummaryGateway`: no badge, no dot, the bell says
+  "Notifications", and the page says the read is not available in this build (CF-14).
+- **Proposed follow-ups** (CORE-INTEGRATION §9, not existing APIs): CF-44 inbox content safety; CF-48 a personal inbox
+  read with delivery, read-state and retention semantics.

@@ -76,6 +76,14 @@
 
 <div class="sidebar__footer">
   <ul class="sidebar__list" role="list">
+    @if (isOperator()) {
+      <li>
+        <ng-container
+          [ngTemplateOutlet]="entry"
+          [ngTemplateOutletContext]="{ $implicit: notifications }"
+        />
+      </li>
+    }
     <li>
       <ng-container
         [ngTemplateOutlet]="entry"
@@ -124,6 +132,7 @@
     >
       <nw-icon class="sidebar__icon" [name]="item.icon" size="lg" />
       <span class="sidebar__label">{{ item.labelKey | transloco }}</span>
+      <ng-container [ngTemplateOutlet]="badge" [ngTemplateOutletContext]="{ $implicit: item }" />
     </a>
   } @else {
     <span
@@ -132,13 +141,18 @@
     >
       <nw-icon class="sidebar__icon" [name]="item.icon" size="lg" />
       <span class="sidebar__label">{{ item.labelKey | transloco }}</span>
-      @if (item.unreadBadge && unread(); as count) {
-        <span class="sidebar__badge" aria-hidden="true">{{ count | nwNumber }}</span>
-        <span class="nw-visually-hidden">{{
-          'shell.notifications.unread' | transloco: { count: count }
-        }}</span>
-      }
+      <ng-container [ngTemplateOutlet]="badge" [ngTemplateOutletContext]="{ $implicit: item }" />
       <span class="nw-visually-hidden">({{ 'shell.notAvailableYet' | transloco }})</span>
     </span>
+  }
+</ng-template>
+
+<!-- The unread badge: the shell's one count (NotificationIndicator), shown only when positive. -->
+<ng-template #badge let-item>
+  @if (item.unreadBadge && unread(); as count) {
+    <span class="sidebar__badge" aria-hidden="true">{{ count | nwNumber }}</span>
+    <span class="nw-visually-hidden">{{
+      'shell.notifications.unread' | transloco: { count: count }
+    }}</span>
   }
 </ng-template>
