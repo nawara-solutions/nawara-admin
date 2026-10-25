@@ -12,6 +12,7 @@ import { NW_CLOCK } from '../../../shared/format/clock';
 import {
   AccountSecurity,
   AccountSecurityGateway,
+  SecretKeyIssue,
   SecurityFactor,
 } from '../data-access/account-security.gateway';
 import { AccountSecurityFacade } from './account-security.facade';
@@ -71,6 +72,9 @@ class FakeSecurity extends AccountSecurityGateway {
     const answer = new Subject<void>();
     this.confirms.push({ factorId, code, token, answer });
     return answer;
+  }
+  rotateSecretKey(): Observable<SecretKeyIssue> {
+    throw new Error('not used by adding an authenticator');
   }
 }
 

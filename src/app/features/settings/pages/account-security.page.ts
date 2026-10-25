@@ -22,9 +22,9 @@ const FACTOR_TYPES = {
  * Settings → Security (`/settings/security`, P9-S4a; docs/design/p9-s4-account-security.md), the owner only: their
  * factors (type, confirmed or an unfinished setup, when added and last used, as far as known), how factors protect
  * sensitive actions, and what recovery needs, stated without promises. Whether a secret key exists is not shown: Core
- * has no read of it (CF-54). One action (P9-S4b): "Add an authenticator app", offered only when a confirmed
- * authenticator exists to confirm it's you with (otherwise disabled, with the reason); after it, a one-time notice. No
- * seed, code, key, token or grant is ever part of what this page reads.
+ * has no read of it (CF-54). Two actions, each offered only when a confirmed authenticator exists to confirm it's you
+ * with (otherwise disabled, with the reason): "Add an authenticator app" (P9-S4b) and "Create a new secret key"
+ * (P9-S4c); after either, a one-time notice. No seed, code, key, token or grant is ever part of what this page reads.
  */
 @Component({
   selector: 'adm-account-security-page',
@@ -50,6 +50,9 @@ export class AccountSecurityPage {
   protected readonly isDemo = this.session.isDemo;
   protected readonly types = FACTOR_TYPES;
   protected readonly canAdd = computed(() => can(this.session.actor(), 'account.factor.add'));
+  protected readonly canCreateKey = computed(() =>
+    can(this.session.actor(), 'account.secret_key.rotate'),
+  );
   /** Left by the add-authenticator page, shown once. */
   protected readonly notice = this.facade.takeNotice();
 

@@ -221,6 +221,29 @@ export class DemoAuthState {
     return allowed;
   }
 
+  /**
+   * Each owner's simulated secret-key verifier (by user id; P9-S4c): a digest and when it was issued, NEVER the key.
+   * Core records, so they survive a sign-out. A fixture owner has none (Core's bootstrapped owner has no key until the
+   * first rotation, ADR-0016). Nothing reads it for a page: Core has no existence read (CF-54).
+   */
+  private readonly secretKeyVerifiers = new Map<string, DemoSecretKeyVerifier>();
+
+  /**
+   * Like Core's committed rotation (`secret-key/rotate`): the new verifier replaces any earlier one at once, so the
+   * previous key stops matching. The first key and a replacement are the same operation.
+   */
+  replaceSecretKeyVerifier(userId: string, digest: string, issuedAt: string): void {
+    this.secretKeyVerifiers.set(userId, { digest, issuedAt });
+  }
+
+  /**
+   * Whether `digest` (`demoSecretKeyDigest` of a candidate key) is the owner's CURRENT key's. `false` alike for a wrong
+   * key, an old key and no key at all. For the demo mocks and specs only; no gateway exposes it.
+   */
+  secretKeyMatches(userId: string, digest: string): boolean {
+    return this.secretKeyVerifiers.get(userId)?.digest === digest;
+  }
+
   /** Live simulated step-up grants, by token. */
   private readonly stepUps = new Map<string, DemoStepUp>();
 
@@ -274,6 +297,27 @@ export class DemoAuthState {
   }
 }
 
+/**
+ * DEMO ONLY: a simulated secret-key verifier. `digest` is a plain SHA-256 of the normalised key (`demoSecretKeyDigest`),
+ * which is NOT production-grade key protection (Core keeps an HMAC-SHA-256 with a server-side pepper); it only lets the
+ * demo model "the old key stops working". The plaintext key is never kept.
+ */
+interface DemoSecretKeyVerifier {
+  readonly digest: string;
+  /** UTC instant, ISO 8601 with `Z`. */
+  readonly issuedAt: string;
+}
+
+/**
+ * DEMO ONLY: the simulated verifier digest of a secret key, after removing separators and case (hex SHA-256, Web
+ * Crypto). Not how Core protects keys; see `DemoSecretKeyVerifier`.
+ */
+export async function demoSecretKeyDigest(key: string): Promise<string> {
+  const normalised = key.replace(/[^0-9a-z]/gi, '').toUpperCase();
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(normalised));
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 export type DemoStepUpMethod = 'totp' | 'webauthn' | 'secret_key';
 
 /**
@@ -294,6 +338,8 @@ export const DEMO_STEP_UP_METHODS: Readonly<Record<string, readonly DemoStepUpMe
   'operator.create': ['totp', 'webauthn', 'secret_key'],
   // Adding a factor (P9-S4b; Core 304064f `owner.factor.enroll`): factor only, never the secret key.
   'owner.factor.enroll': ['totp', 'webauthn'],
+  // Creating a new secret key (P9-S4c; Core 304064f `owner.secret_key.rotate`): factor only, never the secret key.
+  'owner.secret_key.rotate': ['totp', 'webauthn'],
 };
 
 const stepUpMethodAllowed = (purpose: string, method: DemoStepUpMethod) =>

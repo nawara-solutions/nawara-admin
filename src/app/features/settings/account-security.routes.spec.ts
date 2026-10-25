@@ -91,6 +91,7 @@ describe('account security routes (P9-S4a)', () => {
       unavailable.load(),
       unavailable.beginTotp(),
       unavailable.confirmTotp(),
+      unavailable.rotateSecretKey(),
     ];
     for (const answer of answers)
       await expect(firstValueFrom(answer)).rejects.toMatchObject({
@@ -123,5 +124,39 @@ describe('add an authenticator route (P9-S4b)', () => {
     expect(guardResult(route, owner)).toBe(true);
     TestBed.resetTestingModule();
     expect(guardResult(route, operator)).toBe('/forbidden');
+  });
+});
+
+describe('create a new secret key route (P9-S4c)', () => {
+  async function keyRoute(): Promise<Route> {
+    const [root] = await loadAccountSecurityRoutes(PRODUCTION);
+    const route = root?.children?.find((r) => r.path === 'secret-key');
+    if (!route) throw new Error('no secret-key route');
+    return route;
+  }
+
+  it('is a dedicated page below Security, with no identity or secret in its path', async () => {
+    const route = await keyRoute();
+    expect(route.title).toBe('titles.settingsSecretKey');
+    expect(route.path).not.toMatch(/[:?#]/);
+    expect(route.data?.[BREADCRUMB_PARENT_DATA]).toEqual({
+      key: 'shell.breadcrumb.security',
+      link: '/settings/security',
+    });
+  });
+
+  it('has its own owner-only guard (account.secret_key.rotate): an operator assigned everywhere gets /forbidden', async () => {
+    const route = await keyRoute();
+    expect(guardResult(route, owner)).toBe(true);
+    TestBed.resetTestingModule();
+    expect(guardResult(route, operator)).toBe('/forbidden');
+  });
+
+  it('asks the page before leaving it (the unsaved-key guard)', async () => {
+    const route = await keyRoute();
+    const guards = (route.canDeactivate ?? []) as ((page: { canLeave(): unknown }) => unknown)[];
+    expect(guards).toHaveLength(1);
+    const page = { canLeave: () => 'asked' };
+    expect(guards[0]?.(page)).toBe('asked');
   });
 });

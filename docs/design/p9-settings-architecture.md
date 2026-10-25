@@ -7,10 +7,11 @@
   owner's read-only Company settings (`/settings/company`, §13; PR #44, merged). **P9-S4-0** verified the owner
   security contracts (2026-10-25) and **P9-S4a implemented** the owner's read-only Security overview
   (`/settings/security`, PR #45, merged); **P9-S4b implemented** 2026-10-25, mock-first, adding an authenticator app
-  (`/settings/security/add-authenticator`): see [`p9-s4-account-security.md`](p9-s4-account-security.md) §10.
-  **P9-S4c to S4e and P9-S5 are planned, each separately authorized**; P9-S5 stays contract-gated (S5-0). No Company or
-  Platform setting can be changed; the only security change is the demo-mocked authenticator addition; no Core account,
-  Company or Auth route is integrated (CF-49 open).
+  (`/settings/security/add-authenticator`, PR #46, merged): see [`p9-s4-account-security.md`](p9-s4-account-security.md)
+  §10; **P9-S4c implemented** 2026-10-25, mock-first, creating a new secret key (`/settings/security/secret-key`, §11
+  there). **P9-S4d, S4e and P9-S5 are planned, each separately authorized**; P9-S5 stays contract-gated (S5-0). No
+  Company or Platform setting can be changed; the only security changes are the demo-mocked authenticator addition and
+  secret-key creation; no Core account, Company or Auth route is integrated (CF-49 open).
 - **Baseline:** P9-0 read `main` `d0bce78` (PR #41). Core was **not** read: every Core fact below comes from Admin's
   `docs/CORE-INTEGRATION.md` (§3, §4, §5, §7, §9).
 - **Scope:** personal preferences, the signed-in person's account and security, Company configuration and Platform
@@ -141,7 +142,8 @@ sections; each later slice adds its section to it only when built.
 | **P9-S4-0** ✅ | read-only Core verification of factor management, secret key and password contracts ([p9-s4-account-security.md](p9-s4-account-security.md)) | D6 |
 | **P9-S4a** ✅ | `/settings/security` read only: factors, step-up and recovery explained; Company Overview link enabled | S4-0 |
 | **P9-S4b** ✅ | `/settings/security/add-authenticator`: mock-first add an authenticator app (begin, the new app's code, step-up `owner.factor.enroll`, confirm; reconciliation by the factor list); shared `nw-totp-setup` | S4a, D7 |
-| P9-S4c…e | mock commands, one per slice: rotate secret key, remove a factor, change password | S4a, D7, D10 |
+| **P9-S4c** ✅ | `/settings/security/secret-key`: mock-first "Create a new secret key" (the first or a replacement; step-up `owner.secret_key.rotate`; shown once, masked; a local group check and "saved" before Done; unknown outcomes never resent; leave guards) | S4a, D7, D10 |
+| P9-S4d…e | mock commands, one per slice: remove a factor, change password | S4a, D7, D10 |
 | P9-S5-0 / S5 | verify the Platform PATCH contract, then `/platforms/:platformId/settings`: identity, owner-only mock rename, policies read only | D5, D6 |
 
 ## 10. Risks and acceptance

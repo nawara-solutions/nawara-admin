@@ -590,6 +590,26 @@ account ([`design/p9-s4-account-security.md`](design/p9-s4-account-security.md) 
 - **Errors:** `AppError`'s `validation` kind carries Core's optional `code` (§9), so `verification_failed` and
   `validation_error` can be told apart where a flow must.
 
+**A one-time secret with no read-back (P9-S4c, 2026-10-25): create a new secret key**, Auth-owned, the Company owner's own
+account ([`design/p9-s4-account-security.md`](design/p9-s4-account-security.md) §11):
+
+- **Not an `ActionRun`.** Its "Try again" resends after an unknown outcome, and it reports a detached answer by toast
+  after the page is left; a key returned once allows neither. A page-scoped `SecretKeyFacade` (idle, checking, intro,
+  verifying, creating, shown, checked, rateLimited, unknown, done, cancelled, abandoned, refused, notInBuild,
+  noAuthenticator, loadFailed) reuses `StepUpGateway` and the factor list (eligibility only).
+- **Definite vs uncertain.** Only `401`, `403` and `429` mean nothing changed. Anything else, a success without a usable
+  key included, may have committed: the old key is not assumed valid, nothing is resent, and only a completely new flow
+  (warning, acknowledgement, a new grant) can follow. No read is used to guess, since Core has none (CF-54).
+- **Presentation.** Masked first; Reveal, Hide and Copy are explicit; the key renders left to right in every locale and
+  is read group by group. Done needs a group typed back while hidden (local only) AND "I've saved it".
+- **Leave guard (first use of `canDeactivate`).** The route asks the page (`canLeave()`); while the key is held or being
+  created it opens an alertdialog (focus on "Stay"); the page also answers `beforeunload`. A changed session is checked
+  first, so a sign-out never asks. Navigation cannot always be prevented (browser or system shutdown), and nothing is
+  kept to recover from it.
+- **Secrets.** The key lives in the facade's memory only, never in a notice, storage, URL, history state, log, toast or
+  the demo world; `DemoAuthState` keeps a DEMO-only digest. Typed fields always show their cleared value after a state
+  change, even when Enter follows typing before a render.
+
 **Operations: Releases (P8-S4, 2026-10-24):** `/releases` is an information page (page → `ReleasesFacade` →
 `ReleaseInformationGateway` → mock or unavailable adapter): the service's responsibility and each capability's standing,
 documentation only. No catalog (CF-05), no release or deployment command, and no disabled control that would suggest
