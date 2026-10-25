@@ -126,6 +126,12 @@
   gap: var(--nw-space-1) var(--nw-space-2);
 }
 
+.account-security__remove {
+  display: grid;
+  justify-items: start;
+  gap: var(--nw-space-1);
+}
+
 .account-security__factor-name {
   font-size: var(--nw-text-size-sm);
   font-weight: var(--nw-font-weight-semibold);

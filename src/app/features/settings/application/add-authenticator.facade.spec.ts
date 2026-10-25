@@ -76,6 +76,9 @@ class FakeSecurity extends AccountSecurityGateway {
   rotateSecretKey(): Observable<SecretKeyIssue> {
     throw new Error('not used by adding an authenticator');
   }
+  removeFactor(): Observable<void> {
+    throw new Error('not used by adding an authenticator');
+  }
 }
 
 class FakeStepUp extends StepUpGateway {

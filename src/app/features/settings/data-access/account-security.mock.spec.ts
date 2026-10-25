@@ -551,6 +551,7 @@ describe('Account security mock: creating a new secret key (P9-S4c)', () => {
         'fail',
         'load',
         'owner',
+        'removeFactor',
         'rotateSecretKey',
       ].sort(),
     );
@@ -559,5 +560,163 @@ describe('Account security mock: creating a new secret key (P9-S4c)', () => {
     );
     for (const fragment of [secretKey, compact, compact.slice(0, 12)])
       expect(dump).not.toContain(fragment);
+  });
+});
+
+describe('Account security mock: removing a factor (P9-S4d)', () => {
+  const owner = DEMO_OWNER_ACCOUNT.identity;
+  const other = DEMO_ENROLLMENT_ACCOUNT.identity;
+
+  function setUpRemove(scenario: AccountSecurityDemoScenario = 'normal') {
+    const clock = { now: NOW };
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: DEMO_LATENCY_MS, useValue: 0 },
+        { provide: ACCOUNT_SECURITY_DEMO_SCENARIO, useValue: scenario },
+        { provide: NW_CLOCK, useValue: () => clock.now },
+      ],
+    });
+    const state = TestBed.inject(DemoAuthState);
+    const gateway = TestBed.runInInjectionContext(() => new MockAccountSecurityGateway());
+    const stepUp = TestBed.runInInjectionContext(() => new MockStepUpGateway());
+    state.signedIn.set({ identity: owner, businessIdentityId: null });
+    const grant = async () =>
+      (
+        await firstValueFrom(
+          stepUp.obtain('owner.factor.remove', { method: 'totp', code: DEMO_TOTP_CODE }),
+        )
+      ).token;
+    const factors = () => state.ownerFactors.get(owner.userId) ?? [];
+    /** A second confirmed authenticator, so that one can be removed. */
+    const second = () => {
+      const id = state.beginTotpFactor(owner.userId, '2026-10-25T09:00:00.000Z');
+      state.confirmTotpFactor(owner.userId, id, '2026-10-25T09:01:00.000Z');
+      return id;
+    };
+    const done = (source: Observable<void>) =>
+      new Promise<void>((resolve, reject) =>
+        source.subscribe({ complete: resolve, error: reject }),
+      );
+    return { state, gateway, grant, factors, second, clock, done };
+  }
+
+  it('removes the owner’s confirmed factor with a live owner.factor.remove grant (204), spending it once', async () => {
+    const { gateway, state, grant, factors, second, done } = setUpRemove();
+    const id = second();
+    const token = await grant();
+    await done(gateway.removeFactor(id, token));
+    expect(factors().some((f) => f.id === id)).toBe(false);
+    expect(factors().filter((f) => f.confirmed)).toHaveLength(2);
+    expect(state.checkStepUp(token, 'owner.factor.remove', owner.userId, NOW)).toBe(false);
+  });
+
+  it('cancels the owner’s pending enrollment and leaves an unfinished setup and the session as they were', async () => {
+    const { gateway, state, grant, factors, second, done } = setUpRemove();
+    const id = second();
+    const pending = state.beginTotpFactor(owner.userId, '2026-10-25T09:05:00.000Z');
+    for (const [token, account] of [
+      ['enroll-owner', DEMO_OWNER_ACCOUNT],
+      ['enroll-other', DEMO_ENROLLMENT_ACCOUNT],
+    ] as const)
+      state.enrollments.set(token, {
+        account,
+        expiresAt: NOW + 60_000,
+        factorId: null,
+        attemptsLeft: 5,
+      });
+    await done(gateway.removeFactor(id, await grant()));
+    expect([...state.enrollments.keys()]).toEqual(['enroll-other']);
+    expect(factors().find((f) => f.id === pending)?.confirmed).toBe(false);
+    expect(state.signedIn()?.identity.userId).toBe(owner.userId);
+  });
+
+  it('refuses in Core’s order: a malformed id (400) before the grant, which is not spent', async () => {
+    const { gateway, state, grant } = setUpRemove();
+    const token = await grant();
+    expect(await error(gateway.removeFactor('not-a-uuid', token))).toMatchObject({
+      kind: 'validation',
+      code: 'validation_error',
+      status: 400,
+    });
+    expect(state.checkStepUp(token, 'owner.factor.remove', owner.userId, NOW)).toBe(true);
+  });
+
+  it('refuses a grant of another purpose, of another owner, proved by the secret key, expired, forged or missing (403)', async () => {
+    const { gateway, state, factors, second, clock } = setUpRemove();
+    const id = second();
+    const tokens = [
+      state.issueStepUp('owner.factor.enroll', owner.userId, NOW + 60_000),
+      state.issueStepUp('owner.factor.remove', other.userId, NOW + 60_000),
+      state.issueStepUp('owner.factor.remove', owner.userId, NOW + 60_000, 'secret_key'),
+      state.issueStepUp('owner.factor.remove', owner.userId, NOW + 1_000),
+    ];
+    clock.now = NOW + 2_000;
+    for (const token of [...tokens, 'demo-step-up-forged', ''])
+      expect(await error(gateway.removeFactor(id, token))).toMatchObject({
+        kind: 'forbidden',
+        code: 'step_up_required',
+        status: 403,
+      });
+    expect(factors().some((f) => f.id === id)).toBe(true);
+  });
+
+  it('answers 404 for an unknown factor, another owner’s, or one already removed; the grant stays unspent', async () => {
+    const { gateway, state, grant, second, done } = setUpRemove();
+    const id = second();
+    const othersFactor = state.ownerFactors.get(other.userId)?.[0]?.id ?? crypto.randomUUID();
+    await done(gateway.removeFactor(id, await grant()));
+    const token = await grant();
+    for (const target of [id, othersFactor, crypto.randomUUID()])
+      expect(await error(gateway.removeFactor(target, token))).toMatchObject({
+        kind: 'not_found',
+        status: 404,
+      });
+    expect(state.checkStepUp(token, 'owner.factor.remove', owner.userId, NOW)).toBe(true);
+  });
+
+  it('keeps the last confirmed factor (409 factor_required), even with an unfinished setup beside it', async () => {
+    const { gateway, state, grant, factors, done } = setUpRemove();
+    const [totp, passkey] = factors();
+    if (!totp || !passkey) throw new Error('fixture factors');
+    await done(gateway.removeFactor(passkey.id, await grant()));
+    state.beginTotpFactor(owner.userId, '2026-10-25T09:05:00.000Z');
+    const token = await grant();
+    expect(await error(gateway.removeFactor(totp.id, token))).toMatchObject({
+      kind: 'conflict',
+      code: 'factor_required',
+      status: 409,
+    });
+    expect(factors().find((f) => f.id === totp.id)?.confirmed).toBe(true);
+    expect(state.checkStepUp(token, 'owner.factor.remove', owner.userId, NOW)).toBe(true);
+  });
+
+  it('refuses operators (403) and answers 401 without a session, removing nothing', async () => {
+    const { gateway, state, factors } = setUpRemove();
+    const operator = DEMO_OPERATORS[0];
+    if (!operator) throw new Error('no operator fixture');
+    const id = factors()[0]?.id ?? '';
+    state.signedIn.set({ identity: operator.identity, businessIdentityId: null });
+    expect(await error(gateway.removeFactor(id, 'x'))).toMatchObject({ status: 403 });
+    state.signedIn.set(null);
+    expect(await error(gateway.removeFactor(id, 'x'))).toMatchObject({
+      kind: 'unauthenticated',
+      status: 401,
+    });
+    expect(factors().some((f) => f.id === id)).toBe(true);
+  });
+
+  it('the uncertain scenarios commit: a lost answer and a 500 both remove the factor and spend the grant', async () => {
+    for (const [scenario, expected] of [
+      ['removeLost', { kind: 'network' }],
+      ['removeServerError', { kind: 'unexpected', status: 500 }],
+    ] as const) {
+      TestBed.resetTestingModule();
+      const { gateway, state, grant, factors, second } = setUpRemove(scenario);
+      const id = second();
+      const token = await grant();
+      expect(await error(gateway.removeFactor(id, token))).toMatchObject(expected);
+      expect(factors().some((f) => f.id === id)).toBe(false);
+      expect(state.checkStepUp(token, 'owner.factor.remove', owner.userId, NOW)).toBe(false);
+    }
   });
 });

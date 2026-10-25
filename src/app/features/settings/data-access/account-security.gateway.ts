@@ -37,7 +37,7 @@ export interface SecretKeyIssue {
 }
 
 /**
- * Frontend contract of the owner's account security (P9-S4a, P9-S4b, P9-S4c), always the signed-in owner's own (bearer-scoped;
+ * Frontend contract of the owner's account security (P9-S4a to P9-S4d), always the signed-in owner's own (bearer-scoped;
  * no identity parameter), `401` without a session and `403` for anyone else. No HTTP adapter until the auth HTTP adapter
  * exists (A4, D-A4).
  */
@@ -66,6 +66,13 @@ export abstract class AccountSecurityGateway {
    * committed.
    */
   abstract rotateSecretKey(stepUpToken: string): Observable<SecretKeyIssue>;
+  /**
+   * `DELETE /auth/admin/factors/:id` with an `owner.factor.remove` step-up (`x-step-up-token`; a factor's, never the
+   * secret key's). `204`: the factor is revoked (sessions untouched). Refusals (Core rolls back): `400` (malformed id),
+   * `403 step_up_required`, `404 not_found` (unknown, another owner's or already removed), `409 factor_required` (the
+   * last confirmed factor). Never resent automatically: a lost answer is reconciled with `load()`.
+   */
+  abstract removeFactor(factorId: string, stepUpToken: string): Observable<void>;
 }
 
 /** Every non-demo build: not available (never a demo record, never a request, never a setup). */
@@ -83,6 +90,10 @@ export class UnavailableAccountSecurityGateway extends AccountSecurityGateway {
   }
 
   rotateSecretKey(): Observable<SecretKeyIssue> {
+    return throwError(adapterUnavailable);
+  }
+
+  removeFactor(): Observable<void> {
     return throwError(adapterUnavailable);
   }
 }

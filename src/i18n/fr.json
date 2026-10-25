@@ -1473,6 +1473,8 @@
         "confirmedCount": "Facteurs confirmés : {{count}}",
         "totp": "Application d’authentification",
         "webauthn": "Clé d’accès",
+        "totpNumbered": "Application d’authentification {{number}}",
+        "webauthnNumbered": "Clé d’accès {{number}}",
         "confirmed": "Confirmé",
         "unfinished": "Configuration inachevée",
         "unfinishedNote": "Cette configuration a été commencée mais jamais confirmée. Elle ne peut servir ni à se connecter ni à confirmer une action.",
@@ -1665,6 +1667,67 @@
           "cancelled": "Rien n’a été modifié. Aucune clé secrète n’a été créée."
         }
       },
+      "remove": {
+        "button": "Supprimer",
+        "action": "Supprimer {{factor}}",
+        "blocked": {
+          "lastFactor": "Votre seul facteur confirmé ne peut pas être supprimé. Ajoutez-en d’abord un autre.",
+          "noAuthenticator": "Pour supprimer un facteur, vous devez confirmer votre identité avec une application d’authentification. La confirmation par clé d’accès n’est pas encore disponible ici.",
+          "lastAuthenticator": "C’est votre dernière application d’authentification. Admin confirme les actions sensibles avec une application d’authentification : ajoutez-en une autre avant de supprimer celle-ci.",
+          "unfinished": "Cette configuration n’a jamais été terminée et ne peut pas être utilisée. Une nouvelle configuration la remplace."
+        },
+        "title": "Supprimer un facteur",
+        "confirmTitle": "Supprimer {{factor}} ?",
+        "type": "Type",
+        "notRecorded": "Non enregistré",
+        "consequences": {
+          "stops": "Il cesse de fonctionner immédiatement, pour la connexion comme pour la confirmation des actions.",
+          "noRestore": "Il ne peut pas simplement être rétabli : pour l’utiliser à nouveau, il faudrait l’ajouter comme un nouveau facteur.",
+          "sessions": "La suppression ne met fin à aucune session déjà connectée, y compris celle-ci. Admin ne peut pas encore lister ni fermer les sessions.",
+          "device": "Plusieurs facteurs peuvent se trouver sur le même appareil. Assurez-vous d’avoir encore l’appareil d’au moins un des facteurs que vous gardez.",
+          "recovery": "Garder un autre facteur confirmé ne garantit pas que vous pourrez récupérer votre compte : la récupération nécessite votre mot de passe et votre clé secrète."
+        },
+        "remaining": "Vous garderez {{count}} facteurs confirmés.",
+        "lastWarningTitle": "Il ne vous restera qu’un seul facteur confirmé.",
+        "lastWarningBody": "Si vous perdez cet appareil, vous ne pourrez plus vous connecter ni confirmer d’actions avant une récupération, qui nécessite votre mot de passe, votre clé secrète et un délai d’attente. Pensez à ajouter un autre facteur d’abord.",
+        "next": "Ensuite, vous confirmerez votre identité avec une application d’authentification. La suppression est enregistrée dans le journal d’audit.",
+        "cancel": "Annuler",
+        "continue": "Continuer la suppression",
+        "back": "Retour",
+        "close": "Fermer",
+        "retry": "Réessayer",
+        "tryAgain": "Recommencer",
+        "checkAgain": "Vérifier à nouveau",
+        "resume": "Revenir à la confirmation",
+        "verifyTitle": "Confirmez votre identité",
+        "purpose": "À supprimer : {{factor}}",
+        "proofLabel": "Code d’authentification",
+        "proofHint": "6 chiffres, d’une application d’authentification de votre compte ; un code de l’application que vous supprimez est aussi accepté. La confirmation ne sert qu’une fois, pour cette suppression uniquement.",
+        "proofFormat": "Saisissez le code à 6 chiffres de votre application d’authentification.",
+        "proofRefused": "Ce code n’a pas fonctionné. Rien n’a été supprimé. Vérifiez votre application et réessayez.",
+        "verificationExpired": "Votre confirmation a expiré avant la suppression. Rien n’a été modifié. Confirmez à nouveau votre identité.",
+        "verifyUnavailable": "Nous n’avons pas pu vérifier votre code. Rien n’a été supprimé. Réessayez dans un instant.",
+        "submitTotp": "Supprimer l’application",
+        "submitWebauthn": "Supprimer la clé d’accès",
+        "verifying": "Vérification…",
+        "removingShort": "Suppression…",
+        "removing": "Suppression… Cette fenêtre reste ouverte jusqu’à la réponse de Nawara Core.",
+        "refreshing": "Vérification de vos facteurs…",
+        "reconciling": "Aucune réponse reçue. Vérification de vos facteurs pour savoir s’il a été supprimé. Rien n’est renvoyé.",
+        "messages": {
+          "refreshFailed": "Nous n’avons pas pu lire vos facteurs, donc rien n’a été lancé. Rien n’a été modifié.",
+          "lastFactor": "Nawara Core conserve au moins un facteur confirmé : celui-ci ne peut pas être supprimé. Rien n’a été modifié.",
+          "stillPresent": "Ce facteur est toujours sur votre compte. Rien n’a été modifié. Pour réessayer, recommencez : vous confirmerez à nouveau votre identité.",
+          "unknown": "Impossible de savoir s’il a été supprimé : vos facteurs n’ont pas pu être lus. Vérifiez à nouveau avant toute autre action.",
+          "rateLimited": "Trop de tentatives. Rien n’a été modifié et rien n’est réessayé automatiquement. Patientez quelques minutes, puis réessayez.",
+          "refused": "Seul le propriétaire de l’entreprise peut supprimer ses propres facteurs, dans sa session actuelle.",
+          "notInBuild": "La suppression d’un facteur n’est pas disponible dans cette version."
+        },
+        "outcomes": {
+          "removed": "Facteur supprimé. Il ne fonctionne plus pour la connexion ni pour confirmer des actions. Les sessions déjà connectées n’ont pas été fermées.",
+          "absent": "Ce facteur ne figure plus sur votre compte. Votre liste de facteurs a été actualisée."
+        }
+      },
       "actions": {
         "title": "Confirmer les actions sensibles",
         "signIn": "Chaque connexion à votre compte de propriétaire demande un facteur confirmé après votre mot de passe.",
@@ -1679,7 +1742,7 @@
       },
       "unavailable": {
         "title": "Non disponible sur cette page",
-        "factors": "Retirer un facteur, ou ajouter une clé d’accès",
+        "factors": "Ajouter une clé d’accès",
         "password": "Changer votre mot de passe",
         "recovery": "Lancer ou annuler une récupération"
       },

@@ -1,0 +1,77 @@
+// The remove-a-factor dialog's content (P9-S4d design): the facts, the consequences, the verification and its states.
+.remove-factor__body {
+  display: grid;
+  gap: var(--nw-space-3);
+}
+
+.remove-factor__facts {
+  display: grid;
+  gap: var(--nw-space-1);
+  margin: 0;
+  padding: var(--nw-space-3) var(--nw-space-4);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  font-size: var(--nw-text-size-sm);
+
+  div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--nw-space-1) var(--nw-space-3);
+  }
+
+  dt {
+    color: var(--nw-text-secondary);
+  }
+}
+
+.remove-factor__list {
+  display: grid;
+  gap: var(--nw-space-2);
+  padding-inline-start: var(--nw-space-5);
+  font-size: var(--nw-text-size-sm);
+  line-height: 1.55;
+  list-style: disc;
+}
+
+.remove-factor__text,
+.remove-factor__purpose {
+  line-height: 1.55;
+}
+
+.remove-factor__purpose {
+  padding: var(--nw-space-2) var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  font-size: var(--nw-text-size-sm);
+}
+
+.remove-factor__note {
+  color: var(--nw-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.remove-factor__status {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+}
+
+// A machine value: digits spaced for reading, left to right in every locale.
+.remove-factor__code {
+  font-family: var(--nw-font-mono);
+  letter-spacing: 0.2em;
+}
+
+.remove-factor__demo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-2) var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-accent-orange-bg);
+  color: var(--nw-accent-orange-fg);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}

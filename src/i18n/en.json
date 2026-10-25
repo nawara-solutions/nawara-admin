@@ -1473,6 +1473,8 @@
         "confirmedCount": "Confirmed factors: {{count}}",
         "totp": "Authenticator app",
         "webauthn": "Passkey",
+        "totpNumbered": "Authenticator app {{number}}",
+        "webauthnNumbered": "Passkey {{number}}",
         "confirmed": "Confirmed",
         "unfinished": "Setup not finished",
         "unfinishedNote": "This setup was begun but never confirmed. It can’t be used to sign in or to confirm an action.",
@@ -1665,6 +1667,67 @@
           "cancelled": "Nothing was changed. No secret key was created."
         }
       },
+      "remove": {
+        "button": "Remove",
+        "action": "Remove {{factor}}",
+        "blocked": {
+          "lastFactor": "Your only confirmed factor can’t be removed. Add another one first.",
+          "noAuthenticator": "Removing a factor needs an authenticator app to confirm it’s you. Confirming with a passkey isn’t available here yet.",
+          "lastAuthenticator": "This is your last authenticator app. Admin confirms sensitive actions with an authenticator app, so add another one before removing this one.",
+          "unfinished": "This setup was never finished, so it can’t be used. Starting a new setup replaces it."
+        },
+        "title": "Remove a factor",
+        "confirmTitle": "Remove {{factor}}?",
+        "type": "Type",
+        "notRecorded": "Not recorded",
+        "consequences": {
+          "stops": "It stops working at once, for signing in and for confirming actions.",
+          "noRestore": "It can’t simply be restored: to use it again, you’d add it as a new factor.",
+          "sessions": "Removing it doesn’t end any session that is already signed in, this one included. Admin can’t list or end sessions yet.",
+          "device": "Several factors can live on the same device. Make sure you still have the device for at least one of the factors you keep.",
+          "recovery": "Keeping another confirmed factor doesn’t guarantee that you can recover your account: recovery needs your password and your secret key."
+        },
+        "remaining": "You’ll keep {{count}} confirmed factors.",
+        "lastWarningTitle": "You’ll have only one confirmed factor left.",
+        "lastWarningBody": "If you lose that device, you won’t be able to sign in or confirm actions until a recovery, which needs your password, your secret key and a waiting period. Consider adding another factor first.",
+        "next": "Next, you’ll confirm it’s you with an authenticator app. The removal is recorded in the audit log.",
+        "cancel": "Cancel",
+        "continue": "Continue to remove",
+        "back": "Back",
+        "close": "Close",
+        "retry": "Try again",
+        "tryAgain": "Start again",
+        "checkAgain": "Check again",
+        "resume": "Back to confirming",
+        "verifyTitle": "Confirm it’s you",
+        "purpose": "To remove: {{factor}}",
+        "proofLabel": "Authenticator code",
+        "proofHint": "6 digits, from an authenticator app on your account; a code from the app you’re removing is accepted too. The confirmation is used once, for this removal only.",
+        "proofFormat": "Enter the 6-digit code from your authenticator app.",
+        "proofRefused": "That code didn’t work. Nothing was removed. Check your app and try again.",
+        "verificationExpired": "Your confirmation expired before the factor was removed. Nothing was changed. Confirm it’s you again.",
+        "verifyUnavailable": "We couldn’t check your code. Nothing was removed. Try again in a moment.",
+        "submitTotp": "Remove authenticator app",
+        "submitWebauthn": "Remove passkey",
+        "verifying": "Checking…",
+        "removingShort": "Removing…",
+        "removing": "Removing… This dialog stays open until Nawara Core answers.",
+        "refreshing": "Checking your factors…",
+        "reconciling": "No answer came back. Checking your factors to see whether it was removed. Nothing is sent again.",
+        "messages": {
+          "refreshFailed": "We couldn’t read your factors, so nothing was started. Nothing was changed.",
+          "lastFactor": "Nawara Core keeps at least one confirmed factor, so this one can’t be removed. Nothing was changed.",
+          "stillPresent": "This factor is still on your account. Nothing was changed. To try again, start again: you’ll confirm it’s you again.",
+          "unknown": "We can’t tell whether it was removed: your factors couldn’t be read. Check again before doing anything else.",
+          "rateLimited": "Too many attempts. Nothing was changed and nothing is retried automatically. Wait a few minutes, then try again.",
+          "refused": "Only the Company owner can remove their own factors, in their current session.",
+          "notInBuild": "Removing a factor is not available in this build."
+        },
+        "outcomes": {
+          "removed": "Factor removed. It no longer works for signing in or confirming actions. Sessions already signed in were not ended.",
+          "absent": "That factor is no longer on your account. Your factor list has been refreshed."
+        }
+      },
       "actions": {
         "title": "Confirming sensitive actions",
         "signIn": "Every sign-in to your owner account asks for a confirmed factor after your password.",
@@ -1679,7 +1742,7 @@
       },
       "unavailable": {
         "title": "Not available on this page",
-        "factors": "Removing a factor, or adding a passkey",
+        "factors": "Adding a passkey",
         "password": "Changing your password",
         "recovery": "Starting or cancelling a recovery"
       },

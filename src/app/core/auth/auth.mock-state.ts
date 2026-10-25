@@ -199,6 +199,20 @@ export class DemoAuthState {
     }
   }
 
+  /**
+   * Like Core's committed `DELETE factors/:id` (P9-S4d): the factor is revoked (it leaves the list) and the owner's
+   * pending enrollment tokens are cancelled. Any other factor, an unfinished setup included, is left as it is; sessions
+   * are untouched. The caller has already checked ownership and the last confirmed factor.
+   */
+  removeOwnerFactor(userId: string, factorId: string): void {
+    this.ownerFactors.set(
+      userId,
+      (this.ownerFactors.get(userId) ?? []).filter((f) => f.id !== factorId),
+    );
+    for (const [token, pending] of this.enrollments)
+      if (pending.account.identity.userId === userId) this.enrollments.delete(token);
+  }
+
   /** A confirmed factor of this type proved a sign-in or a step-up (Core updates `lastUsedAt` the same way). */
   recordFactorUse(userId: string, type: DemoFactorRecord['type'], at: string): void {
     const factor = this.ownerFactors.get(userId)?.find((f) => f.type === type && f.confirmed);
@@ -340,6 +354,8 @@ export const DEMO_STEP_UP_METHODS: Readonly<Record<string, readonly DemoStepUpMe
   'owner.factor.enroll': ['totp', 'webauthn'],
   // Creating a new secret key (P9-S4c; Core 304064f `owner.secret_key.rotate`): factor only, never the secret key.
   'owner.secret_key.rotate': ['totp', 'webauthn'],
+  // Removing a factor (P9-S4d; Core 304064f `owner.factor.remove`): factor only, never the secret key.
+  'owner.factor.remove': ['totp', 'webauthn'],
 };
 
 const stepUpMethodAllowed = (purpose: string, method: DemoStepUpMethod) =>
