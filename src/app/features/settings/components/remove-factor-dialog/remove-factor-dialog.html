@@ -1,0 +1,321 @@
+@let current = state();
+@let t = target();
+<nw-dialog
+  [title]="
+    title() === 'confirm' && t
+      ? ('settings.security.remove.confirmTitle'
+        | transloco: { factor: (t.label.key | transloco: t.label.params) })
+      : ((title() === 'verify'
+          ? 'settings.security.remove.verifyTitle'
+          : 'settings.security.remove.title'
+        ) | transloco)
+  "
+  [closeLabel]="'settings.security.remove.close' | transloco"
+  [busy]="flow.locked()"
+>
+  @switch (current.phase) {
+    @case ('refreshing') {
+      <p class="remove-factor__status" role="status">
+        <nw-spinner />{{ 'settings.security.remove.refreshing' | transloco }}
+      </p>
+    }
+
+    @case ('blocked') {
+      @if (current.phase === 'blocked') {
+        <p class="remove-factor__text" data-blocked [attr.data-reason]="current.reason">
+          {{ blocks[current.reason] | transloco }}
+        </p>
+      }
+    }
+
+    @case ('confirming') {
+      @if (t) {
+        <div class="remove-factor__body">
+          <dl class="remove-factor__facts" data-facts>
+            <div>
+              <dt>{{ 'settings.security.remove.type' | transloco }}</dt>
+              <dd>
+                {{
+                  (t.factor.type === 'totp'
+                    ? 'settings.security.factors.totp'
+                    : 'settings.security.factors.webauthn'
+                  ) | transloco
+                }}
+              </dd>
+            </div>
+            <div>
+              <dt>{{ 'settings.security.factors.added' | transloco }}</dt>
+              <dd>
+                @if (t.factor.createdAt; as added) {
+                  {{ added | nwDate: 'date-time' }}
+                } @else {
+                  {{ 'settings.security.remove.notRecorded' | transloco }}
+                }
+              </dd>
+            </div>
+            <div>
+              <dt>{{ 'settings.security.factors.lastUsed' | transloco }}</dt>
+              <dd>
+                @if (t.factor.lastUsedAt; as used) {
+                  {{ used | nwDate: 'date-time' }}
+                } @else {
+                  {{ 'settings.security.factors.noUse' | transloco }}
+                }
+              </dd>
+            </div>
+          </dl>
+          @if (t.remaining === 1) {
+            <nw-inline-alert tone="warning" data-last-warning>
+              <strong>{{ 'settings.security.remove.lastWarningTitle' | transloco }}</strong>
+              {{ 'settings.security.remove.lastWarningBody' | transloco }}
+            </nw-inline-alert>
+          }
+          <ul class="remove-factor__list" role="list" data-consequences>
+            <li>{{ 'settings.security.remove.consequences.stops' | transloco }}</li>
+            <li>{{ 'settings.security.remove.consequences.noRestore' | transloco }}</li>
+            <li>{{ 'settings.security.remove.consequences.sessions' | transloco }}</li>
+            <li>{{ 'settings.security.remove.consequences.device' | transloco }}</li>
+            <li>{{ 'settings.security.remove.consequences.recovery' | transloco }}</li>
+          </ul>
+          @if (t.remaining > 1) {
+            <p class="remove-factor__note" data-remaining>
+              {{ 'settings.security.remove.remaining' | transloco: { count: t.remaining } }}
+            </p>
+          }
+          <p class="remove-factor__note">{{ 'settings.security.remove.next' | transloco }}</p>
+        </div>
+      }
+    }
+
+    @case ('verifying') {
+      @if (t && current.phase === 'verifying') {
+        <ng-container *ngTemplateOutlet="verifyForm" />
+      }
+    }
+    @case ('removing') {
+      @if (t) {
+        <ng-container *ngTemplateOutlet="verifyForm" />
+      }
+    }
+
+    @case ('reconciling') {
+      <p class="remove-factor__status" role="status">
+        <nw-spinner />{{ 'settings.security.remove.reconciling' | transloco }}
+      </p>
+    }
+
+    @default {
+      @if (message(); as m) {
+        <nw-inline-alert
+          [tone]="
+            current.phase === 'refused' || current.phase === 'notInBuild' ? 'info' : 'warning'
+          "
+          [attr.data-message]="current.phase"
+          >{{ m | transloco }}</nw-inline-alert
+        >
+      }
+    }
+  }
+
+  <ng-template #verifyForm>
+    @if (t) {
+      <form
+        id="remove-factor-verify"
+        class="remove-factor__body"
+        novalidate
+        [attr.aria-busy]="verifyBusy()"
+        (submit)="verify($event)"
+      >
+        <p class="remove-factor__purpose" id="remove-factor-purpose">
+          {{
+            'settings.security.remove.purpose'
+              | transloco: { factor: (t.label.key | transloco: t.label.params) }
+          }}
+        </p>
+        @if (current.phase === 'verifying' && current.problem; as problem) {
+          <nw-inline-alert
+            id="remove-factor-proof-banner"
+            [tone]="problem === 'proofRefused' ? 'danger' : 'warning'"
+            [attr.data-banner]="problem"
+            >{{ verifyProblems[problem] | transloco }}</nw-inline-alert
+          >
+        }
+        @let codeErrorKey = codeError();
+        <nw-form-field
+          [label]="'settings.security.remove.proofLabel' | transloco"
+          [hint]="'settings.security.remove.proofHint' | transloco"
+          [error]="codeErrorKey ? (codeErrorKey | transloco) : undefined"
+          [errorRef]="
+            current.phase === 'verifying' && current.problem === 'proofRefused'
+              ? 'remove-factor-proof-banner'
+              : undefined
+          "
+        >
+          <input
+            #codeInput
+            nwControl
+            class="remove-factor__code"
+            type="text"
+            name="step-up-code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            spellcheck="false"
+            maxlength="7"
+            dir="ltr"
+            aria-describedby="remove-factor-purpose"
+            [value]="code()"
+            [readOnly]="verifyBusy()"
+            (input)="onCode($event)"
+          />
+        </nw-form-field>
+        @if (demoCode(); as demo) {
+          <p class="remove-factor__demo" role="note" data-demo-note>
+            <nw-icon name="flask-conical" size="sm" />
+            <span>
+              <strong>{{ 'actions.stepUp.demoTitle' | transloco }}</strong>
+              {{ 'actions.stepUp.demoNote' | transloco: { code: demo } }}
+            </span>
+          </p>
+        }
+        @if (current.phase === 'removing') {
+          <p class="remove-factor__status" role="status" data-removing>
+            <nw-spinner />{{ 'settings.security.remove.removing' | transloco }}
+          </p>
+        }
+      </form>
+    }
+  </ng-template>
+
+  <div nwDialogActions>
+    @switch (current.phase) {
+      @case ('confirming') {
+        <button
+          #cancelButton
+          nw-button
+          variant="secondary"
+          type="button"
+          data-cancel
+          (click)="close()"
+        >
+          {{ 'settings.security.remove.cancel' | transloco }}
+        </button>
+        <button
+          #mainButton
+          nw-button
+          variant="danger"
+          type="button"
+          data-continue
+          (click)="flow.proceed()"
+        >
+          {{ 'settings.security.remove.continue' | transloco }}
+        </button>
+      }
+      @case ('verifying') {
+        <button
+          #cancelButton
+          nw-button
+          variant="ghost"
+          type="button"
+          data-back
+          [attr.aria-disabled]="verifyBusy() || null"
+          (click)="flow.back()"
+        >
+          {{ 'settings.security.remove.back' | transloco }}
+        </button>
+        <ng-container *ngTemplateOutlet="submitButton" />
+      }
+      @case ('removing') {
+        <ng-container *ngTemplateOutlet="submitButton" />
+      }
+      @case ('refreshing') {
+        <button
+          #cancelButton
+          nw-button
+          variant="secondary"
+          type="button"
+          data-cancel
+          (click)="close()"
+        >
+          {{ 'settings.security.remove.cancel' | transloco }}
+        </button>
+      }
+      @case ('reconciling') {
+        <!-- Locked until the factor list answers. -->
+      }
+      @default {
+        @switch (current.phase) {
+          @case ('refreshFailed') {
+            <button #mainButton nw-button type="button" data-retry (click)="flow.retry()">
+              <nw-icon name="refresh-cw" size="sm" />{{
+                'settings.security.remove.retry' | transloco
+              }}
+            </button>
+          }
+          @case ('stillPresent') {
+            <button #mainButton nw-button type="button" data-retry (click)="flow.retry()">
+              {{ 'settings.security.remove.tryAgain' | transloco }}
+            </button>
+          }
+          @case ('unknown') {
+            <button
+              #mainButton
+              nw-button
+              type="button"
+              data-check-again
+              (click)="flow.checkAgain()"
+            >
+              <nw-icon name="refresh-cw" size="sm" />{{
+                'settings.security.remove.checkAgain' | transloco
+              }}
+            </button>
+          }
+          @case ('rateLimited') {
+            <button #mainButton nw-button type="button" data-resume (click)="flow.resume()">
+              {{ 'settings.security.remove.resume' | transloco }}
+            </button>
+          }
+        }
+        <button
+          #cancelButton
+          nw-button
+          variant="secondary"
+          type="button"
+          data-cancel
+          (click)="close()"
+        >
+          {{ 'settings.security.remove.close' | transloco }}
+        </button>
+      }
+    }
+  </div>
+
+  <ng-template #submitButton>
+    <button
+      #mainButton
+      nw-button
+      variant="danger"
+      type="submit"
+      form="remove-factor-verify"
+      data-remove-submit
+      [busy]="verifyBusy()"
+      [attr.aria-disabled]="verifyBusy() || null"
+    >
+      @if (verifyBusy()) {
+        <nw-spinner />
+        <span>{{
+          (current.phase === 'removing'
+            ? 'settings.security.remove.removingShort'
+            : 'settings.security.remove.verifying'
+          ) | transloco
+        }}</span>
+      } @else {
+        <span>{{
+          (t?.factor?.type === 'webauthn'
+            ? 'settings.security.remove.submitWebauthn'
+            : 'settings.security.remove.submitTotp'
+          ) | transloco
+        }}</span>
+      }
+    </button>
+  </ng-template>
+</nw-dialog>

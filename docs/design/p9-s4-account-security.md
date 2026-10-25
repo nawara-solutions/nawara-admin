@@ -4,9 +4,10 @@
   owner's read-only Security overview (`/settings/security`, §9; PR #45, merged). **P9-S4b implemented** 2026-10-25 as
   a mock-first prototype: adding an authenticator app (`/settings/security/add-authenticator`, §10; PR #46, merged).
   **P9-S4c implemented** 2026-10-25 as a mock-first prototype: creating a new secret key
-  (`/settings/security/secret-key`, §11). Production binds the unavailable adapters and real Auth integration is NOT
-  done. **P9-S4d and P9-S4e are planned, each separately authorized**; nothing here changes a password or a recovery,
-  or removes a factor.
+  (`/settings/security/secret-key`, §11; PR #47, merged). **P9-S4d implemented** 2026-10-25 as a mock-first
+  prototype: removing a confirmed factor from the Security page (§12). Production binds the unavailable adapters and
+  real Auth integration is NOT done. **P9-S4e is planned, separately authorized**; nothing here changes a password or
+  a recovery.
 - **Baseline:** Core `origin/main` `304064f` (equal to the remote; read with `git show`, nothing checked out); Admin
   `main` `bb4c968`. Parent design: [`p9-settings-architecture.md`](p9-settings-architecture.md).
 - **Canvas:** https://claude.ai/artifact/N9MpMwvtasDCwZ76puVPtz (private, may expire). S4b design canvas (three
@@ -28,7 +29,7 @@
 | List the owner's factors | ✅ `GET /auth/admin/factors` | ✅ **P9-S4a**, read only (demo mock; production "not available") |
 | Add an authenticator app | ✅ `POST factors/totp`, `factors/totp/confirm` + step-up | ✅ **P9-S4b**, mock-first (§10; production "not available") |
 | Add a passkey | ✅ `POST factors/webauthn/options`, `factors/webauthn` + step-up; origin-bound | ⏳ later (needs a WebAuthn registration client, the real origin) |
-| Remove a factor | ✅ `DELETE factors/:id` + step-up; never the last confirmed one | ⏳ P9-S4d |
+| Remove a factor | ✅ `DELETE factors/:id` + step-up; never the last confirmed one | ✅ **P9-S4d**, mock-first, a dialog on Security (§12; production "not available") |
 | Rotate the secret key | ✅ `POST secret-key/rotate` + step-up; returned once | ✅ **P9-S4c**, mock-first, "Create a new secret key" (§11; production "not available") |
 | Change the password | ✅ `POST password/change` + step-up; other sessions end | ⏳ P9-S4e |
 | Step-up for these | ✅ `POST step-up`, `step-up/webauthn-options`; four `owner.*` purposes, factor only | existing `StepUpGateway` (TOTP only in dialogs); purposes added with S4b–S4e |
@@ -86,7 +87,7 @@ rotation (ADR-0016), and no read tells. TTLs and throttles are deployment config
 1. **S4a** ✅ read-only overview (§9).
 2. **S4b** ✅ add an authenticator app (§10).
 3. **S4c** ✅ create a new secret key, the first or a replacement (§11).
-4. **S4d** remove a factor.
+4. **S4d** ✅ remove a factor (§12).
 5. **S4e** change the password.
 6. Later: passkey registration; a shared factor chooser; a blind "cancel a pending recovery" if decided.
 
@@ -104,8 +105,8 @@ owner and operator direct URLs.
 
 CF-54 secret-key status read · CF-55 alerts for credential changes (or corrected docs) · CF-56 factor labels · CF-57
 forgotten-password path · CF-58 pending-recovery read · CF-59 declared OpenAPI response schemas · CF-60 two-phase
-secret-key rotation (P9-S4c) · CF-61 rotation while a recovery is pending (P9-S4c). Related, open: CF-21, CF-51,
-CF-01 / D-A4, CF-07.
+secret-key rotation (P9-S4c) · CF-61 rotation while a recovery is pending (P9-S4c) · CF-62 factor-removal proof and
+unfinished-setup semantics (P9-S4d). Related, open: CF-21, CF-51, CF-01 / D-A4, CF-07.
 
 ## 8. Owner decisions before S4b–S4e
 
@@ -339,3 +340,88 @@ fixture owner is passkey-only); demo state is per tab, so two tabs cannot race. 
 and live regions are asserted). The notice after "Leave anyway" shows only when Security is the destination (the
 facade lives with the Security routes). Browser automation never captured a revealed key: every capture asserts it is
 masked.
+
+## 12. P9-S4d implementation (2026-10-25)
+
+Mock-first: demo builds bind the mocks over `DemoAuthState`; every other build binds the unavailable adapters (the
+Security page already says "not available" there, so no Remove is shown). **Real Auth integration is not done** (no
+HTTP adapter; A4, D-A4, CF-01). Core was not read again: the contract is §2's (Core `304064f`).
+
+**Contract used (§2, verified).** `DELETE /auth/admin/factors/:id`, owner only, step-up `owner.factor.remove` (TOTP or
+passkey; never the secret key), `204`. Refusals: `400` (malformed id), `403 step_up_required`, `404 not_found`,
+`409 factor_required` (the last confirmed factor); a refusal rolls back. The factor is revoked, the owner's pending
+enrollment tokens are cancelled, sessions are untouched; audit only, no alert (CF-55). Core keeps at least one
+*confirmed* factor, not one the owner can still use. **Not settled by the verified contract** (CF-62, CF-59): whether
+the factor being removed may prove the removal, whether `DELETE` accepts an unfinished setup, whether removal has its
+own throttle, and exactly when `404` answers for an already removed factor. Admin assumes none of them: it offers
+confirmed factors only, never claims which factor proved the step-up, handles a `429` defensively, and never attributes
+a `404` to its own request.
+
+**Owner decisions:** O1 a dialog on `/settings/security`; O2 confirmed factors only; O3 the last confirmed authenticator
+app is not removable while only passkeys would remain (Admin proves with an authenticator code only; Core would allow
+it); O4 a stronger warning when one confirmed factor would remain (removal below one is refused by Core and not
+offered); O5 the factor being removed may prove the removal, and Admin says so without claiming Core can tell; O6 one
+fresh grant per removal, never reused after a `404`, a `409` or any other end; O7 a `404` or an absent factor on
+read-back is reported as "no longer on your account", never as "removed by you"; O8 passkey-only owners see the reason;
+O9 the factor list is read again whenever the dialog opens; O10 CF-62 proposed.
+
+**Authorization.** New owner capability `account.factor.remove`: the Security page offers Remove only with it (the
+page itself is owner only), the facade starts nothing for anyone else, the mock answers `401` without a session and
+`403` to anyone but an owner, and checks the grant's owner, purpose, proving factor (a secret-key-proved grant is
+refused) and expiry.
+
+**Presentation.** Each confirmed factor shows its type, a position when several share a type ("Authenticator app 2"),
+when it was added and when it was last used (only as observed; "No use recorded" otherwise). Factors have no names
+(CF-56); no identifier is shown. Remove is named in full for assistive technology ("Remove Authenticator app 2") and
+described by the factor's facts; an ineligible factor's Remove is disabled and described by the reason (the last
+confirmed factor; the last authenticator app; a passkey-only owner). An unfinished setup offers nothing.
+
+**The dialog** (an alertdialog; focus on Cancel once the fresh read is in):
+
+| State | Shows | Next |
+|---|---|---|
+| `closed` | the Security list | `refreshing` on Remove |
+| `refreshing` | "Checking your factors…" (Cancel still works) | `confirming` · `blocked` (`lastFactor`, `noAuthenticator`, `lastAuthenticator`, `unfinished`) · `closed` + `absent` (already gone) · `refreshFailed` (Try again) · `refused` · `notInBuild` |
+| `confirming` | the factor's facts; it stops working at once; it cannot simply be restored; sessions are not ended; several factors may share a device; another factor does not guarantee recovery; the one-left warning (an alert) when one confirmed factor would remain | `verifying` (Continue) · `closed` (Cancel, Escape, close) |
+| `verifying` | "Confirm it's you": an authenticator code (any confirmed one, the one being removed included); `busy` while checked; `proofRefused` / `expired` / `unavailable` | `removing` with a fresh grant · stays on `401` · `rateLimited` · `confirming` (Back) · `closed` |
+| `removing` | locked: no Escape, backdrop or close button | `closed` + `removed` (`204`) · `closed` + `absent` (`404`) · `lastFactor` (`409`) · `verifying` (`403 step_up_required`) · `rateLimited` (`429`) · `refused` (`401`, other `403`) · `reconciling` (anything else) |
+| `reconciling` | locked: "No answer came back… Nothing is sent again." | gone → `closed` + `absent` · still there → `stillPresent` · unreadable → `unknown` |
+| `stillPresent` | it is still on the account; nothing changed | "Start again" → `refreshing` (a new confirmation and grant) · `closed` |
+| `unknown` | the outcome is unknown | "Check again" (reads the list only) → `reconciling` · `closed` |
+| `lastFactor` / `rateLimited` / `refused` / `notInBuild` / `refreshFailed` / `blocked` | one message | `verifying` (rate limit, by the owner's choice) · `refreshing` (Try again) · `closed` |
+
+After `removed` or `absent` the dialog closes, the list reloads and the page shows the outcome, which takes focus
+(the factor's own Remove is gone); every other close returns focus to the Remove that opened it.
+
+**Rules.** One removal at a time; input is ignored while a read, a verification or the removal is under way; nothing
+can dismiss the dialog while the removal is unsettled. A DELETE is never resent automatically, and a grant is used once
+and dropped whatever the answer. Late answers (a closed dialog, another run, another session, a destroyed page) are
+ignored; a session change (sign-out, another identity, a new session of the same owner) drops the removal and its code.
+The code field always shows its cleared value after a state change (the S4c rule).
+
+**Data.** The code and the grant live in the one request only (the field clears on every state change); the factor id
+travels in memory and the request, never in a URL, history state, storage, a log or a notice. Factor metadata stays in
+`DemoAuthState` (`removeOwnerFactor` revokes one factor and cancels the owner's pending enrollments); nothing moves to
+`DemoWorld`. Demo scenarios: `removeLost` (committed, the answer lost) and `removeServerError` (committed, `500`).
+
+**S4b regression fix (separate).** The add-authenticator page's "confirm it's you" field kept a refused code when the
+code was typed and submitted in the same task (found while testing P9-S4c): the same field re-sync (`afterRenderEffect`)
+now applies there, with a same-tick regression test; S4b's enrollment flow and semantics are otherwise unchanged.
+
+**Not done (out of scope):** passkey proof (the factor chooser), removing an unfinished setup, factor names, listing or
+ending sessions, real Core HTTP integration.
+
+**Tests.** `factor-removal.spec.ts` (positions, every eligibility case); `remove-factor.facade.spec.ts` (fresh read;
+blocked cases; already absent; read failure; purpose and proof; one removal; duplicates and locking; `204`, `404`, `409`,
+`403 step_up_required` with a new grant, `401`, `403`, `429`; every unclear answer reconciled (gone, still there,
+unreadable, Check again); never resent; cancel; session changes; destruction; operator; production);
+`account-security.mock.spec.ts` (Core's order, grant spent only on commit, pending enrollment cancelled and an
+unfinished setup untouched, `404` cases, `409` with an unfinished setup beside, operators, committed lost and `500`
+scenarios); `account-security.page.spec.ts` (positions and accessible names, disabled reasons, the dialog end to end
+with a same-tick wrong code then the right one, the one-left warning, Cancel and Escape with focus back, a lost answer
+settled as absent, no code or grant leaked, Arabic RTL); `add-authenticator.page.spec.ts` (the S4b same-tick fix);
+`capability-policy.spec.ts`.
+
+**Limitations.** Core's `409` and the lost-answer scenarios are unit-tested only (the demo builds answer `normal`, and
+Admin never offers the last factor). No screen reader was run: names, roles, descriptions and live regions are asserted.
+Removal does not end sessions and Admin cannot list them (CF-51); no alert tells the owner (CF-55).

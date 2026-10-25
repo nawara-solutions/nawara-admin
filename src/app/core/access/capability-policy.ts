@@ -97,6 +97,11 @@ export type Capability =
    * `owner.secret_key.rotate` step-up proved by a factor (never by the secret key itself).
    */
   | 'account.secret_key.rotate'
+  /**
+   * Removing one of the owner's own confirmed factors (the Security page's dialog, P9-S4d). Core's `DELETE factors/:id` is
+   * `@Actors('owner')`, needs an `owner.factor.remove` step-up proved by a factor, and keeps the last confirmed one.
+   */
+  | 'account.factor.remove'
   /** A Platform's administrative activity: Core's owner audit read; operators have no audit read (CF-04). */
   | 'platform.activity.view'
   /** Operator assignments and admin invitations of a Platform: the owner manages both; operators manage neither. */
@@ -115,6 +120,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'account.security.view',
   'account.factor.add',
   'account.secret_key.rotate',
+  'account.factor.remove',
   'operator.platformAccess.change',
   'operator.account.block',
   'operator.create',

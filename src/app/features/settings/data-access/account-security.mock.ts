@@ -25,7 +25,8 @@ import {
  * cannot be read. `confirmLost`: a confirmation is applied but its answer is lost (a network error).
  * `confirmUnavailable`: a confirmation is refused before anything is applied (`503`). Secret key (P9-S4c): `rotateLost`
  * (committed, the answer lost), `rotateServerError` (committed, then `500`), `rotateIncomplete` (committed, `200`
- * without a key), `rotateRateLimited` (`429`, nothing changed).
+ * without a key), `rotateRateLimited` (`429`, nothing changed). Removing a factor (P9-S4d): `removeLost` (committed, the
+ * answer lost), `removeServerError` (committed, then `500`).
  */
 export type AccountSecurityDemoScenario =
   | 'normal'
@@ -35,7 +36,9 @@ export type AccountSecurityDemoScenario =
   | 'rotateLost'
   | 'rotateServerError'
   | 'rotateIncomplete'
-  | 'rotateRateLimited';
+  | 'rotateRateLimited'
+  | 'removeLost'
+  | 'removeServerError';
 
 export const ACCOUNT_SECURITY_DEMO_SCENARIO = new InjectionToken<AccountSecurityDemoScenario>(
   'ACCOUNT_SECURITY_DEMO_SCENARIO',
@@ -72,6 +75,10 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  * factor's, never the secret key's), CHECKED first and SPENT with the change; every call makes a new random key, whose
  * DEMO digest replaces the previous verifier at once in `DemoAuthState` (the old key stops matching). The key itself is
  * returned once and kept nowhere. No read says whether a key exists (CF-54).
+ *
+ * Removing a factor (P9-S4d) follows the same contract, in Core's order: session and owner, the id's shape (`400`), a live
+ * `owner.factor.remove` grant of this owner (factor only), the owner's own factor (`404` otherwise), never the last
+ * confirmed one (`409 factor_required`); the grant is spent only with the change, and every refusal changes nothing.
  */
 export class MockAccountSecurityGateway extends AccountSecurityGateway {
   private readonly latency = inject(DEMO_LATENCY_MS);
@@ -183,6 +190,36 @@ export class MockAccountSecurityGateway extends AccountSecurityGateway {
           }
         }),
       );
+    });
+  }
+
+  removeFactor(factorId: string, stepUpToken: string): Observable<void> {
+    return defer(() => {
+      const owner = this.owner();
+      if ('kind' in owner) return this.fail(owner);
+      const userId = owner.identity.userId;
+      const now = this.now();
+      if (!UUID.test(factorId))
+        return this.fail({
+          kind: 'validation',
+          code: 'validation_error',
+          messages: [],
+          status: 400,
+        });
+      if (!this.auth.checkStepUp(stepUpToken, 'owner.factor.remove', userId, now))
+        return this.fail({ kind: 'forbidden', code: 'step_up_required', status: 403 });
+      const factors = this.auth.ownerFactors.get(userId) ?? [];
+      const factor = factors.find((f) => f.id === factorId);
+      if (factor === undefined)
+        return this.fail({ kind: 'not_found', code: 'not_found', status: 404 });
+      if (factor.confirmed && factors.filter((f) => f.confirmed).length <= 1)
+        return this.fail({ kind: 'conflict', code: 'factor_required', status: 409 });
+      this.auth.consumeStepUp(stepUpToken, 'owner.factor.remove', userId, now);
+      this.auth.removeOwnerFactor(userId, factorId);
+      if (this.scenario === 'removeLost') return this.fail({ kind: 'network', status: 0 });
+      if (this.scenario === 'removeServerError')
+        return this.fail({ kind: 'unexpected', status: 500 });
+      return of(undefined).pipe(delay(this.latency));
     });
   }
 

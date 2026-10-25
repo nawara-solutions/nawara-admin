@@ -12,6 +12,22 @@
   }
 </header>
 
+@if (removal.outcome(); as outcome) {
+  <nw-inline-alert
+    #removalOutcome
+    tabindex="-1"
+    tone="success"
+    class="account-security__outcome"
+    [attr.data-removal-outcome]="outcome"
+    >{{
+      (outcome === 'removed'
+        ? 'settings.security.remove.outcomes.removed'
+        : 'settings.security.remove.outcomes.absent'
+      ) | transloco
+    }}</nw-inline-alert
+  >
+}
+
 @switch (notice) {
   @case ('added') {
     <nw-inline-alert tone="success" data-notice="added">{{
@@ -71,8 +87,9 @@
             /></span>
             <div class="account-security__factor-body">
               <div class="account-security__factor-head">
+                @let label = labelOf(factor);
                 <h3 class="account-security__factor-name">
-                  {{ types[factor.type].labelKey | transloco }}
+                  {{ label.key | transloco: label.params }}
                 </h3>
                 @if (factor.confirmed) {
                   <nw-status-badge tone="success">{{
@@ -89,7 +106,7 @@
                   {{ 'settings.security.factors.unfinishedNote' | transloco }}
                 </p>
               }
-              <dl class="account-security__facts">
+              <dl class="account-security__facts" [id]="'security-factor-' + factor.id">
                 @if (factor.createdAt; as added) {
                   <div class="account-security__fact" data-added>
                     <dt>{{ 'settings.security.factors.added' | transloco }}</dt>
@@ -109,6 +126,43 @@
                   </dd>
                 </div>
               </dl>
+              @if (canRemove() && factor.confirmed) {
+                @let block = blocks().get(factor.id) ?? null;
+                <div class="account-security__remove" data-remove-row>
+                  <button
+                    nw-button
+                    variant="secondary"
+                    size="sm"
+                    type="button"
+                    data-remove
+                    [disabled]="block !== null"
+                    [attr.aria-label]="
+                      'settings.security.remove.action'
+                        | transloco: { factor: (label.key | transloco: label.params) }
+                    "
+                    [attr.aria-describedby]="
+                      block === null
+                        ? 'security-factor-' + factor.id
+                        : 'security-remove-reason-' + factor.id
+                    "
+                    (click)="remove(factor.id)"
+                  >
+                    <nw-icon name="trash" size="sm" />{{
+                      'settings.security.remove.button' | transloco
+                    }}
+                  </button>
+                  @if (block !== null) {
+                    <p
+                      class="account-security__muted"
+                      data-remove-reason
+                      [attr.data-reason]="block"
+                      [id]="'security-remove-reason-' + factor.id"
+                    >
+                      {{ removalBlocks[block] | transloco }}
+                    </p>
+                  }
+                </div>
+              }
             </div>
           </li>
         }

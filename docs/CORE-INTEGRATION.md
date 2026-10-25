@@ -384,9 +384,9 @@ Admin strategy and the decision required before A4.
 | Operator contact confirmation | Auth | 🟢 route; reissue 🔴 (CF-16); docs vs source 🟡 (CF-17) | `operator.controller.ts` `operators/confirm` | mock adapter (A4-S3, development only); HTTP later |
 | Session refresh / logout | Auth | 🟢 Prod | `auth.controller.ts` `refresh`, `logout` | HTTP; storage strategy = decision D-A4 |
 | Current user / grants | Auth | 🟢 Prod | `GET /auth/me`, `GET /auth/grants` | HTTP (A4/A6) |
-| MFA factor management | Auth | 🟢 Prod (verified P9-S4-0, `304064f`) | `owner.controller.ts` `factors*` (list; add TOTP begin/confirm + step-up `owner.factor.enroll`; passkey options/register; remove + step-up `owner.factor.remove`, never the last confirmed) | List: `AccountSecurityGateway.load()`, mock in demo builds over `DemoAuthState` (P9-S4a, read only), unavailable otherwise. Add TOTP: **P9-S4b**, `beginTotp()` / `confirmTotp(factorId, code, stepUpToken)` mock-first (begin replaces only an unconfirmed TOTP; step-up `owner.factor.enroll` checked first and spent on commit; `400 verification_failed` rolls back; begin + confirm share 10/hour; lost answers reconciled by the list, never resent; authenticator-code proof only, so a passkey-only owner cannot add one yet; no Core API cancels an unfinished setup); unavailable in production. Remove: P9-S4d (planned); passkeys later; no HTTP adapter (A4). Details: `design/p9-s4-account-security.md` §10 |
+| MFA factor management | Auth | 🟢 Prod (verified P9-S4-0, `304064f`) | `owner.controller.ts` `factors*` (list; add TOTP begin/confirm + step-up `owner.factor.enroll`; passkey options/register; remove + step-up `owner.factor.remove`, never the last confirmed) | List: `AccountSecurityGateway.load()`, mock in demo builds over `DemoAuthState` (P9-S4a, read only), unavailable otherwise. Add TOTP: **P9-S4b**, `beginTotp()` / `confirmTotp(factorId, code, stepUpToken)` mock-first (begin replaces only an unconfirmed TOTP; step-up `owner.factor.enroll` checked first and spent on commit; `400 verification_failed` rolls back; begin + confirm share 10/hour; lost answers reconciled by the list, never resent; authenticator-code proof only, so a passkey-only owner cannot add one yet; no Core API cancels an unfinished setup); unavailable in production. Remove: **P9-S4d**, `removeFactor(factorId, stepUpToken)` mock-first (a dialog on Security; confirmed factors only; never the last confirmed factor, never the last authenticator app while only passkeys remain; step-up `owner.factor.remove` checked first and spent on commit; `404` absent, `409 factor_required`; unclear answers settled by the list, never resent; pending enrollments cancelled; sessions untouched); unavailable in production. Passkeys later; no HTTP adapter (A4). Details: `design/p9-s4-account-security.md` §10, §12 |
 | WebAuthn (passkeys) | Auth | 🟢 Prod | `webauthn-options`, `factors/webauthn*`; RP `nawara-solutions.com` | HTTP + browser WebAuthn API (A4) |
-| Owner step-up | Auth | 🟢 Prod | `POST /auth/admin/step-up`, `x-step-up-token` | `StepUpGateway` (P4-S1): simulated mock in demo builds (opaque in-memory grant, single use, purpose- and user-bound, expiring, never Core evidence), unavailable otherwise; purposes limited to documented ones in use: `platform.create` (P4-S1), `organization.create` (P3b-S1). Both accept TOTP, WebAuthn and secret key (`auth-service/src/owner/step-up.service.ts:23-56`); the demo simulates TOTP only. Later purposes are listed on `StepUpPurpose`, among them `owner.factor.enroll` (P9-S4b) and `owner.secret_key.rotate` (P9-S4c), both TOTP or WebAuthn, never the secret key |
+| Owner step-up | Auth | 🟢 Prod | `POST /auth/admin/step-up`, `x-step-up-token` | `StepUpGateway` (P4-S1): simulated mock in demo builds (opaque in-memory grant, single use, purpose- and user-bound, expiring, never Core evidence), unavailable otherwise; purposes limited to documented ones in use: `platform.create` (P4-S1), `organization.create` (P3b-S1). Both accept TOTP, WebAuthn and secret key (`auth-service/src/owner/step-up.service.ts:23-56`); the demo simulates TOTP only. Later purposes are listed on `StepUpPurpose`, among them `owner.factor.enroll` (P9-S4b), `owner.secret_key.rotate` (P9-S4c) and `owner.factor.remove` (P9-S4d), all TOTP or WebAuthn, never the secret key |
 | Operator step-up | Auth | 🟡 | ADR-0042 A.1 accepted, not built | Hide/disable sensitive ops for operators |
 | Secret key rotate / password change | Auth | 🟢 Prod (verified P9-S4-0) | `secret-key/rotate` (step-up `owner.secret_key.rotate`, factor only; key returned once; not idempotent), `password/change` (step-up `owner.password.change`, factor only; no current password; ends other sessions) | Rotate: **P9-S4c**, `rotateSecretKey(stepUpToken)` mock-first ("Create a new secret key": first or replacement alike; step-up `owner.secret_key.rotate` checked first and spent on commit; the key shown once, masked; `401`/`403`/`429` definite, anything else unknown and never resent; demo verifier is a DEMO-only digest in `DemoAuthState`); unavailable in production; no HTTP adapter (A4). Password change: S4e, planned. No status read of the key (CF-54); no alert on either (CF-55); two-phase rotation and pending-recovery effect proposed (CF-60, CF-61). Details: `design/p9-s4-account-security.md` §11 |
 | Organization directory (list/search) | Organization | 🔴 | org lists are service-token only | `OrganizationGateway.list(platformId)`, mock in demo builds (P3a); search, filters and sort in the browser; **CF-02** (V2 A5) |
@@ -438,7 +438,7 @@ Admin strategy and the decision required before A4.
 | Edit organization metadata | Organization | 🟢 contract · ⚠ not authoritative | `PATCH /organization/admin/organizations/:id` (§5) | P3b-S2: "Edit details" for the owner and assigned operators (no step-up), minimal patch, `null` clears, no automatic resend; demo-world mock (succeeds by default; `409 not_authoritative`, lost answer and `503` as scenarios); production binds the unavailable adapter (no HTTP adapter) |
 | Organization admin invitations | Auth | 🟢 | `organization.controller.ts:123-148` (§5, verified P3b-S3-0) | P3b-S3: owner-only card on the Organization details; create (step-up `admin_invitation.create`, the code shown once, never stored), list (derived status, `contactBound` only), revoke (destructive confirmation + step-up `admin_invitation.revoke`); no automatic retry after a lost answer; demo-world mock; production binds the unavailable adapter (no HTTP adapter) |
 | Create platform | Organization | 🟢 contract · ⚠ not authoritative | `POST /organization/admin/platforms` (see §5) | P4-S1: the owner's flow (confirm → step-up `platform.create` → idempotent command) against a demo-world mock, `409 not_authoritative` as a scenario; production binds the unavailable adapter (no HTTP adapter: response DTO not verified, writes not authoritative before cutover) |
-| Access & security: owner account security | Auth | 🟢 Prod (verified P9-S4-0) | `GET /auth/admin/factors` (owner, bearer-scoped) | "Account security" links to `/settings/security` (P9-S4a): the owner's factors read only (type, confirmed or unfinished, added and last used as known); recovery explained without promises; no score; the "2FA enabled" line stays a policy statement, not a read. From there, "Add an authenticator app" (P9-S4b, mock-first) and "Create a new secret key" (P9-S4c, mock-first) |
+| Access & security: owner account security | Auth | 🟢 Prod (verified P9-S4-0) | `GET /auth/admin/factors` (owner, bearer-scoped) | "Account security" links to `/settings/security` (P9-S4a): the owner's factors read only (type, confirmed or unfinished, added and last used as known); recovery explained without promises; no score; the "2FA enabled" line stays a policy statement, not a read. From there, "Add an authenticator app" (P9-S4b, mock-first) and "Create a new secret key" (P9-S4c, mock-first); each confirmed factor offers "Remove" (P9-S4d, mock-first) |
 | Access & security: operator assignments vs unique operators | Auth | 🔴 | assignments readable only per operator (`GET /auth/admin/operators/:id/platform-assignments`); no operator directory (CF-03) | Mock; assignments and unique operators kept as separate figures |
 | Attention: access assignments to review | Auth | 🔴 | none (CF-13) | Not shown: removed in P2.5 (no defined source), no replacement |
 | Commercial: active licenses, expiring soon (+ attention item) | Billing | 🟡 | no `License` entity; entitlement read is service-token only, per organization, `{ valid, expiresAt }`; no staff API; not in production | Separate `CommercialSummaryGateway`, mock in demo builds; "license" is a view-model term (§6) |
@@ -977,7 +977,8 @@ Service:          auth-service
 Current behavior: `POST /auth/logout` ends the presented session; block and suspend end an account's sessions (§5); no
                   route lists the signed-in person's sessions or ends another one of theirs.
 Admin requirement: the signed-in owner or operator lists their own sessions (no tokens, no raw addresses) and ends one
-                  or all others. Until then Settings says signing out ends this session only.
+                  or all others. Until then Settings says signing out ends this session only, and removing a factor
+                  (P9-S4d) says it ends no session.
 Classification:   🔴 undefined.
 Recommended checkpoint: Core V2 A4.
 
@@ -1012,8 +1013,9 @@ Recommended checkpoint: before P9-S4c's HTTP adapter.
 CF-55  Alerts for owner credential changes (or corrected documentation)     PROPOSED (P9-S4-0)
 Service:          auth-service
 Current behavior: rotation, password change and factor add / remove write the local and central audit only; no event
-                  is emitted. Since P9-S4b and P9-S4c Admin offers adding a factor and creating a secret key (mock-first):
-                  a stolen session plus one factor could replace the owner's key unnoticed. `docs/sdd/auth-service.md` and `docs/add/auth-service.md` say rotation publishes
+                  is emitted. Since P9-S4b to P9-S4d Admin offers adding and removing a factor and creating a secret key
+                  (mock-first): a stolen session plus one factor could replace the owner's key or remove their other
+                  factors unnoticed. `docs/sdd/auth-service.md` and `docs/add/auth-service.md` say rotation publishes
                   `admin.secret_key_rotated` (ADR-0010).
 Admin requirement: the owner is told of every credential change on their account (a stolen session plus a factor
                   otherwise goes unnoticed), or the documents are corrected to the source.
@@ -1023,7 +1025,8 @@ Recommended checkpoint: Core V2 A4 (with A8 delivery).
 CF-56  Factor labels                                                        PROPOSED (P9-S4-0)
 Service:          auth-service
 Current behavior: `GET /auth/admin/factors` returns id, type, confirmed, createdAt, lastUsedAt; no name.
-Admin requirement: an owner-set label per factor, so removing one (P9-S4d) names the device it belongs to.
+Admin requirement: an owner-set label per factor, so removing one (P9-S4d) names the device it belongs to. Until then
+                  P9-S4d tells factors apart by type, position and dates only.
 Classification:   🔴 undefined.
 Recommended checkpoint: before P9-S4d.
 
@@ -1048,7 +1051,8 @@ Current behavior: the owner routes declare no OpenAPI response schema; shapes ar
 Admin requirement: declared schemas at `/auth/docs` for `factors*`, `step-up*`, `secret-key/rotate`, `password/change`,
                   `recovery/*`, verified before any HTTP adapter. For `secret-key/rotate` (P9-S4c) precisely: the key's
                   alphabet and separator, `issuedAt`'s format, its error codes (is there a `429` and its limit), when
-                  the step-up is spent, and which statuses guarantee that nothing was committed.
+                  the step-up is spent, and which statuses guarantee that nothing was committed. For `DELETE factors/:id` (P9-S4d):
+                  any throttle, and whether an already removed factor always answers `404`.
 Classification:   🟡 documentation.
 Recommended checkpoint: before the auth HTTP adapter (A4).
 
@@ -1071,6 +1075,20 @@ Admin requirement: a documented rule (preferably: a rotation by a live owner ses
                   says so), so Settings can explain what creating a key does to a recovery in progress (CF-58).
 Classification:   🔴 undefined (documentation / security decision).
 Recommended checkpoint: before any recovery action in Settings, and before P9-S4c's HTTP adapter.
+
+CF-62  Factor-removal proof and unfinished-setup semantics                PROPOSED (P9-S4d, 2026-10-25)
+Service:          auth-service
+Current behavior: (verified `304064f`) `DELETE factors/:id` needs an `owner.factor.remove` step-up proved by a factor
+                  and refuses the last confirmed factor (`409 factor_required`). Not stated in the documents read in
+                  P9-S4-0: whether the factor being removed may itself prove that step-up (a TOTP step-up does not say
+                  which authenticator produced the code), and whether `DELETE` accepts an unconfirmed (unfinished)
+                  TOTP setup.
+Admin requirement: a documented rule for both. Admin meanwhile offers confirmed factors only, accepts any authenticator
+                  code (the one being removed included) without claiming Core can tell, and says an unfinished setup
+                  is replaced by the next one. Possible improvements, if decided: record the proving factor on the
+                  step-up and refuse self-proof for removal; allow (or explicitly refuse) deleting an unfinished setup.
+Classification:   🔴 undefined (documentation / security decision).
+Recommended checkpoint: before P9-S4d's HTTP adapter.
 
 Residual risk recorded with P6-S3: block and unblock require no step-up (Core's deliberate choice for an emergency
 control), so a stolen owner session can block every operator or unblock one. Admin adds no verification Core does not ask

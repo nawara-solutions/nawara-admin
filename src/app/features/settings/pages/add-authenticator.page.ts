@@ -216,6 +216,7 @@ export class AddAuthenticatorPage {
 
   private readonly heading = viewChild<ElementRef<HTMLElement>>('heading');
   private readonly codeInput = viewChild<ElementRef<HTMLInputElement>>('codeInput');
+  private readonly proofInput = viewChild<ElementRef<HTMLInputElement>>('proofInput');
 
   constructor() {
     void inject(APP_ENVIRONMENT)
@@ -229,6 +230,13 @@ export class AddAuthenticatorPage {
     effect(() => {
       if (this.view() === 'leaving')
         void this.router.navigateByUrl('/settings/security', { replaceUrl: true });
+    });
+
+    // The proof field always shows what its signal holds: a value reset together with a fast Enter (no render in
+    // between) would otherwise leave a refused code in the field (found in P9-S4c, fixed in P9-S4d).
+    afterRenderEffect(() => {
+      const proof = this.proofInput()?.nativeElement;
+      if (proof && proof.value !== this.proofCode()) proof.value = this.proofCode();
     });
 
     // Focus follows the step: its heading; after a refused code, the field described by the banner.

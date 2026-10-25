@@ -610,6 +610,22 @@ account ([`design/p9-s4-account-security.md`](design/p9-s4-account-security.md) 
   the demo world; `DemoAuthState` keeps a DEMO-only digest. Typed fields always show their cleared value after a state
   change, even when Enter follows typing before a render.
 
+**A destructive command settled by a read (P9-S4d, 2026-10-25): remove a factor**, Auth-owned, the Company owner's own
+account ([`design/p9-s4-account-security.md`](design/p9-s4-account-security.md) §12):
+
+- **Not an `ActionRun`.** A lost `DELETE` must be settled by the factor list, not offered for resending. A
+  `RemoveFactorFacade` provided by the Security page drives an `nw-dialog` (alertdialog): refreshing → confirming →
+  verifying → removing → reconciling, with blocked, last-factor, still-present, unknown, rate-limited, refused and
+  not-in-build ends. `locked` (removing, reconciling) disables Escape, the backdrop and the close button; `busy` also
+  covers the fresh read and the verification, which can still be cancelled because nothing was sent.
+- **Eligibility is UX, Core is the authority.** Pure helpers (`factor-removal.ts`) number factors by type and say why
+  one cannot be removed from Admin; Core's `409 factor_required` still decides the last factor. The list is read again
+  whenever the dialog opens.
+- **Outcomes without attribution.** `204` is "removed"; a `404`, or a factor gone on read-back, is "no longer on your
+  account". One fresh grant per removal, never reused; a DELETE is never resent automatically.
+- **Focus.** The dialog's own focus moves per state (Cancel, the code field, the main action); after a removal the
+  page focuses the outcome (the factor's button is gone), otherwise CDK returns focus to the Remove that opened it.
+
 **Operations: Releases (P8-S4, 2026-10-24):** `/releases` is an information page (page → `ReleasesFacade` →
 `ReleaseInformationGateway` → mock or unavailable adapter): the service's responsibility and each capability's standing,
 documentation only. No catalog (CF-05), no release or deployment command, and no disabled control that would suggest

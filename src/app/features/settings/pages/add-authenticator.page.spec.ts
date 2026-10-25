@@ -222,6 +222,32 @@ describe('Add an authenticator app page (P9-S4b)', { timeout: 20_000 }, () => {
     expect(navigations.map((n) => n.url)).toEqual(['/settings/security']);
   });
 
+  it('a refused proof is cleared from its field even when Enter follows the typing at once; a retry still works', async () => {
+    const { element, type, submit, spies, field, settle, navigations } = await render();
+    await type('new-authenticator-code', DEMO_NEW_AUTHENTICATOR_CODE);
+    await submit();
+    const proof = field('step-up-code');
+    if (!proof) throw new Error('no proof field');
+    // typed and submitted in the same task: no render in between
+    proof.value = '000000';
+    proof.dispatchEvent(new Event('input'));
+    element.querySelector('form')?.dispatchEvent(new Event('submit', { cancelable: true }));
+    await settle(30);
+    expect(element.querySelector('[data-banner="proofRefused"]')).not.toBeNull();
+    expect(field('step-up-code')?.value).toBe('');
+    expect(field('step-up-code')?.readOnly).toBe(false);
+    expect(spies.confirm).not.toHaveBeenCalled();
+    // the same field takes the right code: the retry needs nothing but the keyboard
+    field('step-up-code')?.focus();
+    expect(document.activeElement).toBe(field('step-up-code'));
+    await type('step-up-code', DEMO_TOTP_CODE);
+    await submit();
+    await settle(30);
+    expect(spies.stepUp).toHaveBeenCalledTimes(2);
+    expect(spies.confirm).toHaveBeenCalledTimes(1);
+    expect(navigations.map((n) => n.url)).toEqual(['/settings/security']);
+  });
+
   it('says a code must be six digits before anything is sent', async () => {
     const { element, type, submit, spies } = await render();
     await type('new-authenticator-code', '12');

@@ -68,6 +68,9 @@ class FakeSecurity extends AccountSecurityGateway {
     this.rotations.push({ token, answer });
     return answer;
   }
+  removeFactor(): Observable<void> {
+    throw new Error('not used by the secret key');
+  }
 }
 
 class FakeStepUp extends StepUpGateway {

@@ -9,9 +9,10 @@
   (`/settings/security`, PR #45, merged); **P9-S4b implemented** 2026-10-25, mock-first, adding an authenticator app
   (`/settings/security/add-authenticator`, PR #46, merged): see [`p9-s4-account-security.md`](p9-s4-account-security.md)
   §10; **P9-S4c implemented** 2026-10-25, mock-first, creating a new secret key (`/settings/security/secret-key`, §11
-  there). **P9-S4d, S4e and P9-S5 are planned, each separately authorized**; P9-S5 stays contract-gated (S5-0). No
-  Company or Platform setting can be changed; the only security changes are the demo-mocked authenticator addition and
-  secret-key creation; no Core account, Company or Auth route is integrated (CF-49 open).
+  there; PR #47, merged); **P9-S4d implemented** 2026-10-25, mock-first, removing a confirmed factor from the Security
+  page (§12 there). **P9-S4e and P9-S5 are planned, each separately authorized**; P9-S5 stays contract-gated (S5-0). No
+  Company or Platform setting can be changed; the only security changes are the demo-mocked authenticator addition,
+  secret-key creation and factor removal; no Core account, Company or Auth route is integrated (CF-49 open).
 - **Baseline:** P9-0 read `main` `d0bce78` (PR #41). Core was **not** read: every Core fact below comes from Admin's
   `docs/CORE-INTEGRATION.md` (§3, §4, §5, §7, §9).
 - **Scope:** personal preferences, the signed-in person's account and security, Company configuration and Platform
@@ -143,7 +144,8 @@ sections; each later slice adds its section to it only when built.
 | **P9-S4a** ✅ | `/settings/security` read only: factors, step-up and recovery explained; Company Overview link enabled | S4-0 |
 | **P9-S4b** ✅ | `/settings/security/add-authenticator`: mock-first add an authenticator app (begin, the new app's code, step-up `owner.factor.enroll`, confirm; reconciliation by the factor list); shared `nw-totp-setup` | S4a, D7 |
 | **P9-S4c** ✅ | `/settings/security/secret-key`: mock-first "Create a new secret key" (the first or a replacement; step-up `owner.secret_key.rotate`; shown once, masked; a local group check and "saved" before Done; unknown outcomes never resent; leave guards) | S4a, D7, D10 |
-| P9-S4d…e | mock commands, one per slice: remove a factor, change password | S4a, D7, D10 |
+| **P9-S4d** ✅ | Security page dialog: mock-first removal of a confirmed factor (fresh read; eligibility: never the last confirmed factor, never the last authenticator app while only passkeys remain; step-up `owner.factor.remove`; `404`/`409`; unclear answers settled by the list, never resent) | S4a, D7, D10 |
+| P9-S4e | mock command: change password | S4a, D7, D10 |
 | P9-S5-0 / S5 | verify the Platform PATCH contract, then `/platforms/:platformId/settings`: identity, owner-only mock rename, policies read only | D5, D6 |
 
 ## 10. Risks and acceptance
