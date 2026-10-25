@@ -15,6 +15,12 @@ import { OperatorIdentifier } from './operator-identifier';
  */
 export const DEMO_PASSWORD = 'nawara-demo-2026';
 export const DEMO_TOTP_CODE = '123456';
+/**
+ * The code the mock accepts from the NEW authenticator app when the signed-in owner adds one (P9-S4b). Deliberately not
+ * `DEMO_TOTP_CODE` (the code of the factor the owner already has, which proves the step-up), so the two verifications
+ * stay distinct: the existing factor's code is refused as the new app's.
+ */
+export const DEMO_NEW_AUTHENTICATOR_CODE = '246810';
 
 /**
  * The one FICTIONAL authenticator setup key (base32, 160 bits) the mock issues on enrollment. Not a Core secret. The mock
@@ -275,6 +281,7 @@ export const DEMO_SIGN_IN_HINT: DemoSignInHint = {
   ],
   password: DEMO_PASSWORD,
   code: DEMO_TOTP_CODE,
+  newAuthenticatorCode: DEMO_NEW_AUTHENTICATOR_CODE,
   operators: DEMO_OPERATORS.map((o, i) => ({
     // Shown as typed: the phone with its formatting, to show that spaces and brackets are accepted.
     identifier: o.identifier.kind === 'email' ? o.identifier.email : '+999 (0000) 0001',

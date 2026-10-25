@@ -86,6 +86,11 @@ export type Capability =
    * routes are `@Actors('owner')` (an operator gets `403`); operators have no factors (they sign in with a working code).
    */
   | 'account.security.view'
+  /**
+   * Adding an authenticator app to the owner's own account (`/settings/security/add-authenticator`, P9-S4b). Core's
+   * `factors/totp` routes are `@Actors('owner')` and the confirmation needs an `owner.factor.enroll` step-up.
+   */
+  | 'account.factor.add'
   /** A Platform's administrative activity: Core's owner audit read; operators have no audit read (CF-04). */
   | 'platform.activity.view'
   /** Operator assignments and admin invitations of a Platform: the owner manages both; operators manage neither. */
@@ -102,6 +107,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.releases.view',
   'company.settings.view',
   'account.security.view',
+  'account.factor.add',
   'operator.platformAccess.change',
   'operator.account.block',
   'operator.create',

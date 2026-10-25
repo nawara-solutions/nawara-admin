@@ -170,3 +170,17 @@
     padding: var(--nw-space-5) var(--nw-space-6);
   }
 }
+
+// "Add an authenticator app" (P9-S4b), below the list; its reason under it when it cannot be used.
+.account-security__add {
+  display: grid;
+  justify-items: start;
+  gap: var(--nw-space-2);
+  padding-block-start: var(--nw-space-3);
+  border-block-start: 1px solid var(--nw-border-subtle);
+
+  > [nw-button] {
+    white-space: normal;
+    text-align: start;
+  }
+}

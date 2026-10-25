@@ -1,0 +1,118 @@
+@use 'abstracts' as nw;
+
+// An authenticator-app setup: the QR tile, the setup key and its copy status (extracted from the A4-S4 enrollment).
+
+:host {
+  display: grid;
+  gap: var(--nw-space-3);
+  min-inline-size: 0;
+}
+
+// The QR tile stays dark-on-white in every theme and palette, so authenticator apps can scan it.
+.nw-totp-setup__qr {
+  justify-self: center;
+  inline-size: 10rem;
+  overflow: hidden;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-qr-background);
+  color: var(--nw-qr-module);
+
+  @include nw.from(tablet) {
+    inline-size: 11.5rem;
+  }
+
+  // Begin in flight: no key yet.
+  &--preparing {
+    display: grid;
+    place-items: center;
+    gap: var(--nw-space-2);
+    aspect-ratio: 1;
+    padding: var(--nw-space-4);
+    background-color: var(--nw-surface-sunken);
+    color: var(--nw-text-secondary);
+    font-size: 0.8125rem;
+    text-align: center;
+  }
+}
+
+.nw-totp-setup__qr-image {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+}
+
+.nw-totp-setup__hint {
+  color: var(--nw-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.nw-totp-setup__key {
+  display: grid;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+}
+
+.nw-totp-setup__key-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nw-space-2);
+}
+
+.nw-totp-setup__key-label {
+  color: var(--nw-text-label);
+  font-size: 0.75rem;
+}
+
+// A machine value: left-to-right in every locale, on the reading side in RTL, selectable.
+.nw-totp-setup__key-value {
+  color: var(--nw-text-primary);
+  font-family: var(--nw-font-mono);
+  font-size: 0.9375rem;
+  letter-spacing: 0.04em;
+  word-spacing: 0.2em;
+  overflow-wrap: anywhere;
+  unicode-bidi: isolate;
+}
+
+:host(:dir(rtl)) .nw-totp-setup__key-value {
+  text-align: right;
+}
+
+.nw-totp-setup__copy-status {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  font-size: 0.8125rem;
+
+  &--copied {
+    color: var(--nw-status-success-fg);
+  }
+
+  &--failed {
+    color: var(--nw-status-danger-fg);
+  }
+}
+
+.nw-totp-setup__meta {
+  color: var(--nw-text-secondary);
+  font-size: 0.75rem;
+}
+
+.nw-totp-setup__skeleton {
+  display: grid;
+  gap: var(--nw-space-2);
+
+  span {
+    display: block;
+    block-size: 2.75rem;
+    border-radius: var(--nw-radius-md);
+    background-color: var(--nw-surface-sunken);
+  }
+}

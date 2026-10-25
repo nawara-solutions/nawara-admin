@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation (PR #34); P7-S1 mock Licenses & entitlements overview (PR #35); P7-S2 Platform and Organization subscriptions (PR #36); P7-S3 Billing & payment follow-ups (PR #37); P8-S1 simulated administrative activity browser (PR #38); P8-S2 Services & health inventory (PR #39); P8-S3 personal Notifications (PR #40); P8-S4 Releases information page (PR #41); P9-S1 Settings hub & Language (PR #42); P9-S2 personal Account (PR #43); P9-S3 Company settings (PR #44); P9-S4a owner Security overview (read only); rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation (PR #34); P7-S1 mock Licenses & entitlements overview (PR #35); P7-S2 Platform and Organization subscriptions (PR #36); P7-S3 Billing & payment follow-ups (PR #37); P8-S1 simulated administrative activity browser (PR #38); P8-S2 Services & health inventory (PR #39); P8-S3 personal Notifications (PR #40); P8-S4 Releases information page (PR #41); P9-S1 Settings hub & Language (PR #42); P9-S2 personal Account (PR #43); P9-S3 Company settings (PR #44); P9-S4a owner Security overview (read only; PR #45); P9-S4b add an authenticator app (mock-first); rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,9 +290,28 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
-## P9-S4a: owner Security overview, read only (P9-S4-0 verified, implemented 2026-10-25)
+## P9-S4b: add an authenticator app, mock-first (implemented 2026-10-25)
 
 **Status: implemented, awaiting review.** Design: [`design/p9-s4-account-security.md`](design/p9-s4-account-security.md)
+§10 (owner decisions D1–D8). Not real Auth integration.
+
+- `/settings/security/add-authenticator`, the Company owner's own account only (new capability `account.factor.add`:
+  the route's guard, the Security page's action, the facade, mock `401`/`403`). Begin → scan (shared `nw-totp-setup`,
+  extracted from the sign-in enrollment) → the NEW app's code → confirm it's you with an authenticator already used
+  (step-up `owner.factor.enroll`) → confirm → back on Security, the list reloaded, a notice that promises no recovery.
+- A page-scoped state machine (`AddAuthenticatorFacade`, not `ActionRun`): definite `400` refusals keep a still-valid
+  grant (same owner and session, > 15 s left); lost answers are reconciled by the factor list and never resent
+  (confirmed, still pending, replaced, or unknown with "Check again"); `429` never retries by itself; cancel deletes no
+  Core enrollment (no API).
+- A passkey-only owner is told why and nothing begins; passkey proof waits for the shared factor chooser (a separate
+  future slice). Secrets (key, URI, codes, grant) live in the page's memory only and are disposed on success, cancel,
+  replacement, session change and destruction. Production binds the unavailable adapters.
+- Next (each separately authorized): S4c secret key, S4d remove a factor, S4e password; a shared step-up factor chooser
+  and passkey registration later; P9-S5 Platform settings (S5-0 first).
+
+## P9-S4a: owner Security overview, read only (P9-S4-0 verified, implemented 2026-10-25)
+
+**Status: implemented (PR #45, merged).** Design: [`design/p9-s4-account-security.md`](design/p9-s4-account-security.md)
 (the verified Core contracts, Core `304064f`, and §9 for this slice).
 
 - `/settings/security`, the Company owner only (capability `account.security.view`: route guard, hub entry in the
@@ -1122,6 +1141,7 @@ before A4-S2) are `nawara-frontend` tasks, not Admin's.
 |---|---|---|
 | tokens, themes, typography, breakpoints | SHARED: `@nawara-solutions/design-tokens` 0.1.0 adopted 2026-10-06 (exact pin, `check:tokens`) | same names and values (verified 2026-10-06); Admin-only tokens, palettes, artwork and shadows stay LOCAL |
 | `nw-*` primitives | CANDIDATE (from A2) | labels injected, never owned; 5 approved + 9 pending the scope decision (D-A2-7) |
+| `nw-totp-setup` (QR from an `otpauth` URI, grouped setup key, copy) | CANDIDATE (P9-S4b) | product-independent presentation, labels injected; holds no authentication state; uses `uqr`; extracted from Admin's sign-in enrollment and reused by Settings; not proposed to `nawara-frontend` yet |
 | HTTP interceptors, `AppError`, Core error mapping | CANDIDATE (from A3) | Core contract is shared by all products |
 | i18n/direction, preference registry, theme service | CANDIDATE (from A2) | delivered early: A2 needed them for themes and RTL |
 | shell, navigation, organization switcher, features | LOCAL | Admin-specific |

@@ -311,7 +311,7 @@ type AppError =
   | { kind: 'forbidden'; code?: string }                  // 403 (incl. step_up_required, admin_forbidden)
   | { kind: 'not_found'; code?: string }                  // 404 (often collapsed on purpose)
   | { kind: 'conflict'; code?: string }                   // 409, 422 idempotency_key_reused
-  | { kind: 'validation'; messages: readonly string[] }   // 400 validation_error (display only)
+  | { kind: 'validation'; messages: readonly string[]; code?: string } // 400 validation_error (display only), verification_failed
   | { kind: 'rate_limited'; retryAfterSeconds?: number }  // 429
   | { kind: 'unavailable'; code?: string }                // 503 (hierarchy_unavailable, auth_unavailable …)
   | { kind: 'unexpected' };                               // 500, malformed response
@@ -567,6 +567,28 @@ only ([`design/p6-s3-operator-block.md`](design/p6-s3-operator-block.md)):
   issues the confirmation code in `DemoAuthState`. The sign-in mock resolves operators it has no fixture for from the
   world, so the world stays the one source of an operator's confirmed and blocked state.
 - Navigation state carries only the new operator's id (the next-steps panel), never a contact.
+
+**Two-stage owner enrollment (P9-S4b, 2026-10-25): add an authenticator app**, Auth-owned, the Company owner's own
+account ([`design/p9-s4-account-security.md`](design/p9-s4-account-security.md) §10):
+
+- **Not an `ActionRun`.** Adding a factor is two commands (begin, then confirm) and Core keeps a step-up grant alive when
+  a confirmation is definitely refused, while `ActionRun` forgets a grant after one send. A page-scoped
+  `AddAuthenticatorFacade` is one explicit state machine (idle, checking, beginning, setup, validating, verifying,
+  confirming, codeRefused, reconciling, notConfirmed, replaced, rateLimited, unknown, succeeded, cancelled, refused,
+  notInBuild), reusing `StepUpGateway` and the factor list read. No new framework.
+- **Order:** the NEW app's code first, then "confirm it's you" with an authenticator the owner already has (purpose
+  `owner.factor.enroll`, factor only; Admin offers the authenticator code only: a passkey-only owner is told why and
+  nothing begins), then the confirmation.
+- **Definite refusal vs unknown outcome:** `400 verification_failed` / `validation_error` are definite (Core rolled back,
+  the grant is unspent): the grant is reused only for the same owner and session with more than 15 s left. A lost answer
+  is never resent: the factor list decides (confirmed → done; unconfirmed → "not added yet", grant dropped; missing →
+  replaced; unreadable → unknown with a manual "Check again"). `429` stops with no automatic retry.
+- **Secrets:** the setup key, the `otpauth` URI, both codes and the grant live in the facade's memory only (provided by
+  the page, disposed on destroy, cancel, success, a replaced setup and any session change); the code fields clear on
+  every state change; navigation carries nothing (`replaceUrl`, no state, no query). The shared `nw-totp-setup`
+  presents the QR and the key for this page and for sign-in enrollment; it owns no authentication state.
+- **Errors:** `AppError`'s `validation` kind carries Core's optional `code` (§9), so `verification_failed` and
+  `validation_error` can be told apart where a flow must.
 
 **Operations: Releases (P8-S4, 2026-10-24):** `/releases` is an information page (page → `ReleasesFacade` →
 `ReleaseInformationGateway` → mock or unavailable adapter): the service's responsibility and each capability's standing,

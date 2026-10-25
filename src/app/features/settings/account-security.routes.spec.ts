@@ -8,8 +8,9 @@ import {
   UrlTree,
   provideRouter,
 } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { Actor } from '../../core/auth/actor';
+import { UnavailableStepUpGateway } from '../../core/auth/step-up.gateway';
 import { AuthSession } from '../../core/auth/auth-session';
 import { APP_ENVIRONMENT, AppEnvironment } from '../../core/config/app-environment';
 import { companyId, platformId } from '../../core/context/scope.model';
@@ -82,10 +83,45 @@ describe('account security routes (P9-S4a)', () => {
     const providers = (root?.providers ?? []) as (Provider & { useClass?: unknown })[];
     expect(providers.map((p) => (typeof p === 'function' ? p : p.useClass))).toEqual([
       UnavailableAccountSecurityGateway,
+      UnavailableStepUpGateway,
       AccountSecurityFacade,
     ]);
-    await expect(
-      firstValueFrom(new UnavailableAccountSecurityGateway().load()),
-    ).rejects.toMatchObject({ kind: 'unavailable', code: ADAPTER_UNAVAILABLE });
+    const unavailable = new UnavailableAccountSecurityGateway();
+    const answers: Observable<unknown>[] = [
+      unavailable.load(),
+      unavailable.beginTotp(),
+      unavailable.confirmTotp(),
+    ];
+    for (const answer of answers)
+      await expect(firstValueFrom(answer)).rejects.toMatchObject({
+        kind: 'unavailable',
+        code: ADAPTER_UNAVAILABLE,
+      });
+  });
+});
+
+describe('add an authenticator route (P9-S4b)', () => {
+  async function addRoute(): Promise<Route> {
+    const [root] = await loadAccountSecurityRoutes(PRODUCTION);
+    const route = root?.children?.find((r) => r.path === 'add-authenticator');
+    if (!route) throw new Error('no add-authenticator route');
+    return route;
+  }
+
+  it('is a dedicated page below Security, with no identity or secret in its path', async () => {
+    const route = await addRoute();
+    expect(route.title).toBe('titles.settingsAddAuthenticator');
+    expect(route.path).not.toMatch(/[:?#]/);
+    expect(route.data?.[BREADCRUMB_PARENT_DATA]).toEqual({
+      key: 'shell.breadcrumb.security',
+      link: '/settings/security',
+    });
+  });
+
+  it('has its own owner-only guard (account.factor.add): an operator assigned everywhere gets /forbidden', async () => {
+    const route = await addRoute();
+    expect(guardResult(route, owner)).toBe(true);
+    TestBed.resetTestingModule();
+    expect(guardResult(route, operator)).toBe('/forbidden');
   });
 });

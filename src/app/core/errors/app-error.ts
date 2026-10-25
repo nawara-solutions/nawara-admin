@@ -11,7 +11,11 @@ type AppErrorBody =
   | { readonly kind: 'forbidden'; readonly code?: string }
   | { readonly kind: 'not_found'; readonly code?: string }
   | { readonly kind: 'conflict'; readonly code?: string }
-  | { readonly kind: 'validation'; readonly messages: readonly string[] }
+  /**
+   * `400`. `code` is Core's when a caller must tell refusals apart (`validation_error`: a malformed request;
+   * `verification_failed`: a code or factor that did not verify); most callers never branch on it.
+   */
+  | { readonly kind: 'validation'; readonly messages: readonly string[]; readonly code?: string }
   | { readonly kind: 'rate_limited'; readonly retryAfterSeconds?: number }
   | { readonly kind: 'unavailable'; readonly code?: string }
   | { readonly kind: 'unexpected' };
