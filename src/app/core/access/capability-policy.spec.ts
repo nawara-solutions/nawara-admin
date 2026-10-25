@@ -23,6 +23,7 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
   it('gives the Company owner company-wide administration, platform and organization creation', () => {
     expect([...capabilitiesOf(owner)].sort()).toEqual([
       'account.factor.add',
+      'account.secret_key.rotate',
       'account.security.view',
       'company.audit.view',
       'company.commercial.view',
@@ -63,6 +64,8 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
     expect(can(operator, 'account.security.view')).toBe(false);
     // Adding an authenticator (P9-S4b) is the owner's own: Core's factors/totp routes are owner only.
     expect(can(operator, 'account.factor.add')).toBe(false);
+    // Creating a secret key (P9-S4c) is the owner's own: Core's secret-key/rotate is owner only.
+    expect(can(operator, 'account.secret_key.rotate')).toBe(false);
     expect(can(operator, 'company.platforms.view')).toBe(false);
     // The Company's staff directory is the owner's; an operator's authority is their assignments only (P6-S1).
     expect(can(operator, 'company.operators.view')).toBe(false);

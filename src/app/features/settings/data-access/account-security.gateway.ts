@@ -26,7 +26,18 @@ export interface AccountSecurity {
 }
 
 /**
- * Frontend contract of the owner's account security (P9-S4a, P9-S4b), always the signed-in owner's own (bearer-scoped;
+ * Core's answer to `POST /auth/admin/secret-key/rotate` (P9-S4-0, Core `304064f`): the new key, returned this ONCE
+ * (13 groups of 4; its alphabet and separator are not declared, CF-59), and when it was issued. Never stored, put in a
+ * URL, logged or kept after the flow; Core keeps only a keyed hash, so nothing can show it again.
+ */
+export interface SecretKeyIssue {
+  readonly secretKey: string;
+  /** UTC instant, ISO 8601 with `Z`. */
+  readonly issuedAt: string;
+}
+
+/**
+ * Frontend contract of the owner's account security (P9-S4a, P9-S4b, P9-S4c), always the signed-in owner's own (bearer-scoped;
  * no identity parameter), `401` without a session and `403` for anyone else. No HTTP adapter until the auth HTTP adapter
  * exists (A4, D-A4).
  */
@@ -47,6 +58,14 @@ export abstract class AccountSecurityGateway {
    * `429 rate_limited`. Never resent automatically: a lost answer is reconciled with `load()`.
    */
   abstract confirmTotp(factorId: string, code: string, stepUpToken: string): Observable<void>;
+  /**
+   * `POST /auth/admin/secret-key/rotate` with an `owner.secret_key.rotate` step-up (`x-step-up-token`; a factor's, never
+   * the secret key's). Creates a NEW key on every call, the first one or a replacement alike: the previous key, if any,
+   * stops working as soon as it commits. Not idempotent and no read of the result exists (CF-54): never resent
+   * automatically. Definite refusals: `401`, `403` (`step_up_required`, `forbidden`), `429`; anything else may have
+   * committed.
+   */
+  abstract rotateSecretKey(stepUpToken: string): Observable<SecretKeyIssue>;
 }
 
 /** Every non-demo build: not available (never a demo record, never a request, never a setup). */
@@ -60,6 +79,10 @@ export class UnavailableAccountSecurityGateway extends AccountSecurityGateway {
   }
 
   confirmTotp(): Observable<void> {
+    return throwError(adapterUnavailable);
+  }
+
+  rotateSecretKey(): Observable<SecretKeyIssue> {
     return throwError(adapterUnavailable);
   }
 }

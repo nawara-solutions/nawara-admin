@@ -212,15 +212,27 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
     for (const item of Object.values(t.unavailable)) expect(page).toContain(item);
   });
 
-  it('offers one action, "Add an authenticator app", as a link to its page, and no form (P9-S4b)', async () => {
+  it('offers two actions, each a link to its own page, and no form (P9-S4b, P9-S4c)', async () => {
     const { element } = await render();
     const controls = [
       ...element.querySelectorAll('button, a, input, textarea, select, form, [contenteditable]'),
     ];
-    expect(controls).toHaveLength(1);
-    expect(controls[0]?.tagName).toBe('A');
-    expect(controls[0]?.getAttribute('href')).toBe('/settings/security/add-authenticator');
-    expect(text(controls[0])).toBe(t.add.action);
+    expect(controls.map((c) => [c.tagName, c.getAttribute('href'), text(c)])).toEqual([
+      ['A', '/settings/security/add-authenticator', t.add.action],
+      ['A', '/settings/security/secret-key', t.secretKey.action],
+    ]);
+  });
+
+  it('the secret-key card claims nothing about an existing key and promises no recovery (P9-S4c)', async () => {
+    const { element } = await render();
+    const card = element.querySelector('[data-secret-key-card]');
+    expect(text(card?.querySelector('h2'))).toBe(t.secretKey.cardTitle);
+    expect(text(card)).toContain(t.secretKey.cardBody);
+    expect(t.secretKey.cardBody).toContain('Admin can’t check whether you have one');
+    expect(text(card)).not.toMatch(
+      /you (have|don’t have|do not have) a (secret )?key\b|last (created|rotated)/i,
+    );
+    expect(t.unavailable).not.toHaveProperty('secretKey');
   });
 
   it('a passkey-only owner sees the action disabled, with the reason as its description (P9-S4b)', async () => {
@@ -237,6 +249,12 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
     const reason = element.querySelector('[data-add-unavailable]');
     expect(button?.getAttribute('aria-describedby')).toBe(reason?.id);
     expect(text(reason)).toBe(t.add.needsAuthenticator);
+    // the same limitation for a new secret key (P9-S4c): no passkey confirmation yet, never a fallback
+    const keyButton = element.querySelector<HTMLButtonElement>('[data-secret-key-action] button');
+    expect(keyButton?.disabled).toBe(true);
+    const keyReason = element.querySelector('[data-secret-key-unavailable]');
+    expect(keyButton?.getAttribute('aria-describedby')).toBe(keyReason?.id);
+    expect(text(keyReason)).toBe(t.secretKey.needsAuthenticator);
   });
 
   it('shows the notice the add page left, once, without any secret (P9-S4b)', async () => {
@@ -250,6 +268,27 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
     expect(TestBed.inject(AccountSecurityFacade).takeNotice()).toBeNull();
     // a new factor is not presented as a recovery path
     expect(t.add.addedNotice).toContain('It does not make recovery possible on its own');
+  });
+
+  it('shows each secret-key notice once, with no part of a key (P9-S4c)', async () => {
+    const expected = {
+      keySaved: ['status', t.secretKey.notices.saved],
+      keyNotSaved: ['alert', t.secretKey.notices.notSaved],
+      keyUnknown: ['alert', t.secretKey.notices.unknown],
+      keyCancelled: ['status', t.secretKey.notices.cancelled],
+    } as const;
+    for (const [notice, [role, copy]] of Object.entries(expected)) {
+      TestBed.resetTestingModule();
+      const { element } = await render(owner, {
+        before: () =>
+          TestBed.inject(AccountSecurityFacade).announce(notice as keyof typeof expected),
+      });
+      const alert = element.querySelector(`[data-notice="${notice}"]`);
+      expect(text(alert)).toBe(copy);
+      expect(alert?.getAttribute('role')).toBe(role);
+      expect(TestBed.inject(AccountSecurityFacade).takeNotice()).toBeNull();
+    }
+    expect(t.secretKey.notices.saved).not.toMatch(/recover/i);
   });
 
   it('never shows a seed, code, password, key, token or grant, and sends no request', async () => {
@@ -280,6 +319,7 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
     expect(spy).not.toHaveBeenCalled();
     expect(text(element)).toContain(t.states.forbiddenDescription);
     expect(element.querySelector('[data-factors]')).toBeNull();
+    expect(element.querySelector('[data-secret-key-card]')).toBeNull();
   });
 
   it('a production build says Security is not available, never a simulated factor', async () => {

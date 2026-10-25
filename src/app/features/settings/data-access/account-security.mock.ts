@@ -1,28 +1,59 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { Observable, defer, delay, of, switchMap, throwError, timer } from 'rxjs';
+import { Observable, defer, delay, from, of, switchMap, throwError, timer } from 'rxjs';
 import {
   DEMO_NEW_AUTHENTICATOR_CODE,
   DEMO_TOTP_ISSUER,
   DEMO_TOTP_SECRET,
 } from '../../../core/auth/auth.fixtures';
-import { DemoAuthState, DemoSignedIn } from '../../../core/auth/auth.mock-state';
+import {
+  DemoAuthState,
+  DemoSignedIn,
+  demoSecretKeyDigest,
+} from '../../../core/auth/auth.mock-state';
 import { TotpEnrollment } from '../../../core/auth/auth.model';
 import { DEMO_LATENCY_MS } from '../../../core/context/scope-directory.mock';
 import { AppError } from '../../../core/errors/app-error';
 import { NW_CLOCK } from '../../../shared/format/clock';
-import { AccountSecurity, AccountSecurityGateway } from './account-security.gateway';
+import {
+  AccountSecurity,
+  AccountSecurityGateway,
+  SecretKeyIssue,
+} from './account-security.gateway';
 
 /**
  * Which answer the mock gives, so every view state can be exercised. Demo builds use `normal`. `error`: the factor list
  * cannot be read. `confirmLost`: a confirmation is applied but its answer is lost (a network error).
- * `confirmUnavailable`: a confirmation is refused before anything is applied (`503`).
+ * `confirmUnavailable`: a confirmation is refused before anything is applied (`503`). Secret key (P9-S4c): `rotateLost`
+ * (committed, the answer lost), `rotateServerError` (committed, then `500`), `rotateIncomplete` (committed, `200`
+ * without a key), `rotateRateLimited` (`429`, nothing changed).
  */
-export type AccountSecurityDemoScenario = 'normal' | 'error' | 'confirmLost' | 'confirmUnavailable';
+export type AccountSecurityDemoScenario =
+  | 'normal'
+  | 'error'
+  | 'confirmLost'
+  | 'confirmUnavailable'
+  | 'rotateLost'
+  | 'rotateServerError'
+  | 'rotateIncomplete'
+  | 'rotateRateLimited';
 
 export const ACCOUNT_SECURITY_DEMO_SCENARIO = new InjectionToken<AccountSecurityDemoScenario>(
   'ACCOUNT_SECURITY_DEMO_SCENARIO',
   { factory: () => 'normal' },
 );
+
+/**
+ * DEMO ONLY: the characters of a simulated secret key (32, no 0/O or 1/I). Core's alphabet is not declared (CF-59); the
+ * demo key is random and fictional, never a Core key.
+ */
+const DEMO_SECRET_KEY_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+/** A new simulated key: 13 groups of 4, joined by `-` (Core's shape, P9-S4-0; its separator is not declared). */
+function demoSecretKey(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(52));
+  const chars = Array.from(bytes, (b) => DEMO_SECRET_KEY_ALPHABET[b & 31]);
+  return Array.from({ length: 13 }, (_, i) => chars.slice(i * 4, i * 4 + 4).join('')).join('-');
+}
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -36,6 +67,11 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  * first and SPENT only when the factor is confirmed (a refused confirmation rolls back and leaves it usable). The NEW
  * app's code is `DEMO_NEW_AUTHENTICATOR_CODE`, never the existing factor's demo code. The setup key is the fixed
  * fictional `DEMO_TOTP_SECRET`; no seed, code or grant is kept with the factor records.
+ *
+ * Creating a secret key (P9-S4c) follows the same contract: a live `owner.secret_key.rotate` grant of this owner (a
+ * factor's, never the secret key's), CHECKED first and SPENT with the change; every call makes a new random key, whose
+ * DEMO digest replaces the previous verifier at once in `DemoAuthState` (the old key stops matching). The key itself is
+ * returned once and kept nowhere. No read says whether a key exists (CF-54).
  */
 export class MockAccountSecurityGateway extends AccountSecurityGateway {
   private readonly latency = inject(DEMO_LATENCY_MS);
@@ -114,6 +150,39 @@ export class MockAccountSecurityGateway extends AccountSecurityGateway {
       this.auth.confirmTotpFactor(userId, factorId, new Date(now).toISOString());
       if (this.scenario === 'confirmLost') return this.fail({ kind: 'network', status: 0 });
       return of(undefined).pipe(delay(this.latency));
+    });
+  }
+
+  rotateSecretKey(stepUpToken: string): Observable<SecretKeyIssue> {
+    return defer(() => {
+      const owner = this.owner();
+      if ('kind' in owner) return this.fail(owner);
+      const userId = owner.identity.userId;
+      if (this.scenario === 'rotateRateLimited')
+        return this.fail({ kind: 'rate_limited', status: 429 });
+      if (!this.auth.checkStepUp(stepUpToken, 'owner.secret_key.rotate', userId, this.now()))
+        return this.fail({ kind: 'forbidden', code: 'step_up_required', status: 403 });
+      const secretKey = demoSecretKey();
+      return from(demoSecretKeyDigest(secretKey)).pipe(
+        switchMap((digest) => {
+          const now = this.now();
+          // Spent and replaced together, as in Core's transaction: a grant spent meanwhile changes nothing.
+          if (!this.auth.consumeStepUp(stepUpToken, 'owner.secret_key.rotate', userId, now))
+            return this.fail({ kind: 'forbidden', code: 'step_up_required', status: 403 });
+          const issuedAt = new Date(now).toISOString();
+          this.auth.replaceSecretKeyVerifier(userId, digest, issuedAt);
+          switch (this.scenario) {
+            case 'rotateLost':
+              return this.fail({ kind: 'network', status: 0 });
+            case 'rotateServerError':
+              return this.fail({ kind: 'unexpected', status: 500 });
+            case 'rotateIncomplete':
+              return of<SecretKeyIssue>({ secretKey: '', issuedAt }).pipe(delay(this.latency));
+            default:
+              return of<SecretKeyIssue>({ secretKey, issuedAt }).pipe(delay(this.latency));
+          }
+        }),
+      );
     });
   }
 

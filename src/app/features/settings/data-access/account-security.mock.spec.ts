@@ -10,7 +10,11 @@ import {
   DEMO_TOTP_SECRET,
 } from '../../../core/auth/auth.fixtures';
 import { MockAuthGateway } from '../../../core/auth/auth.mock';
-import { DemoAuthState, FACTOR_ENROLLMENT_LIMIT } from '../../../core/auth/auth.mock-state';
+import {
+  DemoAuthState,
+  FACTOR_ENROLLMENT_LIMIT,
+  demoSecretKeyDigest,
+} from '../../../core/auth/auth.mock-state';
 import { DEMO_STEP_UP_LIFETIME_MS, MockStepUpGateway } from '../../../core/auth/step-up.mock';
 import { DEMO_LATENCY_MS } from '../../../core/context/scope-directory.mock';
 import { AppError } from '../../../core/errors/app-error';
@@ -387,5 +391,173 @@ describe('Account security mock: adding an authenticator (P9-S4b)', () => {
       expect(records).not.toContain(secret);
     const listed = JSON.stringify(await firstValueFrom(gateway.load()));
     for (const secret of [setup.secret, 'otpauth', token]) expect(listed).not.toContain(secret);
+  });
+});
+
+describe('Account security mock: creating a new secret key (P9-S4c)', () => {
+  const owner = DEMO_OWNER_ACCOUNT.identity;
+  const KEY_SHAPE = /^([A-Z2-9]{4}-){12}[A-Z2-9]{4}$/;
+
+  function setUpKey(scenario: AccountSecurityDemoScenario = 'normal') {
+    const clock = { now: NOW };
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: DEMO_LATENCY_MS, useValue: 0 },
+        { provide: ACCOUNT_SECURITY_DEMO_SCENARIO, useValue: scenario },
+        { provide: NW_CLOCK, useValue: () => clock.now },
+      ],
+    });
+    const state = TestBed.inject(DemoAuthState);
+    const gateway = TestBed.runInInjectionContext(() => new MockAccountSecurityGateway());
+    const stepUp = TestBed.runInInjectionContext(() => new MockStepUpGateway());
+    state.signedIn.set({ identity: owner, businessIdentityId: null });
+    const grant = async () =>
+      (
+        await firstValueFrom(
+          stepUp.obtain('owner.secret_key.rotate', { method: 'totp', code: DEMO_TOTP_CODE }),
+        )
+      ).token;
+    const works = async (key: string, userId = owner.userId) =>
+      state.secretKeyMatches(userId, await demoSecretKeyDigest(key));
+    return { state, gateway, grant, works, clock };
+  }
+
+  it('creates a key with a live owner.secret_key.rotate grant: 13 groups of 4, issued now; only its digest is kept', async () => {
+    const { gateway, grant, works } = setUpKey();
+    const issue = await firstValueFrom(gateway.rotateSecretKey(await grant()));
+    expect(Object.keys(issue).sort()).toEqual(['issuedAt', 'secretKey']);
+    expect(issue.secretKey).toMatch(KEY_SHAPE);
+    expect(issue.issuedAt).toBe(new Date(NOW).toISOString());
+    expect(await works(issue.secretKey)).toBe(true);
+    // separators and case do not matter to the verifier
+    expect(await works(issue.secretKey.replace(/-/g, ' ').toLowerCase())).toBe(true);
+  });
+
+  it('the first key and a replacement are the same call; every call makes a new key and the previous one stops working', async () => {
+    const { gateway, grant, works } = setUpKey();
+    const first = await firstValueFrom(gateway.rotateSecretKey(await grant()));
+    const second = await firstValueFrom(gateway.rotateSecretKey(await grant()));
+    expect(second.secretKey).not.toBe(first.secretKey);
+    expect(await works(first.secretKey)).toBe(false);
+    expect(await works(second.secretKey)).toBe(true);
+  });
+
+  it('spends the grant with the change: the same grant never creates a second key', async () => {
+    const { gateway, grant, works } = setUpKey();
+    const token = await grant();
+    const issued = await firstValueFrom(gateway.rotateSecretKey(token));
+    expect(await error(gateway.rotateSecretKey(token))).toMatchObject({
+      kind: 'forbidden',
+      code: 'step_up_required',
+      status: 403,
+    });
+    expect(await works(issued.secretKey)).toBe(true);
+  });
+
+  it('refuses a grant of another purpose, of another owner, proved by the secret key, expired, forged or missing (403): nothing changes', async () => {
+    const { gateway, state, grant, works, clock } = setUpKey();
+    const current = await firstValueFrom(gateway.rotateSecretKey(await grant()));
+    const enroll = state.issueStepUp('owner.factor.enroll', owner.userId, NOW + 60_000);
+    const someoneElse = state.issueStepUp(
+      'owner.secret_key.rotate',
+      DEMO_ENROLLMENT_ACCOUNT.identity.userId,
+      NOW + 60_000,
+    );
+    const secretKeyProof = state.issueStepUp(
+      'owner.secret_key.rotate',
+      owner.userId,
+      NOW + 60_000,
+      'secret_key',
+    );
+    const expiring = state.issueStepUp('owner.secret_key.rotate', owner.userId, NOW + 1_000);
+    clock.now = NOW + 2_000;
+    for (const token of [enroll, someoneElse, secretKeyProof, expiring, 'demo-step-up-forged', ''])
+      expect(await error(gateway.rotateSecretKey(token))).toMatchObject({
+        kind: 'forbidden',
+        code: 'step_up_required',
+        status: 403,
+      });
+    expect(await works(current.secretKey)).toBe(true);
+    // the refused grants were not spent
+    expect(state.checkStepUp(enroll, 'owner.factor.enroll', owner.userId, clock.now)).toBe(true);
+  });
+
+  it('refuses every operator (403) and answers 401 without a session, creating nothing', async () => {
+    const { gateway, state } = setUpKey();
+    const operator = DEMO_OPERATORS[0];
+    if (!operator) throw new Error('no operator fixture');
+    const token = state.issueStepUp(
+      'owner.secret_key.rotate',
+      operator.identity.userId,
+      NOW + 60_000,
+    );
+    state.signedIn.set({ identity: operator.identity, businessIdentityId: null });
+    expect(await error(gateway.rotateSecretKey(token))).toMatchObject({ status: 403 });
+    state.signedIn.set(null);
+    expect(await error(gateway.rotateSecretKey(token))).toMatchObject({
+      kind: 'unauthenticated',
+      status: 401,
+    });
+    expect(state.checkStepUp(token, 'owner.secret_key.rotate', operator.identity.userId, NOW)).toBe(
+      true,
+    );
+  });
+
+  it('the uncertain scenarios commit: a lost answer, a 500 and a 200 without a key all replace the verifier and spend the grant', async () => {
+    for (const [scenario, expected] of [
+      ['rotateLost', { kind: 'network' }],
+      ['rotateServerError', { kind: 'unexpected', status: 500 }],
+    ] as const) {
+      TestBed.resetTestingModule();
+      const { gateway, state, grant, works } = setUpKey(scenario);
+      state.replaceSecretKeyVerifier(owner.userId, await demoSecretKeyDigest('OLD'), 'x');
+      const token = await grant();
+      expect(await error(gateway.rotateSecretKey(token))).toMatchObject(expected);
+      expect(await works('OLD')).toBe(false);
+      expect(state.checkStepUp(token, 'owner.secret_key.rotate', owner.userId, NOW)).toBe(false);
+    }
+    TestBed.resetTestingModule();
+    const { gateway, state, grant, works } = setUpKey('rotateIncomplete');
+    state.replaceSecretKeyVerifier(owner.userId, await demoSecretKeyDigest('OLD'), 'x');
+    const issue = await firstValueFrom(gateway.rotateSecretKey(await grant()));
+    expect(issue.secretKey).toBe('');
+    expect(await works('OLD')).toBe(false);
+  });
+
+  it('a throttled request (429) changes nothing and spends nothing', async () => {
+    const { gateway, state, grant, works } = setUpKey('rotateRateLimited');
+    state.replaceSecretKeyVerifier(owner.userId, await demoSecretKeyDigest('OLD'), 'x');
+    const token = await grant();
+    expect(await error(gateway.rotateSecretKey(token))).toMatchObject({
+      kind: 'rate_limited',
+      status: 429,
+    });
+    expect(await works('OLD')).toBe(true);
+    expect(state.checkStepUp(token, 'owner.secret_key.rotate', owner.userId, NOW)).toBe(true);
+  });
+
+  it('the key cannot be read back: no gateway read carries it and the simulated state keeps no plaintext', async () => {
+    const { gateway, state, grant } = setUpKey();
+    const { secretKey } = await firstValueFrom(gateway.rotateSecretKey(await grant()));
+    const compact = secretKey.replace(/-/g, '');
+    const security = await firstValueFrom(gateway.load());
+    expect(JSON.stringify(security)).not.toContain(compact.slice(0, 8));
+    const methods = Object.getOwnPropertyNames(MockAccountSecurityGateway.prototype);
+    expect(methods.sort()).toEqual(
+      [
+        'beginTotp',
+        'confirmTotp',
+        'constructor',
+        'fail',
+        'load',
+        'owner',
+        'rotateSecretKey',
+      ].sort(),
+    );
+    const dump = JSON.stringify(
+      Object.values(state).map((v: unknown) => (v instanceof Map ? [...v.entries()] : v)),
+    );
+    for (const fragment of [secretKey, compact, compact.slice(0, 12)])
+      expect(dump).not.toContain(fragment);
   });
 });

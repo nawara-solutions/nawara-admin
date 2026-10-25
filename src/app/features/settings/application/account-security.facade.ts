@@ -27,8 +27,13 @@ export type AccountSecurityView =
       readonly hasAuthenticator: boolean;
     };
 
-/** What the Security page says once after the add-authenticator page (P9-S4b): never a key, code or grant. */
-export type AccountSecurityNotice = 'added' | 'cancelled';
+/**
+ * What the Security page says once after the add-authenticator page (P9-S4b) or the secret-key page (P9-S4c): never a
+ * key, code or grant. `keySaved`: Done (the owner says they saved it); `keyNotSaved`: left with the key unsaved;
+ * `keyUnknown`: left while it was being created; `keyCancelled`: left before anything was sent.
+ */
+export type AccountSecurityNotice =
+  'added' | 'cancelled' | 'keySaved' | 'keyNotSaved' | 'keyUnknown' | 'keyCancelled';
 
 /**
  * View state of the owner's Security overview (`/settings/security`; P9-S4a), read only. For anyone but the owner the
@@ -94,7 +99,7 @@ export class AccountSecurityFacade {
     this.reloads.next();
   }
 
-  /** Leaves a notice for the Security page, shown once (D7: back on Security after adding an authenticator). */
+  /** Leaves a notice for the Security page, shown once (back on Security after adding a factor or creating a key). */
   announce(notice: AccountSecurityNotice): void {
     this.pendingNotice.set(notice);
   }

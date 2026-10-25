@@ -2,9 +2,11 @@
 
 - **Status:** P9-S4-0 read-only Core verification complete (2026-10-25). **P9-S4a implemented** 2026-10-25: the
   owner's read-only Security overview (`/settings/security`, §9; PR #45, merged). **P9-S4b implemented** 2026-10-25 as
-  a mock-first prototype: adding an authenticator app (`/settings/security/add-authenticator`, §10); production binds
-  the unavailable adapters and real Auth integration is NOT done. **P9-S4c to P9-S4e are planned, each separately
-  authorized**; nothing here changes a key, a password or a recovery, or removes a factor.
+  a mock-first prototype: adding an authenticator app (`/settings/security/add-authenticator`, §10; PR #46, merged).
+  **P9-S4c implemented** 2026-10-25 as a mock-first prototype: creating a new secret key
+  (`/settings/security/secret-key`, §11). Production binds the unavailable adapters and real Auth integration is NOT
+  done. **P9-S4d and P9-S4e are planned, each separately authorized**; nothing here changes a password or a recovery,
+  or removes a factor.
 - **Baseline:** Core `origin/main` `304064f` (equal to the remote; read with `git show`, nothing checked out); Admin
   `main` `bb4c968`. Parent design: [`p9-settings-architecture.md`](p9-settings-architecture.md).
 - **Canvas:** https://claude.ai/artifact/N9MpMwvtasDCwZ76puVPtz (private, may expire). S4b design canvas (three
@@ -16,6 +18,8 @@
   tests `test/{step-up, owner-auth, recovery, secrets, audit-actions}.e2e-spec.ts`; docs `docs/sdd/auth-service.md`,
   `docs/add/auth-service.md`, ADR-0010, ADR-0016, ADR-0025. No credential, environment secret, key or production
   record was read; no endpoint was called.
+- **S4c design canvas** (six artboards, approved with the safeguards in §11):
+  https://claude.ai/artifact/Hp428HCUtBR2TRhQrNATgq (private, may expire). This text prevails.
 
 ## 1. What Core supports (verified) versus what Admin implements
 
@@ -25,7 +29,7 @@
 | Add an authenticator app | ✅ `POST factors/totp`, `factors/totp/confirm` + step-up | ✅ **P9-S4b**, mock-first (§10; production "not available") |
 | Add a passkey | ✅ `POST factors/webauthn/options`, `factors/webauthn` + step-up; origin-bound | ⏳ later (needs a WebAuthn registration client, the real origin) |
 | Remove a factor | ✅ `DELETE factors/:id` + step-up; never the last confirmed one | ⏳ P9-S4d |
-| Rotate the secret key | ✅ `POST secret-key/rotate` + step-up; returned once | ⏳ P9-S4c |
+| Rotate the secret key | ✅ `POST secret-key/rotate` + step-up; returned once | ✅ **P9-S4c**, mock-first, "Create a new secret key" (§11; production "not available") |
 | Change the password | ✅ `POST password/change` + step-up; other sessions end | ⏳ P9-S4e |
 | Step-up for these | ✅ `POST step-up`, `step-up/webauthn-options`; four `owner.*` purposes, factor only | existing `StepUpGateway` (TOTP only in dialogs); purposes added with S4b–S4e |
 | Recovery | ✅ `recovery/start`, `complete` (public), `cancel` (owner) | sign-in shows it deferred; no Settings action |
@@ -81,7 +85,7 @@ rotation (ADR-0016), and no read tells. TTLs and throttles are deployment config
 
 1. **S4a** ✅ read-only overview (§9).
 2. **S4b** ✅ add an authenticator app (§10).
-3. **S4c** generate / rotate the secret key.
+3. **S4c** ✅ create a new secret key, the first or a replacement (§11).
 4. **S4d** remove a factor.
 5. **S4e** change the password.
 6. Later: passkey registration; a shared factor chooser; a blind "cancel a pending recovery" if decided.
@@ -99,8 +103,9 @@ owner and operator direct URLs.
 ## 7. Proposed Core follow-ups (CORE-INTEGRATION §9)
 
 CF-54 secret-key status read · CF-55 alerts for credential changes (or corrected docs) · CF-56 factor labels · CF-57
-forgotten-password path · CF-58 pending-recovery read · CF-59 declared OpenAPI response schemas. Related, open: CF-21,
-CF-51, CF-01 / D-A4, CF-07.
+forgotten-password path · CF-58 pending-recovery read · CF-59 declared OpenAPI response schemas · CF-60 two-phase
+secret-key rotation (P9-S4c) · CF-61 rotation while a recovery is pending (P9-S4c). Related, open: CF-21, CF-51,
+CF-01 / D-A4, CF-07.
 
 ## 8. Owner decisions before S4b–S4e
 
@@ -224,3 +229,113 @@ owner, expiry and method; `400` rollback; `validation_error` first; throttle; lo
 with the records); `account-security.page.spec.ts` (the action, the passkey-only explanation, the notice);
 `account-security.routes.spec.ts` (the add route's guard, title, breadcrumb; production adapters); `totp-setup.spec.ts`;
 the sign-in `enroll.page.spec.ts` unchanged in behaviour (selectors follow the extracted component's BEM block).
+
+## 11. P9-S4c implementation (2026-10-25)
+
+Mock-first: demo builds bind the mocks over `DemoAuthState`; every other build binds the unavailable adapters, so the
+page says "Creating a secret key is not available" and nothing is verified or sent. **Real Auth integration is not done**
+(no HTTP adapter; A4, D-A4, CF-01). Core was not read again: the contract is §2's (Core `304064f`).
+
+**Contract compatibility (verified in §2 unless marked).** Owner only ✅. Step-up `owner.secret_key.rotate`, factor only
+(TOTP or passkey, never the secret key) ✅. The key is returned once, as `{secretKey: 13 groups of 4, issuedAt}` ✅. The
+previous key dies at once on commit ✅. Not idempotent: every call makes another key ✅. Core keeps only a keyed hash, so
+nothing can show the key again ✅. No read says whether a key exists (CF-54) ✅. The first key and a replacement are the
+same route ✅. **Unresolved** (handled defensively, CF-59 / CF-61): a throttle on rotate (a `429` is still handled),
+when the grant is spent (the design never reuses one), the key's alphabet and separator (any separator and case are
+accepted; 13 × 4 letters or digits required), whether a `5xx` can follow a commit (treated as unknown), and what a
+rotation does to a pending recovery.
+
+**Owner decisions:** D1 a dedicated page `/settings/security/secret-key`; D2 one neutral action, "Create a new secret key",
+whatever exists; D3 an acknowledgement checkbox before anything; D4/D11 (refined) the key **masked first**, with explicit
+Reveal, Hide and Copy; D4 (refined) Done needs BOTH a randomly chosen group typed back while the key is hidden AND "I've
+saved it"; D5 leave warnings in the app (an alertdialog) and from the browser (`beforeunload`, where supported); D6 Copy
+only (no download or print); D7 authenticator-code step-up only (a passkey-only owner is told why); D8 any `5xx`, network
+failure, unexpected status or a success without a usable key is unknown; D9 a grant is never reused and every new
+attempt starts over; D10 a DEMO-only digest verifier in `DemoAuthState`; D12 CF-60 and CF-61 recorded.
+
+**Authorization.** New owner capability `account.secret_key.rotate`: the route's own guard (operator, assigned or not →
+`/forbidden`; signed out → the shell's session guard), the Security page's action (owner only), the facade (starts
+nothing for anyone else), the mock (`401` without a session, `403` to anyone but an owner). The mock checks the grant for
+the owner it was issued to, the purpose and the proving factor (a secret-key-proved grant is refused), and spends it only
+with the change.
+
+**Entry.** The Security page's "Secret key" card says recovery asks for it with the password, that Admin cannot check
+whether one exists, and that a new key replaces any key; it offers "Create a new secret key" (a link) when a confirmed
+authenticator exists, otherwise disabled with the reason. The page checks the factors again and creates nothing on entry.
+
+**State machine** (`SecretKeyFacade`, page-scoped; not `ActionRun`: its "Try again" resends after an unknown outcome and
+it reports a detached answer by toast after the page is left):
+
+| State | Shows | Next |
+|---|---|---|
+| `idle` | nothing (before entry; after destroy) | `checking` on entry |
+| `checking` | checking the account | `intro` (a confirmed authenticator) · `noAuthenticator` · `loadFailed` (manual Try again) · `refused` · `notInBuild` |
+| `intro` | what the key is, the irreversible warning, recovery limits, the acknowledgement | `verifying` (acknowledged; Continue is unavailable and described until then) · `cancelled` |
+| `verifying` | "Confirm it's you": an authenticator code; `busy` while checked; problem `proofRefused` / `expired` / `unavailable` | `creating` with a grant · stays on `401` · `rateLimited` · `intro` (Back) · `cancelled` |
+| `creating` | locked; "don't leave"; after 10 s "still waiting" (never timed out or cancelled) | `shown` · `verifying` (`403 step_up_required`) · `rateLimited` (`429`) · `refused` (`401`, other `403`) · `unknown` (everything else) |
+| `shown` | the key, masked; Reveal/Hide, Copy, the group check (only while hidden), "I've saved it" | `checked` (the group matched) · `abandoned` · dropped on a session change |
+| `checked` | the group matched; Done once "I've saved it" is ticked | `done` · `abandoned` |
+| `rateLimited` | too many attempts; nothing changed or retried | `verifying` (owner's choice) |
+| `unknown` | `noAnswer`: "The request may have created a new secret key. Your previous key may no longer work, and Admin cannot retrieve the new one." `incomplete`: a key was created but cannot be shown | `intro` on "Create another key" (a new flow) |
+| `done` / `cancelled` / `abandoned` | Security (`replaceUrl`) with a notice: saved / nothing changed / not confirmed as saved, or may have been created | — |
+| `refused` / `notInBuild` / `noAuthenticator` / `loadFailed` | one message, "Back to Security" | — |
+
+**Rules.** Nothing is sent before the acknowledgement and the code; each rotation follows one explicit "Create new key"
+with the grant obtained for it, which is never kept. One request at a time; a second submit, Back, Cancel or proceed while
+busy is ignored. Definite: `401`, `403` (`step_up_required`, `forbidden`) and `429`. Uncertain: no answer, a network
+error, any `5xx`, any other status, and a `200` without 13 groups of 4. A rotation is never resent; "Create another key"
+starts a completely new flow (warning, acknowledgement, a new grant). The factor list, the session and `DemoAuthState`
+are never read to guess an outcome. Late answers (another run, a dropped flow, another session) are ignored. Code and
+group fields always show their cleared value after a state change (a value reset together with a fast Enter cannot
+leave a refused code in the field).
+
+**The local check.** The group (chosen with `crypto.getRandomValues`) is typed while the key is hidden and compared in
+the page only; it is never sent. It shows the owner has a copy now, not that it is stored durably; the page says so.
+
+**Leaving.** While `creating`, `shown` or `checked`: an in-app navigation opens "Leave without saving your new key?"
+(an alertdialog, focus on "Stay"); "Leave anyway" drops the key and Security says it may be lost. Closing or reloading
+the tab triggers the browser's own `beforeunload` prompt where the browser shows one; a browser or system shutdown
+cannot be prevented and nothing is kept to recover from it. A session change (sign-out, another identity, the same owner
+signing in again) drops the flow at once and nothing is asked.
+
+**Data ownership.**
+
+| Item | Lives | Never |
+|---|---|---|
+| the new key | `SecretKeyFacade` memory from the answer until Done, leaving or a session change; the DOM only while revealed | `DemoWorld`, `DemoAuthState`, Settings state, storage, URL, history state, logs, analytics, toasts, notices, activity, production fixtures, test screenshots or reports |
+| `issuedAt` | the facade, shown on the key step | kept after the flow |
+| the code and the grant | the field (cleared on every state change) and the one request | stored, reused, logged or shown |
+| the check group and typed value | the page, compared locally | sent anywhere |
+| the simulated verifier | `DemoAuthState`: a DEMO-only SHA-256 digest of the normalised key and `issuedAt`, per owner (Core keeps an HMAC with a pepper; this is not production-grade key protection) | the key; any gateway or read model |
+| clipboard | only after Copy, with a warning to clear it and its history | written by Admin otherwise |
+
+Disposal: Done, Leave anyway, a session change and the page's destruction set the key to `null` and bump the run;
+JavaScript strings cannot be wiped, so Admin drops every reference and copies the key nowhere else.
+
+**Demo semantics.** Each call makes a random fictional key (13 groups of 4 from a 32-character alphabet, joined by
+`-`); its digest replaces the owner's verifier, so the previous key stops matching. Fixture owners have no key. Scenarios:
+`rotateLost` (committed, the answer lost), `rotateServerError` (committed, `500`), `rotateIncomplete` (committed, `200`
+without a key), `rotateRateLimited` (`429`, nothing changed).
+
+**Not done (out of scope):** factor removal (S4d), password change (S4e), passkey proof (the factor chooser), recovery
+start or cancel, a key-status read, export, download or print, real Core HTTP integration. Creating a key guarantees no
+recovery: every message says recovery also needs the password and follows Core's recovery rules.
+
+**Tests.** `secret-key.facade.spec.ts` (every transition; acknowledgement; purpose and proof; one rotation per action;
+duplicate submissions; definite refusals; all uncertain outcomes including 500/502/503/504 and incomplete successes;
+never resent; no grant reuse; the local check; Done's two conditions; copy; leaving; destruction; sign-out, another
+owner, the same owner's new session; a grant arriving after a session change; eligibility; production);
+`secret-key.page.spec.ts` (end to end with the mocks; masked first; reveal, hide, LTR groups read letter by letter;
+check only while hidden; Done hints; the refused-code race; copy; passkey-only; operator; production; lost, 500,
+incomplete, throttled; the slow notice; the leave dialog and `beforeunload`; session change; destruction; no key in
+storage, history, URL, console, notices or the demo world; Arabic RTL); `account-security.mock.spec.ts` (creation,
+replacement and the old key's invalidation, the digest only, grant purpose/owner/factor/expiry, spent once, operators,
+uncertain scenarios commit, `429` changes nothing, no read-back); `account-security.page.spec.ts` (the card, the
+passkey-only reason, the notices); `account-security.routes.spec.ts` (guard, title, breadcrumb, leave guard, production
+adapters); `capability-policy.spec.ts`.
+
+**Limitations.** The uncertain scenarios and the passkey-only owner are unit-tested only (demo builds use `normal`; no
+fixture owner is passkey-only); demo state is per tab, so two tabs cannot race. No screen reader was run (names, roles
+and live regions are asserted). The notice after "Leave anyway" shows only when Security is the destination (the
+facade lives with the Security routes). Browser automation never captured a revealed key: every capture asserts it is
+masked.

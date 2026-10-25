@@ -49,6 +49,8 @@ const MARKERS = [
   'operator-activity-', // the demo assignment commands' activity records (demo/world/commands/operator.commands.ts)
   '6a2e9c40-1b3d-4e5f-8a7b-0c1d2e3f40', // demo Platform assignment ids (demo/world/seed.ts)
   '9e1d7c55-2a4b-4c3d-8e9f-0a1b2c3d4e', // demo owner and operator user ids (seed.ts, auth.fixtures.ts)
+  'ACCOUNT_SECURITY_DEMO_SCENARIO', // Account security mock token (features/settings/data-access/account-security.mock.ts)
+  'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', // the demo secret-key alphabet (account-security.mock.ts, P9-S4c)
 ];
 
 if (!existsSync(DIST)) {

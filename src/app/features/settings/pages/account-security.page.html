@@ -23,6 +23,26 @@
       'settings.security.add.cancelledNotice' | transloco
     }}</nw-inline-alert>
   }
+  @case ('keySaved') {
+    <nw-inline-alert tone="success" data-notice="keySaved">{{
+      'settings.security.secretKey.notices.saved' | transloco
+    }}</nw-inline-alert>
+  }
+  @case ('keyNotSaved') {
+    <nw-inline-alert tone="warning" data-notice="keyNotSaved">{{
+      'settings.security.secretKey.notices.notSaved' | transloco
+    }}</nw-inline-alert>
+  }
+  @case ('keyUnknown') {
+    <nw-inline-alert tone="warning" data-notice="keyUnknown">{{
+      'settings.security.secretKey.notices.unknown' | transloco
+    }}</nw-inline-alert>
+  }
+  @case ('keyCancelled') {
+    <nw-inline-alert tone="info" data-notice="keyCancelled">{{
+      'settings.security.secretKey.notices.cancelled' | transloco
+    }}</nw-inline-alert>
+  }
 }
 
 @switch (view.status) {
@@ -117,6 +137,51 @@
       }
     </section>
 
+    @if (canCreateKey()) {
+      <section
+        class="account-security__card"
+        aria-labelledby="security-secret-key"
+        data-secret-key-card
+      >
+        <div class="account-security__intro">
+          <h2 id="security-secret-key" class="account-security__heading">
+            {{ 'settings.security.secretKey.cardTitle' | transloco }}
+          </h2>
+          <p class="account-security__muted">
+            {{ 'settings.security.secretKey.cardBody' | transloco }}
+          </p>
+        </div>
+        <div class="account-security__add" data-secret-key-action>
+          @if (view.hasAuthenticator) {
+            <a nw-button variant="secondary" routerLink="/settings/security/secret-key">
+              <nw-icon name="key-round" size="sm" />{{
+                'settings.security.secretKey.action' | transloco
+              }}
+            </a>
+          } @else {
+            <button
+              nw-button
+              variant="secondary"
+              type="button"
+              disabled
+              aria-describedby="security-secret-key-unavailable"
+            >
+              <nw-icon name="key-round" size="sm" />{{
+                'settings.security.secretKey.action' | transloco
+              }}
+            </button>
+            <p
+              id="security-secret-key-unavailable"
+              class="account-security__muted"
+              data-secret-key-unavailable
+            >
+              {{ 'settings.security.secretKey.needsAuthenticator' | transloco }}
+            </p>
+          }
+        </div>
+      </section>
+    }
+
     <section class="account-security__card" aria-labelledby="security-actions" data-guidance>
       <h2 id="security-actions" class="account-security__heading">
         {{ 'settings.security.actions.title' | transloco }}
@@ -149,7 +214,6 @@
       </h2>
       <ul class="account-security__list" role="list">
         <li>{{ 'settings.security.unavailable.factors' | transloco }}</li>
-        <li>{{ 'settings.security.unavailable.secretKey' | transloco }}</li>
         <li>{{ 'settings.security.unavailable.password' | transloco }}</li>
         <li>{{ 'settings.security.unavailable.recovery' | transloco }}</li>
       </ul>

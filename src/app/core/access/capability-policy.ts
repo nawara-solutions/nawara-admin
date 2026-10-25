@@ -91,6 +91,12 @@ export type Capability =
    * `factors/totp` routes are `@Actors('owner')` and the confirmation needs an `owner.factor.enroll` step-up.
    */
   | 'account.factor.add'
+  /**
+   * Creating a new secret key for the owner's own account (`/settings/security/secret-key`, P9-S4c): the first one or a
+   * replacement, which Admin cannot tell apart (CF-54). Core's `secret-key/rotate` is `@Actors('owner')` and needs an
+   * `owner.secret_key.rotate` step-up proved by a factor (never by the secret key itself).
+   */
+  | 'account.secret_key.rotate'
   /** A Platform's administrative activity: Core's owner audit read; operators have no audit read (CF-04). */
   | 'platform.activity.view'
   /** Operator assignments and admin invitations of a Platform: the owner manages both; operators manage neither. */
@@ -108,6 +114,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.settings.view',
   'account.security.view',
   'account.factor.add',
+  'account.secret_key.rotate',
   'operator.platformAccess.change',
   'operator.account.block',
   'operator.create',

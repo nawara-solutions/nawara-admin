@@ -11,7 +11,8 @@ const SETTINGS_PARENT = { key: 'shell.breadcrumb.settings', link: '/settings' } 
  * Settings (`/settings`, P9-S1 to P9-S3; docs/design/p9-settings-architecture.md): the hub, Appearance and Language
  * (browser-local preferences) and the signed-in person's own Account (read only, from the session), open to every
  * signed-in actor (owner or operator) and granting no administrative capability; and Company settings (read only), the
- * owner's only; and the owner's own Account security (P9-S4a overview; P9-S4b adding an authenticator app, below it).
+ * owner's only; and the owner's own Account security (P9-S4a overview; P9-S4b adding an authenticator app and P9-S4c
+ * creating a new secret key, below it).
  * Platform settings are a later, separately authorized slice.
  */
 export const SETTINGS_ROUTES: Routes = [
@@ -53,8 +54,8 @@ export const SETTINGS_ROUTES: Routes = [
     loadComponent: () => import('./pages/account-settings.page').then((m) => m.AccountSettingsPage),
   },
   {
-    // The owner's own factors (P9-S4a) and adding an authenticator (P9-S4b, `security/add-authenticator`): the owner
-    // only, direct URLs included; no identity parameter.
+    // The owner's own factors (P9-S4a), adding an authenticator (P9-S4b, `security/add-authenticator`) and creating a
+    // new secret key (P9-S4c, `security/secret-key`): the owner only, direct URLs included; no identity parameter.
     path: 'security',
     title: 'titles.settingsSecurity',
     data: {
