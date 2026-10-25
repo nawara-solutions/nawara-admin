@@ -37,7 +37,7 @@ export interface SecretKeyIssue {
 }
 
 /**
- * Frontend contract of the owner's account security (P9-S4a to P9-S4d), always the signed-in owner's own (bearer-scoped;
+ * Frontend contract of the owner's account security (P9-S4a to P9-S4e), always the signed-in owner's own (bearer-scoped;
  * no identity parameter), `401` without a session and `403` for anyone else. No HTTP adapter until the auth HTTP adapter
  * exists (A4, D-A4).
  */
@@ -73,6 +73,14 @@ export abstract class AccountSecurityGateway {
    * last confirmed factor). Never resent automatically: a lost answer is reconciled with `load()`.
    */
   abstract removeFactor(factorId: string, stepUpToken: string): Observable<void>;
+  /**
+   * `POST /auth/admin/password/change` `{newPassword}` with an `owner.password.change` step-up (a factor's, never the
+   * secret key's); no current password. `204`: changed; this session continues and every OTHER session of the owner
+   * ends at its next request. Refusals: `400 validation_error` (the documented limits, `PASSWORD_LIMITS`; answered
+   * before the step-up is spent), `403 step_up_required`. No read tells whether or when the password changed: an
+   * unclear answer is never resent. The password is sent as typed and never kept.
+   */
+  abstract changePassword(newPassword: string, stepUpToken: string): Observable<void>;
 }
 
 /** Every non-demo build: not available (never a demo record, never a request, never a setup). */
@@ -94,6 +102,10 @@ export class UnavailableAccountSecurityGateway extends AccountSecurityGateway {
   }
 
   removeFactor(): Observable<void> {
+    return throwError(adapterUnavailable);
+  }
+
+  changePassword(): Observable<void> {
     return throwError(adapterUnavailable);
   }
 }

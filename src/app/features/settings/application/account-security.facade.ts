@@ -30,10 +30,18 @@ export type AccountSecurityView =
 /**
  * What the Security page says once after the add-authenticator page (P9-S4b) or the secret-key page (P9-S4c): never a
  * key, code or grant. `keySaved`: Done (the owner says they saved it); `keyNotSaved`: left with the key unsaved;
- * `keyUnknown`: left while it was being created; `keyCancelled`: left before anything was sent.
+ * `keyUnknown`: left while it was being created; `keyCancelled`: left before anything was sent. `passwordChanged` (`204`)
+ * and `passwordCancelled` (nothing sent) after the password page (P9-S4e).
  */
 export type AccountSecurityNotice =
-  'added' | 'cancelled' | 'keySaved' | 'keyNotSaved' | 'keyUnknown' | 'keyCancelled';
+  | 'added'
+  | 'cancelled'
+  | 'keySaved'
+  | 'keyNotSaved'
+  | 'keyUnknown'
+  | 'keyCancelled'
+  | 'passwordChanged'
+  | 'passwordCancelled';
 
 /**
  * View state of the owner's Security overview (`/settings/security`; P9-S4a), read only. For anyone but the owner the

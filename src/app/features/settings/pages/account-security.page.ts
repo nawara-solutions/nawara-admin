@@ -74,6 +74,9 @@ export class AccountSecurityPage {
     can(this.session.actor(), 'account.secret_key.rotate'),
   );
   protected readonly canRemove = computed(() => can(this.session.actor(), 'account.factor.remove'));
+  protected readonly canChangePassword = computed(() =>
+    can(this.session.actor(), 'account.password.change'),
+  );
   protected readonly removal = inject(RemoveFactorFacade);
   protected readonly removalBlocks = REMOVAL_BLOCKS;
   private readonly dialogs = inject(NwDialogService);

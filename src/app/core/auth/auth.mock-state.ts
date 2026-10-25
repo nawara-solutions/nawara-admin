@@ -4,6 +4,7 @@ import { AdminIdentityId } from '../../demo/world/records';
 import {
   DEMO_ACCOUNTS,
   DEMO_NEW_OPERATORS,
+  DEMO_PASSWORD,
   DEMO_OPERATORS,
   DemoAccount,
   DemoOperator,
@@ -67,6 +68,11 @@ export interface PendingEnrollment {
 export interface DemoSignedIn {
   readonly identity: Identity;
   readonly businessIdentityId: AdminIdentityId | null;
+  /**
+   * Which simulated session this is (`openSession`, P9-S4e), so that a password change can end the owner's OTHER
+   * sessions. Absent for a session set directly (specs, older paths): such a session is never revoked.
+   */
+  readonly sessionId?: string;
 }
 
 /**
@@ -258,6 +264,53 @@ export class DemoAuthState {
     return this.secretKeyVerifiers.get(userId)?.digest === digest;
   }
 
+  /** Open simulated sessions (P9-S4e): session id → user id. A session missing here has been ended. */
+  private readonly sessions = new Map<string, string>();
+
+  /** Opens a simulated session for the account (the sign-in mock's success). */
+  openSession(identity: Identity, businessIdentityId: AdminIdentityId | null): DemoSignedIn {
+    const sessionId = crypto.randomUUID();
+    this.sessions.set(sessionId, identity.userId);
+    return { identity, businessIdentityId, sessionId };
+  }
+
+  /** Ends one simulated session (a sign-out). */
+  endSession(session: DemoSignedIn | null): void {
+    if (session?.sessionId !== undefined) this.sessions.delete(session.sessionId);
+  }
+
+  /**
+   * Whether this session was ended by Core (a password change ends every OTHER session of the owner, at its next
+   * request). A session without an id was never registered and is not revoked.
+   */
+  sessionRevoked(session: DemoSignedIn): boolean {
+    return session.sessionId !== undefined && !this.sessions.has(session.sessionId);
+  }
+
+  /**
+   * DEMO ONLY: each owner's simulated password verifier (by user id; P9-S4e), a digest from `demoPasswordDigest`, never
+   * the password. No entry: the fixture's initial `DEMO_PASSWORD`. Core records, so they survive a sign-out; nothing
+   * reads them for a page.
+   */
+  private readonly passwordVerifiers = new Map<string, string>();
+
+  /** Whether `password` is the account's current demo password (the sign-in mock's check). */
+  async passwordMatches(userId: string, password: string): Promise<boolean> {
+    const verifier = this.passwordVerifiers.get(userId);
+    if (verifier === undefined) return password === DEMO_PASSWORD;
+    return verifier === (await demoPasswordDigest(userId, password));
+  }
+
+  /**
+   * Like Core's committed `password/change`: the new verifier replaces the old one at once, and every OTHER session of
+   * the owner ends (it is refused at its next request); `keep` (the session that changed it) continues.
+   */
+  replacePasswordVerifier(userId: string, digest: string, keep: DemoSignedIn): void {
+    this.passwordVerifiers.set(userId, digest);
+    for (const [sessionId, owner] of this.sessions)
+      if (owner === userId && sessionId !== keep.sessionId) this.sessions.delete(sessionId);
+  }
+
   /** Live simulated step-up grants, by token. */
   private readonly stepUps = new Map<string, DemoStepUp>();
 
@@ -312,6 +365,19 @@ export class DemoAuthState {
 }
 
 /**
+ * DEMO ONLY: the simulated verifier of a password, a plain SHA-256 of the user id and the password exactly as typed
+ * (UTF-8; no trimming or normalisation, as the password is sent). NOT production password hashing (no slow,
+ * memory-hard function): it only lets the demo honour a changed password without keeping it.
+ */
+export async function demoPasswordDigest(userId: string, password: string): Promise<string> {
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(`${userId}\u0000${password}`),
+  );
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
  * DEMO ONLY: a simulated secret-key verifier. `digest` is a plain SHA-256 of the normalised key (`demoSecretKeyDigest`),
  * which is NOT production-grade key protection (Core keeps an HMAC-SHA-256 with a server-side pepper); it only lets the
  * demo model "the old key stops working". The plaintext key is never kept.
@@ -356,6 +422,8 @@ export const DEMO_STEP_UP_METHODS: Readonly<Record<string, readonly DemoStepUpMe
   'owner.secret_key.rotate': ['totp', 'webauthn'],
   // Removing a factor (P9-S4d; Core 304064f `owner.factor.remove`): factor only, never the secret key.
   'owner.factor.remove': ['totp', 'webauthn'],
+  // Changing the password (P9-S4e; Core 304064f `owner.password.change`): factor only, never the secret key.
+  'owner.password.change': ['totp', 'webauthn'],
 };
 
 const stepUpMethodAllowed = (purpose: string, method: DemoStepUpMethod) =>

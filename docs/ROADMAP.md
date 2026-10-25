@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation (PR #34); P7-S1 mock Licenses & entitlements overview (PR #35); P7-S2 Platform and Organization subscriptions (PR #36); P7-S3 Billing & payment follow-ups (PR #37); P8-S1 simulated administrative activity browser (PR #38); P8-S2 Services & health inventory (PR #39); P8-S3 personal Notifications (PR #40); P8-S4 Releases information page (PR #41); P9-S1 Settings hub & Language (PR #42); P9-S2 personal Account (PR #43); P9-S3 Company settings (PR #44); P9-S4a owner Security overview (read only; PR #45); P9-S4b add an authenticator app (mock-first; PR #46); P9-S4c create a new secret key (mock-first; PR #47); P9-S4d remove a factor (mock-first); rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation (PR #34); P7-S1 mock Licenses & entitlements overview (PR #35); P7-S2 Platform and Organization subscriptions (PR #36); P7-S3 Billing & payment follow-ups (PR #37); P8-S1 simulated administrative activity browser (PR #38); P8-S2 Services & health inventory (PR #39); P8-S3 personal Notifications (PR #40); P8-S4 Releases information page (PR #41); P9-S1 Settings hub & Language (PR #42); P9-S2 personal Account (PR #43); P9-S3 Company settings (PR #44); P9-S4a owner Security overview (read only; PR #45); P9-S4b add an authenticator app (mock-first; PR #46); P9-S4c create a new secret key (mock-first; PR #47); P9-S4d remove a factor (mock-first; PR #48); P9-S4e change the password (mock-first); rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -290,9 +290,28 @@ stylesheet budget warnings were resolved by component decomposition (Platforms p
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
 
-## P9-S4d: remove a factor, mock-first (implemented 2026-10-25)
+## P9-S4e: change the password, mock-first (implemented 2026-10-25)
 
 **Status: implemented, awaiting review.** Design: [`design/p9-s4-account-security.md`](design/p9-s4-account-security.md)
+§13 (owner decisions P1–P9 with the added security requirements). Not real Auth integration.
+
+- `/settings/security/password`, the Company owner's own account only (new capability `account.password.change`), from
+  the Security page's "Password" card (disabled, with the reason, for a passkey-only owner).
+- The new password twice (Show/Hide, password-manager `new-password` fields under the owner's identifier, paste
+  allowed, left to right), checked against Core's documented limits only (10–72 code points, ≤ 72 UTF-8 bytes, no NUL;
+  never trimmed or normalised; no strength score), then a fresh `owner.password.change` grant, then one change.
+- `204` changed (this session continues; the others end at their next request, never promised faster); `400
+  validation_error` refused and cleared; `403 step_up_required` verify again; `429` stops; anything else, a `400`
+  without Core's code included, is unknown: cleared, never resent, "Set your password again" starts over.
+- Demo: a DEMO-only password verifier and simulated session ids in `DemoAuthState`; the sign-in mock honours the new
+  password and refuses the old one; the sign-in note calls the fixture password the initial one.
+- CF-63 and CF-64 proposed; CF-51, CF-55, CF-57, CF-59 still open.
+- Next (each separately authorized): a shared step-up factor chooser and passkey registration; P9-S5 Platform settings
+  (S5-0 first).
+
+## P9-S4d: remove a factor, mock-first (implemented 2026-10-25)
+
+**Status: implemented (PR #48, merged).** Design: [`design/p9-s4-account-security.md`](design/p9-s4-account-security.md)
 §12 (owner decisions O1–O10 with the approved refinements). Not real Auth integration.
 
 - A dialog on `/settings/security`, the Company owner's own confirmed factors only (new capability

@@ -207,6 +207,7 @@
     "settingsSecurity": "Sécurité",
     "settingsAddAuthenticator": "Ajouter une application d’authentification",
     "settingsSecretKey": "Créer une nouvelle clé secrète",
+    "settingsPassword": "Changer votre mot de passe",
     "workingCode": "Connexion avec un code de travail",
     "workingCodeVerify": "Saisissez votre code de travail",
     "contactConfirmation": "Confirmez votre contact",
@@ -246,6 +247,7 @@
       "security": "Sécurité",
       "addAuthenticator": "Ajouter une application",
       "secretKey": "Clé secrète",
+      "password": "Mot de passe",
       "organizations": "Organisations",
       "organization": "Organisation",
       "members": "Membres",
@@ -1247,7 +1249,7 @@
       "title": "Comptes de démonstration (fictifs, versions de développement uniquement)",
       "owner": "Propriétaire",
       "member": "Compte de démonstration — sans accès administratif",
-      "password": "Mot de passe",
+      "password": "Mot de passe initial (tant qu’il n’est pas changé dans les Paramètres)",
       "code": "Code d’authentification",
       "passkeyPrompt": "Invite de clé d’accès SIMULÉE (démonstration uniquement). Ce n’est ni une clé d’accès ni une vérification WebAuthn. OK simule une invite terminée ; Annuler, une invite annulée.",
       "enrollment": "Propriétaire, configuration de l’authentification requise",
@@ -1728,6 +1730,79 @@
           "absent": "Ce facteur ne figure plus sur votre compte. Votre liste de facteurs a été actualisée."
         }
       },
+      "password": {
+        "title": "Changer votre mot de passe",
+        "subtitle": "Il sert à vous connecter et, avec votre clé secrète, à la récupération.",
+        "cardTitle": "Mot de passe",
+        "cardBody": "Changez le mot de passe de connexion. Vous confirmerez votre identité avec une application d’authentification ; votre mot de passe actuel n’est pas demandé.",
+        "action": "Changer votre mot de passe",
+        "needsAuthenticator": "Pour changer votre mot de passe, vous devez confirmer votre identité avec une application d’authentification. La confirmation par clé d’accès n’est pas encore disponible ici.",
+        "steps": {
+          "label": "Étapes",
+          "password": "Nouveau mot de passe",
+          "verify": "Confirmez votre identité"
+        },
+        "before": {
+          "title": "Avant de le changer",
+          "forget": "Si vous oubliez le nouveau mot de passe, Admin ne peut pas le réinitialiser pour vous : la récupération nécessite votre mot de passe et votre clé secrète.",
+          "noCurrent": "Votre mot de passe actuel n’est pas demandé : Nawara Core vérifie une application d’authentification à la place.",
+          "sessions": "Cette session reste connectée. Vos autres sessions sont fermées la prochaine fois qu’elles contactent Nawara Core ; Admin ne peut pas le vérifier."
+        },
+        "newTitle": "Nouveau mot de passe",
+        "newLabel": "Nouveau mot de passe",
+        "confirmLabel": "Confirmez le nouveau mot de passe",
+        "show": "Afficher",
+        "hide": "Masquer",
+        "rules": {
+          "length": "De {{min}} à {{max}} caractères",
+          "bytes": "{{max}} octets au maximum (certains lettres et symboles comptent pour 2 à 4)",
+          "characters": "Il contient un caractère qui ne peut pas être utilisé",
+          "spaces": "Les espaces comptent, au début et à la fin aussi. Rien d’autre n’est exigé.",
+          "met": "respecté",
+          "notMet": "non respecté"
+        },
+        "mismatch": "Les deux mots de passe ne correspondent pas.",
+        "continue": "Continuer",
+        "cancel": "Annuler",
+        "back": "Retour",
+        "retry": "Réessayer",
+        "resume": "Revenir à la confirmation",
+        "backToSecurity": "Retour à Sécurité",
+        "setAgain": "Définir à nouveau votre mot de passe",
+        "continueHint": "Continuer est disponible dès que le mot de passe respecte les limites ci-dessus et que les deux saisies correspondent.",
+        "noScore": "Ces repères vérifient seulement les limites de Nawara Core ; ils n’évaluent pas la robustesse du mot de passe. Un gestionnaire de mots de passe peut en générer et en enregistrer un.",
+        "rejected": "Nawara Core n’a pas accepté ce mot de passe. Rien n’a été modifié. Vérifiez les limites et réessayez.",
+        "verifyTitle": "Confirmez votre identité",
+        "verifyIntro": "Saisissez le code à 6 chiffres d’une application d’authentification que vous utilisez déjà. Votre nouveau mot de passe reste uniquement sur cette page jusqu’à son envoi.",
+        "proofLabel": "Code d’authentification",
+        "proofHint": "6 chiffres. La confirmation ne sert qu’une fois, pour ce changement uniquement.",
+        "proofFormat": "Saisissez le code à 6 chiffres de votre application d’authentification.",
+        "proofRefused": "Ce code n’a pas fonctionné. Rien n’a été modifié. Vérifiez votre application et réessayez.",
+        "verificationExpired": "Votre confirmation a expiré avant le changement. Rien n’a été modifié. Confirmez à nouveau votre identité.",
+        "verifyUnavailable": "Nous n’avons pas pu vérifier votre code. Rien n’a été modifié. Réessayez dans un instant.",
+        "rateLimited": "Trop de tentatives. Rien n’a été modifié et rien n’est réessayé automatiquement. Patientez quelques minutes, puis réessayez.",
+        "submit": "Changer le mot de passe",
+        "verifying": "Vérification…",
+        "changingShort": "Changement…",
+        "changing": "Changement de votre mot de passe… Cette page reste en l’état jusqu’à la réponse de Nawara Core.",
+        "preparing": "Vérification de votre compte…",
+        "messages": {
+          "unknownTitle": "Impossible de savoir si votre mot de passe a changé",
+          "unknownDescription": "Nawara Core n’a pas envoyé de réponse exploitable. Votre ancien ou votre nouveau mot de passe peut être en vigueur, et Admin ne peut pas vérifier lequel. Cette session reste connectée dans les deux cas : cela n’indique donc rien. Rien n’est réessayé automatiquement.",
+          "managerNote": "Si votre gestionnaire de mots de passe a enregistré le nouveau, gardez aussi l’ancien jusqu’à votre prochaine connexion. Pour être sûr du mot de passe en vigueur, définissez-le à nouveau : vous en saisirez un nouveau et confirmerez à nouveau votre identité.",
+          "noAuthenticatorTitle": "Une application d’authentification est nécessaire",
+          "noAuthenticatorDescription": "Pour changer votre mot de passe, vous devez confirmer votre identité avec une application d’authentification. La confirmation par clé d’accès n’est pas encore disponible ici. Rien n’a été modifié.",
+          "loadFailedTitle": "Nous n’avons pas pu vérifier votre compte",
+          "loadFailedDescription": "Vos facteurs n’ont pas pu être lus, donc rien n’a été lancé. Rien n’a été modifié.",
+          "refusedDescription": "Seul le propriétaire de l’entreprise peut changer son propre mot de passe, dans sa session actuelle. Rien de cette page n’a été conservé.",
+          "notInBuildTitle": "Le changement de mot de passe n’est pas disponible",
+          "notInBuildDescription": "Cette version d’Admin n’est pas connectée au service Auth de Nawara Core : aucun mot de passe ne peut être changé ici."
+        },
+        "notices": {
+          "changed": "Mot de passe changé. Utilisez-le à votre prochaine connexion. Cette session reste connectée ; vos autres sessions sont fermées la prochaine fois qu’elles contactent Nawara Core.",
+          "cancelled": "Rien n’a été modifié. Votre mot de passe reste le même."
+        }
+      },
       "actions": {
         "title": "Confirmer les actions sensibles",
         "signIn": "Chaque connexion à votre compte de propriétaire demande un facteur confirmé après votre mot de passe.",
@@ -1743,7 +1818,6 @@
       "unavailable": {
         "title": "Non disponible sur cette page",
         "factors": "Ajouter une clé d’accès",
-        "password": "Changer votre mot de passe",
         "recovery": "Lancer ou annuler une récupération"
       },
       "states": {

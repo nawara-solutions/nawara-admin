@@ -8,6 +8,7 @@ import {
 import {
   DemoAuthState,
   DemoSignedIn,
+  demoPasswordDigest,
   demoSecretKeyDigest,
 } from '../../../core/auth/auth.mock-state';
 import { TotpEnrollment } from '../../../core/auth/auth.model';
@@ -19,6 +20,7 @@ import {
   AccountSecurityGateway,
   SecretKeyIssue,
 } from './account-security.gateway';
+import { checkPassword } from './password-rules';
 
 /**
  * Which answer the mock gives, so every view state can be exercised. Demo builds use `normal`. `error`: the factor list
@@ -26,7 +28,9 @@ import {
  * `confirmUnavailable`: a confirmation is refused before anything is applied (`503`). Secret key (P9-S4c): `rotateLost`
  * (committed, the answer lost), `rotateServerError` (committed, then `500`), `rotateIncomplete` (committed, `200`
  * without a key), `rotateRateLimited` (`429`, nothing changed). Removing a factor (P9-S4d): `removeLost` (committed, the
- * answer lost), `removeServerError` (committed, then `500`).
+ * answer lost), `removeServerError` (committed, then `500`). Changing the password (P9-S4e): `changeLost` (committed, the
+ * answer lost), `changeServerError` (committed, then `500`), `changeRateLimited` (`429`, nothing changed),
+ * `changeUnexpected400` (a `400` without Core's code: not a recognised refusal).
  */
 export type AccountSecurityDemoScenario =
   | 'normal'
@@ -38,7 +42,11 @@ export type AccountSecurityDemoScenario =
   | 'rotateIncomplete'
   | 'rotateRateLimited'
   | 'removeLost'
-  | 'removeServerError';
+  | 'removeServerError'
+  | 'changeLost'
+  | 'changeServerError'
+  | 'changeRateLimited'
+  | 'changeUnexpected400';
 
 export const ACCOUNT_SECURITY_DEMO_SCENARIO = new InjectionToken<AccountSecurityDemoScenario>(
   'ACCOUNT_SECURITY_DEMO_SCENARIO',
@@ -79,6 +87,11 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  * Removing a factor (P9-S4d) follows the same contract, in Core's order: session and owner, the id's shape (`400`), a live
  * `owner.factor.remove` grant of this owner (factor only), the owner's own factor (`404` otherwise), never the last
  * confirmed one (`409 factor_required`); the grant is spent only with the change, and every refusal changes nothing.
+ *
+ * Changing the password (P9-S4e): session and owner, the documented limits (`400 validation_error`, before the grant is
+ * looked at), a live `owner.password.change` grant of this owner (factor only); then the grant is spent, the owner's
+ * DEMO verifier replaced (never the password) and every OTHER session of the owner ended. A session that a password
+ * change ended is refused (`401`) at its next request.
  */
 export class MockAccountSecurityGateway extends AccountSecurityGateway {
   private readonly latency = inject(DEMO_LATENCY_MS);
@@ -223,10 +236,45 @@ export class MockAccountSecurityGateway extends AccountSecurityGateway {
     });
   }
 
+  changePassword(newPassword: string, stepUpToken: string): Observable<void> {
+    return defer(() => {
+      const owner = this.owner();
+      if ('kind' in owner) return this.fail(owner);
+      const userId = owner.identity.userId;
+      if (this.scenario === 'changeRateLimited')
+        return this.fail({ kind: 'rate_limited', status: 429 });
+      if (this.scenario === 'changeUnexpected400')
+        return this.fail({ kind: 'validation', messages: [], status: 400 });
+      if (!checkPassword(newPassword).ok)
+        return this.fail({
+          kind: 'validation',
+          code: 'validation_error',
+          messages: [],
+          status: 400,
+        });
+      if (!this.auth.checkStepUp(stepUpToken, 'owner.password.change', userId, this.now()))
+        return this.fail({ kind: 'forbidden', code: 'step_up_required', status: 403 });
+      return from(demoPasswordDigest(userId, newPassword)).pipe(
+        switchMap((digest) => {
+          // Spent and replaced together, as in Core's transaction: a grant spent meanwhile changes nothing.
+          if (!this.auth.consumeStepUp(stepUpToken, 'owner.password.change', userId, this.now()))
+            return this.fail({ kind: 'forbidden', code: 'step_up_required', status: 403 });
+          this.auth.replacePasswordVerifier(userId, digest, owner);
+          if (this.scenario === 'changeLost') return this.fail({ kind: 'network', status: 0 });
+          if (this.scenario === 'changeServerError')
+            return this.fail({ kind: 'unexpected', status: 500 });
+          return of(undefined).pipe(delay(this.latency));
+        }),
+      );
+    });
+  }
+
   /** The signed-in owner, or the error Core's owner guard answers. */
   private owner(): DemoSignedIn | AppError {
     const signedIn = this.auth.signedIn();
-    if (signedIn === null) return { kind: 'unauthenticated', status: 401 };
+    // No session, or one Core ended (a password change in another session).
+    if (signedIn === null || this.auth.sessionRevoked(signedIn))
+      return { kind: 'unauthenticated', status: 401 };
     if (signedIn.identity.adminTier !== 'owner')
       return { kind: 'forbidden', code: 'forbidden', status: 403 };
     return signedIn;

@@ -459,6 +459,8 @@ describe('MockAuthGateway over the demo world (P2.5)', () => {
     expect(TestBed.inject(DemoAuthState).signedIn()).toEqual({
       identity: expect.objectContaining({ email: 'operator.school@demo.nawara.invalid' }),
       businessIdentityId: DEMO_OPERATOR_IDS.school,
+      // the simulated session's own id (P9-S4e: a password change ends the owner's other sessions)
+      sessionId: expect.any(String),
     });
   });
 

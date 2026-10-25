@@ -13,7 +13,8 @@ import { FactorProof } from './auth.model';
  * passkey OR the secret key; and `owner.factor.enroll` for confirming an added authenticator
  * (`POST /auth/admin/factors/totp/confirm`, P9-S4b), `owner.secret_key.rotate` for creating a new secret key
  * (`POST /auth/admin/secret-key/rotate`, P9-S4c) and `owner.factor.remove` for removing a factor
- * (`DELETE /auth/admin/factors/:id`, P9-S4d), all three factor only. Admin's dialogs offer the
+ * (`DELETE /auth/admin/factors/:id`, P9-S4d) and `owner.password.change` for changing the password
+ * (`POST /auth/admin/password/change`, P9-S4e), all four factor only. Admin's dialogs offer the
  * authenticator code only today (a shared factor chooser is a separate work item); the contract does not narrow Core's
  * factors. Machine values.
  */
@@ -29,7 +30,8 @@ export type StepUpPurpose =
   | 'operator.create'
   | 'owner.factor.enroll'
   | 'owner.secret_key.rotate'
-  | 'owner.factor.remove';
+  | 'owner.factor.remove'
+  | 'owner.password.change';
 
 /** A step-up grant: sent once, immediately, with the one operation of its purpose; never stored. */
 export interface StepUpGrant {

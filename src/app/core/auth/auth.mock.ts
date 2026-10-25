@@ -1,6 +1,6 @@
 import { DOCUMENT, Injectable, Provider, inject } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
-import { Observable, delay, of, switchMap, throwError, timer } from 'rxjs';
+import { Observable, delay, from, of, switchMap, throwError, timer } from 'rxjs';
 import { DEMO_LATENCY_MS } from '../context/scope-directory.mock';
 import { PlatformId } from '../context/scope.model';
 import { AppError } from '../errors/app-error';
@@ -12,7 +12,6 @@ import { NW_CLOCK } from '../../shared/format/clock';
 import {
   DEMO_ACCOUNTS,
   DEMO_CONFIRMATION_CODE,
-  DEMO_PASSWORD,
   DEMO_TOTP_CODE,
   DEMO_TOTP_ISSUER,
   DEMO_TOTP_SECRET,
@@ -25,6 +24,7 @@ import {
   ALL_DEMO_OPERATORS,
   CODE_ATTEMPTS,
   DemoAuthState,
+  DemoSignedIn,
   PendingEnrollment,
 } from './auth.mock-state';
 import {
@@ -103,8 +103,19 @@ export class MockAuthGateway extends AuthGateway {
     const account = DEMO_ACCOUNTS.find(
       (candidate) => candidate.identity.email === email.trim().toLowerCase(),
     );
-    if (!account || password !== DEMO_PASSWORD)
-      return this.fail({ kind: 'unauthenticated', status: 401 });
+    if (!account) return this.fail({ kind: 'unauthenticated', status: 401 });
+    // The account's current demo password: the fixture's, or the one the owner set in Settings (P9-S4e).
+    return from(this.state.passwordMatches(account.identity.userId, password)).pipe(
+      switchMap((matches) =>
+        matches
+          ? this.afterPassword(account)
+          : this.fail<LoginOutcome>({ kind: 'unauthenticated', status: 401 }),
+      ),
+    );
+  }
+
+  /** What follows a correct password: the session, an enrollment, a recovery, or a second factor. */
+  private afterPassword(account: DemoAccount): Observable<LoginOutcome> {
     const next = this.state.enrolledOwners.has(account.identity.userId)
       ? ({ kind: 'mfa', methods: ['totp'] } as const)
       : account.next;
@@ -278,7 +289,7 @@ export class MockAuthGateway extends AuthGateway {
   }
 
   me(): Observable<Identity> {
-    const signedIn = this.state.signedIn();
+    const signedIn = this.liveSession();
     return signedIn
       ? this.answer(signedIn.identity)
       : this.fail({ kind: 'unauthenticated', status: 401 });
@@ -290,7 +301,7 @@ export class MockAuthGateway extends AuthGateway {
    * revoked every session), so the simulated session ends too.
    */
   grants(): Observable<Grants> {
-    const signedIn = this.state.signedIn();
+    const signedIn = this.liveSession();
     if (!signedIn) return this.fail({ kind: 'unauthenticated', status: 401 });
     const world = this.world.snapshot();
     const id = signedIn.businessIdentityId;
@@ -311,16 +322,27 @@ export class MockAuthGateway extends AuthGateway {
 
   /** Ends the simulated Core session only: Core records (enrolled factors, confirmed contacts) are kept. */
   logout(): Observable<void> {
+    this.state.endSession(this.state.signedIn());
     this.state.signedIn.set(null);
     return this.answer(undefined);
   }
 
   /** Opens the simulated Core session as the account's business identity (its grants stay in the world). */
   private signIn(account: DemoAccount | DemoOperator): void {
-    this.state.signedIn.set({
-      identity: account.identity,
-      businessIdentityId: account.businessIdentityId,
-    });
+    this.state.signedIn.set(this.state.openSession(account.identity, account.businessIdentityId));
+  }
+
+  /**
+   * The simulated session, unless Core ended it meanwhile (another session changed the owner's password, P9-S4e): such
+   * a session is refused at its next request (`401`) and the simulated session ends.
+   */
+  private liveSession(): DemoSignedIn | null {
+    const signedIn = this.state.signedIn();
+    if (signedIn !== null && this.state.sessionRevoked(signedIn)) {
+      this.state.signedIn.set(null);
+      return null;
+    }
+    return signedIn;
   }
 
   /**

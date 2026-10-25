@@ -5,9 +5,10 @@
   a mock-first prototype: adding an authenticator app (`/settings/security/add-authenticator`, §10; PR #46, merged).
   **P9-S4c implemented** 2026-10-25 as a mock-first prototype: creating a new secret key
   (`/settings/security/secret-key`, §11; PR #47, merged). **P9-S4d implemented** 2026-10-25 as a mock-first
-  prototype: removing a confirmed factor from the Security page (§12). Production binds the unavailable adapters and
-  real Auth integration is NOT done. **P9-S4e is planned, separately authorized**; nothing here changes a password or
-  a recovery.
+  prototype: removing a confirmed factor from the Security page (§12; PR #48, merged). **P9-S4e implemented**
+  2026-10-25 as a mock-first prototype: changing the owner's password (`/settings/security/password`, §13).
+  Production binds the unavailable adapters and real Auth integration is NOT done; nothing here starts or cancels a
+  recovery.
 - **Baseline:** Core `origin/main` `304064f` (equal to the remote; read with `git show`, nothing checked out); Admin
   `main` `bb4c968`. Parent design: [`p9-settings-architecture.md`](p9-settings-architecture.md).
 - **Canvas:** https://claude.ai/artifact/N9MpMwvtasDCwZ76puVPtz (private, may expire). S4b design canvas (three
@@ -31,7 +32,7 @@
 | Add a passkey | ✅ `POST factors/webauthn/options`, `factors/webauthn` + step-up; origin-bound | ⏳ later (needs a WebAuthn registration client, the real origin) |
 | Remove a factor | ✅ `DELETE factors/:id` + step-up; never the last confirmed one | ✅ **P9-S4d**, mock-first, a dialog on Security (§12; production "not available") |
 | Rotate the secret key | ✅ `POST secret-key/rotate` + step-up; returned once | ✅ **P9-S4c**, mock-first, "Create a new secret key" (§11; production "not available") |
-| Change the password | ✅ `POST password/change` + step-up; other sessions end | ⏳ P9-S4e |
+| Change the password | ✅ `POST password/change` + step-up; other sessions end | ✅ **P9-S4e**, mock-first (§13; production "not available") |
 | Step-up for these | ✅ `POST step-up`, `step-up/webauthn-options`; four `owner.*` purposes, factor only | existing `StepUpGateway` (TOTP only in dialogs); purposes added with S4b–S4e |
 | Recovery | ✅ `recovery/start`, `complete` (public), `cancel` (owner) | sign-in shows it deferred; no Settings action |
 | Secret-key status, factor names, pending-recovery read, sessions list, change alerts | ❌ none | not shown (CF-54 to CF-59, CF-51) |
@@ -88,7 +89,7 @@ rotation (ADR-0016), and no read tells. TTLs and throttles are deployment config
 2. **S4b** ✅ add an authenticator app (§10).
 3. **S4c** ✅ create a new secret key, the first or a replacement (§11).
 4. **S4d** ✅ remove a factor (§12).
-5. **S4e** change the password.
+5. **S4e** ✅ change the password (§13).
 6. Later: passkey registration; a shared factor chooser; a blind "cancel a pending recovery" if decided.
 
 All mock-first; production binds the unavailable adapter until the auth HTTP adapter exists (A4) and the session model is
@@ -106,7 +107,9 @@ owner and operator direct URLs.
 CF-54 secret-key status read · CF-55 alerts for credential changes (or corrected docs) · CF-56 factor labels · CF-57
 forgotten-password path · CF-58 pending-recovery read · CF-59 declared OpenAPI response schemas · CF-60 two-phase
 secret-key rotation (P9-S4c) · CF-61 rotation while a recovery is pending (P9-S4c) · CF-62 factor-removal proof and
-unfinished-setup semantics (P9-S4d). Related, open: CF-21, CF-51, CF-01 / D-A4, CF-07.
+unfinished-setup semantics (P9-S4d) · CF-63 reconciling an uncertain password change (P9-S4e) · CF-64 stronger
+password-change authorization and security-change notification (P9-S4e). Related, open: CF-21, CF-51, CF-01 / D-A4,
+CF-07.
 
 ## 8. Owner decisions before S4b–S4e
 
@@ -425,3 +428,93 @@ settled as absent, no code or grant leaked, Arabic RTL); `add-authenticator.page
 **Limitations.** Core's `409` and the lost-answer scenarios are unit-tested only (the demo builds answer `normal`, and
 Admin never offers the last factor). No screen reader was run: names, roles, descriptions and live regions are asserted.
 Removal does not end sessions and Admin cannot list them (CF-51); no alert tells the owner (CF-55).
+
+## 13. P9-S4e implementation (2026-10-25)
+
+Mock-first: demo builds bind the mocks over `DemoAuthState`; every other build binds the unavailable adapters, so the
+page says "Changing your password is not available" and nothing is verified or sent. **Real Auth integration is not
+done** (no HTTP adapter; A4, D-A4, CF-01). Core was not read again: the contract is §2's (Core `304064f`).
+
+**Contract used (§2, verified).** `POST /auth/admin/password/change` `{newPassword}`, owner only, step-up
+`owner.password.change` (TOTP or passkey; never the secret key); **no current password**. Limits: 10–72 characters, at
+most 72 bytes, no NUL. `204`: changed; this session continues; every OTHER session of the owner ends at its next
+request; audit local and central; no alert (CF-55). Refusals: `400 validation_error` (answered before the step-up is
+spent), `403`. No read says whether or when the password changed. **Not settled** (CF-59, documented assumptions):
+Core's "characters" are taken as Unicode code points and its bytes as UTF-8 (an unpaired surrogate is refused, since it
+cannot be sent faithfully); whether the new password may equal the old one (not checked); a throttle on the route (a
+`429` is handled); which statuses guarantee nothing changed (only a `400` carrying `validation_error` is treated as a
+definite refusal); how fast "ends at its next request" reaches services other than Auth (never promised).
+
+**Owner decisions:** P1 the demo sign-in honours the changed password; P2 a dedicated page `/settings/security/password`;
+P3 this session stays signed in (Core's behaviour); P4 the new password first, then "confirm it's you"; P5 on
+`403 step_up_required` the typed password is kept for the same owner and session only; P6 an unknown outcome clears the
+fields and "Set your password again" starts empty; P7 only Core's limits are checked, no strength score; P8 password
+fields left to right in RTL pages; P9 CF-63 and CF-64 proposed.
+
+**Authorization.** New owner capability `account.password.change`: the route's own guard (an operator, assigned or
+not → `/forbidden`; signed out → the shell's session guard), the Security page's "Password" card (owner only; disabled
+with the reason for a passkey-only owner), the facade, and the mock (`401` without a session, `403` to anyone but an
+owner; the grant's owner, purpose, proving factor and expiry are checked; a secret-key-proved grant is refused).
+
+**The page.** The new password twice, each with Show/Hide (`aria-pressed`), `autocomplete="new-password"` under a
+hidden, read-only `autocomplete="username"` field holding the owner's own identifier, `passwordrules` stating only
+Core's limits, paste allowed, `dir="ltr"`, no `maxlength` (the byte limit is checked instead). A live list says which
+documented limit is met (an icon and visually hidden text, never colour alone); "Spaces count" — nothing is trimmed or
+normalised. Continue is unavailable, and described by why, until the limits hold and both entries are identical. Then
+"Confirm it's you" with an authenticator code; then one change. The forms post nowhere (`method="post"`, handled in
+the page), so a password can never reach a URL.
+
+**State machine** (`ChangePasswordFacade`, page-scoped; not `ActionRun`, whose "Try again" resends after an unknown
+outcome):
+
+| State | Shows | Next |
+|---|---|---|
+| `idle` / `checking` | checking the account | `editing` · `noAuthenticator` · `loadFailed` (Try again) · `refused` · `notInBuild` |
+| `editing` | the form; `rejected`: "Nawara Core didn't accept this password. Nothing was changed" | `verifying` (Continue) · `cancelled` |
+| `verifying` | "Confirm it's you"; busy while checked; `proofRefused` / `expired` / `unavailable` | `changing` with a fresh grant · stays on `401` · `rateLimited` · `editing` (Back keeps what was typed) · `cancelled` |
+| `changing` | locked | `done` (`204`) · `editing` + `rejected` (`400 validation_error`, cleared) · `verifying` (`403 step_up_required`, a new grant; the password kept) · `rateLimited` (`429`) · `refused` (`401`, other `403`) · `unknown` (anything else) |
+| `rateLimited` | nothing changed; nothing retried | `verifying` (owner's choice) · `cancelled` |
+| `unknown` | "We can't tell whether your password changed": the previous or the new one may be in force; this session stays signed in either way, so that proves nothing; a password manager may have saved a password Core did not accept | "Set your password again" → `editing`, empty (a completely new attempt) · Back to Security |
+| `done` / `cancelled` | Security (`replaceUrl`): "Password changed…" / "Nothing was changed" | — |
+
+**Rules.** One request at a time; input is ignored while busy; a change is never resent. A `400` without Core's
+`validation_error` code, a `5xx`, a lost answer or any other status is unknown. Each attempt obtains a fresh grant, used
+once and never kept. A session change (sign-out, another identity, the same owner signing in again) drops the flow and
+the password at once; late answers are ignored. Every field (both passwords and the code) always shows its signal's
+value after a render, so a cleared value cannot linger after a fast Enter.
+
+**Data and secrecy.** The password lives in the page's two fields and one facade field, from Continue until the attempt
+ends; it is dropped on success, refusal, an unknown outcome, cancel, a session change and the page's destruction.
+JavaScript strings cannot be wiped: Admin drops every reference and copies the password nowhere else. It never reaches
+`DemoWorld`, storage, URLs, history state, activity, logs, toasts or notices. The demo keeps a DEMO-only verifier per
+owner in `DemoAuthState` (`demoPasswordDigest`: SHA-256 of the user id and the exact password; **not** production
+password hashing) and the simulated sessions' ids; no Settings gateway or read model exposes either.
+
+**Demo semantics.** The sign-in mock checks the owner's verifier when one exists, else the fixture's initial password,
+so the changed password signs in and the old one is refused. The sign-in page's demo note now labels the fixture
+password "Initial password (until changed in Settings)". Each sign-in opens a simulated session id; a change keeps the
+changing session and ends the owner's other sessions, which are refused (`401`) at their next request to the Auth,
+step-up and account-security mocks (one tab holds one session, so "another session" is exercised in unit tests).
+Scenarios: `changeLost` (committed, the answer lost), `changeServerError` (committed, `500`), `changeRateLimited`
+(`429`, nothing changed), `changeUnexpected400` (a `400` without Core's code, nothing changed: unknown to the page).
+
+**Not done (out of scope):** session lists or management, recovery, passkey proof, a password-status read, a forgotten
+-password path, real Core HTTP integration.
+
+**Tests.** `password-rules.spec.ts` (the limits; code points versus UTF-16; 2- and 4-byte boundaries; NUL; unpaired
+surrogates; spaces); `change-password.facade.spec.ts` (every transition; exact matching, no trimming; purpose and proof;
+one change; duplicates; `204`, `400 validation_error`, `403 step_up_required` with a new grant and the kept password,
+`401`, `403`, `429`; every unknown cause including a `400` without Core's code; never resent; "Set your password again";
+session changes, a late grant, destruction; eligibility; production); `account-security.mock.spec.ts` (the new password
+signs in and the old one is refused; this session continues and another is refused at its next request; only a digest
+kept; `400` before the grant; grant purpose, owner, proof and expiry; operators; committed and uncommitted scenarios);
+`password.page.spec.ts` (password-manager attributes, paste, `method="post"`, live limits including multi-byte and NUL,
+mismatch, Show/Hide, no meter, end to end with sign-in effects, Back keeps values, a same-tick refused proof cleared,
+unknown outcomes, throttling, passkey-only, operator, production, destruction, no secret leaked, Arabic RTL);
+`account-security.page.spec.ts` (the card and its reason, the notices); `account-security.routes.spec.ts`;
+`auth.mock.spec.ts` (session ids); `auth-demo-note.spec.ts` (the initial-password label); `capability-policy.spec.ts`.
+
+**Limitations.** The unknown, throttled and unexpected-`400` scenarios and the other-session revocation are unit-tested
+only (demo builds answer `normal`, and one tab holds one session). No screen reader was run. Password managers were not
+exercised with a real manager: their attributes are asserted. Core's exact character semantics are an assumption
+(CF-59).

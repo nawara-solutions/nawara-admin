@@ -207,6 +207,7 @@
     "settingsSecurity": "Security",
     "settingsAddAuthenticator": "Add an authenticator app",
     "settingsSecretKey": "Create a new secret key",
+    "settingsPassword": "Change your password",
     "workingCode": "Sign in with a working code",
     "workingCodeVerify": "Enter your working code",
     "contactConfirmation": "Confirm your contact",
@@ -246,6 +247,7 @@
       "security": "Security",
       "addAuthenticator": "Add authenticator",
       "secretKey": "Secret key",
+      "password": "Password",
       "organizations": "Organizations",
       "organization": "Organization",
       "members": "Members",
@@ -1247,7 +1249,7 @@
       "title": "Demo accounts (fictional, development builds only)",
       "owner": "Owner",
       "member": "Demo account — no administrative access",
-      "password": "Password",
+      "password": "Initial password (until changed in Settings)",
       "code": "Authenticator code",
       "passkeyPrompt": "SIMULATED passkey prompt (demo only). This is not a passkey or WebAuthn check. OK simulates a completed prompt; Cancel simulates a cancelled one.",
       "enrollment": "Owner, authenticator setup required",
@@ -1728,6 +1730,79 @@
           "absent": "That factor is no longer on your account. Your factor list has been refreshed."
         }
       },
+      "password": {
+        "title": "Change your password",
+        "subtitle": "Used to sign in and, with your secret key, for recovery.",
+        "cardTitle": "Password",
+        "cardBody": "Change the password you sign in with. You’ll confirm it’s you with an authenticator app; your current password isn’t asked for.",
+        "action": "Change your password",
+        "needsAuthenticator": "Changing your password needs an authenticator app to confirm it’s you. Confirming with a passkey isn’t available here yet.",
+        "steps": {
+          "label": "Steps",
+          "password": "New password",
+          "verify": "Confirm it’s you"
+        },
+        "before": {
+          "title": "Before you change it",
+          "forget": "If you forget the new password, Admin can’t reset it for you: recovery needs your password and your secret key.",
+          "noCurrent": "Your current password isn’t asked for: Nawara Core checks an authenticator app instead.",
+          "sessions": "This session stays signed in. Your other sessions are ended the next time they contact Nawara Core; Admin can’t check this."
+        },
+        "newTitle": "New password",
+        "newLabel": "New password",
+        "confirmLabel": "Confirm the new password",
+        "show": "Show",
+        "hide": "Hide",
+        "rules": {
+          "length": "{{min}} to {{max}} characters",
+          "bytes": "At most {{max}} bytes (some letters and symbols count as 2 to 4)",
+          "characters": "It contains a character that can’t be used",
+          "spaces": "Spaces count, at the start and the end too. Nothing else is required.",
+          "met": "met",
+          "notMet": "not met"
+        },
+        "mismatch": "The two passwords don’t match.",
+        "continue": "Continue",
+        "cancel": "Cancel",
+        "back": "Back",
+        "retry": "Try again",
+        "resume": "Back to confirming",
+        "backToSecurity": "Back to Security",
+        "setAgain": "Set your password again",
+        "continueHint": "Continue is available once the password meets the limits above and both entries match.",
+        "noScore": "These marks only check Nawara Core’s limits; they don’t rate how strong the password is. A password manager can generate and save one.",
+        "rejected": "Nawara Core didn’t accept this password. Nothing was changed. Check the limits and try again.",
+        "verifyTitle": "Confirm it’s you",
+        "verifyIntro": "Enter the 6-digit code from an authenticator app you already use. Your new password stays only on this page until it is sent.",
+        "proofLabel": "Authenticator code",
+        "proofHint": "6 digits. The confirmation is used once, for this change only.",
+        "proofFormat": "Enter the 6-digit code from your authenticator app.",
+        "proofRefused": "That code didn’t work. Nothing was changed. Check your app and try again.",
+        "verificationExpired": "Your confirmation expired before the password was changed. Nothing was changed. Confirm it’s you again.",
+        "verifyUnavailable": "We couldn’t check your code. Nothing was changed. Try again in a moment.",
+        "rateLimited": "Too many attempts. Nothing was changed and nothing is retried automatically. Wait a few minutes, then try again.",
+        "submit": "Change password",
+        "verifying": "Checking…",
+        "changingShort": "Changing…",
+        "changing": "Changing your password… This page stays as it is until Nawara Core answers.",
+        "preparing": "Checking your account…",
+        "messages": {
+          "unknownTitle": "We can’t tell whether your password changed",
+          "unknownDescription": "Nawara Core didn’t send an answer Admin can use. Your previous password or your new one may now be in force, and Admin can’t check which. This session stays signed in either way, so that tells you nothing. Nothing is retried automatically.",
+          "managerNote": "If your password manager saved the new password, keep your previous one too until you’ve signed in once. To be sure which password works, set your password again: you’ll type a new one and confirm it’s you again.",
+          "noAuthenticatorTitle": "An authenticator app is needed",
+          "noAuthenticatorDescription": "Changing your password needs an authenticator app to confirm it’s you. Confirming with a passkey isn’t available here yet. Nothing was changed.",
+          "loadFailedTitle": "We couldn’t check your account",
+          "loadFailedDescription": "Your factors couldn’t be read, so nothing was started. Nothing was changed.",
+          "refusedDescription": "Only the Company owner can change their own password, in their current session. Nothing from this page was kept.",
+          "notInBuildTitle": "Changing your password is not available",
+          "notInBuildDescription": "This build of Admin is not connected to Nawara Core’s Auth service, so no password can be changed here."
+        },
+        "notices": {
+          "changed": "Password changed. Use it the next time you sign in. This session stays signed in; your other sessions are ended the next time they contact Nawara Core.",
+          "cancelled": "Nothing was changed. Your password is the same."
+        }
+      },
       "actions": {
         "title": "Confirming sensitive actions",
         "signIn": "Every sign-in to your owner account asks for a confirmed factor after your password.",
@@ -1743,7 +1818,6 @@
       "unavailable": {
         "title": "Not available on this page",
         "factors": "Adding a passkey",
-        "password": "Changing your password",
         "recovery": "Starting or cancelling a recovery"
       },
       "states": {

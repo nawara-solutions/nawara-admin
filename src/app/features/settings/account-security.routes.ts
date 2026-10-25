@@ -14,8 +14,8 @@ import {
 const SECURITY_PARENT = { key: 'shell.breadcrumb.security', link: '/settings/security' } as const;
 
 /**
- * Account security (`/settings/security`; P9-S4a), adding an authenticator app (`…/add-authenticator`; P9-S4b) and
- * creating a new secret key (`…/secret-key`; P9-S4c), the owner only (the parent route's capability guard covers direct
+ * Account security (`/settings/security`; P9-S4a), adding an authenticator app (`…/add-authenticator`; P9-S4b),
+ * creating a new secret key (`…/secret-key`; P9-S4c) and changing the password (`…/password`; P9-S4e), the owner only (the parent route's capability guard covers direct
  * URLs; each action page has its own). The gateways are bound
  * here (docs/ARCHITECTURE.md §3): the mock adapters in a demo build, the `unavailable` adapters otherwise, so a
  * production build shows no simulated factor and begins no setup. Both pages share the overview's facade, so the
@@ -63,6 +63,17 @@ export async function loadAccountSecurityRoutes(environment: AppEnvironment): Pr
           canActivate: [capabilityGuard('account.secret_key.rotate')],
           canDeactivate: [(page: SecretKeyPage) => page.canLeave()],
           loadComponent: () => import('./pages/secret-key.page').then((m) => m.SecretKeyPage),
+        },
+        {
+          // A dedicated page (owner decision P2): a form password managers recognise. Entering it changes nothing.
+          path: 'password',
+          title: 'titles.settingsPassword',
+          data: {
+            [BREADCRUMB_DATA]: 'shell.breadcrumb.password',
+            [BREADCRUMB_PARENT_DATA]: SECURITY_PARENT,
+          },
+          canActivate: [capabilityGuard('account.password.change')],
+          loadComponent: () => import('./pages/password.page').then((m) => m.PasswordPage),
         },
       ],
     },

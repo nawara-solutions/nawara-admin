@@ -54,6 +54,16 @@
       'settings.security.secretKey.notices.unknown' | transloco
     }}</nw-inline-alert>
   }
+  @case ('passwordChanged') {
+    <nw-inline-alert tone="success" data-notice="passwordChanged">{{
+      'settings.security.password.notices.changed' | transloco
+    }}</nw-inline-alert>
+  }
+  @case ('passwordCancelled') {
+    <nw-inline-alert tone="info" data-notice="passwordCancelled">{{
+      'settings.security.password.notices.cancelled' | transloco
+    }}</nw-inline-alert>
+  }
   @case ('keyCancelled') {
     <nw-inline-alert tone="info" data-notice="keyCancelled">{{
       'settings.security.secretKey.notices.cancelled' | transloco
@@ -236,6 +246,51 @@
       </section>
     }
 
+    @if (canChangePassword()) {
+      <section
+        class="account-security__card"
+        aria-labelledby="security-password"
+        data-password-card
+      >
+        <div class="account-security__intro">
+          <h2 id="security-password" class="account-security__heading">
+            {{ 'settings.security.password.cardTitle' | transloco }}
+          </h2>
+          <p class="account-security__muted">
+            {{ 'settings.security.password.cardBody' | transloco }}
+          </p>
+        </div>
+        <div class="account-security__add" data-password-action>
+          @if (view.hasAuthenticator) {
+            <a nw-button variant="secondary" routerLink="/settings/security/password">
+              <nw-icon name="key-round" size="sm" />{{
+                'settings.security.password.action' | transloco
+              }}
+            </a>
+          } @else {
+            <button
+              nw-button
+              variant="secondary"
+              type="button"
+              disabled
+              aria-describedby="security-password-unavailable"
+            >
+              <nw-icon name="key-round" size="sm" />{{
+                'settings.security.password.action' | transloco
+              }}
+            </button>
+            <p
+              id="security-password-unavailable"
+              class="account-security__muted"
+              data-password-unavailable
+            >
+              {{ 'settings.security.password.needsAuthenticator' | transloco }}
+            </p>
+          }
+        </div>
+      </section>
+    }
+
     <section class="account-security__card" aria-labelledby="security-actions" data-guidance>
       <h2 id="security-actions" class="account-security__heading">
         {{ 'settings.security.actions.title' | transloco }}
@@ -268,7 +323,6 @@
       </h2>
       <ul class="account-security__list" role="list">
         <li>{{ 'settings.security.unavailable.factors' | transloco }}</li>
-        <li>{{ 'settings.security.unavailable.password' | transloco }}</li>
         <li>{{ 'settings.security.unavailable.recovery' | transloco }}</li>
       </ul>
     </section>

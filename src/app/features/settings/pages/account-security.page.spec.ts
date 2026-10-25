@@ -217,7 +217,7 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
     for (const item of Object.values(t.unavailable)) expect(page).toContain(item);
   });
 
-  it('offers two actions as links, a Remove per confirmed factor, and no form (P9-S4b to P9-S4d)', async () => {
+  it('offers three actions as links, a Remove per confirmed factor, and no form (P9-S4b to P9-S4e)', async () => {
     const { element } = await render();
     const controls = [
       ...element.querySelectorAll('button, a, input, textarea, select, form, [contenteditable]'),
@@ -233,6 +233,7 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
       ['BUTTON', `Remove ${t.factors.webauthn}`, t.remove.button],
       ['A', '/settings/security/add-authenticator', t.add.action],
       ['A', '/settings/security/secret-key', t.secretKey.action],
+      ['A', '/settings/security/password', t.password.action],
     ]);
   });
 
@@ -304,6 +305,43 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
     expect(t.secretKey.notices.saved).not.toMatch(/recover/i);
   });
 
+  it('the password card: a link for an owner with an authenticator, disabled with the reason otherwise (P9-S4e)', async () => {
+    const { element } = await render();
+    const card = element.querySelector('[data-password-card]');
+    expect(text(card?.querySelector('h2'))).toBe(t.password.cardTitle);
+    expect(card?.querySelector('a')?.getAttribute('href')).toBe('/settings/security/password');
+    expect(t.unavailable).not.toHaveProperty('password');
+    TestBed.resetTestingModule();
+    Scripted.answer = {
+      factors: [{ id: 'p', type: 'webauthn', confirmed: true, createdAt: null, lastUsedAt: null }],
+    };
+    const passkeys = await render(owner, { gateway: 'scripted' });
+    const button = passkeys.element.querySelector<HTMLButtonElement>(
+      '[data-password-action] button',
+    );
+    expect(button?.disabled).toBe(true);
+    const reason = passkeys.element.querySelector('[data-password-unavailable]');
+    expect(button?.getAttribute('aria-describedby')).toBe(reason?.id);
+    expect(text(reason)).toBe(t.password.needsAuthenticator);
+  });
+
+  it('shows each password notice once, saying what it does to sessions without promising more (P9-S4e)', async () => {
+    for (const [notice, role, copy] of [
+      ['passwordChanged', 'status', t.password.notices.changed],
+      ['passwordCancelled', 'status', t.password.notices.cancelled],
+    ] as const) {
+      TestBed.resetTestingModule();
+      const { element } = await render(owner, {
+        before: () => TestBed.inject(AccountSecurityFacade).announce(notice),
+      });
+      const alert = element.querySelector(`[data-notice="${notice}"]`);
+      expect(text(alert)).toBe(copy);
+      expect(alert?.getAttribute('role')).toBe(role);
+    }
+    expect(t.password.notices.changed).toContain('the next time they contact Nawara Core');
+    expect(t.password.notices.changed).not.toMatch(/immediately|at once|instantly/i);
+  });
+
   it('never shows a seed, code, password, key, token or grant, and sends no request', async () => {
     const { element, settle, network } = await render();
     const grant = TestBed.inject(DemoAuthState).issueStepUp(
@@ -333,6 +371,7 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
     expect(text(element)).toContain(t.states.forbiddenDescription);
     expect(element.querySelector('[data-factors]')).toBeNull();
     expect(element.querySelector('[data-secret-key-card]')).toBeNull();
+    expect(element.querySelector('[data-password-card]')).toBeNull();
   });
 
   it('a production build says Security is not available, never a simulated factor', async () => {
