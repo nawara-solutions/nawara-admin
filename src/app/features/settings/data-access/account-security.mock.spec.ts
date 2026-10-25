@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Observable, firstValueFrom } from 'rxjs';
 import {
   DEMO_ENROLLMENT_ACCOUNT,
+  DEMO_NEW_AUTHENTICATOR_CODE,
   DEMO_OPERATORS,
   DEMO_OWNER_ACCOUNT,
   DEMO_PASSWORD,
@@ -9,8 +10,8 @@ import {
   DEMO_TOTP_SECRET,
 } from '../../../core/auth/auth.fixtures';
 import { MockAuthGateway } from '../../../core/auth/auth.mock';
-import { DemoAuthState } from '../../../core/auth/auth.mock-state';
-import { MockStepUpGateway } from '../../../core/auth/step-up.mock';
+import { DemoAuthState, FACTOR_ENROLLMENT_LIMIT } from '../../../core/auth/auth.mock-state';
+import { DEMO_STEP_UP_LIFETIME_MS, MockStepUpGateway } from '../../../core/auth/step-up.mock';
 import { DEMO_LATENCY_MS } from '../../../core/context/scope-directory.mock';
 import { AppError } from '../../../core/errors/app-error';
 import { NW_CLOCK } from '../../../shared/format/clock';
@@ -172,5 +173,219 @@ describe('Account security mock (P9-S4a)', () => {
     expect((await firstValueFrom(gateway.load())).factors).toEqual([
       { id: setup.factorId, type: 'totp', confirmed: true, createdAt: at, lastUsedAt: at },
     ]);
+  });
+});
+
+describe('Account security mock: adding an authenticator (P9-S4b)', () => {
+  const owner = DEMO_OWNER_ACCOUNT.identity;
+
+  function setUpAdd(scenario: AccountSecurityDemoScenario = 'normal') {
+    const clock = { now: NOW };
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: DEMO_LATENCY_MS, useValue: 0 },
+        { provide: ACCOUNT_SECURITY_DEMO_SCENARIO, useValue: scenario },
+        { provide: NW_CLOCK, useValue: () => clock.now },
+      ],
+    });
+    const state = TestBed.inject(DemoAuthState);
+    const gateway = TestBed.runInInjectionContext(() => new MockAccountSecurityGateway());
+    const stepUp = TestBed.runInInjectionContext(() => new MockStepUpGateway());
+    state.signedIn.set({ identity: owner, businessIdentityId: null });
+    const grant = async (code = DEMO_TOTP_CODE) =>
+      (await firstValueFrom(stepUp.obtain('owner.factor.enroll', { method: 'totp', code }))).token;
+    const factors = () => state.ownerFactors.get(owner.userId) ?? [];
+    return { state, gateway, stepUp, grant, factors, clock };
+  }
+
+  it('begins an unconfirmed authenticator and leaves the confirmed factors untouched', async () => {
+    const { gateway, factors } = setUpAdd();
+    const before = factors().map((f) => ({ ...f }));
+    const setup = await firstValueFrom(gateway.beginTotp());
+    expect(setup.secret).toBe(DEMO_TOTP_SECRET);
+    expect(setup.otpauthUri).toMatch(/^otpauth:\/\/totp\//);
+    expect(factors().slice(0, 2)).toEqual(before);
+    expect(factors()[2]).toMatchObject({ id: setup.factorId, type: 'totp', confirmed: false });
+    expect(factors()[2]?.createdAt).toBe(new Date(NOW).toISOString());
+  });
+
+  it('a second begin (another tab) replaces the unconfirmed one only; the first can then never be confirmed', async () => {
+    const { gateway, grant, factors } = setUpAdd();
+    const first = await firstValueFrom(gateway.beginTotp());
+    const second = await firstValueFrom(gateway.beginTotp());
+    expect(
+      factors()
+        .filter((f) => !f.confirmed)
+        .map((f) => f.id),
+    ).toEqual([second.factorId]);
+    expect(factors().filter((f) => f.confirmed)).toHaveLength(2);
+    const token = await grant();
+    expect(
+      await error(gateway.confirmTotp(first.factorId, DEMO_NEW_AUTHENTICATOR_CODE, token)),
+    ).toMatchObject({ kind: 'validation', code: 'verification_failed', status: 400 });
+    // the refusal rolled back: the same grant still confirms the current setup
+    await firstValueFrom(gateway.confirmTotp(second.factorId, DEMO_NEW_AUTHENTICATOR_CODE, token));
+    expect(factors().find((f) => f.id === second.factorId)?.confirmed).toBe(true);
+  });
+
+  it('confirms with the NEW app’s code and a live owner.factor.enroll grant, which it spends once', async () => {
+    const { gateway, grant, factors, state } = setUpAdd();
+    const setup = await firstValueFrom(gateway.beginTotp());
+    const token = await grant();
+    await firstValueFrom(gateway.confirmTotp(setup.factorId, DEMO_NEW_AUTHENTICATOR_CODE, token));
+    expect(factors().find((f) => f.id === setup.factorId)).toMatchObject({
+      confirmed: true,
+      lastUsedAt: new Date(NOW).toISOString(),
+    });
+    expect(factors().filter((f) => f.confirmed)).toHaveLength(3);
+    expect(state.checkStepUp(token, 'owner.factor.enroll', owner.userId, NOW)).toBe(false);
+    // a second confirmation of the same (now confirmed) factor: the spent grant is refused first
+    expect(
+      await error(gateway.confirmTotp(setup.factorId, DEMO_NEW_AUTHENTICATOR_CODE, token)),
+    ).toMatchObject({ kind: 'forbidden', code: 'step_up_required', status: 403 });
+  });
+
+  it('a wrong new code is a definite 400 that spends nothing: the grant still works, the factor stays unconfirmed', async () => {
+    const { gateway, grant, factors, state } = setUpAdd();
+    const setup = await firstValueFrom(gateway.beginTotp());
+    const token = await grant();
+    // the existing factor's code is not the new app's
+    for (const wrong of [DEMO_TOTP_CODE, '000000'])
+      expect(await error(gateway.confirmTotp(setup.factorId, wrong, token))).toMatchObject({
+        kind: 'validation',
+        code: 'verification_failed',
+        status: 400,
+      });
+    expect(factors().find((f) => f.id === setup.factorId)?.confirmed).toBe(false);
+    expect(state.checkStepUp(token, 'owner.factor.enroll', owner.userId, NOW)).toBe(true);
+    await firstValueFrom(gateway.confirmTotp(setup.factorId, DEMO_NEW_AUTHENTICATOR_CODE, token));
+    expect(factors().find((f) => f.id === setup.factorId)?.confirmed).toBe(true);
+  });
+
+  it('a malformed request is 400 validation_error, before the grant is looked at', async () => {
+    const { gateway, grant, state } = setUpAdd();
+    const setup = await firstValueFrom(gateway.beginTotp());
+    const token = await grant();
+    for (const [factorId, code] of [
+      ['not-a-uuid', DEMO_NEW_AUTHENTICATOR_CODE],
+      [setup.factorId, '12345'],
+      [setup.factorId, '12a456'],
+    ] as const)
+      expect(await error(gateway.confirmTotp(factorId, code, token))).toMatchObject({
+        kind: 'validation',
+        code: 'validation_error',
+      });
+    expect(state.checkStepUp(token, 'owner.factor.enroll', owner.userId, NOW)).toBe(true);
+  });
+
+  it('refuses a grant of another purpose, of another owner, an expired one, or none (403 step_up_required)', async () => {
+    const { gateway, state, stepUp, factors, clock } = setUpAdd();
+    const setup = await firstValueFrom(gateway.beginTotp());
+    const other = (
+      await firstValueFrom(
+        stepUp.obtain('platform.create', { method: 'totp', code: DEMO_TOTP_CODE }),
+      )
+    ).token;
+    const someoneElse = state.issueStepUp(
+      'owner.factor.enroll',
+      DEMO_ENROLLMENT_ACCOUNT.identity.userId,
+      NOW + 60_000,
+    );
+    const secretKeyProof = state.issueStepUp(
+      'owner.factor.enroll',
+      owner.userId,
+      NOW + 60_000,
+      'secret_key',
+    );
+    const expiring = state.issueStepUp('owner.factor.enroll', owner.userId, NOW + 1_000);
+    clock.now = NOW + 2_000;
+    for (const token of [other, someoneElse, secretKeyProof, expiring, 'demo-step-up-forged'])
+      expect(
+        await error(gateway.confirmTotp(setup.factorId, DEMO_NEW_AUTHENTICATOR_CODE, token)),
+      ).toMatchObject({ kind: 'forbidden', code: 'step_up_required', status: 403 });
+    expect(factors().find((f) => f.id === setup.factorId)?.confirmed).toBe(false);
+  });
+
+  it('a step-up grant for adding a factor lasts the demo lifetime and accepts factors only', async () => {
+    const { state, grant } = setUpAdd();
+    const token = await grant();
+    expect(state.checkStepUp(token, 'owner.factor.enroll', owner.userId, NOW)).toBe(true);
+    expect(
+      state.checkStepUp(token, 'owner.factor.enroll', owner.userId, NOW + DEMO_STEP_UP_LIFETIME_MS),
+    ).toBe(false);
+    expect(state.checkStepUp(token, 'owner.factor.remove', owner.userId, NOW)).toBe(false);
+  });
+
+  it('refuses operators (403) and answers 401 without a session, beginning nothing', async () => {
+    const { gateway, state, factors } = setUpAdd();
+    const count = factors().length;
+    for (const operator of DEMO_OPERATORS) {
+      state.signedIn.set({ identity: operator.identity, businessIdentityId: null });
+      expect(await error(gateway.beginTotp())).toMatchObject({ kind: 'forbidden', status: 403 });
+      expect(await error(gateway.confirmTotp('x', '123456', 't'))).toMatchObject({
+        kind: 'forbidden',
+        status: 403,
+      });
+    }
+    state.signedIn.set(null);
+    expect(await error(gateway.beginTotp())).toMatchObject({
+      kind: 'unauthenticated',
+      status: 401,
+    });
+    expect(factors()).toHaveLength(count);
+  });
+
+  it('throttles begins and confirmations together, like Core (429), changing nothing', async () => {
+    const { gateway, factors, clock } = setUpAdd();
+    for (let i = 0; i < FACTOR_ENROLLMENT_LIMIT.requests; i++)
+      await firstValueFrom(gateway.beginTotp());
+    const pending = factors().find((f) => !f.confirmed)?.id;
+    expect(await error(gateway.beginTotp())).toMatchObject({ kind: 'rate_limited', status: 429 });
+    expect(await error(gateway.confirmTotp(pending ?? '', '246810', 't'))).toMatchObject({
+      kind: 'rate_limited',
+    });
+    expect(factors().find((f) => !f.confirmed)?.id).toBe(pending);
+    clock.now = NOW + FACTOR_ENROLLMENT_LIMIT.windowMs + 1;
+    await firstValueFrom(gateway.beginTotp());
+  });
+
+  it('a lost answer (confirmLost) is applied: the list shows the factor confirmed and the grant spent', async () => {
+    const { gateway, grant, factors, state } = setUpAdd('confirmLost');
+    const setup = await firstValueFrom(gateway.beginTotp());
+    const token = await grant();
+    expect(
+      await error(gateway.confirmTotp(setup.factorId, DEMO_NEW_AUTHENTICATOR_CODE, token)),
+    ).toMatchObject({ kind: 'network' });
+    expect(factors().find((f) => f.id === setup.factorId)?.confirmed).toBe(true);
+    expect(state.checkStepUp(token, 'owner.factor.enroll', owner.userId, NOW)).toBe(false);
+  });
+
+  it('an unavailable confirmation (503) applies nothing and spends nothing', async () => {
+    const { gateway, grant, factors, state } = setUpAdd('confirmUnavailable');
+    const setup = await firstValueFrom(gateway.beginTotp());
+    const token = await grant();
+    expect(
+      await error(gateway.confirmTotp(setup.factorId, DEMO_NEW_AUTHENTICATOR_CODE, token)),
+    ).toMatchObject({ kind: 'unavailable', status: 503 });
+    expect(factors().find((f) => f.id === setup.factorId)?.confirmed).toBe(false);
+    expect(state.checkStepUp(token, 'owner.factor.enroll', owner.userId, NOW)).toBe(true);
+  });
+
+  it('keeps no setup key, URI, code or grant with the factor records', async () => {
+    const { gateway, grant, state } = setUpAdd();
+    const setup = await firstValueFrom(gateway.beginTotp());
+    const token = await grant();
+    await firstValueFrom(gateway.confirmTotp(setup.factorId, DEMO_NEW_AUTHENTICATOR_CODE, token));
+    const records = JSON.stringify([...state.ownerFactors.values()]);
+    for (const secret of [
+      setup.secret,
+      'otpauth',
+      DEMO_NEW_AUTHENTICATOR_CODE,
+      DEMO_TOTP_CODE,
+      token,
+    ])
+      expect(records).not.toContain(secret);
+    const listed = JSON.stringify(await firstValueFrom(gateway.load()));
+    for (const secret of [setup.secret, 'otpauth', token]) expect(listed).not.toContain(secret);
   });
 });

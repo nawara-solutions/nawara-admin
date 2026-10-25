@@ -145,54 +145,19 @@
             <span class="enroll__step-number">1</span>
             <span>{{ 'auth.enroll.scanTitle' | transloco }}</span>
           </h2>
-          @if (qr(); as code) {
-            <div
-              class="enroll__qr"
-              role="img"
-              [attr.aria-label]="'auth.enroll.qrLabel' | transloco"
-            >
-              <svg
-                class="enroll__qr-image"
-                aria-hidden="true"
-                shape-rendering="crispEdges"
-                [attr.viewBox]="'0 0 ' + code.size + ' ' + code.size"
-              >
-                <path fill="currentColor" [attr.d]="code.path" />
-              </svg>
-            </div>
-            <p class="enroll__hint">{{ 'auth.enroll.cantScan' | transloco }}</p>
-            <div class="enroll__key">
-              <div class="enroll__key-row">
-                <span class="enroll__key-label">{{ 'auth.enroll.keyLabel' | transloco }}</span>
-                <button nw-button variant="secondary" size="sm" type="button" (click)="copyKey()">
-                  <nw-icon name="copy" size="sm" />
-                  <span>{{ 'auth.enroll.copyKey' | transloco }}</span>
-                </button>
-              </div>
-              <code class="enroll__key-value" dir="ltr">{{ groupedKey() }}</code>
-              @switch (copyResult()) {
-                @case ('copied') {
-                  <p class="enroll__copy-status enroll__copy-status--copied" role="status">
-                    <nw-icon name="circle-check" size="sm" />
-                    <span>{{ 'auth.enroll.copied' | transloco }}</span>
-                  </p>
-                }
-                @case ('failed') {
-                  <p class="enroll__copy-status enroll__copy-status--failed" role="status">
-                    <nw-icon name="circle-alert" size="sm" />
-                    <span>{{ 'auth.enroll.copyFailed' | transloco }}</span>
-                  </p>
-                }
-              }
-            </div>
-            <p class="enroll__meta">{{ 'auth.enroll.keyMeta' | transloco }}</p>
-          } @else {
-            <div class="enroll__qr enroll__qr--preparing" role="status">
-              <nw-spinner size="lg" />
-              <span>{{ 'auth.enroll.preparing' | transloco }}</span>
-            </div>
-            <div class="enroll__skeleton" aria-hidden="true"><span></span><span></span></div>
-          }
+          <nw-totp-setup
+            [setup]="enrollment()"
+            [labels]="{
+              qr: 'auth.enroll.qrLabel' | transloco,
+              cantScan: 'auth.enroll.cantScan' | transloco,
+              key: 'auth.enroll.keyLabel' | transloco,
+              copyKey: 'auth.enroll.copyKey' | transloco,
+              copied: 'auth.enroll.copied' | transloco,
+              copyFailed: 'auth.enroll.copyFailed' | transloco,
+              meta: 'auth.enroll.keyMeta' | transloco,
+              preparing: 'auth.enroll.preparing' | transloco,
+            }"
+          />
         </section>
 
         <section class="enroll__step" aria-labelledby="enroll-step-code">

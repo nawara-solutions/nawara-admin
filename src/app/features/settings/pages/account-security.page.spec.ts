@@ -51,9 +51,9 @@ const operator: Actor = {
 };
 
 /** A gateway answering a fixed overview (shapes the demo cannot reach on its own: none, or an unfinished setup). */
-class Scripted extends AccountSecurityGateway {
+class Scripted extends UnavailableAccountSecurityGateway {
   static answer: AccountSecurity = { factors: [] };
-  load(): Observable<AccountSecurity> {
+  override load(): Observable<AccountSecurity> {
     return of(Scripted.answer);
   }
 }
@@ -64,10 +64,13 @@ async function render(
     gateway = 'mock',
     scenario = 'normal',
     langs = { en },
+    before,
   }: {
     gateway?: 'mock' | 'unavailable' | 'scripted';
     scenario?: AccountSecurityDemoScenario;
     langs?: Record<string, Translation>;
+    /** Runs after the test module is configured, before the page is created. */
+    before?: () => void;
   } = {},
 ) {
   vi.stubGlobal('matchMedia', () => ({
@@ -119,6 +122,7 @@ async function render(
   const network = { fetch: vi.fn(), xhr: vi.fn() };
   vi.stubGlobal('fetch', network.fetch);
   vi.spyOn(XMLHttpRequest.prototype, 'open').mockImplementation(network.xhr);
+  before?.();
   const fixture = TestBed.createComponent(AccountSecurityPage);
   const element = fixture.nativeElement as HTMLElement;
   const settle = async (ms = 10) => {
@@ -208,11 +212,44 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
     for (const item of Object.values(t.unavailable)) expect(page).toContain(item);
   });
 
-  it('offers no management control, enabled or disabled, and no form', async () => {
+  it('offers one action, "Add an authenticator app", as a link to its page, and no form (P9-S4b)', async () => {
     const { element } = await render();
-    expect(
-      element.querySelectorAll('button, a, input, textarea, select, form, [contenteditable]'),
-    ).toHaveLength(0);
+    const controls = [
+      ...element.querySelectorAll('button, a, input, textarea, select, form, [contenteditable]'),
+    ];
+    expect(controls).toHaveLength(1);
+    expect(controls[0]?.tagName).toBe('A');
+    expect(controls[0]?.getAttribute('href')).toBe('/settings/security/add-authenticator');
+    expect(text(controls[0])).toBe(t.add.action);
+  });
+
+  it('a passkey-only owner sees the action disabled, with the reason as its description (P9-S4b)', async () => {
+    Scripted.answer = {
+      factors: [
+        { id: 'p', type: 'webauthn', confirmed: true, createdAt: null, lastUsedAt: null },
+        { id: 'u', type: 'totp', confirmed: false, createdAt: null, lastUsedAt: null },
+      ],
+    };
+    const { element } = await render(owner, { gateway: 'scripted' });
+    expect(element.querySelector('a')).toBeNull();
+    const button = element.querySelector<HTMLButtonElement>('[data-add] button');
+    expect(button?.disabled).toBe(true);
+    const reason = element.querySelector('[data-add-unavailable]');
+    expect(button?.getAttribute('aria-describedby')).toBe(reason?.id);
+    expect(text(reason)).toBe(t.add.needsAuthenticator);
+  });
+
+  it('shows the notice the add page left, once, without any secret (P9-S4b)', async () => {
+    const first = await render(owner, {
+      before: () => TestBed.inject(AccountSecurityFacade).announce('added'),
+    });
+    expect(text(first.element.querySelector('[data-notice="added"]'))).toBe(t.add.addedNotice);
+    expect(first.element.querySelector('[data-notice="added"]')?.getAttribute('role')).toBe(
+      'status',
+    );
+    expect(TestBed.inject(AccountSecurityFacade).takeNotice()).toBeNull();
+    // a new factor is not presented as a recovery path
+    expect(t.add.addedNotice).toContain('It does not make recovery possible on its own');
   });
 
   it('never shows a seed, code, password, key, token or grant, and sends no request', async () => {

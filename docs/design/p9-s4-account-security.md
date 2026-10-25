@@ -1,11 +1,15 @@
 # P9-S4 — Owner account security
 
 - **Status:** P9-S4-0 read-only Core verification complete (2026-10-25). **P9-S4a implemented** 2026-10-25: the
-  owner's read-only Security overview (`/settings/security`, §9). **P9-S4b to P9-S4e are planned, each separately
-  authorized**; nothing here changes a factor, a key, a password or a recovery.
+  owner's read-only Security overview (`/settings/security`, §9; PR #45, merged). **P9-S4b implemented** 2026-10-25 as
+  a mock-first prototype: adding an authenticator app (`/settings/security/add-authenticator`, §10); production binds
+  the unavailable adapters and real Auth integration is NOT done. **P9-S4c to P9-S4e are planned, each separately
+  authorized**; nothing here changes a key, a password or a recovery, or removes a factor.
 - **Baseline:** Core `origin/main` `304064f` (equal to the remote; read with `git show`, nothing checked out); Admin
   `main` `bb4c968`. Parent design: [`p9-settings-architecture.md`](p9-settings-architecture.md).
-- **Canvas:** https://claude.ai/artifact/N9MpMwvtasDCwZ76puVPtz (private, may expire). This text prevails.
+- **Canvas:** https://claude.ai/artifact/N9MpMwvtasDCwZ76puVPtz (private, may expire). S4b design canvas (three
+  artboards, approved with the refinements in §10): https://claude.ai/artifact/Hq8PCY1XBUnuXsJpFfLzuV. This text
+  prevails.
 - **Sources read (Core, `apps/auth-service/`):** `src/owner/{owner.controller, dto, factor.service, enrollment.service,
   step-up.service, secret-key.service, recovery.service, webauthn.service}.ts`, `src/auth/auth.guard.ts`,
   `src/tokens/refresh-token.service.ts`, `src/crypto/password.ts`, `src/config/app-config.ts`, `src/errors.ts`;
@@ -18,7 +22,7 @@
 | Capability | Core (verified, `304064f`) | Admin |
 |---|---|---|
 | List the owner's factors | ✅ `GET /auth/admin/factors` | ✅ **P9-S4a**, read only (demo mock; production "not available") |
-| Add an authenticator app | ✅ `POST factors/totp`, `factors/totp/confirm` + step-up | ⏳ P9-S4b |
+| Add an authenticator app | ✅ `POST factors/totp`, `factors/totp/confirm` + step-up | ✅ **P9-S4b**, mock-first (§10; production "not available") |
 | Add a passkey | ✅ `POST factors/webauthn/options`, `factors/webauthn` + step-up; origin-bound | ⏳ later (needs a WebAuthn registration client, the real origin) |
 | Remove a factor | ✅ `DELETE factors/:id` + step-up; never the last confirmed one | ⏳ P9-S4d |
 | Rotate the secret key | ✅ `POST secret-key/rotate` + step-up; returned once | ⏳ P9-S4c |
@@ -69,14 +73,14 @@ rotation (ADR-0016), and no read tells. TTLs and throttles are deployment config
   factor-only purposes; `action-failure` mapping by code; the copy-once pattern of admin invitation codes; `uqr`.
 - **Extend:** `StepUpPurpose` and `DEMO_STEP_UP_METHODS` gain the four `owner.*` purposes (factor only) with S4b–S4e;
   `DemoAuthState` holds the owner's simulated factors (done in S4a, §9).
-- **New:** `AccountSecurityGateway` (S4a: `load()`; later list-changing commands, each in its slice); a TOTP setup
-  component extracted from the sign-in enrollment page.
+- **New:** `AccountSecurityGateway` (S4a: `load()`; S4b: `beginTotp()`, `confirmTotp()`; later commands, each in its
+  slice); the shared `nw-totp-setup` extracted from the sign-in enrollment page (S4b).
 - **Missing:** WebAuthn registration (`WebAuthnClient` only asserts); a shared factor chooser.
 
 ## 5. Order (each separately authorized)
 
 1. **S4a** ✅ read-only overview (§9).
-2. **S4b** add an authenticator app.
+2. **S4b** ✅ add an authenticator app (§10).
 3. **S4c** generate / rotate the secret key.
 4. **S4d** remove a factor.
 5. **S4e** change the password.
@@ -135,3 +139,88 @@ change (twice; keep or end this session); a blind recovery cancel; passkeys and 
   no secret or request, operator refused without a gateway call, production not available, empty, Try again, Arabic
   RTL); `access-summary.spec.ts` (the Overview link); hub, routes and capability specs updated; the demo-binding fixtures
   gained the one `accountSecurity: []` line their type requires.
+
+## 10. P9-S4b implementation (2026-10-25)
+
+Mock-first: demo builds bind the mocks over `DemoAuthState`; every other build binds the unavailable adapters, so the
+page says "Adding an authenticator is not available" and no setup begins. **Real Auth integration is not done** (no
+HTTP adapter; A4, D-A4, CF-01). Core was not read again: the contract is §2's (Core `304064f`).
+
+**Owner decisions:** D1 a dedicated page `/settings/security/add-authenticator`; D2 the new app's code before "confirm
+it's you"; D3 reuse a grant only after a definite refusal, while Core's rollback applies and it is still valid; D4
+authenticator-code step-up only (no passkey alternative is offered); D5 Cancel discards the local setup and deletes no
+Core enrollment; D6 no maximum number of authenticators; D7 on success back to Security, the list reloaded, a notice;
+D8 a shared TOTP setup component.
+
+**Authorization.** New owner capability `account.factor.add`: the add route's own guard (operator → `/forbidden`; signed
+out → the shell's session guard), the Security page's action (owner only), the facade (starts nothing for anyone else),
+the mocks (`401` without a session, `403` to anyone but an owner). The grant is checked by the mock for the owner it was
+issued to and the purpose `owner.factor.enroll` (TOTP or passkey proof, never the secret key), and spent only when the
+factor is confirmed.
+
+**Entry.** The Security page's factor card offers "Add an authenticator app" (a link) when a confirmed authenticator
+exists. A passkey-only owner sees it disabled, described by the reason (S4b proves the step-up with an authenticator code
+only; passkey proof needs the factor chooser, a separate future slice). The add page checks the list again before it
+begins anything (a direct URL), and explains instead of beginning.
+
+**State machine** (`AddAuthenticatorFacade`, page-scoped; not `ActionRun`, see ARCHITECTURE §12):
+
+| State | Shows | Next |
+|---|---|---|
+| `idle` | nothing (before start; after destroy) | `checking` when the page is entered |
+| `checking` | setup being prepared | `beginning` (a confirmed TOTP exists) · `noAuthenticator` · `beginFailed` · `refused` · `notInBuild` |
+| `beginning` | setup being prepared | `setup` · `beginFailed` (`429` → rateLimited, else unavailable; manual "Try again" only) |
+| `setup` | QR, key (copy on request), the NEW app's code | `validating` on Continue · `cancelled` |
+| `validating` | (synchronous) the code's shape: six digits | `confirming` with a reusable grant · else `verifying` |
+| `verifying` | "Confirm it's you" with an authenticator you already use | `confirming` with a grant · stays on `401` (proof refused) · `rateLimited` · `setup` (Back) |
+| `confirming` | everything locked | `succeeded` · `codeRefused` · `verifying` (`403 step_up_required`, same new code) · `rateLimited` · `setup` (`503`, nothing applied) · `reconciling` (no answer) · `refused` (other `403`, `401`) |
+| `codeRefused` | the code step with a refusal; whether the grant was kept | `confirming` directly while the grant is reusable; else `verifying` |
+| `reconciling` | "Checking whether your authenticator was added" | confirmed → `succeeded`; unconfirmed → `notConfirmed`; missing → `replaced`; unreadable → `unknown` |
+| `notConfirmed` | the code step: not added yet, still waiting for a code (never "failed") | `verifying` (the grant was dropped) |
+| `replaced` | this setup no longer exists | `beginning` on "Start again" |
+| `rateLimited` | too many attempts; nothing retried | `setup` on "Back to the code" |
+| `unknown` | the outcome is unknown and the list unreadable | `reconciling` on "Check again" (never a resend) |
+| `succeeded` / `cancelled` | back on Security (`replaceUrl`), a notice | — |
+| `refused` / `notInBuild` / `noAuthenticator` | one message, "Back to Security" | — |
+
+**Retry and reconciliation rules.** One request at a time; a second submit, proof, start or cancel while busy is
+ignored. A confirmation is never resent automatically. `400 verification_failed` and `400 validation_error` are
+definite refusals (Core rolls back; the grant is unspent): never treated as an unknown outcome. A `verification_failed`
+is explained with one list read: still unconfirmed → a wrong code; missing → replaced (another tab began a newer setup);
+confirmed → added (a duplicate). An unreadable list there keeps the definite refusal. The grant is reused only for the
+same owner and session and with more than 15 s left (`GRANT_REUSE_MARGIN_MS`); after any other failure, a lost answer
+included, it is dropped and the owner confirms again. `429` (begin and confirm share Core's 10-per-hour budget, step-ups
+their own) stops; nothing retries by itself.
+
+**Data ownership.**
+
+| Item | Lives | Never |
+|---|---|---|
+| setup key, `otpauth` URI (and the QR drawn from it) | `AddAuthenticatorFacade` memory, while the page is open | `DemoWorld`, `DemoAuthState`, Settings state, storage, URL, history state, logs, toasts, activity, the factor list |
+| the new app's code, the proof code | the field (cleared on every state change) and the one request; the new code also in the facade until sent or refused | kept after the flow |
+| step-up grant | the facade, only between a definite refusal and the next confirmation | stored, logged, shown |
+| factor metadata (`id, type, confirmed, createdAt, lastUsedAt`) | Core; demo: `DemoAuthState.ownerFactors` | `DemoWorld`; no secret beside it |
+| the demo throttle | `DemoAuthState` (request times only) | — |
+
+Disposal: success, cancel, a replaced setup, a session change (sign-out, another identity, or a new session of the same
+owner), and the page's destruction (navigation away) clear the key, the codes and the grant; late answers are ignored.
+
+**Demo semantics.** The setup key is the fixed fictional `DEMO_TOTP_SECRET`. The new app's code is
+`DEMO_NEW_AUTHENTICATOR_CODE` (246810); the existing factor's step-up code stays `DEMO_TOTP_CODE` (123456), so the two
+verifications are distinct: the existing factor's code is refused as the new app's. Scenarios: `confirmLost` (applied,
+answer lost), `confirmUnavailable` (`503`), `error` (the list unreadable).
+
+**Not done (out of scope):** factor removal (S4d), passkey registration, a shared step-up factor chooser (passkey or
+secret key proof), secret-key generation or rotation (S4c), password change (S4e), recovery cancellation, real Core HTTP
+integration, deleting an unfinished setup (no Core API). Adding a factor guarantees no recovery path: the notice says so.
+
+**Tests.** `add-authenticator.facade.spec.ts` (every transition; grant validity, owner and session binding, expiry
+margin; definite refusal vs unknown; never resent; duplicates; concurrent-tab replacement; cancel; sign-out, another
+owner, the same owner's new session; destruction; `429`; production); `add-authenticator.page.spec.ts` (end to end with
+the mocks; wrong code then right code with one proof; code format; passkey-only; operator; production adapters; cancel;
+destruction; lost answer; throttled begin; no secret in storage, history, router URL or console; Arabic RTL);
+`account-security.mock.spec.ts` (begin replaces only an unconfirmed TOTP; confirmed factors untouched; grant purpose,
+owner, expiry and method; `400` rollback; `validation_error` first; throttle; lost and unavailable scenarios; no secret
+with the records); `account-security.page.spec.ts` (the action, the passkey-only explanation, the notice);
+`account-security.routes.spec.ts` (the add route's guard, title, breadcrumb; production adapters); `totp-setup.spec.ts`;
+the sign-in `enroll.page.spec.ts` unchanged in behaviour (selectors follow the extracted component's BEM block).

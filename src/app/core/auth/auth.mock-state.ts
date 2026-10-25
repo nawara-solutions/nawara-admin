@@ -14,6 +14,12 @@ import { Identity } from './auth.model';
 export const CODE_ATTEMPTS = 5;
 
 /**
+ * Core's throttle on adding an authenticator (P9-S4-0, Core `304064f`): begins and confirmations of `factors/totp*`
+ * together, 10 an hour per owner (deployment configuration; the default).
+ */
+export const FACTOR_ENROLLMENT_LIMIT = { requests: 10, windowMs: 60 * 60_000 } as const;
+
+/**
  * One of an owner's simulated second factors, shaped after a row of Core's `GET /auth/admin/factors` (P9-S4-0, Core
  * `304064f`: `id, type, confirmed, createdAt, lastUsedAt`). Metadata only: no TOTP seed, credential, name or secret.
  * `createdAt` and `lastUsedAt` are only what this demo session saw happen; `null` when it saw nothing (a fixture's
@@ -199,6 +205,22 @@ export class DemoAuthState {
     if (factor) factor.lastUsedAt = at;
   }
 
+  /** Each owner's recent `factors/totp*` requests (by user id): request times only, for Core's throttle. */
+  private readonly factorEnrollmentRequests = new Map<string, number[]>();
+
+  /**
+   * Counts one `factors/totp` or `factors/totp/confirm` request of this owner (P9-S4b).
+   * @returns `false` when the owner is over Core's limit: the request is refused with `429` and changes nothing
+   */
+  takeFactorEnrollmentRequest(userId: string, now: number): boolean {
+    const recent = (this.factorEnrollmentRequests.get(userId) ?? []).filter(
+      (at) => at > now - FACTOR_ENROLLMENT_LIMIT.windowMs,
+    );
+    const allowed = recent.length < FACTOR_ENROLLMENT_LIMIT.requests;
+    this.factorEnrollmentRequests.set(userId, allowed ? [...recent, now] : recent);
+    return allowed;
+  }
+
   /** Live simulated step-up grants, by token. */
   private readonly stepUps = new Map<string, DemoStepUp>();
 
@@ -270,6 +292,8 @@ export const DEMO_STEP_UP_METHODS: Readonly<Record<string, readonly DemoStepUpMe
   'platform_assignment.revoke': ['totp', 'webauthn', 'secret_key'],
   // Creating an operator (P6-S4; Core 750eb21): the secret key is accepted too.
   'operator.create': ['totp', 'webauthn', 'secret_key'],
+  // Adding a factor (P9-S4b; Core 304064f `owner.factor.enroll`): factor only, never the secret key.
+  'owner.factor.enroll': ['totp', 'webauthn'],
 };
 
 const stepUpMethodAllowed = (purpose: string, method: DemoStepUpMethod) =>

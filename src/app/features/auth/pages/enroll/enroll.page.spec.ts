@@ -63,7 +63,7 @@ describe('EnrollPage', () => {
     const account = page.querySelector('adm-identity-row');
     expect(account?.classList).toContain('identity-row--wrap');
     expect(text(account?.querySelector('bdi'))).toBe('owner@demo.nawara.invalid');
-    const qr = page.querySelector('.enroll__qr');
+    const qr = page.querySelector('.nw-totp-setup__qr');
     expect(qr?.getAttribute('role')).toBe('img');
     expect(qr?.getAttribute('aria-label')).toBe(en.auth.enroll.qrLabel);
     const { data } = encode(TEST_ENROLLMENT.otpauthUri, { ecc: 'M', border: 4 });
@@ -72,7 +72,7 @@ describe('EnrollPage', () => {
     );
     const modules = data.flat().filter(Boolean).length;
     expect(qr?.querySelector('path')?.getAttribute('d')?.match(/M/g)).toHaveLength(modules);
-    const key = page.querySelector('.enroll__key-value');
+    const key = page.querySelector('.nw-totp-setup__key-value');
     expect(text(key)).toBe('ABCD EFGH IJKL MNOP');
     expect(key?.getAttribute('dir')).toBe('ltr');
   });
@@ -87,7 +87,7 @@ describe('EnrollPage', () => {
 
   it('shows the setup being prepared, with the code field disabled', async () => {
     const { page, code } = await render({ begin: new Observable<TotpEnrollment>() });
-    const preparing = page.querySelector('.enroll__qr--preparing');
+    const preparing = page.querySelector('.nw-totp-setup__qr--preparing');
     expect(preparing?.getAttribute('role')).toBe('status');
     expect(text(preparing)).toBe(en.auth.enroll.preparing);
     expect(code()?.disabled).toBe(true);
@@ -102,7 +102,7 @@ describe('EnrollPage', () => {
     button(en.auth.enroll.copyKey)?.click();
     await settle(fixture);
     expect(copied).toEqual([TEST_ENROLLMENT.secret]);
-    const status = page.querySelector('.enroll__copy-status');
+    const status = page.querySelector('.nw-totp-setup__copy-status');
     expect(status?.getAttribute('role')).toBe('status');
     expect(text(status)).toBe(en.auth.enroll.copied);
   });
@@ -112,7 +112,7 @@ describe('EnrollPage', () => {
     const { page, button, fixture } = await render();
     button(en.auth.enroll.copyKey)?.click();
     await settle(fixture);
-    expect(text(page.querySelector('.enroll__copy-status--failed'))).toBe(
+    expect(text(page.querySelector('.nw-totp-setup__copy-status--failed'))).toBe(
       en.auth.enroll.copyFailed,
     );
   });
@@ -142,7 +142,7 @@ describe('EnrollPage', () => {
     expect(code()?.getAttribute('aria-invalid')).toBe('true');
     expect(code()?.getAttribute('aria-describedby')).toContain(ENROLL_BANNER_ID);
     expect(code()?.value).toBe('012345');
-    expect(page.querySelector('.enroll__qr svg')).not.toBeNull();
+    expect(page.querySelector('.nw-totp-setup__qr svg')).not.toBeNull();
   });
 
   it('retries the same code against the same setup after an unavailable service', async () => {
@@ -169,7 +169,7 @@ describe('EnrollPage', () => {
     type(code(), '123456');
     await submit();
     expect(text(page.querySelector('h1'))).toBe(title);
-    expect(page.querySelector('.enroll__qr')).toBeNull();
+    expect(page.querySelector('.nw-totp-setup__qr')).toBeNull();
   });
 
   it('offers "Try again" when no setup could be begun, then shows it', async () => {
@@ -225,7 +225,7 @@ describe('EnrollPage: ends, retries and limits (A4-S4 remediation)', () => {
     async (error, title) => {
       const { page, button, flow } = await render({ begin: fail(error) });
       expect(text(page.querySelector('h1'))).toBe(title);
-      expect(page.querySelector('.enroll__qr')).toBeNull();
+      expect(page.querySelector('.nw-totp-setup__qr')).toBeNull();
       expect(page.querySelector('input[name="authenticator-code"]')).toBeNull();
       expect(button(en.auth.enroll.backToSignIn)).toBeDefined();
       expect(button(en.auth.banner.retry)).toBeUndefined();
@@ -257,7 +257,7 @@ describe('EnrollPage: ends, retries and limits (A4-S4 remediation)', () => {
       pending.complete();
       await settle(fixture);
       expect(text(page.querySelector('h1'))).toBe(en.auth.enroll.title);
-      expect(page.querySelector('.enroll__qr svg')).not.toBeNull();
+      expect(page.querySelector('.nw-totp-setup__qr svg')).not.toBeNull();
     },
   );
 
@@ -274,7 +274,7 @@ describe('EnrollPage: ends, retries and limits (A4-S4 remediation)', () => {
     expect(code()?.value).toBe('123456');
     expect(code()?.readOnly).toBe(false);
     expect(code()?.getAttribute('aria-invalid')).not.toBe('true');
-    expect(page.querySelector('.enroll__qr svg')).not.toBeNull();
+    expect(page.querySelector('.nw-totp-setup__qr svg')).not.toBeNull();
     expect(text(page.querySelector('h1'))).toBe(en.auth.enroll.title);
   });
 });

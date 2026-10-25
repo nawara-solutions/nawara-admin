@@ -32,6 +32,8 @@ export interface DemoSignInHint {
   readonly accounts: readonly { readonly email: string; readonly roleKey: string }[];
   readonly password: string;
   readonly code: string;
+  /** The code the mock accepts from a NEW authenticator app the owner adds (P9-S4b); never the existing factor's. */
+  readonly newAuthenticatorCode?: string;
   /** Operator scenarios (working-code sign-in): an email or phone identifier each, and the one demo working code. */
   readonly operators: readonly { readonly identifier: string; readonly roleKey: string }[];
   readonly workingCode: string;

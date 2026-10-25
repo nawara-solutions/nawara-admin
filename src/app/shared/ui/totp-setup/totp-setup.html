@@ -1,0 +1,45 @@
+@let l = labels();
+@if (qr(); as code) {
+  <div class="nw-totp-setup__qr" role="img" [attr.aria-label]="l.qr">
+    <svg
+      class="nw-totp-setup__qr-image"
+      aria-hidden="true"
+      shape-rendering="crispEdges"
+      [attr.viewBox]="'0 0 ' + code.size + ' ' + code.size"
+    >
+      <path fill="currentColor" [attr.d]="code.path" />
+    </svg>
+  </div>
+  <p class="nw-totp-setup__hint">{{ l.cantScan }}</p>
+  <div class="nw-totp-setup__key">
+    <div class="nw-totp-setup__key-row">
+      <span class="nw-totp-setup__key-label">{{ l.key }}</span>
+      <button nw-button variant="secondary" size="sm" type="button" (click)="copyKey()">
+        <nw-icon name="copy" size="sm" />
+        <span>{{ l.copyKey }}</span>
+      </button>
+    </div>
+    <code class="nw-totp-setup__key-value" dir="ltr" translate="no">{{ groupedKey() }}</code>
+    @switch (copyResult()) {
+      @case ('copied') {
+        <p class="nw-totp-setup__copy-status nw-totp-setup__copy-status--copied" role="status">
+          <nw-icon name="circle-check" size="sm" />
+          <span>{{ l.copied }}</span>
+        </p>
+      }
+      @case ('failed') {
+        <p class="nw-totp-setup__copy-status nw-totp-setup__copy-status--failed" role="status">
+          <nw-icon name="circle-alert" size="sm" />
+          <span>{{ l.copyFailed }}</span>
+        </p>
+      }
+    }
+  </div>
+  <p class="nw-totp-setup__meta">{{ l.meta }}</p>
+} @else {
+  <div class="nw-totp-setup__qr nw-totp-setup__qr--preparing" role="status">
+    <nw-spinner size="lg" />
+    <span>{{ l.preparing }}</span>
+  </div>
+  <div class="nw-totp-setup__skeleton" aria-hidden="true"><span></span><span></span></div>
+}

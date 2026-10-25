@@ -1,0 +1,382 @@
+@let current = state();
+@let step = view();
+<header class="add-authenticator__header">
+  <div class="add-authenticator__titles">
+    <p class="add-authenticator__eyebrow">{{ 'settings.security.title' | transloco }}</p>
+    <h1 class="add-authenticator__title">{{ 'settings.security.add.title' | transloco }}</h1>
+    <p class="add-authenticator__subtitle">{{ 'settings.security.add.subtitle' | transloco }}</p>
+  </div>
+  @if (isDemo()) {
+    <span class="add-authenticator__demo">
+      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+    </span>
+  }
+</header>
+
+@switch (step) {
+  @case ('code') {
+    <ol
+      class="add-authenticator__steps"
+      [attr.aria-label]="'settings.security.add.steps.label' | transloco"
+    >
+      <li class="add-authenticator__step-chip add-authenticator__step-chip--current">
+        <span class="add-authenticator__step-number">1</span
+        >{{ 'settings.security.add.steps.scan' | transloco }}
+      </li>
+      <li
+        class="add-authenticator__step-chip add-authenticator__step-chip--current"
+        aria-current="step"
+      >
+        <span class="add-authenticator__step-number">2</span
+        >{{ 'settings.security.add.steps.code' | transloco }}
+      </li>
+      <li class="add-authenticator__step-chip">
+        <span class="add-authenticator__step-number">3</span
+        >{{ 'settings.security.add.steps.verify' | transloco }}
+      </li>
+    </ol>
+
+    @switch (current.phase) {
+      @case ('codeRefused') {
+        <nw-inline-alert [id]="bannerId" tone="danger" data-banner="codeRefused">
+          {{ 'settings.security.add.codeRefused' | transloco }}
+          @if (current.phase === 'codeRefused' && current.grantKept) {
+            {{ 'settings.security.add.codeRefusedGrantKept' | transloco }}
+          } @else {
+            {{ 'settings.security.add.codeRefusedVerifyAgain' | transloco }}
+          }
+        </nw-inline-alert>
+      }
+      @case ('notConfirmed') {
+        <nw-inline-alert [id]="bannerId" tone="warning" data-banner="notConfirmed">{{
+          'settings.security.add.notConfirmed' | transloco
+        }}</nw-inline-alert>
+      }
+      @case ('rateLimited') {
+        <nw-inline-alert
+          tone="warning"
+          icon="hourglass"
+          data-banner="rateLimited"
+          [actionLabel]="'settings.security.add.resume' | transloco"
+          (action)="flow.resume()"
+          >{{ 'settings.security.add.rateLimited' | transloco }}</nw-inline-alert
+        >
+      }
+      @case ('setup') {
+        @if (current.phase === 'setup' && current.notice === 'unavailable') {
+          <nw-inline-alert tone="warning" icon="cloud-off" data-banner="unavailable">{{
+            'settings.security.add.confirmUnavailable' | transloco
+          }}</nw-inline-alert>
+        }
+      }
+    }
+
+    <section class="add-authenticator__card" aria-labelledby="add-authenticator-scan">
+      <h2 id="add-authenticator-scan" class="add-authenticator__heading" tabindex="-1" #heading>
+        <span class="add-authenticator__step-number">1</span>
+        <span>{{ 'settings.security.add.scanTitle' | transloco }}</span>
+      </h2>
+      <nw-totp-setup
+        [setup]="flow.setup()"
+        [labels]="{
+          qr: 'settings.security.add.setup.qrLabel' | transloco,
+          cantScan: 'settings.security.add.setup.cantScan' | transloco,
+          key: 'settings.security.add.setup.keyLabel' | transloco,
+          copyKey: 'settings.security.add.setup.copyKey' | transloco,
+          copied: 'settings.security.add.setup.copied' | transloco,
+          copyFailed: 'settings.security.add.setup.copyFailed' | transloco,
+          meta: 'settings.security.add.setup.keyMeta' | transloco,
+          preparing: 'settings.security.add.setup.preparing' | transloco,
+        }"
+      />
+      <p class="add-authenticator__note">{{ 'settings.security.add.keyOnce' | transloco }}</p>
+    </section>
+
+    <section class="add-authenticator__card" aria-labelledby="add-authenticator-code">
+      <h2 id="add-authenticator-code" class="add-authenticator__heading">
+        <span class="add-authenticator__step-number">2</span>
+        <span>{{ 'settings.security.add.codeTitle' | transloco }}</span>
+      </h2>
+      <form
+        class="add-authenticator__form"
+        novalidate
+        [attr.aria-busy]="flow.busy()"
+        (submit)="submitCode($event)"
+      >
+        @let codeErrorKey = codeError();
+        <nw-form-field
+          [label]="'settings.security.add.codeLabel' | transloco"
+          [hint]="'settings.security.add.codeHint' | transloco"
+          [error]="codeErrorKey ? (codeErrorKey | transloco) : undefined"
+          [errorRef]="
+            current.phase === 'codeRefused' || current.phase === 'notConfirmed'
+              ? bannerId
+              : undefined
+          "
+        >
+          <input
+            #codeInput
+            nwControl
+            class="nw-control--lg add-authenticator__code"
+            type="text"
+            name="new-authenticator-code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            spellcheck="false"
+            maxlength="7"
+            dir="ltr"
+            [value]="newCode()"
+            [disabled]="flow.setup() === null || current.phase === 'rateLimited'"
+            (input)="onNewCode($event)"
+          />
+        </nw-form-field>
+        @if (demoCodes(); as demo) {
+          <p class="add-authenticator__demo-note" role="note" data-demo-note>
+            <nw-icon name="flask-conical" size="sm" />
+            <span>{{
+              'settings.security.add.demoNewCode' | transloco: { code: demo.newApp }
+            }}</span>
+          </p>
+        }
+        <p class="add-authenticator__note">{{ 'settings.security.add.nextNote' | transloco }}</p>
+        <div class="add-authenticator__actions">
+          <button
+            nw-button
+            type="submit"
+            [attr.aria-disabled]="flow.busy() || !flow.entersCode() || null"
+          >
+            <span>{{ 'settings.security.add.continue' | transloco }}</span>
+            <nw-icon name="arrow-right" size="sm" class="add-authenticator__forward" />
+          </button>
+          <button nw-button variant="secondary" type="button" data-cancel (click)="cancel()">
+            {{ 'settings.security.add.cancel' | transloco }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @case ('verify') {
+    <ol
+      class="add-authenticator__steps"
+      [attr.aria-label]="'settings.security.add.steps.label' | transloco"
+    >
+      <li class="add-authenticator__step-chip add-authenticator__step-chip--done">
+        <span class="add-authenticator__step-number">1</span
+        >{{ 'settings.security.add.steps.scan' | transloco }}
+      </li>
+      <li class="add-authenticator__step-chip add-authenticator__step-chip--done">
+        <span class="add-authenticator__step-number">2</span
+        >{{ 'settings.security.add.steps.code' | transloco }}
+      </li>
+      <li
+        class="add-authenticator__step-chip add-authenticator__step-chip--current"
+        aria-current="step"
+      >
+        <span class="add-authenticator__step-number">3</span
+        >{{ 'settings.security.add.steps.verify' | transloco }}
+      </li>
+    </ol>
+
+    @if (current.phase === 'verifying' && current.problem; as problem) {
+      <nw-inline-alert
+        id="add-authenticator-proof-banner"
+        [tone]="problem === 'proofRefused' ? 'danger' : 'warning'"
+        [attr.data-banner]="problem"
+        >{{ verifyProblems[problem] | transloco }}</nw-inline-alert
+      >
+    }
+
+    <section class="add-authenticator__card" aria-labelledby="add-authenticator-verify">
+      <h2 id="add-authenticator-verify" class="add-authenticator__heading" tabindex="-1" #heading>
+        <span class="add-authenticator__step-number">3</span>
+        <span>{{ 'settings.security.add.verifyTitle' | transloco }}</span>
+      </h2>
+      <p class="add-authenticator__intro" id="add-authenticator-purpose">
+        {{ 'settings.security.add.verifyIntro' | transloco }}
+      </p>
+      <form
+        class="add-authenticator__form"
+        novalidate
+        [attr.aria-busy]="verifyingBusy()"
+        (submit)="verify($event)"
+      >
+        @let proofErrorKey = proofError();
+        <nw-form-field
+          [label]="'settings.security.add.proofLabel' | transloco"
+          [hint]="'settings.security.add.proofHint' | transloco"
+          [error]="proofErrorKey ? (proofErrorKey | transloco) : undefined"
+          [errorRef]="
+            current.phase === 'verifying' && current.problem === 'proofRefused'
+              ? 'add-authenticator-proof-banner'
+              : undefined
+          "
+        >
+          <input
+            nwControl
+            class="nw-control--lg add-authenticator__code"
+            type="text"
+            name="step-up-code"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            spellcheck="false"
+            maxlength="7"
+            dir="ltr"
+            aria-describedby="add-authenticator-purpose"
+            [value]="proofCode()"
+            [readOnly]="verifyingBusy()"
+            (input)="onProofCode($event)"
+          />
+        </nw-form-field>
+        @if (demoCodes(); as demo) {
+          <p class="add-authenticator__demo-note" role="note" data-demo-note>
+            <nw-icon name="flask-conical" size="sm" />
+            <span>
+              <strong>{{ 'actions.stepUp.demoTitle' | transloco }}</strong>
+              {{ 'actions.stepUp.demoNote' | transloco: { code: demo.existing } }}
+            </span>
+          </p>
+        }
+        <div class="add-authenticator__actions">
+          <button
+            nw-button
+            type="submit"
+            [busy]="verifyingBusy()"
+            [attr.aria-disabled]="verifyingBusy() || null"
+          >
+            @if (verifyingBusy()) {
+              <nw-spinner />
+              <span>{{
+                (confirming()
+                  ? 'settings.security.add.confirming'
+                  : 'settings.security.add.verifying'
+                ) | transloco
+              }}</span>
+            } @else {
+              <span>{{ 'settings.security.add.submit' | transloco }}</span>
+            }
+          </button>
+          <button
+            nw-button
+            variant="secondary"
+            type="button"
+            [attr.aria-disabled]="verifyingBusy() || null"
+            (click)="flow.back()"
+          >
+            <nw-icon name="arrow-left" size="sm" class="add-authenticator__back" />
+            {{ 'settings.security.add.back' | transloco }}
+          </button>
+          <button
+            nw-button
+            variant="ghost"
+            type="button"
+            data-cancel
+            [attr.aria-disabled]="verifyingBusy() || null"
+            (click)="cancel()"
+          >
+            {{ 'settings.security.add.cancel' | transloco }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @case ('reconciling') {
+    <section class="add-authenticator__card add-authenticator__card--message" role="status">
+      <h2 class="add-authenticator__heading" tabindex="-1" #heading>
+        <nw-spinner />
+        <span>{{ 'settings.security.add.reconcilingTitle' | transloco }}</span>
+      </h2>
+      <p>{{ 'settings.security.add.reconciling' | transloco }}</p>
+    </section>
+  }
+
+  @case ('preparing') {
+    <section class="add-authenticator__card" aria-labelledby="add-authenticator-preparing">
+      <h2
+        id="add-authenticator-preparing"
+        class="add-authenticator__heading"
+        tabindex="-1"
+        #heading
+      >
+        <span class="add-authenticator__step-number">1</span>
+        <span>{{ 'settings.security.add.scanTitle' | transloco }}</span>
+      </h2>
+      <nw-totp-setup
+        [setup]="null"
+        [labels]="{
+          qr: 'settings.security.add.setup.qrLabel' | transloco,
+          cantScan: 'settings.security.add.setup.cantScan' | transloco,
+          key: 'settings.security.add.setup.keyLabel' | transloco,
+          copyKey: 'settings.security.add.setup.copyKey' | transloco,
+          copied: 'settings.security.add.setup.copied' | transloco,
+          copyFailed: 'settings.security.add.setup.copyFailed' | transloco,
+          meta: 'settings.security.add.setup.keyMeta' | transloco,
+          preparing: 'settings.security.add.setup.preparing' | transloco,
+        }"
+      />
+    </section>
+  }
+
+  @case ('leaving') {
+    <!-- Done or cancelled: the page is leaving for Security, which says what happened. -->
+  }
+
+  @default {
+    @let m = message();
+    @if (m) {
+      <section
+        class="add-authenticator__card add-authenticator__card--message"
+        aria-labelledby="add-authenticator-message"
+        [attr.data-message]="m.id"
+      >
+        <h2
+          id="add-authenticator-message"
+          class="add-authenticator__heading"
+          tabindex="-1"
+          #heading
+        >
+          <nw-icon [name]="m.icon" />
+          <span>{{ m.title | transloco }}</span>
+        </h2>
+        <p>{{ m.description | transloco }}</p>
+        <div class="add-authenticator__actions">
+          @switch (m.id) {
+            @case ('beginRateLimited') {
+              <button nw-button type="button" (click)="flow.retryBegin()">
+                <nw-icon name="refresh-cw" size="sm" />{{
+                  'settings.security.add.retry' | transloco
+                }}
+              </button>
+            }
+            @case ('beginUnavailable') {
+              <button nw-button type="button" (click)="flow.retryBegin()">
+                <nw-icon name="refresh-cw" size="sm" />{{
+                  'settings.security.add.retry' | transloco
+                }}
+              </button>
+            }
+            @case ('replaced') {
+              <button nw-button type="button" (click)="flow.restart()">
+                <nw-icon name="refresh-cw" size="sm" />{{
+                  'settings.security.add.startAgain' | transloco
+                }}
+              </button>
+            }
+            @case ('unknown') {
+              <button nw-button type="button" (click)="flow.checkAgain()">
+                <nw-icon name="refresh-cw" size="sm" />{{
+                  'settings.security.add.checkAgain' | transloco
+                }}
+              </button>
+            }
+          }
+          <button nw-button variant="secondary" type="button" (click)="leave()">
+            <nw-icon name="arrow-left" size="sm" class="add-authenticator__back" />
+            {{ 'settings.security.add.backToSecurity' | transloco }}
+          </button>
+        </div>
+      </section>
+    }
+  }
+}
