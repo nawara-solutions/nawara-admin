@@ -40,7 +40,9 @@ export class MockStepUpGateway extends StepUpGateway {
     const fail = (error: AppError) =>
       timer(this.latency).pipe(switchMap(() => throwError(() => error)));
     const signedIn = this.state.signedIn();
-    if (signedIn === null) return fail({ kind: 'unauthenticated', status: 401 });
+    // No session, or one Core ended (a password change in another session, P9-S4e).
+    if (signedIn === null || this.state.sessionRevoked(signedIn))
+      return fail({ kind: 'unauthenticated', status: 401 });
     if (signedIn.identity.adminTier !== 'owner')
       return fail({ kind: 'forbidden', code: 'admin_forbidden', status: 403 });
     if (this.scenario === 'rateLimited')

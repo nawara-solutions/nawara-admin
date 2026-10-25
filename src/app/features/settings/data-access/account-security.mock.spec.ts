@@ -546,6 +546,7 @@ describe('Account security mock: creating a new secret key (P9-S4c)', () => {
     expect(methods.sort()).toEqual(
       [
         'beginTotp',
+        'changePassword',
         'confirmTotp',
         'constructor',
         'fail',
@@ -717,6 +718,151 @@ describe('Account security mock: removing a factor (P9-S4d)', () => {
       expect(await error(gateway.removeFactor(id, token))).toMatchObject(expected);
       expect(factors().some((f) => f.id === id)).toBe(false);
       expect(state.checkStepUp(token, 'owner.factor.remove', owner.userId, NOW)).toBe(false);
+    }
+  });
+});
+
+describe('Account security mock: changing the password (P9-S4e)', () => {
+  const owner = DEMO_OWNER_ACCOUNT.identity;
+  const NEW = 'a new demo passphrase';
+
+  function setUpChange(scenario: AccountSecurityDemoScenario = 'normal') {
+    const clock = { now: NOW };
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: DEMO_LATENCY_MS, useValue: 0 },
+        { provide: ACCOUNT_SECURITY_DEMO_SCENARIO, useValue: scenario },
+        { provide: NW_CLOCK, useValue: () => clock.now },
+      ],
+    });
+    const state = TestBed.inject(DemoAuthState);
+    const gateway = TestBed.runInInjectionContext(() => new MockAccountSecurityGateway());
+    const stepUp = TestBed.runInInjectionContext(() => new MockStepUpGateway());
+    const auth = TestBed.runInInjectionContext(() => new MockAuthGateway());
+    // This tab's session, and another session of the same owner (another browser).
+    const current = state.openSession(owner, null);
+    const other = state.openSession(owner, null);
+    state.signedIn.set(current);
+    const grant = async () =>
+      (
+        await firstValueFrom(
+          stepUp.obtain('owner.password.change', { method: 'totp', code: DEMO_TOTP_CODE }),
+        )
+      ).token;
+    const done = (source: Observable<void>) =>
+      new Promise<void>((resolve, reject) =>
+        source.subscribe({ complete: resolve, error: reject }),
+      );
+    return { state, gateway, stepUp, auth, grant, done, current, other, clock };
+  }
+
+  it('changes it with a live owner.password.change grant (204): the new password signs in, the old one no longer', async () => {
+    const { gateway, state, grant, done, auth } = setUpChange();
+    const token = await grant();
+    await done(gateway.changePassword(NEW, token));
+    expect(await state.passwordMatches(owner.userId, NEW)).toBe(true);
+    expect(await state.passwordMatches(owner.userId, DEMO_PASSWORD)).toBe(false);
+    expect(state.checkStepUp(token, 'owner.password.change', owner.userId, NOW)).toBe(false);
+    const accepted = await firstValueFrom(auth.login(owner.email ?? '', NEW));
+    expect(accepted.kind).toBe('mfa_required');
+    expect(await error(auth.login(owner.email ?? '', DEMO_PASSWORD))).toMatchObject({
+      kind: 'unauthenticated',
+      status: 401,
+    });
+    // another account keeps the initial demo password (the login answers instead of refusing)
+    const other = await firstValueFrom(
+      auth.login(DEMO_ENROLLMENT_ACCOUNT.identity.email ?? '', DEMO_PASSWORD),
+    );
+    expect(other.kind).toBe('enrollment_required');
+  });
+
+  it('this session continues; every OTHER session of the owner is refused at its next request', async () => {
+    const { gateway, stepUp, state, grant, done, current, other } = setUpChange();
+    await done(gateway.changePassword(NEW, await grant()));
+    expect(state.sessionRevoked(current)).toBe(false);
+    expect((await firstValueFrom(gateway.load())).factors.length).toBeGreaterThan(0);
+    expect(state.sessionRevoked(other)).toBe(true);
+    // the other session's next request
+    state.signedIn.set(other);
+    expect(await error(gateway.load())).toMatchObject({ kind: 'unauthenticated', status: 401 });
+    expect(
+      await error(stepUp.obtain('owner.password.change', { method: 'totp', code: DEMO_TOTP_CODE })),
+    ).toMatchObject({ status: 401 });
+    const auth = TestBed.runInInjectionContext(() => new MockAuthGateway());
+    expect(await error(auth.me())).toMatchObject({ status: 401 });
+    expect(state.signedIn()).toBeNull();
+  });
+
+  it('keeps only a digest: no plaintext password in the simulated state', async () => {
+    const { gateway, state, grant, done } = setUpChange();
+    await done(gateway.changePassword(NEW, await grant()));
+    const dump = JSON.stringify(
+      Object.values(state).map((v: unknown) => (v instanceof Map ? [...v.entries()] : v)),
+    );
+    expect(dump).not.toContain(NEW);
+    expect(dump).not.toContain('passphrase');
+  });
+
+  it('refuses a password outside Core’s limits (400 validation_error) before the grant, which is not spent', async () => {
+    const { gateway, state, grant } = setUpChange();
+    const token = await grant();
+    for (const password of ['short', 'a'.repeat(73), 'é'.repeat(37), `abcdefghij\u0000`])
+      expect(await error(gateway.changePassword(password, token))).toMatchObject({
+        kind: 'validation',
+        code: 'validation_error',
+        status: 400,
+      });
+    expect(state.checkStepUp(token, 'owner.password.change', owner.userId, NOW)).toBe(true);
+    expect(await state.passwordMatches(owner.userId, DEMO_PASSWORD)).toBe(true);
+  });
+
+  it('refuses a grant of another purpose, of another owner, proved by the secret key, expired, forged or missing (403)', async () => {
+    const { gateway, state, clock } = setUpChange();
+    const tokens = [
+      state.issueStepUp('owner.factor.remove', owner.userId, NOW + 60_000),
+      state.issueStepUp(
+        'owner.password.change',
+        DEMO_ENROLLMENT_ACCOUNT.identity.userId,
+        NOW + 60_000,
+      ),
+      state.issueStepUp('owner.password.change', owner.userId, NOW + 60_000, 'secret_key'),
+      state.issueStepUp('owner.password.change', owner.userId, NOW + 1_000),
+    ];
+    clock.now = NOW + 2_000;
+    for (const token of [...tokens, 'demo-step-up-forged', ''])
+      expect(await error(gateway.changePassword(NEW, token))).toMatchObject({
+        kind: 'forbidden',
+        code: 'step_up_required',
+        status: 403,
+      });
+    expect(await state.passwordMatches(owner.userId, DEMO_PASSWORD)).toBe(true);
+  });
+
+  it('refuses operators (403) and answers 401 without a session, changing nothing', async () => {
+    const { gateway, state } = setUpChange();
+    const operator = DEMO_OPERATORS[0];
+    if (!operator) throw new Error('no operator fixture');
+    state.signedIn.set({ identity: operator.identity, businessIdentityId: null });
+    expect(await error(gateway.changePassword(NEW, 'x'))).toMatchObject({ status: 403 });
+    state.signedIn.set(null);
+    expect(await error(gateway.changePassword(NEW, 'x'))).toMatchObject({ status: 401 });
+    expect(await state.passwordMatches(owner.userId, DEMO_PASSWORD)).toBe(true);
+  });
+
+  it('a lost answer and a 500 commit; a 429 and a 400 without Core’s code change nothing', async () => {
+    for (const [scenario, expected, changed] of [
+      ['changeLost', { kind: 'network' }, true],
+      ['changeServerError', { kind: 'unexpected', status: 500 }, true],
+      ['changeRateLimited', { kind: 'rate_limited', status: 429 }, false],
+      ['changeUnexpected400', { kind: 'validation', status: 400 }, false],
+    ] as const) {
+      TestBed.resetTestingModule();
+      const { gateway, state, grant, other } = setUpChange(scenario);
+      const failure = await error(gateway.changePassword(NEW, await grant()));
+      expect(failure).toMatchObject(expected);
+      if (scenario === 'changeUnexpected400') expect(failure).not.toHaveProperty('code');
+      expect(await state.passwordMatches(owner.userId, NEW)).toBe(changed);
+      expect(state.sessionRevoked(other)).toBe(changed);
     }
   });
 });

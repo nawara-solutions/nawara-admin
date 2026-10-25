@@ -102,6 +102,11 @@ export type Capability =
    * `@Actors('owner')`, needs an `owner.factor.remove` step-up proved by a factor, and keeps the last confirmed one.
    */
   | 'account.factor.remove'
+  /**
+   * Changing the owner's own password (`/settings/security/password`, P9-S4e). Core's `password/change` is
+   * `@Actors('owner')` and needs an `owner.password.change` step-up proved by a factor; no current password is asked.
+   */
+  | 'account.password.change'
   /** A Platform's administrative activity: Core's owner audit read; operators have no audit read (CF-04). */
   | 'platform.activity.view'
   /** Operator assignments and admin invitations of a Platform: the owner manages both; operators manage neither. */
@@ -121,6 +126,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'account.factor.add',
   'account.secret_key.rotate',
   'account.factor.remove',
+  'account.password.change',
   'operator.platformAccess.change',
   'operator.account.block',
   'operator.create',

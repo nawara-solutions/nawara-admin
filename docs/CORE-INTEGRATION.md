@@ -388,7 +388,7 @@ Admin strategy and the decision required before A4.
 | WebAuthn (passkeys) | Auth | 🟢 Prod | `webauthn-options`, `factors/webauthn*`; RP `nawara-solutions.com` | HTTP + browser WebAuthn API (A4) |
 | Owner step-up | Auth | 🟢 Prod | `POST /auth/admin/step-up`, `x-step-up-token` | `StepUpGateway` (P4-S1): simulated mock in demo builds (opaque in-memory grant, single use, purpose- and user-bound, expiring, never Core evidence), unavailable otherwise; purposes limited to documented ones in use: `platform.create` (P4-S1), `organization.create` (P3b-S1). Both accept TOTP, WebAuthn and secret key (`auth-service/src/owner/step-up.service.ts:23-56`); the demo simulates TOTP only. Later purposes are listed on `StepUpPurpose`, among them `owner.factor.enroll` (P9-S4b), `owner.secret_key.rotate` (P9-S4c) and `owner.factor.remove` (P9-S4d), all TOTP or WebAuthn, never the secret key |
 | Operator step-up | Auth | 🟡 | ADR-0042 A.1 accepted, not built | Hide/disable sensitive ops for operators |
-| Secret key rotate / password change | Auth | 🟢 Prod (verified P9-S4-0) | `secret-key/rotate` (step-up `owner.secret_key.rotate`, factor only; key returned once; not idempotent), `password/change` (step-up `owner.password.change`, factor only; no current password; ends other sessions) | Rotate: **P9-S4c**, `rotateSecretKey(stepUpToken)` mock-first ("Create a new secret key": first or replacement alike; step-up `owner.secret_key.rotate` checked first and spent on commit; the key shown once, masked; `401`/`403`/`429` definite, anything else unknown and never resent; demo verifier is a DEMO-only digest in `DemoAuthState`); unavailable in production; no HTTP adapter (A4). Password change: S4e, planned. No status read of the key (CF-54); no alert on either (CF-55); two-phase rotation and pending-recovery effect proposed (CF-60, CF-61). Details: `design/p9-s4-account-security.md` §11 |
+| Secret key rotate / password change | Auth | 🟢 Prod (verified P9-S4-0) | `secret-key/rotate` (step-up `owner.secret_key.rotate`, factor only; key returned once; not idempotent), `password/change` (step-up `owner.password.change`, factor only; no current password; ends other sessions) | Rotate: **P9-S4c**, `rotateSecretKey(stepUpToken)` mock-first ("Create a new secret key": first or replacement alike; step-up `owner.secret_key.rotate` checked first and spent on commit; the key shown once, masked; `401`/`403`/`429` definite, anything else unknown and never resent; demo verifier is a DEMO-only digest in `DemoAuthState`); unavailable in production; no HTTP adapter (A4). Password change: **P9-S4e**, `changePassword(newPassword, stepUpToken)` mock-first (`/settings/security/password`; Core's limits only, sent as typed; step-up `owner.password.change` checked first and spent on commit; `400 validation_error` definite, anything else unknown and never resent; this session continues, the owner's other sessions end at their next request; demo verifier and session ids in `DemoAuthState`); unavailable in production. No status read of the key (CF-54); no alert on either (CF-55); two-phase rotation and pending-recovery effect proposed (CF-60, CF-61). Details: `design/p9-s4-account-security.md` §11 |
 | Organization directory (list/search) | Organization | 🔴 | org lists are service-token only | `OrganizationGateway.list(platformId)`, mock in demo builds (P3a); search, filters and sort in the browser; **CF-02** (V2 A5) |
 | Organization detail | Auth (today) → Organization | 🟢 Prod | `GET /auth/admin/organizations/:id` | `OrganizationGateway.load(organizationId)`, mock in demo builds (P3a); the response shape is **not verified yet**, so no HTTP adapter; the UI checks the answer's Platform against the URL |
 | Organization commercial facts (owner): subscription, payment issues, effective assisted-payments policy | Billing / Payment | 🟡 | no staff/owner read route before Core V2 A10/A11 | `OrganizationCommercialGateway`, PROVISIONAL mock contract (P3a); never called for an operator; the directory's subscription filter is a client-side mock capability |
@@ -977,8 +977,9 @@ Service:          auth-service
 Current behavior: `POST /auth/logout` ends the presented session; block and suspend end an account's sessions (§5); no
                   route lists the signed-in person's sessions or ends another one of theirs.
 Admin requirement: the signed-in owner or operator lists their own sessions (no tokens, no raw addresses) and ends one
-                  or all others. Until then Settings says signing out ends this session only, and removing a factor
-                  (P9-S4d) says it ends no session.
+                  or all others. Until then Settings says signing out ends this session only, removing a factor
+                  (P9-S4d) says it ends no session, and changing the password (P9-S4e) says the other sessions end the
+                  next time they contact Nawara Core, which Admin cannot check.
 Classification:   🔴 undefined.
 Recommended checkpoint: Core V2 A4.
 
@@ -1013,9 +1014,9 @@ Recommended checkpoint: before P9-S4c's HTTP adapter.
 CF-55  Alerts for owner credential changes (or corrected documentation)     PROPOSED (P9-S4-0)
 Service:          auth-service
 Current behavior: rotation, password change and factor add / remove write the local and central audit only; no event
-                  is emitted. Since P9-S4b to P9-S4d Admin offers adding and removing a factor and creating a secret key
-                  (mock-first): a stolen session plus one factor could replace the owner's key or remove their other
-                  factors unnoticed. `docs/sdd/auth-service.md` and `docs/add/auth-service.md` say rotation publishes
+                  is emitted. Since P9-S4b to P9-S4e Admin offers adding and removing a factor, creating a secret key and changing
+                  the password (mock-first): a stolen session plus one factor could replace the owner's key or
+                  password, or remove their other factors, unnoticed. `docs/sdd/auth-service.md` and `docs/add/auth-service.md` say rotation publishes
                   `admin.secret_key_rotated` (ADR-0010).
 Admin requirement: the owner is told of every credential change on their account (a stolen session plus a factor
                   otherwise goes unnoticed), or the documents are corrected to the source.
@@ -1034,7 +1035,7 @@ CF-57  A path for a forgotten owner password                                PROP
 Service:          auth-service
 Current behavior: sign-in and recovery both start with the password; `password/change` needs a live session.
 Admin requirement: a stated, safe path for an owner who forgets their password (or an explicit decision that there is
-                  none beyond an operational procedure).
+                  none beyond an operational procedure). P9-S4e says Admin cannot reset a forgotten password.
 Classification:   🔴 undefined.
 Recommended checkpoint: before P9-S4e.
 
@@ -1052,7 +1053,10 @@ Admin requirement: declared schemas at `/auth/docs` for `factors*`, `step-up*`, 
                   `recovery/*`, verified before any HTTP adapter. For `secret-key/rotate` (P9-S4c) precisely: the key's
                   alphabet and separator, `issuedAt`'s format, its error codes (is there a `429` and its limit), when
                   the step-up is spent, and which statuses guarantee that nothing was committed. For `DELETE factors/:id` (P9-S4d):
-                  any throttle, and whether an already removed factor always answers `404`.
+                  any throttle, and whether an already removed factor always answers `404`. For `password/change`
+                  (P9-S4e): how "characters" are counted (Admin assumes Unicode code points, bytes as UTF-8), whether
+                  the new password may equal the old one, any throttle, and which statuses guarantee nothing changed
+                  (Admin trusts only `400 validation_error`).
 Classification:   🟡 documentation.
 Recommended checkpoint: before the auth HTTP adapter (A4).
 
@@ -1089,6 +1093,28 @@ Admin requirement: a documented rule for both. Admin meanwhile offers confirmed 
                   step-up and refuse self-proof for removal; allow (or explicitly refuse) deleting an unfinished setup.
 Classification:   🔴 undefined (documentation / security decision).
 Recommended checkpoint: before P9-S4d's HTTP adapter.
+
+CF-63  Reconciling an uncertain password change                          PROPOSED (P9-S4e, 2026-10-25)
+Service:          auth-service
+Current behavior: (verified `304064f`) `password/change` answers `204` with no body, and no route reads whether or when
+                  the owner's password last changed. After a lost answer or a `5xx`, Admin cannot tell which password
+                  is in force; the current session stays signed in either way.
+Admin requirement: an authoritative, correlation-safe way to settle the outcome without exposing the password: for
+                  example a `passwordChangedAt` on the owner's own read, or an idempotency key whose replay returns the
+                  original outcome. Admin meanwhile shows "unknown" and offers a completely new attempt.
+Classification:   🔴 undefined.
+Recommended checkpoint: before P9-S4e's HTTP adapter.
+
+CF-64  Stronger password-change authorization and security-change notification   PROPOSED (P9-S4e, 2026-10-25)
+Service:          auth-service (with A8 delivery)
+Current behavior: (verified `304064f`) `password/change` asks for an `owner.password.change` step-up proved by a factor
+                  but not for the current password, and emits no event (CF-55): a stolen session plus one factor can
+                  change the password, ending the owner's other sessions and blocking sign-in and recovery for them.
+Admin requirement: a decided policy: require the current password (or a recent full authentication) for a change, and
+                  notify the owner through an out-of-band channel of every credential change. Admin meanwhile states
+                  that the current password is not asked for.
+Classification:   🔴 undefined (security decision).
+Recommended checkpoint: before P9-S4e's HTTP adapter; Core V2 A4.
 
 Residual risk recorded with P6-S3: block and unblock require no step-up (Core's deliberate choice for an emergency
 control), so a stolen owner session can block every operator or unblock one. Admin adds no verification Core does not ask

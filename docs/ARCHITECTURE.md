@@ -626,6 +626,22 @@ account ([`design/p9-s4-account-security.md`](design/p9-s4-account-security.md) 
 - **Focus.** The dialog's own focus moves per state (Cancel, the code field, the main action); after a removal the
   page focuses the outcome (the factor's button is gone), otherwise CDK returns focus to the Remove that opened it.
 
+**A credential change with no read-back (P9-S4e, 2026-10-25): change the password**, Auth-owned, the Company owner's
+own account ([`design/p9-s4-account-security.md`](design/p9-s4-account-security.md) §13):
+
+- **Not an `ActionRun`.** A page-scoped `ChangePasswordFacade` (checking, editing, verifying, changing, rateLimited,
+  unknown, done, cancelled, refused, notInBuild). Only a `400` carrying Core's `validation_error`, a `403` and a `429` are
+  definite; anything else is unknown, and only a completely new attempt can follow. The session still being signed in
+  proves nothing.
+- **Passwords as typed.** `data-access/password-rules.ts` holds Core's documented limits only (code points and UTF-8
+  bytes, no NUL); the page never trims or normalises and adds no strength score. Fields always show their signal's value
+  after a render; the facade's `clearings` counter empties them whenever it drops the password.
+- **Password managers.** A hidden read-only `username` field with the owner's identifier, two `new-password` fields,
+  `passwordrules` limited to Core's limits, paste allowed, forms that post nowhere.
+- **Demo authentication.** `DemoAuthState` keeps a DEMO-only password verifier per owner and simulated session ids; the
+  sign-in mock checks the verifier, and a change ends the owner's other simulated sessions (refused at their next request
+  to the Auth, step-up and account-security mocks). Not production password hashing.
+
 **Operations: Releases (P8-S4, 2026-10-24):** `/releases` is an information page (page → `ReleasesFacade` →
 `ReleaseInformationGateway` → mock or unavailable adapter): the service's responsibility and each capability's standing,
 documentation only. No catalog (CF-05), no release or deployment command, and no disabled control that would suggest

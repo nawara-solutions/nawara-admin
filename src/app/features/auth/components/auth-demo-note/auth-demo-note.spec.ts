@@ -34,6 +34,9 @@ describe('AuthDemoNote', () => {
     const note = text(fixture.nativeElement as HTMLElement);
     expect(note).toContain(en.auth.demo.enrollmentQr);
     expect(note).toContain('Fictional key; use 123456.');
+    // P9-S4e: the owner may change a demo password in Settings, so this one is labelled the initial password
+    expect(note).toContain(en.auth.demo.password);
+    expect(en.auth.demo.password).toMatch(/^Initial password/);
   });
 
   it('shows no setup explanation when the demo bindings carry none', async () => {

@@ -71,6 +71,9 @@ class FakeSecurity extends AccountSecurityGateway {
   removeFactor(): Observable<void> {
     throw new Error('not used by the secret key');
   }
+  changePassword(): Observable<void> {
+    throw new Error('not used by the secret key');
+  }
 }
 
 class FakeStepUp extends StepUpGateway {

@@ -69,6 +69,9 @@ class FakeSecurity extends AccountSecurityGateway {
     this.removals.push({ factorId, token, answer });
     return answer;
   }
+  changePassword(): Observable<void> {
+    throw new Error('not used by removing a factor');
+  }
 }
 
 class FakeStepUp extends StepUpGateway {

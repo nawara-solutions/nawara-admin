@@ -79,6 +79,9 @@ class FakeSecurity extends AccountSecurityGateway {
   removeFactor(): Observable<void> {
     throw new Error('not used by adding an authenticator');
   }
+  changePassword(): Observable<void> {
+    throw new Error('not used by adding an authenticator');
+  }
 }
 
 class FakeStepUp extends StepUpGateway {
