@@ -30,8 +30,8 @@ import {
  * Every method takes the read context (`assistance-read-context.ts`), so no read can leave the owner's Company or the selected
  * Platform. Ids are Core's canonical UUIDs (`selectionId`). Failures are `AppError`s, read through `assistanceReadFailureOf`.
  *
- * Core status: see `ASSISTANCE_READ_CONTRACTS`. No method has an HTTP adapter; every build binds the unavailable adapter until
- * a demo adapter is added (Assistance A3).
+ * Core status: see `ASSISTANCE_READ_CONTRACTS`. No method has an HTTP adapter: a demo build binds the simulated adapter
+ * (`assistance.mock.ts`, DemoDomain `assistance`), every other build the unavailable one.
  */
 export abstract class AssistanceGateway {
   /** The case directory, filtered, one keyset page at a time. */
@@ -155,7 +155,7 @@ export const ASSISTANCE_READ_CONTRACTS: Readonly<Record<AssistanceRead, Assistan
       followUp: 'CF-69',
     },
     realIntegration: 'unavailable',
-    blockedBy: ['CF-69', 'D-A4', 'development-only'],
+    blockedBy: ['CF-69', 'CF-77', 'D-A4', 'development-only'],
   },
   lateSettlement: {
     coreRead: {
@@ -175,7 +175,7 @@ export const ASSISTANCE_READ_CONTRACTS: Readonly<Record<AssistanceRead, Assistan
       followUp: 'CF-68',
     },
     realIntegration: 'unavailable',
-    blockedBy: ['CF-68', 'D-A4', 'development-only'],
+    blockedBy: ['CF-68', 'CF-77', 'D-A4', 'development-only'],
   },
   recoveryObligation: {
     coreRead: {

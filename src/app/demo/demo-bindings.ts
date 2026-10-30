@@ -21,6 +21,7 @@ import { MOCK_ADMIN_INVITATION_PROVIDERS } from '../features/organizations/data-
 import { MOCK_MEMBERSHIP_PROVIDERS } from '../features/organizations/data-access/membership.mock';
 import { MOCK_ORGANIZATION_COMMAND_PROVIDERS } from '../features/organizations/data-access/organization-command.mock';
 import { MOCK_ACTIVITY_PROVIDERS } from '../features/activity/data-access/activity.mock';
+import { MOCK_ASSISTANCE_PROVIDERS } from '../features/assistance/data-access/assistance.mock';
 import { MOCK_RELEASE_INFORMATION_PROVIDERS } from '../features/releases/data-access/release-information.mock';
 import { MOCK_COMPANY_SETTINGS_PROVIDERS } from '../features/settings/data-access/company-settings.mock';
 import { MOCK_ACCOUNT_SECURITY_PROVIDERS } from '../features/settings/data-access/account-security.mock';
@@ -60,5 +61,6 @@ export const DEMO_BINDINGS: DemoBindings = {
     memberships: MOCK_MEMBERSHIP_PROVIDERS,
     operators: MOCK_OPERATOR_PROVIDERS,
     stepUp: MOCK_STEP_UP_PROVIDERS,
+    assistance: MOCK_ASSISTANCE_PROVIDERS,
   },
 };

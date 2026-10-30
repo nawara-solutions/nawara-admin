@@ -47,6 +47,7 @@ const DEMO: DemoBindings = {
     memberships: [],
     operators: [],
     stepUp: [],
+    assistance: [],
   },
 };
 

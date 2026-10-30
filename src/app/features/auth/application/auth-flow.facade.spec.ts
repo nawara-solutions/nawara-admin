@@ -73,6 +73,7 @@ const DEMO: DemoBindings = {
     memberships: [],
     operators: [],
     stepUp: [],
+    assistance: [],
   },
 };
 const DEMO_BUILD: AppEnvironment = { production: false, demo: { load: async () => DEMO } };
