@@ -17,15 +17,19 @@ import {
   AssistanceCaseOrder,
   AssistanceCaseSummary,
 } from '../domain/assistance-read.model';
-import { AssistanceRequestState } from '../domain/assistance.model';
+import { AssistanceRequestState, SettlementChannelState } from '../domain/assistance.model';
 
 /** The indicator filter: machine values, never translated. */
-export type AssistanceIndicatorFilter = 'all' | 'overdue' | 'disputed';
+export type AssistanceIndicatorFilter =
+  'all' | 'overdue' | 'disputed' | 'cashReturnOwed' | 'lateUnapplied' | 'recoveryOpen';
 
 export const INDICATOR_FILTERS: readonly AssistanceIndicatorFilter[] = [
   'all',
   'overdue',
   'disputed',
+  'cashReturnOwed',
+  'lateUnapplied',
+  'recoveryOpen',
 ];
 export const CASE_ORDERS: readonly AssistanceCaseOrder[] = ['consentNewest', 'consentOldest'];
 
@@ -33,6 +37,8 @@ export const CASE_ORDERS: readonly AssistanceCaseOrder[] = ['consentNewest', 'co
 export interface AssistanceDirectoryQuery {
   readonly platform: PlatformId | null;
   readonly state: AssistanceRequestState | null;
+  /** The settlement channel's state (A6). */
+  readonly channel: SettlementChannelState | null;
   readonly indicator: AssistanceIndicatorFilter;
   readonly order: AssistanceCaseOrder;
   readonly reference: string | null;
@@ -41,6 +47,7 @@ export interface AssistanceDirectoryQuery {
 export const DEFAULT_DIRECTORY_QUERY: AssistanceDirectoryQuery = {
   platform: null,
   state: null,
+  channel: null,
   indicator: 'all',
   order: 'consentNewest',
   reference: null,
@@ -243,7 +250,10 @@ export class AssistanceDirectoryFacade {
 }
 
 const filtered = (query: AssistanceDirectoryQuery): boolean =>
-  query.platform !== null || query.state !== null || query.indicator !== 'all';
+  query.platform !== null ||
+  query.state !== null ||
+  query.channel !== null ||
+  query.indicator !== 'all';
 
 /** The query as the gateway's filter: absent fields are no filter. */
 function filterOf(query: AssistanceDirectoryQuery): AssistanceCaseFilter {
@@ -254,6 +264,10 @@ function filterOf(query: AssistanceDirectoryQuery): AssistanceCaseFilter {
     ...(query.state === null ? {} : { state: query.state }),
     ...(query.indicator === 'overdue' ? { overdue: true } : {}),
     ...(query.indicator === 'disputed' ? { disputed: true } : {}),
+    ...(query.indicator === 'cashReturnOwed' ? { cashReturnOwed: true } : {}),
+    ...(query.indicator === 'lateUnapplied' ? { lateUnapplied: true } : {}),
+    ...(query.indicator === 'recoveryOpen' ? { recoveryOpen: true } : {}),
+    ...(query.channel === null ? {} : { channel: query.channel }),
   };
 }
 

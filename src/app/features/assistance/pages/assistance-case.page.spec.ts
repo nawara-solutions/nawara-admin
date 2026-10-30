@@ -184,9 +184,12 @@ describe('Assistance case page (A5)', { timeout: 30_000 }, () => {
     expect(text(collection)).toContain(t.indicator.overdue);
     expect(text(collection.querySelector('[data-channel]'))).toBe(t.channel.closed);
     expect(text(collection)).not.toContain(c.collection.settledFact);
-    expect(text(collection.querySelector('[data-restrictions]'))).toBe(
-      `T1 ${c.restriction.t1} T2 ${c.restriction.t2}`,
-    );
+    const restrictions = [
+      ...element.querySelectorAll('[data-section="oversight"] [data-restriction]'),
+    ].map((li) => li.getAttribute('data-restriction'));
+    expect(restrictions).toEqual(['T1', 'T2']);
+    expect(text(section(element, 'oversight'))).toContain(c.restriction.t1);
+    expect(text(section(element, 'oversight'))).toContain(t.oversight.clears.settledOrReturned);
     const returns = section(element, 'returns')!;
     expect(text(returns)).toContain(c.cashReturn.state.open);
     expect(text(returns.querySelector('[data-amount]'))).toMatch(/TND\s?46\.500/);
@@ -205,7 +208,7 @@ describe('Assistance case page (A5)', { timeout: 30_000 }, () => {
     expect(text(collection.querySelector('[data-channel]'))).toBe(
       `${t.channel.settled} ${c.collection.settledFact}`,
     );
-    expect(text(collection.querySelector('[data-restrictions]'))).toBe(c.restriction.none);
+    expect(text(element.querySelector('[data-restrictions-none]'))).toBe(t.oversight.noRestriction);
     expect(events(element)).toEqual([
       ['report', 'consent'],
       ['report', 'cashCollected'],
@@ -283,9 +286,10 @@ describe('Assistance case page (A5)', { timeout: 30_000 }, () => {
       expect.stringMatching(/TND\s?15\.000/),
       expect.stringMatching(/TND\s?30\.000/),
     ]);
-    expect(text(section(r.element, 'collection')?.querySelector('[data-restrictions]'))).toContain(
-      'T3',
-    );
+    expect(
+      r.element.querySelector('[data-section="oversight"] [data-restriction="T3"]'),
+    ).not.toBeNull();
+    expect(text(section(r.element, 'oversight'))).toContain(t.oversight.clears.principalRecovered);
     TestBed.resetTestingModule();
     r = await render(caseOf(14).request.id);
     recovery = section(r.element, 'recovery')!;
@@ -367,5 +371,96 @@ describe('Assistance case page (A5)', { timeout: 30_000 }, () => {
     for (const s of element.querySelectorAll('section'))
       expect(element.querySelector(`#${s.getAttribute('aria-labelledby')}`)).not.toBeNull();
     expect(element.querySelector('ol[data-timeline]')).not.toBeNull();
+  });
+});
+
+describe('Assistance case oversight (A6)', { timeout: 60_000 }, () => {
+  const stages = (element: HTMLElement) =>
+    Object.fromEntries(
+      [...element.querySelectorAll<HTMLElement>('[data-oversight] [data-stage]')].map((s) => [
+        s.dataset['stage'],
+        s.dataset['value'],
+      ]),
+    );
+  const sourceOf = (element: HTMLElement, stage: string) =>
+    element
+      .querySelector(`[data-oversight] [data-stage="${stage}"] adm-assistance-source-tag`)
+      ?.getAttribute('data-source') ?? null;
+
+  // [collection, settlement, deadline, cash return, recovery, unresolved dispute]
+  const expected: Record<number, readonly string[]> = {
+    1: ['notCollected', 'none', 'none', 'none', 'none', 'false'],
+    2: ['declined', 'none', 'none', 'none', 'none', 'false'],
+    4: ['reported', 'inProgress', 'running', 'none', 'none', 'true'],
+    5: ['reported', 'verified', 'met', 'none', 'none', 'false'],
+    6: ['reported', 'uncertain', 'running', 'none', 'none', 'false'],
+    7: ['reported', 'closedUnpaid', 'met', 'confirmed', 'none', 'false'],
+    8: ['reported', 'closedUnpaid', 'overdue', 'owed', 'none', 'true'],
+    10: ['reported', 'closedUnpaid', 'overdue', 'reported', 'none', 'true'],
+    11: ['reported', 'lateUnapplied', 'overdue', 'owed', 'none', 'false'],
+    12: ['reported', 'verifiedLate', 'met', 'superseded', 'none', 'false'],
+    13: ['reported', 'verified', 'met', 'none', 'open', 'false'],
+    14: ['reported', 'verified', 'met', 'none', 'recovered', 'false'],
+  };
+
+  it('shows each scenario’s stages as Core states them', async () => {
+    for (const [n, row] of Object.entries(expected)) {
+      const { element } = await render(caseOf(Number(n)).request.id);
+      const s = stages(element);
+      expect(
+        [
+          s['collection'],
+          s['settlement'],
+          s['deadline'],
+          s['cashReturn'],
+          s['recovery'],
+          s['dispute'],
+        ],
+        `case ${n}`,
+      ).toEqual(row);
+      TestBed.resetTestingModule();
+    }
+  });
+
+  it('a reported collection is tagged Reported; only a settled channel is tagged a Verified fact', async () => {
+    let r = await render(caseOf(8).request.id);
+    expect(sourceOf(r.element, 'collection')).toBe('report');
+    expect(sourceOf(r.element, 'settlement')).toBe('fact');
+    expect(text(r.element.querySelector('[data-stage="settlement"]'))).toContain(
+      t.oversight.settlement.closedUnpaid,
+    );
+    expect(sourceOf(r.element, 'deadline')).toBe('derived');
+    TestBed.resetTestingModule();
+    r = await render(caseOf(4).request.id);
+    expect(sourceOf(r.element, 'collection')).toBe('report');
+    expect(text(r.element.querySelector('[data-stage="settlement"] dd'))).toBe(
+      `${t.oversight.settlement.inProgress} ${c.source.derived}`,
+    );
+    TestBed.resetTestingModule();
+    r = await render(caseOf(5).request.id);
+    expect(sourceOf(r.element, 'settlement')).toBe('fact');
+    expect(text(r.element.querySelector('[data-stage="settlement"]'))).toContain(
+      t.oversight.settlement.verified,
+    );
+    TestBed.resetTestingModule();
+    r = await render(caseOf(10).request.id);
+    expect(sourceOf(r.element, 'cashReturn')).toBe('report');
+    expect(text(r.element.querySelector('[data-stage="cashReturn"]'))).toContain(
+      t.oversight.cashReturn.reported,
+    );
+  });
+
+  it('explains each restriction and how it clears; the overdue deadline is flagged', async () => {
+    const { element } = await render(caseOf(11).request.id);
+    const items = [...element.querySelectorAll('[data-restriction]')].map((li) =>
+      [...li.children].map(text),
+    );
+    expect(items).toEqual([
+      ['T1', c.restriction.t1, t.oversight.clears.settledOrReturned],
+      ['T2', c.restriction.t2, t.oversight.clears.returnConfirmedOrSuperseded],
+    ]);
+    expect(text(element.querySelector('[data-stage="deadline"] nw-status-badge'))).toBe(
+      t.oversight.deadline.overdue,
+    );
   });
 });

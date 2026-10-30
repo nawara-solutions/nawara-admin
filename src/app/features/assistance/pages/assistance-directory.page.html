@@ -88,6 +88,21 @@
       </nw-form-field>
       <nw-form-field
         class="assistance__select"
+        [label]="'assistanceCases.filter.settlement' | transloco"
+      >
+        <select nwControl aria-controls="assistance-table" (change)="onChannel($event)">
+          <option value="" [selected]="query.channel === null">
+            {{ 'assistanceCases.filter.allSettlements' | transloco }}
+          </option>
+          @for (channel of channels; track channel) {
+            <option [value]="channel" [selected]="channel === query.channel">
+              {{ channelKeys[channel] | transloco }}
+            </option>
+          }
+        </select>
+      </nw-form-field>
+      <nw-form-field
+        class="assistance__select"
         [label]="'assistanceCases.filter.indicator' | transloco"
       >
         <select nwControl aria-controls="assistance-table" (change)="onIndicator($event)">
@@ -135,6 +150,7 @@
                 <th scope="col">{{ 'assistanceCases.list.state' | transloco }}</th>
                 <th scope="col">{{ 'assistanceCases.list.collection' | transloco }}</th>
                 <th scope="col">{{ 'assistanceCases.list.settlement' | transloco }}</th>
+                <th scope="col">{{ 'assistanceCases.list.cashReturn' | transloco }}</th>
                 <th scope="col">{{ 'assistanceCases.list.indicators' | transloco }}</th>
               </tr>
             </thead>
@@ -175,7 +191,10 @@
                   </td>
                   <td data-collection>
                     @if (row.settleBy !== null) {
-                      <span>{{ 'assistanceCases.collection.collected' | transloco }}</span>
+                      <span class="assistance__with-tag"
+                        >{{ 'assistanceCases.collection.collected' | transloco }}
+                        <adm-assistance-source-tag source="report"
+                      /></span>
                       @if (row.state === 'cash_collected') {
                         <span class="assistance__secondary">{{
                           'assistanceCases.collection.settleBy'
@@ -188,12 +207,32 @@
                       }}</span>
                     }
                   </td>
-                  <td data-settlement>
-                    @if (row.channel !== null) {
-                      {{ channelKeys[row.channel] | transloco }}
+                  @let oversight = oversightOf(row);
+                  <td data-settlement [attr.data-value]="oversight.settlement">
+                    @if (oversight.settlement !== 'none') {
+                      <span class="assistance__with-tag"
+                        >{{ settlementKeys[oversight.settlement] | transloco }}
+                        @if (sources.settlement[oversight.settlement]; as source) {
+                          <adm-assistance-source-tag [source]="source" />
+                        }
+                      </span>
                     } @else {
                       <span class="assistance__secondary">{{
                         'assistanceCases.channel.none' | transloco
+                      }}</span>
+                    }
+                  </td>
+                  <td data-cash-return [attr.data-value]="oversight.cashReturn">
+                    @if (oversight.cashReturn !== 'none') {
+                      <span class="assistance__with-tag"
+                        >{{ returnKeys[oversight.cashReturn] | transloco }}
+                        @if (sources.cashReturn[oversight.cashReturn]; as source) {
+                          <adm-assistance-source-tag [source]="source" />
+                        }
+                      </span>
+                    } @else {
+                      <span class="assistance__secondary">{{
+                        'assistanceCases.oversight.cashReturn.none' | transloco
                       }}</span>
                     }
                   </td>

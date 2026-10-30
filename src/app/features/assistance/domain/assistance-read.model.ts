@@ -7,6 +7,7 @@ import {
   AssistanceRequestState,
   AssistanceRestriction,
   CashReturnObligation,
+  CashReturnState,
   LateSettlement,
   Money,
   RecoveryObligation,
@@ -67,6 +68,14 @@ export interface AssistanceCaseFilter {
   /** Core-derived (T1 / T2), never computed by Admin. */
   readonly overdue?: boolean;
   readonly disputed?: boolean;
+  /** The settlement channel's state (A6). */
+  readonly channel?: SettlementChannelState;
+  /** A cash return is owed: open or reported, not yet confirmed (A6; Core's T2 source). */
+  readonly cashReturnOwed?: boolean;
+  /** A late settlement awaits the owner's decision (A6). */
+  readonly lateUnapplied?: boolean;
+  /** A recovery obligation is open (A6; Core's T3 source). */
+  readonly recoveryOpen?: boolean;
   /** Default `consentNewest`. */
   readonly order?: AssistanceCaseOrder;
 }
@@ -113,6 +122,8 @@ export interface AssistanceCaseSummary {
   readonly lateSettlement: LateSettlementStatus | null;
   /** The recovery obligation's state, `null` when there is none. */
   readonly recovery: RecoveryObligationState | null;
+  /** The cash-return obligation's state, `null` when none is owed or was ever owed (A6). */
+  readonly cashReturn: CashReturnState | null;
 }
 
 /** One case: the request and every record attached to it. */

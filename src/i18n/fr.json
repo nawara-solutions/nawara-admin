@@ -2333,7 +2333,12 @@
       "disputed": "Contestation ouverte",
       "order": "Ordre",
       "newest": "Consentement le plus récent d’abord",
-      "oldest": "Consentement le plus ancien d’abord"
+      "oldest": "Consentement le plus ancien d’abord",
+      "settlement": "Règlement",
+      "allSettlements": "Tous les règlements",
+      "cashReturnOwed": "Restitution due",
+      "lateUnapplied": "Règlement tardif en attente de décision",
+      "recoveryOpen": "Recouvrement ouvert"
     },
     "list": {
       "title": "Dossiers",
@@ -2353,7 +2358,8 @@
       "more": "Afficher plus de dossiers",
       "moreFailed": "Les dossiers suivants n’ont pas pu être chargés. Réessayez.",
       "noMatch": "Aucun dossier ne correspond à ces filtres.",
-      "clear": "Afficher tous les dossiers"
+      "clear": "Afficher tous les dossiers",
+      "cashReturn": "Restitution"
     },
     "state": {
       "pending": "En attente",
@@ -2434,9 +2440,6 @@
         "settledFact": "un paiement vérifié l’a réglé"
       },
       "restriction": {
-        "title": "Restrictions sur l’organisation",
-        "none": "Aucune.",
-        "unknown": "Non indiqué.",
         "t1": "Une demande collectée a dépassé son délai de règlement.",
         "t2": "Une restitution d’espèces est due.",
         "t3": "Une obligation de recouvrement est ouverte.",
@@ -2565,6 +2568,58 @@
         "channelUncertain": "Règlement incertain",
         "channelClosed": "Canal de règlement clos",
         "recoveryOpened": "Recouvrement ouvert"
+      }
+    },
+    "oversight": {
+      "title": "Suivi de la collecte et du règlement",
+      "intro": "Chaque étape indique d’où vient sa réponse. Une déclaration de collecte n’est jamais un paiement : seul un paiement vérifié règle un dossier.",
+      "noRestriction": "Nawara Core n’impose aucune restriction à cette organisation.",
+      "collection": {
+        "label": "Collecte en espèces",
+        "notCollected": "Non collecté",
+        "declined": "Refusée, rien de collecté",
+        "reported": "Montant total déclaré collecté"
+      },
+      "settlement": {
+        "label": "Règlement électronique",
+        "none": "Aucun règlement",
+        "inProgress": "En cours, non réglé",
+        "uncertain": "Incertain : en cours d’envoi, non réglé",
+        "verified": "Réglé par un paiement vérifié",
+        "verifiedLate": "Réglé par un paiement vérifié tardif appliqué par le propriétaire",
+        "lateUnapplied": "Paiement vérifié arrivé en retard ; en attente du propriétaire, non réglé",
+        "closedUnpaid": "Clos : le paiement n’a pas abouti"
+      },
+      "deadline": {
+        "label": "Délai de règlement",
+        "none": "Aucun (rien de collecté)",
+        "running": "En cours",
+        "overdue": "Dépassé",
+        "met": "Résolu"
+      },
+      "cashReturn": {
+        "label": "Restitution au bénéficiaire",
+        "none": "Rien de dû",
+        "owed": "Due par l’organisation",
+        "reported": "Restitution déclarée, due jusqu’à confirmation",
+        "confirmed": "Restituée et confirmée par le bénéficiaire",
+        "superseded": "Remplacée par un règlement tardif appliqué"
+      },
+      "recovery": {
+        "label": "Recouvrement",
+        "none": "Aucun",
+        "open": "Ouvert",
+        "recovered": "Recouvré"
+      },
+      "dispute": {
+        "label": "Contestations",
+        "none": "Aucune ouverte",
+        "unresolved": "Contestation non résolue"
+      },
+      "clears": {
+        "settledOrReturned": "Levée quand la demande est réglée ou ses espèces restituées.",
+        "returnConfirmedOrSuperseded": "Levée quand le bénéficiaire confirme la restitution, ou qu’un règlement tardif appliqué la remplace.",
+        "principalRecovered": "Levée quand les recouvrements vérifiés atteignent le prix."
       }
     }
   },

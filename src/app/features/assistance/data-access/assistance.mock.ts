@@ -33,6 +33,7 @@ import {
   isAssistanceRequestState,
 } from '../domain/assistance-read.model';
 import {
+  SETTLEMENT_CHANNEL_STATES,
   AssistanceRestriction,
   CashReturnObligation,
   LateSettlement,
@@ -140,6 +141,8 @@ export class MockAssistanceGateway extends AssistanceGateway {
     return this.read(context, (cases, now) => {
       if (!filterInContext(context, filter)) return INVALID;
       if (filter.state !== undefined && !isAssistanceRequestState(filter.state)) return INVALID;
+      if (filter.channel !== undefined && !SETTLEMENT_CHANNEL_STATES.includes(filter.channel))
+        return INVALID;
       const requestId =
         filter.requestId === undefined
           ? undefined
@@ -157,7 +160,15 @@ export class MockAssistanceGateway extends AssistanceGateway {
               c.request.organizationId === filter.organizationId) &&
             (filter.overdue === undefined || overdue(c, now) === filter.overdue) &&
             (filter.disputed === undefined ||
-              c.disputes.some((d) => d.state === 'open') === filter.disputed),
+              c.disputes.some((d) => d.state === 'open') === filter.disputed) &&
+            (filter.channel === undefined || c.channel?.state === filter.channel) &&
+            (filter.cashReturnOwed === undefined ||
+              c.cashReturns.some((o) => o.state === 'open' || o.state === 'return_reported') ===
+                filter.cashReturnOwed) &&
+            (filter.lateUnapplied === undefined ||
+              c.lateSettlements.some((l) => !l.applied) === filter.lateUnapplied) &&
+            (filter.recoveryOpen === undefined ||
+              (c.recovery?.state === 'open') === filter.recoveryOpen),
         )
         .sort(
           (a, b) =>
@@ -357,6 +368,8 @@ function summaryOf(c: DemoAssistanceCase, now: number): AssistanceCaseSummary {
         ? 'applied'
         : null,
     recovery: c.recovery?.state ?? null,
+    // A case has at most one cash-return obligation in the demo world (Core: one at a time, `0040`).
+    cashReturn: c.cashReturns.at(-1)?.state ?? null,
   };
 }
 

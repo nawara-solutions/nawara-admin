@@ -1,0 +1,57 @@
+// One case's oversight (A6): a stage per row, two columns from a comfortable width (container queries, §15).
+:host {
+  display: grid;
+  gap: var(--nw-space-3);
+  container-type: inline-size;
+}
+
+.assistance-oversight__stages {
+  display: grid;
+  gap: var(--nw-space-2);
+  font-size: var(--nw-text-size-sm);
+}
+
+.assistance-oversight__stage {
+  display: grid;
+  gap: var(--nw-space-1);
+  padding-block-end: var(--nw-space-2);
+  border-block-end: 1px solid var(--nw-border-hairline);
+
+  dt {
+    color: var(--nw-text-secondary);
+  }
+
+  dd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nw-space-1) var(--nw-space-2);
+    margin: 0;
+    min-inline-size: 0;
+  }
+}
+
+.assistance-oversight__secondary {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.assistance-oversight__restrictions {
+  display: grid;
+  gap: var(--nw-space-2);
+  font-size: var(--nw-text-size-sm);
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nw-space-1) var(--nw-space-2);
+  }
+}
+
+@container (min-width: 36rem) {
+  .assistance-oversight__stage {
+    grid-template-columns: minmax(8rem, 1fr) minmax(0, 3fr);
+    align-items: center;
+  }
+}

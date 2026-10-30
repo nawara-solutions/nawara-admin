@@ -35,6 +35,33 @@
       </p>
     }
 
+    @if (oversight(); as oversight) {
+      <section
+        class="assistance-case__card"
+        aria-labelledby="case-oversight"
+        data-section="oversight"
+      >
+        <h2 id="case-oversight" class="assistance-case__card-title">
+          {{ 'assistanceCases.oversight.title' | transloco }}
+        </h2>
+        <p class="assistance-case__hint">{{ 'assistanceCases.oversight.intro' | transloco }}</p>
+        <adm-assistance-oversight-panel
+          [oversight]="oversight"
+          [settleBy]="request.collection?.settleBy ?? null"
+          [restrictions]="detail.restrictions"
+        />
+        @if (detail.restrictions !== null && detail.restrictions.length > 0) {
+          <p class="assistance-case__hint">
+            {{ 'assistanceCases.case.restriction.scope' | transloco }}
+          </p>
+        } @else if (detail.restrictions !== null) {
+          <p class="assistance-case__hint" data-restrictions-none>
+            {{ 'assistanceCases.oversight.noRestriction' | transloco }}
+          </p>
+        }
+      </section>
+    }
+
     <div class="assistance-case__grid">
       <!-- Context -->
       <section class="assistance-case__card" aria-labelledby="case-context" data-section="context">
@@ -186,30 +213,6 @@
         } @else {
           <p class="assistance-case__secondary" data-channel>
             {{ 'assistanceCases.channel.none' | transloco }}
-          </p>
-        }
-        <h3 class="assistance-case__subtitle">
-          {{ 'assistanceCases.case.restriction.title' | transloco }}
-        </h3>
-        @if (detail.restrictions === null) {
-          <p class="assistance-case__secondary">
-            {{ 'assistanceCases.case.restriction.unknown' | transloco }}
-          </p>
-        } @else if (detail.restrictions.length === 0) {
-          <p class="assistance-case__secondary" data-restrictions>
-            {{ 'assistanceCases.case.restriction.none' | transloco }}
-          </p>
-        } @else {
-          <ul class="assistance-case__list" role="list" data-restrictions>
-            @for (restriction of detail.restrictions; track restriction) {
-              <li>
-                <nw-status-badge tone="warning">{{ restriction }}</nw-status-badge>
-                {{ restrictionKeys[restriction] | transloco }}
-              </li>
-            }
-          </ul>
-          <p class="assistance-case__hint">
-            {{ 'assistanceCases.case.restriction.scope' | transloco }}
           </p>
         }
       </section>
@@ -450,9 +453,7 @@
       </h2>
       <ul class="assistance-case__legend" role="list" data-legend>
         @for (source of sources; track source) {
-          <li [attr.data-source]="source">
-            <nw-icon [name]="sourceIcons[source]" size="sm" />{{ sourceKeys[source] | transloco }}
-          </li>
+          <li [attr.data-source]="source"><adm-assistance-source-tag [source]="source" /></li>
         }
       </ul>
       @if (record.timeline.length === 0) {
@@ -471,11 +472,7 @@
               [attr.data-source]="entry.source"
               [attr.data-kind]="entry.kind"
             >
-              <span class="assistance-case__event-source">
-                <nw-icon [name]="sourceIcons[entry.source]" size="sm" />{{
-                  sourceKeys[entry.source] | transloco
-                }}
-              </span>
+              <adm-assistance-source-tag [source]="entry.source" />
               <span class="assistance-case__event-title">{{
                 kindKeys[entry.kind] | transloco
               }}</span>

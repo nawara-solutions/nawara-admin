@@ -130,7 +130,7 @@
 
 .assistance__table {
   inline-size: 100%;
-  min-inline-size: 52rem;
+  min-inline-size: 60rem;
   border-collapse: collapse;
   font-size: var(--nw-text-size-sm);
 
@@ -171,4 +171,11 @@
   .assistance__search-field {
     flex-basis: 100%;
   }
+}
+
+.assistance__with-tag {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-1);
 }

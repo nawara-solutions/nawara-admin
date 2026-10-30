@@ -2333,7 +2333,12 @@
       "disputed": "Open dispute",
       "order": "Order",
       "newest": "Newest consent first",
-      "oldest": "Oldest consent first"
+      "oldest": "Oldest consent first",
+      "settlement": "Settlement",
+      "allSettlements": "All settlements",
+      "cashReturnOwed": "Cash return owed",
+      "lateUnapplied": "Late settlement awaiting decision",
+      "recoveryOpen": "Recovery open"
     },
     "list": {
       "title": "Cases",
@@ -2353,7 +2358,8 @@
       "more": "Show more cases",
       "moreFailed": "More cases could not be loaded. Try again.",
       "noMatch": "No case matches these filters.",
-      "clear": "Show all cases"
+      "clear": "Show all cases",
+      "cashReturn": "Cash return"
     },
     "state": {
       "pending": "Pending",
@@ -2434,9 +2440,6 @@
         "settledFact": "a verified payment settled it"
       },
       "restriction": {
-        "title": "Restrictions on the Organization",
-        "none": "None.",
-        "unknown": "Not stated.",
         "t1": "A collected request is past its settlement deadline.",
         "t2": "A cash return is owed.",
         "t3": "A recovery obligation is open.",
@@ -2565,6 +2568,58 @@
         "channelUncertain": "Settlement uncertain",
         "channelClosed": "Settlement channel closed",
         "recoveryOpened": "Recovery opened"
+      }
+    },
+    "oversight": {
+      "title": "Collection and settlement oversight",
+      "intro": "Each stage says where its answer comes from. A collection report is never a payment: only a verified payment settles a case.",
+      "noRestriction": "Nawara Core places no restriction on this Organization.",
+      "collection": {
+        "label": "Cash collection",
+        "notCollected": "Not collected",
+        "declined": "Declined, nothing collected",
+        "reported": "Whole amount reported collected"
+      },
+      "settlement": {
+        "label": "Electronic settlement",
+        "none": "No settlement",
+        "inProgress": "In progress, not settled",
+        "uncertain": "Uncertain: being sent, not settled",
+        "verified": "Settled by a verified payment",
+        "verifiedLate": "Settled by a late verified payment the owner applied",
+        "lateUnapplied": "Verified payment arrived late; awaiting the owner, not settled",
+        "closedUnpaid": "Closed: the payment did not succeed"
+      },
+      "deadline": {
+        "label": "Settlement deadline",
+        "none": "None (nothing collected)",
+        "running": "Running",
+        "overdue": "Overdue",
+        "met": "Resolved"
+      },
+      "cashReturn": {
+        "label": "Cash return to the beneficiary",
+        "none": "None owed",
+        "owed": "Owed by the Organization",
+        "reported": "Return reported, still owed until confirmed",
+        "confirmed": "Returned and confirmed by the beneficiary",
+        "superseded": "Replaced by an applied late settlement"
+      },
+      "recovery": {
+        "label": "Recovery",
+        "none": "None",
+        "open": "Open",
+        "recovered": "Recovered"
+      },
+      "dispute": {
+        "label": "Disputes",
+        "none": "None open",
+        "unresolved": "Unresolved dispute"
+      },
+      "clears": {
+        "settledOrReturned": "Clears when the request is settled or its cash is returned.",
+        "returnConfirmedOrSuperseded": "Clears when the beneficiary confirms the return, or an applied late settlement replaces it.",
+        "principalRecovered": "Clears when verified recoveries reach the price."
       }
     }
   },
