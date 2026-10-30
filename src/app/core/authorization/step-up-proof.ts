@@ -50,3 +50,15 @@ export function headerStepUpProof<P extends StepUpPurpose & HeaderPurpose>(
   // Branding: the two brand properties exist only in the type system, never at runtime.
   return { purpose, token: grant.token, expiresAt: grant.expiresAt } as HeaderStepUpProof<P>;
 }
+
+/**
+ * Types a receipt-purpose grant as its receipt proof (F1-S4). Used by the receipt step-up adapters only; such a proof can only
+ * be presented to receipt issuance.
+ */
+export function receiptStepUpProof<P extends ReceiptPurpose>(
+  purpose: P,
+  grant: StepUpGrant,
+): ReceiptStepUpProof<P> {
+  // Branding: the two brand properties exist only in the type system, never at runtime.
+  return { purpose, token: grant.token, expiresAt: grant.expiresAt } as ReceiptStepUpProof<P>;
+}

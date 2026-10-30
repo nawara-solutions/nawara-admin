@@ -269,5 +269,7 @@ export interface IssuedReceipt<O extends ReceiptOperation = ReceiptOperation> {
   /** Core's expiry (issuedAt + 10 minutes by the database clock), UTC ISO 8601. */
   readonly expiresAt: string;
   /** The binding as it was requested (Core does not echo it back). */
-  readonly binding: ReceiptBindingFor<O>;
+  readonly binding: ReceiptIssueRequest<O>['binding'];
+  /** Present only on a demo receipt (F1-S4): simulated, never issued by Nawara Core, never valid against Core. */
+  readonly simulated?: true;
 }
