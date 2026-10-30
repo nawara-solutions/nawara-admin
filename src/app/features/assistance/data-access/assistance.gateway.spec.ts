@@ -24,6 +24,7 @@ import {
   RecoveryObligation,
 } from '../domain/assistance.model';
 import { assistanceReadFailureOf, noContext } from './assistance-read-failure';
+import { MOCK_ASSISTANCE_PROVIDERS } from './assistance.mock';
 import {
   ASSISTANCE_READ_CONTRACTS,
   AssistanceGateway,
@@ -86,12 +87,23 @@ describe('UnavailableAssistanceGateway (Assistance A2)', () => {
     expect(TestBed.inject(AssistanceGateway)).toBeInstanceOf(UnavailableAssistanceGateway);
   });
 
-  it('fits the mock-first binding pattern, with no demo binding yet (A3 adds one)', () => {
-    const unavailable: Parameters<typeof adapterProviders>[2] = UNAVAILABLE_ASSISTANCE_PROVIDERS;
-    expect(unavailable).toHaveLength(1);
-    // @ts-expect-error 'assistance' is not a demo domain in A2: no demo data, no mock adapter.
+  it('fits the mock-first binding pattern: unavailable everywhere but a demo build (A3)', async () => {
     const domain: DemoDomain = 'assistance';
-    expect(domain).toBe('assistance');
+    const production = await adapterProviders(
+      { production: true, demo: null },
+      domain,
+      UNAVAILABLE_ASSISTANCE_PROVIDERS,
+    );
+    expect(production).toEqual([...UNAVAILABLE_ASSISTANCE_PROVIDERS]);
+    const demo = await adapterProviders(
+      {
+        production: false,
+        demo: { load: async () => (await import('../../../demo/demo-bindings')).DEMO_BINDINGS },
+      },
+      domain,
+      UNAVAILABLE_ASSISTANCE_PROVIDERS,
+    );
+    expect(demo).toEqual([...MOCK_ASSISTANCE_PROVIDERS]);
   });
 });
 

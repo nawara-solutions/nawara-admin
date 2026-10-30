@@ -38,6 +38,7 @@ const DEMO_BINDINGS_STUB: DemoBindings = {
     memberships: [],
     operators: [],
     stepUp: [],
+    assistance: [],
   },
 };
 

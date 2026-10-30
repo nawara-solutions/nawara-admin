@@ -46,7 +46,7 @@ export const FIRST_ASSISTANCE_PAGE: AssistancePageRequest = {
  * One page. `next` is the cursor of the following page, `null` only when the source states that nothing follows. Note for a
  * later HTTP adapter: BIL-33 answers `{ items }` with no end marker and drops rows of Platforms the owner may not see AFTER its
  * `LIMIT` (`reconciliation.service.ts:330-335`), so a short or even empty page does not prove the end; no `next` can be derived
- * from it safely. Proposed as a Core follow-up in the A2 PR.
+ * from it safely: CF-77 (docs/CORE-INTEGRATION.md §9).
  */
 export interface AssistancePage<T> {
   readonly items: readonly T[];
