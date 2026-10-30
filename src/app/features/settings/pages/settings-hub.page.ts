@@ -22,6 +22,11 @@ const ACCENT_KEYS = {
   indigo: 'preferences.accent.indigo',
   teal: 'preferences.accent.teal',
   amber: 'preferences.accent.amber',
+  midnight: 'preferences.accent.midnight',
+  pearl: 'preferences.accent.pearl',
+  sapphire: 'preferences.accent.sapphire',
+  emerald: 'preferences.accent.emerald',
+  burgundy: 'preferences.accent.burgundy',
 } as const satisfies Record<AccentPalette, string>;
 
 const ROLE_KEYS = {

@@ -2,16 +2,22 @@
 import type { AccentPalette, ResolvedTheme } from './theme.service';
 
 /**
- * The botanical artwork of each accent palette and theme: the single palette-to-artwork mapping. The CSS tokens
- * (tokens/_brand-artwork.scss) are generated from the same data; ThemeService preloads these files before a switch.
+ * The artwork of each accent palette and theme (botanical illustrations, floral-R wordmark and symbol): the single
+ * palette-to-artwork mapping. The CSS tokens (tokens/_brand-artwork.scss) are generated from the same data;
+ * ThemeService preloads these files before a switch.
  */
 export interface PaletteArtwork extends Record<
   ResolvedTheme,
-  { readonly full: string; readonly corner: string }
+  {
+    readonly full: string;
+    readonly corner: string;
+    readonly wordmark: string;
+    readonly symbol: string;
+  }
 > {
   /**
-   * The browser-tab icon in the palette's colours, per resolved appearance: the paper circle (light) and the ink
-   * circle (dark). One file per palette and appearance, so each switch is a new URL, never a stale cached icon.
+   * The browser-tab icon in the palette's colours, per resolved appearance: the transparent floral R. One file per
+   * palette and appearance, so each switch is a new URL, never a stale cached icon.
    */
   readonly favicon: Readonly<Record<ResolvedTheme, string>>;
 }
@@ -21,10 +27,14 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
     light: {
       full: '/illustrations/nawara-botanical-coral.png',
       corner: '/illustrations/nawara-botanical-corner-coral.png',
+      wordmark: '/brand/nawara-floral-r-wordmark-coral.webp',
+      symbol: '/brand/nawara-floral-r-symbol-coral.webp',
     },
     dark: {
       full: '/illustrations/nawara-botanical-dark.png',
       corner: '/illustrations/nawara-botanical-corner-dark.png',
+      wordmark: '/brand/nawara-floral-r-wordmark-on-dark-coral.webp',
+      symbol: '/brand/nawara-floral-r-symbol-on-dark-coral.webp',
     },
     favicon: { light: 'icons/favicon-coral-light.svg', dark: 'favicon.svg' },
   },
@@ -32,10 +42,14 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
     light: {
       full: '/illustrations/nawara-botanical-rose.webp',
       corner: '/illustrations/nawara-botanical-corner-rose.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-rose.webp',
+      symbol: '/brand/nawara-floral-r-symbol-rose.webp',
     },
     dark: {
       full: '/illustrations/nawara-botanical-rose-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-rose-dark.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-on-dark-rose.webp',
+      symbol: '/brand/nawara-floral-r-symbol-on-dark-rose.webp',
     },
     favicon: { light: 'icons/favicon-rose-light.svg', dark: 'icons/favicon-rose.svg' },
   },
@@ -43,10 +57,14 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
     light: {
       full: '/illustrations/nawara-botanical-plum.webp',
       corner: '/illustrations/nawara-botanical-corner-plum.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-plum.webp',
+      symbol: '/brand/nawara-floral-r-symbol-plum.webp',
     },
     dark: {
       full: '/illustrations/nawara-botanical-plum-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-plum-dark.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-on-dark-plum.webp',
+      symbol: '/brand/nawara-floral-r-symbol-on-dark-plum.webp',
     },
     favicon: { light: 'icons/favicon-plum-light.svg', dark: 'icons/favicon-plum.svg' },
   },
@@ -54,10 +72,14 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
     light: {
       full: '/illustrations/nawara-botanical-indigo.webp',
       corner: '/illustrations/nawara-botanical-corner-indigo.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-indigo.webp',
+      symbol: '/brand/nawara-floral-r-symbol-indigo.webp',
     },
     dark: {
       full: '/illustrations/nawara-botanical-indigo-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-indigo-dark.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-on-dark-indigo.webp',
+      symbol: '/brand/nawara-floral-r-symbol-on-dark-indigo.webp',
     },
     favicon: { light: 'icons/favicon-indigo-light.svg', dark: 'icons/favicon-indigo.svg' },
   },
@@ -65,10 +87,14 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
     light: {
       full: '/illustrations/nawara-botanical-teal.webp',
       corner: '/illustrations/nawara-botanical-corner-teal.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-teal.webp',
+      symbol: '/brand/nawara-floral-r-symbol-teal.webp',
     },
     dark: {
       full: '/illustrations/nawara-botanical-teal-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-teal-dark.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-on-dark-teal.webp',
+      symbol: '/brand/nawara-floral-r-symbol-on-dark-teal.webp',
     },
     favicon: { light: 'icons/favicon-teal-light.svg', dark: 'icons/favicon-teal.svg' },
   },
@@ -76,11 +102,90 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
     light: {
       full: '/illustrations/nawara-botanical-amber.webp',
       corner: '/illustrations/nawara-botanical-corner-amber.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-amber.webp',
+      symbol: '/brand/nawara-floral-r-symbol-amber.webp',
     },
     dark: {
       full: '/illustrations/nawara-botanical-amber-dark.webp',
       corner: '/illustrations/nawara-botanical-corner-amber-dark.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-on-dark-amber.webp',
+      symbol: '/brand/nawara-floral-r-symbol-on-dark-amber.webp',
     },
     favicon: { light: 'icons/favicon-amber-light.svg', dark: 'icons/favicon-amber.svg' },
+  },
+  midnight: {
+    light: {
+      full: '/illustrations/nawara-botanical-midnight.webp',
+      corner: '/illustrations/nawara-botanical-corner-midnight.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-midnight.webp',
+      symbol: '/brand/nawara-floral-r-symbol-midnight.webp',
+    },
+    dark: {
+      full: '/illustrations/nawara-botanical-midnight-dark.webp',
+      corner: '/illustrations/nawara-botanical-corner-midnight-dark.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-on-dark-midnight.webp',
+      symbol: '/brand/nawara-floral-r-symbol-on-dark-midnight.webp',
+    },
+    favicon: { light: 'icons/favicon-midnight-light.svg', dark: 'icons/favicon-midnight.svg' },
+  },
+  pearl: {
+    light: {
+      full: '/illustrations/nawara-botanical-pearl.webp',
+      corner: '/illustrations/nawara-botanical-corner-pearl.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-pearl.webp',
+      symbol: '/brand/nawara-floral-r-symbol-pearl.webp',
+    },
+    dark: {
+      full: '/illustrations/nawara-botanical-pearl-dark.webp',
+      corner: '/illustrations/nawara-botanical-corner-pearl-dark.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-on-dark-pearl.webp',
+      symbol: '/brand/nawara-floral-r-symbol-on-dark-pearl.webp',
+    },
+    favicon: { light: 'icons/favicon-pearl-light.svg', dark: 'icons/favicon-pearl.svg' },
+  },
+  sapphire: {
+    light: {
+      full: '/illustrations/nawara-botanical-sapphire.webp',
+      corner: '/illustrations/nawara-botanical-corner-sapphire.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-sapphire.webp',
+      symbol: '/brand/nawara-floral-r-symbol-sapphire.webp',
+    },
+    dark: {
+      full: '/illustrations/nawara-botanical-sapphire-dark.webp',
+      corner: '/illustrations/nawara-botanical-corner-sapphire-dark.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-on-dark-sapphire.webp',
+      symbol: '/brand/nawara-floral-r-symbol-on-dark-sapphire.webp',
+    },
+    favicon: { light: 'icons/favicon-sapphire-light.svg', dark: 'icons/favicon-sapphire.svg' },
+  },
+  emerald: {
+    light: {
+      full: '/illustrations/nawara-botanical-emerald.webp',
+      corner: '/illustrations/nawara-botanical-corner-emerald.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-emerald.webp',
+      symbol: '/brand/nawara-floral-r-symbol-emerald.webp',
+    },
+    dark: {
+      full: '/illustrations/nawara-botanical-emerald-dark.webp',
+      corner: '/illustrations/nawara-botanical-corner-emerald-dark.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-on-dark-emerald.webp',
+      symbol: '/brand/nawara-floral-r-symbol-on-dark-emerald.webp',
+    },
+    favicon: { light: 'icons/favicon-emerald-light.svg', dark: 'icons/favicon-emerald.svg' },
+  },
+  burgundy: {
+    light: {
+      full: '/illustrations/nawara-botanical-burgundy.webp',
+      corner: '/illustrations/nawara-botanical-corner-burgundy.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-burgundy.webp',
+      symbol: '/brand/nawara-floral-r-symbol-burgundy.webp',
+    },
+    dark: {
+      full: '/illustrations/nawara-botanical-burgundy-dark.webp',
+      corner: '/illustrations/nawara-botanical-corner-burgundy-dark.webp',
+      wordmark: '/brand/nawara-floral-r-wordmark-on-dark-burgundy.webp',
+      symbol: '/brand/nawara-floral-r-symbol-on-dark-burgundy.webp',
+    },
+    favicon: { light: 'icons/favicon-burgundy-light.svg', dark: 'icons/favicon-burgundy.svg' },
   },
 };

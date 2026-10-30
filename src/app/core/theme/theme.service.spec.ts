@@ -168,4 +168,19 @@ describe('ThemeService', () => {
     expect(icon()).toBe('favicon.svg');
     document.getElementById('nw-favicon')?.remove();
   });
+
+  it('offers the five added palettes after the original six, and keeps an unknown stored value on coral', async () => {
+    stubSystemTheme(false);
+    localStorage.setItem('nw.accent', 'violet');
+    const service = TestBed.inject(ThemeService);
+    TestBed.tick();
+    expect(service.accent()).toBe('coral');
+    expect(document.documentElement.dataset['accent']).toBeUndefined();
+    for (const accent of ['midnight', 'pearl', 'sapphire', 'emerald', 'burgundy'] as const) {
+      await service.setAccent(accent);
+      TestBed.tick();
+      expect(document.documentElement.dataset['accent']).toBe(accent);
+      expect(localStorage.getItem('nw.accent')).toBe(accent);
+    }
+  });
 });

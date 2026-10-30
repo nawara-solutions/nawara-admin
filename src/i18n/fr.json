@@ -52,7 +52,12 @@
       "plum": "Prune",
       "indigo": "Indigo",
       "teal": "Sarcelle",
-      "amber": "Ambre"
+      "amber": "Ambre",
+      "midnight": "Minuit",
+      "pearl": "Nacre",
+      "sapphire": "Saphir",
+      "emerald": "Émeraude",
+      "burgundy": "Bordeaux"
     },
     "appearance": {
       "title": "Apparence",
@@ -172,11 +177,11 @@
       "toastError": "L’organisation n’a pas pu être mise à jour."
     },
     "brand": {
-      "note": "Le kit logo du thème corail et encre : le logotype est du texte en Readex Pro, avec la fleur à la place du « r » ; la fleur, le symbole et le favicon sont des fichiers d’illustration.",
+      "note": "Le kit logo : le logotype et le symbole au R floral de la planche de marque Nawara Solutions, avec « SOLUTIONS » composé en Readex Pro ; le logotype, le symbole et le favicon sont des fichiers d’illustration.",
       "full": "Logo complet (connexion, documents)",
       "wordmark": "Logotype (en-têtes, barre latérale)",
-      "symbol": "Symbole",
-      "favicons": "Favicon (cercle encre) en 16, 32, 48 et 64 pixels"
+      "symbol": "Symbole (R floral)",
+      "favicons": "Favicon (R floral, fond transparent) en 16, 32, 48 et 64 pixels"
     },
     "numbers": {
       "number": "Nombre",

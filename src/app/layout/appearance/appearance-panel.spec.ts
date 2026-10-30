@@ -35,7 +35,7 @@ describe('AppearancePanel', () => {
     vi.unstubAllGlobals();
   });
 
-  it('offers the three modes and the six named palettes as native radio groups', () => {
+  it('offers the three modes and the eleven named palettes as native radio groups', () => {
     const { host, radios } = render();
     const legends = Array.from(host.querySelectorAll('fieldset legend')).map((l) =>
       l.textContent?.trim(),
@@ -49,6 +49,11 @@ describe('AppearancePanel', () => {
       'Indigo',
       'Teal',
       'Amber',
+      'Midnight',
+      'Pearl',
+      'Sapphire',
+      'Emerald',
+      'Burgundy',
     ]);
     // The checked radio is what assistive technology announces as selected.
     expect(radios('mode').find((r) => r.checked)?.value).toBe('system');

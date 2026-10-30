@@ -52,6 +52,8 @@
   // Logo colours (--nw-logo-*) and botanical artwork (--nw-illustration-botanical, -corner) of coral, the default palette;
   // the other palettes override them (tokens/_accents.scss, generated values in tokens/_brand-artwork.scss)
   @include brand-artwork.coral-light;
+  // The logo's "SOLUTIONS" line and its rules: the board's light-ground lettering (sampled, docs/BRAND.md §0).
+  --nw-logo-subtitle: #111320;
   --nw-sidebar-illustration-opacity: 0.5;
   --nw-sidebar-atmosphere: radial-gradient(
     20rem 26rem at 110% 100%,
@@ -96,6 +98,11 @@
   --nw-swatch-indigo: var(--nw-ref-swatch-indigo);
   --nw-swatch-teal: var(--nw-ref-swatch-teal);
   --nw-swatch-amber: var(--nw-ref-swatch-amber);
+  --nw-swatch-midnight: var(--nw-ref-swatch-midnight);
+  --nw-swatch-pearl: var(--nw-ref-swatch-pearl);
+  --nw-swatch-sapphire: var(--nw-ref-swatch-sapphire);
+  --nw-swatch-emerald: var(--nw-ref-swatch-emerald);
+  --nw-swatch-burgundy: var(--nw-ref-swatch-burgundy);
   --nw-swatch-check: var(--nw-ref-ink-0);
 
   // Fixed meanings the accent palettes never recolour (tokens/_accents.scss): an urgent attention item keeps its

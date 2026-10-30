@@ -4,10 +4,24 @@ import { PALETTE_ARTWORK } from './palette-artwork';
 
 export const THEME_PREFERENCES = ['system', 'light', 'dark'] as const;
 /**
- * Curated accent palettes (src/styles/tokens/_accents.scss). Coral is the Nawara default; the others recolour only the
- * brand-accent tokens. Machine values, never translated. Order is the display order.
+ * Curated accent palettes (src/styles/tokens/_accents.scss). Coral is the Nawara default; the others recolour the
+ * brand-accent tokens and the brand artwork (floral R, favicon, botanical illustrations), never the status colours.
+ * Machine values, never translated. Order is the display order; new palettes are appended, so saved choices keep their
+ * meaning and an unknown stored value falls back to coral.
  */
-export const ACCENT_PALETTES = ['coral', 'rose', 'plum', 'indigo', 'teal', 'amber'] as const;
+export const ACCENT_PALETTES = [
+  'coral',
+  'rose',
+  'plum',
+  'indigo',
+  'teal',
+  'amber',
+  'midnight',
+  'pearl',
+  'sapphire',
+  'emerald',
+  'burgundy',
+] as const;
 export type AccentPalette = (typeof ACCENT_PALETTES)[number];
 export const DEFAULT_THEME: ThemePreference = 'system';
 export const DEFAULT_ACCENT: AccentPalette = 'coral';
@@ -117,7 +131,7 @@ export class ThemeService {
     const view = this.document.defaultView;
     if (!view?.Image) return Promise.resolve();
     const { light, dark } = PALETTE_ARTWORK[accent];
-    const urls = [light, dark].flatMap((art) => [art.full, art.corner]);
+    const urls = [light, dark].flatMap((art) => [art.full, art.corner, art.wordmark, art.symbol]);
     const { favicon } = PALETTE_ARTWORK[accent];
     const loads = [...urls, favicon.light, favicon.dark].map((url) => {
       const image = new view.Image();

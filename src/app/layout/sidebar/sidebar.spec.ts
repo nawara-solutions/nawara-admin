@@ -194,14 +194,14 @@ describe('Sidebar', () => {
     expect(sidebar.querySelector('.sidebar__role')?.textContent).toBe(en.shell.role.owner);
   });
 
-  it('renders the wordmark with the palette-coloured bloom and SOLUTIONS on the same line', async () => {
+  it('renders the full floral-R logo: the wordmark over SOLUTIONS between two rules', async () => {
     const { sidebar } = await render(owner);
     const mark = sidebar.querySelector('nw-brand-mark');
-    expect(mark?.querySelector('svg.nw-brand-mark__bloom')).not.toBeNull();
+    expect(mark?.classList).toContain('nw-brand-mark--full');
     expect(mark?.querySelector('.nw-brand-mark__word')).not.toBeNull();
     expect(mark?.querySelector('.nw-brand-mark__solutions-text')?.textContent).toBe('SOLUTIONS');
-    expect(mark?.querySelector('.nw-brand-mark__separator')).not.toBeNull();
-    expect(mark?.querySelector('svg.nw-brand-mark__flourish')).toBeNull();
+    expect(mark?.querySelectorAll('.nw-brand-mark__rule').length).toBe(2);
+    expect(mark?.querySelector('.nw-brand-mark__separator')).toBeNull();
   });
 
   it('badges Notifications with the owner’s unread count, and shows no badge without a count', async () => {

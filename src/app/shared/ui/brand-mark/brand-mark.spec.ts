@@ -20,49 +20,38 @@ describe('NwBrandMark', () => {
     );
     expect(wordmark?.getAttribute('role')).toBe('img');
     expect(wordmark?.getAttribute('aria-label')).toBe('Nawara Solutions');
-    // The wordmark: "nawa", the bloom for the "r" (inline, palette-coloured), "a".
+    // The wordmark: the floral-R artwork (the --nw-logo-wordmark token, per theme and accent palette), no text.
     const word = wordmark?.querySelector('.nw-brand-mark__word');
     expect(word?.getAttribute('aria-hidden')).toBe('true');
-    expect(word?.textContent?.replace(/\s+/g, '')).toBe('nawaa');
-    const bloom = wordmark?.querySelector('svg.nw-brand-mark__bloom');
-    expect(bloom?.getAttribute('aria-hidden')).toBe('true');
-    // Colours come from the --nw-logo-* tokens, so the logo follows the theme and the accent palette.
-    expect(bloom?.querySelector('rect')?.getAttribute('style')).toContain('var(--nw-logo-mid)');
+    expect(word?.textContent).toBe('');
+    expect(wordmark?.querySelector('svg')).toBeNull();
     expect(wordmark?.querySelector('img')).toBeNull();
     expect(wordmark?.querySelector('.nw-brand-mark__solutions')).toBeNull();
 
-    // The bloom alone.
+    // The floral R alone: artwork (the --nw-logo-symbol token), no text and no drawing.
     expect(symbol?.classList).toContain('nw-brand-mark--symbol');
     expect(symbol?.querySelector('.nw-brand-mark__word')).toBeNull();
-    expect(symbol?.querySelector('svg.nw-brand-mark__bloom')).not.toBeNull();
+    const mark = symbol?.querySelector('.nw-brand-mark__symbol');
+    expect(mark?.getAttribute('aria-hidden')).toBe('true');
+    expect(mark?.textContent).toBe('');
+    expect(symbol?.querySelector('svg')).toBeNull();
 
-    // The full logo adds the "SOLUTIONS" line and its flourish.
+    // The full logo adds the "SOLUTIONS" line between two rules.
     expect(full?.querySelector('.nw-brand-mark__solutions-text')?.textContent).toBe('SOLUTIONS');
     expect(full?.querySelector('.nw-brand-mark__solutions')?.getAttribute('aria-hidden')).toBe(
       'true',
     );
-    expect(full?.querySelector('svg.nw-brand-mark__flourish')).not.toBeNull();
+    expect(full?.querySelectorAll('.nw-brand-mark__solutions > .nw-brand-mark__rule').length).toBe(
+      2,
+    );
 
-    // The inline logo: the wordmark, a separator and "SOLUTIONS" on one line, without the flourish.
+    // The inline logo: the wordmark, a separator and "SOLUTIONS" on one line, without the rules.
     expect(inline?.classList).toContain('nw-brand-mark--inline');
     expect(inline?.querySelector('.nw-brand-mark__word')).not.toBeNull();
     expect(inline?.querySelector('.nw-brand-mark__separator')?.getAttribute('aria-hidden')).toBe(
       'true',
     );
     expect(inline?.querySelector('.nw-brand-mark__solutions-text')?.textContent).toBe('SOLUTIONS');
-    expect(inline?.querySelector('svg.nw-brand-mark__flourish')).toBeNull();
-  });
-
-  it('gives every logo its own gradient ids, so several can share a page', async () => {
-    const fixture = TestBed.createComponent(Host);
-    await fixture.whenStable();
-    const ids = Array.from(
-      (fixture.nativeElement as HTMLElement).querySelectorAll('linearGradient, radialGradient'),
-    ).map((g) => g.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    const used = Array.from(
-      (fixture.nativeElement as HTMLElement).querySelectorAll('[fill^="url(#"]'),
-    );
-    expect(used.every((el) => ids.includes(el.getAttribute('fill')!.slice(5, -1)))).toBe(true);
+    expect(inline?.querySelector('.nw-brand-mark__rule')).toBeNull();
   });
 });
