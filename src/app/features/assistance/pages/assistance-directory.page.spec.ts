@@ -203,11 +203,12 @@ describe('Assistance case directory (A4)', { timeout: 20_000 }, () => {
     expect(table).not.toMatch(/\bTND\b|[€$£]|46[ ,.]?500|45[ ,.]?000|\d[.,]\d{3}\b/);
   });
 
-  it('links each case to its Organization and Platform, and names the Platform', async () => {
+  it('links each case to its page (A5), its Organization and Platform, and names the Platform', async () => {
     const { element } = await render();
     const row = element.querySelector(`tr[data-request="${caseOf(1).request.id}"]`)!;
     const links = [...row.querySelectorAll('a')].map((a) => a.getAttribute('href'));
     expect(links).toEqual([
+      `/billing/assistance/${caseOf(1).request.id}`,
       `/platforms/${DEMO_SCHOOL_PLATFORM_ID}/organizations/${caseOf(1).request.organizationId}`,
       `/platforms/${DEMO_SCHOOL_PLATFORM_ID}`,
     ]);

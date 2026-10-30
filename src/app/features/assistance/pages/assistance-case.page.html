@@ -1,0 +1,554 @@
+@let view = facade.view();
+<a nw-link class="assistance-case__back" [routerLink]="directoryPath" data-back>
+  <nw-icon name="arrow-left" size="sm" />{{ 'assistanceCases.case.back' | transloco }}
+</a>
+
+@switch (view.status) {
+  @case ('ready') {
+    @let record = view.record;
+    @let detail = record.detail;
+    @let request = detail.request;
+    <header class="assistance-case__header">
+      <div class="assistance-case__titles">
+        <p class="assistance-case__eyebrow">{{ 'assistanceCases.case.eyebrow' | transloco }}</p>
+        <h1 class="assistance-case__title">
+          {{ 'assistanceCases.case.title' | transloco }}
+          <code dir="ltr" class="assistance-case__ref">…{{ shortRef(request.id) }}</code>
+        </h1>
+        <nw-status-badge [tone]="stateTones[request.state]" data-state>{{
+          stateKeys[request.state] | transloco
+        }}</nw-status-badge>
+      </div>
+      @if (isDemo()) {
+        <span class="assistance-case__demo" data-demo>
+          <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+          <span class="nw-visually-hidden"
+            >: {{ 'assistanceCases.demoExplanation' | transloco }}</span
+          >
+        </span>
+      }
+    </header>
+    @if (isDemo()) {
+      <p class="assistance-case__note assistance-case__note--demo" role="note" data-simulation>
+        <nw-icon name="flask-conical" size="sm" />
+        <span>{{ 'assistanceCases.simulation' | transloco }}</span>
+      </p>
+    }
+
+    <div class="assistance-case__grid">
+      <!-- Context -->
+      <section class="assistance-case__card" aria-labelledby="case-context" data-section="context">
+        <h2 id="case-context" class="assistance-case__card-title">
+          {{ 'assistanceCases.case.context.title' | transloco }}
+        </h2>
+        <dl class="assistance-case__facts">
+          <dt>{{ 'assistanceCases.list.reference' | transloco }}</dt>
+          <dd>
+            <code dir="ltr" class="assistance-case__full-ref">{{ request.id }}</code>
+          </dd>
+          <dt>{{ 'assistanceCases.case.context.company' | transloco }}</dt>
+          <dd>{{ 'assistanceCases.case.context.yourCompany' | transloco }}</dd>
+          <dt>{{ 'assistanceCases.list.platform' | transloco }}</dt>
+          <dd>
+            @let platform = platformName()(request.platformId);
+            <a nw-link [routerLink]="platformPath(request.platformId)">
+              @if (platform !== null) {
+                <bdi>{{ platform }}</bdi>
+              } @else {
+                {{ 'assistanceCases.list.platformUnknown' | transloco }}
+              }
+            </a>
+          </dd>
+          <dt>{{ 'assistanceCases.list.organization' | transloco }}</dt>
+          <dd>
+            <a nw-link [routerLink]="organizationPath(request.platformId, request.organizationId)">
+              {{ 'assistanceCases.list.organizationRef' | transloco }}
+              <code dir="ltr">…{{ shortRef(request.organizationId) }}</code>
+            </a>
+          </dd>
+          <dt>{{ 'assistanceCases.case.context.beneficiary' | transloco }}</dt>
+          <dd>
+            {{ 'assistanceCases.case.context.member' | transloco }}
+            <code dir="ltr">…{{ shortRef(request.beneficiaryUserId) }}</code>
+          </dd>
+          <dt>{{ 'assistanceCases.case.context.consent' | transloco }}</dt>
+          <dd>{{ request.consentAt | nwDate: 'date-time' }}</dd>
+          @if (request.declined; as declined) {
+            <dt>{{ 'assistanceCases.state.declined' | transloco }}</dt>
+            <dd>
+              {{
+                'assistanceCases.case.context.declinedBy'
+                  | transloco
+                    : {
+                        who: (declinedKeys[declined.byRole] | transloco),
+                        date: (declined.at | nwDate: 'date-time'),
+                      }
+              }}
+            </dd>
+          }
+        </dl>
+      </section>
+
+      <!-- Assisted purchase: the frozen terms -->
+      <section class="assistance-case__card" aria-labelledby="case-terms" data-section="terms">
+        <h2 id="case-terms" class="assistance-case__card-title">
+          {{ 'assistanceCases.case.terms.title' | transloco }}
+        </h2>
+        <dl class="assistance-case__facts">
+          <dt>{{ 'assistanceCases.case.terms.product' | transloco }}</dt>
+          <dd>
+            <code dir="ltr">…{{ shortRef(request.productId) }}</code>
+          </dd>
+          <dt>{{ 'assistanceCases.case.terms.base' | transloco }}</dt>
+          <dd data-amount>
+            <bdi>{{
+              { amount: request.terms.baseAmount, currency: request.terms.currency }
+                | assistanceMoney
+            }}</bdi>
+          </dd>
+          <dt>{{ 'assistanceCases.case.terms.fee' | transloco }}</dt>
+          <dd data-amount>
+            <bdi>{{
+              { amount: request.terms.feeAmount, currency: request.terms.currency }
+                | assistanceMoney
+            }}</bdi>
+          </dd>
+          <dt>{{ 'assistanceCases.case.terms.total' | transloco }}</dt>
+          <dd data-amount>
+            <bdi>{{
+              { amount: request.terms.totalAmount, currency: request.terms.currency }
+                | assistanceMoney
+            }}</bdi>
+          </dd>
+        </dl>
+        <p class="assistance-case__hint">{{ 'assistanceCases.case.terms.frozen' | transloco }}</p>
+      </section>
+
+      <!-- Collection (a REPORT) and settlement (Core's channel) -->
+      <section
+        class="assistance-case__card"
+        aria-labelledby="case-collection"
+        data-section="collection"
+      >
+        <h2 id="case-collection" class="assistance-case__card-title">
+          {{ 'assistanceCases.case.collection.title' | transloco }}
+        </h2>
+        @if (request.collection; as collection) {
+          <p class="assistance-case__source" data-source="report">
+            <nw-icon [name]="sourceIcons.report" size="sm" />
+            {{ 'assistanceCases.case.collection.reported' | transloco }}
+          </p>
+          <dl class="assistance-case__facts">
+            <dt>{{ 'assistanceCases.case.collection.collectedAt' | transloco }}</dt>
+            <dd data-collected-at>
+              {{ collectedAt(collection.cashCollectedAt) | nwDate: 'date-time' }}
+              @if (collectedAt(collection.cashCollectedAt) !== collection.cashCollectedAt) {
+                <span class="assistance-case__secondary" data-corrected>{{
+                  'assistanceCases.case.collection.correctedFrom'
+                    | transloco: { date: (collection.cashCollectedAt | nwDate: 'date-time') }
+                }}</span>
+              }
+            </dd>
+            <dt>{{ 'assistanceCases.case.collection.reportedAt' | transloco }}</dt>
+            <dd>{{ collection.reportedAt | nwDate: 'date-time' }}</dd>
+            <dt>{{ 'assistanceCases.case.collection.reportedBy' | transloco }}</dt>
+            <dd>
+              {{ 'assistanceCases.case.actor.organizationActor' | transloco }}
+              <code dir="ltr">…{{ shortRef(collection.reportedBy) }}</code>
+            </dd>
+            <dt>{{ 'assistanceCases.case.collection.settleBy' | transloco }}</dt>
+            <dd>
+              {{ collection.settleBy | nwDate: 'date-time' }}
+              @if (detail.overdue) {
+                <nw-status-badge tone="warning">{{
+                  'assistanceCases.indicator.overdue' | transloco
+                }}</nw-status-badge>
+              }
+            </dd>
+          </dl>
+        } @else {
+          <p class="assistance-case__secondary" data-not-collected>
+            {{ 'assistanceCases.collection.notCollected' | transloco }}
+          </p>
+        }
+        <h3 class="assistance-case__subtitle">
+          {{ 'assistanceCases.list.settlement' | transloco }}
+        </h3>
+        @if (detail.channel; as channel) {
+          <p data-channel>
+            {{ channelKeys[channel.state] | transloco }}
+            @if (channel.state === 'settled') {
+              <span class="assistance-case__secondary">{{
+                'assistanceCases.case.collection.settledFact' | transloco
+              }}</span>
+            }
+          </p>
+        } @else {
+          <p class="assistance-case__secondary" data-channel>
+            {{ 'assistanceCases.channel.none' | transloco }}
+          </p>
+        }
+        <h3 class="assistance-case__subtitle">
+          {{ 'assistanceCases.case.restriction.title' | transloco }}
+        </h3>
+        @if (detail.restrictions === null) {
+          <p class="assistance-case__secondary">
+            {{ 'assistanceCases.case.restriction.unknown' | transloco }}
+          </p>
+        } @else if (detail.restrictions.length === 0) {
+          <p class="assistance-case__secondary" data-restrictions>
+            {{ 'assistanceCases.case.restriction.none' | transloco }}
+          </p>
+        } @else {
+          <ul class="assistance-case__list" role="list" data-restrictions>
+            @for (restriction of detail.restrictions; track restriction) {
+              <li>
+                <nw-status-badge tone="warning">{{ restriction }}</nw-status-badge>
+                {{ restrictionKeys[restriction] | transloco }}
+              </li>
+            }
+          </ul>
+          <p class="assistance-case__hint">
+            {{ 'assistanceCases.case.restriction.scope' | transloco }}
+          </p>
+        }
+      </section>
+
+      @if (detail.cashReturns.length > 0) {
+        <section
+          class="assistance-case__card"
+          aria-labelledby="case-returns"
+          data-section="returns"
+        >
+          <h2 id="case-returns" class="assistance-case__card-title">
+            {{ 'assistanceCases.case.cashReturn.title' | transloco }}
+          </h2>
+          @for (obligation of detail.cashReturns; track obligation.id) {
+            <dl class="assistance-case__facts" [attr.data-return]="obligation.state">
+              <dt>{{ 'assistanceCases.list.state' | transloco }}</dt>
+              <dd>{{ returnStateKeys[obligation.state] | transloco }}</dd>
+              <dt>{{ 'assistanceCases.case.cashReturn.originLabel' | transloco }}</dt>
+              <dd>{{ returnOriginKeys[obligation.origin] | transloco }}</dd>
+              <dt>{{ 'assistanceCases.case.cashReturn.owed' | transloco }}</dt>
+              <dd data-amount>
+                <bdi>{{ obligation.amount | assistanceMoney }}</bdi>
+              </dd>
+              @if (obligation.returnReport; as returned) {
+                <dt>{{ 'assistanceCases.case.cashReturn.returnedAt' | transloco }}</dt>
+                <dd>
+                  {{ returnedAt(returned.returnedAt) | nwDate: 'date-time' }}
+                  <span class="assistance-case__secondary">{{
+                    'assistanceCases.case.cashReturn.reportedOn'
+                      | transloco: { date: (returned.returnReportedAt | nwDate: 'date-time') }
+                  }}</span>
+                </dd>
+              }
+              @if (obligation.confirmedAt; as confirmed) {
+                <dt>{{ 'assistanceCases.case.cashReturn.confirmedAt' | transloco }}</dt>
+                <dd>{{ confirmed | nwDate: 'date-time' }}</dd>
+              }
+            </dl>
+          }
+        </section>
+      }
+
+      @if (detail.disputes.length > 0 || detail.corrections.length > 0) {
+        <section
+          class="assistance-case__card"
+          aria-labelledby="case-disputes"
+          data-section="disputes"
+        >
+          <h2 id="case-disputes" class="assistance-case__card-title">
+            {{ 'assistanceCases.case.dispute.title' | transloco }}
+          </h2>
+          @for (dispute of detail.disputes; track dispute.id) {
+            <div class="assistance-case__item" [attr.data-dispute]="dispute.reason">
+              <p class="assistance-case__item-title">
+                {{ disputeReasonKeys[dispute.reason] | transloco }}
+                <nw-status-badge [tone]="dispute.state === 'open' ? 'danger' : 'success'">{{
+                  (dispute.state === 'open'
+                    ? 'assistanceCases.case.dispute.open'
+                    : 'assistanceCases.case.dispute.resolved'
+                  ) | transloco
+                }}</nw-status-badge>
+              </p>
+              @if (dispute.resolution) {
+                <p class="assistance-case__secondary">
+                  {{ 'assistanceCases.case.dispute.timestampCorrected' | transloco }}
+                </p>
+              } @else if (resolvable[dispute.reason] === null) {
+                <p class="assistance-case__secondary" data-unresolvable>
+                  {{ 'assistanceCases.case.dispute.noResolution' | transloco }}
+                </p>
+              }
+            </div>
+          }
+          @if (detail.corrections.length > 0) {
+            <h3 class="assistance-case__subtitle">
+              {{ 'assistanceCases.case.correction.title' | transloco }}
+            </h3>
+            <ol class="assistance-case__list" data-corrections>
+              @for (correction of detail.corrections; track correction.id) {
+                <li>
+                  {{
+                    'assistanceCases.case.correction.line'
+                      | transloco
+                        : {
+                            field: (fieldKeys[correction.field] | transloco),
+                            from: (correction.supersededValue | nwDate: 'date-time'),
+                            to: (correction.correctedValue | nwDate: 'date-time'),
+                          }
+                  }}
+                  <span class="assistance-case__secondary">{{
+                    correctionReasonKeys[correction.reason] | transloco
+                  }}</span>
+                </li>
+              }
+            </ol>
+            <p class="assistance-case__hint">
+              {{ 'assistanceCases.case.correction.timesOnly' | transloco }}
+            </p>
+          }
+        </section>
+      }
+
+      @if (record.lateSettlements.length > 0) {
+        <section class="assistance-case__card" aria-labelledby="case-late" data-section="late">
+          <h2 id="case-late" class="assistance-case__card-title">
+            {{ 'assistanceCases.case.late.title' | transloco }}
+          </h2>
+          @for (late of record.lateSettlements; track late.id) {
+            <dl
+              class="assistance-case__facts"
+              [attr.data-late]="late.applied ? 'applied' : 'unapplied'"
+            >
+              <dt>{{ 'assistanceCases.list.state' | transloco }}</dt>
+              <dd>
+                <nw-status-badge [tone]="late.applied ? 'success' : 'warning'">{{
+                  (late.applied
+                    ? 'assistanceCases.indicator.lateApplied'
+                    : 'assistanceCases.indicator.lateUnapplied'
+                  ) | transloco
+                }}</nw-status-badge>
+              </dd>
+              <dt>{{ 'assistanceCases.case.late.reasonLabel' | transloco }}</dt>
+              <dd>{{ lateReasonKeys[late.reason] | transloco }}</dd>
+              <dt>{{ 'assistanceCases.case.late.settledAt' | transloco }}</dt>
+              <dd>
+                @if (late.settledAt; as settled) {
+                  {{ settled | nwDate: 'date-time' }}
+                } @else {
+                  {{ 'assistanceCases.case.late.settledAtUnknown' | transloco }}
+                }
+              </dd>
+              <dt>{{ 'assistanceCases.case.late.attestationLabel' | transloco }}</dt>
+              <dd>
+                @if (late.attestation; as attestation) {
+                  {{ attestationKeys[attestation] | transloco }}
+                  @if (late.attestedAt; as attested) {
+                    <span class="assistance-case__secondary">{{
+                      attested | nwDate: 'date-time'
+                    }}</span>
+                  }
+                } @else {
+                  {{ 'assistanceCases.case.late.noAttestation' | transloco }}
+                }
+              </dd>
+              <dt>{{ 'assistanceCases.case.late.evidence' | transloco }}</dt>
+              <dd data-evidence>
+                @if (late.evidence.length === 0) {
+                  {{ 'assistanceCases.case.late.noEvidence' | transloco }}
+                } @else {
+                  <ul class="assistance-case__list" role="list">
+                    @for (evidence of late.evidence; track evidence.grantId) {
+                      <li>
+                        <code dir="ltr">…{{ shortRef(evidence.grantId) }}</code>
+                        {{ evidence.verifiedAt | nwDate: 'date-time' }}
+                      </li>
+                    }
+                  </ul>
+                }
+              </dd>
+              @if (late.application; as application) {
+                <dt>{{ 'assistanceCases.case.late.appliedAt' | transloco }}</dt>
+                <dd>
+                  {{ application.appliedAt | nwDate: 'date-time' }}
+                  <span class="assistance-case__secondary">{{
+                    'assistanceCases.case.actor.owner' | transloco
+                  }}</span>
+                </dd>
+                <dt>{{ 'assistanceCases.case.late.receipt' | transloco }}</dt>
+                <dd>
+                  <code dir="ltr">…{{ shortRef(application.receiptId) }}</code>
+                </dd>
+              }
+            </dl>
+          }
+          <p class="assistance-case__hint">{{ 'assistanceCases.case.late.never' | transloco }}</p>
+        </section>
+      }
+
+      @if (record.recovery; as recovery) {
+        <section
+          class="assistance-case__card"
+          aria-labelledby="case-recovery"
+          data-section="recovery"
+        >
+          <h2 id="case-recovery" class="assistance-case__card-title">
+            {{ 'assistanceCases.case.recovery.title' | transloco }}
+          </h2>
+          <dl class="assistance-case__facts">
+            <dt>{{ 'assistanceCases.list.state' | transloco }}</dt>
+            <dd>
+              <nw-status-badge [tone]="recovery.state === 'open' ? 'danger' : 'success'">{{
+                recoveryStateKeys[recovery.state] | transloco
+              }}</nw-status-badge>
+            </dd>
+            <dt>{{ 'assistanceCases.case.recovery.base' | transloco }}</dt>
+            <dd data-amount>
+              <bdi>{{ recovery.base | assistanceMoney }}</bdi>
+            </dd>
+            <dt>{{ 'assistanceCases.case.recovery.recovered' | transloco }}</dt>
+            <dd data-amount>
+              <bdi>{{ recovery.recovered | assistanceMoney }}</bdi>
+            </dd>
+            <dt>{{ 'assistanceCases.case.recovery.outstanding' | transloco }}</dt>
+            <dd data-amount>
+              <bdi>{{ recovery.outstanding | assistanceMoney }}</bdi>
+            </dd>
+            <dt>{{ 'assistanceCases.case.recovery.openedAt' | transloco }}</dt>
+            <dd>{{ recovery.openedAt | nwDate: 'date-time' }}</dd>
+            @if (recovery.recoveredAt; as recoveredAt) {
+              <dt>{{ 'assistanceCases.case.recovery.recoveredAt' | transloco }}</dt>
+              <dd>{{ recoveredAt | nwDate: 'date-time' }}</dd>
+            }
+          </dl>
+          @if (recovery.surpluses.length > 0) {
+            <h3 class="assistance-case__subtitle">
+              {{ 'assistanceCases.case.recovery.surplusTitle' | transloco }}
+            </h3>
+            <ul class="assistance-case__list" role="list" data-surpluses>
+              @for (surplus of recovery.surpluses; track surplus.id) {
+                <li>
+                  <bdi>{{ surplus.amount | assistanceMoney }}</bdi>
+                  {{ surplusKeys[surplus.status] | transloco }}
+                </li>
+              }
+            </ul>
+          }
+          <p class="assistance-case__hint">
+            {{ 'assistanceCases.case.recovery.baseOnly' | transloco }}
+          </p>
+        </section>
+      }
+    </div>
+
+    <!-- History: facts, reports, decisions and derived states, never mixed up -->
+    <section class="assistance-case__card" aria-labelledby="case-timeline" data-section="timeline">
+      <h2 id="case-timeline" class="assistance-case__card-title">
+        {{ 'assistanceCases.case.timeline.title' | transloco }}
+      </h2>
+      <ul class="assistance-case__legend" role="list" data-legend>
+        @for (source of sources; track source) {
+          <li [attr.data-source]="source">
+            <nw-icon [name]="sourceIcons[source]" size="sm" />{{ sourceKeys[source] | transloco }}
+          </li>
+        }
+      </ul>
+      @if (record.timeline.length === 0) {
+        <p class="assistance-case__secondary" data-timeline-empty>
+          {{ 'assistanceCases.case.timeline.empty' | transloco }}
+        </p>
+      } @else {
+        <ol class="assistance-case__timeline" data-timeline>
+          @for (entry of record.timeline; track entry.id) {
+            <li
+              class="assistance-case__event"
+              [class.assistance-case__event--fact]="entry.source === 'fact'"
+              [class.assistance-case__event--report]="entry.source === 'report'"
+              [class.assistance-case__event--decision]="entry.source === 'decision'"
+              [class.assistance-case__event--derived]="entry.source === 'derived'"
+              [attr.data-source]="entry.source"
+              [attr.data-kind]="entry.kind"
+            >
+              <span class="assistance-case__event-source">
+                <nw-icon [name]="sourceIcons[entry.source]" size="sm" />{{
+                  sourceKeys[entry.source] | transloco
+                }}
+              </span>
+              <span class="assistance-case__event-title">{{
+                kindKeys[entry.kind] | transloco
+              }}</span>
+              <span class="assistance-case__secondary">
+                {{ actorKeys[entry.by] | transloco }} ·
+                <time [attr.datetime]="entry.at">{{ entry.at | nwDate: 'date-time' }}</time>
+                @if (entry.recordedAt !== entry.at) {
+                  ·
+                  {{
+                    'assistanceCases.case.timeline.recordedAt'
+                      | transloco: { date: (entry.recordedAt | nwDate: 'date-time') }
+                  }}
+                }
+              </span>
+            </li>
+          }
+        </ol>
+      }
+    </section>
+
+    <p class="assistance-case__hint assistance-case__hint--read-only">
+      <nw-icon name="info" size="sm" />
+      <span>{{ 'assistanceCases.case.readOnly' | transloco }}</span>
+    </p>
+  }
+  @case ('notFound') {
+    <nw-data-state
+      state="empty"
+      [title]="'assistanceCases.states.notFoundTitle' | transloco"
+      [description]="'assistanceCases.case.notFoundDescription' | transloco"
+    />
+  }
+  @case ('unavailable') {
+    <nw-data-state
+      state="error"
+      [title]="'assistanceCases.states.unavailableTitle' | transloco"
+      [description]="'assistanceCases.states.unavailableDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'assistanceCases.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('error') {
+    <nw-data-state
+      state="error"
+      [title]="'assistanceCases.case.errorTitle' | transloco"
+      [description]="'assistanceCases.states.errorDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'assistanceCases.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('notInBuild') {
+    <nw-data-state
+      state="empty"
+      [title]="'assistanceCases.states.notInBuildTitle' | transloco"
+      [description]="'assistanceCases.states.notInBuildDescription' | transloco"
+    />
+  }
+  @case ('forbidden') {
+    <nw-data-state
+      state="empty"
+      [title]="'shell.pages.forbidden.title' | transloco"
+      [description]="'assistanceCases.states.forbiddenDescription' | transloco"
+    />
+  }
+  @default {
+    <nw-data-state state="loading" [title]="'assistanceCases.case.loading' | transloco" />
+  }
+}

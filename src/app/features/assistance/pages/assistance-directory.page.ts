@@ -144,6 +144,11 @@ export class AssistanceDirectoryPage {
     return organizationPath(row.platformId, row.organizationId);
   }
 
+  /** One case's page (A5). */
+  protected casePath(requestId: string): string {
+    return `/billing/assistance/${requestId}`;
+  }
+
   protected platformLink(id: PlatformId): string {
     return platformPath(id);
   }
