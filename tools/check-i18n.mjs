@@ -38,19 +38,46 @@ for (const locale of LOCALES) {
   }
 }
 
-// Files that hold only Core machine values (never catalog keys) whose spelling can collide with a catalog namespace, e.g.
-// Core's step-up purpose `billing.fraud_hold.place` and Admin's `billing.` namespace. Listed one by one, never by folder.
-const MACHINE_VALUE_FILES = new Set([
-  join('src', 'app', 'core', 'authorization', 'purpose-registry.ts'),
-]);
-
 const files = (dir) =>
   readdirSync(dir).flatMap((name) => {
     const path = join(dir, name);
     if (statSync(path).isDirectory()) return files(path);
-    if (MACHINE_VALUE_FILES.has(path)) return [];
     return /\.(html|ts)$/.test(name) && !name.endsWith('.spec.ts') ? [path] : [];
   });
+
+// Core machine values that are never catalog keys but whose spelling falls in a catalog namespace: Core's step-up purposes
+// (nawara-core 0044b20, auth-service src/owner/step-up.service.ts:23-100) in Admin's `billing.` namespace. Each is exempt
+// ONLY in the one file that registers it, and only as these exact strings; every other literal there is checked as usual.
+const PURPOSE_REGISTRY = join('src', 'app', 'core', 'authorization', 'purpose-registry.ts');
+const MACHINE_VALUES = new Map([
+  [
+    PURPOSE_REGISTRY,
+    new Set([
+      'billing.assistance.correct',
+      'billing.assistance.dispute.resolve',
+      'billing.fraud_hold.place',
+      'billing.fraud_hold.release',
+      'billing.recovery_surplus.record_external',
+      'billing.late_settlement.apply',
+      'billing.recovery.write_off',
+    ]),
+  ],
+]);
+
+// An allowed value must still be a registered purpose of its file (a `PURPOSE_RULES` key: no stale entry), and must never
+// also be a catalog key (it would hide that key's references).
+const REGISTERED_PURPOSE = /^\s+'([a-z_.]+)': \{/gm;
+for (const [file, values] of MACHINE_VALUES) {
+  const registered = new Set(
+    [...readFileSync(file, 'utf8').matchAll(REGISTERED_PURPOSE)].map(([, purpose]) => purpose),
+  );
+  for (const value of values) {
+    if (!registered.has(value))
+      problems.push(`${file}: allowed machine value "${value}" is not a registered purpose there`);
+    if (reference.has(value))
+      problems.push(`${file}: "${value}" is both an allowed machine value and a catalog key`);
+  }
+}
 
 // Static key references. A reference is any string literal in a template or TypeScript source whose first segment is a
 // catalog namespace (`common.`, `foundation.` ...). That covers the `transloco` pipe, `translate('…')` /
@@ -62,10 +89,16 @@ const files = (dir) =>
 const namespaces = [...new Set([...reference.keys()].map((key) => key.split('.')[0]))];
 const LITERAL = new RegExp(`(['"\`])((?:${namespaces.join('|')})\\.[A-Za-z0-9_.-]*)\\1`, 'g');
 let used = 0;
+let machineValues = 0;
 const referenced = new Set();
 for (const file of files(SOURCE_DIR)) {
   const source = readFileSync(file, 'utf8');
+  const allowed = MACHINE_VALUES.get(file);
   for (const [, , key] of source.matchAll(LITERAL)) {
+    if (allowed?.has(key)) {
+      machineValues++;
+      continue;
+    }
     if (key.endsWith('.')) {
       problems.push(
         `${file}: "${key}" is a key prefix built at runtime; list the full keys instead`,
@@ -85,7 +118,8 @@ if (problems.length > 0) {
   process.exit(1);
 }
 console.log(
-  `✔ i18n: ${reference.size} keys complete in ${LOCALES.join(', ')}; ${used} static references resolve`,
+  `✔ i18n: ${reference.size} keys complete in ${LOCALES.join(', ')}; ${used} static references resolve` +
+    ` (${machineValues} Core machine values allowed in their registry)`,
 );
 if (unused.length > 0) {
   console.log(`  note: ${unused.length} key(s) have no static reference: ${unused.join(', ')}`);
