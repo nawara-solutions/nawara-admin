@@ -13,6 +13,14 @@
   them with file references (paths relative to `nawara-core/apps/`). The invitation contract was re-verified in detail in
   **P3b-S3-0** (Core `origin/main` `dd07f2a`). Implemented in Admin, each as a **demo-world mock only**: create (P3b-S1),
   metadata edit (P3b-S2) and admin invitations (P3b-S3); no HTTP adapter.
+- **F0 Core V2 baseline (2026-10-30): Core `main` = `0044b20`** (`0044b20cc7278c1d23d71ee1a39c3d8ab9118db9`, the PR #409 merge),
+  verified by `git ls-remote` at 2026-10-30T20:30:48Z, read-only. It is **132 commits** after `304064f`, the last revision
+  recorded below (P9-S4-0), and contains Core V2 stages S1 to S6. [§11](#11-core-v2-s-track-alignment-f0-core-0044b20) records
+  what changed for Admin: the source-derived 208-route inventory, the 🟡 DEV-ONLY contract state, the production-refused
+  financial modules, the S3–S6 financial register, ORG-00, D-A4, the three step-up transports, the discovery gaps (CF-65 to
+  CF-73) and the certification limits. The earlier baselines (`8628616`, `03e10a0`, `0954566`, `dd07f2a`, `750eb21`, `304064f`)
+  are kept as they were written, for traceability; where §1–§10 disagree with §11, **§11 is current**. Evidence:
+  [`review/r0-core-alignment/`](review/r0-core-alignment/README.md).
 - **Precedence:** a service's OpenAPI (`GET /<service>/docs`) and Core ADRs win over this document. Report differences to Core.
 
 ---
@@ -51,6 +59,13 @@ ownership cutover is blocked on G6 (deferred by the owner).
 **Core V2 is planned (A0 Baseline … A19 Release Certification)** — verified, identical to the A0 brief. **Nothing in V2 exists in code.**
 The V2 stages Admin depends on: **A4** Authentication, **A5** Organization, **A6** Authorization, **A7** Audit, **A8** Notification,
 **A9** File, **A10** Billing, **A11** Payment, **A12** Observability, **A16** Product Integration.
+
+> **Superseded at `0044b20` (F0, 2026-10-30).** The two paragraphs above are the A0 record (2026-10-01/02), kept unchanged. They
+> are no longer true: Core V2 has an execution track S1–S8 (`docs/architecture/core-v2-s-execution-roadmap.md`), and S1 to S6
+> are merged as **development and simulation** code, each a CONDITIONAL PASS (S5 not certified as a stage), with **no
+> production deployment and no operational acceptance**. Core V1's localization refactor (R0–R11) is closed. Production
+> services are unchanged (Core `docs/CORE-ROADMAP.md:55-62`, a documentary statement Admin has not verified). See
+> [§11](#11-core-v2-s-track-alignment-f0-core-0044b20).
 
 Admin never interferes with this roadmap: it records needs as [Core follow-ups](#9-core-follow-ups).
 
@@ -96,6 +111,10 @@ Consequences for Admin:
 **Tension recorded (CF-01):** the integration guide §2 says browser clients keep refresh tokens in "HTTP-only storage", but Auth only
 returns refresh tokens in JSON bodies and refuses credentialed CORS. A pure SPA cannot satisfy both. See ARCHITECTURE §11 for the
 Admin strategy and the decision required before A4.
+
+**F0 (`0044b20`):** the step-up row above describes one transport. Core now has **three** (Auth-local, service-verified and
+receipt-bound), and the receipt-bound one is what every S6 money decision uses: [§11.4](#114-the-three-step-up-transports).
+The session facts are unchanged (cookie sessions still absent; [§11.7](#117-d-a4-browser-session-dependency)).
 
 ## 5. Domain findings
 
@@ -320,11 +339,21 @@ Admin strategy and the decision required before A4.
 - **Not available to humans:** platform-level records (null organization, e.g. `owner.*`, `account.*`), cross-organization sweeps,
   any operator read. Needs Company attribution in the audit contract (CF-04). Admin's `/audit` (P8-S1) is simulated
   activity only, never evidence that a Company- or Platform-wide read exists.
+- **F0 (`0044b20`), 🟡 DEV-ONLY:** S2-Audit added `GET /audit/owner/company/records` (AUD-03, the owner's Company timeline),
+  `GET /audit/operator/platforms/:platformId/records` (AUD-04, an operator's assigned Platform, live), Owner legal holds
+  (`POST /audit/owner/company/legal-holds[/:holdId/release]`, service-verified step-up `audit.legal_hold.place` / `.release`)
+  and the AUD-07 rule (only broker-verified records in the Organization read). **Not deployed:** production Audit is at
+  migration 0003; S2-Audit needs 0004 (M9) and later, gates G-7 and AP-R (Core
+  `docs/architecture/core-v2-s-execution-roadmap.md:227-229`, `:271`). CF-04 is answered in development only ([§9](#9-core-follow-ups)).
 
 ### File
 
 - Every route is **service-token** (product backends) or ticket-redeem. No human/admin API. ADR-0050 D12 places File administration out
   of V1. → V2 A9.
+- **F0 (`0044b20`):** S2-File added evidence grants, granted reads, holds and ticket leases, **still service-token only**: "No
+  human, public or grantee route" (`file-service/src/grants/grant.controller.ts:41-42`). Several S6 Owner decisions require a
+  File evidence grant (fraud holds, dispute evidence, an external surplus repayment), so Admin has **no way to supply
+  evidence** (CF-71).
 
 ### Notification
 
@@ -337,11 +366,21 @@ Admin strategy and the decision required before A4.
   Organization; no `License` entity).
 - Human routes exist only for the **payer** of an invoice (`ServiceOrUserGuard`, relation-scoped, collapsed 404). No staff/operator
   administration; ADR-0050 D12 explicitly excludes staff commercial mutations from V1. Not in production. → V2 A10.
+- **F0 (`0044b20`):** no longer true for development. S3, S5 and S6 added **Owner** routes (Platform commercial configuration,
+  personal-product catalog, fees, assistance corrections, refund cases, fraud holds, recovery, late settlements, reconciliation
+  cases, `FinancialLoss`) and one **operator** route family (fee proposals). Every one except the Platform commercial module
+  **mounts nothing in production**, and Billing is not deployed. The invoice list is still payer- or producer-scoped. See
+  [§11.5](#115-s3s6-financial-capability-register).
 
 ### Payment
 
 - Settlement only; its only service caller is Billing. Human routes: the payer reads a payment and starts/syncs an attempt. No staff
   administration. Not in production. → V2 A11.
+- **F0 (`0044b20`):** no longer true for development. S4 and S6 added Owner reads and decisions (`/payment/admin/disputes*`,
+  `/payment/admin/reconciliation-items`, `/payment/admin/balances`, `/payment/admin/payments/:paymentId/balance`,
+  `/payment/admin/provider-facts/:id/associations`), all **refused in production** (the modules mount nothing), on a
+  **simulation provider only**; real providers are deferred and Payment's production disposition is MOVE V3. See
+  [§11.5](#115-s3s6-financial-capability-register).
 
 ### Release
 
@@ -349,6 +388,9 @@ Admin strategy and the decision required before A4.
   (`release.withdraw`) and `…/compatibility-policy` (`compatibility_policy.change`). Not in production.
 - Public: `GET /release/products/:product/components/:component/compatibility?version=` (rate-limited, ETag).
 - **No human read/list of products, releases or policies** (CF-05). Register/publish are CI-only (service token).
+- **F0 (`0044b20`), 🟡 DEV-ONLY:** S2-Rel added the Owner reads `GET /release/admin/products`,
+  `…/components/:component/releases` and `…/compatibility-policy/history` (REL-01 to REL-03). Release is still not in
+  production (MOVE V3). The withdraw and policy commands use the **service-verified** step-up transport ([§11.4](#114-the-three-step-up-transports)).
 - Release is **never** entitlement.
 
 ### Health / monitoring
@@ -370,10 +412,25 @@ Admin strategy and the decision required before A4.
   and their entitlement read only (P7-S1, `/licenses`; P7-S2, `/licenses/platforms/:platformId` and the Organization
   detail's Subscription section; demo mocks), and says plainly that plans, seat allocation, subscription
   changes and revenue are not available. Proposed follow-ups CF-36 to CF-42 (§9); none is an existing endpoint.
+- **F0 (`0044b20`):** still no `License` entity and still **no human read or command** for an Organization subscription or
+  entitlement: the entitlement reads (BIL-09, BIL-11) are service-token only (`entitlement.read`), and S3b **retired**
+  Billing's direct `activate()` / `renew()`; an Organization period now exists only through a recorded verified settlement
+  (Core `docs/architecture/core-v2-s3-billing.md`, S3b). Admin must not offer "activate" or "renew". The fixed grace is now a
+  Core rule (Organization exactly 24 hours, Personal none). CF-36, CF-37, CF-41 and CF-42 stay open; CF-38 is answered for
+  personal products only ([§9](#9-core-follow-ups)).
 
 ## 7. Contract matrix
 
 🟢 EXISTING / CONFIRMED · 🟡 PLANNED V2 / MOCKED · 🔴 UNDEFINED. "Prod" = deployed in production today.
+
+> **F0 reading notes (`0044b20`).** (1) "Prod" records Core's own documentary production context at the time each row was
+> written (Core `docs/CORE-ROADMAP.md:55-62`); Admin has **never verified** a running environment, and Core records that
+> production Auth runs a legacy image that has drifted from its recorded digest (`:62`). "🟢 Prod" is therefore **not**
+> operational proof of any route. (2) A fourth state applies from F0: **🟡 DEV-ONLY**, implemented and merged in Core for
+> development and simulation, refused or undeployed in production ([§11.2](#112-contract-states-from-f0)). (3) Rows marked
+> 🔴 for Audit Company/Platform reads, the Release catalog and Billing/Payment administration are partly answered by 🟡 DEV-ONLY
+> routes at `0044b20`; the rows are kept as written and annotated below; [§11.5](#115-s3s6-financial-capability-register) and
+> [§11.9](#119-current-admin-feature-and-mock-coverage) are current.
 
 | Admin capability | Core owner | Status | Evidence | Admin strategy |
 |---|---|---|---|---|
@@ -410,14 +467,14 @@ Admin strategy and the decision required before A4.
 | User search / identity directory | Auth | 🔴 | none | Mock; **CF-03** |
 | Roles / permissions catalog | Authorization | 🟡 | V2 A6 | UX capability model from grants |
 | Audit — one organization (owner) | Audit | 🟢 Prod | `owner-query.controller.ts` | HTTP (A9) |
-| Audit — platform-level / operator reads | Audit | 🔴 | ADR-0050 D6 excludes | Placeholder; **CF-04** |
+| Audit — platform-level / operator reads | Audit | 🔴 · **F0: 🟡 DEV-ONLY** (AUD-03 owner Company timeline, AUD-04 operator Platform read; not deployed) | ADR-0050 D6 excludes · F0: `audit-service/src/owner/scoped-query.controller.ts:44-59` | Placeholder; **CF-04** (answered in development only) |
 | Files | File | 🟡 | V2 A9; V1 service-token only | Mock (A12) |
 | Notifications | Notification | 🟡 | V2 A8; V1 service-token only | Mock (A12) |
-| Billing administration | Billing | 🟡 | V2 A10; V1 payer/service only | Mock (A11) |
-| Payments administration | Payment | 🟡 | V2 A11; V1 payer/Billing only | Mock (A11); **P7-S3**: owner-only read-only `/billing` payment follow-ups (`BillingGateway`, mock in demo builds, unavailable otherwise): Organization, Platform, failed / awaiting action only; no amount, invoice, settlement, refund or operation (CF-40 proposed) |
+| Billing administration | Billing | 🟡 · **F0: 🟡 DEV-ONLY** Owner financial routes, refused in production ([§11.5](#115-s3s6-financial-capability-register)) | V2 A10; V1 payer/service only | Mock (A11) |
+| Payments administration | Payment | 🟡 · **F0: 🟡 DEV-ONLY** Owner disputes, reconciliation and balances, refused in production ([§11.5](#115-s3s6-financial-capability-register)) | V2 A11; V1 payer/Billing only | Mock (A11); **P7-S3**: owner-only read-only `/billing` payment follow-ups (`BillingGateway`, mock in demo builds, unavailable otherwise): Organization, Platform, failed / awaiting action only; no amount, invoice, settlement, refund or operation (CF-40 proposed) |
 | License / entitlement | Billing (decided) | 🟡 contract TBD | ADR-0038/0044; roadmap "Licenses" | **P7-S1**: owner-only read-only `/licenses` overview (`LicensesGateway`, mock in demo builds, unavailable otherwise): subscription states, entitlement (active or grace), per-Platform distribution, declared Personal Premium; **P7-S2**: one Platform's Organization subscriptions (`LicensesGateway.platform`) and the Organization detail's entitlement row (`OrganizationCommercialGateway.load`); no wizard, no command (CF-36 to CF-42 proposed) |
 | Release withdraw / minimum version | Release | 🟢 (not Prod) | `release-service/src/admin/admin.controller.ts` | HTTP (A10) |
-| Release catalog / history read | Release | 🔴 | none for humans | Mock; **CF-05** |
+| Release catalog / history read | Release | 🔴 · **F0: 🟡 DEV-ONLY** (REL-01 to REL-03; Release not in production) | none for humans · F0: `release-service/src/admin/read.controller.ts:66-96` | Mock; **CF-05** (answered in development only) |
 | Client compatibility (Admin's own build) | Release | 🟢 (not Prod) | `compatibility.controller.ts` | Optional: Admin registers as a web component (CF-07) |
 | Service health | per service | 🔴 | `/health`, `/ready` probes only | Placeholder; **CF-06** (V2 A12) |
 | Monitoring / metrics | Observability | 🟡 | V2 A12 | Mock (A13) |
@@ -468,6 +525,23 @@ Admin strategy and the decision required before A4.
 - Instants: ISO 8601 UTC with `Z`. Time zones: IANA ids.
 - `503 hierarchy_unavailable` = unknown, retry later; never treat as success.
 
+**Added at F0 (`0044b20`), for the receipt-bound and money routes ([§11.4](#114-the-three-step-up-transports)); not yet used by any
+Admin code:**
+
+- An **authorization receipt** secret (`POST /auth/admin/authorization-receipts`) is returned **once**, lives **10 minutes**
+  (`auth-service/src/receipts/authorization-receipt.service.ts:14-15`) and is sent only as `receiptSecret` in the body of its one
+  consuming Billing or Payment route. It is never stored, logged, put in a URL, kept in an idempotency record or queued for retry.
+- Receipt issuance replay: `409 receipt_issued_response_lost` means the receipt is **voided** (start again from a new step-up);
+  `503 receipt_outcome_unknown` means replay the **same** `Idempotency-Key`. Never return a stored secret.
+- A receipt step-up token is **never** sent as `x-step-up-token` to a domain route: Core's `POST /auth/step-up/verify` refuses
+  the receipt purposes without consuming them.
+- Money commands are idempotency class M (90 days, `Idempotency-Key` required, permanent uniqueness key). A `503` that Core
+  documents as "recorded" (for example `refund_authorization_unresolved`) is settled by **re-reading** the resource, never by a
+  new receipt.
+- Never send an amount, `liveMode` or any value Core derives; refunds take no amount (full purchase only).
+- Admin never calls `/auth/service/*`, `/payment/simulation/*`, `/payment/webhooks/*`, or any File, Notification or
+  Organization service-token route.
+
 ## 9. Core follow-ups
 
 Recorded for the Core owner. **Admin changes nothing in Core.**
@@ -480,6 +554,9 @@ Admin requirement: a session that survives a page reload without exposing the re
 Classification:   🟡 (V2 A4 lists "cookies"); interim option is an Admin token-handler BFF permitted by ADR-0050 D13.
 V1 or V2:         V2 A4 (cookie mode) — or an owner decision on an Admin BFF before Admin A4.
 Recommended checkpoint: Core V2 A4; owner decision D-A4 before Admin A4.
+F0 status (`0044b20`): OPEN, unchanged. Cookie sessions are absent, CORS stays `credentials: false`
+                  (`libs/service-kit/src/bootstrap.ts:50`); Core's A4 record places cookie sessions and a BFF in A16
+                  (`docs/architecture/core-v2-a4-authentication.md:41`, `:111`). See §11.7.
 
 CF-02  Human-scoped hierarchy read API
 Service:          organization-service (after cutover) / Auth (today)
@@ -488,6 +565,8 @@ Admin requirement: owner lists their Company's Platforms/Organizations; operator
 Classification:   🔴 → design in V2 A5 (+ A6 for scope).
 V1 or V2:         V2.
 Recommended checkpoint: Core V2 A5.
+F0 status (`0044b20`): OPEN and now explicitly out of Core V2: contract-register entry **ORG-00 "No Core V2 contract"** defers
+                  human hierarchy reads until authority activation (F7); S8 is conditional (PR #319, C-5, A5.4-G1). See §11.6.
 
 CF-03  Owner-scoped operator and member directories
 Service:          auth-service
@@ -510,6 +589,9 @@ Admin requirement: owner reads their Company's platform-level evidence (account.
 Classification:   🔴 (needs ADR-0049 amendment: Company attribution).
 V1 or V2:         V2 A7.
 Recommended checkpoint: Core V2 A7.
+F0 status (`0044b20`): ANSWERED IN DEVELOPMENT ONLY. AUD-03 `GET /audit/owner/company/records` (owner, Company scope, ≤31 days,
+                  100 per page) and AUD-04 `GET /audit/operator/platforms/:platformId/records` (operator, live assignment) are
+                  merged (#355); not deployed (M9, G-7, AP-R). Admin keeps `/audit` simulated until a deployed contract exists.
 
 CF-05  Release catalog read for the owner
 Service:          release-service
@@ -520,6 +602,8 @@ Admin requirement: render the release history to choose what to withdraw. Until 
 Classification:   🔴 OPEN
 V1 or V2:         V2 (A16/A15) or a scoped V1 addition if the owner authorizes.
 Recommended checkpoint: owner decision; default V2.
+F0 status (`0044b20`): ANSWERED IN DEVELOPMENT ONLY. REL-01 to REL-03 (`release-service/src/admin/read.controller.ts:66-96`,
+                  merged #358); Release is not in production (MOVE V3).
 
 CF-06  Operator-facing service health
 Service:          all / observability
@@ -883,6 +967,9 @@ Current behavior: Billing owns catalog and prices; no owner read.
 Admin requirement: a read of plans (and prices, if the owner may see them) so plans are never invented in Admin.
 Classification:   🟡 planned capability (V2 A10).
 Recommended checkpoint: before P7-S4.
+F0 status (`0044b20`): PARTLY ANSWERED IN DEVELOPMENT. `GET /billing/admin/platforms/:platformId/products` (Platform owner; S3g,
+                  #372) reads the **personal-product** catalog; no Organization-plan catalog read exists; catalog VALUES are
+                  OPEN in Core (OD-05, catalog gate); Billing is not deployed.
 
 CF-39  Personal Premium aggregate per Platform                             PROPOSED (P7-0)
 Service:          billing-service
@@ -899,6 +986,10 @@ Admin requirement: separate owner reads of invoices, payment attempts, verified 
                   attempt is shown as revenue. P7-S3 needs at least each open attempt's Organization and state.
 Classification:   🟡 planned capability (V2 A10/A11).
 Recommended checkpoint: before P7-S3's HTTP adapter.
+F0 status (`0044b20`): PARTLY ANSWERED IN DEVELOPMENT. Owner reads exist for disputes (PAY-09), reconciliation items (PAY-12),
+                  signed balances (R6H-12), refund cases by id (BIL-25), reconciliation cases (BIL-33) and losses (BIL-34),
+                  all refused in production. **Still missing:** owner reads of invoices, payments, attempts and purchases
+                  (CF-66) and a refund-case list (CF-65).
 
 CF-41  Owner subscription commands                                         PROPOSED (P7-0)
 Service:          billing-service
@@ -1116,6 +1207,90 @@ Admin requirement: a decided policy: require the current password (or a recent f
 Classification:   🔴 undefined (security decision).
 Recommended checkpoint: before P9-S4e's HTTP adapter; Core V2 A4.
 
+CF-65 to CF-73 (F0, Owner decision D-R0-5, 2026-10-30) are Admin-tracked Core prerequisites. Recording them here does not
+mean Core has authorized, designed or implemented any of them.
+
+CF-65  Owner refund-case list                                             PROPOSED (F0, 2026-10-30)
+Service:          billing-service
+Current behavior: (verified `0044b20`) refund cases can be opened, read, authorized and cancelled by id only
+                  (`billing-service/src/refunds/refund-case.controller.ts:66-128`, BIL-23 to BIL-25); no list.
+Admin requirement: a Company-scoped, paginated owner list of refund cases (state, Platform, newest first), so a case is
+                  found without already knowing its id.
+Classification:   🟡 contract addition (S6a scope).
+Recommended checkpoint: before any refund HTTP adapter (roadmap F5).
+
+CF-66  Owner discovery of payments, purchases and invoices                 PROPOSED (F0)
+Service:          billing-service, payment-service
+Current behavior: opening a refund case needs a `paymentId` (`refund-case.controller.ts:66-87`), but invoices are listed
+                  only for their payer or producer (`billing-service/src/invoices/invoices.controller.ts:77-90`) and no
+                  owner read lists payments or purchases; whether an owner bearer may read `GET /payment/payments/:id`
+                  is not established (the user path appears payer-scoped; UNVERIFIED).
+Admin requirement: owner reads, Company- and Platform-scoped, of payments with their finality and of personal purchases,
+                  kept separate (never merged into revenue). Extends CF-40.
+Classification:   🟡 contract addition (S3/S4 scope).
+Recommended checkpoint: before roadmap F5's HTTP adapter.
+
+CF-67  Owner fraud-hold list                                               PROPOSED (F0)
+Service:          billing-service
+Current behavior: (verified `0044b20`) place, release and read by id only (`billing-service/src/fraud-holds/fraud-hold.controller.ts:24-62`).
+Admin requirement: an owner list of holds (active, released, expired) with their 14-day deadlines.
+Classification:   🟡 contract addition (S6e-H scope).
+Recommended checkpoint: before roadmap F10's HTTP adapter.
+
+CF-68  Owner recovery-obligation list                                      PROPOSED (F0)
+Service:          billing-service
+Current behavior: (verified `0044b20`) `GET /billing/admin/recovery-obligations/:id` only (`recovery.controller.ts:149`);
+                  some obligations surface through reconciliation cases, not all.
+Admin requirement: an owner list of recovery obligations and surpluses (outstanding, settled, written off).
+Classification:   🟡 contract addition (S6f scope).
+Recommended checkpoint: before roadmap F8's HTTP adapter.
+
+CF-69  Owner late-settlement list                                          PROPOSED (F0)
+Service:          billing-service
+Current behavior: (verified `0044b20`) `GET /billing/admin/late-settlements/:id` and its application only
+                  (`late-settlement.controller.ts:105-119`); an unapplied late settlement is a reconciliation case.
+Admin requirement: an owner list of late assisted settlements and their L-4 state, or a documented statement that the
+                  reconciliation-case list is the only discovery path.
+Classification:   🟡 contract addition or documentation (S6g scope).
+Recommended checkpoint: before roadmap F9's HTTP adapter.
+
+CF-70  Owner read and list of assistance requests and disputes            PROPOSED (F0)
+Service:          billing-service
+Current behavior: (verified `0044b20`) the owner can correct a request (BIL-19) and resolve an assistance dispute (BIL-22)
+                  by id, but the request read is for its beneficiary or an administrator of its Organization only
+                  (`billing-service/src/assistance/assistance.controller.ts:181`); no owner read or list.
+Admin requirement: owner reads of the requests, obligations and disputes the owner is asked to correct or resolve.
+Classification:   🟡 contract addition (S5c scope).
+Recommended checkpoint: before roadmap F11's HTTP adapter.
+
+CF-71  Human path for File evidence                                        PROPOSED (F0)
+Service:          file-service (with billing-service and payment-service)
+Current behavior: (verified `0044b20`) evidence grants are service-token only: "No human, public or grantee route"
+                  (`file-service/src/grants/grant.controller.ts:41-42`); fraud holds (1 to 5 grants), dispute evidence
+                  (PAY-10) and an external surplus repayment (BIL-30 Path B) each require a grant.
+Admin requirement: a way for the owner, with their own bearer, to upload a file and grant it as evidence of one case,
+                  without any service token in the browser (ADR-0050).
+Classification:   🔴 undefined (a Core design decision; File production enablement is M8 / DG-2).
+Recommended checkpoint: before roadmap F6 evidence, F8 Path B and F10.
+
+CF-72  Reads of fee caps, delegations and proposals                       PROPOSED (F0)
+Service:          billing-service
+Current behavior: (verified `0044b20`) fee caps (PUT), delegations (create, revoke) and proposal decisions are owner
+                  commands; proposals and withdrawals are operator commands (`billing-service/src/fees/fees.controller.ts:40-149`);
+                  no read of any of them.
+Admin requirement: owner and delegated-operator reads of the current caps, delegations and pending proposals.
+Classification:   🟡 contract addition (S3f scope).
+Recommended checkpoint: before roadmap F12's HTTP adapter.
+
+CF-73  Core roadmap's Admin section is out of date                         PROPOSED (F0)
+Service:          documentation (`nawara-core/docs/CORE-ROADMAP.md`)
+Current behavior: (verified `0044b20`) `docs/CORE-ROADMAP.md:686` still says billing-service and payment-service offer
+                  "service-token APIs only; no human administration API", which the S3–S6 Owner routes contradict.
+Admin requirement: Core's Admin section states the development-only Owner and operator financial routes and their
+                  production refusal, so both repositories describe the same contract.
+Classification:   🟡 documentation correction (Core-owned; Admin changes nothing in Core).
+Recommended checkpoint: next Core documentation task.
+
 Residual risk recorded with P6-S3: block and unblock require no step-up (Core's deliberate choice for an emergency
 control), so a stolen owner session can block every operator or unblock one. Admin adds no verification Core does not ask
 for; this is for the Core owner's security review, not an Admin change.
@@ -1128,3 +1303,217 @@ for; this is for the Core owner's security review, not an Admin change.
 - Organization lifecycle runtime (ADR-0060 accepted as architecture; implementation deferred, CF-09).
 - Whether operator administration is ever publicly browser-reachable (stage-10 study: open deployment/security choice).
 - Browser session model for administrative clients (CF-01).
+- **Added at F0 (`0044b20`), open in Core, not Admin's to decide:** DG-4 (Billing for the pilot) and A11 MOVE V3 (Payment);
+  catalog values OD-05; BIL-12 (a member's personal subscriptions); EVT-05 / EVT-06 (`billing.*` events); Q8 (proof of receipt
+  non-consumption); the partial-chargeback policy; V-4 (lifecycle effective state), V-5 runtime, OD-R6a; C-3 / C-6 (S7); C-5
+  (operator Organization creation); PR #319 reconciliation; legal remedies (BIL-35); a human File evidence path (CF-71).
+  Sources: Core `docs/architecture/core-v2-s6-financial-certification.md:181-194`, `core-v2-s-execution-roadmap.md:442-462`.
+
+## 11. Core V2 S-track alignment (F0, Core `0044b20`)
+
+Recorded 2026-10-30 under the Owner's F0 authorization (documentation only). It reconciles this file with Core `main` =
+`0044b20cc7278c1d23d71ee1a39c3d8ab9118db9` and Admin `cf4b1a9`. Evidence and method:
+[`review/r0-core-alignment/`](review/r0-core-alignment/README.md) (the master roadmap, the route inventories and the scripts).
+Paths below are relative to `nawara-core/` unless marked `admin:`. **Nothing in this section is deployment or operational
+evidence.**
+
+### 11.1 Baseline verification
+
+| Check | Result |
+|---|---|
+| Repository | `https://github.com/nawara-solutions/nawara-core` |
+| `main` | `0044b20` (merge of PR #409, 2026-10-30T21:14:38+01:00); `git ls-remote` at 2026-10-30T20:30:48Z: no later merge |
+| PR #409 | included (it is the tip); #405–#408 merged before it |
+| Unmerged | Dependabot PRs #197–#203, #297, #368 and PR #319 (on hold) are not in `main`; whether each is open is **unverified** (the GitHub API was not available to this session for Core) |
+| Method | a fresh read-only clone (no existing worktree, no branch switched, nothing written to Core) |
+| Not accessed | production, Nawara Lab 01, deployed infrastructure |
+
+### 11.2 Contract states from F0
+
+| State | Meaning | Admin may |
+|---|---|---|
+| 🟢 EXISTING / CONFIRMED | in Core source; production presence as Core documents it (never verified by Admin) | integrate (HTTP after D-A4) |
+| **🟡 DEV-ONLY** (new) | implemented and merged in Core for **development and simulation**; the production build mounts no route, or the service is not deployed | mock-first UI; an HTTP adapter **only** against a local Core with the simulation provider; production builds bind the `Unavailable…` adapter |
+| 🟡 PLANNED V2 / MOCKED | in the accepted direction, no route | mock behind a gateway |
+| 🔴 UNDEFINED | no contract | placeholder + Core follow-up |
+
+### 11.3 Production-refused modules
+
+Source-derived route inventory: **208** controller handlers under `apps/*/src` (auth 64, billing 64, payment 28, organization 17,
+file 17, release 8, audit 7, notification 3), reproducible with `admin:docs/review/r0-core-alignment/tools/routes.py`. The
+original route appendix was not available: the count agrees, the identity of the two sets is unproven. By decorator heuristic
+(the service still decides authority per request): 104 human bearer, 6 any bearer, 17 service-or-human, 56 service token only,
+8 simulation harness, 17 public, pre-authentication or webhook.
+
+**56 handlers are in modules that mount nothing in production** (no flag enables them):
+
+| Module | Handlers | Production gate |
+|---|---|---|
+| Billing `CheckoutModule` | 1 | `apps/billing-service/src/checkout/checkout.module.ts:17` |
+| Billing `AssistanceModule` (incl. restrictions) | 12 | `apps/billing-service/src/assistance/assistance.module.ts:27` |
+| Billing `RefundModule` (refund cases + fraud holds) | 7 | `apps/billing-service/src/refunds/refund.module.ts:33`, `:41` |
+| Billing `RecoveryModule` | 5 | `apps/billing-service/src/recovery/recovery.module.ts:21` |
+| Billing `LateSettlementModule` | 4 | `apps/billing-service/src/late-settlements/late-settlement.module.ts:21` |
+| Billing `ReconciliationModule` | 5 | `apps/billing-service/src/reconciliation/reconciliation.module.ts:20` |
+| Payment `RefundsModule` | 3 | `apps/payment-service/src/refunds/refunds.module.ts:23` (also needs refunds configured) |
+| Payment `DisputesModule` | 6 | `apps/payment-service/src/disputes/disputes.module.ts:21` |
+| Payment `ReconciliationModule` | 5 | `apps/payment-service/src/reconciliation/reconciliation.module.ts:17` |
+| Payment `SimulationModule` | 8 | `apps/payment-service/src/app.module.ts:57-58` (simulation enabled **and** not production) |
+
+Billing's `PlatformsModule` (Platform commercial configuration, fees, Owner catalog; 14 handlers) **is** mounted in every
+environment (`apps/billing-service/src/platforms/platforms.module.ts:21`), but Billing is not deployed: 🟡 DEV-ONLY as well.
+
+### 11.4 The three step-up transports
+
+All three start at `POST /auth/admin/step-up` (owner only; Core's operator step-up does not exist, CF-08). Purposes and their
+allowed factors: `apps/auth-service/src/owner/step-up.service.ts:23-100`.
+
+| Transport | Sent to | Consumed by | Purposes at `0044b20` | Admin at `cf4b1a9` |
+|---|---|---|---|---|
+| **T1 Auth-local** | the Auth route itself, header `x-step-up-token` | Auth | `platform_assignment.grant/.revoke`, `operator.create`, `owner.secret_key.rotate`, `owner.factor.enroll/.remove`, `owner.password.change`, `join_code.create/.revoke`, `organization.admin.grant/.revoke`, `admin_invitation.create/.revoke`, `account.suspend/.restore`, `hierarchy.reference.repair` | modelled: `StepUpGateway` / `StepUpPurpose` (`admin:src/app/core/auth/step-up.gateway.ts:21-48`), mock only |
+| **T2 service-verified** | another service, header `x-step-up-token` | that service, through `POST /auth/step-up/verify` with the **owner's own bearer** (single use, session- and purpose-bound) | `platform.create`, `organization.create` (Organization); `release.withdraw`, `compatibility_policy.change` (Release); `audit.legal_hold.place/.release` (Audit); `billing.assistance.correct`, `billing.assistance.dispute.resolve` (Billing) | `platform.create` and `organization.create` are used (P4-S1, P3b-S1) through the same gateway; transports are **not** distinguished |
+| **T3 receipt-bound** | Auth: `POST /auth/admin/authorization-receipts` (`x-step-up-token`, `Idempotency-Key`, a binding); then the secret as `receiptSecret` to Billing or Payment | Auth consumes the **receipt** at the service's request (`/auth/service/authorization-receipts/*`, service tokens); `/auth/step-up/verify` **refuses** these purposes without consuming them | `refund.authorize`, `payment.dispute.decide`, `billing.fraud_hold.place/.release`, `billing.recovery_surplus.record_external`, `billing.late_settlement.apply`, `payment.provider_fact.associate`, `billing.recovery.write_off` (all factor-only) → receipt operations `refund`, `dispute_decision`, `fraud_hold_place`, `fraud_hold_release`, `recovery_surplus_external`, `late_settlement_apply`, `provider_fact_associate`, `recovery_write_off` (`apps/auth-service/src/receipts/receipt-binding.ts:158-172`) | **not modelled** |
+
+Receipt facts: lifetime 10 minutes (`apps/auth-service/src/receipts/authorization-receipt.service.ts:14-15`); the secret appears in
+the issuance response only; a lost-response replay voids an issued receipt (`409 receipt_issued_response_lost`); an unknown
+outcome is replayed with the same key (`503 receipt_outcome_unknown`)
+(`apps/auth-service/src/receipts/authorization-receipt.controller.ts:31-40`). Step-up token lifetime: `STEP_UP_TTL_SEC`, default
+300 seconds (`apps/auth-service/src/config/app-config.ts:260`). Factor-only purposes never accept the secret key.
+
+### 11.5 S3–S6 financial capability register
+
+S3 Billing, S4 Payment, S5 assistance and cash obligations, S6 refunds, disputes, recovery, reconciliation and losses
+(`docs/architecture/core-v2-s-execution-roadmap.md:290-405`; register ids from `docs/architecture/core-v2-d-a2-contract-register.md:98-190`).
+**Every row is 🟡 DEV-ONLY.** "By id" means the resource is read or changed by its id with no owner list.
+
+| Capability | Core routes (register id) | Caller | Step-up | Human discovery | Admin today | Follow-up |
+|---|---|---|---|---|---|---|
+| Platform commercial configuration | `POST/GET /billing/admin/platforms/:platformId` (BIL-01) | Platform owner (live platform-access) | — | yes (per Platform) | none | — |
+| Personal-product catalog | `GET/POST …/platforms/:platformId/products`, `…/products/:productId/prices`, `…/archive`, `…/prices/:priceId/retire` (BIL-02/03) | Platform owner | — | yes | `/licenses` (mock, different scope) | catalog values OD-05 OPEN |
+| Fee caps, delegations, decisions | `PUT …/fee-caps`, `POST …/fee-delegations[/:delegationId/revoke]`, `POST /billing/admin/fee-proposals/:id/approve\|reject` (BIL-04/05/07) | owner | — | **no reads** | none | CF-72 |
+| Fee proposals | `POST /billing/platforms/:platformId/fee-proposals[/:id/withdraw]` (BIL-06) | **operator** with a delegation | — | no reads | none | CF-72 |
+| Organization subscription / entitlement | BIL-09 / BIL-11 (service token) | service | — | **none for humans** | `/licenses` mock | CF-36, CF-37, CF-41 |
+| Payments, finality, purchases | PAY-01..06 (service / payer) | service, payer | — | **none for the owner** | `/billing` follow-ups mock | CF-66 (extends CF-40) |
+| Assistance correction | `POST /billing/admin/assistance-requests/:id/corrections` (BIL-19) | owner | **T2** `billing.assistance.correct` | by id; **no owner read** | none | CF-70 |
+| Assistance dispute resolution | `POST /billing/admin/assistance-disputes/:id/resolution` (BIL-22) | owner | **T2** `billing.assistance.dispute.resolve` | by id; no owner read | none | CF-70 |
+| Restrictions (T1, T2, T3; D6 not enforced) | `GET /billing/organizations/:organizationId/restrictions` (BIL-26) | service, or a human the service accepts (Platform owner, Organization actor) | — | per Organization | none | — |
+| Refund cases | `POST /billing/admin/refund-cases`, `GET …/:id`, `POST …/:id/authorizations`, `POST …/:id/cancel` (BIL-23/24/25) | owner | **T3** `refund` | by id | none | CF-65, CF-66 |
+| Payment disputes | `GET /payment/admin/disputes[/:id]`, `POST …/:id/evidence`, `POST …/:id/decision` (PAY-09/10/11) | owner | **T3** `dispute_decision` | list | none | CF-71 (evidence) |
+| Fraud holds | `POST /billing/admin/fraud-holds`, `POST …/:id/release`, `GET …/:id` (BIL-27) | owner | **T3** `fraud_hold_place` / `_release` + 1–5 File grants | by id | none | CF-67, CF-71 |
+| Recovery obligation (owner read) | `GET /billing/admin/recovery-obligations/:id` (BIL-28) | owner | — | by id | none | CF-68 |
+| Surplus external repayment (Path B) | `POST /billing/admin/recovery-surpluses/:id/resolution` (BIL-30) | owner | **T3** `recovery_surplus_external` + File evidence | by id | none | CF-68, CF-71 |
+| Late assisted settlement (L-4) | `GET /billing/admin/late-settlements/:id`, `POST …/:id/application` (BIL-32) | owner | **T3** `late_settlement_apply` | by id (via reconciliation cases) | none | CF-69 |
+| Reconciliation cases | `GET /billing/admin/reconciliation-cases[/:id]`, `POST …/:id/acknowledgement` (BIL-33) | owner | — | list | none | — |
+| Reconciliation items, unmatched facts | `GET /payment/admin/reconciliation-items` (PAY-12) | owner | — | list | none | — |
+| Provider-fact association | `POST /payment/admin/provider-facts/:id/associations` (PAY-13) | owner | **T3** `provider_fact_associate` | from PAY-12 | none | — |
+| Signed balances | `GET /payment/admin/balances`, `GET /payment/admin/payments/:paymentId/balance` (R6H-12) | owner | — | list (per currency) | none | — |
+| `FinancialLoss`, recovery write-off | `GET /billing/admin/financial-losses`, `POST /billing/admin/recovery-obligations/:id/write-off` (BIL-34) | owner | **T3** `recovery_write_off` | list | none | — |
+| Legal remedies | none (BIL-35 OPEN) | — | — | — | none | Core decision |
+
+**Not Admin actions** (product or Organization surfaces): assistance requests, decline, cash collection, settlement, beneficiary
+disputes, cash return and confirmation, dispute responses (BIL-13–18, 20, 21); the Organization's recovery settlement and
+surplus confirmation (BIL-29, BIL-31: an Organization administrator, "never the beneficiary or the Owner"); late-settlement
+attestation; direct checkout (BIL-10, member). **Never callable from Admin:** `/payment/simulation/*`, `/payment/webhooks/*`,
+`/payment/reconciliation/items`, `/payment/payments/:paymentId/{captures/:factId,dispute-exposure}`, `/payment/disputes/losses`.
+
+**Invariants Admin must preserve** (register §3, `docs/architecture/core-v2-d-a2-contract-register.md:66-90`): explicit, immutable
+routing (I-1); a recovery settlement never touches a subscription or purchase (I-2); grace exactly 24 h / none (I-3); personal and
+recovery invoices never change `subscription` (I-4); full-purchase refunds only, one reversal per purchase (I-5); immutable provider
+facts (I-6); late settlement L-1–L-6 (I-7); a surplus is owed to the school, never revenue, loss or access, never re-opens T3
+(I-8); `FinancialLoss` only from evidence or an owner write-off (I-9); no second checkout under uncertainty (I-10); restrictions
+block **new** requests only (I-11); `settleBy = cashCollectedAt + 72h` (I-12); no trust-based cash settlement (I-13); simulation
+only (I-14); no new refund case while a dispute is open, a completed case refuses all (I-16); a provisional dispute never
+cancels Premium (I-17); operators never approve fees (I-18); one currency per Platform (I-19); Payment never calls Billing (I-20).
+Balances are signed and never clamped; an unanswered authorization stays an open case (Q8, fail-closed); a write-off is
+accounting only and T3 stays (`docs/architecture/core-v2-s6-financial-certification.md:116-122`).
+
+### 11.6 ORG-00: hierarchy authority dependency
+
+Register entry ORG-00 (`docs/architecture/core-v2-d-a2-contract-register.md:298-306`): **no Organization route in Core V2**; human
+hierarchy reads are deferred until authority activation; organization-service stays non-authoritative; G6 and F7 unchanged. S8
+(Organization authority-dependent changes) is conditional on PR #319's reconciliation, C-5 and A5.4-G1, with RED items blocked
+until F7 (`docs/architecture/core-v2-s-execution-roadmap.md:416-424`). Organization's hierarchy reads remain service-token only
+(`hierarchy.read`). Consequence: Admin's Platform and Organization directories, the Company Overview counts and the Platform
+dashboard stay **provisional mocks for all of Core V2** (CF-02, CF-11); the only human hierarchy read is one Organization through
+Auth (`GET /auth/admin/organizations/:id`). Organization writes (`/organization/admin/*`) exist but are not authoritative before
+the cutover.
+
+### 11.7 D-A4: browser-session dependency
+
+Unchanged at `0044b20`: refresh tokens rotate with family revocation and are **returned in the body**; cookie sessions are
+**absent**; CORS is `credentials: false` (`docs/architecture/core-v2-a4-authentication.md:27-41`; `libs/service-kit/src/bootstrap.ts:50`);
+cookie sessions and a backend-for-frontend are placed in Core **A16** (`core-v2-a4-authentication.md:111`). D-A4 (memory for
+development → a token-handler BFF permitted by ADR-0050 D13, **or** Core cookie mode) still blocks every HTTP adapter
+(`admin:docs/ROADMAP.md` D-A4). A BFF would have to forward `x-step-up-token`, `Idempotency-Key` and receipt bodies unchanged,
+never log them and hold no authority. The financial adapters do not change this decision: their routes are refused in
+production anyway.
+
+### 11.8 Owner and operator authority (financial and new routes)
+
+From each route's guard at `0044b20`; Core decides per request, Admin's capability model stays UX only
+(`admin:src/app/core/access/capability-policy.ts`, which grants operators nothing).
+
+- **Owner only:** everything in §11.5 except fee proposals, plus legal holds, the Company audit timeline and Release administration.
+  Members and operators are refused on every owner financial route; cross-Company and cross-Platform reads are the collapsed `404`
+  (`docs/architecture/core-v2-s6-financial-certification.md:135-136`).
+- **Operator:** fee proposals and their withdrawal (with an owner delegation); `GET /audit/operator/platforms/:platformId/records`
+  (assigned Platform, live); Organization metadata edit (unchanged). An assigned operator is authorized to create an Organization
+  but cannot obtain the `organization.create` step-up (CF-08, C-5).
+- **Neither (Organization administrators, product apps):** recovery settlement, surplus confirmation and every assistance action
+  except the owner's correction and dispute resolution.
+
+### 11.9 Current Admin feature and mock coverage
+
+At `cf4b1a9`: 25 gateways, 21 mock adapter files, **no HTTP adapter**, 143 spec files; capability policy: owner 22 capabilities,
+operator none. Against `0044b20`:
+
+| Admin area (route) | Gateway(s) | Core state at `0044b20` | Note |
+|---|---|---|---|
+| Sign-in, enrollment, working code (`/login/*`) | `AuthGateway` | 🟢 (production presence documentary) | mock prototype; HTTP after D-A4 |
+| Overview (`/overview`) | `CompanyOverviewGateway`, `CommercialSummaryGateway` | 🔴 aggregates (CF-11–13) | mock |
+| Platforms (`/platforms`, `/platforms/:platformId`) | `PlatformDirectoryGateway`, `PlatformCommandGateway`, `PlatformDashboardGateway`, `PlatformCommercialGateway` | writes 🟢; list 🔴 (ORG-00); commercial 🟡 DEV-ONLY in part (BIL-01) | mock |
+| Organizations and members | `OrganizationGateway`, `OrganizationCommandGateway`, `OrganizationCommercialGateway`, `MembershipGateway`, `AdminInvitationGateway` | 🟢 except list (ORG-00); commercial 🔴 (CF-36/37) | mock |
+| Operators (`/operators`) | `OperatorDirectoryGateway`, `OperatorAssignmentGateway`, `OperatorAccountGateway` | 🟢 commands; directory 🔴 (CF-03) | mock |
+| Licenses (`/licenses`) | `LicensesGateway` | 🔴 human read (CF-36/37) | mock; must not offer activate / renew |
+| Billing (`/billing`) | `BillingGateway` | 🟡 DEV-ONLY in part (§11.5); invoices/payments 🔴 (CF-66) | mock; its doc comment predates S3–S6 |
+| Audit (`/audit`) | `ActivityGateway` | 🟡 DEV-ONLY (AUD-03/04) | simulated, labelled "not Core audit evidence" |
+| Releases (`/releases`) | `ReleaseInformationGateway` | 🟡 DEV-ONLY (REL-01..03) | information page only |
+| Services (`/services`) | `ServiceInventoryGateway` | 🔴 (CF-06) | mock |
+| Notifications (`/notifications`) | `NotificationSummaryGateway` | 🔴 (NOT-00; CF-14, CF-48) | mock |
+| Settings and security (`/settings/*`) | `AccountSecurityGateway`, `CompanySettingsGateway`, `StepUpGateway` | 🟢 owner security; Company profile 🔴 (CF-49) | mock |
+| Finance workflows of §11.5 | none | 🟡 DEV-ONLY | **not built**; planned slices F1–F12 are **not authorized** (`admin:docs/ROADMAP.md`) |
+
+### 11.10 Certification and deployment restrictions
+
+| Stage | Verdict at `0044b20` | Source |
+|---|---|---|
+| S1 event security | CONDITIONAL PASS (development); operational acceptance NOT STARTED; C-4, AP-R, NP-K, G-7 open; OD-BRK-2b-L real-systemd half BLOCKED (hardware maintenance) | `docs/architecture/core-v2-s1-event-security.md:8` |
+| S2 foundations | CONDITIONAL PASS (development); R-6a OPEN (OD-R6a); Audit Organization scope rows blocked until F7; operational NOT STARTED | `docs/architecture/core-v2-s2-independent-foundations.md:8` |
+| S3 Billing | CONDITIONAL PASS (development and simulation); OD-05, BIL-12, EVT-05, invoice legal content, DG-4 open | `docs/architecture/core-v2-s3-billing.md:8`, `:44-54` |
+| S4 Payment | CONDITIONAL PASS (development and simulation); Organization-payer grant inactive; real providers deferred; MOVE V3 | `docs/architecture/core-v2-s4-payment.md:8`, `:42-49` |
+| S5 assistance | S5a–S5d CONDITIONAL PASS; **S5 not certified** (S5e, D6 deferred: V-4, OD-R6a) | `docs/architecture/core-v2-s5-assistance-and-cash-obligations.md:8`, `:61` |
+| S6 financial | CONDITIONAL PASS (simulation); one medium defect corrected in the certification PR; Q8, partial chargebacks, V-4, V-5, OD-R6a, EVT-05/06, production activation open; one unexplained `401` recorded as a residual | `docs/architecture/core-v2-s6-financial-certification.md:10`, `:181-194`, `:239-241` |
+| S-INT, Final Core Validation | not run; Final Core Validation absolutely last | `docs/architecture/core-v2-s-execution-roadmap.md:426-440` |
+
+**No S-stage deploys** (merges build images only; deployments are separate, digest-based and owner-approved:
+`core-v2-s-execution-roadmap.md:84-87`). A10 Billing stays DECISION REQUIRED (DG-4) and A11 Payment and Release production stay
+MOVE V3 (`docs/CORE-ROADMAP.md`, disposition table). ADRs 0035, 0036, 0044 Part B, 0045, 0057 §13, 0067, 0068, 0069 remain
+Proposed. Certification here is repository, CI and local evidence, never production evidence. **Admin therefore claims no
+production readiness for any 🟡 DEV-ONLY capability**; at most, "mock-complete" and, later, "verified against a local
+simulation Core".
+
+### 11.11 Unresolved contract ambiguities (F0)
+
+1. Whether an owner bearer may read `GET /payment/payments/:id` (the `ServiceOrUserGuard` user path appears payer-scoped):
+   **unverified** (CF-66).
+2. Which human actors `GET /billing/organizations/:organizationId/restrictions` admits beyond the Platform owner and the
+   Organization actor: decided per request inside the service; not enumerated.
+3. Admin's existing T2 uses (`platform.create`, `organization.create`) are modelled on the same gateway as T1; the transport split
+   is a design item (roadmap F1), not a contract ambiguity in Core.
+4. The source-derived inventory and the original 208-route appendix: same count, identity unproven.
+5. Whether the production Auth image serves every Auth route listed here: unknown (documented image drift; production not
+   accessed).
+6. Contract-register route labels (`docs/architecture/core-v2-d-a2-contract-register.md` §4) differ from merged routes in places
+   (for example BIL-02 `POST /billing/admin/products` vs the merged `POST /billing/admin/platforms/:platformId/products`;
+   BIL-32's proposed reconciliation-case path vs the merged `/billing/admin/late-settlements/:id/application`). **The merged source
+   is authoritative**; §11.5 uses it.
