@@ -337,6 +337,22 @@ priorities):**
 
 No financial page may present simulation data as real, and a production build keeps every 🟡 DEV-ONLY gateway unavailable.
 
+## F1: Financial Authorization Foundation (design reviewed 2026-10-30; F1-S0 and F1-S1 authorized)
+
+Design: [`design/f1-financial-authorization.md`](design/f1-financial-authorization.md), reviewed by the Owner with safety
+corrections (its §0). **Authorized:** F1-S0 and F1-S1 only. **Not authorized:** F1-S2 to F1-S7 (authority rules, receipt
+contract types, demo receipt mock, coordinator, UI, contract fixtures).
+
+- **F1-S0 (documentation only; awaiting review):** dated errata E-1 to E-5 to the F0 record in
+  [`CORE-INTEGRATION.md` §11.12](CORE-INTEGRATION.md#1112-errata-f1-s0-2026-10-30) (receipt issuance and Audit legal holds take
+  **body** `stepUpToken`; Organization, Release and Billing assistance take the header; a receipt may stay in memory for one
+  intent; issuance, consumption and completion are separate outcomes; uncertain outcomes on routes without `Idempotency-Key`
+  stay blocked); open Core follow-ups **CF-74 to CF-76**; the design stored under `docs/design/`.
+- **F1-S1 (separate PR):** a headless, typed registry of Core's step-up purposes, their transports, factors and delivery, and
+  branded proof types, additive to `StepUpGateway`; no runtime behaviour change.
+
+Every receipt-consuming route stays refused in production; nothing here is production availability. D-A4 stays open.
+
 ## P9-S4e: change the password, mock-first (implemented 2026-10-25)
 
 **Status: implemented, awaiting review.** Design: [`design/p9-s4-account-security.md`](design/p9-s4-account-security.md)
