@@ -17,7 +17,7 @@
   border-radius: var(--nw-radius-md);
   background: transparent;
   color: var(--nw-text-primary);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--nw-admin-text-scale, 1));
   cursor: pointer;
 
   &:hover,
@@ -45,7 +45,7 @@
     border: 1px solid var(--nw-border-default);
     background-color: var(--nw-surface-raised);
     color: var(--nw-text-label);
-    font-size: 0.75rem;
+    font-size: calc(0.75rem * var(--nw-admin-text-scale, 1));
     font-weight: var(--nw-font-weight-medium);
 
     &:hover,

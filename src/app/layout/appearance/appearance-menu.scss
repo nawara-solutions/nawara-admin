@@ -61,7 +61,7 @@
 }
 
 .appearance-menu__title {
-  font-size: var(--nw-text-size-sm);
+  font-size: calc(var(--nw-text-size-sm) * var(--nw-admin-text-scale, 1));
   font-weight: var(--nw-font-weight-semibold);
 }
 

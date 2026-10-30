@@ -32,36 +32,67 @@
   transform: scaleX(-1);
 }
 
+// The approved botanical artwork, layered for depth (refinement 2026-10-30): a soft accent glow behind the flower and
+// the full illustration anchored to the bottom end with a faint accent-tinted shadow. Both follow the theme and the
+// accent palette (tokens); the text column stays clear.
+.auth-brand-panel__glow {
+  position: absolute;
+  inset-block-end: -12%;
+  right: -14%;
+  inline-size: 78%;
+  aspect-ratio: 1;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--nw-color-primary) var(--nw-auth-panel-glow-strength), transparent),
+    transparent
+  );
+}
+
 // Full panel height, anchored to the bottom end; the artwork follows the theme and the accent palette (token).
 .auth-brand-panel__botanical {
   position: absolute;
   inset: 0;
   background: var(--nw-illustration-botanical) no-repeat right bottom / auto 100%;
   opacity: var(--nw-botanical-opacity);
+  filter: drop-shadow(
+    0 1.5rem 2.5rem color-mix(in oklab, var(--nw-color-primary) 16%, transparent)
+  );
 }
 
 .auth-brand-panel__logo {
-  // The floral-R logo with its "SOLUTIONS" line, as wide as the earlier panel logo (185 px, its flourish). Set here
+  // The floral-R wordmark alone (owner refinement 2026-10-30: no "SOLUTIONS" line), on the pages' text scale. Set here
   // only, so other logos (sidebar, phone header) keep theirs.
-  --nw-brand-mark-size: 3.42rem;
+  --nw-brand-mark-size: calc(3.42rem * var(--nw-admin-text-scale, 1));
 
   align-self: flex-start;
 }
 
 .auth-brand-panel__intro {
   display: grid;
-  gap: var(--nw-space-3);
-  max-inline-size: 22.75rem;
-  margin-block-end: 16vh;
+  max-inline-size: 24rem;
+  margin-block-end: 14vh;
 }
 
+// The product label: small tracked capitals behind a short accent rule, in the accent's brand text colour.
 .auth-brand-panel__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-block-end: 1.125rem;
   color: var(--nw-text-brand);
   font-family: var(--nw-font-mono);
-  font-size: 0.6875rem;
+  font-size: calc(0.6875rem * var(--nw-admin-text-scale, 1));
   font-weight: var(--nw-font-weight-medium);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
+
+  &::before {
+    content: '';
+    flex-shrink: 0;
+    inline-size: 1.75rem;
+    block-size: 1px;
+    background-color: var(--nw-logo-line);
+  }
 
   &:lang(ar) {
     font-family: inherit;
@@ -72,28 +103,51 @@
 
 // Each locale sets its own deliberate line breaks in the translation ("\n"; owner layout 2026-10-06: "Smart /
 // solutions / powered by AI." in English); `pre-line` honours them and still wraps a line that is too long. Elsewhere
-// (the phone footer) the same text collapses to one line.
+// (the phone footer) the same text collapses to one line. A display size with tight leading and tracking.
 .auth-brand-panel__tagline {
-  font-size: 1.9375rem;
-  white-space: pre-line;
+  color: var(--nw-text-primary);
+  font-size: calc(clamp(2.125rem, 1.25rem + 1.25vw, 2.75rem) * var(--nw-admin-text-scale, 1));
   font-weight: var(--nw-font-weight-medium);
-  line-height: 1.18;
-  letter-spacing: -0.02em;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  white-space: pre-line;
   text-wrap: balance;
 
   &:lang(ar) {
+    line-height: 1.3;
     letter-spacing: 0;
   }
 }
 
 .auth-brand-panel__line {
+  max-inline-size: 28ch;
+  margin-block-start: 1.125rem;
   color: var(--nw-text-label);
-  font-size: 0.875rem;
+  font-size: calc(0.9375rem * var(--nw-admin-text-scale, 1));
+  line-height: 1.6;
 }
 
+// The footer: a short accent rule and quiet, slightly tracked small text, on the panel's bottom margin.
 .auth-brand-panel__copyright {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
   color: var(--nw-text-secondary);
-  font-size: 0.6875rem;
+  font-size: calc(0.71875rem * var(--nw-admin-text-scale, 1));
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+
+  &::before {
+    content: '';
+    flex-shrink: 0;
+    inline-size: 1rem;
+    block-size: 1px;
+    background-color: var(--nw-logo-line);
+  }
+
+  &:lang(ar) {
+    letter-spacing: 0;
+  }
 }
 
 @media (forced-colors: active) {

@@ -19,7 +19,7 @@
 .working-code__code {
   min-block-size: 3rem;
   font-family: var(--nw-font-mono);
-  font-size: 1.125rem;
+  font-size: calc(1.125rem * var(--nw-admin-text-scale, 1));
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.3em;
 }
@@ -53,12 +53,12 @@
 
 .working-code__again-question {
   color: var(--nw-text-label);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--nw-admin-text-scale, 1));
 }
 
 .working-code__note {
   color: var(--nw-text-secondary);
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--nw-admin-text-scale, 1));
   line-height: 1.5;
 }
 
@@ -67,7 +67,7 @@
   padding-block-start: var(--nw-space-3);
   border-block-start: 1px solid var(--nw-border-subtle);
   color: var(--nw-text-secondary);
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--nw-admin-text-scale, 1));
   line-height: 1.55;
 }
 
@@ -78,7 +78,7 @@
   justify-content: center;
   gap: var(--nw-space-1) var(--nw-space-2);
   color: var(--nw-text-secondary);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--nw-admin-text-scale, 1));
   text-align: center;
 }
 
@@ -94,7 +94,7 @@
   border-radius: var(--nw-radius-sm);
   background: transparent;
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--nw-admin-text-scale, 1));
   font-weight: var(--nw-font-weight-medium);
   cursor: pointer;
 }

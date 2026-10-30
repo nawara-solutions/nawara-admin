@@ -13,7 +13,9 @@
   flex-direction: column;
   align-items: center;
   direction: ltr;
-  color: var(--nw-logo-subtitle);
+  // "SOLUTIONS" follows the accent palette: the accent's brand text colour, held to 4.5:1 on every surface by
+  // check:contrast. The "nawara" lettering is artwork and never takes this colour.
+  color: var(--nw-text-brand);
   font-family: var(--nw-font-latin);
   font-size: var(--nw-brand-mark-size);
   line-height: 1;
@@ -53,7 +55,12 @@
 .nw-brand-mark__rule {
   flex: 1;
   block-size: max(1px, 0.0138em);
-  background-color: currentColor;
+  // The floral line colour of the accent palette (the same line as the floral R's stems), fading away from the word.
+  background: linear-gradient(to left, var(--nw-logo-line), transparent);
+
+  &:last-child {
+    background: linear-gradient(to right, var(--nw-logo-line), transparent);
+  }
 }
 
 .nw-brand-mark__solutions-text {
@@ -99,8 +106,8 @@
   flex-shrink: 0;
   inline-size: 1px;
   block-size: 0.5em;
-  background-color: currentColor;
-  opacity: 0.4;
+  background-color: var(--nw-logo-line);
+  opacity: 0.6;
 }
 
 // Forced colours: the lettering, rules and separator take the system text colour (the artwork is an image and stays).
@@ -111,6 +118,6 @@
 
   .nw-brand-mark__rule,
   .nw-brand-mark__separator {
-    background-color: CanvasText;
+    background: CanvasText;
   }
 }

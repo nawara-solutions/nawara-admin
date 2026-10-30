@@ -7,7 +7,7 @@
 
 .nw-form-field__label {
   color: var(--nw-text-label);
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--nw-admin-text-scale, 1));
   font-weight: var(--nw-font-weight-medium);
 }
 
@@ -32,7 +32,7 @@
 
 .nw-form-field__hint,
 .nw-form-field__error {
-  font-size: var(--nw-text-size-xs);
+  font-size: calc(var(--nw-text-size-xs) * var(--nw-admin-text-scale, 1));
   line-height: var(--nw-line-height-snug);
 }
 
@@ -56,7 +56,7 @@
   border-radius: var(--nw-radius-md);
   background-color: var(--nw-surface-raised);
   color: var(--nw-text-primary);
-  font-size: var(--nw-text-size-sm);
+  font-size: calc(var(--nw-text-size-sm) * var(--nw-admin-text-scale, 1));
   line-height: var(--nw-line-height-snug);
   transition:
     border-color var(--nw-duration-fast) var(--nw-ease-standard),
@@ -94,7 +94,7 @@
   min-block-size: 2.75rem;
   padding-block: 0;
   padding-inline: 0.875rem;
-  font-size: 0.875rem;
+  font-size: calc(0.875rem * var(--nw-admin-text-scale, 1));
 }
 
 textarea.nw-control {

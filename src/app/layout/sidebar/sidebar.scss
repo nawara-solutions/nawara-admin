@@ -41,9 +41,8 @@
 }
 
 .sidebar__logo {
-  // The approved full logo ("nawara" over "SOLUTIONS" between rules; owner choice 2026-10-30), scaled for the sidebar:
-  // 111 px wide, so it sits beside the drawer's close button down to a 320 px screen. Scoped here: the sign-in logos
-  // keep their accepted sizes.
+  // The floral-R wordmark alone (owner refinement 2026-10-30: no "SOLUTIONS" line), 111 px wide, so it sits beside
+  // the drawer's close button down to a 320 px screen. Scoped here: the sign-in logos keep their accepted sizes.
   --nw-brand-mark-size: 2.05rem;
 }
 
