@@ -14,6 +14,14 @@
   }
 </header>
 
+@if (showAssistance()) {
+  <nav class="billing__related" [attr.aria-label]="'billing.related.label' | transloco">
+    <a nw-link [routerLink]="assistancePath" data-assistance-link>
+      <nw-icon name="clipboard-list" size="sm" />{{ 'billing.related.assistance' | transloco }}
+    </a>
+  </nav>
+}
+
 @switch (view.status) {
   @case ('ready') {
     <p class="billing__note" role="note">

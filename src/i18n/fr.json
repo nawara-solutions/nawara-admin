@@ -226,6 +226,7 @@
     "licenses": "Licences et droits",
     "platformSubscriptions": "Abonnements de la plateforme",
     "billing": "Facturation et paiements",
+    "assistance": "Dossiers d’assistance",
     "audit": "Journal d’audit",
     "services": "Services et santé",
     "notifications": "Notifications",
@@ -262,6 +263,7 @@
       "licenses": "Licences et droits",
       "platformSubscriptions": "Abonnements de la plateforme",
       "billing": "Facturation et paiements",
+      "assistance": "Assistance",
       "audit": "Journal d’audit",
       "services": "Services et santé",
       "notifications": "Notifications",
@@ -2236,6 +2238,10 @@
       "title": "Facturation et paiements",
       "subtitle": "Suivis de paiement de vos organisations : les paiements échoués ou en attente d’action."
     },
+    "related": {
+      "label": "Pages liées",
+      "assistance": "Dossiers d’assistance des organisations"
+    },
     "provisional": "Vue provisoire : les services Payment et Billing de Nawara Core n’offrent pas encore de lecture au propriétaire. Ces suivis proviennent d’enregistrements de démonstration et ne comportent aucun montant.",
     "summary": "{{total}} suivis de paiement : {{failed}} échoués, {{awaiting}} en attente d’action.",
     "filter": {
@@ -2296,6 +2302,99 @@
       "errorDescription": "Réessayez dans un instant.",
       "retry": "Réessayer",
       "forbiddenDescription": "Les informations de facturation et de paiement ne sont visibles que par le propriétaire de l’entreprise."
+    }
+  },
+  "assistanceCases": {
+    "demoExplanation": "les dossiers d’assistance de cette page sont des enregistrements de démonstration fictifs",
+    "simulation": "Dossiers simulés — pas des données de Nawara Core. Nawara Core n’offre pas encore de lecture des demandes d’assistance au propriétaire ; ces dossiers fictifs suivent ses états et ses règles pour permettre la revue de l’annuaire.",
+    "readOnly": "Lecture seule : aucune décision, collecte, paiement, correction ou récupération ne peut être effectuée depuis cet annuaire.",
+    "header": {
+      "eyebrow": "Commercial",
+      "title": "Dossiers d’assistance",
+      "subtitle": "Paiements en espèces assistés des membres de vos organisations : où en est chaque demande, telle que Nawara Core l’enregistre."
+    },
+    "search": {
+      "label": "Référence du dossier",
+      "hint": "La référence complète d’un dossier (36 caractères).",
+      "invalid": "Saisissez une référence complète : 36 caractères, lettres a–f, chiffres et tirets.",
+      "submit": "Trouver le dossier",
+      "clear": "Effacer la recherche"
+    },
+    "filter": {
+      "platform": "Plateforme",
+      "allPlatforms": "Toutes les plateformes",
+      "state": "Statut",
+      "allStates": "Tous les statuts",
+      "indicator": "Attention",
+      "indicatorAll": "Tous les dossiers",
+      "overdue": "Règlement en retard",
+      "disputed": "Contestation ouverte",
+      "order": "Ordre",
+      "newest": "Consentement le plus récent d’abord",
+      "oldest": "Consentement le plus ancien d’abord"
+    },
+    "list": {
+      "title": "Dossiers",
+      "caption": "Référence, organisation, plateforme, statut, collecte, règlement et indicateurs de chaque dossier",
+      "count": "{{shown}} dossiers affichés",
+      "countMore": "Les {{shown}} premiers dossiers sont affichés ; d’autres sont disponibles",
+      "reference": "Référence",
+      "referenceFull": "Référence du dossier {{reference}}",
+      "organization": "Organisation",
+      "organizationRef": "Organisation",
+      "platform": "Plateforme",
+      "platformUnknown": "Plateforme",
+      "state": "Statut",
+      "collection": "Collecte",
+      "settlement": "Règlement",
+      "indicators": "Indicateurs",
+      "more": "Afficher plus de dossiers",
+      "moreFailed": "Les dossiers suivants n’ont pas pu être chargés. Réessayez.",
+      "noMatch": "Aucun dossier ne correspond à ces filtres.",
+      "clear": "Afficher tous les dossiers"
+    },
+    "state": {
+      "pending": "En attente",
+      "declined": "Refusée",
+      "cashCollected": "Espèces collectées",
+      "settled": "Réglée",
+      "returned": "Espèces restituées"
+    },
+    "channel": {
+      "open": "En cours",
+      "uncertain": "Incertain",
+      "settled": "Réglé",
+      "closed": "Clos sans paiement",
+      "none": "Aucun règlement"
+    },
+    "collection": {
+      "collected": "Montant total collecté",
+      "notCollected": "Non collecté",
+      "settleBy": "À régler avant le {{date}}"
+    },
+    "indicator": {
+      "overdue": "Règlement en retard",
+      "dispute": "Contestation ouverte",
+      "lateUnapplied": "Règlement tardif en attente de décision",
+      "lateApplied": "Règlement tardif appliqué",
+      "recoveryOpen": "Recouvrement ouvert",
+      "recovered": "Recouvré",
+      "none": "Aucun"
+    },
+    "states": {
+      "loading": "Chargement des dossiers d’assistance…",
+      "emptyTitle": "Aucun dossier d’assistance",
+      "emptyDescription": "Aucun membre de vos organisations n’a demandé de paiement assisté.",
+      "notFoundTitle": "Aucun dossier trouvé",
+      "notFoundDescription": "Aucun dossier avec cette référence n’existe dans ce périmètre.",
+      "unavailableTitle": "Les dossiers d’assistance sont indisponibles",
+      "unavailableDescription": "Le service de facturation n’a pas répondu. Rien n’a été lu ; réessayez dans un instant.",
+      "errorTitle": "Les dossiers d’assistance n’ont pas pu être chargés",
+      "errorDescription": "Réessayez dans un instant.",
+      "retry": "Réessayer",
+      "notInBuildTitle": "Non disponible dans cette version",
+      "notInBuildDescription": "Le service de facturation de Nawara Core n’offre pas encore de lecture des demandes d’assistance au propriétaire ; il n’y a donc rien à afficher.",
+      "forbiddenDescription": "Les dossiers d’assistance ne sont présentés qu’au propriétaire de l’entreprise."
     }
   },
   "activity": {

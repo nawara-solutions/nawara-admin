@@ -173,6 +173,13 @@ describe('Billing & payments page (P7-S3)', { timeout: 15_000 }, () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
+  it('links the owner to the Assistance case directory below this page (A4)', async () => {
+    const { element } = await render();
+    const link = element.querySelector('[data-assistance-link]');
+    expect(link?.getAttribute('href')).toBe('/billing/assistance');
+    expect(text(link)).toBe(t.related.assistance);
+  });
+
   it('says what is not available, with no payment operation and no amount anywhere', async () => {
     const { element } = await render();
     expect([...element.querySelectorAll('[data-unavailable] li')].map((li) => text(li))).toEqual([

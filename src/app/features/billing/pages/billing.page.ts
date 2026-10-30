@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { can } from '../../../core/access/capability-policy';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { organizationPath, platformPath } from '../../../core/context/scope-context';
 import { NwNumberPipe } from '../../../shared/format/format.pipes';
@@ -8,6 +9,7 @@ import { NwButton } from '../../../shared/ui/button/button';
 import { NwDataState } from '../../../shared/ui/data-state/data-state';
 import { NwControl, NwFormField } from '../../../shared/ui/form-field/form-field';
 import { NwIcon } from '../../../shared/ui/icon/icon';
+import { NwLink } from '../../../shared/ui/link/link';
 import { BillingFacade, ISSUE_FILTERS, IssueFilter } from '../application/billing.facade';
 import {
   FollowUpEntitlement,
@@ -59,6 +61,7 @@ const pick = (value: string): IssueFilter | null =>
     NwDataState,
     NwFormField,
     NwIcon,
+    NwLink,
     NwNumberPipe,
   ],
   templateUrl: './billing.page.html',
@@ -68,7 +71,13 @@ const pick = (value: string): IssueFilter | null =>
 })
 export class BillingPage {
   protected readonly facade = inject(BillingFacade);
-  protected readonly isDemo = inject(AuthSession).isDemo;
+  private readonly session = inject(AuthSession);
+  protected readonly isDemo = this.session.isDemo;
+  /** The Assistance case directory below this page (A4), offered to whoever may read it (the owner). */
+  protected readonly showAssistance = computed(() =>
+    can(this.session.actor(), 'company.assistance.view'),
+  );
+  protected readonly assistancePath = '/billing/assistance';
   protected readonly filters = ISSUE_FILTERS;
   protected readonly filterKeys = FILTER_KEYS;
   protected readonly kindKeys = KIND_KEYS;
