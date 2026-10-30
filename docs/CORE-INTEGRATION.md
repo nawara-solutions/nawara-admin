@@ -25,6 +25,8 @@
   legal holds take a **body** `stepUpToken`; a receipt may stay in memory for one intent; issuance, consumption and completion are
   separate outcomes; uncertain no-key outcomes stay blocked) are in [§11.12](#1112-errata-f1-s0-2026-10-30); open Core questions
   CF-74 to CF-76 are in §9. The F0 text is kept and marked.
+- **Assistance A3 (2026-10-30), same Core revision `0044b20`:** open Core question **CF-77** (no end-of-results contract in the
+  reconciliation-case list, BIL-33) is in §9.
 - **Precedence:** a service's OpenAPI (`GET /<service>/docs`) and Core ADRs win over this document. Report differences to Core.
 
 ---
@@ -1332,6 +1334,26 @@ Admin requirement: a stated rule. Until then Admin never resends a service-verif
                   existing behaviour) and reconciles by reading.
 Classification:   🔴 undefined (contract clarification).
 Recommended checkpoint: before the first HTTP adapter of these commands.
+
+CF-77 (Assistance A3, 2026-10-30) is an open Core question found while modelling the Assistance read contracts
+(`src/app/features/assistance/domain/assistance-read.model.ts`). Recording it is not an approved Core implementation request.
+
+CF-77  End of results in the reconciliation-case list (BIL-33)            OPEN (A3, 2026-10-30)
+Service:          billing-service
+Current behavior: (verified `0044b20`) `GET /billing/admin/reconciliation-cases?status=&type=&after=&limit=`
+                  (`billing-service/src/reconciliation/reconciliation.controller.ts:28-42`) answers `{ items }` only. The
+                  service selects `ORDER BY c.id LIMIT $limit` after the `after` id, THEN drops each row whose Platform the
+                  owner may not see (`platformVisible`, `reconciliation.service.ts:323-336`, `:470-472`). So a page can hold
+                  fewer than `limit` items, or none at all, while more cases follow; and when every row of a page is
+                  dropped the client has no last id to continue from. ADR-0056 §6 (`docs/adr/0056-core-architecture-and-api-conventions.md:106-110`)
+                  requires `{ items, nextCursor }` with `nextCursor: null` only at the end; Billing's own helper follows it
+                  (`billing-service/src/common/pagination.ts:5-13`); this route does not.
+Admin requirement: a continuation contract for this list: a `nextCursor` (or the last scanned id) that is `null` only when no
+                  further case exists, so a short or empty page is never read as the end. Until then Admin cannot infer
+                  completion from a page's length or emptiness, and a real list built on BIL-33 (late-settlement and
+                  recovery discovery, CF-68, CF-69) could silently omit cases.
+Classification:   🔴 undefined (contract clarification; the route is development and simulation only).
+Recommended checkpoint: before any Admin HTTP adapter that pages BIL-33 (Assistance; roadmap F8, F9).
 
 Residual risk recorded with P6-S3: block and unblock require no step-up (Core's deliberate choice for an emergency
 control), so a stolen owner session can block every operator or unblock one. Admin adds no verification Core does not ask
