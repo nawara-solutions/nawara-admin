@@ -178,3 +178,16 @@
   font-size: var(--nw-text-size-sm);
   list-style: disc;
 }
+
+.billing__related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nw-space-3);
+  font-size: var(--nw-text-size-sm);
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nw-space-1);
+  }
+}

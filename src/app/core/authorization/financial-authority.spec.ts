@@ -196,7 +196,8 @@ describe('attemptableFinancialOperations', () => {
 });
 
 describe('existing runtime capability policy', () => {
-  it('is unchanged: operators hold no capability, the owner the same 22', () => {
+  // Assistance A4 added one READ capability, `company.assistance.view` (the case directory): still no financial command.
+  it('is unchanged but for one read: operators hold no capability, the owner 23', () => {
     expect(capabilitiesOf(operator).size).toBe(0);
     expect([...capabilitiesOf(owner)].sort()).toEqual(
       [
@@ -205,6 +206,7 @@ describe('existing runtime capability policy', () => {
         'company.platforms.view',
         'company.operators.view',
         'company.commercial.view',
+        'company.assistance.view',
         'company.audit.view',
         'company.services.view',
         'company.releases.view',

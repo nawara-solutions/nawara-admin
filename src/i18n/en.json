@@ -226,6 +226,7 @@
     "licenses": "Licenses & entitlements",
     "platformSubscriptions": "Platform subscriptions",
     "billing": "Billing & payments",
+    "assistance": "Assistance cases",
     "audit": "Audit log",
     "services": "Services & health",
     "notifications": "Notifications",
@@ -262,6 +263,7 @@
       "licenses": "Licenses & entitlements",
       "platformSubscriptions": "Platform subscriptions",
       "billing": "Billing & payments",
+      "assistance": "Assistance",
       "audit": "Audit log",
       "services": "Services & health",
       "notifications": "Notifications",
@@ -2236,6 +2238,10 @@
       "title": "Billing & payments",
       "subtitle": "Payment follow-ups of your Organizations: which payments failed or await action."
     },
+    "related": {
+      "label": "Related pages",
+      "assistance": "Organization assistance cases"
+    },
     "provisional": "Provisional view: Nawara Core’s Payment and Billing services have no owner read yet. These follow-ups come from demo records and carry no amount.",
     "summary": "{{total}} payment follow-ups: {{failed}} failed, {{awaiting}} awaiting action.",
     "filter": {
@@ -2296,6 +2302,99 @@
       "errorDescription": "Try again in a moment.",
       "retry": "Try again",
       "forbiddenDescription": "Billing and payment information is shown to the Company owner only."
+    }
+  },
+  "assistanceCases": {
+    "demoExplanation": "the assistance cases on this page are fictional demo records",
+    "simulation": "Simulated cases — not Nawara Core data. Nawara Core has no owner read of assistance requests yet; these fictional cases follow its states and rules so the directory can be reviewed.",
+    "readOnly": "Read only: no decision, collection, payment, correction or recovery can be made from this directory.",
+    "header": {
+      "eyebrow": "Commercial",
+      "title": "Assistance cases",
+      "subtitle": "Assisted cash payments of your Organizations’ members: where each request stands, as Nawara Core records it."
+    },
+    "search": {
+      "label": "Case reference",
+      "hint": "The full reference of one case (36 characters).",
+      "invalid": "Enter a full case reference: 36 characters, letters a–f, digits and hyphens.",
+      "submit": "Find case",
+      "clear": "Clear search"
+    },
+    "filter": {
+      "platform": "Platform",
+      "allPlatforms": "All platforms",
+      "state": "Status",
+      "allStates": "All statuses",
+      "indicator": "Attention",
+      "indicatorAll": "All cases",
+      "overdue": "Overdue settlement",
+      "disputed": "Open dispute",
+      "order": "Order",
+      "newest": "Newest consent first",
+      "oldest": "Oldest consent first"
+    },
+    "list": {
+      "title": "Cases",
+      "caption": "Each case’s reference, Organization, Platform, status, collection, settlement and indicators",
+      "count": "Showing {{shown}} cases",
+      "countMore": "Showing the first {{shown}} cases; more are available",
+      "reference": "Reference",
+      "referenceFull": "Case reference {{reference}}",
+      "organization": "Organization",
+      "organizationRef": "Organization",
+      "platform": "Platform",
+      "platformUnknown": "Platform",
+      "state": "Status",
+      "collection": "Collection",
+      "settlement": "Settlement",
+      "indicators": "Indicators",
+      "more": "Show more cases",
+      "moreFailed": "More cases could not be loaded. Try again.",
+      "noMatch": "No case matches these filters.",
+      "clear": "Show all cases"
+    },
+    "state": {
+      "pending": "Pending",
+      "declined": "Declined",
+      "cashCollected": "Cash collected",
+      "settled": "Settled",
+      "returned": "Cash returned"
+    },
+    "channel": {
+      "open": "In progress",
+      "uncertain": "Uncertain",
+      "settled": "Settled",
+      "closed": "Closed without payment",
+      "none": "No settlement"
+    },
+    "collection": {
+      "collected": "Whole amount collected",
+      "notCollected": "Not collected",
+      "settleBy": "Settle by {{date}}"
+    },
+    "indicator": {
+      "overdue": "Settlement overdue",
+      "dispute": "Open dispute",
+      "lateUnapplied": "Late settlement awaiting decision",
+      "lateApplied": "Late settlement applied",
+      "recoveryOpen": "Recovery open",
+      "recovered": "Recovered",
+      "none": "None"
+    },
+    "states": {
+      "loading": "Loading assistance cases…",
+      "emptyTitle": "No assistance cases",
+      "emptyDescription": "No member of your Organizations has asked for an assisted payment.",
+      "notFoundTitle": "No case found",
+      "notFoundDescription": "No case with this reference exists in this scope.",
+      "unavailableTitle": "Assistance cases are unavailable",
+      "unavailableDescription": "The Billing service did not answer. Nothing was read; try again in a moment.",
+      "errorTitle": "Assistance cases could not be loaded",
+      "errorDescription": "Try again in a moment.",
+      "retry": "Try again",
+      "notInBuildTitle": "Not available in this build",
+      "notInBuildDescription": "Nawara Core’s Billing service does not offer an owner read of assistance requests yet, so there is nothing to show.",
+      "forbiddenDescription": "Assistance cases are shown to the Company owner only."
     }
   },
   "activity": {

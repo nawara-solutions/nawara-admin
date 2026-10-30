@@ -161,6 +161,9 @@ describe('AssistanceGateway contract (Assistance A2)', () => {
       settleBy: '2026-10-30T12:00:00.000Z',
       overdue: null,
       openDispute: false,
+      channel: 'open',
+      lateSettlement: null,
+      recovery: null,
     };
     class TypedAdapter extends AssistanceGateway {
       cases(

@@ -119,6 +119,9 @@ describe('MockAssistanceGateway (A3): the case directory', () => {
       settleBy: caseOf(8).request.collection!.settleBy,
       overdue: true,
       openDispute: true,
+      channel: 'closed',
+      lateSettlement: null,
+      recovery: null,
     });
     expect(page.items.find((s) => s.requestId === caseOf(1).request.id)).toMatchObject({
       state: 'pending',
@@ -176,6 +179,50 @@ describe('MockAssistanceGateway (A3): the case directory', () => {
     expect(await ids({ overdue: true })).toEqual(own((n) => [8, 10, 11].includes(n)));
     expect(await ids({ disputed: true })).toEqual(own((n) => [4, 8, 10].includes(n)));
     expect(await ids({ state: 'returned', overdue: true })).toEqual([]);
+  });
+
+  it('carries settlement, late-settlement and recovery indicators from the case records', async () => {
+    const { gateway } = setUp();
+    const rows = (await firstValueFrom(gateway.cases(COMPANY, {}, FIRST_ASSISTANCE_PAGE))).items;
+    const row = (n: number) => rows.find((s) => s.requestId === caseOf(n).request.id)!;
+    expect([row(1).channel, row(6).channel, row(5).channel]).toEqual([
+      null,
+      'uncertain',
+      'settled',
+    ]);
+    expect([row(11).lateSettlement, row(12).lateSettlement, row(4).lateSettlement]).toEqual([
+      'unapplied',
+      'applied',
+      null,
+    ]);
+    expect([row(13).recovery, row(14).recovery, row(8).recovery]).toEqual([
+      'open',
+      'recovered',
+      null,
+    ]);
+  });
+
+  it('finds one case by its exact reference, in scope only; orders both ways', async () => {
+    const { gateway } = setUp();
+    const find = async (context: AssistanceReadContext, requestId: string) =>
+      (
+        await firstValueFrom(gateway.cases(context, { requestId }, FIRST_ASSISTANCE_PAGE))
+      ).items.map((s) => s.requestId);
+    const id = caseOf(9).request.id;
+    expect(await find(COMPANY, id.toUpperCase())).toEqual([id]);
+    expect(await find(DRIVE, id)).toEqual([]);
+    expect(await find(COMPANY, FOREIGN[0]!.request.id)).toEqual([]);
+    expect(
+      (await error(gateway.cases(COMPANY, { requestId: id.slice(0, 8) }, FIRST_ASSISTANCE_PAGE)))
+        .kind,
+    ).toBe('validation');
+    const newest = (await firstValueFrom(gateway.cases(COMPANY, {}, FIRST_ASSISTANCE_PAGE))).items;
+    const oldest = (
+      await firstValueFrom(
+        gateway.cases(COMPANY, { order: 'consentOldest' }, FIRST_ASSISTANCE_PAGE),
+      )
+    ).items;
+    expect(oldest.map((s) => s.requestId)).toEqual(newest.map((s) => s.requestId).reverse());
   });
 
   it('refuses a state Core does not have (from untrusted input)', async () => {

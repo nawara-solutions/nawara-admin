@@ -27,6 +27,7 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
       'account.password.change',
       'account.secret_key.rotate',
       'account.security.view',
+      'company.assistance.view',
       'company.audit.view',
       'company.commercial.view',
       'company.operators.view',
@@ -56,6 +57,8 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
     expect(can(operator, 'company.overview.view')).toBe(false);
     expect(can(operator, 'operator.create')).toBe(false);
     expect(can(operator, 'company.commercial.view')).toBe(false);
+    // Assistance cases (A4) are the Company owner's: Core refuses operators on every assistance owner route.
+    expect(can(operator, 'company.assistance.view')).toBe(false);
     // The activity browser (P8-S1) is the owner's: operators have no audit read in Core.
     expect(can(operator, 'company.audit.view')).toBe(false);
     expect(can(operator, 'company.services.view')).toBe(false);

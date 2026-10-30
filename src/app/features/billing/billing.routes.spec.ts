@@ -15,6 +15,8 @@ import { APP_ENVIRONMENT, AppEnvironment } from '../../core/config/app-environme
 import { companyId, platformId } from '../../core/context/scope.model';
 import { ADAPTER_UNAVAILABLE } from '../../core/errors/app-error';
 import { loadShellRoutes } from '../../layout/shell.routes';
+import { AssistanceDirectoryFacade } from '../assistance/application/assistance-directory.facade';
+import { UnavailableAssistanceGateway } from '../assistance/data-access/assistance.gateway';
 import { BillingFacade } from './application/billing.facade';
 import { UnavailableBillingGateway } from './data-access/billing.gateway';
 import { loadBillingRoutes } from './billing.routes';
@@ -80,5 +82,31 @@ describe('billing routes (P7-S3)', () => {
         code: ADAPTER_UNAVAILABLE,
       },
     );
+  });
+
+  it('guards /billing/assistance with its own owner-only capability (A4), below Billing in the breadcrumbs', async () => {
+    const routes = await loadBillingRoutes(PRODUCTION);
+    const assistance = routes.find((r) => r.path === 'assistance');
+    if (!assistance) throw new Error('no assistance route');
+    expect(assistance.title).toBe('titles.assistance');
+    expect(assistance.data).toEqual({
+      breadcrumb: 'shell.breadcrumb.assistance',
+      breadcrumbParent: { key: 'shell.breadcrumb.billing', link: '/billing' },
+    });
+    expect(guardResult(assistance, owner)).toBe(true);
+    TestBed.resetTestingModule();
+    expect(guardResult(assistance, operator)).toBe('/forbidden');
+  });
+
+  it('binds only the unavailable Assistance adapter in a production build (no demo case, no request)', async () => {
+    const routes = await loadBillingRoutes(PRODUCTION);
+    const providers = (routes.find((r) => r.path === 'assistance')?.providers ??
+      []) as (Provider & {
+      useClass?: unknown;
+    })[];
+    expect(providers.map((p) => (typeof p === 'function' ? p : p.useClass))).toEqual([
+      UnavailableAssistanceGateway,
+      AssistanceDirectoryFacade,
+    ]);
   });
 });

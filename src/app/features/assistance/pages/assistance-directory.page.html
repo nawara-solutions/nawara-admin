@@ -1,0 +1,345 @@
+@let view = facade.view();
+@let query = facade.query();
+<header class="assistance__header">
+  <span class="assistance__mark" aria-hidden="true"><nw-icon name="credit-card" size="lg" /></span>
+  <div class="assistance__titles">
+    <p class="assistance__eyebrow">{{ 'assistanceCases.header.eyebrow' | transloco }}</p>
+    <h1 class="assistance__title">{{ 'assistanceCases.header.title' | transloco }}</h1>
+    <p class="assistance__muted">{{ 'assistanceCases.header.subtitle' | transloco }}</p>
+  </div>
+  @if (isDemo()) {
+    <span class="assistance__demo" data-demo>
+      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+      <span class="nw-visually-hidden">: {{ 'assistanceCases.demoExplanation' | transloco }}</span>
+    </span>
+  }
+</header>
+
+@if (isDemo()) {
+  <p class="assistance__note assistance__note--demo" role="note" data-simulation>
+    <nw-icon name="flask-conical" size="sm" />
+    <span>{{ 'assistanceCases.simulation' | transloco }}</span>
+  </p>
+}
+
+@if (view.status !== 'forbidden' && view.status !== 'notInBuild') {
+  <section class="assistance__card" aria-labelledby="assistance-cases">
+    <h2 id="assistance-cases" class="assistance__card-title">
+      {{ 'assistanceCases.list.title' | transloco }}
+    </h2>
+
+    <form class="assistance__search" role="search" (submit)="search($event)" data-search>
+      <nw-form-field
+        class="assistance__search-field"
+        [label]="'assistanceCases.search.label' | transloco"
+        [hint]="'assistanceCases.search.hint' | transloco"
+        [error]="referenceInvalid() ? ('assistanceCases.search.invalid' | transloco) : undefined"
+      >
+        <input
+          nwControl
+          type="search"
+          autocomplete="off"
+          spellcheck="false"
+          dir="ltr"
+          [value]="reference()"
+          (input)="onReferenceInput($event)"
+        />
+      </nw-form-field>
+      <button nw-button variant="secondary" type="submit">
+        <nw-icon name="search" size="sm" />{{ 'assistanceCases.search.submit' | transloco }}
+      </button>
+      @if (query.reference !== null) {
+        <button nw-button variant="secondary" type="button" (click)="clearSearch()">
+          {{ 'assistanceCases.search.clear' | transloco }}
+        </button>
+      }
+    </form>
+
+    <div class="assistance__toolbar" data-filters>
+      <nw-form-field
+        class="assistance__select"
+        [label]="'assistanceCases.filter.platform' | transloco"
+      >
+        <select nwControl aria-controls="assistance-table" (change)="onPlatform($event)">
+          <option value="" [selected]="query.platform === null">
+            {{ 'assistanceCases.filter.allPlatforms' | transloco }}
+          </option>
+          @for (platform of facade.platforms(); track platform.id) {
+            <option [value]="platform.id" [selected]="platform.id === query.platform">
+              {{ platform.name }}
+            </option>
+          }
+        </select>
+      </nw-form-field>
+      <nw-form-field
+        class="assistance__select"
+        [label]="'assistanceCases.filter.state' | transloco"
+      >
+        <select nwControl aria-controls="assistance-table" (change)="onState($event)">
+          <option value="" [selected]="query.state === null">
+            {{ 'assistanceCases.filter.allStates' | transloco }}
+          </option>
+          @for (state of states; track state) {
+            <option [value]="state" [selected]="state === query.state">
+              {{ stateKeys[state] | transloco }}
+            </option>
+          }
+        </select>
+      </nw-form-field>
+      <nw-form-field
+        class="assistance__select"
+        [label]="'assistanceCases.filter.indicator' | transloco"
+      >
+        <select nwControl aria-controls="assistance-table" (change)="onIndicator($event)">
+          @for (indicator of indicators; track indicator) {
+            <option [value]="indicator" [selected]="indicator === query.indicator">
+              {{ indicatorKeys[indicator] | transloco }}
+            </option>
+          }
+        </select>
+      </nw-form-field>
+      <nw-form-field
+        class="assistance__select"
+        [label]="'assistanceCases.filter.order' | transloco"
+      >
+        <select nwControl aria-controls="assistance-table" (change)="onOrder($event)">
+          @for (order of orders; track order) {
+            <option [value]="order" [selected]="order === query.order">
+              {{ orderKeys[order] | transloco }}
+            </option>
+          }
+        </select>
+      </nw-form-field>
+    </div>
+
+    @switch (view.status) {
+      @case ('ready') {
+        <p class="assistance__muted" role="status" aria-live="polite" data-count>
+          {{
+            (view.more ? 'assistanceCases.list.countMore' : 'assistanceCases.list.count')
+              | transloco: { shown: (view.rows.length | nwNumber) }
+          }}
+        </p>
+        <div class="assistance__table-box" tabindex="0" aria-labelledby="assistance-cases">
+          <table id="assistance-table" class="assistance__table">
+            <caption class="nw-visually-hidden">
+              {{
+                'assistanceCases.list.caption' | transloco
+              }}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'assistanceCases.list.reference' | transloco }}</th>
+                <th scope="col">{{ 'assistanceCases.list.organization' | transloco }}</th>
+                <th scope="col">{{ 'assistanceCases.list.platform' | transloco }}</th>
+                <th scope="col">{{ 'assistanceCases.list.state' | transloco }}</th>
+                <th scope="col">{{ 'assistanceCases.list.collection' | transloco }}</th>
+                <th scope="col">{{ 'assistanceCases.list.settlement' | transloco }}</th>
+                <th scope="col">{{ 'assistanceCases.list.indicators' | transloco }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of view.rows; track row.requestId) {
+                <tr [attr.data-request]="row.requestId" [attr.data-state]="row.state">
+                  <th scope="row">
+                    <code class="assistance__ref" dir="ltr" [attr.title]="row.requestId">
+                      <span aria-hidden="true">…{{ shortRef(row.requestId) }}</span>
+                      <span class="nw-visually-hidden">{{
+                        'assistanceCases.list.referenceFull'
+                          | transloco: { reference: row.requestId }
+                      }}</span>
+                    </code>
+                  </th>
+                  <td>
+                    <a [routerLink]="organizationLink(row)" data-organization>
+                      {{ 'assistanceCases.list.organizationRef' | transloco }}
+                      <code dir="ltr">…{{ shortRef(row.organizationId) }}</code>
+                    </a>
+                  </td>
+                  <td>
+                    @let name = platformName()(row.platformId);
+                    <a [routerLink]="platformLink(row.platformId)">
+                      @if (name !== null) {
+                        <bdi>{{ name }}</bdi>
+                      } @else {
+                        {{ 'assistanceCases.list.platformUnknown' | transloco }}
+                      }
+                    </a>
+                  </td>
+                  <td>
+                    <nw-status-badge [tone]="stateTones[row.state]">{{
+                      stateKeys[row.state] | transloco
+                    }}</nw-status-badge>
+                  </td>
+                  <td data-collection>
+                    @if (row.settleBy !== null) {
+                      <span>{{ 'assistanceCases.collection.collected' | transloco }}</span>
+                      @if (row.state === 'cash_collected') {
+                        <span class="assistance__secondary">{{
+                          'assistanceCases.collection.settleBy'
+                            | transloco: { date: (row.settleBy | nwDate: 'date-time') }
+                        }}</span>
+                      }
+                    } @else {
+                      <span class="assistance__secondary">{{
+                        'assistanceCases.collection.notCollected' | transloco
+                      }}</span>
+                    }
+                  </td>
+                  <td data-settlement>
+                    @if (row.channel !== null) {
+                      {{ channelKeys[row.channel] | transloco }}
+                    } @else {
+                      <span class="assistance__secondary">{{
+                        'assistanceCases.channel.none' | transloco
+                      }}</span>
+                    }
+                  </td>
+                  <td>
+                    <ul class="assistance__indicators" role="list" data-indicators>
+                      @if (row.overdue) {
+                        <li>
+                          <nw-status-badge tone="warning">{{
+                            'assistanceCases.indicator.overdue' | transloco
+                          }}</nw-status-badge>
+                        </li>
+                      }
+                      @if (row.openDispute) {
+                        <li>
+                          <nw-status-badge tone="danger">{{
+                            'assistanceCases.indicator.dispute' | transloco
+                          }}</nw-status-badge>
+                        </li>
+                      }
+                      @if (row.lateSettlement !== null) {
+                        <li>
+                          <nw-status-badge [tone]="lateTones[row.lateSettlement]">{{
+                            lateKeys[row.lateSettlement] | transloco
+                          }}</nw-status-badge>
+                        </li>
+                      }
+                      @if (row.recovery !== null) {
+                        <li>
+                          <nw-status-badge [tone]="recoveryTones[row.recovery]">{{
+                            recoveryKeys[row.recovery] | transloco
+                          }}</nw-status-badge>
+                        </li>
+                      }
+                    </ul>
+                    @if (
+                      !row.overdue &&
+                      !row.openDispute &&
+                      row.lateSettlement === null &&
+                      row.recovery === null
+                    ) {
+                      <span class="assistance__secondary">{{
+                        'assistanceCases.indicator.none' | transloco
+                      }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        @if (view.more || view.moreFailed) {
+          <div class="assistance__more">
+            @if (view.moreFailed) {
+              <p class="assistance__muted" role="alert">
+                {{ 'assistanceCases.list.moreFailed' | transloco }}
+              </p>
+            }
+            <button
+              nw-button
+              variant="secondary"
+              type="button"
+              data-more
+              [attr.aria-busy]="view.loadingMore || null"
+              [disabled]="view.loadingMore"
+              (click)="facade.loadMore()"
+            >
+              {{ 'assistanceCases.list.more' | transloco }}
+            </button>
+          </div>
+        }
+      }
+      @case ('noMatch') {
+        <div class="assistance__no-match" role="status" data-no-match>
+          <p>{{ 'assistanceCases.list.noMatch' | transloco }}</p>
+          <button nw-button variant="secondary" size="sm" type="button" (click)="clearAll()">
+            {{ 'assistanceCases.list.clear' | transloco }}
+          </button>
+        </div>
+      }
+      @case ('notFound') {
+        <nw-data-state
+          state="empty"
+          [title]="'assistanceCases.states.notFoundTitle' | transloco"
+          [description]="'assistanceCases.states.notFoundDescription' | transloco"
+        >
+          <div nwDataStateActions>
+            <button nw-button variant="secondary" type="button" (click)="clearAll()">
+              {{ 'assistanceCases.list.clear' | transloco }}
+            </button>
+          </div>
+        </nw-data-state>
+      }
+      @case ('empty') {
+        <nw-data-state
+          state="empty"
+          [title]="'assistanceCases.states.emptyTitle' | transloco"
+          [description]="'assistanceCases.states.emptyDescription' | transloco"
+        />
+      }
+      @case ('unavailable') {
+        <nw-data-state
+          state="error"
+          [title]="'assistanceCases.states.unavailableTitle' | transloco"
+          [description]="'assistanceCases.states.unavailableDescription' | transloco"
+        >
+          <div nwDataStateActions>
+            <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+              <nw-icon name="refresh-cw" size="sm" />{{
+                'assistanceCases.states.retry' | transloco
+              }}
+            </button>
+          </div>
+        </nw-data-state>
+      }
+      @case ('error') {
+        <nw-data-state
+          state="error"
+          [title]="'assistanceCases.states.errorTitle' | transloco"
+          [description]="'assistanceCases.states.errorDescription' | transloco"
+        >
+          <div nwDataStateActions>
+            <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+              <nw-icon name="refresh-cw" size="sm" />{{
+                'assistanceCases.states.retry' | transloco
+              }}
+            </button>
+          </div>
+        </nw-data-state>
+      }
+      @default {
+        <nw-data-state state="loading" [title]="'assistanceCases.states.loading' | transloco" />
+      }
+    }
+    <p class="assistance__hint">
+      <nw-icon name="info" size="sm" />
+      <span>{{ 'assistanceCases.readOnly' | transloco }}</span>
+    </p>
+  </section>
+} @else if (view.status === 'notInBuild') {
+  <nw-data-state
+    state="empty"
+    [title]="'assistanceCases.states.notInBuildTitle' | transloco"
+    [description]="'assistanceCases.states.notInBuildDescription' | transloco"
+  />
+} @else {
+  <nw-data-state
+    state="empty"
+    [title]="'shell.pages.forbidden.title' | transloco"
+    [description]="'assistanceCases.states.forbiddenDescription' | transloco"
+  />
+}

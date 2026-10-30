@@ -55,6 +55,12 @@ export type Capability =
    */
   | 'company.commercial.view'
   /**
+   * The Company's Organization Assistance cases (`/billing/assistance`, Assistance A4): read only. Core's assistance owner
+   * routes are the Company owner's (`RefundOwnerGuard`; operators get `403 operation_not_permitted`), and no owner read of
+   * the requests exists yet (CF-70), so a demo build shows simulated cases and every other build none.
+   */
+  | 'company.assistance.view'
+  /**
    * A Platform's commercial facts and policies (subscriptions, Personal Premium, payments, assisted payments): the owner.
    * No commercial read authority is confirmed for operators (Billing/Payment staff routes are Core V2 A10/A11).
    */
@@ -118,6 +124,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.platforms.view',
   'company.operators.view',
   'company.commercial.view',
+  'company.assistance.view',
   'company.audit.view',
   'company.services.view',
   'company.releases.view',

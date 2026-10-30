@@ -121,7 +121,8 @@ const byNewest = (a: string, b: string): number => b.localeCompare(a);
  *
  * - The Company owner only: no session `401`, anyone else `403` (an operator included).
  * - Another Company, a Platform outside the Company, and a record of another Company or Platform: the collapsed `404`.
- * - A filter that would widen a Platform scope, an unknown state, a limit outside 1–200 or an unknown cursor: `400`.
+ * - A filter that would widen a Platform scope, an unknown state or order, a malformed case reference, a limit outside 1–200
+ *   or an unknown cursor: `400`. A well-formed reference of no visible case is an empty page (never a disclosure).
  * - Read only: it never changes a case and never moves money.
  */
 export class MockAssistanceGateway extends AssistanceGateway {
@@ -139,9 +140,17 @@ export class MockAssistanceGateway extends AssistanceGateway {
     return this.read(context, (cases, now) => {
       if (!filterInContext(context, filter)) return INVALID;
       if (filter.state !== undefined && !isAssistanceRequestState(filter.state)) return INVALID;
+      const requestId =
+        filter.requestId === undefined
+          ? undefined
+          : selectionId({ kind: 'case', requestId: filter.requestId });
+      if (requestId === null) return INVALID;
+      const newest = filter.order === undefined || filter.order === 'consentNewest';
+      if (!newest && filter.order !== 'consentOldest') return INVALID;
       const rows = cases
         .filter(
           (c) =>
+            (requestId === undefined || c.request.id === requestId) &&
             (filter.state === undefined || c.request.state === filter.state) &&
             (filter.platformId === undefined || c.request.platformId === filter.platformId) &&
             (filter.organizationId === undefined ||
@@ -152,7 +161,7 @@ export class MockAssistanceGateway extends AssistanceGateway {
         )
         .sort(
           (a, b) =>
-            byNewest(a.request.consentAt, b.request.consentAt) ||
+            (newest ? 1 : -1) * byNewest(a.request.consentAt, b.request.consentAt) ||
             a.request.id.localeCompare(b.request.id),
         )
         .map((c) => summaryOf(c, now));
@@ -341,6 +350,13 @@ function summaryOf(c: DemoAssistanceCase, now: number): AssistanceCaseSummary {
     settleBy: r.collection?.settleBy ?? null,
     overdue: overdue(c, now),
     openDispute: c.disputes.some((d) => d.state === 'open'),
+    channel: c.channel?.state ?? null,
+    lateSettlement: c.lateSettlements.some((l) => !l.applied)
+      ? 'unapplied'
+      : c.lateSettlements.length > 0
+        ? 'applied'
+        : null,
+    recovery: c.recovery?.state ?? null,
   };
 }
 

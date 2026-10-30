@@ -13,6 +13,7 @@ import {
   RecoveryObligationState,
   RecoverySurplus,
   SettlementChannel,
+  SettlementChannelState,
 } from './assistance.model';
 
 /**
@@ -53,14 +54,21 @@ export interface AssistancePage<T> {
   readonly next: string | null;
 }
 
+/** The directory's orders, by the beneficiary's consent time (ties by request id, so every order is total and stable). */
+export type AssistanceCaseOrder = 'consentNewest' | 'consentOldest';
+
 /** Case directory filters. Absent = no filter. `platformId` must match a Platform-scoped context (`assistance-read-context.ts`). */
 export interface AssistanceCaseFilter {
+  /** One case by its reference (the request's canonical UUID): an exact match, never a partial search. */
+  readonly requestId?: string;
   readonly state?: AssistanceRequestState;
   readonly platformId?: PlatformId;
   readonly organizationId?: OrganizationId;
   /** Core-derived (T1 / T2), never computed by Admin. */
   readonly overdue?: boolean;
   readonly disputed?: boolean;
+  /** Default `consentNewest`. */
+  readonly order?: AssistanceCaseOrder;
 }
 
 export type LateSettlementStatus = 'applied' | 'unapplied';
@@ -99,6 +107,12 @@ export interface AssistanceCaseSummary {
   /** Core-derived; `null` when the source does not state it (never inferred from `settleBy` and a clock). */
   readonly overdue: boolean | null;
   readonly openDispute: boolean;
+  /** The settlement channel's state, `null` when the request has none (pending or declined). */
+  readonly channel: SettlementChannelState | null;
+  /** `unapplied` when a recorded late settlement awaits the owner's decision, `applied` when one was applied, else `null`. */
+  readonly lateSettlement: LateSettlementStatus | null;
+  /** The recovery obligation's state, `null` when there is none. */
+  readonly recovery: RecoveryObligationState | null;
 }
 
 /** One case: the request and every record attached to it. */
