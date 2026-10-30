@@ -2,6 +2,11 @@
 
 // One column with a compact header below `desktop`; from `desktop` a 44/56 split with the brand panel at inline start.
 :host {
+  // The sign-in pages set their text 15% smaller than the workspace (owner refinement 2026-10-30): every font size on
+  // these pages, and in the shared controls they use (buttons, fields, alerts, the framed language and appearance
+  // triggers), is multiplied by this scale; elsewhere it is unset and the scale is 1.
+  --nw-admin-text-scale: 0.85;
+
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   min-block-size: 100dvh;
@@ -59,7 +64,7 @@
 }
 
 .auth-frame__header-logo {
-  --nw-brand-mark-size: 1.6875rem;
+  --nw-brand-mark-size: calc(1.6875rem * var(--nw-admin-text-scale, 1));
 
   min-inline-size: 0;
 
@@ -113,13 +118,19 @@
 
 .auth-frame__footer-tagline {
   color: var(--nw-text-label);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--nw-admin-text-scale, 1));
   font-weight: var(--nw-font-weight-medium);
 }
 
 .auth-frame__footer-copyright {
   color: var(--nw-text-secondary);
-  font-size: 0.71875rem;
+  font-size: calc(0.71875rem * var(--nw-admin-text-scale, 1));
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+
+  &:lang(ar) {
+    letter-spacing: 0;
+  }
 }
 
 @media (forced-colors: active) {

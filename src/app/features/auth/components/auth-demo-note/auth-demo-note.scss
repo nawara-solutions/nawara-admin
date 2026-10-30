@@ -9,7 +9,7 @@
   border: 1px dashed var(--nw-border-default);
   border-radius: 0.75rem;
   color: var(--nw-text-secondary);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--nw-admin-text-scale, 1));
 }
 
 .auth-demo-note__title {

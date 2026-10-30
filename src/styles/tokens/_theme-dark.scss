@@ -49,8 +49,6 @@
   // Logo colours (--nw-logo-*) and botanical artwork (--nw-illustration-botanical, -corner) of coral, the default palette;
   // the other palettes override them (tokens/_accents.scss, generated values in tokens/_brand-artwork.scss)
   @include brand-artwork.coral-dark;
-  // The logo's "SOLUTIONS" line and its rules: the board's "SOFTWARE" line on its dark panel (sampled, docs/BRAND.md §0).
-  --nw-logo-subtitle: #ceccd6;
   --nw-sidebar-illustration-opacity: 0.45;
   --nw-sidebar-atmosphere: radial-gradient(
     20rem 26rem at 110% 100%,
@@ -117,7 +115,8 @@
 
   // Sign-in pages (features/auth)
   --nw-auth-panel-background: var(--nw-ref-ink-900);
-  --nw-botanical-opacity: 0.92;
+  --nw-botanical-opacity: 0.85;
+  --nw-auth-panel-glow-strength: 10%;
   --nw-shadow-auth-card: 0 0 0 1px var(--nw-ref-ink-700), 0 16px 40px rgb(0 0 0 / 35%);
 
   // Elevation: darker shadows plus a hairline highlight carried by borders

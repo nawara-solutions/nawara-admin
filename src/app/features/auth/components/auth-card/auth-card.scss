@@ -61,7 +61,7 @@
 }
 
 .auth-card__title {
-  font-size: 1.375rem;
+  font-size: calc(1.375rem * var(--nw-admin-text-scale, 1));
   font-weight: var(--nw-font-weight-semibold);
   line-height: 1.25;
   letter-spacing: -0.02em;
@@ -78,7 +78,7 @@
 
 .auth-card__subtitle {
   color: var(--nw-text-secondary);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--nw-admin-text-scale, 1));
 }
 
 @media (forced-colors: active) {

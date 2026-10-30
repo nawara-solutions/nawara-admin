@@ -52,8 +52,6 @@
   // Logo colours (--nw-logo-*) and botanical artwork (--nw-illustration-botanical, -corner) of coral, the default palette;
   // the other palettes override them (tokens/_accents.scss, generated values in tokens/_brand-artwork.scss)
   @include brand-artwork.coral-light;
-  // The logo's "SOLUTIONS" line and its rules: the board's light-ground lettering (sampled, docs/BRAND.md §0).
-  --nw-logo-subtitle: #111320;
   --nw-sidebar-illustration-opacity: 0.5;
   --nw-sidebar-atmosphere: radial-gradient(
     20rem 26rem at 110% 100%,
@@ -127,6 +125,7 @@
     #fcf2ee 100%
   );
   --nw-botanical-opacity: 1;
+  --nw-auth-panel-glow-strength: 14%; // the accent glow behind the panel's flower
   --nw-shadow-auth-card: 0 1px 2px rgb(23 19 31 / 6%), 0 8px 24px rgb(23 19 31 / 6%);
 
   // Elevation
