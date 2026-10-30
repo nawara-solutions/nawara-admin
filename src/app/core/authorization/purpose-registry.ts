@@ -178,3 +178,29 @@ export const purposeRule = <P extends CorePurpose>(purpose: P): RuleOf<P> => PUR
 /** Whether Core accepts this factor for the purpose. */
 export const allowsFactor = (purpose: CorePurpose, factor: StepUpFactor): boolean =>
   (PURPOSE_RULES[purpose].factors as readonly StepUpFactor[]).includes(factor);
+
+/**
+ * Core's receipt operations and the one step-up purpose each issuance consumes (auth-service
+ * `src/receipts/receipt-binding.ts:158-162`, `RECEIPT_PURPOSES`, at `0044b20`). Machine values.
+ */
+export const RECEIPT_OPERATION_PURPOSE = {
+  refund: 'refund.authorize',
+  dispute_decision: 'payment.dispute.decide',
+  fraud_hold_place: 'billing.fraud_hold.place',
+  fraud_hold_release: 'billing.fraud_hold.release',
+  recovery_surplus_external: 'billing.recovery_surplus.record_external',
+  late_settlement_apply: 'billing.late_settlement.apply',
+  provider_fact_associate: 'payment.provider_fact.associate',
+  recovery_write_off: 'billing.recovery.write_off',
+} as const satisfies Readonly<Record<string, ReceiptPurpose>>;
+
+export type ReceiptOperation = keyof typeof RECEIPT_OPERATION_PURPOSE;
+
+/**
+ * The two financial service-verified purposes: Billing's assistance correction and dispute resolution, each verified through
+ * `POST /auth/step-up/verify` (billing-service `src/assistance/assistance.controller.ts:377`, `:413`, `:439`).
+ */
+export const ASSISTANCE_STEP_UP_PURPOSE = {
+  correct: 'billing.assistance.correct',
+  disputeResolve: 'billing.assistance.dispute.resolve',
+} as const satisfies Readonly<Record<string, ServiceVerifiedPurpose>>;
