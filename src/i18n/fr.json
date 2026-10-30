@@ -227,6 +227,7 @@
     "platformSubscriptions": "Abonnements de la plateforme",
     "billing": "Facturation et paiements",
     "assistance": "Dossiers d’assistance",
+    "assistanceCase": "Dossier d’assistance",
     "audit": "Journal d’audit",
     "services": "Services et santé",
     "notifications": "Notifications",
@@ -264,6 +265,7 @@
       "platformSubscriptions": "Abonnements de la plateforme",
       "billing": "Facturation et paiements",
       "assistance": "Assistance",
+      "assistanceCase": "Dossier",
       "audit": "Journal d’audit",
       "services": "Services et santé",
       "notifications": "Notifications",
@@ -2395,6 +2397,175 @@
       "notInBuildTitle": "Non disponible dans cette version",
       "notInBuildDescription": "Le service de facturation de Nawara Core n’offre pas encore de lecture des demandes d’assistance au propriétaire ; il n’y a donc rien à afficher.",
       "forbiddenDescription": "Les dossiers d’assistance ne sont présentés qu’au propriétaire de l’entreprise."
+    },
+    "case": {
+      "back": "Tous les dossiers d’assistance",
+      "eyebrow": "Dossier d’assistance",
+      "title": "Dossier",
+      "loading": "Chargement du dossier…",
+      "notFoundDescription": "Aucun dossier avec cette référence n’existe dans votre entreprise.",
+      "errorTitle": "Le dossier n’a pas pu être chargé",
+      "readOnly": "Lecture seule : aucune décision, collecte, paiement, correction, remboursement ou passage en perte ne peut être effectué depuis cette page.",
+      "context": {
+        "title": "Contexte",
+        "company": "Entreprise",
+        "yourCompany": "Votre entreprise",
+        "beneficiary": "Bénéficiaire",
+        "member": "Membre",
+        "consent": "Consentement donné",
+        "declinedBy": "Par {{who}}, {{date}}"
+      },
+      "terms": {
+        "title": "Achat assisté",
+        "product": "Produit",
+        "base": "Prix",
+        "fee": "Frais de l’organisation",
+        "total": "Total dû en espèces",
+        "frozen": "Figés lors du consentement du bénéficiaire ; jamais recalculés."
+      },
+      "collection": {
+        "title": "Collecte et règlement",
+        "reported": "Déclarée par l’organisation — une déclaration, pas un paiement vérifié.",
+        "collectedAt": "Espèces collectées (déclaré)",
+        "correctedFrom": "corrigé par le propriétaire ; déclaré à l’origine le {{date}}",
+        "reportedAt": "Déclaration enregistrée",
+        "reportedBy": "Déclarée par",
+        "settleBy": "À régler avant le",
+        "settledFact": "un paiement vérifié l’a réglé"
+      },
+      "restriction": {
+        "title": "Restrictions sur l’organisation",
+        "none": "Aucune.",
+        "unknown": "Non indiqué.",
+        "t1": "Une demande collectée a dépassé son délai de règlement.",
+        "t2": "Une restitution d’espèces est due.",
+        "t3": "Une obligation de recouvrement est ouverte.",
+        "scope": "Les restrictions bloquent uniquement les nouvelles demandes d’assistance de cette organisation ; régler et restituer restent possibles."
+      },
+      "cashReturn": {
+        "title": "Restitution des espèces",
+        "originLabel": "Motif",
+        "owed": "Dû",
+        "returnedAt": "Restituées (déclaré)",
+        "reportedOn": "déclaré le {{date}}",
+        "confirmedAt": "Confirmée par le bénéficiaire",
+        "state": {
+          "open": "Due",
+          "returnReported": "Restitution déclarée",
+          "confirmedReturned": "Restituée et confirmée",
+          "supersededBySettlement": "Remplacée par un règlement tardif appliqué"
+        },
+        "origin": {
+          "deadline": "Le délai de règlement est dépassé",
+          "refundCompletion": "Un remboursement a abouti"
+        }
+      },
+      "dispute": {
+        "title": "Contestations et corrections",
+        "open": "Ouverte",
+        "resolved": "Résolue",
+        "timestampCorrected": "Résolue par une correction de l’heure contestée par le propriétaire.",
+        "noResolution": "Nawara Core ne prévoit aucune résolution pour ce motif ; la contestation reste ouverte.",
+        "reason": {
+          "cashNotReturned": "Espèces non restituées",
+          "collectionNotMade": "Collecte non effectuée",
+          "collectionTimeIncorrect": "Heure de collecte inexacte",
+          "returnTimeIncorrect": "Heure de restitution inexacte"
+        }
+      },
+      "correction": {
+        "title": "Corrections du propriétaire",
+        "line": "{{field}} : {{from}} → {{to}}",
+        "timesOnly": "Les corrections ne modifient que des heures déclarées, jamais un montant. Elles sont conservées dans l’ordre et jamais supprimées.",
+        "field": {
+          "cashCollectedAt": "Heure de collecte",
+          "returnedAt": "Heure de restitution"
+        },
+        "reason": {
+          "actorEntryError": "Erreur de saisie de l’organisation",
+          "evidenceContradictsReport": "Les preuves contredisent la déclaration"
+        }
+      },
+      "late": {
+        "title": "Règlements tardifs",
+        "reasonLabel": "Pourquoi en retard",
+        "settledAt": "Paiement vérifié",
+        "settledAtUnknown": "Non indiqué",
+        "attestationLabel": "Déclaration du bénéficiaire",
+        "noAttestation": "Aucune",
+        "evidence": "Preuves",
+        "noEvidence": "Aucune",
+        "appliedAt": "Appliqué",
+        "receipt": "Reçu d’autorisation",
+        "never": "Un règlement tardif n’est jamais appliqué automatiquement ; seul le propriétaire peut l’appliquer.",
+        "reason": {
+          "channelClosed": "Le canal de règlement était clos",
+          "purchaseExists": "Un achat existait déjà",
+          "cashReturnObligationExists": "Une restitution d’espèces était déjà due",
+          "requestNotSettleable": "La demande ne pouvait plus être réglée"
+        },
+        "attestation": {
+          "cashNotReturned": "Les espèces n’ont pas été restituées",
+          "cashReturned": "Les espèces ont été restituées"
+        }
+      },
+      "recovery": {
+        "title": "Recouvrement",
+        "base": "À recouvrer (prix uniquement)",
+        "recovered": "Recouvré",
+        "outstanding": "Restant",
+        "openedAt": "Ouvert",
+        "recoveredAt": "Recouvré le",
+        "surplusTitle": "Excédent dû à l’organisation",
+        "baseOnly": "Le recouvrement ne porte que sur le prix, jamais sur les frais de l’organisation ; ces montants sont ceux de Nawara Core.",
+        "surplus": {
+          "owedToOrganization": "dû à l’organisation",
+          "externalExecutionEvidenced": "remboursement enregistré, en attente de confirmation",
+          "resolved": "réglé"
+        }
+      },
+      "timeline": {
+        "title": "Historique",
+        "empty": "Aucun événement enregistré.",
+        "recordedAt": "enregistré le {{date}}"
+      },
+      "source": {
+        "fact": "Fait vérifié",
+        "report": "Déclaré",
+        "decision": "Décision du propriétaire",
+        "derived": "Déduit par Nawara Core"
+      },
+      "actor": {
+        "beneficiary": "le bénéficiaire",
+        "organizationActor": "Administrateur de l’organisation",
+        "owner": "le propriétaire",
+        "core": "Nawara Core"
+      },
+      "kind": {
+        "settlementSucceeded": "Paiement de règlement réussi",
+        "settlementFailed": "Paiement de règlement échoué",
+        "lateSuccess": "Paiement réussi tardivement",
+        "refundCompleted": "Remboursement effectué",
+        "chargebackFinal": "Rétrofacturation définitive",
+        "recoveryPayment": "Paiement de recouvrement",
+        "consent": "Consentement à l’assistance",
+        "declined": "Demande refusée",
+        "cashCollected": "Collecte d’espèces déclarée",
+        "cashReturnReported": "Restitution d’espèces déclarée",
+        "cashReturnConfirmed": "Restitution d’espèces confirmée",
+        "disputeOpened": "Contestation ouverte",
+        "disputeResponse": "Réponse de l’organisation",
+        "lateAttestation": "Déclaration du bénéficiaire sur le paiement tardif",
+        "correction": "Heure corrigée",
+        "disputeResolved": "Contestation résolue",
+        "lateSettlementApplied": "Règlement tardif appliqué",
+        "writeOff": "Passé en perte",
+        "surplusExternal": "Remboursement externe de l’excédent enregistré",
+        "cashReturnOwed": "Restitution d’espèces due",
+        "channelUncertain": "Règlement incertain",
+        "channelClosed": "Canal de règlement clos",
+        "recoveryOpened": "Recouvrement ouvert"
+      }
     }
   },
   "activity": {

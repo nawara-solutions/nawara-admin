@@ -227,6 +227,7 @@
     "platformSubscriptions": "Platform subscriptions",
     "billing": "Billing & payments",
     "assistance": "Assistance cases",
+    "assistanceCase": "Assistance case",
     "audit": "Audit log",
     "services": "Services & health",
     "notifications": "Notifications",
@@ -264,6 +265,7 @@
       "platformSubscriptions": "Platform subscriptions",
       "billing": "Billing & payments",
       "assistance": "Assistance",
+      "assistanceCase": "Case",
       "audit": "Audit log",
       "services": "Services & health",
       "notifications": "Notifications",
@@ -2395,6 +2397,175 @@
       "notInBuildTitle": "Not available in this build",
       "notInBuildDescription": "Nawara Core’s Billing service does not offer an owner read of assistance requests yet, so there is nothing to show.",
       "forbiddenDescription": "Assistance cases are shown to the Company owner only."
+    },
+    "case": {
+      "back": "All assistance cases",
+      "eyebrow": "Assistance case",
+      "title": "Case",
+      "loading": "Loading the case…",
+      "notFoundDescription": "No case with this reference exists in your Company.",
+      "errorTitle": "The case could not be loaded",
+      "readOnly": "Read only: no decision, collection, payment, correction, refund or write-off can be made from this page.",
+      "context": {
+        "title": "Context",
+        "company": "Company",
+        "yourCompany": "Your Company",
+        "beneficiary": "Beneficiary",
+        "member": "Member",
+        "consent": "Consent given",
+        "declinedBy": "By the {{who}}, {{date}}"
+      },
+      "terms": {
+        "title": "Assisted purchase",
+        "product": "Product",
+        "base": "Price",
+        "fee": "Organization fee",
+        "total": "Total owed in cash",
+        "frozen": "Frozen when the beneficiary consented; never recomputed."
+      },
+      "collection": {
+        "title": "Collection and settlement",
+        "reported": "Reported by the Organization — a report, not a verified payment.",
+        "collectedAt": "Cash collected (reported)",
+        "correctedFrom": "corrected by the owner; originally reported {{date}}",
+        "reportedAt": "Report recorded",
+        "reportedBy": "Reported by",
+        "settleBy": "Settle by",
+        "settledFact": "a verified payment settled it"
+      },
+      "restriction": {
+        "title": "Restrictions on the Organization",
+        "none": "None.",
+        "unknown": "Not stated.",
+        "t1": "A collected request is past its settlement deadline.",
+        "t2": "A cash return is owed.",
+        "t3": "A recovery obligation is open.",
+        "scope": "Restrictions block new assistance requests of this Organization only; settling and returning stay possible."
+      },
+      "cashReturn": {
+        "title": "Cash return",
+        "originLabel": "Why it is owed",
+        "owed": "Owed",
+        "returnedAt": "Returned (reported)",
+        "reportedOn": "reported {{date}}",
+        "confirmedAt": "Confirmed by the beneficiary",
+        "state": {
+          "open": "Owed",
+          "returnReported": "Return reported",
+          "confirmedReturned": "Returned and confirmed",
+          "supersededBySettlement": "Superseded by an applied late settlement"
+        },
+        "origin": {
+          "deadline": "The settlement deadline passed",
+          "refundCompletion": "A refund completed"
+        }
+      },
+      "dispute": {
+        "title": "Disputes and corrections",
+        "open": "Open",
+        "resolved": "Resolved",
+        "timestampCorrected": "Resolved by an owner correction of the disputed time.",
+        "noResolution": "Nawara Core has no resolution for this reason; the dispute stays open.",
+        "reason": {
+          "cashNotReturned": "Cash not returned",
+          "collectionNotMade": "Collection not made",
+          "collectionTimeIncorrect": "Collection time incorrect",
+          "returnTimeIncorrect": "Return time incorrect"
+        }
+      },
+      "correction": {
+        "title": "Owner corrections",
+        "line": "{{field}}: {{from}} → {{to}}",
+        "timesOnly": "Corrections change reported times only, never an amount. They are kept in order and never removed.",
+        "field": {
+          "cashCollectedAt": "Collection time",
+          "returnedAt": "Return time"
+        },
+        "reason": {
+          "actorEntryError": "Entry error by the Organization",
+          "evidenceContradictsReport": "Evidence contradicts the report"
+        }
+      },
+      "late": {
+        "title": "Late settlements",
+        "reasonLabel": "Why it came late",
+        "settledAt": "Verified payment",
+        "settledAtUnknown": "Not stated",
+        "attestationLabel": "Beneficiary’s statement",
+        "noAttestation": "None",
+        "evidence": "Evidence",
+        "noEvidence": "None",
+        "appliedAt": "Applied",
+        "receipt": "Authorization receipt",
+        "never": "A late settlement is never applied automatically; only the owner can apply it.",
+        "reason": {
+          "channelClosed": "The settlement channel had closed",
+          "purchaseExists": "A purchase already existed",
+          "cashReturnObligationExists": "A cash return was already owed",
+          "requestNotSettleable": "The request could no longer settle"
+        },
+        "attestation": {
+          "cashNotReturned": "Cash was not returned",
+          "cashReturned": "Cash was returned"
+        }
+      },
+      "recovery": {
+        "title": "Recovery",
+        "base": "To recover (price only)",
+        "recovered": "Recovered",
+        "outstanding": "Outstanding",
+        "openedAt": "Opened",
+        "recoveredAt": "Recovered on",
+        "surplusTitle": "Surplus owed to the Organization",
+        "baseOnly": "Recovery covers the price only, never the Organization’s fee; Nawara Core states these amounts.",
+        "surplus": {
+          "owedToOrganization": "owed to the Organization",
+          "externalExecutionEvidenced": "repayment recorded, awaiting confirmation",
+          "resolved": "resolved"
+        }
+      },
+      "timeline": {
+        "title": "History",
+        "empty": "No event recorded.",
+        "recordedAt": "recorded {{date}}"
+      },
+      "source": {
+        "fact": "Verified fact",
+        "report": "Reported",
+        "decision": "Owner decision",
+        "derived": "Derived by Nawara Core"
+      },
+      "actor": {
+        "beneficiary": "beneficiary",
+        "organizationActor": "Organization administrator",
+        "owner": "owner",
+        "core": "Nawara Core"
+      },
+      "kind": {
+        "settlementSucceeded": "Settlement payment succeeded",
+        "settlementFailed": "Settlement payment failed",
+        "lateSuccess": "Late payment success",
+        "refundCompleted": "Refund completed",
+        "chargebackFinal": "Final chargeback",
+        "recoveryPayment": "Recovery payment",
+        "consent": "Consent to assistance",
+        "declined": "Request declined",
+        "cashCollected": "Cash collection reported",
+        "cashReturnReported": "Cash return reported",
+        "cashReturnConfirmed": "Cash return confirmed",
+        "disputeOpened": "Dispute opened",
+        "disputeResponse": "Organization responded",
+        "lateAttestation": "Beneficiary’s statement on the late payment",
+        "correction": "Time corrected",
+        "disputeResolved": "Dispute resolved",
+        "lateSettlementApplied": "Late settlement applied",
+        "writeOff": "Written off",
+        "surplusExternal": "External surplus repayment recorded",
+        "cashReturnOwed": "Cash return owed",
+        "channelUncertain": "Settlement uncertain",
+        "channelClosed": "Settlement channel closed",
+        "recoveryOpened": "Recovery opened"
+      }
     }
   },
   "activity": {

@@ -15,6 +15,7 @@ import { APP_ENVIRONMENT, AppEnvironment } from '../../core/config/app-environme
 import { companyId, platformId } from '../../core/context/scope.model';
 import { ADAPTER_UNAVAILABLE } from '../../core/errors/app-error';
 import { loadShellRoutes } from '../../layout/shell.routes';
+import { AssistanceCaseFacade } from '../assistance/application/assistance-case.facade';
 import { AssistanceDirectoryFacade } from '../assistance/application/assistance-directory.facade';
 import { UnavailableAssistanceGateway } from '../assistance/data-access/assistance.gateway';
 import { BillingFacade } from './application/billing.facade';
@@ -108,5 +109,24 @@ describe('billing routes (P7-S3)', () => {
       UnavailableAssistanceGateway,
       AssistanceDirectoryFacade,
     ]);
+  });
+
+  it('guards one case (A5) like the directory, below it in the breadcrumbs, unavailable in production', async () => {
+    const routes = await loadBillingRoutes(PRODUCTION);
+    const route = routes.find((r) => r.path === 'assistance/:requestId');
+    if (!route) throw new Error('no case route');
+    expect(route.title).toBe('titles.assistanceCase');
+    expect(route.data).toEqual({
+      breadcrumb: 'shell.breadcrumb.assistanceCase',
+      breadcrumbParent: { key: 'shell.breadcrumb.assistance', link: '/billing/assistance' },
+    });
+    const providers = (route.providers ?? []) as (Provider & { useClass?: unknown })[];
+    expect(providers.map((p) => (typeof p === 'function' ? p : p.useClass))).toEqual([
+      UnavailableAssistanceGateway,
+      AssistanceCaseFacade,
+    ]);
+    expect(guardResult(route, owner)).toBe(true);
+    TestBed.resetTestingModule();
+    expect(guardResult(route, operator)).toBe('/forbidden');
   });
 });

@@ -227,6 +227,7 @@
     "platformSubscriptions": "اشتراكات المنصة",
     "billing": "الفوترة والمدفوعات",
     "assistance": "ملفات المساعدة",
+    "assistanceCase": "ملف المساعدة",
     "audit": "سجل التدقيق",
     "services": "الخدمات والحالة",
     "notifications": "الإشعارات",
@@ -264,6 +265,7 @@
       "platformSubscriptions": "اشتراكات المنصة",
       "billing": "الفوترة والمدفوعات",
       "assistance": "المساعدة",
+      "assistanceCase": "الملف",
       "audit": "سجل التدقيق",
       "services": "الخدمات والحالة",
       "notifications": "الإشعارات",
@@ -2395,6 +2397,175 @@
       "notInBuildTitle": "غير متاح في هذا الإصدار",
       "notInBuildDescription": "لا توفّر خدمة الفوترة في Nawara Core بعدُ للمالك قراءة لطلبات المساعدة، لذلك لا يوجد ما يُعرض.",
       "forbiddenDescription": "تُعرض ملفات المساعدة لمالك الشركة فقط."
+    },
+    "case": {
+      "back": "كل ملفات المساعدة",
+      "eyebrow": "ملف المساعدة",
+      "title": "الملف",
+      "loading": "جارٍ تحميل الملف…",
+      "notFoundDescription": "لا يوجد ملف بهذا المرجع في شركتك.",
+      "errorTitle": "تعذّر تحميل الملف",
+      "readOnly": "للقراءة فقط: لا يمكن اتخاذ أي قرار أو تحصيل أو دفع أو تصحيح أو استرداد أو شطب من هذه الصفحة.",
+      "context": {
+        "title": "السياق",
+        "company": "الشركة",
+        "yourCompany": "شركتك",
+        "beneficiary": "المستفيد",
+        "member": "عضو",
+        "consent": "تاريخ الموافقة",
+        "declinedBy": "من قِبل {{who}}، {{date}}"
+      },
+      "terms": {
+        "title": "الشراء المساعَد",
+        "product": "المنتج",
+        "base": "السعر",
+        "fee": "رسوم المؤسسة",
+        "total": "الإجمالي المستحق نقدًا",
+        "frozen": "ثُبّتت عند موافقة المستفيد؛ ولا يُعاد حسابها أبدًا."
+      },
+      "collection": {
+        "title": "التحصيل والتسوية",
+        "reported": "أبلغت عنه المؤسسة — بلاغ وليس دفعًا مُتحقَّقًا منه.",
+        "collectedAt": "تحصيل النقد (مُبلَّغ عنه)",
+        "correctedFrom": "صحّحه المالك؛ أُبلغ عنه أصلًا في {{date}}",
+        "reportedAt": "تسجيل البلاغ",
+        "reportedBy": "أبلغ عنه",
+        "settleBy": "التسوية قبل",
+        "settledFact": "سوّته دفعة مُتحقَّق منها"
+      },
+      "restriction": {
+        "title": "القيود على المؤسسة",
+        "none": "لا شيء.",
+        "unknown": "غير مذكور.",
+        "t1": "طلب محصَّل تجاوز موعد تسويته.",
+        "t2": "إعادة نقد مستحقة.",
+        "t3": "التزام استرداد مفتوح.",
+        "scope": "تمنع القيود طلبات المساعدة الجديدة لهذه المؤسسة فقط؛ وتبقى التسوية والإعادة ممكنتين."
+      },
+      "cashReturn": {
+        "title": "إعادة النقد",
+        "originLabel": "سبب الاستحقاق",
+        "owed": "المستحق",
+        "returnedAt": "أُعيد (مُبلَّغ عنه)",
+        "reportedOn": "أُبلغ عنه في {{date}}",
+        "confirmedAt": "أكّده المستفيد",
+        "state": {
+          "open": "مستحق",
+          "returnReported": "أُبلغ عن الإعادة",
+          "confirmedReturned": "أُعيد وتأكّد",
+          "supersededBySettlement": "حلّت محلّه تسوية متأخرة مطبّقة"
+        },
+        "origin": {
+          "deadline": "انقضى موعد التسوية",
+          "refundCompletion": "اكتمل استرداد مبلغ"
+        }
+      },
+      "dispute": {
+        "title": "الاعتراضات والتصحيحات",
+        "open": "مفتوح",
+        "resolved": "محسوم",
+        "timestampCorrected": "حُسم بتصحيح المالك للوقت المعترَض عليه.",
+        "noResolution": "لا يوفّر Nawara Core حلًّا لهذا السبب؛ يبقى الاعتراض مفتوحًا.",
+        "reason": {
+          "cashNotReturned": "لم يُعَد النقد",
+          "collectionNotMade": "لم يتم التحصيل",
+          "collectionTimeIncorrect": "وقت التحصيل غير صحيح",
+          "returnTimeIncorrect": "وقت الإعادة غير صحيح"
+        }
+      },
+      "correction": {
+        "title": "تصحيحات المالك",
+        "line": "{{field}}: {{from}} ← {{to}}",
+        "timesOnly": "تغيّر التصحيحات الأوقات المُبلَّغ عنها فقط، ولا تغيّر أي مبلغ. تُحفظ بالترتيب ولا تُحذف أبدًا.",
+        "field": {
+          "cashCollectedAt": "وقت التحصيل",
+          "returnedAt": "وقت الإعادة"
+        },
+        "reason": {
+          "actorEntryError": "خطأ إدخال من المؤسسة",
+          "evidenceContradictsReport": "الأدلة تناقض البلاغ"
+        }
+      },
+      "late": {
+        "title": "التسويات المتأخرة",
+        "reasonLabel": "سبب التأخر",
+        "settledAt": "دفعة مُتحقَّق منها",
+        "settledAtUnknown": "غير مذكور",
+        "attestationLabel": "إفادة المستفيد",
+        "noAttestation": "لا شيء",
+        "evidence": "الأدلة",
+        "noEvidence": "لا شيء",
+        "appliedAt": "طُبّقت",
+        "receipt": "إيصال التفويض",
+        "never": "لا تُطبَّق التسوية المتأخرة تلقائيًا أبدًا؛ المالك وحده يمكنه تطبيقها.",
+        "reason": {
+          "channelClosed": "كانت قناة التسوية مغلقة",
+          "purchaseExists": "كان هناك شراء قائم",
+          "cashReturnObligationExists": "كانت إعادة النقد مستحقة بالفعل",
+          "requestNotSettleable": "لم يعد الطلب قابلًا للتسوية"
+        },
+        "attestation": {
+          "cashNotReturned": "لم يُعَد النقد",
+          "cashReturned": "أُعيد النقد"
+        }
+      },
+      "recovery": {
+        "title": "الاسترداد",
+        "base": "المطلوب استرداده (السعر فقط)",
+        "recovered": "المسترَد",
+        "outstanding": "المتبقي",
+        "openedAt": "فُتح",
+        "recoveredAt": "استُرد في",
+        "surplusTitle": "فائض مستحق للمؤسسة",
+        "baseOnly": "يشمل الاسترداد السعر فقط، ولا يشمل رسوم المؤسسة أبدًا؛ هذه المبالغ يذكرها Nawara Core.",
+        "surplus": {
+          "owedToOrganization": "مستحق للمؤسسة",
+          "externalExecutionEvidenced": "سُجّل السداد، بانتظار التأكيد",
+          "resolved": "محسوم"
+        }
+      },
+      "timeline": {
+        "title": "السجل",
+        "empty": "لا يوجد حدث مسجّل.",
+        "recordedAt": "سُجّل في {{date}}"
+      },
+      "source": {
+        "fact": "واقعة مُتحقَّق منها",
+        "report": "مُبلَّغ عنه",
+        "decision": "قرار المالك",
+        "derived": "استنتجه Nawara Core"
+      },
+      "actor": {
+        "beneficiary": "المستفيد",
+        "organizationActor": "مسؤول المؤسسة",
+        "owner": "المالك",
+        "core": "Nawara Core"
+      },
+      "kind": {
+        "settlementSucceeded": "نجاح دفعة التسوية",
+        "settlementFailed": "فشل دفعة التسوية",
+        "lateSuccess": "نجاح دفعة متأخرة",
+        "refundCompleted": "اكتمال الاسترداد",
+        "chargebackFinal": "رد مبلغ نهائي",
+        "recoveryPayment": "دفعة استرداد",
+        "consent": "الموافقة على المساعدة",
+        "declined": "رفض الطلب",
+        "cashCollected": "الإبلاغ عن تحصيل النقد",
+        "cashReturnReported": "الإبلاغ عن إعادة النقد",
+        "cashReturnConfirmed": "تأكيد إعادة النقد",
+        "disputeOpened": "فتح اعتراض",
+        "disputeResponse": "ردّ المؤسسة",
+        "lateAttestation": "إفادة المستفيد بشأن الدفعة المتأخرة",
+        "correction": "تصحيح وقت",
+        "disputeResolved": "حسم الاعتراض",
+        "lateSettlementApplied": "تطبيق تسوية متأخرة",
+        "writeOff": "شطب",
+        "surplusExternal": "تسجيل سداد خارجي للفائض",
+        "cashReturnOwed": "استحقاق إعادة النقد",
+        "channelUncertain": "تسوية غير مؤكدة",
+        "channelClosed": "إغلاق قناة التسوية",
+        "recoveryOpened": "فتح الاسترداد"
+      }
     }
   },
   "activity": {

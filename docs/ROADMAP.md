@@ -1199,6 +1199,17 @@ available".
 **Not delivered:** the auth HTTP adapter and interceptors (CF-15, D-A4), real WebAuthn, refresh and logout broadcast,
 working-code sign-in, enrollment and recovery screens, step-up, a sign-out entry in the shell.
 
+## Quality follow-ups
+
+Recorded, not authorized: each is its own task.
+
+- **QF-1 (recorded 2026-10-30, Assistance A5): timing-sensitive P9-S4b spec.**
+  `src/app/features/settings/pages/add-authenticator.page.spec.ts`, test "a wrong new code (the existing factor's) is refused;
+  the next code is confirmed with the same, unspent grant", failed once in CI on PR #64 (`no new-authenticator-code field`) and
+  passed on a single re-run; it passes locally and on `main`. Its `render()` waits one fixed `settle()` (10 ms) before the demo
+  enrollment has rendered the field. Proposed fix: wait until the field exists (as other specs do with a bounded loop), in a
+  separate test-only change. Not changed in A5 (no regression demonstrated there).
+
 ## Decisions required later (before the named stage)
 
 | Id | Before | Decision |

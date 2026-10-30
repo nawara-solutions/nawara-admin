@@ -142,13 +142,15 @@
               @for (row of view.rows; track row.requestId) {
                 <tr [attr.data-request]="row.requestId" [attr.data-state]="row.state">
                   <th scope="row">
-                    <code class="assistance__ref" dir="ltr" [attr.title]="row.requestId">
-                      <span aria-hidden="true">…{{ shortRef(row.requestId) }}</span>
-                      <span class="nw-visually-hidden">{{
-                        'assistanceCases.list.referenceFull'
-                          | transloco: { reference: row.requestId }
-                      }}</span>
-                    </code>
+                    <a [routerLink]="casePath(row.requestId)" data-case-link>
+                      <code class="assistance__ref" dir="ltr" [attr.title]="row.requestId">
+                        <span aria-hidden="true">…{{ shortRef(row.requestId) }}</span>
+                        <span class="nw-visually-hidden">{{
+                          'assistanceCases.list.referenceFull'
+                            | transloco: { reference: row.requestId }
+                        }}</span>
+                      </code>
+                    </a>
                   </th>
                   <td>
                     <a [routerLink]="organizationLink(row)" data-organization>
