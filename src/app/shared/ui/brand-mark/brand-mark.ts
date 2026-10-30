@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,25 +7,24 @@ import {
 } from '@angular/core';
 
 /**
- * The Nawara logo of the coral + ink theme (owner decision 2026-10-04, docs/BRAND.md): the lowercase wordmark
- * "nawara" set in Readex Pro, with the bloom mark standing in for the "r", and optionally "SOLUTIONS" beneath it.
+ * The Nawara Solutions logo (docs/BRAND.md §0). The wordmark is the floral-R "nawara" of the owner's branding board
+ * (2026-10-30), cut from the board's pixels (tools/brand/extract_floral_r.py), never redrawn; "SOLUTIONS" beneath it is
+ * live text between two thin rules, laid out as the board lays out its subtitle.
  *
- * - Without an option: the bloom mark alone (an artwork file).
- * - `wordmark` (or `lockup`, the earlier name of the same thing): the wordmark with the bloom.
- * - `full`: the wordmark with the "SOLUTIONS" line and its flourish (sign-in brand panel).
- * - `inline`: the wordmark, a thin separator and "SOLUTIONS" on one line, without the flourish (workspace sidebar).
+ * - Without an option: the complete floral R alone, the board's app-icon symbol without its tile (scope switcher).
+ * - `wordmark` (or `lockup`, the earlier name of the same thing): the floral-R wordmark.
+ * - `full`: the wordmark with the "SOLUTIONS" line and its rules (sign-in brand panel, workspace sidebar).
+ * - `inline`: the wordmark, a thin separator and "SOLUTIONS" on one line (no caller at present).
  *
- * The bloom and the flourish are the exact paths of the artwork files in `public/brand/`, drawn inline so that their
- * colours follow the `--nw-logo-*` tokens: the theme and the accent palette (owner decision 2026-10-04). The lettering
- * is live text in the brand typeface, in the neutral text colour, as the owner's design draws it. The size follows `--nw-brand-mark-size` (the wordmark's font size); `--nw-brand-mark-word-size` optionally sizes the word alone. The logo never
- * mirrors in RTL. The kit owns no copy, so the accessible name is an input; the lettering itself is hidden from
- * assistive technology, so the name is announced once.
+ * The artwork is the `--nw-logo-wordmark` and `--nw-logo-symbol` tokens: light or dark lettering and ground per
+ * theme, and the floral R in the accent palette (owner decision 2026-10-04). The size follows `--nw-brand-mark-size` (the
+ * wordmark's font size; the word is as wide as the earlier lettered "nawara" at that size); `--nw-brand-mark-word-size`
+ * optionally sizes the word and its "SOLUTIONS" line alone. The logo never mirrors in RTL. The kit owns no copy, so
+ * the accessible name is an input; the artwork and lettering are hidden from assistive technology, so the name is
+ * announced once.
  */
-let nextId = 0;
-
 @Component({
   selector: 'nw-brand-mark',
-  imports: [NgTemplateOutlet],
   templateUrl: './brand-mark.html',
   styleUrl: './brand-mark.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,7 +40,7 @@ let nextId = 0;
 export class NwBrandMark {
   /** Accessible name of the logo, for example "Nawara Solutions". */
   readonly label = input.required<string>();
-  /** Shows the wordmark; without it (and without `lockup` or `full`) only the bloom mark is rendered. */
+  /** Shows the wordmark; without it (and without `lockup`, `full` or `inline`) only the floral R is rendered. */
   readonly wordmark = input(false, { transform: booleanAttribute });
   /** Same as `wordmark` (kept for the existing call sites). */
   readonly lockup = input(false, { transform: booleanAttribute });
@@ -54,19 +52,4 @@ export class NwBrandMark {
   protected readonly lettered = computed(
     () => this.wordmark() || this.lockup() || this.full() || this.inline(),
   );
-
-  /** Gradient ids, unique per instance: several logos can share a page. */
-  private readonly uid = `nw-logo-${nextId++}`;
-  protected readonly ids = {
-    right: `${this.uid}-right`,
-    left: `${this.uid}-left`,
-    back: `${this.uid}-back`,
-    beadMain: `${this.uid}-bead-main`,
-    beadSide: `${this.uid}-bead-side`,
-    leaf: `${this.uid}-leaf`,
-  };
-
-  protected ref(id: string): string {
-    return `url(#${id})`;
-  }
 }

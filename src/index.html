@@ -10,7 +10,8 @@
     <meta name="theme-color" content="#faf8f7" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#17131f" media="(prefers-color-scheme: dark)" />
     <!--
-      Favicon: the bloom of the Logo Kit, the ink circle in dark appearance and the paper circle in light appearance.
+      Favicon: the transparent floral R of the branding board, in the accent palette and per resolved appearance
+      (docs/BRAND.md §0).
       One icon link only, so no other icon competes with it; its file follows the accent palette and the resolved
       appearance (set below, then by ThemeService). Browsers without SVG favicons still request /favicon.ico.
     -->
@@ -32,7 +33,11 @@
             theme === 'dark' ||
             (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
           var accent = localStorage.getItem('nw.accent');
-          if (/^(rose|plum|indigo|teal|amber)$/.test(accent || ''))
+          if (
+            /^(rose|plum|indigo|teal|amber|midnight|pearl|sapphire|emerald|burgundy)$/.test(
+              accent || '',
+            )
+          )
             root.setAttribute('data-accent', accent);
           else accent = 'coral';
           document.getElementById('nw-favicon').href = dark

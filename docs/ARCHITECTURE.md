@@ -788,16 +788,18 @@ src/styles/
 - **No flash:** a few-line script in `index.html` reads `nw.theme` and sets `data-theme` before first paint. It is allowed by a CSP
   hash, not `unsafe-inline` (§21).
 - Both themes are designed and reviewed for every component from A2. A component is not done until it is verified in both.
-- **Accent palettes (2026-10-04):** a curated set (Coral, the Nawara default, plus Rose, Plum, Indigo, Teal, Amber) recolours
+- **Accent palettes (2026-10-04; extended 2026-10-30):** a curated set (Coral, the Nawara default, plus Rose, Plum, Indigo, Teal, Amber, Midnight, Pearl, Sapphire, Emerald, Burgundy) recolours
   only the brand-accent semantic tokens (primary action and its states, brand text and links, brand borders, subtle brand
   surfaces, focus ring and halo) through `data-accent` on `<html>` (`src/styles/tokens/_accents.scss`). Status colours,
   urgency, chart categories and product identity (School's coral, Drive's orange) never change.
   Every preset is checked by `check:contrast` in light and dark. No free colour picker.
-- **Palette artwork (2026-10-04):** the logo's bloom, flourish and "SOLUTIONS" gradient (`--nw-logo-*`) and the botanical
+- **Palette artwork (2026-10-04; logo 2026-10-30):** the floral R of the logo's wordmark and symbol (`--nw-logo-wordmark`,
+  `--nw-logo-symbol`, rasters per palette and theme; the lettering and "SOLUTIONS" stay neutral), the favicon and the botanical
   artwork (`--nw-illustration-botanical`, `-corner`) also follow the palette. Their values are generated from the coral
   master by `tools/brand/recolor_artwork.py` (`tokens/_brand-artwork.scss`, and `core/theme/palette-artwork.ts`, the
   single palette-to-artwork mapping); no route maps colours. `ThemeService.setAccent` preloads the new palette's artwork
-  (bounded wait) before switching, so controls, logo and illustrations change together without blank artwork.
+  (bounded wait) before switching, so controls and illustrations change together without blank artwork; the floral-R
+  logo rasters are not preloaded (deferred until a switching issue is shown).
 - **Favicon, workspace tint, flower (2026-10-04):** one `<link id="nw-favicon">` whose file follows the palette (set by
   `index.html` before paint, then by `ThemeService`; an external SVG cannot read page CSS variables). The authenticated
   shell's background is `--nw-workspace-background`, the neutral page washed toward `--nw-color-primary` with

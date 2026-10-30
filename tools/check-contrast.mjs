@@ -88,11 +88,19 @@ const PAIRS = [
   ['--nw-urgent-fg', '--nw-urgent-bg', 4.5],
   ['--nw-urgent-on-solid', '--nw-urgent-solid', 4.5],
   // Appearance swatches: the check mark on each sample colour (a graphic, 3:1)
-  ...['coral', 'rose', 'plum', 'indigo', 'teal', 'amber'].map((n) => [
-    '--nw-swatch-check',
-    `--nw-swatch-${n}`,
-    3,
-  ]),
+  ...[
+    'coral',
+    'rose',
+    'plum',
+    'indigo',
+    'teal',
+    'amber',
+    'midnight',
+    'pearl',
+    'sapphire',
+    'emerald',
+    'burgundy',
+  ].map((n) => ['--nw-swatch-check', `--nw-swatch-${n}`, 3]),
   // Inline alerts (A4): text on the tone background, and the tone icon as a graphic
   ...['success', 'warning', 'danger', 'info'].flatMap((t) => [
     [`--nw-alert-${t}-fg`, `--nw-alert-${t}-bg`, 4.5],

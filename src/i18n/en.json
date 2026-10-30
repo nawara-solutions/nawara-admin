@@ -52,7 +52,12 @@
       "plum": "Plum",
       "indigo": "Indigo",
       "teal": "Teal",
-      "amber": "Amber"
+      "amber": "Amber",
+      "midnight": "Midnight",
+      "pearl": "Pearl",
+      "sapphire": "Sapphire",
+      "emerald": "Emerald",
+      "burgundy": "Burgundy"
     },
     "appearance": {
       "title": "Appearance",
@@ -172,11 +177,11 @@
       "toastError": "The organization could not be updated."
     },
     "brand": {
-      "note": "The Logo Kit of the coral + ink theme: the wordmark is live text in Readex Pro with the bloom as its “r”; the bloom, the flower and the favicon are artwork files.",
+      "note": "The Logo Kit: the floral-R wordmark and symbol of the Nawara Solutions branding board, with “SOLUTIONS” set in Readex Pro; the wordmark, the symbol and the favicon are artwork files.",
       "full": "Full logo (sign-in, documents)",
       "wordmark": "Wordmark (headers, sidebar)",
-      "symbol": "Symbol",
-      "favicons": "Favicon (ink circle) at 16, 32, 48 and 64 pixels"
+      "symbol": "Symbol (floral R)",
+      "favicons": "Favicon (floral R, transparent) at 16, 32, 48 and 64 pixels"
     },
     "numbers": {
       "number": "Number",

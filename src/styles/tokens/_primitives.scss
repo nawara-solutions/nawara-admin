@@ -24,6 +24,12 @@
   --nw-ref-swatch-indigo: #4338ca;
   --nw-ref-swatch-teal: #0f766e;
   --nw-ref-swatch-amber: #d97706;
+  --nw-ref-swatch-midnight: #17131f;
+  --nw-ref-swatch-midnight-dark: #776f9e; // derived: the ink swatch would vanish on dark cards (1.1:1); a lighter midnight
+  --nw-ref-swatch-pearl: #8f879b; // derived: pearl itself cannot carry the white check mark; a mid pearl-grey (3.4:1)
+  --nw-ref-swatch-sapphire: #2563eb;
+  --nw-ref-swatch-emerald: #047857;
+  --nw-ref-swatch-burgundy: #8e2849;
 
   // Brand gradient: the "SOLUTIONS" lettering and accent lines.
   --nw-ref-gradient-coral: linear-gradient(

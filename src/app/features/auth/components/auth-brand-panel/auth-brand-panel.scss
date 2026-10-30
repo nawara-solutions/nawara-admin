@@ -41,10 +41,9 @@
 }
 
 .auth-brand-panel__logo {
-  // Owner adjustment (A4-S3 review): on every sign-in page's panel the "nawara" word is 2rem, while the "SOLUTIONS"
-  // line and its flourish keep the panel size. Set here only, so other logos (sidebar, phone header) keep theirs.
-  --nw-brand-mark-size: 2.9375rem;
-  --nw-brand-mark-word-size: 2rem;
+  // The floral-R logo with its "SOLUTIONS" line, as wide as the earlier panel logo (185 px, its flourish). Set here
+  // only, so other logos (sidebar, phone header) keep theirs.
+  --nw-brand-mark-size: 3.42rem;
 
   align-self: flex-start;
 }
