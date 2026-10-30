@@ -122,6 +122,7 @@ describe('MockAssistanceGateway (A3): the case directory', () => {
       channel: 'closed',
       lateSettlement: null,
       recovery: null,
+      cashReturn: 'open',
     });
     expect(page.items.find((s) => s.requestId === caseOf(1).request.id)).toMatchObject({
       state: 'pending',

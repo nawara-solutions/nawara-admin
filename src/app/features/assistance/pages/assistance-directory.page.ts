@@ -24,7 +24,16 @@ import {
   isAssistanceRequestState,
 } from '../domain/assistance-read.model';
 import {
+  AssistanceOversight,
+  CashReturnStage,
+  STAGE_SOURCE,
+  SettlementStage,
+  assistanceOversight,
+} from '../domain/assistance-oversight';
+import { AssistanceSourceTag } from '../ui/assistance-source-tag';
+import {
   ASSISTANCE_REQUEST_STATES,
+  SETTLEMENT_CHANNEL_STATES,
   AssistanceRequestState,
   RecoveryObligationState,
   SettlementChannelState,
@@ -58,6 +67,9 @@ const INDICATOR_KEYS = {
   all: 'assistanceCases.filter.indicatorAll',
   overdue: 'assistanceCases.filter.overdue',
   disputed: 'assistanceCases.filter.disputed',
+  cashReturnOwed: 'assistanceCases.filter.cashReturnOwed',
+  lateUnapplied: 'assistanceCases.filter.lateUnapplied',
+  recoveryOpen: 'assistanceCases.filter.recoveryOpen',
 } as const satisfies Record<AssistanceIndicatorFilter, string>;
 
 const ORDER_KEYS = {
@@ -85,6 +97,25 @@ const RECOVERY_TONES = {
   recovered: 'success',
 } as const satisfies Record<RecoveryObligationState, NwStatusTone>;
 
+/** Catalog keys of the oversight stages (A6), shared wording with the case page. */
+const SETTLEMENT_STAGE_KEYS = {
+  none: 'assistanceCases.oversight.settlement.none',
+  inProgress: 'assistanceCases.oversight.settlement.inProgress',
+  uncertain: 'assistanceCases.oversight.settlement.uncertain',
+  verified: 'assistanceCases.oversight.settlement.verified',
+  verifiedLate: 'assistanceCases.oversight.settlement.verifiedLate',
+  lateUnapplied: 'assistanceCases.oversight.settlement.lateUnapplied',
+  closedUnpaid: 'assistanceCases.oversight.settlement.closedUnpaid',
+} as const satisfies Record<SettlementStage, string>;
+
+const RETURN_STAGE_KEYS = {
+  none: 'assistanceCases.oversight.cashReturn.none',
+  owed: 'assistanceCases.oversight.cashReturn.owed',
+  reported: 'assistanceCases.oversight.cashReturn.reported',
+  confirmed: 'assistanceCases.oversight.cashReturn.confirmed',
+  superseded: 'assistanceCases.oversight.cashReturn.superseded',
+} as const satisfies Record<CashReturnStage, string>;
+
 /** The last characters of a Core id, enough to tell rows apart; the full id is in the cell's accessible name. */
 const shortRef = (id: string): string => id.slice(-8);
 
@@ -108,6 +139,7 @@ const shortRef = (id: string): string => id.slice(-8);
     NwIcon,
     NwNumberPipe,
     NwStatusBadge,
+    AssistanceSourceTag,
   ],
   templateUrl: './assistance-directory.page.html',
   styleUrl: './assistance-directory.page.scss',
@@ -130,6 +162,10 @@ export class AssistanceDirectoryPage {
   protected readonly recoveryKeys = RECOVERY_KEYS;
   protected readonly recoveryTones = RECOVERY_TONES;
   protected readonly shortRef = shortRef;
+  protected readonly channels = SETTLEMENT_CHANNEL_STATES;
+  protected readonly sources = STAGE_SOURCE;
+  protected readonly settlementKeys = SETTLEMENT_STAGE_KEYS;
+  protected readonly returnKeys = RETURN_STAGE_KEYS;
 
   /** The search field's text, and whether its last submission was not a full case reference. */
   protected readonly reference = signal('');
@@ -162,6 +198,17 @@ export class AssistanceDirectoryPage {
   protected onState(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
     this.facade.update({ state: isAssistanceRequestState(value) ? value : null });
+  }
+
+  protected onChannel(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    const channel = SETTLEMENT_CHANNEL_STATES.find((c) => c === value) ?? null;
+    this.facade.update({ channel });
+  }
+
+  /** One row's oversight (A6), from the row's Core values only. */
+  protected oversightOf(row: AssistanceCaseSummary): AssistanceOversight {
+    return assistanceOversight(row);
   }
 
   protected onIndicator(event: Event): void {

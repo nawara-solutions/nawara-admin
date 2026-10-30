@@ -1,0 +1,92 @@
+@let o = oversight();
+<dl class="assistance-oversight__stages" data-oversight>
+  <div class="assistance-oversight__stage" data-stage="collection" [attr.data-value]="o.collection">
+    <dt>{{ 'assistanceCases.oversight.collection.label' | transloco }}</dt>
+    <dd>
+      <span>{{ collectionKeys[o.collection] | transloco }}&#32;</span>
+      @if (sources.collection[o.collection]; as source) {
+        <adm-assistance-source-tag [source]="source" />
+      }
+    </dd>
+  </div>
+  <div class="assistance-oversight__stage" data-stage="settlement" [attr.data-value]="o.settlement">
+    <dt>{{ 'assistanceCases.oversight.settlement.label' | transloco }}</dt>
+    <dd>
+      <span>{{ settlementKeys[o.settlement] | transloco }}&#32;</span>
+      @if (sources.settlement[o.settlement]; as source) {
+        <adm-assistance-source-tag [source]="source" />
+      }
+    </dd>
+  </div>
+  <div class="assistance-oversight__stage" data-stage="deadline" [attr.data-value]="o.deadline">
+    <dt>{{ 'assistanceCases.oversight.deadline.label' | transloco }}</dt>
+    <dd>
+      @if (o.deadline === 'overdue') {
+        <nw-status-badge tone="warning">{{ deadlineKeys[o.deadline] | transloco }}</nw-status-badge>
+      } @else {
+        <span>{{ deadlineKeys[o.deadline] | transloco }}&#32;</span>
+      }
+      @if (settleBy(); as settleBy) {
+        <span class="assistance-oversight__secondary"
+          >{{
+            'assistanceCases.collection.settleBy'
+              | transloco: { date: (settleBy | nwDate: 'date-time') }
+          }}&#32;</span
+        >
+      }
+      @if (sources.deadline[o.deadline]; as source) {
+        <adm-assistance-source-tag [source]="source" />
+      }
+    </dd>
+  </div>
+  <div class="assistance-oversight__stage" data-stage="cashReturn" [attr.data-value]="o.cashReturn">
+    <dt>{{ 'assistanceCases.oversight.cashReturn.label' | transloco }}</dt>
+    <dd>
+      <span>{{ returnKeys[o.cashReturn] | transloco }}&#32;</span>
+      @if (sources.cashReturn[o.cashReturn]; as source) {
+        <adm-assistance-source-tag [source]="source" />
+      }
+    </dd>
+  </div>
+  <div class="assistance-oversight__stage" data-stage="recovery" [attr.data-value]="o.recovery">
+    <dt>{{ 'assistanceCases.oversight.recovery.label' | transloco }}</dt>
+    <dd>
+      <span>{{ recoveryKeys[o.recovery] | transloco }}&#32;</span>
+      @if (sources.recovery[o.recovery]; as source) {
+        <adm-assistance-source-tag [source]="source" />
+      }
+    </dd>
+  </div>
+  <div
+    class="assistance-oversight__stage"
+    data-stage="dispute"
+    [attr.data-value]="o.unresolvedDispute"
+  >
+    <dt>{{ 'assistanceCases.oversight.dispute.label' | transloco }}</dt>
+    <dd>
+      @if (o.unresolvedDispute) {
+        <nw-status-badge tone="danger">{{
+          'assistanceCases.oversight.dispute.unresolved' | transloco
+        }}</nw-status-badge>
+      } @else {
+        <span>{{ 'assistanceCases.oversight.dispute.none' | transloco }}</span>
+      }
+    </dd>
+  </div>
+</dl>
+
+@if (restrictions(); as restrictions) {
+  @if (restrictions.length > 0) {
+    <ul class="assistance-oversight__restrictions" role="list" data-restriction-explanations>
+      @for (restriction of restrictions; track restriction) {
+        <li [attr.data-restriction]="restriction">
+          <nw-status-badge tone="warning">{{ restriction }}</nw-status-badge>
+          <span>{{ restrictionKeys[restriction] | transloco }}&#32;</span>
+          <span class="assistance-oversight__secondary">{{
+            clearsKeys[clears[restriction]] | transloco
+          }}</span>
+        </li>
+      }
+    </ul>
+  }
+}

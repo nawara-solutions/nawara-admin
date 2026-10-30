@@ -192,6 +192,7 @@
 // Each source has its own icon, label and edge style: colour is never the only signal (§25).
 .assistance-case__event {
   display: grid;
+  justify-items: start;
   gap: var(--nw-space-1);
   padding-block: var(--nw-space-2);
   padding-inline: var(--nw-space-3) 0;
@@ -214,17 +215,6 @@
   &--derived {
     border-inline-start-style: dotted;
   }
-}
-
-.assistance-case__event-source {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--nw-space-1);
-  color: var(--nw-text-secondary);
-  font-size: 0.75rem;
-  font-weight: var(--nw-font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
 }
 
 .assistance-case__event-title {

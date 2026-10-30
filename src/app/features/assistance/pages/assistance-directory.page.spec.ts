@@ -182,10 +182,11 @@ describe('Assistance case directory (A4)', { timeout: 20_000 }, () => {
     // Overdue cash return with an open dispute.
     const overdue = cells(8);
     expect(overdue[3]).toBe(t.state.cashCollected);
-    const collection = row(8).querySelectorAll('[data-collection] span');
-    expect(text(collection[0])).toBe(t.collection.collected);
+    const collection = row(8).querySelectorAll('[data-collection] > span');
+    // A6: the collection is tagged as the Organization's report.
+    expect(text(collection[0])).toBe(`${t.collection.collected} ${t.case.source.report}`);
     expect(text(collection[1])).toMatch(/^Settle by .+$/);
-    expect(overdue[5]).toBe(t.channel.closed);
+    expect(overdue[5]).toBe(`${t.oversight.settlement.closedUnpaid} ${t.case.source.fact}`);
     expect([...row(8).querySelectorAll('[data-indicators] li')].map((li) => text(li))).toEqual([
       t.indicator.overdue,
       t.indicator.dispute,
@@ -195,10 +196,11 @@ describe('Assistance case directory (A4)', { timeout: 20_000 }, () => {
       t.state.pending,
       t.collection.notCollected,
       t.channel.none,
+      t.oversight.cashReturn.none,
       t.indicator.none,
     ]);
-    // Settled cases say "collected" without a deadline.
-    expect(cells(9)[4]).toBe(t.collection.collected);
+    // Settled cases say "collected" (a report) without a deadline.
+    expect(cells(9)[4]).toBe(`${t.collection.collected} ${t.case.source.report}`);
     const table = text(element.querySelector('table'));
     expect(table).not.toMatch(/\bTND\b|[€$£]|46[ ,.]?500|45[ ,.]?000|\d[.,]\d{3}\b/);
   });
@@ -235,12 +237,12 @@ describe('Assistance case directory (A4)', { timeout: 20_000 }, () => {
     await choose(element, settle, 1, 'settled');
     expect(rowIds(element)!.length).toBe(5);
     await choose(element, settle, 1, '');
-    await choose(element, settle, 2, 'disputed');
+    await choose(element, settle, 3, 'disputed');
     expect(rowIds(element).sort()).toEqual(
       [caseOf(4), caseOf(8), caseOf(10)].map((c) => c.request.id).sort(),
     );
-    await choose(element, settle, 2, 'all');
-    await choose(element, settle, 3, 'consentOldest');
+    await choose(element, settle, 3, 'all');
+    await choose(element, settle, 4, 'consentOldest');
     expect(rowIds(element)[0]).toBe(caseOf(14).request.id);
     // Nawara Drive has no assistance: the filters match nothing, and clearing restores everything.
     await choose(element, settle, 0, DEMO_DRIVE_PLATFORM_ID);
@@ -249,7 +251,7 @@ describe('Assistance case directory (A4)', { timeout: 20_000 }, () => {
     await settle();
     await settle();
     expect(rowIds(element)).toHaveLength(ASSISTANCE_DIRECTORY_PAGE_SIZE);
-    expect(selects(element).map((s) => s.value)).toEqual(['', '', 'all', 'consentNewest']);
+    expect(selects(element).map((s) => s.value)).toEqual(['', '', '', 'all', 'consentNewest']);
   });
 
   it('finds a case by its full reference; refuses a partial one without asking', async () => {
@@ -349,6 +351,57 @@ describe('Assistance case directory (A4)', { timeout: 20_000 }, () => {
     if (fetchSpy) expect(fetchSpy).not.toHaveBeenCalled();
     expect(open).not.toHaveBeenCalled();
     vi.restoreAllMocks();
+  });
+});
+
+describe('Assistance directory oversight (A6)', { timeout: 30_000 }, () => {
+  const cell = (element: HTMLElement, n: number, name: string) =>
+    element.querySelector<HTMLElement>(`tr[data-request="${caseOf(n).request.id}"] [data-${name}]`);
+
+  it('a reported collection is tagged Reported; settlement and cash return say what they are', async () => {
+    const { element, settle } = await render();
+    element.querySelector<HTMLButtonElement>('[data-more]')!.click();
+    await settle();
+    await settle();
+    for (const c of OWN.filter((x) => x.request.collection !== null)) {
+      const tag = element.querySelector(
+        `tr[data-request="${c.request.id}"] [data-collection] adm-assistance-source-tag`,
+      );
+      expect(tag?.getAttribute('data-source')).toBe('report');
+    }
+    expect(cell(element, 5, 'settlement')?.dataset['value']).toBe('verified');
+    expect(
+      cell(element, 5, 'settlement')
+        ?.querySelector('adm-assistance-source-tag')
+        ?.getAttribute('data-source'),
+    ).toBe('fact');
+    expect(cell(element, 4, 'settlement')?.dataset['value']).toBe('inProgress');
+    expect(cell(element, 6, 'settlement')?.dataset['value']).toBe('uncertain');
+    expect(cell(element, 11, 'settlement')?.dataset['value']).toBe('lateUnapplied');
+    expect(cell(element, 12, 'settlement')?.dataset['value']).toBe('verifiedLate');
+    expect([7, 8, 10, 12, 1].map((n) => cell(element, n, 'cash-return')?.dataset['value'])).toEqual(
+      ['confirmed', 'owed', 'reported', 'superseded', 'none'],
+    );
+    expect(text(cell(element, 10, 'cash-return'))).toContain(t.oversight.cashReturn.reported);
+  });
+
+  it('filters by settlement state and by each new attention, through the gateway', async () => {
+    const { element, settle, spy } = await render();
+    await choose(element, settle, 2, 'closed');
+    expect(rowIds(element).sort()).toEqual(
+      [7, 8, 10, 11, 12].map((n) => caseOf(n).request.id).sort(),
+    );
+    expect(spy.mock.calls.at(-1)?.[1]).toMatchObject({ channel: 'closed' });
+    await choose(element, settle, 2, '');
+    const attention: [string, number[]][] = [
+      ['cashReturnOwed', [8, 10, 11]],
+      ['lateUnapplied', [11]],
+      ['recoveryOpen', [13]],
+    ];
+    for (const [value, cases] of attention) {
+      await choose(element, settle, 3, value);
+      expect(rowIds(element).sort(), value).toEqual(cases.map((n) => caseOf(n).request.id).sort());
+    }
   });
 });
 

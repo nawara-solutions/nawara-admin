@@ -164,6 +164,7 @@ describe('AssistanceGateway contract (Assistance A2)', () => {
       channel: 'open',
       lateSettlement: null,
       recovery: null,
+      cashReturn: null,
     };
     class TypedAdapter extends AssistanceGateway {
       cases(

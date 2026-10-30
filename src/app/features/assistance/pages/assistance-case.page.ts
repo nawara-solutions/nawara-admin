@@ -21,7 +21,6 @@ import {
   AssistanceDisputeReason,
   AssistanceInformationSource,
   AssistanceRequestState,
-  AssistanceRestriction,
   CashReturnOrigin,
   CashReturnState,
   CorrectableField,
@@ -32,7 +31,10 @@ import {
   SettlementChannelState,
 } from '../domain/assistance.model';
 import { RESOLVABLE_DISPUTE_REASONS, effectiveTime } from '../domain/assistance.rules';
+import { assistanceOversight, oversightInputOfCase } from '../domain/assistance-oversight';
 import { AssistanceMoneyPipe } from '../ui/assistance-money.pipe';
+import { AssistanceOversightPanel } from '../ui/assistance-oversight-panel';
+import { AssistanceSourceTag } from '../ui/assistance-source-tag';
 
 /** Catalog keys, listed in full (never built at runtime). */
 const STATE_KEYS = {
@@ -57,13 +59,6 @@ const CHANNEL_KEYS = {
   settled: 'assistanceCases.channel.settled',
   closed: 'assistanceCases.channel.closed',
 } as const satisfies Record<SettlementChannelState, string>;
-
-const SOURCE_KEYS = {
-  fact: 'assistanceCases.case.source.fact',
-  report: 'assistanceCases.case.source.report',
-  decision: 'assistanceCases.case.source.decision',
-  derived: 'assistanceCases.case.source.derived',
-} as const satisfies Record<AssistanceInformationSource, string>;
 
 const SOURCE_ICONS = {
   fact: 'badge-check',
@@ -104,12 +99,6 @@ const KIND_KEYS = {
   channelClosed: 'assistanceCases.case.kind.channelClosed',
   recoveryOpened: 'assistanceCases.case.kind.recoveryOpened',
 } as const satisfies Record<AssistanceTimelineEntry['kind'], string>;
-
-const RESTRICTION_KEYS = {
-  T1: 'assistanceCases.case.restriction.t1',
-  T2: 'assistanceCases.case.restriction.t2',
-  T3: 'assistanceCases.case.restriction.t3',
-} as const satisfies Record<AssistanceRestriction, string>;
 
 const RETURN_STATE_KEYS = {
   open: 'assistanceCases.case.cashReturn.state.open',
@@ -190,6 +179,8 @@ const shortRef = (id: string): string => id.slice(-8);
     NwLink,
     NwStatusBadge,
     AssistanceMoneyPipe,
+    AssistanceOversightPanel,
+    AssistanceSourceTag,
   ],
   templateUrl: './assistance-case.page.html',
   styleUrl: './assistance-case.page.scss',
@@ -211,11 +202,9 @@ export class AssistanceCasePage {
     'decision',
     'derived',
   ];
-  protected readonly sourceKeys = SOURCE_KEYS;
   protected readonly sourceIcons = SOURCE_ICONS;
   protected readonly actorKeys = ACTOR_KEYS;
   protected readonly kindKeys = KIND_KEYS;
-  protected readonly restrictionKeys = RESTRICTION_KEYS;
   protected readonly returnStateKeys = RETURN_STATE_KEYS;
   protected readonly returnOriginKeys = RETURN_ORIGIN_KEYS;
   protected readonly disputeReasonKeys = DISPUTE_REASON_KEYS;
@@ -230,6 +219,14 @@ export class AssistanceCasePage {
   protected readonly shortRef = shortRef;
   protected readonly organizationPath = organizationPath;
   protected readonly platformPath = platformPath;
+
+  /** The case's oversight (A6), read from the same records the sections show. */
+  protected readonly oversight = computed(() => {
+    const view = this.facade.view();
+    if (view.status !== 'ready') return null;
+    const { detail, lateSettlements, recovery } = view.record;
+    return assistanceOversight(oversightInputOfCase(detail, lateSettlements, recovery));
+  });
 
   protected readonly platformName = computed(() => {
     const platforms = this.scope.platforms();
