@@ -39,6 +39,14 @@ const DEMO_INTERNALS = {
     'Demo internals are imported only by demo code (*.mock.ts, *.fixtures.ts, src/app/demo/) and specs. Use a gateway.',
 };
 
+// Receipt secrets (docs/design/f1-financial-authorization.md §0.2): only a consumer HTTP adapter (*.http.ts) reads a secret's
+// value, through receipt-secret-access; the holder itself and its own specs are the only other importers.
+const RECEIPT_SECRET_ACCESS = {
+  group: ['**/receipt-secret-access'],
+  message:
+    'Receipt secret values are read only by consumer HTTP adapters (*.http.ts). Pass the ReceiptSecret holder instead.',
+};
+
 module.exports = defineConfig([
   {
     files: ['**/*.ts'],
@@ -62,7 +70,7 @@ module.exports = defineConfig([
       '@typescript-eslint/no-explicit-any': 'error',
       'no-restricted-imports': [
         'error',
-        { patterns: [...FORBIDDEN_FRAMEWORKS, RAW_HTTP, DEMO_INTERNALS] },
+        { patterns: [...FORBIDDEN_FRAMEWORKS, RAW_HTTP, DEMO_INTERNALS, RECEIPT_SECRET_ACCESS] },
       ],
     },
   },
@@ -83,7 +91,23 @@ module.exports = defineConfig([
       'src/app/**/testing/**/*.ts',
     ],
     rules: {
-      'no-restricted-imports': ['error', { patterns: [...FORBIDDEN_FRAMEWORKS, RAW_HTTP] }],
+      'no-restricted-imports': [
+        'error',
+        { patterns: [...FORBIDDEN_FRAMEWORKS, RAW_HTTP, RECEIPT_SECRET_ACCESS] },
+      ],
+    },
+  },
+  {
+    // The receipt-secret holder and its own specs may reach the secret's value.
+    files: [
+      'src/app/core/authorization/receipt-secret.ts',
+      'src/app/core/authorization/receipt-secret*.spec.ts',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        { patterns: [...FORBIDDEN_FRAMEWORKS, RAW_HTTP, DEMO_INTERNALS] },
+      ],
     },
   },
   {
