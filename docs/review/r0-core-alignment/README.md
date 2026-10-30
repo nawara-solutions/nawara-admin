@@ -21,6 +21,13 @@ Owner review evidence for the Core-aligned Admin V2 master roadmap (R0) and the 
 SHA-256: `core-routes.tsv` `c1a8313cb14b6cbcc9bdc975dc36937a1e39a4101c8055560c46766b613cd824`;
 `core-routes-auth.tsv` `a2253218eb2e0a91ea79c5c911cc8e6e95fbc515e4127f41e2b6acdb69ceaf6f`.
 
+## Errata
+
+The files here are kept exactly as delivered. Corrections found later are recorded, dated, in
+[`CORE-INTEGRATION.md` §11.12](../../CORE-INTEGRATION.md#1112-errata-f1-s0-2026-10-30) (F1-S0, 2026-10-30): receipt issuance
+and Audit legal holds take the step-up as **body** `stepUpToken` (this roadmap's §9.3 and §11.2 say header), and a receipt secret
+may have to stay in memory for one intent.
+
 ## Limits of this evidence
 
 - The inventory is **source-derived**: it counts controller handlers under `apps/*/src`, not routes mounted by `libs/service-kit`

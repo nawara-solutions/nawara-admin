@@ -21,6 +21,10 @@
   CF-73) and the certification limits. The earlier baselines (`8628616`, `03e10a0`, `0954566`, `dd07f2a`, `750eb21`, `304064f`)
   are kept as they were written, for traceability; where §1–§10 disagree with §11, **§11 is current**. Evidence:
   [`review/r0-core-alignment/`](review/r0-core-alignment/README.md).
+- **F1-S0 errata (2026-10-30), same Core revision `0044b20`:** five dated corrections to the F0 text (receipt issuance and Audit
+  legal holds take a **body** `stepUpToken`; a receipt may stay in memory for one intent; issuance, consumption and completion are
+  separate outcomes; uncertain no-key outcomes stay blocked) are in [§11.12](#1112-errata-f1-s0-2026-10-30); open Core questions
+  CF-74 to CF-76 are in §9. The F0 text is kept and marked.
 - **Precedence:** a service's OpenAPI (`GET /<service>/docs`) and Core ADRs win over this document. Report differences to Core.
 
 ---
@@ -531,6 +535,9 @@ Admin code:**
 - An **authorization receipt** secret (`POST /auth/admin/authorization-receipts`) is returned **once**, lives **10 minutes**
   (`auth-service/src/receipts/authorization-receipt.service.ts:14-15`) and is sent only as `receiptSecret` in the body of its one
   consuming Billing or Payment route. It is never stored, logged, put in a URL, kept in an idempotency record or queued for retry.
+  **[Erratum E-3, 2026-10-30 ([§11.12](#1112-errata-f1-s0-2026-10-30)):** "never queued for retry" is too strong. Core documents
+  an identical repeat of the same request (same `Idempotency-Key`, same `receiptSecret`) for an unresolved answer, so the secret
+  may have to stay **in memory** for the life of one financial intent. It is still never persisted, logged or put in a URL.**]**
 - Receipt issuance replay: `409 receipt_issued_response_lost` means the receipt is **voided** (start again from a new step-up);
   `503 receipt_outcome_unknown` means replay the **same** `Idempotency-Key`. Never return a stored secret.
 - A receipt step-up token is **never** sent as `x-step-up-token` to a domain route: Core's `POST /auth/step-up/verify` refuses
@@ -1291,6 +1298,41 @@ Admin requirement: Core's Admin section states the development-only Owner and op
 Classification:   🟡 documentation correction (Core-owned; Admin changes nothing in Core).
 Recommended checkpoint: next Core documentation task.
 
+CF-74 to CF-76 (F1-S0, 2026-10-30) are open Core questions raised by the F1 design (`design/f1-financial-authorization.md`
+§15). Recording them is not an approved Core implementation request.
+
+CF-74  Repeat semantics of receipt consumers without Idempotency-Key      OPEN (F1-S0, 2026-10-30)
+Service:          billing-service
+Current behavior: (verified `0044b20`) fraud-hold placement and release (`billing-service/src/fraud-holds/fraud-hold.controller.ts:24-56`),
+                  the external surplus repayment (`recovery.controller.ts:163-181`) and the recovery write-off
+                  (`reconciliation.controller.ts:89-104`) take no `Idempotency-Key`; each documents `503 …_authorization_unresolved
+                  (repeat the same request)`, but not what a byte-identical repeat answers after a transport loss when the
+                  first request already committed.
+Admin requirement: a stated replay contract for these routes. Until then an uncertain outcome on them stays blocked: no
+                  automatic and no unverified manual resubmission. A read that shows no applied result does not, by itself,
+                  authorize a repeat.
+Classification:   🔴 undefined (contract clarification).
+Recommended checkpoint: before any Admin consumer of these routes (roadmap F8, F10).
+
+CF-75  Owner-facing read of a receipt's state                              OPEN (F1-S0)
+Service:          auth-service
+Current behavior: (verified `0044b20`) the receipt lookup (AUTH-03, `POST /auth/service/authorization-receipts/consumptions/lookup`)
+                  is service-token only (`auth-service/src/receipts/authorization-receipt.controller.ts:52-66`); an owner cannot
+                  ask whether a receipt they obtained is issued, consumed, voided or expired.
+Admin requirement: after a lost page or answer, the owner can tell whether an authorization was spent, without the secret.
+Classification:   🟡 contract addition.
+Recommended checkpoint: before the first receipt-consuming Admin workflow (roadmap F5).
+
+CF-76  Same-key replay order for service-verified step-up commands        OPEN (F1-S0)
+Service:          organization-service, release-service, billing-service (assistance)
+Current behavior: (verified `0044b20`) these commands verify and consume the `x-step-up-token` through
+                  `POST /auth/step-up/verify`; whether a same-`Idempotency-Key` repeat after a lost answer replays the stored
+                  outcome **before** the (already consumed) step-up is checked is not documented.
+Admin requirement: a stated rule. Until then Admin never resends a service-verified command after a lost answer (its
+                  existing behaviour) and reconciles by reading.
+Classification:   🔴 undefined (contract clarification).
+Recommended checkpoint: before the first HTTP adapter of these commands.
+
 Residual risk recorded with P6-S3: block and unblock require no step-up (Core's deliberate choice for an emergency
 control), so a stolen owner session can block every operator or unblock one. Admin adds no verification Core does not ask
 for; this is for the Core owner's security review, not an Admin change.
@@ -1364,6 +1406,12 @@ Billing's `PlatformsModule` (Platform commercial configuration, fees, Owner cata
 environment (`apps/billing-service/src/platforms/platforms.module.ts:21`), but Billing is not deployed: 🟡 DEV-ONLY as well.
 
 ### 11.4 The three step-up transports
+
+> **Errata (F1-S0, 2026-10-30):** the table below is the F0 record, kept as written. Two of its transport cells are wrong:
+> receipt issuance takes the step-up as **`stepUpToken` in the JSON body**, not the `x-step-up-token` header (E-1), and Audit
+> legal holds take **`stepUpToken` in the JSON body**, not the header (E-2). Receipts may also need to stay in memory for one
+> intent (E-3), and issuance, consumption and the financial outcome are three separate results (E-4). See
+> [§11.12](#1112-errata-f1-s0-2026-10-30).
 
 All three start at `POST /auth/admin/step-up` (owner only; Core's operator step-up does not exist, CF-08). Purposes and their
 allowed factors: `apps/auth-service/src/owner/step-up.service.ts:23-100`.
@@ -1517,3 +1565,19 @@ simulation Core".
    (for example BIL-02 `POST /billing/admin/products` vs the merged `POST /billing/admin/platforms/:platformId/products`;
    BIL-32's proposed reconciliation-case path vs the merged `/billing/admin/late-settlements/:id/application`). **The merged source
    is authoritative**; §11.5 uses it.
+
+### 11.12 Errata (F1-S0, 2026-10-30)
+
+Found while designing F1 ([`design/f1-financial-authorization.md`](design/f1-financial-authorization.md)) by re-reading Core at the
+same revision, `0044b20`. The F0 text above is kept unchanged and marked; these entries are current.
+
+| Id | F0 statement | Source at `0044b20` | Correction |
+|---|---|---|---|
+| E-1 | §11.4 T3: receipt issuance sends the step-up as header `x-step-up-token` | `POST /auth/admin/authorization-receipts` reads `{ stepUpToken, binding }` from the **JSON body**, with the `Idempotency-Key` header (`apps/auth-service/src/receipts/dto.ts:109-114`; `apps/auth-service/src/receipts/authorization-receipt.controller.ts:44-50`) | receipt issuance: **body** `stepUpToken` |
+| E-2 | §11.4 T2: services, including Audit, take header `x-step-up-token` | Audit legal holds read **body** `stepUpToken` (`apps/audit-service/src/legal-hold/legal-hold.service.ts:52-60`, `:83-89`; a UUID, `:175-178`). Organization (`apps/organization-service/src/admin/admin.controller.ts:22`, `:91`, `:149`), Release (`apps/release-service/src/admin/admin.controller.ts:9`, `:88`, `:114`) and Billing assistance (`apps/billing-service/src/assistance/assistance.controller.ts:377`, `:413`, `:439`) read the **header** | delivery is per consumer: header for Organization, Release, Billing assistance; body for Audit legal holds. The two are **not interchangeable** |
+| E-3 | §8: a receipt secret is "never … queued for retry"; F0 roadmap §9.3 implies one use | every receipt consumer documents `503 …_authorization_unresolved (repeat the same request)`; Billing's refund relay: "a retry with the same key resumes the same relay (the replay fingerprint never covers the secret)" (`apps/billing-service/src/refunds/refund-authorization.service.ts:28-36`) | the secret may have to stay **in memory** for the life of **one** financial intent so the identical repeat is possible. Never persisted, logged, put in a URL or reused for another intent. A wrapper that redacts the secret from strings and JSON is **defence in depth only**, not complete protection: a future implementation must restrict access to the secret, prevent persistence and logging, and test both |
+| E-4 | (implicit) a receipt marks an authorized operation | issuance (`authorization-receipt.service.ts:105-163`), consumption by the consumer (AUTH-02, service-token only) and the consumer's financial result are separate; Core's answers distinguish them (`503 refund_payment_unavailable`: the relay **is recorded**; `…_authorization_unresolved`: repeat) | Admin keeps three separate outcomes: **receipt issued**, **receipt consumed**, **financial command completed**. An issued receipt never shows an operation as done |
+| E-5 | (new safety rule) | the routes without `Idempotency-Key` (CF-74) | an uncertain outcome on a no-key route stays **blocked** from automatic and unverified manual resubmission until CF-74 is answered; a read showing no applied result does not by itself authorize a repeat |
+
+Nothing here changes a production statement: every receipt-consuming route is still refused in production (§11.3), and Auth's
+S2 receipt code is not deployed (§11.10).
