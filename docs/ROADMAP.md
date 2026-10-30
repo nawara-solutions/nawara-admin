@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation (PR #34); P7-S1 mock Licenses & entitlements overview (PR #35); P7-S2 Platform and Organization subscriptions (PR #36); P7-S3 Billing & payment follow-ups (PR #37); P8-S1 simulated administrative activity browser (PR #38); P8-S2 Services & health inventory (PR #39); P8-S3 personal Notifications (PR #40); P8-S4 Releases information page (PR #41); P9-S1 Settings hub & Language (PR #42); P9-S2 personal Account (PR #43); P9-S3 Company settings (PR #44); P9-S4a owner Security overview (read only; PR #45); P9-S4b add an authenticator app (mock-first; PR #46); P9-S4c create a new secret key (mock-first; PR #47); P9-S4d remove a factor (mock-first; PR #48); P9-S4e change the password (mock-first); rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation (PR #34); P7-S1 mock Licenses & entitlements overview (PR #35); P7-S2 Platform and Organization subscriptions (PR #36); P7-S3 Billing & payment follow-ups (PR #37); P8-S1 simulated administrative activity browser (PR #38); P8-S2 Services & health inventory (PR #39); P8-S3 personal Notifications (PR #40); P8-S4 Releases information page (PR #41); P9-S1 Settings hub & Language (PR #42); P9-S2 personal Account (PR #43); P9-S3 Company settings (PR #44); P9-S4a owner Security overview (read only; PR #45); P9-S4b add an authenticator app (mock-first; PR #46); P9-S4c create a new secret key (mock-first; PR #47); P9-S4d remove a factor (mock-first; PR #48); P9-S4e change the password (mock-first); R0/F0 Core V2 alignment, documentation only (Core `0044b20`; awaiting review); rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -21,7 +21,7 @@ A7  Identity & access administration         🟢       ⏳
 A8  Organization & platform management       🟢/🔴/⚠  ⏳
 A9  Audit                                    🟢/🔴    ⏳
 A10 Release administration                   🟢/🔴    ⏳
-A11 Licenses / Billing / Payments            🟡       ⏳
+A11 Licenses / Billing / Payments            🟡       ⏳ (F0: Core S3–S6 are 🟡 DEV-ONLY, refused in production; financial slices F1–F16 proposed, NOT authorized)
 A12 Files / Notifications                    🟡       ⏳
 A13 Services / Health / Monitoring           🟡/🔴    ⏳
     ── Shared-frontend review FK-2 (or earlier, on trigger) ──
@@ -290,6 +290,52 @@ the frontend only and shows "sign-in not available": no mock authentication, dem
 stylesheet budget warnings were resolved by component decomposition (Platforms page header; sign-in brand panel and demo
 note) and by reusing `nw-button` for the Platforms message actions, without changing the design. Open: a Content-Security-
 Policy (A14), and everything listed open for A4-S1 below.
+
+## R0 / F0: Core V2 alignment (owner-authorized 2026-10-30)
+
+**R0** reconciled Admin against Core `main` **`0044b20`** (PR #409 merge, verified 2026-10-30T20:30:48Z, read-only) and Admin
+`cf4b1a9`. The Owner approved its **direction as a planning baseline** and authorized **F0 only**: documentation and contract
+reconciliation inside Admin. No later slice is authorized by that approval. Evidence: the complete master roadmap, the
+source-derived 208-route inventories and their scripts in [`review/r0-core-alignment/`](review/r0-core-alignment/README.md).
+
+**F0 (documentation only; diff approved by the Owner 2026-10-30 with D-R0-4 and D-R0-5; awaiting merge). D-A4 and every financial product decision stay OPEN:**
+
+- [`CORE-INTEGRATION.md`](CORE-INTEGRATION.md): new baseline bullet; §2, §4, §5, §6, §7, §8 annotated (historical text kept);
+  CF-01, CF-02, CF-04, CF-05, CF-38, CF-40 status lines; new **CF-65 to CF-73**; §10 Core-side open items; new **§11** (baseline
+  verification, the 🟡 DEV-ONLY state, 56 production-refused handlers, the three step-up transports, the S3–S6 financial register,
+  ORG-00, D-A4, owner/operator authority, current Admin coverage, certification limits, open ambiguities).
+- This file: the stage lines, this section, decisions D-R0-0 to D-R0-7.
+- No Angular source, route, gateway, component, test, branding, accent, theme or localization changed; nothing in Core changed.
+
+**Key facts recorded:** every S3–S6 Billing and Payment module except the Platform commercial module mounts nothing in
+production, and Billing and Payment are not deployed; S1–S6 are CONDITIONAL PASS for development and simulation only (S5 not
+certified); ORG-00 keeps human hierarchy reads out of Core V2; D-A4 is unchanged (no cookie sessions); the S6 Owner decisions use
+**receipt-bound** step-up, which Admin does not model; several workflows have no owner discovery list (CF-65, CF-67 to CF-70, CF-72),
+no owner payment discovery (CF-66) or no human File evidence path (CF-71).
+
+**Proposed slices (master roadmap §13; NOT authorized, each needs its own Owner authorization and respects the 2026-10-06
+priorities):**
+
+| # | Slice | Depends on | Blocked for HTTP by |
+|---|---|---|---|
+| F1 | step-up transports T1/T2/T3 + receipt contract (mock, no UI) | F0 | D-A4 |
+| F2 | Finance hub under `/billing` (owner; dev-only and production-unavailable states) | F0 | — |
+| F3 | Billing reconciliation cases | F2 | D-A4 |
+| F4 | balances and `FinancialLoss` | F2 | D-A4 |
+| F5 | refund case detail and authorization (T3) | F1, F3 | CF-65, CF-66 |
+| F6 | payment disputes (decision T3) | F1, F2 | CF-71 (evidence) |
+| F7 | unmatched facts and association (T3) | F1, F3 | — |
+| F8 | recovery, surplus, write-off (T3) | F1, F3 | CF-68, CF-71 (Path B) |
+| F9 | late assisted settlement L-4 (T3) | F1, F3 | CF-69 |
+| F10 | fraud holds (design + mock) | F1 | CF-67, CF-71 |
+| F11 | assistance oversight (T2; design + mock) | F1 | CF-70 |
+| F12 | Platform commercial configuration, catalog, fees (first operator capability) | F2 | CF-72 (reads) |
+| F13 | Audit V2: Company timeline, operator Platform records, legal holds (T2) | F0 | deployment (M9, G-7, AP-R) |
+| F14 | Release reads and commands (T2) | F0 | Release production (MOVE V3) |
+| F15 | HTTP foundation | D-A4 | CF-07 / origins |
+| F16 | HTTP adapters, one service per PR, local simulation Core only for 🟡 DEV-ONLY | F15 | each service's deployment |
+
+No financial page may present simulation data as real, and a production build keeps every 🟡 DEV-ONLY gateway unavailable.
 
 ## P9-S4e: change the password, mock-first (implemented 2026-10-25)
 
@@ -1154,6 +1200,14 @@ working-code sign-in, enrollment and recovery screens, step-up, a sign-out entry
 | D-A3-4 | A3-S1 review | Provisional "pending invitations" definition (organization-admin invitations awaiting acceptance across the Company); Core decides the real one (CF-11) |
 | D-A8 | A8 | Whether organization-admin members are ever Admin users (default: no) |
 | D-A14 | A14 | Hosting (static host + headers), staging origins, Tauri packaging (not planned) |
+| D-R0-0 | F1 | The R0 master roadmap: direction **approved as a planning baseline** (2026-10-30); approval of each later slice is separate |
+| D-R0-1 | F1 | Priority versus the 2026-10-06 priorities (Admin business features deferred): keep the deferral, authorize the financial track, or a subset |
+| D-R0-2 | F2 | Finance placement: extend `/billing` (proposed; keeps every route) or a new top-level `/finance` |
+| D-R0-3 | F2 | Demo builds show clearly fictional financial mocks (proposed) or none |
+| D-R0-4 | F0 review | **Approved (Owner, 2026-10-30):** adopt the 🟡 DEV-ONLY contract state ([CORE-INTEGRATION §11.2](CORE-INTEGRATION.md#112-contract-states-from-f0)) |
+| D-R0-5 | F0 review | **Approved (Owner, 2026-10-30):** record CF-65 to CF-73 as Admin-tracked Core prerequisites; this does **not** mean Core has authorized or implemented any of them |
+| D-R0-6 | F12 / F13 | First operator capabilities: fee proposals, the Audit Platform read, Organization metadata edit |
+| D-R0-7 | F2 | Financial pages in production builds: an explicit "not available in production" state (proposed) or hidden |
 
 ## Safe to postpone
 
