@@ -38,10 +38,17 @@ for (const locale of LOCALES) {
   }
 }
 
+// Files that hold only Core machine values (never catalog keys) whose spelling can collide with a catalog namespace, e.g.
+// Core's step-up purpose `billing.fraud_hold.place` and Admin's `billing.` namespace. Listed one by one, never by folder.
+const MACHINE_VALUE_FILES = new Set([
+  join('src', 'app', 'core', 'authorization', 'purpose-registry.ts'),
+]);
+
 const files = (dir) =>
   readdirSync(dir).flatMap((name) => {
     const path = join(dir, name);
     if (statSync(path).isDirectory()) return files(path);
+    if (MACHINE_VALUE_FILES.has(path)) return [];
     return /\.(html|ts)$/.test(name) && !name.endsWith('.spec.ts') ? [path] : [];
   });
 
