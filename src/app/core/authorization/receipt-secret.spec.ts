@@ -65,6 +65,10 @@ describe('ReceiptSecret (F1-S3)', () => {
   });
 
   it('never stores or logs the value while held, read and discarded', () => {
+    // Other spec files share this browser environment and may leave their own keys: compare before and after.
+    const keys = (storage: Storage) =>
+      Array.from({ length: storage.length }, (_, i) => storage.key(i));
+    const before = [keys(globalThis.localStorage), keys(globalThis.sessionStorage)];
     const local = vi.spyOn(Storage.prototype, 'setItem');
     const consoleSpies = (['log', 'info', 'warn', 'error', 'debug'] as const).map((method) =>
       vi.spyOn(console, method),
@@ -74,8 +78,7 @@ describe('ReceiptSecret (F1-S3)', () => {
     secret.discard();
     expect(local).not.toHaveBeenCalled();
     for (const spy of consoleSpies) expect(spy).not.toHaveBeenCalled();
-    expect(globalThis.localStorage.length).toBe(0);
-    expect(globalThis.sessionStorage.length).toBe(0);
+    expect([keys(globalThis.localStorage), keys(globalThis.sessionStorage)]).toEqual(before);
     vi.restoreAllMocks();
   });
 
