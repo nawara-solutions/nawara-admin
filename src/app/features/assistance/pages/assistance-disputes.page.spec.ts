@@ -148,8 +148,11 @@ async function render({
     await new Promise((resolve) => setTimeout(resolve, 10));
     await fixture.whenStable();
   };
-  const loading = () => element.querySelector('nw-data-state[state="loading"]') !== null;
-  for (let i = 0; i < 30 && loading(); i++) await settle();
+  // Wait for a final state of every list (never only "no loading indicator yet", which is also true before the first render).
+  const pending = () =>
+    element.querySelector('nw-data-state[state="loading"]') !== null ||
+    element.querySelector('[data-section], nw-data-state') === null;
+  for (let i = 0; i < 60 && pending(); i++) await settle();
   await settle();
   const select = async (filter: string, value: string) => {
     const control = element.querySelector<HTMLSelectElement>(`select[data-filter="${filter}"]`)!;

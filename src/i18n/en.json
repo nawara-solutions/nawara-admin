@@ -233,7 +233,8 @@
     "notifications": "Notifications",
     "releases": "Releases",
     "assistanceDisputes": "Assistance disputes and exceptions",
-    "assistanceSettlements": "Late settlements and cash returns"
+    "assistanceSettlements": "Late settlements and cash returns",
+    "assistanceRecovery": "Recovery and surplus"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -273,7 +274,8 @@
       "notifications": "Notifications",
       "releases": "Releases",
       "assistanceDisputes": "Disputes and exceptions",
-      "assistanceSettlements": "Late settlements and returns"
+      "assistanceSettlements": "Late settlements and returns",
+      "assistanceRecovery": "Recovery and surplus"
     },
     "context": {
       "label": "Administration scope",
@@ -2563,12 +2565,9 @@
         "outstanding": "Outstanding",
         "openedAt": "Opened",
         "recoveredAt": "Recovered on",
-        "surplusTitle": "Surplus owed to the Organization",
         "baseOnly": "Recovery covers the price only, never the Organization’s fee; Nawara Core states these amounts.",
         "surplus": {
-          "owedToOrganization": "owed to the Organization",
-          "externalExecutionEvidenced": "repayment recorded, awaiting confirmation",
-          "resolved": "resolved"
+          "owedToOrganization": "owed to the Organization"
         }
       },
       "timeline": {
@@ -2823,6 +2822,66 @@
       "errorTitle": "Late settlements could not be loaded",
       "loading": "Loading late settlements…",
       "readOnly": "Read only: no application, receipt, return report, confirmation or payment can be made from this page."
+    },
+    "recovery": {
+      "link": "Recovery and surplus",
+      "title": "Recovery and surplus",
+      "subtitle": "What Organizations owe after a final chargeback of an assisted purchase, what was verified as recovered, and the surplus owed back to them, as Nawara Core records it.",
+      "simulation": "Simulated records — not Nawara Core data. Nawara Core has no owner list of recovery obligations yet; these fictional records follow its states and rules so the overview can be reviewed.",
+      "notInBuildDescription": "Nawara Core’s Billing service does not offer the owner a list of recovery obligations yet, so there is nothing to show.",
+      "forbiddenDescription": "Recovery obligations and surpluses are shown to the Company owner only.",
+      "listTitle": "Recovery obligations",
+      "intro": "Nawara Core opens an obligation for the price of an assisted purchase lost to a full final chargeback. Only payments Payment verified recover it; any excess is a surplus owed to the Organization, never revenue.",
+      "count": "Showing {{shown}} recovery obligations",
+      "countMore": "Showing the first {{shown}} recovery obligations; more are available",
+      "none": "No recovery obligation matches.",
+      "errorTitle": "Recovery obligations could not be loaded",
+      "loading": "Loading recovery obligations…",
+      "readOnly": "Read only: no settlement, allocation, refund, repayment record, confirmation or write-off can be made from this page.",
+      "filter": {
+        "state": "Recovery",
+        "allStates": "Open and recovered",
+        "surplus": "Surplus",
+        "anySurplus": "With or without",
+        "surplusOwed": "Surplus still owed to the Organization"
+      },
+      "why": "Why it exists",
+      "whyLoss": "A full final chargeback of the assisted purchase, verified by Payment. Dispute reference:",
+      "standing": "Recovery",
+      "lateSettlements": "Late settlements of the case",
+      "noLateSettlement": "None",
+      "owedBase": "Owed by the Organization",
+      "baseOnly": "the price only, never the Organization’s fee",
+      "recovered": "Recovered (verified)",
+      "outstanding": "Still owed",
+      "inProgress": "Payment in progress",
+      "inProgressExplain": "The Organization started paying. It recovers nothing until Payment verifies it.",
+      "paymentsTitle": "Verified recovery payments",
+      "paymentsNone": "No payment has been verified yet.",
+      "split": "recovered {{principal}}, surplus {{surplus}}",
+      "surplusTitle": "Surplus payable to the Organization",
+      "surplusNone": "No surplus.",
+      "surplusNever": "A surplus is owed to the Organization: never revenue, never offset, and it never re-opens a restriction.",
+      "surplus": {
+        "externalRecorded": "Repayment recorded by the owner",
+        "confirmed": "Repaid, confirmed by the Organization",
+        "refunded": "Refunded through a completed refund"
+      },
+      "externalRecordedOn": "recorded {{date}}",
+      "awaitingConfirmation": "Still owed until the Organization confirms it received it.",
+      "channelsTitle": "Payment attempts",
+      "channelActive": "In progress",
+      "channelEnded": "Ended",
+      "historyTitle": "History",
+      "history": {
+        "opened": "Opened by Nawara Core after the final loss",
+        "channel": "The Organization started a payment",
+        "payment": "Payment verified a recovery payment",
+        "surplus": "A surplus was recorded",
+        "recovered": "Fully recovered",
+        "surplusExternal": "The owner recorded a repayment outside Nawara Core",
+        "surplusConfirmed": "The Organization confirmed the repayment"
+      }
     }
   },
   "activity": {

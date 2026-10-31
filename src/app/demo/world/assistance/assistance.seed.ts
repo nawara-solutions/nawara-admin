@@ -19,6 +19,7 @@ import {
 import {
   AssistanceTimelineEntry,
   LateSettlementDetail,
+  RecoveryChannelView,
   RecoveryObligationDetail,
 } from '../../../features/assistance/domain/assistance-read.model';
 import { DemoWorldTables } from '../records';
@@ -242,6 +243,27 @@ export function demoAssistanceCases(
   });
 
   const money = (b: CaseBase, amount: number) => ({ amount, currency: b.terms.currency });
+
+  /**
+   * A recovery settlement channel (A9): an invoice for the outstanding amount when it opened, and its payment request. Ids: the
+   * k-th channel of case n is 0x900 + 0x10·k + n, its invoice 0x920 + 0x10·k + n, its payment request 0x940 + 0x10·k + n.
+   */
+  const recoveryChannel = (
+    b: CaseBase,
+    k: number,
+    amount: number,
+    status: RecoveryChannelView['paymentRequestStatus'],
+    createdHours: number,
+  ): RecoveryChannelView => ({
+    id: id(0x900 + 0x10 * k + b.n),
+    invoiceId: id(0x920 + 0x10 * k + b.n),
+    paymentRequestId: id(0x940 + 0x10 * k + b.n),
+    amount,
+    paymentRequestStatus: status,
+    active: status === 'created' || status === 'sending' || status === 'requested',
+    createdAt: at(createdHours),
+  });
+  const channelRequest = (b: CaseBase, k: number) => id(0x940 + 0x10 * k + b.n);
 
   /** An open dispute as Core represents it; `escalationDue` is what Core derives at `now` (open for more than seven days). */
   const openDispute = (
@@ -627,9 +649,11 @@ export function demoAssistanceCases(
         outstanding: money(b13, 30_000),
         openedAt: at(-100),
         recoveredAt: null,
+        // A partial capture of channel 1's payment, verified LATE (S6h-B: its amount is Payment's captured amount): principal only.
         payments: [
           {
             id: id(0x880 + 13),
+            paymentRequestId: channelRequest(b13, 0),
             amount: 15_000,
             principalAmount: 15_000,
             surplusAmount: 0,
@@ -637,6 +661,11 @@ export function demoAssistanceCases(
           },
         ],
         surpluses: [],
+        // Channel 1 ended unpaid; the Organization started channel 2 for the outstanding 30.000 TND: in progress, NOT recovered.
+        channels: [
+          recoveryChannel(b13, 0, 45_000, 'failed', -90),
+          recoveryChannel(b13, 1, 30_000, 'requested', -20),
+        ],
       },
       timeline: timeline(b13, [
         consent(b13),
@@ -665,6 +694,7 @@ export function demoAssistanceCases(
         payments: [
           {
             id: id(0x880 + 14),
+            paymentRequestId: channelRequest(b14, 0),
             amount: 20_000,
             principalAmount: 20_000,
             surplusAmount: 0,
@@ -672,10 +702,20 @@ export function demoAssistanceCases(
           },
           {
             id: id(0x8a0 + 14),
+            paymentRequestId: channelRequest(b14, 1),
             amount: 12_000,
             principalAmount: 10_000,
             surplusAmount: 2_000,
             recordedAt: at(-120),
+          },
+          // A9: another verified late capture after recovery: ENTIRELY surplus (R6F-5), never revenue, never re-opens T3.
+          {
+            id: id(0x960 + 14),
+            paymentRequestId: channelRequest(b14, 0),
+            amount: 5_000,
+            principalAmount: 0,
+            surplusAmount: 5_000,
+            recordedAt: at(-60),
           },
         ],
         surpluses: [
@@ -687,7 +727,30 @@ export function demoAssistanceCases(
             refunded: false,
             external: null,
             status: 'owed_to_organization',
+            recordedAt: at(-120),
+            externalRecordedAt: null,
+            confirmedAt: null,
+            refundCaseId: null,
           },
+          // Path B: the owner recorded a repayment outside Core (receipt + File evidence); unresolved until the Organization confirms.
+          {
+            id: id(0x970 + 14),
+            obligationId: id(0x700 + 14),
+            organizationId: b14.organizationId,
+            amount: money(b14, 5_000),
+            refunded: false,
+            external: { confirmed: false },
+            status: 'external_execution_evidenced',
+            recordedAt: at(-60),
+            externalRecordedAt: at(-40),
+            confirmedAt: null,
+            refundCaseId: null,
+          },
+        ],
+        // Both channels ended unpaid; their payments were verified late (partial captures).
+        channels: [
+          recoveryChannel(b14, 0, 30_000, 'failed', -290),
+          recoveryChannel(b14, 1, 30_000, 'expired', -250),
         ],
       },
       timeline: timeline(b14, [
@@ -698,6 +761,8 @@ export function demoAssistanceCases(
         { source: 'derived', kind: 'recoveryOpened', by: 'core', at: at(-300) },
         { source: 'fact', kind: 'recoveryPayment', by: 'core', at: at(-200) },
         { source: 'fact', kind: 'recoveryPayment', by: 'core', at: at(-120) },
+        { source: 'fact', kind: 'recoveryPayment', by: 'core', at: at(-60) },
+        { source: 'decision', kind: 'surplusExternal', by: 'owner', at: at(-40) },
       ]),
     }),
   ];
@@ -809,6 +874,7 @@ function foreignCases(at: (hours: number) => string): readonly DemoAssistanceCas
         recoveredAt: null,
         payments: [],
         surpluses: [],
+        channels: [],
       },
       purchaseExists: true,
       timeline: [],

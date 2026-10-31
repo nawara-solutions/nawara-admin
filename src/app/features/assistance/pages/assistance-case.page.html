@@ -410,27 +410,29 @@
             </dd>
             <dt>{{ 'assistanceCases.case.recovery.openedAt' | transloco }}</dt>
             <dd>{{ recovery.openedAt | nwDate: 'date-time' }}</dd>
+            <dt>{{ 'assistanceCases.recovery.why' | transloco }}</dt>
+            <dd data-recovery-why>
+              {{ 'assistanceCases.recovery.whyLoss' | transloco }}
+              <code dir="ltr" [attr.title]="recovery.disputeId"
+                >…{{ shortRef(recovery.disputeId) }}</code
+              >
+            </dd>
             @if (recovery.recoveredAt; as recoveredAt) {
               <dt>{{ 'assistanceCases.case.recovery.recoveredAt' | transloco }}</dt>
               <dd>{{ recoveredAt | nwDate: 'date-time' }}</dd>
             }
           </dl>
-          @if (recovery.surpluses.length > 0) {
-            <h3 class="assistance-case__subtitle">
-              {{ 'assistanceCases.case.recovery.surplusTitle' | transloco }}
-            </h3>
-            <ul class="assistance-case__list" role="list" data-surpluses>
-              @for (surplus of recovery.surpluses; track surplus.id) {
-                <li>
-                  <bdi>{{ surplus.amount | assistanceMoney }}</bdi>
-                  {{ surplusKeys[surplus.status] | transloco }}
-                </li>
-              }
-            </ul>
-          }
+          <adm-assistance-recovery-standing
+            [obligation]="recovery"
+            [showSummary]="false"
+            [headingLevel]="3"
+          />
           <p class="assistance-case__hint">
             {{ 'assistanceCases.case.recovery.baseOnly' | transloco }}
           </p>
+          <a nw-link [routerLink]="recoveryPath" data-recovery-link>
+            {{ 'assistanceCases.recovery.link' | transloco }}
+          </a>
         </section>
       }
     </div>
