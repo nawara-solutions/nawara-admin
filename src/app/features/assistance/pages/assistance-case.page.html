@@ -50,6 +50,10 @@
           [settleBy]="request.collection?.settleBy ?? null"
           [restrictions]="detail.restrictions"
         />
+        <h3 class="assistance-case__subtitle">
+          {{ 'assistanceCases.exception.title' | transloco }}
+        </h3>
+        <adm-assistance-exception-badges data-case-exceptions [exceptions]="exceptions() ?? []" />
         @if (detail.restrictions !== null && detail.restrictions.length > 0) {
           <p class="assistance-case__hint">
             {{ 'assistanceCases.case.restriction.scope' | transloco }}
@@ -255,63 +259,24 @@
         </section>
       }
 
-      @if (detail.disputes.length > 0 || detail.corrections.length > 0) {
+      @if (
+        request.collection !== null || detail.disputes.length > 0 || detail.corrections.length > 0
+      ) {
         <section
-          class="assistance-case__card"
+          class="assistance-case__card assistance-case__card--wide"
           aria-labelledby="case-disputes"
           data-section="disputes"
         >
           <h2 id="case-disputes" class="assistance-case__card-title">
             {{ 'assistanceCases.case.dispute.title' | transloco }}
           </h2>
-          @for (dispute of detail.disputes; track dispute.id) {
-            <div class="assistance-case__item" [attr.data-dispute]="dispute.reason">
-              <p class="assistance-case__item-title">
-                {{ disputeReasonKeys[dispute.reason] | transloco }}
-                <nw-status-badge [tone]="dispute.state === 'open' ? 'danger' : 'success'">{{
-                  (dispute.state === 'open'
-                    ? 'assistanceCases.case.dispute.open'
-                    : 'assistanceCases.case.dispute.resolved'
-                  ) | transloco
-                }}</nw-status-badge>
-              </p>
-              @if (dispute.resolution) {
-                <p class="assistance-case__secondary">
-                  {{ 'assistanceCases.case.dispute.timestampCorrected' | transloco }}
-                </p>
-              } @else if (resolvable[dispute.reason] === null) {
-                <p class="assistance-case__secondary" data-unresolvable>
-                  {{ 'assistanceCases.case.dispute.noResolution' | transloco }}
-                </p>
-              }
-            </div>
-          }
-          @if (detail.corrections.length > 0) {
-            <h3 class="assistance-case__subtitle">
-              {{ 'assistanceCases.case.correction.title' | transloco }}
-            </h3>
-            <ol class="assistance-case__list" data-corrections>
-              @for (correction of detail.corrections; track correction.id) {
-                <li>
-                  {{
-                    'assistanceCases.case.correction.line'
-                      | transloco
-                        : {
-                            field: (fieldKeys[correction.field] | transloco),
-                            from: (correction.supersededValue | nwDate: 'date-time'),
-                            to: (correction.correctedValue | nwDate: 'date-time'),
-                          }
-                  }}
-                  <span class="assistance-case__secondary">{{
-                    correctionReasonKeys[correction.reason] | transloco
-                  }}</span>
-                </li>
-              }
-            </ol>
-            <p class="assistance-case__hint">
-              {{ 'assistanceCases.case.correction.timesOnly' | transloco }}
-            </p>
-          }
+          <adm-assistance-dispute-panel
+            [detail]="detail"
+            [lateSettlements]="record.lateSettlements"
+          />
+          <a nw-link [routerLink]="disputesPath" data-disputes-link>
+            {{ 'assistanceCases.disputes.link' | transloco }}
+          </a>
         </section>
       }
 

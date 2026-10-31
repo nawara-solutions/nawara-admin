@@ -231,7 +231,8 @@
     "audit": "Journal d’audit",
     "services": "Services et santé",
     "notifications": "Notifications",
-    "releases": "Versions"
+    "releases": "Versions",
+    "assistanceDisputes": "Contestations et exceptions d’assistance"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -269,7 +270,8 @@
       "audit": "Journal d’audit",
       "services": "Services et santé",
       "notifications": "Notifications",
-      "releases": "Versions"
+      "releases": "Versions",
+      "assistanceDisputes": "Contestations et exceptions"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -2474,7 +2476,40 @@
           "collectionNotMade": "Collecte non effectuée",
           "collectionTimeIncorrect": "Heure de collecte inexacte",
           "returnTimeIncorrect": "Heure de restitution inexacte"
-        }
+        },
+        "none": "Le bénéficiaire n’a pas contesté ce dossier.",
+        "escalationDue": "Ouverte depuis plus de sept jours : escalade attendue",
+        "openedBy": "Ouverte par",
+        "byBeneficiary": "Le bénéficiaire",
+        "byOwner": "Le propriétaire",
+        "openedAt": "Ouverte le",
+        "evidenceLabel": "Preuve contestée",
+        "evidence": {
+          "collectionReport": "La déclaration de l’organisation selon laquelle la totalité du montant a été collectée",
+          "collectionTime": "L’heure de collecte déclarée par l’organisation",
+          "cashReturn": "La restitution d’espèces due par l’organisation",
+          "returnTime": "L’heure de restitution déclarée par l’organisation"
+        },
+        "responseLabel": "Réponse de l’organisation",
+        "responseLine": "{{position}}, {{date}}",
+        "noResponse": "Pas encore de réponse",
+        "position": {
+          "accepts": "Accepte",
+          "contests": "Conteste"
+        },
+        "resolutionLabel": "Résolution",
+        "awaitingCorrection": "Ne se clôt que sur une correction de l’élément « {{field}} » par le propriétaire ; aucune n’a été enregistrée depuis l’ouverture.",
+        "correctionRecorded": "Une correction de l’élément « {{field}} » par le propriétaire a été enregistrée après l’ouverture ; Nawara Core accepterait une résolution fondée sur elle. Pas encore résolue.",
+        "resolvedAt": "Résolue le",
+        "restsOn": "Sur la correction no {{sequence}}",
+        "holdsTitle": "Tant qu’une contestation est ouverte, Nawara Core bloque",
+        "hold": {
+          "cashReturnConfirmation": "La confirmation, par le bénéficiaire, d’une restitution déclarée",
+          "lateSettlementApplication": "L’application d’un règlement tardif par le propriétaire",
+          "secondDispute": "Une autre contestation de cette demande (une seule ouverte à la fois)"
+        },
+        "holdInEffect": "Concerne ce dossier maintenant",
+        "neverHolds": "Une contestation ne bloque jamais un règlement électronique vérifié ni l’échéance de restitution, ne modifie aucun montant ni aucune obligation et n’est pas une restriction de l’organisation."
       },
       "correction": {
         "title": "Corrections du propriétaire",
@@ -2487,7 +2522,14 @@
         "reason": {
           "actorEntryError": "Erreur de saisie de l’organisation",
           "evidenceContradictsReport": "Les preuves contredisent la déclaration"
-        }
+        },
+        "recordedAt": "enregistrée le {{date}}",
+        "none": "Aucune correction du propriétaire n’a été enregistrée.",
+        "eligibilityTitle": "Heures qu’une correction du propriétaire pourrait modifier",
+        "original": "Déclarée : {{date}}",
+        "inForce": "en vigueur : {{date}}",
+        "eligible": "Nawara Core permet au propriétaire de corriger cette heure (non proposé ici).",
+        "notReported": "Non déclarée : il n’y a rien à corriger."
       },
       "late": {
         "title": "Règlements tardifs",
@@ -2568,6 +2610,20 @@
         "channelUncertain": "Règlement incertain",
         "channelClosed": "Canal de règlement clos",
         "recoveryOpened": "Recouvrement ouvert"
+      },
+      "unavailable": {
+        "title": "Indisponible sur cette page",
+        "kind": {
+          "future": "Capacité future :",
+          "noPath": "Impossible :",
+          "notOwner": "Action qui n’appartient pas au propriétaire :"
+        },
+        "correct": "corriger une heure déclarée. Nawara Core le permet au propriétaire de l’entreprise avec une vérification renforcée récente pour {{correctPurpose}} ; Admin ne le propose pas encore.",
+        "resolve": "clore une contestation d’heure de collecte ou de restitution sur cette correction. Nawara Core le permet au propriétaire de l’entreprise avec une vérification renforcée récente pour {{resolvePurpose}} ; Admin ne le propose pas encore.",
+        "noResolution": "résoudre une contestation « Espèces non restituées » ou « Collecte non effectuée ». Nawara Core ne prévoit aucune résolution ; elles restent ouvertes.",
+        "money": "modifier un montant, des frais, l’échéance de règlement ou la preuve d’origine. Une correction ne modifie qu’une heure déclarée, et l’original reste enregistré.",
+        "beneficiary": "ouvrir une contestation ou confirmer une restitution. Seul le bénéficiaire le peut ; le propriétaire n’agit jamais à sa place.",
+        "organization": "déclarer une collecte ou une restitution, ou répondre à une contestation. Seul un administrateur de l’organisation le peut."
       }
     },
     "oversight": {
@@ -2621,6 +2677,59 @@
         "returnConfirmedOrSuperseded": "Levée quand le bénéficiaire confirme la restitution, ou qu’un règlement tardif appliqué la remplace.",
         "principalRecovered": "Levée quand les recouvrements vérifiés atteignent le prix."
       }
+    },
+    "exception": {
+      "title": "Exceptions",
+      "none": "Aucune",
+      "feeds": "Source de la restriction {{restriction}}",
+      "collectionReportedNotSettled": "Collecte déclarée, non réglée",
+      "uncertainSettlement": "Règlement incertain",
+      "overdueSettlement": "Règlement en retard",
+      "openDispute": "Contestation ouverte",
+      "cashReturn": "Restitution d’espèces due",
+      "lateSettlementReview": "Règlement tardif à examiner",
+      "recoveryRestriction": "Recouvrement ouvert",
+      "describe": {
+        "collectionReportedNotSettled": "L’organisation a déclaré avoir collecté la totalité du montant en espèces, et la demande n’est ni réglée ni restituée. Une déclaration est une preuve, jamais un paiement.",
+        "uncertainSettlement": "Le règlement électronique est en cours d’envoi : le service de paiement peut l’avoir reçu ou non. Il n’est pas réglé.",
+        "overdueSettlement": "Nawara Core indique que la demande a dépassé son échéance de règlement (72 heures après la collecte déclarée).",
+        "openDispute": "Le bénéficiaire conteste les preuves en espèces. Seul le bénéficiaire peut ouvrir une contestation.",
+        "cashReturn": "L’organisation doit au bénéficiaire le total figé en espèces ; une restitution déclarée reste due jusqu’à sa confirmation par le bénéficiaire.",
+        "lateSettlementReview": "Un paiement vérifié est arrivé après la clôture. Il ne règle rien tant que le propriétaire ne l’applique pas ; il n’est jamais appliqué automatiquement.",
+        "recoveryRestriction": "Une obligation de recouvrement du prix est ouverte après une rétrofacturation définitive."
+      }
+    },
+    "disputes": {
+      "link": "Contestations et exceptions",
+      "back": "Tous les dossiers d’assistance",
+      "title": "Contestations et exceptions",
+      "subtitle": "Les contestations des bénéficiaires et les dossiers qui demandent votre attention, tels que Nawara Core les enregistre.",
+      "simulation": "Contestations simulées — pas des données de Nawara Core. Nawara Core n’offre pas encore au propriétaire de liste des contestations d’assistance ; ces enregistrements fictifs suivent ses états et ses règles pour permettre la revue de cette vue.",
+      "notInBuildDescription": "Le service de facturation de Nawara Core n’offre pas encore de lecture des contestations d’assistance au propriétaire ; il n’y a donc rien à afficher.",
+      "forbiddenDescription": "Les contestations et exceptions d’assistance ne sont présentées qu’au propriétaire de l’entreprise.",
+      "list": {
+        "title": "Contestations",
+        "intro": "Seul un bénéficiaire ouvre une contestation. Nawara Core ne résout que les contestations d’heure de collecte ou de restitution, et uniquement par une correction de cette heure par le propriétaire.",
+        "count": "{{shown}} contestations affichées",
+        "countMore": "Les {{shown}} premières contestations sont affichées ; d’autres sont disponibles",
+        "case": "Dossier",
+        "context": "Collecte et règlement",
+        "none": "Aucune contestation ne correspond."
+      },
+      "filter": {
+        "status": "Statut",
+        "allStatuses": "Ouvertes et résolues",
+        "reason": "Motif",
+        "allReasons": "Tous les motifs",
+        "exception": "Exception"
+      },
+      "path": {
+        "correctionOnly": "Ne se clôt que sur une correction de l’élément « {{field}} » par le propriétaire."
+      },
+      "errorTitle": "Les contestations n’ont pas pu être chargées",
+      "loading": "Chargement des contestations…",
+      "exceptionNone": "Aucun dossier ne relève de cette exception.",
+      "readOnly": "Lecture seule : aucune correction, résolution, collecte, aucun paiement, aucune confirmation ni aucun remboursement ne peut être effectué depuis cette page."
     }
   },
   "activity": {

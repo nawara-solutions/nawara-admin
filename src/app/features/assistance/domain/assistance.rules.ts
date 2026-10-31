@@ -235,7 +235,8 @@ export function validReturnReport(
 
 // ── Disputes and owner corrections (0031:76-200) ──────────────────────────────────────────────────────────────────────
 
-const DISPUTABLE_REQUEST_STATES: readonly AssistanceRequestState[] = [
+/** The request states that carry Organization-asserted cash evidence: disputable and correctable (`0031:178-180`, `:141`). */
+export const DISPUTABLE_REQUEST_STATES: readonly AssistanceRequestState[] = [
   'cash_collected',
   'settled',
   'returned',

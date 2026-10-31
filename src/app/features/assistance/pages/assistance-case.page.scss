@@ -123,6 +123,11 @@
   font-weight: var(--nw-font-weight-semibold);
 }
 
+// A7: the disputes card spans the grid.
+.assistance-case__card--wide {
+  grid-column: 1 / -1;
+}
+
 .assistance-case__subtitle,
 .assistance-case__item-title {
   display: flex;

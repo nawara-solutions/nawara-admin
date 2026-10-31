@@ -21,6 +21,8 @@ import {
   AssistanceCaseDetail,
   AssistanceCaseFilter,
   AssistanceCaseSummary,
+  AssistanceDisputeFilter,
+  AssistanceDisputeSummary,
   AssistanceDisputeView,
   AssistancePage,
   AssistancePageRequest,
@@ -30,6 +32,8 @@ import {
   LateSettlementFilter,
   RecoveryFilter,
   RecoveryObligationDetail,
+  isAssistanceDisputeReason,
+  isAssistanceDisputeState,
   isAssistanceRequestState,
 } from '../domain/assistance-read.model';
 import {
@@ -236,6 +240,35 @@ export class MockAssistanceGateway extends AssistanceGateway {
       const c = this.caseOf(cases, requestId);
       if (c === null) return NOT_FOUND;
       return { disputes: c.disputes, corrections: c.corrections };
+    });
+  }
+
+  disputeCases(
+    context: AssistanceReadContext,
+    filter: AssistanceDisputeFilter,
+    request: AssistancePageRequest,
+  ): Observable<AssistancePage<AssistanceDisputeSummary>> {
+    return this.read(context, (cases, now) => {
+      if (!filterInContext(context, filter)) return INVALID;
+      if (filter.state !== undefined && !isAssistanceDisputeState(filter.state)) return INVALID;
+      if (filter.reason !== undefined && !isAssistanceDisputeReason(filter.reason)) return INVALID;
+      const rows = cases
+        .flatMap((c) => c.disputes.map((dispute) => ({ c, dispute })))
+        .filter(
+          ({ c, dispute }) =>
+            (filter.state === undefined || dispute.state === filter.state) &&
+            (filter.reason === undefined || dispute.reason === filter.reason) &&
+            (filter.platformId === undefined || c.request.platformId === filter.platformId) &&
+            (filter.organizationId === undefined ||
+              c.request.organizationId === filter.organizationId),
+        )
+        .sort(
+          (a, b) =>
+            byNewest(a.dispute.openedAt, b.dispute.openedAt) ||
+            a.dispute.id.localeCompare(b.dispute.id),
+        )
+        .map(({ c, dispute }): AssistanceDisputeSummary => ({ dispute, case: summaryOf(c, now) }));
+      return page(rows, (r) => r.dispute.id, request) ?? INVALID;
     });
   }
 

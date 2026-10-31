@@ -31,6 +31,10 @@
   min-inline-size: 0;
 }
 
+.assistance__related {
+  justify-self: start;
+}
+
 .assistance__eyebrow {
   color: var(--nw-text-brand);
   font-size: var(--nw-text-size-sm);

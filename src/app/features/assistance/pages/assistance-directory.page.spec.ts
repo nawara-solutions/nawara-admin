@@ -172,6 +172,10 @@ describe('Assistance case directory (A4)', { timeout: 20_000 }, () => {
       'Showing the first 10 cases; more are available',
     );
     expect(text(element.querySelector('.assistance__hint'))).toBe(t.readOnly);
+    // A7: the disputes and exceptions overview, one link away.
+    const disputes = element.querySelector('[data-disputes-link]');
+    expect(disputes?.getAttribute('href')).toBe('/billing/assistance/disputes');
+    expect(text(disputes)).toBe(t.disputes.link);
   });
 
   it('shows Core states only: status, collection, settlement and indicators; no amount', async () => {

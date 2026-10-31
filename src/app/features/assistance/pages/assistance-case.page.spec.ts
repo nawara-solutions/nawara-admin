@@ -3,7 +3,9 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { vi } from 'vitest';
+import ar from '../../../../i18n/ar.json';
 import en from '../../../../i18n/en.json';
+import fr from '../../../../i18n/fr.json';
 import { Actor } from '../../../core/auth/actor';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { DemoAuthState } from '../../../core/auth/auth.mock-state';
@@ -67,14 +69,20 @@ async function render(
     actor = owner,
     gateway = 'mock',
     scenario = 'normal',
-  }: { actor?: Actor; gateway?: 'mock' | 'unavailable'; scenario?: AssistanceDemoScenario } = {},
+    lang = 'en',
+  }: {
+    actor?: Actor;
+    gateway?: 'mock' | 'unavailable';
+    scenario?: AssistanceDemoScenario;
+    lang?: 'en' | 'fr' | 'ar';
+  } = {},
 ) {
   TestBed.configureTestingModule({
     imports: [
       AssistanceCasePage,
       TranslocoTestingModule.forRoot({
-        langs: { en },
-        translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
+        langs: { en, fr, ar },
+        translocoConfig: { availableLangs: ['en', 'fr', 'ar'], defaultLang: lang },
         preloadLangs: true,
       }),
     ],
@@ -462,5 +470,187 @@ describe('Assistance case oversight (A6)', { timeout: 60_000 }, () => {
     expect(text(element.querySelector('[data-stage="deadline"] nw-status-badge'))).toBe(
       t.oversight.deadline.overdue,
     );
+  });
+});
+
+describe('Assistance case disputes and corrections (A7)', { timeout: 60_000 }, () => {
+  const disputes = (element: HTMLElement) => section(element, 'disputes')!;
+
+  it('shows each of the four reasons with its evidence, answer and Core’s resolution path', async () => {
+    // [case, reason, standing, evidence, answer]
+    const rows = [
+      [
+        4,
+        'collection_not_made',
+        'noResolutionInCore',
+        c.dispute.evidence.collectionReport,
+        c.dispute.noResponse,
+      ],
+      [
+        8,
+        'cash_not_returned',
+        'noResolutionInCore',
+        c.dispute.evidence.cashReturn,
+        c.dispute.noResponse,
+      ],
+      [
+        9,
+        'collection_time_incorrect',
+        'resolved',
+        c.dispute.evidence.collectionTime,
+        c.dispute.position.contests,
+      ],
+      [
+        10,
+        'return_time_incorrect',
+        'awaitingCorrection',
+        c.dispute.evidence.returnTime,
+        c.dispute.noResponse,
+      ],
+    ] as const;
+    for (const [n, reason, standing, evidence, answer] of rows) {
+      const { element } = await render(caseOf(n).request.id);
+      const item = disputes(element).querySelector<HTMLElement>(`[data-dispute="${reason}"]`)!;
+      expect(item.dataset['standing'], `case ${n}`).toBe(standing);
+      expect(text(item.querySelector('[data-evidence-concerned]'))).toBe(evidence);
+      expect(text(item.querySelector('[data-response]'))).toContain(answer);
+      expect(item.querySelector('[data-opened-at] time')?.getAttribute('datetime')).toBe(
+        caseOf(n).disputes[0]!.openedAt,
+      );
+      // Opened by the beneficiary: a report, never a fact.
+      expect(item.querySelector('adm-assistance-source-tag')?.getAttribute('data-source')).toBe(
+        'report',
+      );
+      // No demo dispute is open for more than seven days.
+      expect(item.querySelector('[data-escalation]')).toBeNull();
+      TestBed.resetTestingModule();
+    }
+  });
+
+  it('the forbidden resolutions are explained, never offered', async () => {
+    for (const n of [4, 8]) {
+      const { element } = await render(caseOf(n).request.id);
+      expect(text(disputes(element).querySelector('[data-unresolvable]'))).toBe(
+        c.dispute.noResolution,
+      );
+      TestBed.resetTestingModule();
+    }
+    const { element } = await render(caseOf(10).request.id);
+    expect(text(disputes(element).querySelector('[data-awaiting]'))).toBe(
+      c.dispute.awaitingCorrection.replace('{{field}}', c.correction.field.returnedAt),
+    );
+    const actions = [...disputes(element).querySelectorAll<HTMLElement>('[data-action]')].map(
+      (li) => li.dataset['action'],
+    );
+    expect(actions).toEqual([
+      'correct',
+      'resolve',
+      'noResolution',
+      'money',
+      'beneficiary',
+      'organization',
+    ]);
+    // The T2 purposes are Core machine values, shown untranslated.
+    const all = text(disputes(element).querySelector('[data-unavailable-actions]'));
+    expect(all).toContain('billing.assistance.correct');
+    expect(all).toContain('billing.assistance.dispute.resolve');
+    expect(all).toContain(c.unavailable.kind.future);
+    expect(all).toContain(c.unavailable.kind.notOwner);
+  });
+
+  it('an open dispute holds what Core holds, and says what it never holds', async () => {
+    let r = await render(caseOf(10).request.id);
+    const holds = Object.fromEntries(
+      [...disputes(r.element).querySelectorAll<HTMLElement>('[data-hold]')].map((li) => [
+        li.dataset['hold'],
+        li.dataset['inEffect'],
+      ]),
+    );
+    expect(holds).toEqual({
+      cashReturnConfirmation: 'true',
+      lateSettlementApplication: 'false',
+      secondDispute: 'true',
+    });
+    expect(text(disputes(r.element).querySelector('[data-never-holds]'))).toBe(
+      c.dispute.neverHolds,
+    );
+    TestBed.resetTestingModule();
+    // A resolved dispute holds nothing.
+    r = await render(caseOf(9).request.id);
+    expect(disputes(r.element).querySelector('[data-holds]')).toBeNull();
+  });
+
+  it('a timestamp correction: history appended, the original kept, the time in force shown, the dispute resolved on it', async () => {
+    const { element } = await render(caseOf(9).request.id);
+    const kase = caseOf(9);
+    const correction = kase.corrections[0]!;
+    const history = disputes(element).querySelector('[data-corrections]')!;
+    expect(history.querySelectorAll('li')).toHaveLength(1);
+    expect(text(history)).toContain('#1');
+    expect(history.querySelector('adm-assistance-source-tag')?.getAttribute('data-source')).toBe(
+      'decision',
+    );
+    const collected = disputes(element).querySelector<HTMLElement>(
+      '[data-field="cashCollectedAt"]',
+    )!;
+    expect(collected.dataset['eligible']).toBe('true');
+    expect(collected.querySelector('[data-in-force]')).not.toBeNull();
+    const sources = [...collected.querySelectorAll('adm-assistance-source-tag')].map((tag) =>
+      tag.getAttribute('data-source'),
+    );
+    expect(sources).toEqual(['report', 'decision']);
+    expect(text(disputes(element).querySelector('[data-resolved]'))).toBe(
+      c.dispute.timestampCorrected,
+    );
+    expect(text(disputes(element).querySelector('[data-resolved-at]'))).toContain(
+      c.dispute.restsOn.replace('{{sequence}}', String(correction.sequence)),
+    );
+    // The original evidence is unchanged: the request still carries the reported time.
+    expect(kase.request.collection!.cashCollectedAt).toBe(correction.supersededValue);
+    expect(
+      disputes(element).querySelector('[data-field="returnedAt"]')?.getAttribute('data-eligible'),
+    ).toBe('false');
+  });
+
+  it('a collected case without a dispute still explains correction eligibility; a pending one has no section', async () => {
+    let r = await render(caseOf(5).request.id);
+    expect(text(disputes(r.element).querySelector('[data-no-dispute]'))).toBe(c.dispute.none);
+    expect(text(disputes(r.element).querySelector('[data-corrections-none]'))).toBe(
+      c.correction.none,
+    );
+    expect(
+      disputes(r.element)
+        .querySelector('[data-field="cashCollectedAt"]')
+        ?.getAttribute('data-eligible'),
+    ).toBe('true');
+    TestBed.resetTestingModule();
+    r = await render(caseOf(2).request.id);
+    expect(section(r.element, 'disputes')).toBeNull();
+  });
+
+  it('shows the case’s exceptions and links to the overview', async () => {
+    const { element } = await render(caseOf(8).request.id);
+    const exceptions = [
+      ...element.querySelectorAll<HTMLElement>('[data-case-exceptions] [data-exception]'),
+    ].map((li) => li.dataset['exception']);
+    expect(exceptions).toEqual([
+      'collectionReportedNotSettled',
+      'overdueSettlement',
+      'openDispute',
+      'cashReturn',
+    ]);
+    expect(element.querySelector('[data-disputes-link]')?.getAttribute('href')).toBe(
+      '/billing/assistance/disputes',
+    );
+  });
+
+  it('renders in French and Arabic with every key translated', async () => {
+    for (const lang of ['fr', 'ar'] as const) {
+      for (const n of [8, 9, 10]) {
+        const { element } = await render(caseOf(n).request.id, { lang });
+        expect(element.textContent, `${lang} case ${n}`).not.toMatch(/assistanceCases\.|shell\./);
+        TestBed.resetTestingModule();
+      }
+    }
   });
 });

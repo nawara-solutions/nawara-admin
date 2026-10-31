@@ -6,6 +6,9 @@
     <p class="assistance__eyebrow">{{ 'assistanceCases.header.eyebrow' | transloco }}</p>
     <h1 class="assistance__title">{{ 'assistanceCases.header.title' | transloco }}</h1>
     <p class="assistance__muted">{{ 'assistanceCases.header.subtitle' | transloco }}</p>
+    <a nw-link class="assistance__related" [routerLink]="disputesPath" data-disputes-link>
+      <nw-icon name="circle-alert" size="sm" />{{ 'assistanceCases.disputes.link' | transloco }}
+    </a>
   </div>
   @if (isDemo()) {
     <span class="assistance__demo" data-demo>

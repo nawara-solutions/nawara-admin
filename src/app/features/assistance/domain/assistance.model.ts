@@ -53,8 +53,13 @@ export const ASSISTANCE_DISPUTE_REASONS = [
 export type AssistanceDisputeReason = (typeof ASSISTANCE_DISPUTE_REASONS)[number];
 
 /** `assistance_dispute.status` and its only outcome (`0031:91-93`). */
-export type AssistanceDisputeState = 'open' | 'resolved';
+export const ASSISTANCE_DISPUTE_STATES = ['open', 'resolved'] as const;
+export type AssistanceDisputeState = (typeof ASSISTANCE_DISPUTE_STATES)[number];
 export type AssistanceDisputeOutcome = 'timestamp_corrected';
+
+/** The Organization actor's answer to a dispute: evidence only, it changes no state (`0031:216-223`, H-5). */
+export const DISPUTE_RESPONSE_POSITIONS = ['accepts', 'contests'] as const;
+export type DisputeResponsePosition = (typeof DISPUTE_RESPONSE_POSITIONS)[number];
 
 /** The only correctable fields: Organization-asserted times, never money (`0031:117`, `:140-142`). */
 export const CORRECTABLE_FIELDS = ['cashCollectedAt', 'returnedAt'] as const;
@@ -163,14 +168,28 @@ export interface CashReturnObligation {
   readonly confirmedAt: string | null;
 }
 
+/**
+ * A beneficiary's dispute of the cash evidence, as Core represents it (`src/assistance/assistance-settlement.view.ts:38-57`; no
+ * actor id is exposed). It changes no financial fact: it never blocks a verified settlement or the obligation sweep.
+ */
 export interface AssistanceDispute {
   readonly id: string;
   readonly assistanceRequestId: string;
   readonly reason: AssistanceDisputeReason;
   readonly state: AssistanceDisputeState;
+  /** Core's time (`clock_timestamp()` after the request lock, `0031:194`); there is no filing cutoff. */
+  readonly openedAt: string;
+  /** Core-derived: open for more than seven days. An escalation target only: it closes and starts nothing. */
+  readonly escalationDue: boolean;
+  /** The Organization actor's one answer, or `null` (never the beneficiary). */
+  readonly response: {
+    readonly position: DisputeResponsePosition;
+    readonly respondedAt: string;
+  } | null;
   readonly resolution: {
     readonly outcome: AssistanceDisputeOutcome;
     readonly correctionId: string;
+    readonly resolvedAt: string;
   } | null;
 }
 
@@ -183,6 +202,8 @@ export interface AssistanceCorrection {
   readonly correctedValue: string;
   readonly supersededValue: string;
   readonly reason: CorrectionReason;
+  /** Core's time of the append (`0031:153`); a resolution rests only on a correction appended after the dispute opened. */
+  readonly correctedAt: string;
 }
 
 /** A verified success recorded after finality: never applied automatically (S0 §3.4 L-1 to L-6). */

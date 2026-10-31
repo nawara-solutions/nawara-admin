@@ -1,0 +1,443 @@
+@let disputes = facade.disputes();
+@let cases = facade.exceptionCases();
+@let query = facade.disputeQuery();
+@let exception = facade.exception();
+<a nw-link class="assistance-disputes__back" [routerLink]="directoryPath" data-back>
+  <nw-icon name="arrow-left" size="sm" />{{ 'assistanceCases.disputes.back' | transloco }}
+</a>
+
+<header class="assistance-disputes__header">
+  <span class="assistance-disputes__mark" aria-hidden="true"
+    ><nw-icon name="circle-alert" size="lg"
+  /></span>
+  <div class="assistance-disputes__titles">
+    <p class="assistance-disputes__eyebrow">{{ 'assistanceCases.header.eyebrow' | transloco }}</p>
+    <h1 class="assistance-disputes__title">{{ 'assistanceCases.disputes.title' | transloco }}</h1>
+    <p class="assistance-disputes__muted">{{ 'assistanceCases.disputes.subtitle' | transloco }}</p>
+  </div>
+  @if (isDemo()) {
+    <span class="assistance-disputes__demo" data-demo>
+      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+      <span class="nw-visually-hidden">: {{ 'assistanceCases.demoExplanation' | transloco }}</span>
+    </span>
+  }
+</header>
+
+@if (isDemo()) {
+  <p class="assistance-disputes__note" role="note" data-simulation>
+    <nw-icon name="flask-conical" size="sm" />
+    <span>{{ 'assistanceCases.disputes.simulation' | transloco }}</span>
+  </p>
+}
+
+@switch (blocked()) {
+  @case ('notInBuild') {
+    <nw-data-state
+      state="empty"
+      [title]="'assistanceCases.states.notInBuildTitle' | transloco"
+      [description]="'assistanceCases.disputes.notInBuildDescription' | transloco"
+    />
+  }
+  @case ('forbidden') {
+    <nw-data-state
+      state="empty"
+      [title]="'shell.pages.forbidden.title' | transloco"
+      [description]="'assistanceCases.disputes.forbiddenDescription' | transloco"
+    />
+  }
+  @default {
+    <!-- Disputes -->
+    <section
+      class="assistance-disputes__card"
+      aria-labelledby="disputes-title"
+      data-section="disputes"
+    >
+      <h2 id="disputes-title" class="assistance-disputes__card-title">
+        {{ 'assistanceCases.disputes.list.title' | transloco }}
+      </h2>
+      <p class="assistance-disputes__muted">
+        {{ 'assistanceCases.disputes.list.intro' | transloco }}
+      </p>
+      <div class="assistance-disputes__toolbar" data-filters>
+        <nw-form-field
+          class="assistance-disputes__select"
+          [label]="'assistanceCases.disputes.filter.status' | transloco"
+        >
+          <select
+            nwControl
+            aria-controls="disputes-list"
+            (change)="onState($event)"
+            data-filter="state"
+          >
+            <option value="open" [selected]="query.state === 'open'">
+              {{ 'assistanceCases.case.dispute.open' | transloco }}
+            </option>
+            <option value="resolved" [selected]="query.state === 'resolved'">
+              {{ 'assistanceCases.case.dispute.resolved' | transloco }}
+            </option>
+            <option value="" [selected]="query.state === null">
+              {{ 'assistanceCases.disputes.filter.allStatuses' | transloco }}
+            </option>
+          </select>
+        </nw-form-field>
+        <nw-form-field
+          class="assistance-disputes__select"
+          [label]="'assistanceCases.disputes.filter.reason' | transloco"
+        >
+          <select
+            nwControl
+            aria-controls="disputes-list"
+            (change)="onReason($event)"
+            data-filter="reason"
+          >
+            <option value="" [selected]="query.reason === null">
+              {{ 'assistanceCases.disputes.filter.allReasons' | transloco }}
+            </option>
+            @for (reason of reasons; track reason) {
+              <option [value]="reason" [selected]="reason === query.reason">
+                {{ reasonKeys[reason] | transloco }}
+              </option>
+            }
+          </select>
+        </nw-form-field>
+      </div>
+
+      @switch (disputes.status) {
+        @case ('ready') {
+          <p class="assistance-disputes__muted" role="status" aria-live="polite" data-count>
+            {{
+              (disputes.more
+                ? 'assistanceCases.disputes.list.countMore'
+                : 'assistanceCases.disputes.list.count'
+              ) | transloco: { shown: (disputes.rows.length | nwNumber) }
+            }}
+          </p>
+          <ul id="disputes-list" class="assistance-disputes__items" role="list" data-disputes>
+            @for (row of disputes.rows; track trackDispute(row)) {
+              @let dispute = row.dispute;
+              @let path = pathOf(dispute);
+              <li>
+                <article
+                  class="assistance-disputes__item"
+                  [attr.data-dispute]="dispute.reason"
+                  [attr.data-state]="dispute.state"
+                  [attr.data-request]="row.case.requestId"
+                  [attr.aria-labelledby]="'dispute-' + dispute.id"
+                >
+                  <h3 class="assistance-disputes__item-title" [id]="'dispute-' + dispute.id">
+                    <span>{{ reasonKeys[dispute.reason] | transloco }}</span>
+                    <nw-status-badge [tone]="dispute.state === 'open' ? 'danger' : 'success'">{{
+                      (dispute.state === 'open'
+                        ? 'assistanceCases.case.dispute.open'
+                        : 'assistanceCases.case.dispute.resolved'
+                      ) | transloco
+                    }}</nw-status-badge>
+                    @if (dispute.escalationDue) {
+                      <nw-status-badge tone="warning" data-escalation>{{
+                        'assistanceCases.case.dispute.escalationDue' | transloco
+                      }}</nw-status-badge>
+                    }
+                  </h3>
+                  <dl class="assistance-disputes__facts">
+                    <dt>{{ 'assistanceCases.disputes.list.case' | transloco }}</dt>
+                    <dd>
+                      <a nw-link [routerLink]="casePath(row.case.requestId)" data-case-link>
+                        <code
+                          class="assistance-disputes__ref"
+                          dir="ltr"
+                          [attr.title]="row.case.requestId"
+                        >
+                          <span aria-hidden="true">…{{ shortRef(row.case.requestId) }}</span>
+                          <span class="nw-visually-hidden">{{
+                            'assistanceCases.list.referenceFull'
+                              | transloco: { reference: row.case.requestId }
+                          }}</span>
+                        </code>
+                      </a>
+                      <nw-status-badge [tone]="stateTones[row.case.state]">{{
+                        stateKeys[row.case.state] | transloco
+                      }}</nw-status-badge>
+                    </dd>
+                    <dt>{{ 'assistanceCases.list.organization' | transloco }}</dt>
+                    <dd>
+                      <a nw-link [routerLink]="organizationLink(row.case)" data-organization>
+                        {{ 'assistanceCases.list.organizationRef' | transloco }}
+                        <code dir="ltr">…{{ shortRef(row.case.organizationId) }}</code>
+                      </a>
+                      @let platform = platformName()(row.case.platformId);
+                      <a nw-link [routerLink]="platformLink(row.case.platformId)">
+                        @if (platform !== null) {
+                          <bdi>{{ platform }}</bdi>
+                        } @else {
+                          {{ 'assistanceCases.list.platformUnknown' | transloco }}
+                        }
+                      </a>
+                    </dd>
+                    <dt>{{ 'assistanceCases.case.dispute.openedAt' | transloco }}</dt>
+                    <dd>
+                      <time [attr.datetime]="dispute.openedAt">{{
+                        dispute.openedAt | nwDate: 'date-time'
+                      }}</time>
+                    </dd>
+                    <dt>{{ 'assistanceCases.case.dispute.responseLabel' | transloco }}</dt>
+                    <dd data-response>
+                      @if (dispute.response; as response) {
+                        {{
+                          'assistanceCases.case.dispute.responseLine'
+                            | transloco
+                              : {
+                                  position: (positionKeys[response.position] | transloco),
+                                  date: (response.respondedAt | nwDate: 'date-time'),
+                                }
+                        }}
+                      } @else {
+                        <span class="assistance-disputes__secondary">{{
+                          'assistanceCases.case.dispute.noResponse' | transloco
+                        }}</span>
+                      }
+                    </dd>
+                    <dt>{{ 'assistanceCases.case.dispute.resolutionLabel' | transloco }}</dt>
+                    <dd [attr.data-path]="path">
+                      @let field = correctableField[dispute.reason];
+                      <span [class.assistance-disputes__secondary]="path !== 'resolved'">{{
+                        pathKeys[path]
+                          | transloco
+                            : { field: field === null ? '' : (fieldKeys[field] | transloco) }
+                      }}</span>
+                    </dd>
+                    <dt>{{ 'assistanceCases.disputes.list.context' | transloco }}</dt>
+                    <dd data-settlement-context>
+                      <span class="assistance-disputes__with-tag"
+                        >{{ 'assistanceCases.collection.collected' | transloco }}
+                        <adm-assistance-source-tag source="report"
+                      /></span>
+                      @let stage = settlementOf(row.case);
+                      <span class="assistance-disputes__with-tag" [attr.data-value]="stage"
+                        >{{ settlementKeys[stage] | transloco }}
+                        @if (settlementSources[stage]; as source) {
+                          <adm-assistance-source-tag [source]="source" />
+                        }
+                      </span>
+                    </dd>
+                    <dt>{{ 'assistanceCases.exception.title' | transloco }}</dt>
+                    <dd>
+                      <adm-assistance-exception-badges [exceptions]="exceptionsOf(row.case)" />
+                    </dd>
+                  </dl>
+                </article>
+              </li>
+            }
+          </ul>
+          @if (disputes.more || disputes.moreFailed) {
+            <div class="assistance-disputes__more">
+              @if (disputes.moreFailed) {
+                <p class="assistance-disputes__muted" role="alert">
+                  {{ 'assistanceCases.list.moreFailed' | transloco }}
+                </p>
+              }
+              <button
+                nw-button
+                variant="secondary"
+                type="button"
+                data-more="disputes"
+                [attr.aria-busy]="disputes.loadingMore || null"
+                [disabled]="disputes.loadingMore"
+                (click)="facade.moreDisputes()"
+              >
+                {{ 'assistanceCases.list.more' | transloco }}
+              </button>
+            </div>
+          }
+        }
+        @case ('none') {
+          <p class="assistance-disputes__muted" role="status" data-none="disputes">
+            {{ 'assistanceCases.disputes.list.none' | transloco }}
+          </p>
+        }
+        @case ('unavailable') {
+          <nw-data-state
+            state="error"
+            [title]="'assistanceCases.states.unavailableTitle' | transloco"
+            [description]="'assistanceCases.states.unavailableDescription' | transloco"
+          >
+            <div nwDataStateActions>
+              <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+                <nw-icon name="refresh-cw" size="sm" />{{
+                  'assistanceCases.states.retry' | transloco
+                }}
+              </button>
+            </div>
+          </nw-data-state>
+        }
+        @case ('error') {
+          <nw-data-state
+            state="error"
+            [title]="'assistanceCases.disputes.errorTitle' | transloco"
+            [description]="'assistanceCases.states.errorDescription' | transloco"
+          >
+            <div nwDataStateActions>
+              <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+                <nw-icon name="refresh-cw" size="sm" />{{
+                  'assistanceCases.states.retry' | transloco
+                }}
+              </button>
+            </div>
+          </nw-data-state>
+        }
+        @default {
+          <nw-data-state state="loading" [title]="'assistanceCases.disputes.loading' | transloco" />
+        }
+      }
+    </section>
+
+    <!-- Exceptions -->
+    <section
+      class="assistance-disputes__card"
+      aria-labelledby="exceptions-title"
+      data-section="exceptions"
+    >
+      <h2 id="exceptions-title" class="assistance-disputes__card-title">
+        {{ 'assistanceCases.exception.title' | transloco }}
+      </h2>
+      <div class="assistance-disputes__toolbar">
+        <nw-form-field
+          class="assistance-disputes__select"
+          [label]="'assistanceCases.disputes.filter.exception' | transloco"
+        >
+          <select
+            nwControl
+            aria-controls="exception-cases"
+            (change)="onException($event)"
+            data-filter="exception"
+          >
+            @for (e of exceptions; track e) {
+              <option [value]="e" [selected]="e === exception">
+                {{ exceptionKeys[e] | transloco }}
+              </option>
+            }
+          </select>
+        </nw-form-field>
+      </div>
+      <p class="assistance-disputes__explain" data-exception-description>
+        <span>{{ exceptionDescriptionKeys[exception] | transloco }}&#32;</span>
+        <adm-assistance-source-tag [source]="exceptionSource[exception]" />
+        @if (exceptionRestriction[exception]; as restriction) {
+          <span class="assistance-disputes__secondary" data-restriction>{{
+            'assistanceCases.exception.feeds' | transloco: { restriction: restriction }
+          }}</span>
+        }
+      </p>
+
+      @switch (cases.status) {
+        @case ('ready') {
+          <p class="assistance-disputes__muted" role="status" aria-live="polite" data-count>
+            {{
+              (cases.more ? 'assistanceCases.list.countMore' : 'assistanceCases.list.count')
+                | transloco: { shown: (cases.rows.length | nwNumber) }
+            }}
+          </p>
+          <ul
+            id="exception-cases"
+            class="assistance-disputes__items"
+            role="list"
+            data-exception-cases
+          >
+            @for (row of cases.rows; track row.requestId) {
+              <li>
+                <article class="assistance-disputes__item" [attr.data-request]="row.requestId">
+                  <h3 class="assistance-disputes__item-title">
+                    <a nw-link [routerLink]="casePath(row.requestId)" data-case-link>
+                      {{ 'assistanceCases.case.title' | transloco }}
+                      <code class="assistance-disputes__ref" dir="ltr" [attr.title]="row.requestId">
+                        <span aria-hidden="true">…{{ shortRef(row.requestId) }}</span>
+                        <span class="nw-visually-hidden">{{
+                          'assistanceCases.list.referenceFull'
+                            | transloco: { reference: row.requestId }
+                        }}</span>
+                      </code>
+                    </a>
+                    <nw-status-badge [tone]="stateTones[row.state]">{{
+                      stateKeys[row.state] | transloco
+                    }}</nw-status-badge>
+                  </h3>
+                  <dl class="assistance-disputes__facts">
+                    <dt>{{ 'assistanceCases.list.organization' | transloco }}</dt>
+                    <dd>
+                      <a nw-link [routerLink]="organizationLink(row)">
+                        {{ 'assistanceCases.list.organizationRef' | transloco }}
+                        <code dir="ltr">…{{ shortRef(row.organizationId) }}</code>
+                      </a>
+                    </dd>
+                    <dt>{{ 'assistanceCases.list.settlement' | transloco }}</dt>
+                    <dd>
+                      @let stage = settlementOf(row);
+                      <span class="assistance-disputes__with-tag" [attr.data-value]="stage"
+                        >{{ settlementKeys[stage] | transloco }}
+                        @if (settlementSources[stage]; as source) {
+                          <adm-assistance-source-tag [source]="source" />
+                        }
+                      </span>
+                      @if (row.settleBy !== null && row.state === 'cash_collected') {
+                        <span class="assistance-disputes__secondary">{{
+                          'assistanceCases.collection.settleBy'
+                            | transloco: { date: (row.settleBy | nwDate: 'date-time') }
+                        }}</span>
+                      }
+                    </dd>
+                    <dt>{{ 'assistanceCases.exception.title' | transloco }}</dt>
+                    <dd>
+                      <adm-assistance-exception-badges [exceptions]="exceptionsOf(row)" />
+                    </dd>
+                  </dl>
+                </article>
+              </li>
+            }
+          </ul>
+          @if (cases.more || cases.moreFailed) {
+            <div class="assistance-disputes__more">
+              @if (cases.moreFailed) {
+                <p class="assistance-disputes__muted" role="alert">
+                  {{ 'assistanceCases.list.moreFailed' | transloco }}
+                </p>
+              }
+              <button
+                nw-button
+                variant="secondary"
+                type="button"
+                data-more="exceptions"
+                [attr.aria-busy]="cases.loadingMore || null"
+                [disabled]="cases.loadingMore"
+                (click)="facade.moreExceptionCases()"
+              >
+                {{ 'assistanceCases.list.more' | transloco }}
+              </button>
+            </div>
+          }
+        }
+        @case ('none') {
+          <p class="assistance-disputes__muted" role="status" data-none="exceptions">
+            {{ 'assistanceCases.disputes.exceptionNone' | transloco }}
+          </p>
+        }
+        @case ('unavailable') {
+          <p class="assistance-disputes__muted" role="alert" data-exceptions-unavailable>
+            {{ 'assistanceCases.states.unavailableDescription' | transloco }}
+          </p>
+        }
+        @case ('error') {
+          <p class="assistance-disputes__muted" role="alert" data-exceptions-error>
+            {{ 'assistanceCases.states.errorDescription' | transloco }}
+          </p>
+        }
+        @default {
+          <nw-data-state state="loading" [title]="'assistanceCases.states.loading' | transloco" />
+        }
+      }
+    </section>
+
+    <p class="assistance-disputes__hint">
+      <nw-icon name="info" size="sm" />
+      <span>{{ 'assistanceCases.disputes.readOnly' | transloco }}</span>
+    </p>
+  }
+}

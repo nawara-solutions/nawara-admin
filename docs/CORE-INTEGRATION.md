@@ -27,6 +27,11 @@
   CF-74 to CF-76 are in §9. The F0 text is kept and marked.
 - **Assistance A3 (2026-10-30), same Core revision `0044b20`:** open Core question **CF-77** (no end-of-results contract in the
   reconciliation-case list, BIL-33) is in §9.
+- **Assistance A7 (2026-10-31), same Core revision `0044b20`:** the assistance dispute and correction representations were re-read
+  from source (`apps/billing-service/src/assistance/assistance-settlement.view.ts:34-57`, `assistance.controller.ts:84-123`,
+  `db/migrations/0031_assistance_resolution.sql`); Admin's A1 types now carry `openedAt`, `escalationDue`, `response`,
+  `resolution.resolvedAt` and `correctedAt`. Admin's dispute overview is a demo-only projection: the owner still has no read or
+  list of disputes (**CF-70**, unchanged). No new Core follow-up. Business rules: [`design/assistance-a7-disputes.md`](design/assistance-a7-disputes.md).
 - **Precedence:** a service's OpenAPI (`GET /<service>/docs`) and Core ADRs win over this document. Report differences to Core.
 
 ---

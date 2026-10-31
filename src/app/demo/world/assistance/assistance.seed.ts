@@ -57,6 +57,8 @@ export interface DemoAssistanceCase {
 
 const HOUR = 3_600_000;
 const SETTLE_WINDOW_HOURS = 72;
+/** Core's dispute escalation target: open for more than seven days (`assistance-settlement.view.ts:55`). Closes nothing. */
+const ESCALATION_HOURS = 7 * 24;
 
 /** Demo assistance ids: UUID-shaped like Core's, stable, never a seed id of another table. */
 export const DEMO_ASSISTANCE_ID_PREFIX = 'a551c0de-0000-4000-8000-';
@@ -241,6 +243,24 @@ export function demoAssistanceCases(
 
   const money = (b: CaseBase, amount: number) => ({ amount, currency: b.terms.currency });
 
+  /** An open dispute as Core represents it; `escalationDue` is what Core derives at `now` (open for more than seven days). */
+  const openDispute = (
+    b: CaseBase,
+    r: AssistanceRequest,
+    reason: AssistanceDispute['reason'],
+    openedHours: number,
+    response: AssistanceDispute['response'] = null,
+  ): AssistanceDispute => ({
+    id: id(0x400 + b.n),
+    assistanceRequestId: r.id,
+    reason,
+    state: 'open',
+    openedAt: at(openedHours),
+    escalationDue: -openedHours > ESCALATION_HOURS,
+    response,
+    resolution: null,
+  });
+
   // ── 1. Pending: consent given, nothing collected yet ───────────────────────────────────────────────────────────────
   const b1 = base(1, 1, 0, -2);
   const r1 = request(b1, 'pending');
@@ -312,15 +332,7 @@ export function demoAssistanceCases(
     }),
     kase(b4, r4, {
       channel: channel(b4, 'open'),
-      disputes: [
-        {
-          id: id(0x400 + 4),
-          assistanceRequestId: r4.id,
-          reason: 'collection_not_made',
-          state: 'open',
-          resolution: null,
-        },
-      ],
+      disputes: [openDispute(b4, r4, 'collection_not_made', -5)],
       timeline: timeline(b4, [
         consent(b4),
         collected(r4),
@@ -392,15 +404,7 @@ export function demoAssistanceCases(
           confirmedAt: null,
         },
       ],
-      disputes: [
-        {
-          id: id(0x400 + 8),
-          assistanceRequestId: r8.id,
-          reason: 'cash_not_returned',
-          state: 'open',
-          resolution: null,
-        },
-      ],
+      disputes: [openDispute(b8, r8, 'cash_not_returned', -30)],
       timeline: timeline(b8, [
         consent(b8),
         collected(r8),
@@ -422,6 +426,7 @@ export function demoAssistanceCases(
           correctedValue: at(-92),
           supersededValue: at(-90),
           reason: 'evidence_contradicts_report',
+          correctedAt: at(-40),
         },
       ],
       disputes: [
@@ -430,7 +435,14 @@ export function demoAssistanceCases(
           assistanceRequestId: r9.id,
           reason: 'collection_time_incorrect',
           state: 'resolved',
-          resolution: { outcome: 'timestamp_corrected', correctionId: id(0x500 + 9) },
+          openedAt: at(-60),
+          escalationDue: false,
+          response: { position: 'contests', respondedAt: at(-58) },
+          resolution: {
+            outcome: 'timestamp_corrected',
+            correctionId: id(0x500 + 9),
+            resolvedAt: at(-40),
+          },
         },
       ],
       timeline: timeline(b9, [
@@ -461,15 +473,7 @@ export function demoAssistanceCases(
           confirmedAt: null,
         },
       ],
-      disputes: [
-        {
-          id: id(0x400 + 10),
-          assistanceRequestId: r10.id,
-          reason: 'return_time_incorrect',
-          state: 'open',
-          resolution: null,
-        },
-      ],
+      disputes: [openDispute(b10, r10, 'return_time_incorrect', -150)],
       timeline: timeline(b10, [
         consent(b10),
         collected(r10),
@@ -669,7 +673,8 @@ export function demoAssistanceCases(
 }
 
 /**
- * Another Company's cases, shaped exactly like the demo Company's (an unapplied late settlement; an open recovery), so that a read
+ * Another Company's cases, shaped exactly like the demo Company's (an unapplied late settlement with an open dispute; an open
+ * recovery), so that a read
  * leaking across Companies would show. Their ids are as valid as any other: only scope keeps them out.
  */
 function foreignCases(at: (hours: number) => string): readonly DemoAssistanceCase[] {
@@ -712,7 +717,19 @@ function foreignCases(at: (hours: number) => string): readonly DemoAssistanceCas
           confirmedAt: null,
         },
       ],
-      disputes: [],
+      // An open dispute too, so a dispute read leaking across Companies would show (A7).
+      disputes: [
+        {
+          id: id(0xf14),
+          assistanceRequestId: late.id,
+          reason: 'cash_not_returned',
+          state: 'open',
+          openedAt: at(-4),
+          escalationDue: false,
+          response: null,
+          resolution: null,
+        },
+      ],
       corrections: [],
       lateSettlements: [
         {

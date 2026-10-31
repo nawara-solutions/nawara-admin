@@ -6,6 +6,8 @@ import {
   AssistanceCaseDetail,
   AssistanceCaseFilter,
   AssistanceCaseSummary,
+  AssistanceDisputeFilter,
+  AssistanceDisputeSummary,
   AssistanceDisputeView,
   AssistancePage,
   AssistancePageRequest,
@@ -71,6 +73,16 @@ export abstract class AssistanceGateway {
     context: AssistanceReadContext,
     requestId: string,
   ): Observable<AssistanceDisputeView>;
+
+  /**
+   * Discovery of assistance disputes (A7), newest opened first, each with its case's row. A read PROJECTION of the cases this
+   * context may see: no Core route exists for it (CF-70).
+   */
+  abstract disputeCases(
+    context: AssistanceReadContext,
+    filter: AssistanceDisputeFilter,
+    page: AssistancePageRequest,
+  ): Observable<AssistancePage<AssistanceDisputeSummary>>;
 
   /** Discovery of late settlements (applied or not). */
   abstract lateSettlements(
@@ -147,6 +159,8 @@ export const ASSISTANCE_READ_CONTRACTS: Readonly<Record<AssistanceRead, Assistan
   settlement: NO_OWNER_READ,
   cashReturns: NO_OWNER_READ,
   disputes: NO_OWNER_READ,
+  // Core's dispute routes serve the beneficiary (BIL-20) and the Organization (BIL-21); the owner resolves by id only (BIL-22).
+  disputeCases: NO_OWNER_READ,
   lateSettlements: {
     coreRead: {
       core: 'discoveryVia',
@@ -207,6 +221,9 @@ export class UnavailableAssistanceGateway extends AssistanceGateway {
     return throwError(adapterUnavailable);
   }
   disputes(): Observable<AssistanceDisputeView> {
+    return throwError(adapterUnavailable);
+  }
+  disputeCases(): Observable<AssistancePage<AssistanceDisputeSummary>> {
     return throwError(adapterUnavailable);
   }
   lateSettlements(): Observable<AssistancePage<LateSettlement>> {

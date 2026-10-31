@@ -1,8 +1,12 @@
 import { OrganizationId, PlatformId } from '../../../core/context/scope.model';
 import {
   ASSISTANCE_REQUEST_STATES,
+  ASSISTANCE_DISPUTE_REASONS,
+  ASSISTANCE_DISPUTE_STATES,
   AssistanceCorrection,
   AssistanceDispute,
+  AssistanceDisputeReason,
+  AssistanceDisputeState,
   AssistanceRequest,
   AssistanceRequestState,
   AssistanceRestriction,
@@ -94,6 +98,26 @@ export interface RecoveryFilter {
   readonly organizationId?: OrganizationId;
 }
 
+/**
+ * Dispute discovery filters (A7). Absent = no filter. Core has NO owner list of assistance disputes at `0044b20` (CF-70): this is
+ * Admin's requirement, answered only by the demo adapter as a projection of its scoped cases.
+ */
+export interface AssistanceDisputeFilter {
+  readonly state?: AssistanceDisputeState;
+  readonly reason?: AssistanceDisputeReason;
+  readonly platformId?: PlatformId;
+  readonly organizationId?: OrganizationId;
+}
+
+const DISPUTE_STATES: ReadonlySet<string> = new Set(ASSISTANCE_DISPUTE_STATES);
+const DISPUTE_REASONS: ReadonlySet<string> = new Set(ASSISTANCE_DISPUTE_REASONS);
+
+export const isAssistanceDisputeState = (value: unknown): value is AssistanceDisputeState =>
+  typeof value === 'string' && DISPUTE_STATES.has(value);
+
+export const isAssistanceDisputeReason = (value: unknown): value is AssistanceDisputeReason =>
+  typeof value === 'string' && DISPUTE_REASONS.has(value);
+
 const STATES: ReadonlySet<string> = new Set(ASSISTANCE_REQUEST_STATES);
 
 /** A filter value that is not one of Core's (from a URL, for example): reported, never sent. */
@@ -124,6 +148,15 @@ export interface AssistanceCaseSummary {
   readonly recovery: RecoveryObligationState | null;
   /** The cash-return obligation's state, `null` when none is owed or was ever owed (A6). */
   readonly cashReturn: CashReturnState | null;
+}
+
+/**
+ * A row of the dispute overview (A7): one dispute, with its case's directory row for the collection and settlement context. Read
+ * from the same records as the case; nothing is added that the case does not hold.
+ */
+export interface AssistanceDisputeSummary {
+  readonly dispute: AssistanceDispute;
+  readonly case: AssistanceCaseSummary;
 }
 
 /** One case: the request and every record attached to it. */
