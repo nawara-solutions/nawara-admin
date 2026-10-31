@@ -1,0 +1,41 @@
+// One late settlement's owner decision (A8): status, standing, the receipt Core requires and the history.
+:host {
+  display: grid;
+  gap: var(--nw-space-2);
+  font-size: var(--nw-text-size-sm);
+}
+
+.assistance-late-standing__status,
+.assistance-late-standing__receipt,
+.assistance-late-standing__history li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-1) var(--nw-space-2);
+}
+
+.assistance-late-standing__receipt {
+  align-items: flex-start;
+  color: var(--nw-text-secondary);
+
+  nw-icon {
+    flex: none;
+    margin-block-start: 0.125rem;
+  }
+
+  span {
+    flex: 1 1 0;
+    min-inline-size: 0;
+  }
+}
+
+.assistance-late-standing__history {
+  display: grid;
+  gap: var(--nw-space-1);
+  padding-inline-start: var(--nw-space-3);
+  border-inline-start: 2px solid var(--nw-border-hairline);
+}
+
+.assistance-late-standing__secondary {
+  color: var(--nw-text-secondary);
+}

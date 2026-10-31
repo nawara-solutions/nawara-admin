@@ -8,6 +8,7 @@ import {
   AssistanceCaseDetail,
   AssistanceCaseFilter,
   AssistanceCaseSummary,
+  AssistanceCashReturnSummary,
   AssistanceDisputeSummary,
   AssistanceDisputeView,
   AssistancePage,
@@ -52,6 +53,8 @@ const READS: Readonly<Record<AssistanceRead, (g: AssistanceGateway) => Observabl
   cashReturns: (g) => g.cashReturns(CONTEXT, ID),
   disputes: (g) => g.disputes(CONTEXT, ID),
   disputeCases: (g) => g.disputeCases(CONTEXT, { state: 'open' }, FIRST_ASSISTANCE_PAGE),
+  cashReturnCases: (g) =>
+    g.cashReturnCases(CONTEXT, { state: 'return_reported' }, FIRST_ASSISTANCE_PAGE),
   lateSettlements: (g) =>
     g.lateSettlements(CONTEXT, { status: 'unapplied' }, FIRST_ASSISTANCE_PAGE),
   lateSettlement: (g) => g.lateSettlement(CONTEXT, ID),
@@ -147,6 +150,7 @@ describe('AssistanceGateway contract (Assistance A2)', () => {
       [
         'caseDetail',
         'cases',
+        'cashReturnCases',
         'cashReturns',
         'disputeCases',
         'disputes',
@@ -207,6 +211,9 @@ describe('AssistanceGateway contract (Assistance A2)', () => {
       disputeCases(): Observable<AssistancePage<AssistanceDisputeSummary>> {
         return EMPTY;
       }
+      cashReturnCases(): Observable<AssistancePage<AssistanceCashReturnSummary>> {
+        return EMPTY;
+      }
       lateSettlements(): Observable<AssistancePage<LateSettlement>> {
         return EMPTY;
       }
@@ -245,8 +252,15 @@ describe('AssistanceGateway contract (Assistance A2)', () => {
       () => gateway.disputeCases(CONTEXT, { reason: 'refund_requested' }, FIRST_ASSISTANCE_PAGE),
       // @ts-expect-error a dispute status Core does not have: no `rejected` or `refunded` outcome (A7)
       () => gateway.disputeCases(CONTEXT, { state: 'rejected' }, FIRST_ASSISTANCE_PAGE),
+      () =>
+        gateway.cashReturnCases(
+          CONTEXT,
+          // @ts-expect-error a cash-return state Core does not have: no partial or refunded return (A8)
+          { state: 'partially_returned' },
+          FIRST_ASSISTANCE_PAGE,
+        ),
     ];
-    expect(calls).toHaveLength(7);
+    expect(calls).toHaveLength(8);
     // @ts-expect-error no read is available for real integration in A2
     const available: AssistanceReadContract['realIntegration'] = 'available';
     expect(available).toBe('available');
@@ -267,7 +281,10 @@ describe('AssistanceGateway contract (Assistance A2)', () => {
     }
   });
 
-  it('the dispute overview (A7) has no owner read in Core: blocked by CF-70 and D-A4', () => {
+  it('the dispute (A7) and cash-return (A8) overviews have no owner read in Core: blocked by CF-70 and D-A4', () => {
+    expect(ASSISTANCE_READ_CONTRACTS.cashReturnCases).toEqual(
+      ASSISTANCE_READ_CONTRACTS.disputeCases,
+    );
     expect(ASSISTANCE_READ_CONTRACTS.disputeCases).toEqual({
       coreRead: { core: 'none', followUp: 'CF-70' },
       realIntegration: 'unavailable',

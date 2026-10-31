@@ -120,7 +120,8 @@ describe('MockAssistanceGateway (A3): the case directory', () => {
       overdue: true,
       openDispute: true,
       channel: 'closed',
-      lateSettlement: null,
+      // A8: a verified late success awaits the owner (never applied automatically).
+      lateSettlement: 'unapplied',
       recovery: null,
       cashReturn: 'open',
     });
@@ -325,7 +326,7 @@ describe('MockAssistanceGateway (A3): one case and its records', () => {
       cashReturns: c.cashReturns,
       disputes: c.disputes,
       corrections: [],
-      lateSettlementIds: [],
+      lateSettlementIds: [c.lateSettlements[0]!.id],
       recoveryObligationId: null,
       restrictions: ['T1', 'T2'],
       overdue: true,
@@ -389,14 +390,16 @@ describe('MockAssistanceGateway (A3): one case and its records', () => {
   it('late settlements and recovery: lists, filters and details', async () => {
     const { gateway } = setUp();
     const late = await firstValueFrom(gateway.lateSettlements(COMPANY, {}, FIRST_ASSISTANCE_PAGE));
+    // Newest recorded first: case 11 (-10 h), case 8 (-19 h), case 12 (-98 h).
     expect(late.items.map((l) => [l.assistanceRequestId, l.applied])).toEqual([
       [caseOf(11).request.id, false],
+      [caseOf(8).request.id, false],
       [caseOf(12).request.id, true],
     ]);
     const unapplied = await firstValueFrom(
       gateway.lateSettlements(COMPANY, { status: 'unapplied' }, FIRST_ASSISTANCE_PAGE),
     );
-    expect(unapplied.items).toHaveLength(1);
+    expect(unapplied.items).toHaveLength(2);
     const detail = await firstValueFrom(gateway.lateSettlement(SCHOOL, unapplied.items[0]!.id));
     expect(detail).toEqual(caseOf(11).lateSettlements[0]);
     // Missing evidence: no attestation and no File evidence, so an L-4 application would be refused.

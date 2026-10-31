@@ -10,8 +10,10 @@ import {
   AssistanceRequest,
   AssistanceRequestState,
   AssistanceRestriction,
+  CASH_RETURN_STATES,
   CashReturnObligation,
   CashReturnState,
+  LateApplicationReason,
   LateSettlement,
   Money,
   RecoveryObligation,
@@ -118,6 +120,23 @@ export const isAssistanceDisputeState = (value: unknown): value is AssistanceDis
 export const isAssistanceDisputeReason = (value: unknown): value is AssistanceDisputeReason =>
   typeof value === 'string' && DISPUTE_REASONS.has(value);
 
+/**
+ * Cash-return discovery filters (A8). Absent = no filter. Core has NO owner read or list of cash-return obligations at `0044b20`
+ * (CF-70): Admin's requirement, answered only by the demo adapter as a projection of its scoped cases.
+ */
+export interface CashReturnFilter {
+  readonly state?: CashReturnState;
+  /** Only obligations whose request has an open assistance dispute. */
+  readonly disputed?: boolean;
+  readonly platformId?: PlatformId;
+  readonly organizationId?: OrganizationId;
+}
+
+const RETURN_STATES: ReadonlySet<string> = new Set(CASH_RETURN_STATES);
+
+export const isCashReturnState = (value: unknown): value is CashReturnState =>
+  typeof value === 'string' && RETURN_STATES.has(value);
+
 const STATES: ReadonlySet<string> = new Set(ASSISTANCE_REQUEST_STATES);
 
 /** A filter value that is not one of Core's (from a URL, for example): reported, never sent. */
@@ -156,6 +175,12 @@ export interface AssistanceCaseSummary {
  */
 export interface AssistanceDisputeSummary {
   readonly dispute: AssistanceDispute;
+  readonly case: AssistanceCaseSummary;
+}
+
+/** A row of the cash-return monitor (A8): one obligation (current or history), with its case's directory row. */
+export interface AssistanceCashReturnSummary {
+  readonly obligation: CashReturnObligation;
   readonly case: AssistanceCaseSummary;
 }
 
@@ -252,6 +277,8 @@ export interface LateSettlementDetail extends LateSettlement {
   readonly settledAt: string | null;
   readonly attestedAt: string | null;
   readonly application: {
+    /** The basis the owner applied it on (BIL-32 read, `late-settlement.service.ts:166-169`). */
+    readonly reasonCode: LateApplicationReason;
     readonly appliedAt: string;
     readonly appliedBy: string;
     readonly receiptId: string;

@@ -276,7 +276,7 @@ describe('Assistance disputes and exceptions page (A7)', { timeout: 60_000 }, ()
       t.exception.feeds.replace('{{restriction}}', 'T1'),
     );
     await r.select('exception', 'lateSettlementReview');
-    expect(exceptionRows(r.element)).toEqual([caseOf(11).request.id]);
+    expect(exceptionRows(r.element)).toEqual([8, 11].map((n) => caseOf(n).request.id));
     await r.select('exception', 'recoveryRestriction');
     expect(exceptionRows(r.element)).toEqual([caseOf(13).request.id]);
     expect(r.spies.cases).toHaveBeenLastCalledWith(

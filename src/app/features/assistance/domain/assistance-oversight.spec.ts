@@ -49,7 +49,7 @@ describe('Assistance oversight (A6): each demo scenario, stage by stage', () => 
     5: ['reported', 'verified', 'met', 'none', 'none', false, false],
     6: ['reported', 'uncertain', 'running', 'none', 'none', false, true],
     7: ['reported', 'closedUnpaid', 'met', 'confirmed', 'none', false, false],
-    8: ['reported', 'closedUnpaid', 'overdue', 'owed', 'none', true, true],
+    8: ['reported', 'lateUnapplied', 'overdue', 'owed', 'none', true, true],
     9: ['reported', 'verified', 'met', 'none', 'none', false, false],
     10: ['reported', 'closedUnpaid', 'overdue', 'reported', 'none', true, true],
     11: ['reported', 'lateUnapplied', 'overdue', 'owed', 'none', false, true],

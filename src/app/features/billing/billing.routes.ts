@@ -5,6 +5,7 @@ import { BREADCRUMB_DATA, BREADCRUMB_PARENT_DATA } from '../../layout/breadcrumb
 import { AssistanceCaseFacade } from '../assistance/application/assistance-case.facade';
 import { AssistanceDirectoryFacade } from '../assistance/application/assistance-directory.facade';
 import { AssistanceDisputesFacade } from '../assistance/application/assistance-disputes.facade';
+import { AssistanceSettlementsFacade } from '../assistance/application/assistance-settlements.facade';
 import { UNAVAILABLE_ASSISTANCE_PROVIDERS } from '../assistance/data-access/assistance.gateway';
 import { BillingFacade } from './application/billing.facade';
 import { BillingGateway, UnavailableBillingGateway } from './data-access/billing.gateway';
@@ -15,7 +16,8 @@ import { BillingGateway, UnavailableBillingGateway } from './data-access/billing
  * `unavailable` adapter otherwise.
  *
  * Below it, the Organization Assistance case directory (`/billing/assistance`; A4), its disputes and exceptions
- * (`/billing/assistance/disputes`; A7, before `:requestId` so it is never read as a case reference) and one case
+ * (`/billing/assistance/disputes`; A7), its late settlements and cash returns (`/billing/assistance/settlements`; A8; both
+ * before `:requestId` so neither is ever read as a case reference) and one case
  * (`/billing/assistance/:requestId`; A5): read only, the owner only (their own capability guard as well), with the
  * Assistance gateway bound the same way.
  */
@@ -61,6 +63,23 @@ export async function loadBillingRoutes(environment: AppEnvironment): Promise<Ro
       loadComponent: () =>
         import('../assistance/pages/assistance-disputes.page').then(
           (m) => m.AssistanceDisputesPage,
+        ),
+    },
+    {
+      path: 'assistance/settlements',
+      title: 'titles.assistanceSettlements',
+      data: {
+        [BREADCRUMB_DATA]: 'shell.breadcrumb.assistanceSettlements',
+        [BREADCRUMB_PARENT_DATA]: {
+          key: 'shell.breadcrumb.assistance',
+          link: '/billing/assistance',
+        },
+      },
+      canActivate: [capabilityGuard('company.assistance.view')],
+      providers: [...assistance, AssistanceSettlementsFacade],
+      loadComponent: () =>
+        import('../assistance/pages/assistance-settlements.page').then(
+          (m) => m.AssistanceSettlementsPage,
         ),
     },
     {

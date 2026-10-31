@@ -232,7 +232,8 @@
     "services": "Services et santé",
     "notifications": "Notifications",
     "releases": "Versions",
-    "assistanceDisputes": "Contestations et exceptions d’assistance"
+    "assistanceDisputes": "Contestations et exceptions d’assistance",
+    "assistanceSettlements": "Règlements tardifs et restitutions d’espèces"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -271,7 +272,8 @@
       "services": "Services et santé",
       "notifications": "Notifications",
       "releases": "Versions",
-      "assistanceDisputes": "Contestations et exceptions"
+      "assistanceDisputes": "Contestations et exceptions",
+      "assistanceSettlements": "Règlements tardifs et restitutions"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -2730,6 +2732,97 @@
       "loading": "Chargement des contestations…",
       "exceptionNone": "Aucun dossier ne relève de cette exception.",
       "readOnly": "Lecture seule : aucune correction, résolution, collecte, aucun paiement, aucune confirmation ni aucun remboursement ne peut être effectué depuis cette page."
+    },
+    "late": {
+      "pending": "En attente de la décision du propriétaire",
+      "applied": "Appliqué par le propriétaire",
+      "blocked": "Bloqué",
+      "standing": {
+        "applied": "Le propriétaire l’a appliqué comme achat de la demande, sur ce fondement : {{reason}}.",
+        "refused": "Nawara Core refuserait une application maintenant :",
+        "attested": "Le bénéficiaire a attesté que les espèces n’ont pas été restituées : un fondement que Nawara Core accepte. Rien n’est réglé tant que le propriétaire ne décide pas.",
+        "needsBasis": "Aucun fondement pour l’instant : le bénéficiaire n’a pas attesté, et aucune personne ne peut encore fournir de preuve par fichier."
+      },
+      "applicationReason": {
+        "attested": "l’attestation du bénéficiaire que les espèces n’ont pas été restituées",
+        "evidenced": "des preuves par fichier et la constatation du propriétaire que les espèces n’ont pas été restituées"
+      },
+      "refusal": {
+        "purchaseExists": "la demande a déjà son achat.",
+        "cashReturnConfirmed": "le bénéficiaire a confirmé la restitution des espèces.",
+        "cashReturnReported": "l’organisation a déclaré la restitution des espèces.",
+        "requestNotSettleable": "la demande ne peut plus être réglée.",
+        "disputeOpen": "une contestation d’assistance de la demande est ouverte.",
+        "settlementInProgress": "un autre règlement de la demande est en cours.",
+        "refundExists": "un dossier de remboursement existe pour le paiement.",
+        "evidenceInsufficient": "le fondement est insuffisant.",
+        "evidenceContradictory": "le bénéficiaire a attesté que les espèces ont été restituées.",
+        "settlementTimeUnavailable": "Nawara Core ne peut pas indiquer l’heure de règlement d’origine.",
+        "alreadyApplied": "il a déjà été appliqué."
+      },
+      "undetermined": "Nawara Core décide si ceci le refuse aussi : {{reason}}",
+      "wouldSupersede": "Une application remplacerait la restitution d’espèces que l’organisation doit pour cette demande.",
+      "receipt": "L’application nécessite un reçu d’autorisation du propriétaire de l’entreprise ({{operation}}, après une vérification renforcée pour {{purpose}}). Indisponible dans Admin.",
+      "history": {
+        "lateSuccess": "Le paiement a vérifié la réussite",
+        "recorded": "Enregistré comme tardif par Nawara Core",
+        "attested": "Le bénéficiaire a attesté",
+        "applied": "Le propriétaire l’a appliqué"
+      }
+    },
+    "returns": {
+      "held": "Confirmation bloquée par une contestation ouverte",
+      "awaiting": {
+        "organizationReport": "En attente de la déclaration de restitution par l’organisation.",
+        "beneficiaryConfirmation": "Déclarée par l’organisation, toujours due tant que le bénéficiaire ne l’a pas confirmée."
+      },
+      "discharged": {
+        "confirmed": "Soldée : le bénéficiaire a confirmé la restitution.",
+        "superseded": "Soldée : remplacée par un règlement tardif appliqué par le propriétaire."
+      },
+      "openedAt": "Due depuis",
+      "reportedReturn": "Restitution déclarée pour le",
+      "confirmedAt": "Confirmée par le bénéficiaire",
+      "supersededAt": "Remplacée par l’application du propriétaire",
+      "versus": "Règlement et restitution sont distincts : un paiement vérifié règle la demande ; une restitution rend ses espèces au bénéficiaire. Une restitution déclarée est une déclaration, pas un achèvement."
+    },
+    "settlements": {
+      "link": "Règlements tardifs et restitutions",
+      "title": "Règlements tardifs et restitutions d’espèces",
+      "subtitle": "Les paiements vérifiés arrivés en retard et les espèces que les organisations doivent aux bénéficiaires, tels que Nawara Core les enregistre.",
+      "simulation": "Enregistrements simulés — pas des données de Nawara Core. Nawara Core n’offre pas encore au propriétaire de liste des règlements tardifs ni des restitutions ; ces enregistrements fictifs suivent ses états et ses règles pour permettre la revue de cette vue.",
+      "notInBuildDescription": "Le service de facturation de Nawara Core n’offre pas encore au propriétaire de liste des règlements tardifs ni des restitutions ; il n’y a donc rien à afficher.",
+      "forbiddenDescription": "Les règlements tardifs et les restitutions ne sont présentés qu’au propriétaire de l’entreprise.",
+      "late": {
+        "title": "Règlements tardifs",
+        "intro": "Un paiement vérifié arrivé après la clôture de sa demande. Nawara Core l’enregistre et ne l’applique jamais de lui-même : il ne règle rien tant que le propriétaire ne l’applique pas.",
+        "count": "{{shown}} règlements tardifs affichés",
+        "countMore": "Les {{shown}} premiers règlements tardifs sont affichés ; d’autres sont disponibles",
+        "evidenceCount": "{{count}} références de fichiers",
+        "noEvidence": "Aucune (aucun accès humain aux preuves par fichier pour l’instant)",
+        "decision": "Décision du propriétaire",
+        "none": "Aucun règlement tardif ne correspond."
+      },
+      "returns": {
+        "title": "Restitutions d’espèces",
+        "intro": "L’organisation déclare une restitution ; seule la confirmation du bénéficiaire, ou un règlement tardif appliqué par le propriétaire, la solde.",
+        "count": "{{shown}} restitutions affichées",
+        "countMore": "Les {{shown}} premières restitutions sont affichées ; d’autres sont disponibles",
+        "none": "Aucune restitution ne correspond."
+      },
+      "filter": {
+        "decision": "Décision du propriétaire",
+        "allDecisions": "En attente et appliqués",
+        "returnState": "Statut de la restitution",
+        "allReturns": "Toutes les restitutions",
+        "dispute": "Contestation",
+        "anyDispute": "Avec ou sans",
+        "openDispute": "Contestation ouverte uniquement"
+      },
+      "restrictions": "Restrictions de l’organisation",
+      "errorTitle": "Les règlements tardifs n’ont pas pu être chargés",
+      "loading": "Chargement des règlements tardifs…",
+      "readOnly": "Lecture seule : aucune application, aucun reçu, aucune déclaration de restitution, aucune confirmation ni aucun paiement ne peut être effectué depuis cette page."
     }
   },
   "activity": {

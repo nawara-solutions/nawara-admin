@@ -78,6 +78,17 @@ export const LATE_SETTLEMENT_REASONS = [
 ] as const;
 export type LateSettlementReason = (typeof LATE_SETTLEMENT_REASONS)[number];
 
+/**
+ * Why the OWNER applies a late settlement (L-4), each with its own basis (`src/late-settlements/late-settlement.service.ts:20-22`):
+ * `cash_not_returned_attested`, the beneficiary's `cash_not_returned` attestation (Path A); `cash_not_returned_evidenced`, 1 to 5 File
+ * grants with the owner's explicit determination (Path B). No other reason; no override.
+ */
+export const LATE_APPLICATION_REASONS = [
+  'cash_not_returned_attested',
+  'cash_not_returned_evidenced',
+] as const;
+export type LateApplicationReason = (typeof LATE_APPLICATION_REASONS)[number];
+
 /** The beneficiary's attestation (`0040:79`). */
 export type LateSettlementAttestation = 'cash_not_returned' | 'cash_returned';
 
@@ -160,12 +171,16 @@ export interface CashReturnObligation {
   /** The frozen total, the Organization's fee included (`0030:316`). */
   readonly amount: Money;
   readonly cashCollectedAt: string;
+  /** Core's time the obligation opened (the sweep past `settleBy`, or a refund completion) (`assistance-settlement.view.ts:30`). */
+  readonly openedAt: string;
   readonly returnReport: {
     readonly returnedAt: string;
     readonly returnReportedAt: string;
     readonly returnReportedBy: string;
   } | null;
   readonly confirmedAt: string | null;
+  /** Set only by an owner's L-4 application, with `superseded_by_settlement` (`0040_late_settlement_application.sql:28-31`). */
+  readonly supersededAt: string | null;
 }
 
 /**

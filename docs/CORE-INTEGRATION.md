@@ -32,6 +32,12 @@
   `db/migrations/0031_assistance_resolution.sql`); Admin's A1 types now carry `openedAt`, `escalationDue`, `response`,
   `resolution.resolvedAt` and `correctedAt`. Admin's dispute overview is a demo-only projection: the owner still has no read or
   list of disputes (**CF-70**, unchanged). No new Core follow-up. Business rules: [`design/assistance-a7-disputes.md`](design/assistance-a7-disputes.md).
+- **Assistance A8 (2026-10-31), same Core revision `0044b20`:** the late-settlement (BIL-32) and cash-return (BIL-17, BIL-18)
+  contracts were re-read from source (`apps/billing-service/src/late-settlements/`, `src/assistance/cash-return-sweep.ts`,
+  `db/migrations/0040_late_settlement_application.sql`); Admin's types now carry `CashReturnObligation.openedAt` and `supersededAt`
+  and the application's `reasonCode`. The late-settlement list still has no owner discovery contract (**CF-69**, **CF-77**) and
+  cash returns no owner read (**CF-70**): Admin's views are demo-only. No new Core follow-up. Business rules:
+  [`design/assistance-a8-late-settlements.md`](design/assistance-a8-late-settlements.md).
 - **Precedence:** a service's OpenAPI (`GET /<service>/docs`) and Core ADRs win over this document. Report differences to Core.
 
 ---
