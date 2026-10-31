@@ -207,7 +207,8 @@
                         <ul class="assistance-settlements__restrictions" role="list">
                           @for (restriction of restrictions; track restriction) {
                             <li [attr.data-restriction]="restriction">
-                              <nw-status-badge tone="warning">{{ restriction }}</nw-status-badge>
+                              <nw-status-badge tone="warning">{{ restriction }}</nw-status-badge
+                              >&ngsp;
                               <span>{{ restrictionKeys[restriction] | transloco }}</span>
                             </li>
                           }

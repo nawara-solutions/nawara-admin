@@ -1,0 +1,185 @@
+@let o = obligation();
+@let s = standing();
+@if (showSummary()) {
+  <dl class="assistance-recovery-standing__facts" data-recovery-summary>
+    <dt>{{ 'assistanceCases.recovery.owedBase' | transloco }}</dt>
+    <dd data-amount="base">
+      <bdi>{{ o.base | assistanceMoney }}</bdi
+      >&ngsp;
+      <span class="assistance-recovery-standing__secondary">{{
+        'assistanceCases.recovery.baseOnly' | transloco
+      }}</span
+      >&ngsp;
+    </dd>
+    <dt>{{ 'assistanceCases.recovery.recovered' | transloco }}</dt>
+    <dd data-amount="recovered">
+      <bdi>{{ o.recovered | assistanceMoney }}</bdi
+      >&ngsp; <adm-assistance-source-tag source="fact" />&ngsp;
+    </dd>
+    <dt>{{ 'assistanceCases.recovery.outstanding' | transloco }}</dt>
+    <dd data-amount="outstanding">
+      <bdi>{{ o.outstanding | assistanceMoney }}</bdi
+      >&ngsp; <adm-assistance-source-tag source="derived" />&ngsp;
+    </dd>
+  </dl>
+}
+@if (s.paymentInProgress) {
+  <p class="assistance-recovery-standing__note" data-in-progress>
+    <nw-status-badge tone="info">{{
+      'assistanceCases.recovery.inProgress' | transloco
+    }}</nw-status-badge
+    >&ngsp; <span>{{ 'assistanceCases.recovery.inProgressExplain' | transloco }}</span
+    >&ngsp;
+  </p>
+}
+
+<div class="assistance-recovery-standing__block" data-recovery-payments>
+  <p
+    class="assistance-recovery-standing__subtitle"
+    role="heading"
+    [attr.aria-level]="headingLevel()"
+  >
+    {{ 'assistanceCases.recovery.paymentsTitle' | transloco }}
+  </p>
+  @if (o.payments.length === 0) {
+    <p class="assistance-recovery-standing__secondary" data-payments-none>
+      {{ 'assistanceCases.recovery.paymentsNone' | transloco }}
+    </p>
+  } @else {
+    <ul class="assistance-recovery-standing__list" role="list">
+      @for (p of o.payments; track p.id) {
+        <li [attr.data-payment]="p.id">
+          <adm-assistance-source-tag source="fact" />&ngsp;
+          <bdi>{{ money(p.amount) | assistanceMoney }}</bdi
+          >&ngsp;
+          <span class="assistance-recovery-standing__secondary">{{
+            'assistanceCases.recovery.split'
+              | transloco
+                : {
+                    principal: (money(p.principalAmount) | assistanceMoney),
+                    surplus: (money(p.surplusAmount) | assistanceMoney),
+                  }
+          }}</span
+          >&ngsp;
+          <time class="assistance-recovery-standing__secondary" [attr.datetime]="p.recordedAt">{{
+            p.recordedAt | nwDate: 'date-time'
+          }}</time
+          >&ngsp;
+          <code
+            dir="ltr"
+            class="assistance-recovery-standing__secondary"
+            [attr.title]="p.paymentRequestId"
+            >…{{ shortRef(p.paymentRequestId) }}</code
+          >
+        </li>
+      }
+    </ul>
+  }
+</div>
+
+<div class="assistance-recovery-standing__block" data-surpluses>
+  <p
+    class="assistance-recovery-standing__subtitle"
+    role="heading"
+    [attr.aria-level]="headingLevel()"
+  >
+    {{ 'assistanceCases.recovery.surplusTitle' | transloco }}
+  </p>
+  @if (o.surpluses.length === 0) {
+    <p class="assistance-recovery-standing__secondary" data-surpluses-none>
+      {{ 'assistanceCases.recovery.surplusNone' | transloco }}
+    </p>
+  } @else {
+    <ul class="assistance-recovery-standing__list" role="list">
+      @for (surplus of o.surpluses; track surplus.id) {
+        @let stage = stageOf(surplus);
+        <li [attr.data-surplus]="stage">
+          <bdi>{{ surplus.amount | assistanceMoney }}</bdi
+          >&ngsp;
+          <nw-status-badge [tone]="surplusTones[stage]">{{
+            surplusKeys[stage] | transloco
+          }}</nw-status-badge
+          >&ngsp; <adm-assistance-source-tag [source]="surplusSources[stage]" />&ngsp;
+          @if (surplus.externalRecordedAt; as recorded) {
+            <span class="assistance-recovery-standing__secondary" data-external-recorded>{{
+              'assistanceCases.recovery.externalRecordedOn'
+                | transloco: { date: (recorded | nwDate: 'date-time') }
+            }}</span
+            >&ngsp;
+          }
+          @if (stage === 'externalRecorded') {
+            <span class="assistance-recovery-standing__secondary" data-awaiting-confirmation>{{
+              'assistanceCases.recovery.awaitingConfirmation' | transloco
+            }}</span
+            >&ngsp;
+          }
+        </li>
+      }
+    </ul>
+  }
+  <p class="assistance-recovery-standing__hint">
+    {{ 'assistanceCases.recovery.surplusNever' | transloco }}
+  </p>
+</div>
+
+@if (o.channels.length > 0) {
+  <div class="assistance-recovery-standing__block" data-recovery-channels>
+    <p
+      class="assistance-recovery-standing__subtitle"
+      role="heading"
+      [attr.aria-level]="headingLevel()"
+    >
+      {{ 'assistanceCases.recovery.channelsTitle' | transloco }}
+    </p>
+    <ul class="assistance-recovery-standing__list" role="list">
+      @for (c of o.channels; track c.id) {
+        <li [attr.data-channel]="c.active ? 'active' : 'ended'">
+          <bdi>{{ money(c.amount) | assistanceMoney }}</bdi
+          >&ngsp;
+          @if (c.active) {
+            <nw-status-badge tone="info">{{
+              'assistanceCases.recovery.channelActive' | transloco
+            }}</nw-status-badge
+            >&ngsp;
+          } @else {
+            <span class="assistance-recovery-standing__secondary">{{
+              'assistanceCases.recovery.channelEnded' | transloco
+            }}</span
+            >&ngsp;
+          }
+          @if (c.paymentRequestStatus; as status) {
+            <code dir="ltr" class="assistance-recovery-standing__secondary">{{ status }}</code
+            >&ngsp;
+          }
+          <time class="assistance-recovery-standing__secondary" [attr.datetime]="c.createdAt">{{
+            c.createdAt | nwDate: 'date-time'
+          }}</time
+          >&ngsp;
+        </li>
+      }
+    </ul>
+  </div>
+}
+
+<div class="assistance-recovery-standing__block">
+  <p
+    class="assistance-recovery-standing__subtitle"
+    role="heading"
+    [attr.aria-level]="headingLevel()"
+  >
+    {{ 'assistanceCases.recovery.historyTitle' | transloco }}
+  </p>
+  <ol class="assistance-recovery-standing__history" data-recovery-history>
+    @for (entry of history(); track $index) {
+      <li [attr.data-kind]="entry.kind" [attr.data-source]="entry.source">
+        <adm-assistance-source-tag [source]="entry.source" />&ngsp;
+        <span>{{ historyKeys[entry.kind] | transloco }}</span
+        >&ngsp;
+        <time class="assistance-recovery-standing__secondary" [attr.datetime]="entry.at">{{
+          entry.at | nwDate: 'date-time'
+        }}</time
+        >&ngsp;
+      </li>
+    }
+  </ol>
+</div>

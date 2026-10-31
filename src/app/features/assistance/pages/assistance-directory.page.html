@@ -12,6 +12,9 @@
     <a nw-link class="assistance__related" [routerLink]="settlementsPath" data-settlements-link>
       <nw-icon name="rotate-ccw" size="sm" />{{ 'assistanceCases.settlements.link' | transloco }}
     </a>
+    <a nw-link class="assistance__related" [routerLink]="recoveryPath" data-recovery-link>
+      <nw-icon name="trending-down" size="sm" />{{ 'assistanceCases.recovery.link' | transloco }}
+    </a>
   </div>
   @if (isDemo()) {
     <span class="assistance__demo" data-demo>

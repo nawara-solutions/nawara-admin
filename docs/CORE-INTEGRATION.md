@@ -38,6 +38,12 @@
   and the application's `reasonCode`. The late-settlement list still has no owner discovery contract (**CF-69**, **CF-77**) and
   cash returns no owner read (**CF-70**): Admin's views are demo-only. No new Core follow-up. Business rules:
   [`design/assistance-a8-late-settlements.md`](design/assistance-a8-late-settlements.md).
+- **Assistance A9 (2026-10-31), same Core revision `0044b20`:** the recovery owner read (BIL-28) was re-read from source
+  (`apps/billing-service/src/recovery/`, `db/migrations/0039_recovery.sql`, `0042_reconciliation.sql`); Admin's recovery types now carry
+  the read's `channels`, each payment's `paymentRequestId` and each surplus's `recordedAt`, `externalRecordedAt`, `confirmedAt` and
+  `refundCaseId`. Verified: a recovery payment is a Payment-verified success or (S6h-B) verified late success, split by the database
+  into principal and surplus; a surplus is owed to the Organization, never revenue. Owner discovery stays **CF-68** (and **CF-77**); no
+  new Core follow-up. Business rules: [`design/assistance-a9-recovery.md`](design/assistance-a9-recovery.md).
 - **Precedence:** a service's OpenAPI (`GET /<service>/docs`) and Core ADRs win over this document. Report differences to Core.
 
 ---

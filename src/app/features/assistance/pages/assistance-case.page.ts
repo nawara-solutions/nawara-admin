@@ -12,11 +12,7 @@ import { NwIconName } from '../../../shared/ui/icon/icon.registry';
 import { NwLink } from '../../../shared/ui/link/link';
 import { NwStatusBadge, NwStatusTone } from '../../../shared/ui/status-badge/status-badge';
 import { AssistanceCaseFacade } from '../application/assistance-case.facade';
-import {
-  AssistanceTimelineActor,
-  AssistanceTimelineEntry,
-  RecoverySurplusStatus,
-} from '../domain/assistance-read.model';
+import { AssistanceTimelineActor, AssistanceTimelineEntry } from '../domain/assistance-read.model';
 import {
   AssistanceInformationSource,
   AssistanceRequestState,
@@ -34,6 +30,7 @@ import { AssistanceExceptionBadges } from '../ui/assistance-exception-badges';
 import { AssistanceLateStanding } from '../ui/assistance-late-standing';
 import { AssistanceMoneyPipe } from '../ui/assistance-money.pipe';
 import { AssistanceOversightPanel } from '../ui/assistance-oversight-panel';
+import { AssistanceRecoveryStanding } from '../ui/assistance-recovery-standing';
 import { AssistanceReturnStanding } from '../ui/assistance-return-standing';
 import { AssistanceSourceTag } from '../ui/assistance-source-tag';
 
@@ -123,12 +120,6 @@ const RECOVERY_STATE_KEYS = {
   recovered: 'assistanceCases.indicator.recovered',
 } as const satisfies Record<RecoveryObligationState, string>;
 
-const SURPLUS_KEYS = {
-  owed_to_organization: 'assistanceCases.case.recovery.surplus.owedToOrganization',
-  external_execution_evidenced: 'assistanceCases.case.recovery.surplus.externalExecutionEvidenced',
-  resolved: 'assistanceCases.case.recovery.surplus.resolved',
-} as const satisfies Record<RecoverySurplusStatus, string>;
-
 const DECLINED_KEYS = {
   beneficiary: 'assistanceCases.case.actor.beneficiary',
   organization_actor: 'assistanceCases.case.actor.organizationActor',
@@ -160,6 +151,7 @@ const shortRef = (id: string): string => id.slice(-8);
     AssistanceLateStanding,
     AssistanceMoneyPipe,
     AssistanceOversightPanel,
+    AssistanceRecoveryStanding,
     AssistanceReturnStanding,
     AssistanceSourceTag,
   ],
@@ -178,6 +170,8 @@ export class AssistanceCasePage {
   protected readonly disputesPath = '/billing/assistance/disputes';
   /** The late settlements and cash returns overview (A8). */
   protected readonly settlementsPath = '/billing/assistance/settlements';
+  /** The recovery and surplus overview (A9). */
+  protected readonly recoveryPath = '/billing/assistance/recovery';
 
   /** Whether the case has an open assistance dispute (it holds the beneficiary's confirmation of a reported return). */
   protected readonly openDispute = computed(() => {
@@ -200,7 +194,6 @@ export class AssistanceCasePage {
   protected readonly lateReasonKeys = LATE_REASON_KEYS;
   protected readonly attestationKeys = ATTESTATION_KEYS;
   protected readonly recoveryStateKeys = RECOVERY_STATE_KEYS;
-  protected readonly surplusKeys = SURPLUS_KEYS;
   protected readonly declinedKeys = DECLINED_KEYS;
   protected readonly shortRef = shortRef;
   protected readonly organizationPath = organizationPath;

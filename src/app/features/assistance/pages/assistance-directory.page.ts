@@ -172,6 +172,8 @@ export class AssistanceDirectoryPage {
   protected readonly disputesPath = '/billing/assistance/disputes';
   /** The late settlements and cash returns overview (A8). */
   protected readonly settlementsPath = '/billing/assistance/settlements';
+  /** The recovery and surplus overview (A9). */
+  protected readonly recoveryPath = '/billing/assistance/recovery';
 
   /** The search field's text, and whether its last submission was not a full case reference. */
   protected readonly reference = signal('');
