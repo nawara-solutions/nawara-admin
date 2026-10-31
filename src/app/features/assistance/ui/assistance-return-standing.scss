@@ -1,0 +1,50 @@
+// One cash return's standing (A8): state, what it awaits and its times, sized by its own width (container queries, §15).
+:host {
+  display: grid;
+  // A size container has no intrinsic width: take the whole row of the flex line it sits in.
+  flex: 1 1 100%;
+  inline-size: 100%;
+  gap: var(--nw-space-2);
+  font-size: var(--nw-text-size-sm);
+  container-type: inline-size;
+}
+
+.assistance-return-standing__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-1) var(--nw-space-2);
+}
+
+.assistance-return-standing__times {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--nw-space-1) var(--nw-space-3);
+
+  dt {
+    color: var(--nw-text-secondary);
+  }
+
+  dd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nw-space-1) var(--nw-space-2);
+    margin: 0 0 var(--nw-space-1);
+    min-inline-size: 0;
+  }
+}
+
+.assistance-return-standing__secondary {
+  color: var(--nw-text-secondary);
+}
+
+@container (min-width: 28rem) {
+  .assistance-return-standing__times {
+    grid-template-columns: minmax(8rem, 2fr) minmax(0, 3fr);
+
+    dd {
+      margin: 0;
+    }
+  }
+}

@@ -56,7 +56,13 @@ describe('Assistance exceptions (A7)', () => {
       5: [],
       6: ['collectionReportedNotSettled', 'uncertainSettlement'],
       7: [],
-      8: ['collectionReportedNotSettled', 'overdueSettlement', 'openDispute', 'cashReturn'],
+      8: [
+        'collectionReportedNotSettled',
+        'overdueSettlement',
+        'openDispute',
+        'cashReturn',
+        'lateSettlementReview',
+      ],
       9: [],
       10: ['collectionReportedNotSettled', 'overdueSettlement', 'openDispute', 'cashReturn'],
       11: [

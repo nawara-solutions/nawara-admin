@@ -288,7 +288,8 @@ export function demoAssistanceCases(
   const b7 = base(7, 5, 0, -300);
   const r7 = request(b7, 'returned', { collected: { at: -296, reported: -295 } });
 
-  // ── 8. Cash return overdue, with an open `cash_not_returned` dispute (no resolution exists in Core, J-1) ──────────
+  // ── 8. Cash return overdue, with an open `cash_not_returned` dispute (no resolution exists in Core, J-1); a late verified success
+  //       with the beneficiary's attestation, held by that dispute (A8) ────────────────────────────────────────────────────
   const b8 = base(8, 5, 1, -150);
   const r8 = request(b8, 'cash_collected', { collected: { at: -148, reported: -147 } });
 
@@ -366,12 +367,14 @@ export function demoAssistanceCases(
           state: 'confirmed_returned',
           amount: money(b7, b7.terms.totalAmount),
           cashCollectedAt: at(-296),
+          openedAt: at(-224),
           returnReport: {
             returnedAt: at(-220),
             returnReportedAt: at(-219),
             returnReportedBy: b7.actor,
           },
           confirmedAt: at(-200),
+          supersededAt: null,
         },
       ],
       timeline: timeline(b7, [
@@ -400,11 +403,32 @@ export function demoAssistanceCases(
           state: 'open',
           amount: money(b8, b8.terms.totalAmount),
           cashCollectedAt: at(-148),
+          openedAt: at(-76),
           returnReport: null,
           confirmedAt: null,
+          supersededAt: null,
         },
       ],
       disputes: [openDispute(b8, r8, 'cash_not_returned', -30)],
+      // A verified success arrived after the channel closed (L-1), and the beneficiary attests the cash was not returned (Path A):
+      // the owner's L-4 would be refused while the dispute is open (`dispute_open`). Never applied automatically (A8).
+      lateSettlements: [
+        {
+          id: id(0x600 + 8),
+          assistanceRequestId: r8.id,
+          reason: 'channel_closed',
+          attestation: 'cash_not_returned',
+          applied: false,
+          platformId: b8.platformId,
+          organizationId: b8.organizationId,
+          recordedAt: at(-19),
+          settledAt: at(-20),
+          attestedAt: at(-15),
+          application: null,
+          evidence: [],
+          refundCases: [],
+        },
+      ],
       timeline: timeline(b8, [
         consent(b8),
         collected(r8),
@@ -412,6 +436,8 @@ export function demoAssistanceCases(
         { source: 'derived', kind: 'channelClosed', by: 'core', at: at(-100) },
         { source: 'derived', kind: 'cashReturnOwed', by: 'core', at: at(-76) },
         { source: 'report', kind: 'disputeOpened', by: 'beneficiary', at: at(-30) },
+        { source: 'fact', kind: 'lateSuccess', by: 'core', at: at(-20), recordedAt: at(-19) },
+        { source: 'report', kind: 'lateAttestation', by: 'beneficiary', at: at(-15) },
       ]),
     }),
     kase(b9, r9, {
@@ -465,12 +491,14 @@ export function demoAssistanceCases(
           state: 'return_reported',
           amount: money(b10, b10.terms.totalAmount),
           cashCollectedAt: at(-255),
+          openedAt: at(-183),
           returnReport: {
             returnedAt: at(-170),
             returnReportedAt: at(-168),
             returnReportedBy: b10.actor,
           },
           confirmedAt: null,
+          supersededAt: null,
         },
       ],
       disputes: [openDispute(b10, r10, 'return_time_incorrect', -150)],
@@ -500,8 +528,10 @@ export function demoAssistanceCases(
           state: 'open',
           amount: money(b11, b11.terms.totalAmount),
           cashCollectedAt: at(-118),
+          openedAt: at(-46),
           returnReport: null,
           confirmedAt: null,
+          supersededAt: null,
         },
       ],
       lateSettlements: [
@@ -541,8 +571,10 @@ export function demoAssistanceCases(
           state: 'superseded_by_settlement',
           amount: money(b12, b12.terms.totalAmount),
           cashCollectedAt: at(-216),
+          openedAt: at(-144),
           returnReport: null,
           confirmedAt: null,
+          supersededAt: at(-30),
         },
       ],
       lateSettlements: [
@@ -558,6 +590,7 @@ export function demoAssistanceCases(
           settledAt: at(-100),
           attestedAt: at(-95),
           application: {
+            reasonCode: 'cash_not_returned_attested',
             appliedAt: at(-30),
             appliedBy: DEMO_OWNER_USER_ID,
             receiptId: id(0xb00 + 12),
@@ -713,8 +746,10 @@ function foreignCases(at: (hours: number) => string): readonly DemoAssistanceCas
           state: 'open',
           amount: { amount: STANDARD.totalAmount, currency },
           cashCollectedAt: at(-88),
+          openedAt: at(-16),
           returnReport: null,
           confirmedAt: null,
+          supersededAt: null,
         },
       ],
       // An open dispute too, so a dispute read leaking across Companies would show (A7).

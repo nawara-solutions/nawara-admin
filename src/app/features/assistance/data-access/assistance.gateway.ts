@@ -6,6 +6,7 @@ import {
   AssistanceCaseDetail,
   AssistanceCaseFilter,
   AssistanceCaseSummary,
+  AssistanceCashReturnSummary,
   AssistanceDisputeFilter,
   AssistanceDisputeSummary,
   AssistanceDisputeView,
@@ -13,6 +14,7 @@ import {
   AssistancePageRequest,
   AssistanceSettlementView,
   AssistanceTimelineEntry,
+  CashReturnFilter,
   LateSettlementDetail,
   LateSettlementFilter,
   RecoveryFilter,
@@ -83,6 +85,16 @@ export abstract class AssistanceGateway {
     filter: AssistanceDisputeFilter,
     page: AssistancePageRequest,
   ): Observable<AssistancePage<AssistanceDisputeSummary>>;
+
+  /**
+   * Discovery of cash-return obligations (A8), newest opened first, each with its case's row: every obligation, superseded ones
+   * included. A read PROJECTION of the cases this context may see: no Core route exists for it (CF-70).
+   */
+  abstract cashReturnCases(
+    context: AssistanceReadContext,
+    filter: CashReturnFilter,
+    page: AssistancePageRequest,
+  ): Observable<AssistancePage<AssistanceCashReturnSummary>>;
 
   /** Discovery of late settlements (applied or not). */
   abstract lateSettlements(
@@ -161,6 +173,8 @@ export const ASSISTANCE_READ_CONTRACTS: Readonly<Record<AssistanceRead, Assistan
   disputes: NO_OWNER_READ,
   // Core's dispute routes serve the beneficiary (BIL-20) and the Organization (BIL-21); the owner resolves by id only (BIL-22).
   disputeCases: NO_OWNER_READ,
+  // Obligations are read by the beneficiary and the Organization only (BIL-17, BIL-18).
+  cashReturnCases: NO_OWNER_READ,
   lateSettlements: {
     coreRead: {
       core: 'discoveryVia',
@@ -224,6 +238,9 @@ export class UnavailableAssistanceGateway extends AssistanceGateway {
     return throwError(adapterUnavailable);
   }
   disputeCases(): Observable<AssistancePage<AssistanceDisputeSummary>> {
+    return throwError(adapterUnavailable);
+  }
+  cashReturnCases(): Observable<AssistancePage<AssistanceCashReturnSummary>> {
     return throwError(adapterUnavailable);
   }
   lateSettlements(): Observable<AssistancePage<LateSettlement>> {

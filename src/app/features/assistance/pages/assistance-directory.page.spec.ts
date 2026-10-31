@@ -176,6 +176,10 @@ describe('Assistance case directory (A4)', { timeout: 20_000 }, () => {
     const disputes = element.querySelector('[data-disputes-link]');
     expect(disputes?.getAttribute('href')).toBe('/billing/assistance/disputes');
     expect(text(disputes)).toBe(t.disputes.link);
+    // A8: the late settlements and cash returns overview.
+    const settlements = element.querySelector('[data-settlements-link]');
+    expect(settlements?.getAttribute('href')).toBe('/billing/assistance/settlements');
+    expect(text(settlements)).toBe(t.settlements.link);
   });
 
   it('shows Core states only: status, collection, settlement and indicators; no amount', async () => {
@@ -190,10 +194,12 @@ describe('Assistance case directory (A4)', { timeout: 20_000 }, () => {
     // A6: the collection is tagged as the Organization's report.
     expect(text(collection[0])).toBe(`${t.collection.collected} ${t.case.source.report}`);
     expect(text(collection[1])).toMatch(/^Settle by .+$/);
-    expect(overdue[5]).toBe(`${t.oversight.settlement.closedUnpaid} ${t.case.source.fact}`);
+    // A8: a verified success arrived late and awaits the owner; it settles nothing until applied.
+    expect(overdue[5]).toBe(`${t.oversight.settlement.lateUnapplied} ${t.case.source.fact}`);
     expect([...row(8).querySelectorAll('[data-indicators] li')].map((li) => text(li))).toEqual([
       t.indicator.overdue,
       t.indicator.dispute,
+      t.indicator.lateUnapplied,
     ]);
     // Pending: nothing collected, no settlement, no indicator.
     expect(cells(1).slice(3)).toEqual([
@@ -399,7 +405,7 @@ describe('Assistance directory oversight (A6)', { timeout: 30_000 }, () => {
     await choose(element, settle, 2, '');
     const attention: [string, number[]][] = [
       ['cashReturnOwed', [8, 10, 11]],
-      ['lateUnapplied', [11]],
+      ['lateUnapplied', [8, 11]],
       ['recoveryOpen', [13]],
     ];
     for (const [value, cases] of attention) {

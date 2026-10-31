@@ -233,7 +233,15 @@
           @for (obligation of detail.cashReturns; track obligation.id) {
             <dl class="assistance-case__facts" [attr.data-return]="obligation.state">
               <dt>{{ 'assistanceCases.list.state' | transloco }}</dt>
-              <dd>{{ returnStateKeys[obligation.state] | transloco }}</dd>
+              <dd>
+                <adm-assistance-return-standing
+                  [obligation]="obligation"
+                  [openDispute]="openDispute()"
+                  [showTimes]="false"
+                />
+              </dd>
+              <dt>{{ 'assistanceCases.returns.openedAt' | transloco }}</dt>
+              <dd data-opened-at>{{ obligation.openedAt | nwDate: 'date-time' }}</dd>
               <dt>{{ 'assistanceCases.case.cashReturn.originLabel' | transloco }}</dt>
               <dd>{{ returnOriginKeys[obligation.origin] | transloco }}</dd>
               <dt>{{ 'assistanceCases.case.cashReturn.owed' | transloco }}</dt>
@@ -254,8 +262,18 @@
                 <dt>{{ 'assistanceCases.case.cashReturn.confirmedAt' | transloco }}</dt>
                 <dd>{{ confirmed | nwDate: 'date-time' }}</dd>
               }
+              @if (obligation.supersededAt; as superseded) {
+                <dt>{{ 'assistanceCases.returns.supersededAt' | transloco }}</dt>
+                <dd data-superseded-at>{{ superseded | nwDate: 'date-time' }}</dd>
+              }
             </dl>
           }
+          <p class="assistance-case__hint" data-settlement-versus-return>
+            {{ 'assistanceCases.returns.versus' | transloco }}
+          </p>
+          <a nw-link [routerLink]="settlementsPath" data-settlements-link>
+            {{ 'assistanceCases.settlements.link' | transloco }}
+          </a>
         </section>
       }
 
@@ -351,8 +369,14 @@
                 </dd>
               }
             </dl>
+            <adm-assistance-late-standing [late]="late" [kase]="detail" />
           }
           <p class="assistance-case__hint">{{ 'assistanceCases.case.late.never' | transloco }}</p>
+          @if (record.lateSettlements.length > 0 && detail.cashReturns.length === 0) {
+            <a nw-link [routerLink]="settlementsPath" data-settlements-link>
+              {{ 'assistanceCases.settlements.link' | transloco }}
+            </a>
+          }
         </section>
       }
 

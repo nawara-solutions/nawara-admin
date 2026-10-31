@@ -85,6 +85,7 @@ describe('Demo assistance cases (A3): deterministic and complete', () => {
     expect(OWN.some((c) => c.corrections.length > 0)).toBe(true);
     expect(OWN.flatMap((c) => c.lateSettlements.map((l) => l.applied)).sort()).toEqual([
       false,
+      false,
       true,
     ]);
     expect(OWN.flatMap((c) => (c.recovery ? [c.recovery.state] : [])).sort()).toEqual([
@@ -321,6 +322,35 @@ describe('Demo assistance cases (A3): every record satisfies the A1 invariants',
           }
         }
         for (const x of c.corrections) expect(at(x.correctedAt)).toBeLessThanOrEqual(NOW);
+      });
+
+      it('opens cash returns when Core does, and applies late settlements on a basis Core accepts (A8)', () => {
+        for (const o of c.cashReturns) {
+          // The sweep opens an obligation only after the deadline (E-6), never before the collection.
+          expect(Date.parse(o.openedAt)).toBeGreaterThanOrEqual(
+            Date.parse(r.collection?.settleBy ?? ''),
+          );
+          if (c.timeline.length > 0)
+            expect(c.timeline).toContainEqual(
+              expect.objectContaining({ kind: 'cashReturnOwed', at: o.openedAt }),
+            );
+          if (o.returnReport !== null)
+            expect(Date.parse(o.returnReport.returnReportedAt)).toBeGreaterThanOrEqual(
+              Date.parse(o.openedAt),
+            );
+        }
+        for (const l of c.lateSettlements) {
+          if (l.settledAt !== null)
+            expect(Date.parse(l.recordedAt)).toBeGreaterThanOrEqual(Date.parse(l.settledAt));
+          if (l.attestedAt !== null)
+            expect(Date.parse(l.attestedAt)).toBeGreaterThanOrEqual(Date.parse(l.recordedAt));
+          const application = l.application;
+          if (application === null) continue;
+          // Path A rests on the beneficiary's cash_not_returned attestation; Path B on File evidence.
+          if (application.reasonCode === 'cash_not_returned_attested')
+            expect(l.attestation).toBe('cash_not_returned');
+          else expect(l.evidence.length).toBeGreaterThan(0);
+        }
       });
 
       it('has late settlements that are never applied automatically', () => {

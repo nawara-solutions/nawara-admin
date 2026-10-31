@@ -21,7 +21,6 @@ import {
   AssistanceInformationSource,
   AssistanceRequestState,
   CashReturnOrigin,
-  CashReturnState,
   LateSettlementAttestation,
   LateSettlementReason,
   RecoveryObligationState,
@@ -32,8 +31,10 @@ import { assistanceExceptions } from '../domain/assistance-exceptions';
 import { assistanceOversight, oversightInputOfCase } from '../domain/assistance-oversight';
 import { AssistanceDisputePanel } from '../ui/assistance-dispute-panel';
 import { AssistanceExceptionBadges } from '../ui/assistance-exception-badges';
+import { AssistanceLateStanding } from '../ui/assistance-late-standing';
 import { AssistanceMoneyPipe } from '../ui/assistance-money.pipe';
 import { AssistanceOversightPanel } from '../ui/assistance-oversight-panel';
+import { AssistanceReturnStanding } from '../ui/assistance-return-standing';
 import { AssistanceSourceTag } from '../ui/assistance-source-tag';
 
 /** Catalog keys, listed in full (never built at runtime). */
@@ -100,13 +101,6 @@ const KIND_KEYS = {
   recoveryOpened: 'assistanceCases.case.kind.recoveryOpened',
 } as const satisfies Record<AssistanceTimelineEntry['kind'], string>;
 
-const RETURN_STATE_KEYS = {
-  open: 'assistanceCases.case.cashReturn.state.open',
-  return_reported: 'assistanceCases.case.cashReturn.state.returnReported',
-  confirmed_returned: 'assistanceCases.case.cashReturn.state.confirmedReturned',
-  superseded_by_settlement: 'assistanceCases.case.cashReturn.state.supersededBySettlement',
-} as const satisfies Record<CashReturnState, string>;
-
 const RETURN_ORIGIN_KEYS = {
   deadline: 'assistanceCases.case.cashReturn.origin.deadline',
   refund_completion: 'assistanceCases.case.cashReturn.origin.refundCompletion',
@@ -163,8 +157,10 @@ const shortRef = (id: string): string => id.slice(-8);
     NwStatusBadge,
     AssistanceDisputePanel,
     AssistanceExceptionBadges,
+    AssistanceLateStanding,
     AssistanceMoneyPipe,
     AssistanceOversightPanel,
+    AssistanceReturnStanding,
     AssistanceSourceTag,
   ],
   templateUrl: './assistance-case.page.html',
@@ -180,6 +176,14 @@ export class AssistanceCasePage {
   protected readonly directoryPath = '/billing/assistance';
   /** The disputes and exceptions overview (A7). */
   protected readonly disputesPath = '/billing/assistance/disputes';
+  /** The late settlements and cash returns overview (A8). */
+  protected readonly settlementsPath = '/billing/assistance/settlements';
+
+  /** Whether the case has an open assistance dispute (it holds the beneficiary's confirmation of a reported return). */
+  protected readonly openDispute = computed(() => {
+    const view = this.facade.view();
+    return view.status === 'ready' && view.record.detail.disputes.some((d) => d.state === 'open');
+  });
   protected readonly stateKeys = STATE_KEYS;
   protected readonly stateTones = STATE_TONES;
   protected readonly channelKeys = CHANNEL_KEYS;
@@ -192,7 +196,6 @@ export class AssistanceCasePage {
   protected readonly sourceIcons = SOURCE_ICONS;
   protected readonly actorKeys = ACTOR_KEYS;
   protected readonly kindKeys = KIND_KEYS;
-  protected readonly returnStateKeys = RETURN_STATE_KEYS;
   protected readonly returnOriginKeys = RETURN_ORIGIN_KEYS;
   protected readonly lateReasonKeys = LATE_REASON_KEYS;
   protected readonly attestationKeys = ATTESTATION_KEYS;

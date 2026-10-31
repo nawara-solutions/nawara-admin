@@ -1,0 +1,78 @@
+@let standing = result().standing;
+<p class="assistance-late-standing__status" [attr.data-standing]="standing.kind">
+  @if (standing.kind === 'applied') {
+    <nw-status-badge tone="success" data-decision="applied">{{
+      'assistanceCases.late.applied' | transloco
+    }}</nw-status-badge>
+    <adm-assistance-source-tag source="decision" />
+  } @else {
+    <nw-status-badge tone="warning" data-decision="pending">{{
+      'assistanceCases.late.pending' | transloco
+    }}</nw-status-badge>
+    @if (standing.kind === 'refused') {
+      <nw-status-badge tone="danger" data-blocked>{{
+        'assistanceCases.late.blocked' | transloco
+      }}</nw-status-badge>
+    }
+  }
+</p>
+
+<p class="assistance-late-standing__line" data-standing-text>
+  @switch (standing.kind) {
+    @case ('applied') {
+      {{
+        standingKeys.applied | transloco: { reason: (reasonKeys[standing.reasonCode] | transloco) }
+      }}
+    }
+    @case ('refused') {
+      {{ standingKeys.refused | transloco }}
+      <strong [attr.data-refusal]="standing.reason">{{
+        refusalKeys[standing.reason] | transloco
+      }}</strong>
+    }
+    @default {
+      {{ standingKeys[standing.kind] | transloco }}
+    }
+  }
+</p>
+@for (refusal of result().undetermined; track refusal) {
+  <p class="assistance-late-standing__secondary" [attr.data-undetermined]="refusal">
+    {{
+      'assistanceCases.late.undetermined'
+        | transloco: { reason: (refusalKeys[refusal] | transloco) }
+    }}
+  </p>
+}
+@if (wouldSupersede()) {
+  <p class="assistance-late-standing__secondary" data-would-supersede>
+    {{ 'assistanceCases.late.wouldSupersede' | transloco }}
+  </p>
+}
+@if (standing.kind !== 'applied') {
+  <p class="assistance-late-standing__receipt" data-receipt>
+    <nw-icon name="lock-keyhole" size="sm" />
+    <span>{{
+      'assistanceCases.late.receipt'
+        | transloco: { operation: authority.operation, purpose: authority.purpose }
+    }}</span>
+  </p>
+}
+
+<ol class="assistance-late-standing__history" data-late-history>
+  @for (entry of history(); track entry.kind) {
+    <li [attr.data-kind]="entry.kind" [attr.data-source]="entry.source">
+      <adm-assistance-source-tag [source]="entry.source" />
+      <span>{{ historyKeys[entry.kind] | transloco }}</span>
+      <time class="assistance-late-standing__secondary" [attr.datetime]="entry.at">{{
+        entry.at | nwDate: 'date-time'
+      }}</time>
+    </li>
+  }
+  @if (late().settledAt === null) {
+    <li data-kind="lateSuccessUnknown">
+      <span class="assistance-late-standing__secondary">{{
+        'assistanceCases.case.late.settledAtUnknown' | transloco
+      }}</span>
+    </li>
+  }
+</ol>

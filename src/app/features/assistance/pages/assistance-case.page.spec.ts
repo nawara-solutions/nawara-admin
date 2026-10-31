@@ -403,7 +403,7 @@ describe('Assistance case oversight (A6)', { timeout: 60_000 }, () => {
     5: ['reported', 'verified', 'met', 'none', 'none', 'false'],
     6: ['reported', 'uncertain', 'running', 'none', 'none', 'false'],
     7: ['reported', 'closedUnpaid', 'met', 'confirmed', 'none', 'false'],
-    8: ['reported', 'closedUnpaid', 'overdue', 'owed', 'none', 'true'],
+    8: ['reported', 'lateUnapplied', 'overdue', 'owed', 'none', 'true'],
     10: ['reported', 'closedUnpaid', 'overdue', 'reported', 'none', 'true'],
     11: ['reported', 'lateUnapplied', 'overdue', 'owed', 'none', 'false'],
     12: ['reported', 'verifiedLate', 'met', 'superseded', 'none', 'false'],
@@ -431,7 +431,8 @@ describe('Assistance case oversight (A6)', { timeout: 60_000 }, () => {
   });
 
   it('a reported collection is tagged Reported; only a settled channel is tagged a Verified fact', async () => {
-    let r = await render(caseOf(8).request.id);
+    // Case 10: the channel closed unpaid, with no late success.
+    let r = await render(caseOf(10).request.id);
     expect(sourceOf(r.element, 'collection')).toBe('report');
     expect(sourceOf(r.element, 'settlement')).toBe('fact');
     expect(text(r.element.querySelector('[data-stage="settlement"]'))).toContain(
@@ -638,6 +639,7 @@ describe('Assistance case disputes and corrections (A7)', { timeout: 60_000 }, (
       'overdueSettlement',
       'openDispute',
       'cashReturn',
+      'lateSettlementReview',
     ]);
     expect(element.querySelector('[data-disputes-link]')?.getAttribute('href')).toBe(
       '/billing/assistance/disputes',
@@ -652,5 +654,58 @@ describe('Assistance case disputes and corrections (A7)', { timeout: 60_000 }, (
         TestBed.resetTestingModule();
       }
     }
+  });
+});
+
+describe('Assistance case late settlements and cash returns (A8)', { timeout: 60_000 }, () => {
+  const l = t.late;
+  const ret = t.returns;
+
+  it('each late settlement shows the owner’s decision: pending without basis, blocked by a dispute, applied', async () => {
+    let r = await render(caseOf(11).request.id);
+    let late = section(r.element, 'late')!;
+    expect(late.querySelector<HTMLElement>('[data-standing]')?.dataset['standing']).toBe(
+      'needsBasis',
+    );
+    expect(late.querySelector('[data-decision="pending"]')).not.toBeNull();
+    expect(late.querySelector('[data-would-supersede]')).not.toBeNull();
+    expect(text(late.querySelector('[data-receipt]'))).toContain('late_settlement_apply');
+    TestBed.resetTestingModule();
+    r = await render(caseOf(8).request.id);
+    late = section(r.element, 'late')!;
+    expect(late.querySelector('[data-refusal]')?.getAttribute('data-refusal')).toBe('dispute_open');
+    expect(text(late)).toContain(c.late.attestation.cashNotReturned);
+    TestBed.resetTestingModule();
+    r = await render(caseOf(12).request.id);
+    late = section(r.element, 'late')!;
+    expect(late.querySelector('[data-decision="applied"]')).not.toBeNull();
+    expect(text(late.querySelector('[data-standing-text]'))).toBe(
+      l.standing.applied.replace('{{reason}}', l.applicationReason.attested),
+    );
+    expect(
+      [...late.querySelectorAll<HTMLElement>('[data-late-history] li')].map(
+        (li) => li.dataset['kind'],
+      ),
+    ).toEqual(['lateSuccess', 'recorded', 'attested', 'applied']);
+  });
+
+  it('cash returns: when owed, the report kept apart from the confirmation, the supersession, and settlement versus return', async () => {
+    let r = await render(caseOf(10).request.id);
+    let returns = section(r.element, 'returns')!;
+    expect(text(returns.querySelector('[data-awaiting]'))).toBe(
+      ret.awaiting.beneficiaryConfirmation,
+    );
+    expect(returns.querySelector('[data-held]')).not.toBeNull();
+    expect(text(returns.querySelector('[data-opened-at]')).length).toBeGreaterThan(0);
+    expect(text(returns.querySelector('[data-settlement-versus-return]'))).toBe(ret.versus);
+    expect(returns.querySelector('[data-settlements-link]')?.getAttribute('href')).toBe(
+      '/billing/assistance/settlements',
+    );
+    TestBed.resetTestingModule();
+    r = await render(caseOf(12).request.id);
+    returns = section(r.element, 'returns')!;
+    expect(text(returns.querySelector('[data-awaiting]'))).toBe(ret.discharged.superseded);
+    expect(returns.querySelector('[data-superseded-at]')).not.toBeNull();
+    expect(returns.querySelector('[data-held]')).toBeNull();
   });
 });

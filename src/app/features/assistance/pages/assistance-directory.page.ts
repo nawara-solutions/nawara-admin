@@ -170,6 +170,8 @@ export class AssistanceDirectoryPage {
   protected readonly returnKeys = RETURN_STAGE_KEYS;
   /** The disputes and exceptions overview (A7). */
   protected readonly disputesPath = '/billing/assistance/disputes';
+  /** The late settlements and cash returns overview (A8). */
+  protected readonly settlementsPath = '/billing/assistance/settlements';
 
   /** The search field's text, and whether its last submission was not a full case reference. */
   protected readonly reference = signal('');

@@ -1,0 +1,474 @@
+@let lates = facade.lateSettlements();
+@let returns = facade.cashReturns();
+@let lateQuery = facade.lateQuery();
+@let returnQuery = facade.returnQuery();
+<a nw-link class="assistance-settlements__back" [routerLink]="directoryPath" data-back>
+  <nw-icon name="arrow-left" size="sm" />{{ 'assistanceCases.disputes.back' | transloco }}
+</a>
+
+<header class="assistance-settlements__header">
+  <span class="assistance-settlements__mark" aria-hidden="true"
+    ><nw-icon name="rotate-ccw" size="lg"
+  /></span>
+  <div class="assistance-settlements__titles">
+    <p class="assistance-settlements__eyebrow">
+      {{ 'assistanceCases.header.eyebrow' | transloco }}
+    </p>
+    <h1 class="assistance-settlements__title">
+      {{ 'assistanceCases.settlements.title' | transloco }}
+    </h1>
+    <p class="assistance-settlements__muted">
+      {{ 'assistanceCases.settlements.subtitle' | transloco }}
+    </p>
+  </div>
+  @if (isDemo()) {
+    <span class="assistance-settlements__demo" data-demo>
+      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+      <span class="nw-visually-hidden">: {{ 'assistanceCases.demoExplanation' | transloco }}</span>
+    </span>
+  }
+</header>
+
+@if (isDemo()) {
+  <p class="assistance-settlements__note" role="note" data-simulation>
+    <nw-icon name="flask-conical" size="sm" />
+    <span>{{ 'assistanceCases.settlements.simulation' | transloco }}</span>
+  </p>
+}
+
+@switch (blocked()) {
+  @case ('notInBuild') {
+    <nw-data-state
+      state="empty"
+      [title]="'assistanceCases.states.notInBuildTitle' | transloco"
+      [description]="'assistanceCases.settlements.notInBuildDescription' | transloco"
+    />
+  }
+  @case ('forbidden') {
+    <nw-data-state
+      state="empty"
+      [title]="'shell.pages.forbidden.title' | transloco"
+      [description]="'assistanceCases.settlements.forbiddenDescription' | transloco"
+    />
+  }
+  @default {
+    <!-- Late settlements -->
+    <section
+      class="assistance-settlements__card"
+      aria-labelledby="late-title"
+      data-section="late-settlements"
+    >
+      <h2 id="late-title" class="assistance-settlements__card-title">
+        {{ 'assistanceCases.settlements.late.title' | transloco }}
+      </h2>
+      <p class="assistance-settlements__muted">
+        {{ 'assistanceCases.settlements.late.intro' | transloco }}
+      </p>
+      <div class="assistance-settlements__toolbar">
+        <nw-form-field
+          class="assistance-settlements__select"
+          [label]="'assistanceCases.settlements.filter.decision' | transloco"
+        >
+          <select
+            nwControl
+            aria-controls="late-list"
+            (change)="onLateStatus($event)"
+            data-filter="late"
+          >
+            <option value="" [selected]="lateQuery.status === null">
+              {{ 'assistanceCases.settlements.filter.allDecisions' | transloco }}
+            </option>
+            <option value="unapplied" [selected]="lateQuery.status === 'unapplied'">
+              {{ 'assistanceCases.late.pending' | transloco }}
+            </option>
+            <option value="applied" [selected]="lateQuery.status === 'applied'">
+              {{ 'assistanceCases.late.applied' | transloco }}
+            </option>
+          </select>
+        </nw-form-field>
+      </div>
+
+      @switch (lates.status) {
+        @case ('ready') {
+          <p class="assistance-settlements__muted" role="status" aria-live="polite" data-count>
+            {{
+              (lates.more
+                ? 'assistanceCases.settlements.late.countMore'
+                : 'assistanceCases.settlements.late.count'
+              ) | transloco: { shown: (lates.rows.length | nwNumber) }
+            }}
+          </p>
+          <ul
+            id="late-list"
+            class="assistance-settlements__items assistance-settlements__items--single"
+            role="list"
+            data-late-list
+          >
+            @for (row of lates.rows; track trackLate(row)) {
+              @let late = row.late;
+              @let request = row.detail.request;
+              <li>
+                <article
+                  class="assistance-settlements__item"
+                  [attr.data-late]="late.id"
+                  [attr.data-request]="late.assistanceRequestId"
+                  [attr.aria-labelledby]="'late-' + late.id"
+                >
+                  <h3 class="assistance-settlements__item-title" [id]="'late-' + late.id">
+                    <a nw-link [routerLink]="casePath(late.assistanceRequestId)" data-case-link>
+                      {{ 'assistanceCases.case.title' | transloco }}
+                      <code
+                        class="assistance-settlements__ref"
+                        dir="ltr"
+                        [attr.title]="late.assistanceRequestId"
+                      >
+                        <span aria-hidden="true">…{{ shortRef(late.assistanceRequestId) }}</span>
+                        <span class="nw-visually-hidden">{{
+                          'assistanceCases.list.referenceFull'
+                            | transloco: { reference: late.assistanceRequestId }
+                        }}</span>
+                      </code>
+                    </a>
+                    <nw-status-badge [tone]="stateTones[request.state]">{{
+                      stateKeys[request.state] | transloco
+                    }}</nw-status-badge>
+                  </h3>
+                  <dl class="assistance-settlements__facts">
+                    <dt>{{ 'assistanceCases.list.organization' | transloco }}</dt>
+                    <dd>
+                      <a
+                        nw-link
+                        [routerLink]="organizationLink(late.platformId, late.organizationId)"
+                      >
+                        {{ 'assistanceCases.list.organizationRef' | transloco }}
+                        <code dir="ltr">…{{ shortRef(late.organizationId) }}</code>
+                      </a>
+                      @let platform = platformName()(late.platformId);
+                      <a nw-link [routerLink]="platformLink(late.platformId)">
+                        @if (platform !== null) {
+                          <bdi>{{ platform }}</bdi>
+                        } @else {
+                          {{ 'assistanceCases.list.platformUnknown' | transloco }}
+                        }
+                      </a>
+                    </dd>
+                    <dt>{{ 'assistanceCases.case.late.reasonLabel' | transloco }}</dt>
+                    <dd>{{ lateReasonKeys[late.reason] | transloco }}</dd>
+                    <dt>{{ 'assistanceCases.case.late.attestationLabel' | transloco }}</dt>
+                    <dd data-attestation>
+                      @if (late.attestation !== null) {
+                        <span>{{
+                          (late.attestation === 'cash_not_returned'
+                            ? 'assistanceCases.case.late.attestation.cashNotReturned'
+                            : 'assistanceCases.case.late.attestation.cashReturned'
+                          ) | transloco
+                        }}</span>
+                        <adm-assistance-source-tag source="report" />
+                      } @else {
+                        <span class="assistance-settlements__secondary">{{
+                          'assistanceCases.case.late.noAttestation' | transloco
+                        }}</span>
+                      }
+                    </dd>
+                    <dt>{{ 'assistanceCases.case.late.evidence' | transloco }}</dt>
+                    <dd data-evidence>
+                      @if (late.evidence.length > 0) {
+                        {{
+                          'assistanceCases.settlements.late.evidenceCount'
+                            | transloco: { count: (late.evidence.length | nwNumber) }
+                        }}
+                      } @else {
+                        <span class="assistance-settlements__secondary">{{
+                          'assistanceCases.settlements.late.noEvidence' | transloco
+                        }}</span>
+                      }
+                    </dd>
+                    <dt>{{ 'assistanceCases.settlements.late.decision' | transloco }}</dt>
+                    <dd>
+                      <adm-assistance-late-standing [late]="late" [kase]="row.detail" />
+                    </dd>
+                    <dt>{{ 'assistanceCases.oversight.cashReturn.label' | transloco }}</dt>
+                    <dd data-cash-return>
+                      @if (row.detail.cashReturns.at(-1); as obligation) {
+                        <adm-assistance-return-standing
+                          [obligation]="obligation"
+                          [openDispute]="openDispute(row)"
+                        />
+                      } @else {
+                        <span class="assistance-settlements__secondary">{{
+                          'assistanceCases.oversight.cashReturn.none' | transloco
+                        }}</span>
+                      }
+                    </dd>
+                    <dt>{{ 'assistanceCases.settlements.restrictions' | transloco }}</dt>
+                    <dd data-restrictions>
+                      @let restrictions = row.detail.restrictions;
+                      @if (restrictions !== null && restrictions.length > 0) {
+                        <ul class="assistance-settlements__restrictions" role="list">
+                          @for (restriction of restrictions; track restriction) {
+                            <li [attr.data-restriction]="restriction">
+                              <nw-status-badge tone="warning">{{ restriction }}</nw-status-badge>
+                              <span>{{ restrictionKeys[restriction] | transloco }}</span>
+                            </li>
+                          }
+                        </ul>
+                      } @else if (restrictions !== null) {
+                        <span class="assistance-settlements__secondary">{{
+                          'assistanceCases.oversight.noRestriction' | transloco
+                        }}</span>
+                      }
+                    </dd>
+                  </dl>
+                </article>
+              </li>
+            }
+          </ul>
+          @if (lates.more || lates.moreFailed) {
+            <div class="assistance-settlements__more">
+              @if (lates.moreFailed) {
+                <p class="assistance-settlements__muted" role="alert">
+                  {{ 'assistanceCases.list.moreFailed' | transloco }}
+                </p>
+              }
+              <button
+                nw-button
+                variant="secondary"
+                type="button"
+                data-more="late"
+                [attr.aria-busy]="lates.loadingMore || null"
+                [disabled]="lates.loadingMore"
+                (click)="facade.moreLate()"
+              >
+                {{ 'assistanceCases.list.more' | transloco }}
+              </button>
+            </div>
+          }
+        }
+        @case ('none') {
+          <p class="assistance-settlements__muted" role="status" data-none="late">
+            {{ 'assistanceCases.settlements.late.none' | transloco }}
+          </p>
+        }
+        @case ('unavailable') {
+          <nw-data-state
+            state="error"
+            [title]="'assistanceCases.states.unavailableTitle' | transloco"
+            [description]="'assistanceCases.states.unavailableDescription' | transloco"
+          >
+            <div nwDataStateActions>
+              <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+                <nw-icon name="refresh-cw" size="sm" />{{
+                  'assistanceCases.states.retry' | transloco
+                }}
+              </button>
+            </div>
+          </nw-data-state>
+        }
+        @case ('error') {
+          <nw-data-state
+            state="error"
+            [title]="'assistanceCases.settlements.errorTitle' | transloco"
+            [description]="'assistanceCases.states.errorDescription' | transloco"
+          >
+            <div nwDataStateActions>
+              <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+                <nw-icon name="refresh-cw" size="sm" />{{
+                  'assistanceCases.states.retry' | transloco
+                }}
+              </button>
+            </div>
+          </nw-data-state>
+        }
+        @default {
+          <nw-data-state
+            state="loading"
+            [title]="'assistanceCases.settlements.loading' | transloco"
+          />
+        }
+      }
+    </section>
+
+    <!-- Cash returns -->
+    <section
+      class="assistance-settlements__card"
+      aria-labelledby="returns-title"
+      data-section="cash-returns"
+    >
+      <h2 id="returns-title" class="assistance-settlements__card-title">
+        {{ 'assistanceCases.settlements.returns.title' | transloco }}
+      </h2>
+      <p class="assistance-settlements__muted">
+        {{ 'assistanceCases.settlements.returns.intro' | transloco }}
+      </p>
+      <div class="assistance-settlements__toolbar">
+        <nw-form-field
+          class="assistance-settlements__select"
+          [label]="'assistanceCases.settlements.filter.returnState' | transloco"
+        >
+          <select
+            nwControl
+            aria-controls="return-list"
+            (change)="onReturnState($event)"
+            data-filter="return-state"
+          >
+            <option value="" [selected]="returnQuery.state === null">
+              {{ 'assistanceCases.settlements.filter.allReturns' | transloco }}
+            </option>
+            @for (state of returnStates; track state) {
+              <option [value]="state" [selected]="state === returnQuery.state">
+                {{ returnLabels[state] | transloco }}
+              </option>
+            }
+          </select>
+        </nw-form-field>
+        <nw-form-field
+          class="assistance-settlements__select"
+          [label]="'assistanceCases.settlements.filter.dispute' | transloco"
+        >
+          <select
+            nwControl
+            aria-controls="return-list"
+            (change)="onReturnDispute($event)"
+            data-filter="return-dispute"
+          >
+            <option value="" [selected]="returnQuery.disputed === null">
+              {{ 'assistanceCases.settlements.filter.anyDispute' | transloco }}
+            </option>
+            <option value="open" [selected]="returnQuery.disputed === true">
+              {{ 'assistanceCases.settlements.filter.openDispute' | transloco }}
+            </option>
+          </select>
+        </nw-form-field>
+      </div>
+
+      @switch (returns.status) {
+        @case ('ready') {
+          <p class="assistance-settlements__muted" role="status" aria-live="polite" data-count>
+            {{
+              (returns.more
+                ? 'assistanceCases.settlements.returns.countMore'
+                : 'assistanceCases.settlements.returns.count'
+              ) | transloco: { shown: (returns.rows.length | nwNumber) }
+            }}
+          </p>
+          <ul id="return-list" class="assistance-settlements__items" role="list" data-return-list>
+            @for (row of returns.rows; track trackReturn(row)) {
+              @let o = row.obligation;
+              <li>
+                <article
+                  class="assistance-settlements__item"
+                  [attr.data-obligation]="o.id"
+                  [attr.data-request]="o.assistanceRequestId"
+                  [attr.aria-labelledby]="'return-' + o.id"
+                >
+                  <h3 class="assistance-settlements__item-title" [id]="'return-' + o.id">
+                    <a nw-link [routerLink]="casePath(o.assistanceRequestId)" data-case-link>
+                      {{ 'assistanceCases.case.title' | transloco }}
+                      <code
+                        class="assistance-settlements__ref"
+                        dir="ltr"
+                        [attr.title]="o.assistanceRequestId"
+                      >
+                        <span aria-hidden="true">…{{ shortRef(o.assistanceRequestId) }}</span>
+                        <span class="nw-visually-hidden">{{
+                          'assistanceCases.list.referenceFull'
+                            | transloco: { reference: o.assistanceRequestId }
+                        }}</span>
+                      </code>
+                    </a>
+                    @if (row.case.openDispute) {
+                      <nw-status-badge tone="danger" data-disputed>{{
+                        'assistanceCases.indicator.dispute' | transloco
+                      }}</nw-status-badge>
+                    }
+                  </h3>
+                  <dl class="assistance-settlements__facts">
+                    <dt>{{ 'assistanceCases.list.organization' | transloco }}</dt>
+                    <dd>
+                      <a
+                        nw-link
+                        [routerLink]="
+                          organizationLink(row.case.platformId, row.case.organizationId)
+                        "
+                      >
+                        {{ 'assistanceCases.list.organizationRef' | transloco }}
+                        <code dir="ltr">…{{ shortRef(row.case.organizationId) }}</code>
+                      </a>
+                    </dd>
+                    <dt>{{ 'assistanceCases.case.cashReturn.originLabel' | transloco }}</dt>
+                    <dd>
+                      {{
+                        (o.origin === 'deadline'
+                          ? 'assistanceCases.case.cashReturn.origin.deadline'
+                          : 'assistanceCases.case.cashReturn.origin.refundCompletion'
+                        ) | transloco
+                      }}
+                    </dd>
+                    <dt>{{ 'assistanceCases.case.cashReturn.owed' | transloco }}</dt>
+                    <dd data-amount>
+                      <bdi>{{ o.amount | assistanceMoney }}</bdi>
+                    </dd>
+                    <dt>{{ 'assistanceCases.list.state' | transloco }}</dt>
+                    <dd>
+                      <adm-assistance-return-standing
+                        [obligation]="o"
+                        [openDispute]="row.case.openDispute"
+                      />
+                    </dd>
+                    <dt>{{ 'assistanceCases.exception.title' | transloco }}</dt>
+                    <dd>
+                      <adm-assistance-exception-badges [exceptions]="exceptionsOf(row.case)" />
+                    </dd>
+                  </dl>
+                </article>
+              </li>
+            }
+          </ul>
+          @if (returns.more || returns.moreFailed) {
+            <div class="assistance-settlements__more">
+              @if (returns.moreFailed) {
+                <p class="assistance-settlements__muted" role="alert">
+                  {{ 'assistanceCases.list.moreFailed' | transloco }}
+                </p>
+              }
+              <button
+                nw-button
+                variant="secondary"
+                type="button"
+                data-more="returns"
+                [attr.aria-busy]="returns.loadingMore || null"
+                [disabled]="returns.loadingMore"
+                (click)="facade.moreReturns()"
+              >
+                {{ 'assistanceCases.list.more' | transloco }}
+              </button>
+            </div>
+          }
+        }
+        @case ('none') {
+          <p class="assistance-settlements__muted" role="status" data-none="returns">
+            {{ 'assistanceCases.settlements.returns.none' | transloco }}
+          </p>
+        }
+        @case ('unavailable') {
+          <p class="assistance-settlements__muted" role="alert" data-returns-unavailable>
+            {{ 'assistanceCases.states.unavailableDescription' | transloco }}
+          </p>
+        }
+        @case ('error') {
+          <p class="assistance-settlements__muted" role="alert" data-returns-error>
+            {{ 'assistanceCases.states.errorDescription' | transloco }}
+          </p>
+        }
+        @default {
+          <nw-data-state state="loading" [title]="'assistanceCases.states.loading' | transloco" />
+        }
+      }
+    </section>
+
+    <p class="assistance-settlements__hint">
+      <nw-icon name="info" size="sm" />
+      <span>{{ 'assistanceCases.settlements.readOnly' | transloco }}</span>
+    </p>
+  }
+}

@@ -21,6 +21,7 @@ import {
   AssistanceCaseDetail,
   AssistanceCaseFilter,
   AssistanceCaseSummary,
+  AssistanceCashReturnSummary,
   AssistanceDisputeFilter,
   AssistanceDisputeSummary,
   AssistanceDisputeView,
@@ -28,11 +29,13 @@ import {
   AssistancePageRequest,
   AssistanceSettlementView,
   AssistanceTimelineEntry,
+  CashReturnFilter,
   LateSettlementDetail,
   LateSettlementFilter,
   RecoveryFilter,
   RecoveryObligationDetail,
   isAssistanceDisputeReason,
+  isCashReturnState,
   isAssistanceDisputeState,
   isAssistanceRequestState,
 } from '../domain/assistance-read.model';
@@ -272,6 +275,39 @@ export class MockAssistanceGateway extends AssistanceGateway {
     });
   }
 
+  cashReturnCases(
+    context: AssistanceReadContext,
+    filter: CashReturnFilter,
+    request: AssistancePageRequest,
+  ): Observable<AssistancePage<AssistanceCashReturnSummary>> {
+    return this.read(context, (cases, now) => {
+      if (!filterInContext(context, filter)) return INVALID;
+      if (filter.state !== undefined && !isCashReturnState(filter.state)) return INVALID;
+      if (filter.disputed !== undefined && typeof filter.disputed !== 'boolean') return INVALID;
+      const rows = cases
+        .flatMap((c) => c.cashReturns.map((obligation) => ({ c, obligation })))
+        .filter(
+          ({ c, obligation }) =>
+            (filter.state === undefined || obligation.state === filter.state) &&
+            (filter.disputed === undefined ||
+              c.disputes.some((d) => d.state === 'open') === filter.disputed) &&
+            (filter.platformId === undefined || c.request.platformId === filter.platformId) &&
+            (filter.organizationId === undefined ||
+              c.request.organizationId === filter.organizationId),
+        )
+        .sort(
+          (a, b) =>
+            byNewest(a.obligation.openedAt, b.obligation.openedAt) ||
+            a.obligation.id.localeCompare(b.obligation.id),
+        )
+        .map(({ c, obligation }): AssistanceCashReturnSummary => ({
+          obligation,
+          case: summaryOf(c, now),
+        }));
+      return page(rows, (r) => r.obligation.id, request) ?? INVALID;
+    });
+  }
+
   lateSettlements(
     context: AssistanceReadContext,
     filter: LateSettlementFilter,
@@ -279,6 +315,12 @@ export class MockAssistanceGateway extends AssistanceGateway {
   ): Observable<AssistancePage<LateSettlement>> {
     return this.read(context, (cases) => {
       if (!filterInContext(context, filter)) return INVALID;
+      if (
+        filter.status !== undefined &&
+        filter.status !== 'applied' &&
+        filter.status !== 'unapplied'
+      )
+        return INVALID;
       const rows = cases
         .flatMap((c) => c.lateSettlements)
         .filter(

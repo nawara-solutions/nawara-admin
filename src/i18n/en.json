@@ -232,7 +232,8 @@
     "services": "Services & health",
     "notifications": "Notifications",
     "releases": "Releases",
-    "assistanceDisputes": "Assistance disputes and exceptions"
+    "assistanceDisputes": "Assistance disputes and exceptions",
+    "assistanceSettlements": "Late settlements and cash returns"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -271,7 +272,8 @@
       "services": "Services & health",
       "notifications": "Notifications",
       "releases": "Releases",
-      "assistanceDisputes": "Disputes and exceptions"
+      "assistanceDisputes": "Disputes and exceptions",
+      "assistanceSettlements": "Late settlements and returns"
     },
     "context": {
       "label": "Administration scope",
@@ -2730,6 +2732,97 @@
       "loading": "Loading disputes…",
       "exceptionNone": "No case is in this exception.",
       "readOnly": "Read only: no correction, resolution, collection, payment, confirmation or refund can be made from this page."
+    },
+    "late": {
+      "pending": "Awaiting the owner’s decision",
+      "applied": "Applied by the owner",
+      "blocked": "Blocked",
+      "standing": {
+        "applied": "The owner applied it as the request’s purchase, on this basis: {{reason}}.",
+        "refused": "Nawara Core would refuse an application now:",
+        "attested": "The beneficiary attested that the cash was not returned: a basis Nawara Core accepts. It settles nothing until the owner decides.",
+        "needsBasis": "No basis yet: the beneficiary has not attested, and File evidence cannot be supplied by a person yet."
+      },
+      "applicationReason": {
+        "attested": "the beneficiary’s attestation that the cash was not returned",
+        "evidenced": "File evidence and the owner’s determination that the cash was not returned"
+      },
+      "refusal": {
+        "purchaseExists": "the request already has its purchase.",
+        "cashReturnConfirmed": "the beneficiary confirmed the cash return.",
+        "cashReturnReported": "the Organization reported the cash return.",
+        "requestNotSettleable": "the request can no longer be settled.",
+        "disputeOpen": "an assistance dispute of the request is open.",
+        "settlementInProgress": "another settlement of the request is in progress.",
+        "refundExists": "a refund case exists for the payment.",
+        "evidenceInsufficient": "the basis is insufficient.",
+        "evidenceContradictory": "the beneficiary attested that the cash was returned.",
+        "settlementTimeUnavailable": "Nawara Core cannot state the original settlement time.",
+        "alreadyApplied": "it was already applied."
+      },
+      "undetermined": "Nawara Core decides whether this also refuses it: {{reason}}",
+      "wouldSupersede": "An application would replace the cash return the Organization owes for this request.",
+      "receipt": "Applying it needs the Company owner’s authorization receipt ({{operation}}, after a step-up for {{purpose}}). Not available in Admin.",
+      "history": {
+        "lateSuccess": "Payment verified the success",
+        "recorded": "Recorded by Nawara Core as late",
+        "attested": "The beneficiary attested",
+        "applied": "The owner applied it"
+      }
+    },
+    "returns": {
+      "held": "Confirmation held by an open dispute",
+      "awaiting": {
+        "organizationReport": "Awaiting the Organization’s report that the cash was returned.",
+        "beneficiaryConfirmation": "Reported by the Organization, still owed until the beneficiary confirms it."
+      },
+      "discharged": {
+        "confirmed": "Discharged: the beneficiary confirmed the return.",
+        "superseded": "Discharged: replaced by a late settlement the owner applied."
+      },
+      "openedAt": "Owed since",
+      "reportedReturn": "Return reported for",
+      "confirmedAt": "Confirmed by the beneficiary",
+      "supersededAt": "Superseded by the owner’s application",
+      "versus": "Settlement and cash return are separate: a verified payment settles the request; a cash return gives the beneficiary their cash back. A reported return is a report, not a completion."
+    },
+    "settlements": {
+      "link": "Late settlements and cash returns",
+      "title": "Late settlements and cash returns",
+      "subtitle": "Verified payments that arrived late, and the cash Organizations owe beneficiaries, as Nawara Core records them.",
+      "simulation": "Simulated records — not Nawara Core data. Nawara Core has no owner list of late settlements or cash returns yet; these fictional records follow its states and rules so the overview can be reviewed.",
+      "notInBuildDescription": "Nawara Core’s Billing service does not offer the owner a list of late settlements or cash returns yet, so there is nothing to show.",
+      "forbiddenDescription": "Late settlements and cash returns are shown to the Company owner only.",
+      "late": {
+        "title": "Late settlements",
+        "intro": "A verified payment that arrived after its request was final. Nawara Core records it and never applies it on its own: it settles nothing until the owner applies it.",
+        "count": "Showing {{shown}} late settlements",
+        "countMore": "Showing the first {{shown}} late settlements; more are available",
+        "evidenceCount": "{{count}} File references",
+        "noEvidence": "None (File evidence has no human path yet)",
+        "decision": "Owner’s decision",
+        "none": "No late settlement matches."
+      },
+      "returns": {
+        "title": "Cash returns",
+        "intro": "The Organization reports a return; only the beneficiary’s confirmation, or a late settlement the owner applied, discharges it.",
+        "count": "Showing {{shown}} cash returns",
+        "countMore": "Showing the first {{shown}} cash returns; more are available",
+        "none": "No cash return matches."
+      },
+      "filter": {
+        "decision": "Owner’s decision",
+        "allDecisions": "Pending and applied",
+        "returnState": "Return status",
+        "allReturns": "All returns",
+        "dispute": "Dispute",
+        "anyDispute": "With or without",
+        "openDispute": "Open dispute only"
+      },
+      "restrictions": "Restrictions on the Organization",
+      "errorTitle": "Late settlements could not be loaded",
+      "loading": "Loading late settlements…",
+      "readOnly": "Read only: no application, receipt, return report, confirmation or payment can be made from this page."
     }
   },
   "activity": {
