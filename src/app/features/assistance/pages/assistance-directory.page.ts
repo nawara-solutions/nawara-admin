@@ -9,6 +9,7 @@ import { NwButton } from '../../../shared/ui/button/button';
 import { NwDataState } from '../../../shared/ui/data-state/data-state';
 import { NwControl, NwFormField } from '../../../shared/ui/form-field/form-field';
 import { NwIcon } from '../../../shared/ui/icon/icon';
+import { NwLink } from '../../../shared/ui/link/link';
 import { NwStatusBadge, NwStatusTone } from '../../../shared/ui/status-badge/status-badge';
 import {
   AssistanceDirectoryFacade,
@@ -137,6 +138,7 @@ const shortRef = (id: string): string => id.slice(-8);
     NwDatePipe,
     NwFormField,
     NwIcon,
+    NwLink,
     NwNumberPipe,
     NwStatusBadge,
     AssistanceSourceTag,
@@ -166,6 +168,8 @@ export class AssistanceDirectoryPage {
   protected readonly sources = STAGE_SOURCE;
   protected readonly settlementKeys = SETTLEMENT_STAGE_KEYS;
   protected readonly returnKeys = RETURN_STAGE_KEYS;
+  /** The disputes and exceptions overview (A7). */
+  protected readonly disputesPath = '/billing/assistance/disputes';
 
   /** The search field's text, and whether its last submission was not a full case reference. */
   protected readonly reference = signal('');

@@ -8,6 +8,7 @@ import {
   AssistanceCaseDetail,
   AssistanceCaseFilter,
   AssistanceCaseSummary,
+  AssistanceDisputeSummary,
   AssistanceDisputeView,
   AssistancePage,
   AssistancePageRequest,
@@ -16,6 +17,8 @@ import {
   FIRST_ASSISTANCE_PAGE,
   LateSettlementDetail,
   RecoveryObligationDetail,
+  isAssistanceDisputeReason,
+  isAssistanceDisputeState,
   isAssistanceRequestState,
 } from '../domain/assistance-read.model';
 import {
@@ -48,6 +51,7 @@ const READS: Readonly<Record<AssistanceRead, (g: AssistanceGateway) => Observabl
   settlement: (g) => g.settlement(CONTEXT, ID),
   cashReturns: (g) => g.cashReturns(CONTEXT, ID),
   disputes: (g) => g.disputes(CONTEXT, ID),
+  disputeCases: (g) => g.disputeCases(CONTEXT, { state: 'open' }, FIRST_ASSISTANCE_PAGE),
   lateSettlements: (g) =>
     g.lateSettlements(CONTEXT, { status: 'unapplied' }, FIRST_ASSISTANCE_PAGE),
   lateSettlement: (g) => g.lateSettlement(CONTEXT, ID),
@@ -138,9 +142,17 @@ describe('AssistanceGateway contract (Assistance A2)', () => {
         .filter(([, c]) => c.coreRead.core === core)
         .map(([name]) => name)
         .sort();
-    // No owner read of requests, channels, obligations or disputes (CF-70).
+    // No owner read of requests, channels, obligations or disputes, nor a dispute list (CF-70).
     expect(byCore('none')).toEqual(
-      ['caseDetail', 'cases', 'cashReturns', 'disputes', 'settlement', 'timeline'].sort(),
+      [
+        'caseDetail',
+        'cases',
+        'cashReturns',
+        'disputeCases',
+        'disputes',
+        'settlement',
+        'timeline',
+      ].sort(),
     );
     // By id only (BIL-28, BIL-32); their lists are missing (CF-68, CF-69) and only partly surface through BIL-33.
     expect(byCore('byIdOnly')).toEqual(['lateSettlement', 'recoveryObligation']);
@@ -192,6 +204,9 @@ describe('AssistanceGateway contract (Assistance A2)', () => {
       disputes(): Observable<AssistanceDisputeView> {
         return EMPTY;
       }
+      disputeCases(): Observable<AssistancePage<AssistanceDisputeSummary>> {
+        return EMPTY;
+      }
       lateSettlements(): Observable<AssistancePage<LateSettlement>> {
         return EMPTY;
       }
@@ -226,8 +241,12 @@ describe('AssistanceGateway contract (Assistance A2)', () => {
       () => gateway.lateSettlements(CONTEXT, {}),
       // @ts-expect-error a recovery state Core does not have
       () => gateway.recoveryObligations(CONTEXT, { state: 'written_off' }, FIRST_ASSISTANCE_PAGE),
+      // @ts-expect-error a dispute reason Core does not have (A7)
+      () => gateway.disputeCases(CONTEXT, { reason: 'refund_requested' }, FIRST_ASSISTANCE_PAGE),
+      // @ts-expect-error a dispute status Core does not have: no `rejected` or `refunded` outcome (A7)
+      () => gateway.disputeCases(CONTEXT, { state: 'rejected' }, FIRST_ASSISTANCE_PAGE),
     ];
-    expect(calls).toHaveLength(5);
+    expect(calls).toHaveLength(7);
     // @ts-expect-error no read is available for real integration in A2
     const available: AssistanceReadContract['realIntegration'] = 'available';
     expect(available).toBe('available');
@@ -240,6 +259,20 @@ describe('AssistanceGateway contract (Assistance A2)', () => {
     expect(isAssistanceRequestState('settled')).toBe(true);
     for (const bad of ['paid', 'SETTLED', '', null, 1])
       expect(isAssistanceRequestState(bad)).toBe(false);
+    expect(isAssistanceDisputeState('resolved')).toBe(true);
+    expect(isAssistanceDisputeReason('return_time_incorrect')).toBe(true);
+    for (const bad of ['rejected', 'refunded', 'OPEN', '', null, 1]) {
+      expect(isAssistanceDisputeState(bad)).toBe(false);
+      expect(isAssistanceDisputeReason(bad)).toBe(false);
+    }
+  });
+
+  it('the dispute overview (A7) has no owner read in Core: blocked by CF-70 and D-A4', () => {
+    expect(ASSISTANCE_READ_CONTRACTS.disputeCases).toEqual({
+      coreRead: { core: 'none', followUp: 'CF-70' },
+      realIntegration: 'unavailable',
+      blockedBy: ['CF-70', 'D-A4'],
+    });
   });
 });
 

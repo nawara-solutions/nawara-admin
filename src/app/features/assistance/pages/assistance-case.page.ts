@@ -18,20 +18,20 @@ import {
   RecoverySurplusStatus,
 } from '../domain/assistance-read.model';
 import {
-  AssistanceDisputeReason,
   AssistanceInformationSource,
   AssistanceRequestState,
   CashReturnOrigin,
   CashReturnState,
-  CorrectableField,
-  CorrectionReason,
   LateSettlementAttestation,
   LateSettlementReason,
   RecoveryObligationState,
   SettlementChannelState,
 } from '../domain/assistance.model';
-import { RESOLVABLE_DISPUTE_REASONS, effectiveTime } from '../domain/assistance.rules';
+import { effectiveTime } from '../domain/assistance.rules';
+import { assistanceExceptions } from '../domain/assistance-exceptions';
 import { assistanceOversight, oversightInputOfCase } from '../domain/assistance-oversight';
+import { AssistanceDisputePanel } from '../ui/assistance-dispute-panel';
+import { AssistanceExceptionBadges } from '../ui/assistance-exception-badges';
 import { AssistanceMoneyPipe } from '../ui/assistance-money.pipe';
 import { AssistanceOversightPanel } from '../ui/assistance-oversight-panel';
 import { AssistanceSourceTag } from '../ui/assistance-source-tag';
@@ -112,23 +112,6 @@ const RETURN_ORIGIN_KEYS = {
   refund_completion: 'assistanceCases.case.cashReturn.origin.refundCompletion',
 } as const satisfies Record<CashReturnOrigin, string>;
 
-const DISPUTE_REASON_KEYS = {
-  cash_not_returned: 'assistanceCases.case.dispute.reason.cashNotReturned',
-  collection_not_made: 'assistanceCases.case.dispute.reason.collectionNotMade',
-  collection_time_incorrect: 'assistanceCases.case.dispute.reason.collectionTimeIncorrect',
-  return_time_incorrect: 'assistanceCases.case.dispute.reason.returnTimeIncorrect',
-} as const satisfies Record<AssistanceDisputeReason, string>;
-
-const FIELD_KEYS = {
-  cashCollectedAt: 'assistanceCases.case.correction.field.cashCollectedAt',
-  returnedAt: 'assistanceCases.case.correction.field.returnedAt',
-} as const satisfies Record<CorrectableField, string>;
-
-const CORRECTION_REASON_KEYS = {
-  actor_entry_error: 'assistanceCases.case.correction.reason.actorEntryError',
-  evidence_contradicts_report: 'assistanceCases.case.correction.reason.evidenceContradictsReport',
-} as const satisfies Record<CorrectionReason, string>;
-
 const LATE_REASON_KEYS = {
   channel_closed: 'assistanceCases.case.late.reason.channelClosed',
   purchase_exists: 'assistanceCases.case.late.reason.purchaseExists',
@@ -178,6 +161,8 @@ const shortRef = (id: string): string => id.slice(-8);
     NwIcon,
     NwLink,
     NwStatusBadge,
+    AssistanceDisputePanel,
+    AssistanceExceptionBadges,
     AssistanceMoneyPipe,
     AssistanceOversightPanel,
     AssistanceSourceTag,
@@ -193,6 +178,8 @@ export class AssistanceCasePage {
   private readonly scope = inject(ScopeContext);
 
   protected readonly directoryPath = '/billing/assistance';
+  /** The disputes and exceptions overview (A7). */
+  protected readonly disputesPath = '/billing/assistance/disputes';
   protected readonly stateKeys = STATE_KEYS;
   protected readonly stateTones = STATE_TONES;
   protected readonly channelKeys = CHANNEL_KEYS;
@@ -207,15 +194,11 @@ export class AssistanceCasePage {
   protected readonly kindKeys = KIND_KEYS;
   protected readonly returnStateKeys = RETURN_STATE_KEYS;
   protected readonly returnOriginKeys = RETURN_ORIGIN_KEYS;
-  protected readonly disputeReasonKeys = DISPUTE_REASON_KEYS;
-  protected readonly fieldKeys = FIELD_KEYS;
-  protected readonly correctionReasonKeys = CORRECTION_REASON_KEYS;
   protected readonly lateReasonKeys = LATE_REASON_KEYS;
   protected readonly attestationKeys = ATTESTATION_KEYS;
   protected readonly recoveryStateKeys = RECOVERY_STATE_KEYS;
   protected readonly surplusKeys = SURPLUS_KEYS;
   protected readonly declinedKeys = DECLINED_KEYS;
-  protected readonly resolvable = RESOLVABLE_DISPUTE_REASONS;
   protected readonly shortRef = shortRef;
   protected readonly organizationPath = organizationPath;
   protected readonly platformPath = platformPath;
@@ -226,6 +209,14 @@ export class AssistanceCasePage {
     if (view.status !== 'ready') return null;
     const { detail, lateSettlements, recovery } = view.record;
     return assistanceOversight(oversightInputOfCase(detail, lateSettlements, recovery));
+  });
+
+  /** The case's exceptions (A7), from the same Core values as its oversight. */
+  protected readonly exceptions = computed(() => {
+    const view = this.facade.view();
+    if (view.status !== 'ready') return null;
+    const { detail, lateSettlements, recovery } = view.record;
+    return assistanceExceptions(oversightInputOfCase(detail, lateSettlements, recovery));
   });
 
   protected readonly platformName = computed(() => {

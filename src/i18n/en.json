@@ -231,7 +231,8 @@
     "audit": "Audit log",
     "services": "Services & health",
     "notifications": "Notifications",
-    "releases": "Releases"
+    "releases": "Releases",
+    "assistanceDisputes": "Assistance disputes and exceptions"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -269,7 +270,8 @@
       "audit": "Audit log",
       "services": "Services & health",
       "notifications": "Notifications",
-      "releases": "Releases"
+      "releases": "Releases",
+      "assistanceDisputes": "Disputes and exceptions"
     },
     "context": {
       "label": "Administration scope",
@@ -2474,7 +2476,40 @@
           "collectionNotMade": "Collection not made",
           "collectionTimeIncorrect": "Collection time incorrect",
           "returnTimeIncorrect": "Return time incorrect"
-        }
+        },
+        "none": "The beneficiary has not disputed this case.",
+        "escalationDue": "Open more than seven days: escalation due",
+        "openedBy": "Opened by",
+        "byBeneficiary": "The beneficiary",
+        "byOwner": "The owner",
+        "openedAt": "Opened",
+        "evidenceLabel": "Disputed evidence",
+        "evidence": {
+          "collectionReport": "The Organization’s report that the whole amount was collected",
+          "collectionTime": "The collection time the Organization reported",
+          "cashReturn": "The cash return the Organization owes",
+          "returnTime": "The return time the Organization reported"
+        },
+        "responseLabel": "Organization’s answer",
+        "responseLine": "{{position}}, {{date}}",
+        "noResponse": "No answer yet",
+        "position": {
+          "accepts": "Accepts",
+          "contests": "Contests"
+        },
+        "resolutionLabel": "Resolution",
+        "awaitingCorrection": "Closes only on an owner correction of the disputed time ({{field}}); none has been recorded since the dispute opened.",
+        "correctionRecorded": "An owner correction of the disputed time ({{field}}) was recorded after the dispute opened; Nawara Core would accept a resolution resting on it. Not resolved yet.",
+        "resolvedAt": "Resolved",
+        "restsOn": "On correction #{{sequence}}",
+        "holdsTitle": "While a dispute is open, Nawara Core holds",
+        "hold": {
+          "cashReturnConfirmation": "The beneficiary’s confirmation of a reported cash return",
+          "lateSettlementApplication": "The owner’s application of a late settlement",
+          "secondDispute": "Another dispute of this request (one open at a time)"
+        },
+        "holdInEffect": "Affects this case now",
+        "neverHolds": "A dispute never holds a verified electronic settlement or the cash-return deadline, changes no amount or obligation, and is not a restriction on the Organization."
       },
       "correction": {
         "title": "Owner corrections",
@@ -2487,7 +2522,14 @@
         "reason": {
           "actorEntryError": "Entry error by the Organization",
           "evidenceContradictsReport": "Evidence contradicts the report"
-        }
+        },
+        "recordedAt": "recorded {{date}}",
+        "none": "No owner correction has been recorded.",
+        "eligibilityTitle": "Times an owner correction could change",
+        "original": "Reported {{date}}",
+        "inForce": "in force {{date}}",
+        "eligible": "Nawara Core permits an owner correction of this time (not offered here).",
+        "notReported": "Not reported: there is nothing to correct."
       },
       "late": {
         "title": "Late settlements",
@@ -2568,6 +2610,20 @@
         "channelUncertain": "Settlement uncertain",
         "channelClosed": "Settlement channel closed",
         "recoveryOpened": "Recovery opened"
+      },
+      "unavailable": {
+        "title": "Not available on this page",
+        "kind": {
+          "future": "Future capability:",
+          "noPath": "Not possible:",
+          "notOwner": "Not the owner’s action:"
+        },
+        "correct": "correct a reported time. Nawara Core allows it to the Company owner with a fresh step-up for {{correctPurpose}}; Admin does not offer it yet.",
+        "resolve": "close a collection-time or return-time dispute on that correction. Nawara Core allows it to the Company owner with a fresh step-up for {{resolvePurpose}}; Admin does not offer it yet.",
+        "noResolution": "resolve a “cash not returned” or “collection not made” dispute. Nawara Core has no resolution for them; they stay open.",
+        "money": "change an amount, a fee, the settlement deadline or the original evidence. A correction changes a reported time only, and the original stays on record.",
+        "beneficiary": "open a dispute or confirm a cash return. Only the beneficiary can; the owner never acts on their behalf.",
+        "organization": "report a collection or a return, or answer a dispute. Only an administrator of the Organization can."
       }
     },
     "oversight": {
@@ -2621,6 +2677,59 @@
         "returnConfirmedOrSuperseded": "Clears when the beneficiary confirms the return, or an applied late settlement replaces it.",
         "principalRecovered": "Clears when verified recoveries reach the price."
       }
+    },
+    "exception": {
+      "title": "Exceptions",
+      "none": "None",
+      "feeds": "Source of restriction {{restriction}}",
+      "collectionReportedNotSettled": "Collection reported, not settled",
+      "uncertainSettlement": "Uncertain settlement",
+      "overdueSettlement": "Overdue settlement",
+      "openDispute": "Open dispute",
+      "cashReturn": "Cash return owed",
+      "lateSettlementReview": "Late settlement to review",
+      "recoveryRestriction": "Recovery open",
+      "describe": {
+        "collectionReportedNotSettled": "The Organization reported the whole amount collected in cash, and the request is neither settled nor returned. A report is evidence, never a payment.",
+        "uncertainSettlement": "The electronic settlement is being sent: the Payment service may or may not hold it. It is not settled.",
+        "overdueSettlement": "Nawara Core says the request is past its settlement deadline (72 hours after the reported collection).",
+        "openDispute": "The beneficiary disputes the cash evidence. Only the beneficiary can open a dispute.",
+        "cashReturn": "The Organization owes the beneficiary the frozen total in cash; a reported return is still owed until the beneficiary confirms it.",
+        "lateSettlementReview": "A verified payment arrived after finality. It settles nothing until the owner applies it; it is never applied automatically.",
+        "recoveryRestriction": "A recovery obligation for the price is open after a final chargeback."
+      }
+    },
+    "disputes": {
+      "link": "Disputes and exceptions",
+      "back": "All assistance cases",
+      "title": "Disputes and exceptions",
+      "subtitle": "Beneficiaries’ disputes and the cases that need your attention, as Nawara Core records them.",
+      "simulation": "Simulated disputes — not Nawara Core data. Nawara Core has no owner list of assistance disputes yet; these fictional records follow its states and rules so the overview can be reviewed.",
+      "notInBuildDescription": "Nawara Core’s Billing service does not offer an owner read of assistance disputes yet, so there is nothing to show.",
+      "forbiddenDescription": "Assistance disputes and exceptions are shown to the Company owner only.",
+      "list": {
+        "title": "Disputes",
+        "intro": "Only a beneficiary opens a dispute. Nawara Core resolves only collection-time and return-time disputes, and only by an owner correction of that time.",
+        "count": "Showing {{shown}} disputes",
+        "countMore": "Showing the first {{shown}} disputes; more are available",
+        "case": "Case",
+        "context": "Collection and settlement",
+        "none": "No dispute matches."
+      },
+      "filter": {
+        "status": "Status",
+        "allStatuses": "Open and resolved",
+        "reason": "Reason",
+        "allReasons": "All reasons",
+        "exception": "Exception"
+      },
+      "path": {
+        "correctionOnly": "Closes only on an owner correction of the disputed time ({{field}})."
+      },
+      "errorTitle": "Disputes could not be loaded",
+      "loading": "Loading disputes…",
+      "exceptionNone": "No case is in this exception.",
+      "readOnly": "Read only: no correction, resolution, collection, payment, confirmation or refund can be made from this page."
     }
   },
   "activity": {

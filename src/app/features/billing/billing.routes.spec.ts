@@ -17,6 +17,7 @@ import { ADAPTER_UNAVAILABLE } from '../../core/errors/app-error';
 import { loadShellRoutes } from '../../layout/shell.routes';
 import { AssistanceCaseFacade } from '../assistance/application/assistance-case.facade';
 import { AssistanceDirectoryFacade } from '../assistance/application/assistance-directory.facade';
+import { AssistanceDisputesFacade } from '../assistance/application/assistance-disputes.facade';
 import { UnavailableAssistanceGateway } from '../assistance/data-access/assistance.gateway';
 import { BillingFacade } from './application/billing.facade';
 import { UnavailableBillingGateway } from './data-access/billing.gateway';
@@ -124,6 +125,28 @@ describe('billing routes (P7-S3)', () => {
     expect(providers.map((p) => (typeof p === 'function' ? p : p.useClass))).toEqual([
       UnavailableAssistanceGateway,
       AssistanceCaseFacade,
+    ]);
+    expect(guardResult(route, owner)).toBe(true);
+    TestBed.resetTestingModule();
+    expect(guardResult(route, operator)).toBe('/forbidden');
+  });
+
+  it('guards disputes and exceptions (A7) like the directory, before the case route, unavailable in production', async () => {
+    const routes = await loadBillingRoutes(PRODUCTION);
+    const index = routes.findIndex((r) => r.path === 'assistance/disputes');
+    const route = routes[index];
+    if (!route) throw new Error('no disputes route');
+    // Listed before `assistance/:requestId`, so "disputes" is never read as a case reference.
+    expect(index).toBeLessThan(routes.findIndex((r) => r.path === 'assistance/:requestId'));
+    expect(route.title).toBe('titles.assistanceDisputes');
+    expect(route.data).toEqual({
+      breadcrumb: 'shell.breadcrumb.assistanceDisputes',
+      breadcrumbParent: { key: 'shell.breadcrumb.assistance', link: '/billing/assistance' },
+    });
+    const providers = (route.providers ?? []) as (Provider & { useClass?: unknown })[];
+    expect(providers.map((p) => (typeof p === 'function' ? p : p.useClass))).toEqual([
+      UnavailableAssistanceGateway,
+      AssistanceDisputesFacade,
     ]);
     expect(guardResult(route, owner)).toBe(true);
     TestBed.resetTestingModule();

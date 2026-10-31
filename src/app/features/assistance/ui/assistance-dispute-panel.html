@@ -1,0 +1,224 @@
+@let d = detail();
+@if (d.disputes.length === 0) {
+  <p class="assistance-dispute__secondary" data-no-dispute>
+    {{ 'assistanceCases.case.dispute.none' | transloco }}
+  </p>
+}
+@for (dispute of d.disputes; track dispute.id) {
+  @let standing = standingOf(dispute);
+  <article
+    class="assistance-dispute__item"
+    [attr.data-dispute]="dispute.reason"
+    [attr.data-standing]="standing"
+    [attr.aria-labelledby]="'dispute-' + dispute.id"
+  >
+    <h3 class="assistance-dispute__title" [id]="'dispute-' + dispute.id">
+      <span>{{ reasonKeys[dispute.reason] | transloco }}</span>
+      <nw-status-badge [tone]="dispute.state === 'open' ? 'danger' : 'success'" data-status>{{
+        (dispute.state === 'open'
+          ? 'assistanceCases.case.dispute.open'
+          : 'assistanceCases.case.dispute.resolved'
+        ) | transloco
+      }}</nw-status-badge>
+      @if (dispute.escalationDue) {
+        <nw-status-badge tone="warning" data-escalation>{{
+          'assistanceCases.case.dispute.escalationDue' | transloco
+        }}</nw-status-badge>
+      }
+    </h3>
+    <dl class="assistance-dispute__facts">
+      <dt>{{ 'assistanceCases.case.dispute.openedBy' | transloco }}</dt>
+      <dd>
+        <span>{{ 'assistanceCases.case.dispute.byBeneficiary' | transloco }}&#32;</span>
+        <adm-assistance-source-tag source="report" />
+      </dd>
+      <dt>{{ 'assistanceCases.case.dispute.openedAt' | transloco }}</dt>
+      <dd data-opened-at>
+        <time [attr.datetime]="dispute.openedAt">{{ dispute.openedAt | nwDate: 'date-time' }}</time>
+      </dd>
+      <dt>{{ 'assistanceCases.case.dispute.evidenceLabel' | transloco }}</dt>
+      <dd data-evidence-concerned>{{ evidenceKeys[evidence[dispute.reason]] | transloco }}</dd>
+      <dt>{{ 'assistanceCases.case.dispute.responseLabel' | transloco }}</dt>
+      <dd data-response>
+        @if (dispute.response; as response) {
+          <span
+            >{{
+              'assistanceCases.case.dispute.responseLine'
+                | transloco
+                  : {
+                      position: (positionKeys[response.position] | transloco),
+                      date: (response.respondedAt | nwDate: 'date-time'),
+                    }
+            }}&#32;</span
+          >
+          <adm-assistance-source-tag source="report" />
+        } @else {
+          <span class="assistance-dispute__secondary">{{
+            'assistanceCases.case.dispute.noResponse' | transloco
+          }}</span>
+        }
+      </dd>
+      <dt>{{ 'assistanceCases.case.dispute.resolutionLabel' | transloco }}</dt>
+      <dd>
+        @switch (standing) {
+          @case ('noResolutionInCore') {
+            <span class="assistance-dispute__secondary" data-unresolvable>{{
+              standingKeys[standing] | transloco
+            }}</span>
+          }
+          @case ('resolved') {
+            <span data-resolved>{{ standingKeys[standing] | transloco }}</span>
+          }
+          @default {
+            @let field = resolvable[dispute.reason];
+            @if (field !== null) {
+              <span class="assistance-dispute__secondary" data-awaiting>{{
+                standingKeys[standing] | transloco: { field: (fieldKeys[field] | transloco) }
+              }}</span>
+            }
+          }
+        }
+      </dd>
+      @if (dispute.resolution; as resolution) {
+        <dt>{{ 'assistanceCases.case.dispute.resolvedAt' | transloco }}</dt>
+        <dd data-resolved-at>
+          <span
+            >{{ resolution.resolvedAt | nwDate: 'date-time' }} ·
+            {{ 'assistanceCases.case.dispute.byOwner' | transloco }}&#32;</span
+          >
+          <adm-assistance-source-tag source="decision" />
+          @if (restingOn(dispute); as sequence) {
+            <span class="assistance-dispute__secondary">{{
+              'assistanceCases.case.dispute.restsOn' | transloco: { sequence: sequence }
+            }}</span>
+          }
+        </dd>
+      }
+    </dl>
+  </article>
+}
+
+@if (anyOpen()) {
+  <div class="assistance-dispute__block" data-holds>
+    <h3 class="assistance-dispute__subtitle">
+      {{ 'assistanceCases.case.dispute.holdsTitle' | transloco }}
+    </h3>
+    <ul class="assistance-dispute__list" role="list">
+      @for (hold of holds; track hold) {
+        <li [attr.data-hold]="hold" [attr.data-in-effect]="inEffect()[hold]">
+          <span>{{ holdKeys[hold] | transloco }}&#32;</span>
+          @if (inEffect()[hold]) {
+            <nw-status-badge tone="warning">{{
+              'assistanceCases.case.dispute.holdInEffect' | transloco
+            }}</nw-status-badge>
+          }
+        </li>
+      }
+    </ul>
+    <p class="assistance-dispute__hint" data-never-holds>
+      {{ 'assistanceCases.case.dispute.neverHolds' | transloco }}
+    </p>
+  </div>
+}
+
+<div class="assistance-dispute__block">
+  <h3 class="assistance-dispute__subtitle">
+    {{ 'assistanceCases.case.correction.title' | transloco }}
+  </h3>
+  @if (corrections().length > 0) {
+    <ol class="assistance-dispute__list" data-corrections>
+      @for (correction of corrections(); track correction.id) {
+        <li [attr.data-correction]="correction.field">
+          <span class="assistance-dispute__sequence">#{{ correction.sequence }}</span>
+          <span
+            >{{
+              'assistanceCases.case.correction.line'
+                | transloco
+                  : {
+                      field: (fieldKeys[correction.field] | transloco),
+                      from: (correction.supersededValue | nwDate: 'date-time'),
+                      to: (correction.correctedValue | nwDate: 'date-time'),
+                    }
+            }}&#32;</span
+          >
+          <adm-assistance-source-tag source="decision" />
+          <span class="assistance-dispute__secondary"
+            >{{ correctionReasonKeys[correction.reason] | transloco }} ·
+            {{
+              'assistanceCases.case.correction.recordedAt'
+                | transloco: { date: (correction.correctedAt | nwDate: 'date-time') }
+            }}</span
+          >
+        </li>
+      }
+    </ol>
+  } @else {
+    <p class="assistance-dispute__secondary" data-corrections-none>
+      {{ 'assistanceCases.case.correction.none' | transloco }}
+    </p>
+  }
+  <p class="assistance-dispute__hint">
+    {{ 'assistanceCases.case.correction.timesOnly' | transloco }}
+  </p>
+</div>
+
+<div class="assistance-dispute__block" data-correction-eligibility>
+  <h3 class="assistance-dispute__subtitle">
+    {{ 'assistanceCases.case.correction.eligibilityTitle' | transloco }}
+  </h3>
+  <dl class="assistance-dispute__facts">
+    @for (e of eligibility(); track e.field) {
+      <dt>{{ fieldKeys[e.field] | transloco }}</dt>
+      <dd [attr.data-eligible]="e.eligible" [attr.data-field]="e.field">
+        @if (e.original !== null) {
+          <span
+            >{{
+              'assistanceCases.case.correction.original'
+                | transloco: { date: (e.original | nwDate: 'date-time') }
+            }}&#32;</span
+          >
+          <adm-assistance-source-tag source="report" />
+          @if (e.effective !== null && e.effective !== e.original) {
+            <span data-in-force
+              >{{
+                'assistanceCases.case.correction.inForce'
+                  | transloco: { date: (e.effective | nwDate: 'date-time') }
+              }}&#32;</span
+            >
+            <adm-assistance-source-tag source="decision" />
+          }
+        }
+        <span class="assistance-dispute__secondary">{{
+          (e.eligible
+            ? 'assistanceCases.case.correction.eligible'
+            : 'assistanceCases.case.correction.notReported'
+          ) | transloco
+        }}</span>
+      </dd>
+    }
+  </dl>
+</div>
+
+<div class="assistance-dispute__block" data-unavailable-actions>
+  <h3 class="assistance-dispute__subtitle">
+    {{ 'assistanceCases.case.unavailable.title' | transloco }}
+  </h3>
+  <ul class="assistance-dispute__list" role="list">
+    @for (action of actions; track action.id) {
+      <li class="assistance-dispute__action" [attr.data-action]="action.id">
+        <nw-icon name="lock-keyhole" size="sm" />
+        <span>
+          <strong>{{ actionKindKeys[action.kind] | transloco }}</strong>
+          {{
+            action.key
+              | transloco
+                : {
+                    correctPurpose: authority.correct.purpose,
+                    resolvePurpose: authority.resolve.purpose,
+                  }
+          }}
+        </span>
+      </li>
+    }
+  </ul>
+</div>

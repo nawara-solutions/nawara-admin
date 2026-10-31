@@ -290,6 +290,39 @@ describe('Demo assistance cases (A3): every record satisfies the A1 invariants',
         });
       });
 
+      it('dates disputes, answers, resolutions and corrections as Core does (A7)', () => {
+        const at = (iso: string | undefined) => Date.parse(iso ?? '');
+        for (const d of c.disputes) {
+          // Opened after the cash evidence it disputes was recorded; no filing cutoff.
+          expect(at(d.openedAt)).toBeGreaterThanOrEqual(at(r.collection?.reportedAt));
+          if (d.reason === 'return_time_incorrect')
+            expect(at(d.openedAt)).toBeGreaterThanOrEqual(
+              at(obligation?.returnReport?.returnReportedAt),
+            );
+          // Core derives escalation: open for more than seven days. It closes nothing.
+          expect(d.escalationDue).toBe(
+            d.state === 'open' && NOW - at(d.openedAt) > 7 * 24 * 3_600_000,
+          );
+          if (d.response !== null)
+            expect(at(d.response.respondedAt)).toBeGreaterThanOrEqual(at(d.openedAt));
+          if (d.resolution !== null) {
+            const correction = c.corrections.find((x) => x.id === d.resolution?.correctionId);
+            expect(at(correction?.correctedAt)).toBeGreaterThanOrEqual(at(d.openedAt));
+            expect(at(d.resolution.resolvedAt)).toBeGreaterThanOrEqual(at(correction?.correctedAt));
+          }
+          if (c.timeline.length > 0) {
+            expect(c.timeline).toContainEqual(
+              expect.objectContaining({ kind: 'disputeOpened', at: d.openedAt }),
+            );
+            if (d.response !== null)
+              expect(c.timeline).toContainEqual(
+                expect.objectContaining({ kind: 'disputeResponse', at: d.response.respondedAt }),
+              );
+          }
+        }
+        for (const x of c.corrections) expect(at(x.correctedAt)).toBeLessThanOrEqual(NOW);
+      });
+
       it('has late settlements that are never applied automatically', () => {
         for (const l of c.lateSettlements) {
           expect(LATE_SETTLEMENT_REASONS).toContain(l.reason);

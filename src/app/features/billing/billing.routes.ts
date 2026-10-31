@@ -4,6 +4,7 @@ import { AppEnvironment, adapterProviders } from '../../core/config/app-environm
 import { BREADCRUMB_DATA, BREADCRUMB_PARENT_DATA } from '../../layout/breadcrumbs/breadcrumbs';
 import { AssistanceCaseFacade } from '../assistance/application/assistance-case.facade';
 import { AssistanceDirectoryFacade } from '../assistance/application/assistance-directory.facade';
+import { AssistanceDisputesFacade } from '../assistance/application/assistance-disputes.facade';
 import { UNAVAILABLE_ASSISTANCE_PROVIDERS } from '../assistance/data-access/assistance.gateway';
 import { BillingFacade } from './application/billing.facade';
 import { BillingGateway, UnavailableBillingGateway } from './data-access/billing.gateway';
@@ -13,7 +14,8 @@ import { BillingGateway, UnavailableBillingGateway } from './data-access/billing
  * direct URLs). The gateway is bound here (docs/ARCHITECTURE.md §3): the mock adapter in a demo build, the
  * `unavailable` adapter otherwise.
  *
- * Below it, the Organization Assistance case directory (`/billing/assistance`; A4) and one case
+ * Below it, the Organization Assistance case directory (`/billing/assistance`; A4), its disputes and exceptions
+ * (`/billing/assistance/disputes`; A7, before `:requestId` so it is never read as a case reference) and one case
  * (`/billing/assistance/:requestId`; A5): read only, the owner only (their own capability guard as well), with the
  * Assistance gateway bound the same way.
  */
@@ -42,6 +44,23 @@ export async function loadBillingRoutes(environment: AppEnvironment): Promise<Ro
       loadComponent: () =>
         import('../assistance/pages/assistance-directory.page').then(
           (m) => m.AssistanceDirectoryPage,
+        ),
+    },
+    {
+      path: 'assistance/disputes',
+      title: 'titles.assistanceDisputes',
+      data: {
+        [BREADCRUMB_DATA]: 'shell.breadcrumb.assistanceDisputes',
+        [BREADCRUMB_PARENT_DATA]: {
+          key: 'shell.breadcrumb.assistance',
+          link: '/billing/assistance',
+        },
+      },
+      canActivate: [capabilityGuard('company.assistance.view')],
+      providers: [...assistance, AssistanceDisputesFacade],
+      loadComponent: () =>
+        import('../assistance/pages/assistance-disputes.page').then(
+          (m) => m.AssistanceDisputesPage,
         ),
     },
     {
