@@ -22,9 +22,9 @@ light and dark; the lettering and the white details inside the leaf never change
 
 - **Pictogram colour.** The pictogram inside the leaf (Admin people, Solutions puzzle) is painted with `--nw-logo-detail`,
   white `#ffffff` or the logo's own navy `#040b2d`, chosen per palette for the clearest definition:
-  - **navy** on every dark-mode leaf and on **Sapphire** in both modes. On Sapphire's saturated reference blue the owner
-    requires the dark pictogram (pre-merge fix): 4.23:1, against 4.55:1 for white;
-  - **white** on the other light-mode leaves.
+  - **navy** on every dark-mode leaf;
+  - **white** on every light-mode leaf, Sapphire included (final correction; the pre-merge rule had navy on Sapphire in
+    both modes).
 
   Every combination is at least 4.23:1, and `check:contrast` holds the pair to 3:1. The same colours are used in the
   favicons.
@@ -37,6 +37,15 @@ light and dark; the lettering and the white details inside the leaf never change
 - **Decorative rules removed.** The short accent rules before "NAWARA ADMIN" and before the copyright are gone.
 - **Regression checks.** `npm run check:brand` (in `validate`) guards the layer wiring, the removed rules, the box
   proportions, the 22 favicon colours and the icon sizes. Evidence is in `docs/review/b1-polish/`.
+
+**Final correction (owner, 2026-11-01):**
+
+- **Sign-in logo size.** 11 % smaller on both sign-in views, light and dark: desktop 240 → 213 px wide
+  (`--nw-brand-mark-size` 3.42rem → 3.04rem) and phone header 118 → 105 px (1.6875rem → 1.5rem). The aspect ratio and
+  top-left position are kept, and the copyright mark keeps its size (127 px).
+- **Sapphire pictogram.** **White in light mode** (4.55:1 on the reference blue) and **navy in dark mode** (4.23:1). This
+  applies to the Admin people, the Solutions puzzle and the favicons, and supersedes the pre-merge "navy in both modes"
+  rule. All other palettes are unchanged: white on light-mode leaves, navy on dark-mode leaves.
 
 **Finishing pass (owner, 2026-11-01):**
 

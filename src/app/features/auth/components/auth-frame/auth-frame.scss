@@ -64,7 +64,8 @@
 }
 
 .auth-frame__header-logo {
-  --nw-brand-mark-size: calc(1.6875rem * var(--nw-admin-text-scale, 1));
+  // 11 % smaller than the B1 polish size, as on the desktop sign-in (owner B1 final correction).
+  --nw-brand-mark-size: calc(1.5rem * var(--nw-admin-text-scale, 1));
 
   min-inline-size: 0;
 

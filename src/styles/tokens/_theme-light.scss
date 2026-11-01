@@ -57,7 +57,7 @@
   // keeps the reference blue, tokens/_accents.scss); the lettering is per theme; the white details never change.
   --nw-logo-accent: var(--nw-color-primary);
   // The pictogram inside the leaf (people, puzzle): the candidate (white or the logo's navy) with the higher contrast on
-  // the leaf, white on light-mode leaves (Sapphire's saturated reference blue takes the navy, tokens/_accents.scss); check:contrast
+  // the leaf: white on every light-mode leaf, Sapphire's reference blue included (owner B1 final correction); check:contrast
   // holds it to 3:1 on every palette.
   --nw-logo-detail: var(--nw-ref-ink-0);
   --nw-logo-admin-lettering: url('/brand/nawara-admin-lettering.webp');
