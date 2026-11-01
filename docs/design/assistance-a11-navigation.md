@@ -109,12 +109,14 @@ Company itself). "Not available in this build" is never shown as an empty result
 - Every Assistance read is still demo-only or unavailable: CF-68, CF-69, CF-70, CF-71, CF-77, D-A4 and the Billing owner routes being
   development-only. No new Core follow-up.
 
-## 8. A12 acceptance prerequisites (owner decisions)
+## 8. A12 acceptance prerequisites (owner decisions) — decided 2026-11-01
 
-- The A12 scope itself (not started; A11 does not presuppose it).
-- Whether filter changes should create history entries (A11 replaces them) and whether restoring "Show more" depth is wanted (it would need
-  a stable-cursor statement from Core, CF-77).
-- Whether the case page should carry the section navigation as well (A11 keeps it to the four list views).
+All three were decided by the owner for A12 and are recorded as accepted UX decisions in
+[`review/assistance-a12/README.md`](../review/assistance-a12/README.md) §1:
+
+- filter changes keep **replacing** the history entry;
+- "Show more" depth is **not** restored;
+- case pages keep their contextual back link; the section navigation is **not** added there.
 
 ## 9. Evidence
 

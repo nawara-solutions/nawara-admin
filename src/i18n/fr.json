@@ -2314,17 +2314,17 @@
   },
   "assistanceCases": {
     "demoExplanation": "les dossiers d’assistance de cette page sont des enregistrements de démonstration fictifs",
-    "simulation": "Dossiers simulés — pas des données de Nawara Core. Nawara Core n’offre pas encore de lecture des demandes d’assistance au propriétaire ; ces dossiers fictifs suivent ses états et ses règles pour permettre la revue de l’annuaire.",
-    "readOnly": "Lecture seule : aucune décision, collecte, paiement, correction ou récupération ne peut être effectuée depuis cet annuaire.",
+    "simulation": "Dossiers simulés — pas des données de Nawara Core. Nawara Core n’offre pas encore de lecture des demandes d’assistance au propriétaire ; ces dossiers fictifs suivent ses états et ses règles pour permettre la revue de l’annuaire.",
+    "readOnly": "Lecture seule : aucune décision, collecte, paiement, correction ou récupération ne peut être effectuée depuis cet annuaire.",
     "header": {
       "eyebrow": "Commercial",
       "title": "Dossiers d’assistance",
-      "subtitle": "Paiements en espèces assistés des membres de vos organisations : où en est chaque demande, telle que Nawara Core l’enregistre."
+      "subtitle": "Paiements en espèces assistés des membres de vos organisations : où en est chaque demande, telle que Nawara Core l’enregistre."
     },
     "search": {
       "label": "Référence du dossier",
       "hint": "La référence complète d’un dossier (36 caractères).",
-      "invalid": "Saisissez une référence complète : 36 caractères, lettres a–f, chiffres et tirets.",
+      "invalid": "Saisissez une référence complète : 36 caractères, lettres a–f, chiffres et tirets.",
       "submit": "Trouver le dossier",
       "clear": "Effacer la recherche"
     },
@@ -2350,7 +2350,7 @@
       "title": "Dossiers",
       "caption": "Référence, organisation, plateforme, statut, collecte, règlement et indicateurs de chaque dossier",
       "count": "{{shown}} dossiers affichés",
-      "countMore": "Les {{shown}} premiers dossiers sont affichés ; d’autres sont disponibles",
+      "countMore": "Les {{shown}} premiers dossiers sont affichés ; d’autres sont disponibles",
       "reference": "Référence",
       "referenceFull": "Référence du dossier {{reference}}",
       "organization": "Organisation",
@@ -2402,12 +2402,12 @@
       "notFoundTitle": "Aucun dossier trouvé",
       "notFoundDescription": "Aucun dossier avec cette référence n’existe dans ce périmètre.",
       "unavailableTitle": "Les dossiers d’assistance sont indisponibles",
-      "unavailableDescription": "Le service de facturation n’a pas répondu. Rien n’a été lu ; réessayez dans un instant.",
+      "unavailableDescription": "Le service de facturation n’a pas répondu. Rien n’a été lu ; réessayez dans un instant.",
       "errorTitle": "Les dossiers d’assistance n’ont pas pu être chargés",
       "errorDescription": "Réessayez dans un instant.",
       "retry": "Réessayer",
       "notInBuildTitle": "Non disponible dans cette version",
-      "notInBuildDescription": "Le service de facturation de Nawara Core n’offre pas encore de lecture des demandes d’assistance au propriétaire ; il n’y a donc rien à afficher.",
+      "notInBuildDescription": "Le service de facturation de Nawara Core n’offre pas encore de lecture des demandes d’assistance au propriétaire ; il n’y a donc rien à afficher.",
       "forbiddenDescription": "Les dossiers d’assistance ne sont présentés qu’au propriétaire de l’entreprise."
     },
     "case": {
@@ -2417,7 +2417,7 @@
       "loading": "Chargement du dossier…",
       "notFoundDescription": "Aucun dossier avec cette référence n’existe dans votre entreprise.",
       "errorTitle": "Le dossier n’a pas pu être chargé",
-      "readOnly": "Lecture seule : aucune décision, collecte, paiement, correction, remboursement ou passage en perte ne peut être effectué depuis cette page.",
+      "readOnly": "Lecture seule : aucune décision, collecte, paiement, correction, remboursement ou passage en perte ne peut être effectué depuis cette page.",
       "context": {
         "title": "Contexte",
         "company": "Entreprise",
@@ -2433,13 +2433,13 @@
         "base": "Prix",
         "fee": "Frais de l’organisation",
         "total": "Total dû en espèces",
-        "frozen": "Figés lors du consentement du bénéficiaire ; jamais recalculés."
+        "frozen": "Figés lors du consentement du bénéficiaire ; jamais recalculés."
       },
       "collection": {
         "title": "Collecte et règlement",
         "reported": "Déclarée par l’organisation — une déclaration, pas un paiement vérifié.",
         "collectedAt": "Espèces collectées (déclaré)",
-        "correctedFrom": "corrigé par le propriétaire ; déclaré à l’origine le {{date}}",
+        "correctedFrom": "corrigé par le propriétaire ; déclaré à l’origine le {{date}}",
         "reportedAt": "Déclaration enregistrée",
         "reportedBy": "Déclarée par",
         "settleBy": "À régler avant le",
@@ -2473,7 +2473,7 @@
         "open": "Ouverte",
         "resolved": "Résolue",
         "timestampCorrected": "Résolue par une correction de l’heure contestée par le propriétaire.",
-        "noResolution": "Nawara Core ne prévoit aucune résolution pour ce motif ; la contestation reste ouverte.",
+        "noResolution": "Nawara Core ne prévoit aucune résolution pour ce motif ; la contestation reste ouverte.",
         "reason": {
           "cashNotReturned": "Espèces non restituées",
           "collectionNotMade": "Collecte non effectuée",
@@ -2481,7 +2481,7 @@
           "returnTimeIncorrect": "Heure de restitution inexacte"
         },
         "none": "Le bénéficiaire n’a pas contesté ce dossier.",
-        "escalationDue": "Ouverte depuis plus de sept jours : escalade attendue",
+        "escalationDue": "Ouverte depuis plus de sept jours : escalade attendue",
         "openedBy": "Ouverte par",
         "byBeneficiary": "Le bénéficiaire",
         "byOwner": "Le propriétaire",
@@ -2501,8 +2501,8 @@
           "contests": "Conteste"
         },
         "resolutionLabel": "Résolution",
-        "awaitingCorrection": "Ne se clôt que sur une correction de l’élément « {{field}} » par le propriétaire ; aucune n’a été enregistrée depuis l’ouverture.",
-        "correctionRecorded": "Une correction de l’élément « {{field}} » par le propriétaire a été enregistrée après l’ouverture ; Nawara Core accepterait une résolution fondée sur elle. Pas encore résolue.",
+        "awaitingCorrection": "Ne se clôt que sur une correction de l’élément « {{field}} » par le propriétaire ; aucune n’a été enregistrée depuis l’ouverture.",
+        "correctionRecorded": "Une correction de l’élément « {{field}} » par le propriétaire a été enregistrée après l’ouverture ; Nawara Core accepterait une résolution fondée sur elle. Pas encore résolue.",
         "resolvedAt": "Résolue le",
         "restsOn": "Sur la correction no {{sequence}}",
         "holdsTitle": "Tant qu’une contestation est ouverte, Nawara Core bloque",
@@ -2516,7 +2516,7 @@
       },
       "correction": {
         "title": "Corrections du propriétaire",
-        "line": "{{field}} : {{from}} → {{to}}",
+        "line": "{{field}} : {{from}} → {{to}}",
         "timesOnly": "Les corrections ne modifient que des heures déclarées, jamais un montant. Elles sont conservées dans l’ordre et jamais supprimées.",
         "field": {
           "cashCollectedAt": "Heure de collecte",
@@ -2529,10 +2529,10 @@
         "recordedAt": "enregistrée le {{date}}",
         "none": "Aucune correction du propriétaire n’a été enregistrée.",
         "eligibilityTitle": "Heures qu’une correction du propriétaire pourrait modifier",
-        "original": "Déclarée : {{date}}",
-        "inForce": "en vigueur : {{date}}",
+        "original": "Déclarée : {{date}}",
+        "inForce": "en vigueur : {{date}}",
         "eligible": "Nawara Core permet au propriétaire de corriger cette heure (non proposé ici).",
-        "notReported": "Non déclarée : il n’y a rien à corriger."
+        "notReported": "Non déclarée : il n’y a rien à corriger."
       },
       "late": {
         "title": "Règlements tardifs",
@@ -2545,7 +2545,7 @@
         "noEvidence": "Aucune",
         "appliedAt": "Appliqué",
         "receipt": "Reçu d’autorisation",
-        "never": "Un règlement tardif n’est jamais appliqué automatiquement ; seul le propriétaire peut l’appliquer.",
+        "never": "Un règlement tardif n’est jamais appliqué automatiquement ; seul le propriétaire peut l’appliquer.",
         "reason": {
           "channelClosed": "Le canal de règlement était clos",
           "purchaseExists": "Un achat existait déjà",
@@ -2564,7 +2564,7 @@
         "outstanding": "Restant",
         "openedAt": "Ouvert",
         "recoveredAt": "Recouvré le",
-        "baseOnly": "Le recouvrement ne porte que sur le prix, jamais sur les frais de l’organisation ; ces montants sont ceux de Nawara Core.",
+        "baseOnly": "Le recouvrement ne porte que sur le prix, jamais sur les frais de l’organisation ; ces montants sont ceux de Nawara Core.",
         "surplus": {
           "owedToOrganization": "dû à l’organisation"
         }
@@ -2614,15 +2614,15 @@
       "unavailable": {
         "title": "Indisponible sur cette page",
         "kind": {
-          "future": "Capacité future :",
-          "noPath": "Impossible :",
-          "notOwner": "Action qui n’appartient pas au propriétaire :"
+          "future": "Capacité future :",
+          "noPath": "Impossible :",
+          "notOwner": "Action qui n’appartient pas au propriétaire :"
         },
-        "correct": "corriger une heure déclarée. Nawara Core le permet au propriétaire de l’entreprise avec une vérification renforcée récente pour {{correctPurpose}} ; Admin ne le propose pas encore.",
-        "resolve": "clore une contestation d’heure de collecte ou de restitution sur cette correction. Nawara Core le permet au propriétaire de l’entreprise avec une vérification renforcée récente pour {{resolvePurpose}} ; Admin ne le propose pas encore.",
-        "noResolution": "résoudre une contestation « Espèces non restituées » ou « Collecte non effectuée ». Nawara Core ne prévoit aucune résolution ; elles restent ouvertes.",
+        "correct": "corriger une heure déclarée. Nawara Core le permet au propriétaire de l’entreprise avec une vérification renforcée récente pour {{correctPurpose}} ; Admin ne le propose pas encore.",
+        "resolve": "clore une contestation d’heure de collecte ou de restitution sur cette correction. Nawara Core le permet au propriétaire de l’entreprise avec une vérification renforcée récente pour {{resolvePurpose}} ; Admin ne le propose pas encore.",
+        "noResolution": "résoudre une contestation « Espèces non restituées » ou « Collecte non effectuée ». Nawara Core ne prévoit aucune résolution ; elles restent ouvertes.",
         "money": "modifier un montant, des frais, l’échéance de règlement ou la preuve d’origine. Une correction ne modifie qu’une heure déclarée, et l’original reste enregistré.",
-        "beneficiary": "ouvrir une contestation ou confirmer une restitution. Seul le bénéficiaire le peut ; le propriétaire n’agit jamais à sa place.",
+        "beneficiary": "ouvrir une contestation ou confirmer une restitution. Seul le bénéficiaire le peut ; le propriétaire n’agit jamais à sa place.",
         "organization": "déclarer une collecte ou une restitution, ou répondre à une contestation. Seul un administrateur de l’organisation le peut."
       },
       "backTo": {
@@ -2633,7 +2633,7 @@
     },
     "oversight": {
       "title": "Suivi de la collecte et du règlement",
-      "intro": "Chaque étape indique d’où vient sa réponse. Une déclaration de collecte n’est jamais un paiement : seul un paiement vérifié règle un dossier.",
+      "intro": "Chaque étape indique d’où vient sa réponse. Une déclaration de collecte n’est jamais un paiement : seul un paiement vérifié règle un dossier.",
       "noRestriction": "Nawara Core n’impose aucune restriction à cette organisation.",
       "collection": {
         "label": "Collecte en espèces",
@@ -2645,11 +2645,11 @@
         "label": "Règlement électronique",
         "none": "Aucun règlement",
         "inProgress": "En cours, non réglé",
-        "uncertain": "Incertain : en cours d’envoi, non réglé",
+        "uncertain": "Incertain : en cours d’envoi, non réglé",
         "verified": "Réglé par un paiement vérifié",
         "verifiedLate": "Réglé par un paiement vérifié tardif appliqué par le propriétaire",
-        "lateUnapplied": "Paiement vérifié arrivé en retard ; en attente du propriétaire, non réglé",
-        "closedUnpaid": "Clos : le paiement n’a pas abouti"
+        "lateUnapplied": "Paiement vérifié arrivé en retard ; en attente du propriétaire, non réglé",
+        "closedUnpaid": "Clos : le paiement n’a pas abouti"
       },
       "deadline": {
         "label": "Délai de règlement",
@@ -2696,11 +2696,11 @@
       "recoveryRestriction": "Recouvrement ouvert",
       "describe": {
         "collectionReportedNotSettled": "L’organisation a déclaré avoir collecté la totalité du montant en espèces, et la demande n’est ni réglée ni restituée. Une déclaration est une preuve, jamais un paiement.",
-        "uncertainSettlement": "Le règlement électronique est en cours d’envoi : le service de paiement peut l’avoir reçu ou non. Il n’est pas réglé.",
+        "uncertainSettlement": "Le règlement électronique est en cours d’envoi : le service de paiement peut l’avoir reçu ou non. Il n’est pas réglé.",
         "overdueSettlement": "Nawara Core indique que la demande a dépassé son échéance de règlement (72 heures après la collecte déclarée).",
         "openDispute": "Le bénéficiaire conteste les preuves en espèces. Seul le bénéficiaire peut ouvrir une contestation.",
-        "cashReturn": "L’organisation doit au bénéficiaire le total figé en espèces ; une restitution déclarée reste due jusqu’à sa confirmation par le bénéficiaire.",
-        "lateSettlementReview": "Un paiement vérifié est arrivé après la clôture. Il ne règle rien tant que le propriétaire ne l’applique pas ; il n’est jamais appliqué automatiquement.",
+        "cashReturn": "L’organisation doit au bénéficiaire le total figé en espèces ; une restitution déclarée reste due jusqu’à sa confirmation par le bénéficiaire.",
+        "lateSettlementReview": "Un paiement vérifié est arrivé après la clôture. Il ne règle rien tant que le propriétaire ne l’applique pas ; il n’est jamais appliqué automatiquement.",
         "recoveryRestriction": "Une obligation de recouvrement du prix est ouverte après une rétrofacturation définitive."
       }
     },
@@ -2708,14 +2708,14 @@
       "link": "Contestations et exceptions",
       "title": "Contestations et exceptions",
       "subtitle": "Les contestations des bénéficiaires et les dossiers qui demandent votre attention, tels que Nawara Core les enregistre.",
-      "simulation": "Contestations simulées — pas des données de Nawara Core. Nawara Core n’offre pas encore au propriétaire de liste des contestations d’assistance ; ces enregistrements fictifs suivent ses états et ses règles pour permettre la revue de cette vue.",
-      "notInBuildDescription": "Le service de facturation de Nawara Core n’offre pas encore de lecture des contestations d’assistance au propriétaire ; il n’y a donc rien à afficher.",
+      "simulation": "Contestations simulées — pas des données de Nawara Core. Nawara Core n’offre pas encore au propriétaire de liste des contestations d’assistance ; ces enregistrements fictifs suivent ses états et ses règles pour permettre la revue de cette vue.",
+      "notInBuildDescription": "Le service de facturation de Nawara Core n’offre pas encore de lecture des contestations d’assistance au propriétaire ; il n’y a donc rien à afficher.",
       "forbiddenDescription": "Les contestations et exceptions d’assistance ne sont présentées qu’au propriétaire de l’entreprise.",
       "list": {
         "title": "Contestations",
         "intro": "Seul un bénéficiaire ouvre une contestation. Nawara Core ne résout que les contestations d’heure de collecte ou de restitution, et uniquement par une correction de cette heure par le propriétaire.",
         "count": "{{shown}} contestations affichées",
-        "countMore": "Les {{shown}} premières contestations sont affichées ; d’autres sont disponibles",
+        "countMore": "Les {{shown}} premières contestations sont affichées ; d’autres sont disponibles",
         "case": "Dossier",
         "context": "Collecte et règlement",
         "none": "Aucune contestation ne correspond."
@@ -2733,17 +2733,17 @@
       "errorTitle": "Les contestations n’ont pas pu être chargées",
       "loading": "Chargement des contestations…",
       "exceptionNone": "Aucun dossier ne relève de cette exception.",
-      "readOnly": "Lecture seule : aucune correction, résolution, collecte, aucun paiement, aucune confirmation ni aucun remboursement ne peut être effectué depuis cette page."
+      "readOnly": "Lecture seule : aucune correction, résolution, collecte, aucun paiement, aucune confirmation ni aucun remboursement ne peut être effectué depuis cette page."
     },
     "late": {
       "pending": "En attente de la décision du propriétaire",
       "applied": "Appliqué par le propriétaire",
       "blocked": "Bloqué",
       "standing": {
-        "applied": "Le propriétaire l’a appliqué comme achat de la demande, sur ce fondement : {{reason}}.",
-        "refused": "Nawara Core refuserait une application maintenant :",
-        "attested": "Le bénéficiaire a attesté que les espèces n’ont pas été restituées : un fondement que Nawara Core accepte. Rien n’est réglé tant que le propriétaire ne décide pas.",
-        "needsBasis": "Aucun fondement pour l’instant : le bénéficiaire n’a pas attesté, et aucune personne ne peut encore fournir de preuve par fichier."
+        "applied": "Le propriétaire l’a appliqué comme achat de la demande, sur ce fondement : {{reason}}.",
+        "refused": "Nawara Core refuserait une application maintenant :",
+        "attested": "Le bénéficiaire a attesté que les espèces n’ont pas été restituées : un fondement que Nawara Core accepte. Rien n’est réglé tant que le propriétaire ne décide pas.",
+        "needsBasis": "Aucun fondement pour l’instant : le bénéficiaire n’a pas attesté, et aucune personne ne peut encore fournir de preuve par fichier."
       },
       "applicationReason": {
         "attested": "l’attestation du bénéficiaire que les espèces n’ont pas été restituées",
@@ -2762,7 +2762,7 @@
         "settlementTimeUnavailable": "Nawara Core ne peut pas indiquer l’heure de règlement d’origine.",
         "alreadyApplied": "il a déjà été appliqué."
       },
-      "undetermined": "Nawara Core décide si ceci le refuse aussi : {{reason}}",
+      "undetermined": "Nawara Core décide si ceci le refuse aussi : {{reason}}",
       "wouldSupersede": "Une application remplacerait la restitution d’espèces que l’organisation doit pour cette demande.",
       "receipt": "L’application nécessite un reçu d’autorisation du propriétaire de l’entreprise ({{operation}}, après une vérification renforcée pour {{purpose}}). Indisponible dans Admin.",
       "history": {
@@ -2779,27 +2779,27 @@
         "beneficiaryConfirmation": "Déclarée par l’organisation, toujours due tant que le bénéficiaire ne l’a pas confirmée."
       },
       "discharged": {
-        "confirmed": "Soldée : le bénéficiaire a confirmé la restitution.",
-        "superseded": "Soldée : remplacée par un règlement tardif appliqué par le propriétaire."
+        "confirmed": "Soldée : le bénéficiaire a confirmé la restitution.",
+        "superseded": "Soldée : remplacée par un règlement tardif appliqué par le propriétaire."
       },
       "openedAt": "Due depuis",
       "reportedReturn": "Restitution déclarée pour le",
       "confirmedAt": "Confirmée par le bénéficiaire",
       "supersededAt": "Remplacée par l’application du propriétaire",
-      "versus": "Règlement et restitution sont distincts : un paiement vérifié règle la demande ; une restitution rend ses espèces au bénéficiaire. Une restitution déclarée est une déclaration, pas un achèvement."
+      "versus": "Règlement et restitution sont distincts : un paiement vérifié règle la demande ; une restitution rend ses espèces au bénéficiaire. Une restitution déclarée est une déclaration, pas un achèvement."
     },
     "settlements": {
       "link": "Règlements tardifs et restitutions",
       "title": "Règlements tardifs et restitutions d’espèces",
       "subtitle": "Les paiements vérifiés arrivés en retard et les espèces que les organisations doivent aux bénéficiaires, tels que Nawara Core les enregistre.",
-      "simulation": "Enregistrements simulés — pas des données de Nawara Core. Nawara Core n’offre pas encore au propriétaire de liste des règlements tardifs ni des restitutions ; ces enregistrements fictifs suivent ses états et ses règles pour permettre la revue de cette vue.",
-      "notInBuildDescription": "Le service de facturation de Nawara Core n’offre pas encore au propriétaire de liste des règlements tardifs ni des restitutions ; il n’y a donc rien à afficher.",
+      "simulation": "Enregistrements simulés — pas des données de Nawara Core. Nawara Core n’offre pas encore au propriétaire de liste des règlements tardifs ni des restitutions ; ces enregistrements fictifs suivent ses états et ses règles pour permettre la revue de cette vue.",
+      "notInBuildDescription": "Le service de facturation de Nawara Core n’offre pas encore au propriétaire de liste des règlements tardifs ni des restitutions ; il n’y a donc rien à afficher.",
       "forbiddenDescription": "Les règlements tardifs et les restitutions ne sont présentés qu’au propriétaire de l’entreprise.",
       "late": {
         "title": "Règlements tardifs",
-        "intro": "Un paiement vérifié arrivé après la clôture de sa demande. Nawara Core l’enregistre et ne l’applique jamais de lui-même : il ne règle rien tant que le propriétaire ne l’applique pas.",
+        "intro": "Un paiement vérifié arrivé après la clôture de sa demande. Nawara Core l’enregistre et ne l’applique jamais de lui-même : il ne règle rien tant que le propriétaire ne l’applique pas.",
         "count": "{{shown}} règlements tardifs affichés",
-        "countMore": "Les {{shown}} premiers règlements tardifs sont affichés ; d’autres sont disponibles",
+        "countMore": "Les {{shown}} premiers règlements tardifs sont affichés ; d’autres sont disponibles",
         "evidenceCount": "{{count}} références de fichiers",
         "noEvidence": "Aucune (aucun accès humain aux preuves par fichier pour l’instant)",
         "decision": "Décision du propriétaire",
@@ -2807,9 +2807,9 @@
       },
       "returns": {
         "title": "Restitutions d’espèces",
-        "intro": "L’organisation déclare une restitution ; seule la confirmation du bénéficiaire, ou un règlement tardif appliqué par le propriétaire, la solde.",
+        "intro": "L’organisation déclare une restitution ; seule la confirmation du bénéficiaire, ou un règlement tardif appliqué par le propriétaire, la solde.",
         "count": "{{shown}} restitutions affichées",
-        "countMore": "Les {{shown}} premières restitutions sont affichées ; d’autres sont disponibles",
+        "countMore": "Les {{shown}} premières restitutions sont affichées ; d’autres sont disponibles",
         "none": "Aucune restitution ne correspond."
       },
       "filter": {
@@ -2824,23 +2824,23 @@
       "restrictions": "Restrictions de l’organisation",
       "errorTitle": "Les règlements tardifs n’ont pas pu être chargés",
       "loading": "Chargement des règlements tardifs…",
-      "readOnly": "Lecture seule : aucune application, aucun reçu, aucune déclaration de restitution, aucune confirmation ni aucun paiement ne peut être effectué depuis cette page."
+      "readOnly": "Lecture seule : aucune application, aucun reçu, aucune déclaration de restitution, aucune confirmation ni aucun paiement ne peut être effectué depuis cette page."
     },
     "recovery": {
       "link": "Recouvrement et excédents",
       "title": "Recouvrement et excédents",
       "subtitle": "Ce que les organisations doivent après une rétrofacturation définitive d’un achat assisté, ce qui a été vérifié comme recouvré, et l’excédent qui leur est dû, tels que Nawara Core les enregistre.",
-      "simulation": "Enregistrements simulés — pas des données de Nawara Core. Nawara Core n’offre pas encore au propriétaire de liste des obligations de recouvrement ; ces enregistrements fictifs suivent ses états et ses règles pour permettre la revue de cette vue.",
-      "notInBuildDescription": "Le service de facturation de Nawara Core n’offre pas encore au propriétaire de liste des obligations de recouvrement ; il n’y a donc rien à afficher.",
+      "simulation": "Enregistrements simulés — pas des données de Nawara Core. Nawara Core n’offre pas encore au propriétaire de liste des obligations de recouvrement ; ces enregistrements fictifs suivent ses états et ses règles pour permettre la revue de cette vue.",
+      "notInBuildDescription": "Le service de facturation de Nawara Core n’offre pas encore au propriétaire de liste des obligations de recouvrement ; il n’y a donc rien à afficher.",
       "forbiddenDescription": "Les obligations de recouvrement et les excédents ne sont présentés qu’au propriétaire de l’entreprise.",
       "listTitle": "Obligations de recouvrement",
-      "intro": "Nawara Core ouvre une obligation pour le prix d’un achat assisté perdu par une rétrofacturation définitive totale. Seuls les paiements vérifiés par le service de paiement le recouvrent ; tout excédent est dû à l’organisation, jamais un revenu.",
+      "intro": "Nawara Core ouvre une obligation pour le prix d’un achat assisté perdu par une rétrofacturation définitive totale. Seuls les paiements vérifiés par le service de paiement le recouvrent ; tout excédent est dû à l’organisation, jamais un revenu.",
       "count": "{{shown}} obligations de recouvrement affichées",
-      "countMore": "Les {{shown}} premières obligations de recouvrement sont affichées ; d’autres sont disponibles",
+      "countMore": "Les {{shown}} premières obligations de recouvrement sont affichées ; d’autres sont disponibles",
       "none": "Aucune obligation de recouvrement ne correspond.",
       "errorTitle": "Les obligations de recouvrement n’ont pas pu être chargées",
       "loading": "Chargement des obligations de recouvrement…",
-      "readOnly": "Lecture seule : aucun règlement, aucune affectation, aucun remboursement, aucun enregistrement de remboursement, aucune confirmation ni aucun passage en perte ne peut être effectué depuis cette page.",
+      "readOnly": "Lecture seule : aucun règlement, aucune affectation, aucun remboursement, aucun enregistrement de remboursement, aucune confirmation ni aucun passage en perte ne peut être effectué depuis cette page.",
       "filter": {
         "state": "Recouvrement",
         "allStates": "Ouvertes et recouvrées",
@@ -2849,7 +2849,7 @@
         "surplusOwed": "Excédent encore dû à l’organisation"
       },
       "why": "Pourquoi elle existe",
-      "whyLoss": "Une rétrofacturation définitive totale de l’achat assisté, vérifiée par le service de paiement. Référence du litige :",
+      "whyLoss": "Une rétrofacturation définitive totale de l’achat assisté, vérifiée par le service de paiement. Référence du litige :",
       "standing": "Recouvrement",
       "lateSettlements": "Règlements tardifs du dossier",
       "noLateSettlement": "Aucun",
@@ -2864,7 +2864,7 @@
       "split": "recouvré {{principal}}, excédent {{surplus}}",
       "surplusTitle": "Excédent payable à l’organisation",
       "surplusNone": "Aucun excédent.",
-      "surplusNever": "Un excédent est dû à l’organisation : jamais un revenu, jamais compensé, et il ne rouvre jamais une restriction.",
+      "surplusNever": "Un excédent est dû à l’organisation : jamais un revenu, jamais compensé, et il ne rouvre jamais une restriction.",
       "surplus": {
         "externalRecorded": "Remboursement enregistré par le propriétaire",
         "confirmed": "Remboursé, confirmé par l’organisation",
@@ -2885,7 +2885,7 @@
         "surplusExternal": "Le propriétaire a enregistré un remboursement hors de Nawara Core",
         "surplusConfirmed": "L’organisation a confirmé le remboursement"
       },
-      "externalEvidence": "Fichier de preuve vérifié par Nawara Core ; sa référence ne figure pas dans la lecture propriétaire ({{followUp}})."
+      "externalEvidence": "Fichier de preuve vérifié par Nawara Core ; sa référence ne figure pas dans la lecture propriétaire ({{followUp}})."
     },
     "restrictions": {
       "title": "Restrictions de cette organisation",
@@ -2895,7 +2895,7 @@
       "sinceLabel": "Depuis",
       "endsLabel": "Fin",
       "openCase": "Ouvrir ce dossier",
-      "scope": "Les restrictions bloquent uniquement les nouvelles demandes d’assistance de cette organisation ; le règlement, la restitution des espèces et le recouvrement restent possibles. Nawara Core lève chacune exactement lorsque son enregistrement ne la justifie plus : aucun délai, aucune levée manuelle.",
+      "scope": "Les restrictions bloquent uniquement les nouvelles demandes d’assistance de cette organisation ; le règlement, la restitution des espèces et le recouvrement restent possibles. Nawara Core lève chacune exactement lorsque son enregistrement ne la justifie plus : aucun délai, aucune levée manuelle.",
       "notTitle": "Ce ne sont pas des restrictions",
       "source": {
         "request": "Demande d’assistance",
@@ -2911,23 +2911,23 @@
         "otherCase": "un autre dossier de cette organisation"
       },
       "not": {
-        "assistanceDispute": "Une contestation d’assistance ouverte : elle suspend certaines étapes de son propre dossier (voir Contestations), jamais les nouvelles demandes de l’organisation.",
-        "paymentDispute": "Un litige de paiement (une rétrofacturation) : il relève de Payment et peut suspendre un remboursement, pas une demande d’assistance. Seule une rétrofacturation totale, définitive et perdue d’un achat assisté mène, par une obligation de recouvrement, à T3.",
-        "fraudHold": "Un blocage pour fraude : un contrôle distinct du propriétaire, pas une restriction d’assistance.",
-        "inactivity": "L’inactivité de l’organisation (D6) : réservée dans Nawara Core et jamais renvoyée."
+        "assistanceDispute": "Une contestation d’assistance ouverte : elle suspend certaines étapes de son propre dossier (voir Contestations), jamais les nouvelles demandes de l’organisation.",
+        "paymentDispute": "Un litige de paiement (une rétrofacturation) : il relève de Payment et peut suspendre un remboursement, pas une demande d’assistance. Seule une rétrofacturation totale, définitive et perdue d’un achat assisté mène, par une obligation de recouvrement, à T3.",
+        "fraudHold": "Un blocage pour fraude : un contrôle distinct du propriétaire, pas une restriction d’assistance.",
+        "inactivity": "L’inactivité de l’organisation (D6) : réservée dans Nawara Core et jamais renvoyée."
       }
     },
     "evidence": {
       "title": "Preuves et références",
-      "intro": "Chaque preuve que Nawara Core détient sur ce dossier, de la plus ancienne enregistrée à la plus récente : qui l’a déclarée, d’où elle provient et les références que Core expose.",
-      "filePath": "Aucun fichier ne peut être téléversé, ouvert ou téléchargé dans Nawara Admin : Nawara Core n’a pas encore d’accès humain aux fichiers ({{followUp}}). Une référence de fichier est un identifiant, jamais un document.",
+      "intro": "Chaque preuve que Nawara Core détient sur ce dossier, de la plus ancienne enregistrée à la plus récente : qui l’a déclarée, d’où elle provient et les références que Core expose.",
+      "filePath": "Aucun fichier ne peut être téléversé, ouvert ou téléchargé dans Nawara Admin : Nawara Core n’a pas encore d’accès humain aux fichiers ({{followUp}}). Une référence de fichier est un identifiant, jamais un document.",
       "none": "Aucune preuve n’est encore enregistrée pour ce dossier.",
-      "counts": "Preuves : {{total}} · Références de fichiers : {{references}} · Fichiers absents de la lecture propriétaire : {{notInRead}}",
+      "counts": "Preuves : {{total}} · Références de fichiers : {{references}} · Fichiers absents de la lecture propriétaire : {{notInRead}}",
       "recordedAt": "enregistré le {{date}}",
       "timeNotStated": "heure non indiquée par Nawara Core",
       "never": "Les preuves sont consultées ici, jamais ajoutées ni modifiées. Une déclaration n’est jamais un paiement, et une référence de fichier ne prouve jamais ce que contient le fichier.",
       "verifiedOn": "autorisation vérifiée le {{date}}",
-      "referenceOnly": "Références uniquement : les fichiers ne peuvent pas être ouverts ici.",
+      "referenceOnly": "Références uniquement : les fichiers ne peuvent pas être ouverts ici.",
       "kind": {
         "collectionReport": "Déclaration de collecte en espèces",
         "returnReport": "Déclaration de restitution des espèces",
@@ -2956,13 +2956,13 @@
         "refundCase": "Dossier de remboursement"
       },
       "file": {
-        "none": "Aucun fichier : l’enregistrement lui-même est la preuve.",
-        "reference": "Référence de fichier uniquement : Nawara Core a vérifié l’autorisation, pas le contenu du fichier ; il ne peut pas être ouvert ici ({{followUp}}).",
+        "none": "Aucun fichier : l’enregistrement lui-même est la preuve.",
+        "reference": "Référence de fichier uniquement : Nawara Core a vérifié l’autorisation, pas le contenu du fichier ; il ne peut pas être ouvert ici ({{followUp}}).",
         "notInRead": "Nawara Core a vérifié une autorisation de fichier lors de l’enregistrement, mais la lecture propriétaire ne renvoie pas sa référence ({{followUp}})."
       },
       "statement": {
-        "correction": "{{field}} : {{from}} → {{to}} (la déclaration d’origine est conservée)",
-        "disputeReason": "Motif : {{reason}} (un motif fermé ; ni texte ni pièce jointe)"
+        "correction": "{{field}} : {{from}} → {{to}} (la déclaration d’origine est conservée)",
+        "disputeReason": "Motif : {{reason}} (un motif fermé ; ni texte ni pièce jointe)"
       },
       "by": {
         "beneficiary": "Bénéficiaire",
@@ -2972,7 +2972,7 @@
       }
     },
     "history": {
-      "intro": "Trié selon le moment où chaque événement s’est produit ou celui où Nawara Core l’a enregistré. Une heure déclarée peut précéder son enregistrement ; les deux sont affichées.",
+      "intro": "Trié selon le moment où chaque événement s’est produit ou celui où Nawara Core l’a enregistré. Une heure déclarée peut précéder son enregistrement ; les deux sont affichées.",
       "show": "Afficher",
       "sourceCount": "{{source}} ({{count}})",
       "shown": "{{shown}} événements affichés sur {{total}}",
@@ -2984,14 +2984,14 @@
       },
       "standing": {
         "verifiedFinancial": "Vérifié par Payment.",
-        "verifiedNoPayment": "Vérifié par Payment : aucun argent n’a circulé.",
-        "reportedOnly": "Une déclaration conservée comme preuve : jamais un paiement ni une confirmation d’argent reçu.",
+        "verifiedNoPayment": "Vérifié par Payment : aucun argent n’a circulé.",
+        "reportedOnly": "Une déclaration conservée comme preuve : jamais un paiement ni une confirmation d’argent reçu.",
         "ownerDecision": "Une décision du propriétaire enregistrée par Nawara Core.",
         "coreDerived": "Déduit par Nawara Core à partir des enregistrements."
       },
       "explain": {
         "fact": "Payment l’a vérifié.",
-        "report": "Quelqu’un le déclare ; Nawara Core le conserve comme preuve.",
+        "report": "Quelqu’un le déclare ; Nawara Core le conserve comme preuve.",
         "decision": "Le propriétaire de l’entreprise l’a décidé.",
         "derived": "Nawara Core l’a déduit des autres enregistrements."
       }

@@ -1209,6 +1209,10 @@ Recorded, not authorized: each is its own task.
   passed on a single re-run; it passes locally and on `main`. Its `render()` waits one fixed `settle()` (10 ms) before the demo
   enrollment has rendered the field. Proposed fix: wait until the field exists (as other specs do with a bounded loop), in a
   separate test-only change. Not changed in A5 (no regression demonstrated there).
+- **QF-2 (recorded 2026-11-01, Assistance A12): French high punctuation.** French copy puts an ordinary space before `;`, `:`, `!`
+  and `?` (309 places in `src/i18n/fr.json` outside Assistance), so a wrapped line can start with the punctuation mark (seen in the A12
+  rendered checks). A12 fixed the Assistance strings only (a no-break space, with a regression test). Proposed fix: the same no-break
+  space across the catalog, plus a `check:i18n` rule, in a separate localization task.
 
 ## Decisions required later (before the named stage)
 
