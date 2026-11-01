@@ -1,31 +1,34 @@
-"""Extracts the blue-leaf Nawara logos from the owner's logo-family reference (docs/BRAND.md §0, B1, 2026-11-01).
+"""Extracts the blue-leaf Nawara logos from the owner's logo-family reference and splits them into accent-aware layers
+(docs/BRAND.md §B1; B1 2026-11-01, accent correction the same day).
 
 The reference (docs/brand/references/nawara-logo-family-2026-11-01.webp, 2000 x 667 WebP) shows "nawara admin",
 "nawara solutions" and "nawara erp" on a flat near-white ground. It has no vector source, so every asset here is CUT FROM
 ITS PIXELS, never redrawn, traced or re-lettered (owner decision B1, Option 1). Official SVG masters are still needed.
 
-Method (per logo, inside a measured box):
+Extraction (per logo, inside a measured box):
 - colour-to-alpha against the reference's measured ground (254, 254, 254): each pixel's alpha is how far it is from the
-  ground toward the darkest ink channel, and its colour is un-blended from the ground, so anti-aliased edges keep the true
-  ink colour and show no light halo on dark grounds;
-- the white glyph inside the upper leaf (people for Admin, puzzle for Solutions) is part of the symbol: the enclosed
-  ground regions whose centre lies in the measured glyph box, plus a 2 px rim, keep the reference's own pixels at full
-  opacity (blue-to-white edges as drawn). The stem rings and letter counters stay transparent;
-- nothing is resized, re-coloured or re-shaped in the logo files.
+  ground toward the darkest ink channel, and its colour is un-blended from the ground, so anti-aliased edges keep their
+  coverage and show no halo on dark grounds;
+- the white glyph inside the upper leaf (people for Admin, puzzle for Solutions) belongs to the symbol: the enclosed ground
+  regions centred in the measured glyph box, plus a 2 px rim, are the leaf's interior, opaque.
 
-Outputs (public/brand/):
-- nawara-admin-logo.webp             "nawara admin" as in the reference (light grounds)
-- nawara-admin-logo-on-dark.webp     DERIVED: the same pixels with only the navy lettering set to the dark theme's text
-                                     colour (#ffffff); the blue symbol and its glyph unchanged
-- nawara-solutions-logo.webp, nawara-solutions-logo-on-dark.webp   the same for "nawara solutions"
-- nawara-admin-symbol.webp           the Admin symbol alone (leaf, glyph, stems, rings, sprig), letters removed by colour
-and the icon family from the Admin symbol (public/): favicon.ico (16/32/48), icons/icon-{16,32,48,192,512}.png and
-apple-touch-icon.png / icons/icon-maskable-512.png (opaque white squares: iOS and Android need an opaque icon) in the
-reference colours; the browser-tab SVG favicons (favicon.svg, icons/favicon-<palette>[-light].svg) with the blue mapped
-to each accent palette (only the blue pixels move; geometry, alpha and the white glyph never change).
+Layers (the owner requires the botanical symbol to follow the selected accent palette; the lettering and the white details
+never change). Each logo becomes three aligned rasters of the same size, so `contain` places them identically:
+- `-lettering` (light grounds: the reference's navy) and `-lettering-on-dark` (DERIVED: the dark theme's text colour
+  #ffffff): the wordmark alone, with its own coverage;
+- `-symbol-mask`: the symbol's coverage (leaf, circuit stems, rings, sprig) as alpha: painted at run time with the palette's
+  primary token through a CSS mask, so an accent change recolours it at once, in the token's exact colour;
+- `-symbol-details`: the white details inside the leaf, as alpha over the painted symbol. Inside the leaf each pixel is
+  split by projecting it on the line from the reference blue to white, so the blue-to-white edges stay as drawn.
+Composited with the reference blue, the layers give back the reference (checked below, `verify`).
+
+Favicons cannot read CSS, so each palette and appearance gets its own tab icon at the existing file names, filled with the
+palette's primary read from the token files (never approximated); Sapphire keeps the reference blue (owner decision). Static
+icons (favicon.ico, icons/icon-*.png, apple-touch and maskable) cannot follow a palette: they use the default palette
+(Coral, light primary).
 
 Usage, from the repository root:
-  python3 tools/brand/extract_blue_leaf.py docs/brand/references/nawara-logo-family-2026-11-01.webp
+  python3 -B tools/brand/extract_blue_leaf.py docs/brand/references/nawara-logo-family-2026-11-01.webp
 """
 import base64
 import io
@@ -37,7 +40,7 @@ import numpy as np
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from recolor_artwork import DEPTH, PALETTES, TONAL, from_oklab, hex_to_rgb, lch, tonal  # noqa: E402
+from recolor_artwork import PALETTES, hex_to_rgb, lch  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 BRAND = ROOT / 'public' / 'brand'
@@ -48,6 +51,7 @@ INK_MIN = 4.0  # the darkest channel of both inks: navy #040b2d and blue #046efa
 NOISE = 6.0  # differences from the ground below this are WebP noise, not ink
 REFERENCE_BLUE = '#046efa'
 DARK_LETTERING = np.array([255, 255, 255]) / 255  # dark theme --nw-text-primary (ink-0)
+WHITE = np.array([1.0, 1.0, 1.0])  # the symbol's white details
 
 # Measured on the 2000 x 667 reference: (x0, y0, x1, y1) of each logo with a 6 px margin, and of its leaf glyph.
 LOGOS = {
@@ -133,27 +137,68 @@ def extract(board: np.ndarray, spec: dict):
     return np.concatenate([rgb / 255, alpha[..., None]], axis=-1), interior
 
 
-def on_dark(rgba: np.ndarray, interior: np.ndarray) -> np.ndarray:
-    """Only the navy lettering takes the dark theme's text colour; the symbol (and its glyph) keeps its pixels."""
-    w = blue_weight(rgba[..., :3])
-    w = np.where(interior, 1.0, w)[..., None]
-    rgb = rgba[..., :3] * w + DARK_LETTERING * (1 - w)
-    return np.concatenate([rgb, rgba[..., 3:]], axis=-1)
-
-
-def symbol_only(rgba: np.ndarray, interior: np.ndarray, x_range, box_x0: int) -> np.ndarray:
-    """The blue symbol alone: lettering removed by colour, cropped to the symbol's own bounds."""
+def split_layers(rgba: np.ndarray, interior: np.ndarray):
+    """(lettering, symbol mask, white details) as RGBA floats of the logo's size."""
+    a = rgba[..., 3]
     w = np.where(interior, 1.0, blue_weight(rgba[..., :3]))
-    # Only the solid blue shape and a 2 px rim (its anti-aliasing): WebP colour bleed gives the navy letters' edges a
-    # faint blue weight, which must not survive as ghost outlines.
-    w = w * dilate((w > 0.5) & (rgba[..., 3] > 0.5), 2)
+    # Only the solid blue shape and a 2 px rim (its anti-aliasing): WebP colour bleed gives the navy letters' edges a faint
+    # blue weight, which must stay with the lettering.
+    w = w * dilate((w > 0.5) & (a > 0.5), 2)
+    # Inside the leaf: how much of each pixel is blue rather than white (projection on the blue-white line, sRGB).
+    blue = hex_to_rgb(REFERENCE_BLUE)
+    ground = np.full(3, GROUND / 255)
+    d = ground - blue
+    t = np.clip(((ground - rgba[..., :3]) @ d) / (d @ d), 0, 1)
+    lettering = rgba.copy()
+    lettering[..., 3] = np.where(interior, 0.0, a * (1 - w))
+    mask = np.zeros_like(rgba)
+    mask[..., :3] = 1
+    mask[..., 3] = np.where(interior, 1.0, a * w)
+    details = np.zeros_like(rgba)
+    details[..., :3] = WHITE
+    details[..., 3] = np.where(interior, 1 - t, 0.0)
+    return lettering, mask, details
+
+
+def with_colour(rgba: np.ndarray, rgb) -> np.ndarray:
     out = rgba.copy()
-    out[..., 3] = rgba[..., 3] * w
+    out[..., :3] = rgb
+    return out
+
+
+def over(top: np.ndarray, bottom: np.ndarray) -> np.ndarray:
+    """Porter-Duff source-over of straight-alpha RGBA floats."""
+    ta, ba = top[..., 3:], bottom[..., 3:]
+    oa = ta + ba * (1 - ta)
+    rgb = (top[..., :3] * ta + bottom[..., :3] * ba * (1 - ta)) / np.where(oa > 0, oa, 1)
+    return np.concatenate([rgb, oa], axis=-1)
+
+
+def composite(lettering, mask, details, colour) -> np.ndarray:
+    """What the browser draws: lettering, then the symbol in `colour`, then the white details."""
+    symbol = with_colour(mask, hex_to_rgb(colour))
+    base = symbol if lettering is None else over(symbol, lettering)
+    return over(details, base)
+
+
+def verify(original: np.ndarray, layers, name: str) -> None:
+    """With the reference blue, the layers must give back the reference (premultiplied difference, 0-255)."""
+    back = composite(*layers, REFERENCE_BLUE)
+    pre = lambda x: x[..., :3] * x[..., 3:]  # noqa: E731
+    err = np.abs(pre(back) - pre(original)) * 255
+    print(f'{name}: layers vs reference, premultiplied |diff| mean {err.mean():.2f}, 99.9th pct {np.percentile(err, 99.9):.1f}')
+
+
+def crop_symbol(layers, x_range, box_x0: int):
+    """The symbol alone (mask and details) cropped to its bounds; the lettering is dropped."""
+    _, mask, details = layers
+    mask = mask.copy()
     lo, hi = x_range[0] - box_x0, x_range[1] - box_x0
-    out[:, :lo, 3] = 0
-    out[:, hi:, 3] = 0
-    ys, xs = np.nonzero(out[..., 3] > 0.02)
-    return out[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+    mask[:, :lo, 3] = 0
+    mask[:, hi:, 3] = 0
+    ys, xs = np.nonzero(mask[..., 3] > 0.02)
+    box = (slice(ys.min(), ys.max() + 1), slice(xs.min(), xs.max() + 1))
+    return mask[box], details[box]
 
 
 def to_image(rgba: np.ndarray) -> Image.Image:
@@ -166,41 +211,31 @@ def save_webp(rgba: np.ndarray, name: str) -> None:
     print(f'{dst.relative_to(ROOT)}  {rgba.shape[1]} x {rgba.shape[0]}  {dst.stat().st_size // 1024} KB')
 
 
-def square(symbol: Image.Image, margin: float, ground=(0, 0, 0, 0)) -> Image.Image:
-    """The symbol centred on a square canvas, `margin` of the side free on each side."""
-    side = round(max(symbol.size) / (1 - 2 * margin))
+def square(image: Image.Image, margin: float, ground=(0, 0, 0, 0)) -> Image.Image:
+    """The image centred on a square canvas, `margin` of the side free on each side."""
+    side = round(max(image.size) / (1 - 2 * margin))
     canvas = Image.new('RGBA', (side, side), ground)
-    canvas.alpha_composite(symbol, ((side - symbol.width) // 2, (side - symbol.height) // 2))
+    canvas.alpha_composite(image, ((side - image.width) // 2, (side - image.height) // 2))
     return canvas
 
 
-def accent_blue(rgb: np.ndarray, palette: str, theme: str) -> np.ndarray:
-    """The reference blue mapped to a palette: hue to the palette's primary (tokens/_accents.scss), chroma scaled to it,
-    lightness kept (the near-neutral Midnight and Pearl use their tonal mapping, Burgundy its depth, as the artwork)."""
-    if palette in TONAL:
-        return tonal(rgb, TONAL[palette][theme])
-    target = '#c42427' if palette == 'coral' else PALETTES[palette]
-    _, c0, h0 = lch(hex_to_rgb(REFERENCE_BLUE))
-    _, c1, h1 = lch(hex_to_rgb(target))
-    L, C, H = lch(rgb)
-    H = H + (h1 - h0)
-    C = C * min(1.0, float(c1 / c0))
-    if palette in DEPTH:
-        L = L * DEPTH[palette][theme]
-    for _ in range(24):
-        out = from_oklab(np.stack([L, C * np.cos(H), C * np.sin(H)], axis=-1))
-        bad = np.any((out < -1e-4) | (out > 1 + 1e-4), axis=-1)
-        if not bad.any():
-            break
-        C = np.where(bad, C * 0.92, C)
-    return np.clip(out, 0, 1)
+def primaries() -> dict:
+    """Each palette's --nw-color-primary per appearance, read from the token files (never approximated)."""
+    import re
+    out = {}
+    accents = (ROOT / 'src' / 'styles' / 'tokens' / '_accents.scss').read_text()
+    for name, theme, body in re.findall(r'@mixin (\w+)-(light|dark) \{(.*?)\n\}', accents, re.S):
+        out.setdefault(name, {})[theme] = re.search(r'--nw-color-primary: (#[0-9a-f]{6});', body).group(1)
+    foundation = (ROOT / 'node_modules' / '@nawara-solutions' / 'design-tokens' / 'dist' / 'tokens.css').read_text()
+    ref = lambda n: re.search(rf'--nw-ref-coral-{n}: (#[0-9a-f]{{6}});', foundation).group(1)  # noqa: E731
+    out['coral'] = {'light': ref(600), 'dark': ref(400)}  # foundation: --nw-color-primary is coral-600 / coral-400
+    assert set(out) == {'coral', *PALETTES}, sorted(out)
+    return out
 
 
-def recolor_symbol(icon: Image.Image, palette: str, theme: str) -> Image.Image:
-    rgba = np.asarray(icon).astype(np.float64) / 255
-    w = blue_weight(rgba[..., :3])[..., None]
-    rgb = rgba[..., :3] * (1 - w) + accent_blue(rgba[..., :3], palette, theme) * w
-    return to_image(np.concatenate([rgb, rgba[..., 3:]], axis=-1))
+def symbol_colour(palette: str, theme: str, table: dict) -> str:
+    """The token the logos use: the palette's primary; Sapphire, the blue palette, keeps the reference blue (owner)."""
+    return REFERENCE_BLUE if palette == 'sapphire' else table[palette][theme]
 
 
 def favicon_href(palette: str, theme: str) -> str:
@@ -210,14 +245,15 @@ def favicon_href(palette: str, theme: str) -> str:
     return 'favicon.svg' if palette == 'coral' else f'icons/favicon-{palette}.svg'
 
 
-def write_icons(symbol: Image.Image) -> None:
-    tab = square(symbol, 0.03)
-    # Browser-tab favicons, per palette and appearance (an embedded 128 px raster, as before).
+def write_icons(mask: np.ndarray, details: np.ndarray) -> None:
+    table = primaries()
+    def icon(colour: str, margin: float, ground=(0, 0, 0, 0)) -> Image.Image:
+        return square(to_image(composite(None, mask, details, colour)), margin, ground)
     for palette in ['coral', *PALETTES]:
         for theme in ('light', 'dark'):
-            icon = recolor_symbol(tab.resize((FAVICON_PX,) * 2, Image.LANCZOS), palette, theme)
+            img = icon(symbol_colour(palette, theme, table), 0.03).resize((FAVICON_PX,) * 2, Image.LANCZOS)
             buf = io.BytesIO()
-            icon.save(buf, 'PNG', optimize=True)
+            img.save(buf, 'PNG', optimize=True)
             data = base64.b64encode(buf.getvalue()).decode()
             dst = ROOT / 'public' / favicon_href(palette, theme)
             dst.write_text(
@@ -225,29 +261,35 @@ def write_icons(symbol: Image.Image) -> None:
                 f'<image width="64" height="64" xlink:href="data:image/png;base64,{data}"/></svg>\n'
             )
     print('public/favicon.svg and public/icons/favicon-<palette>[-light].svg written (22 files)')
-    # Static icons in the reference colours (they cannot follow a palette).
+    default = symbol_colour('coral', 'light', table)
+    tab = icon(default, 0.03)
     for size in (16, 32, 48, 192, 512):
         tab.resize((size, size), Image.LANCZOS).save(ICONS / f'icon-{size}.png', optimize=True)
     tab.save(ROOT / 'public' / 'favicon.ico', sizes=[(16, 16), (32, 32), (48, 48)])
     white = (255, 255, 255, 255)
-    square(symbol, 0.12, white).resize((180, 180), Image.LANCZOS).convert('RGB').save(ROOT / 'public' / 'apple-touch-icon.png', optimize=True)
+    icon(default, 0.12, white).resize((180, 180), Image.LANCZOS).convert('RGB').save(ROOT / 'public' / 'apple-touch-icon.png', optimize=True)
     # Maskable: the symbol inside the central 80 % safe zone.
-    square(symbol, 0.2, white).resize((512, 512), Image.LANCZOS).convert('RGB').save(ICONS / 'icon-maskable-512.png', optimize=True)
-    print('public/favicon.ico, icons/icon-{16,32,48,192,512}.png, apple-touch-icon.png, icons/icon-maskable-512.png written')
+    icon(default, 0.2, white).resize((512, 512), Image.LANCZOS).convert('RGB').save(ICONS / 'icon-maskable-512.png', optimize=True)
+    print(f'static icons in the default palette (coral light primary {default}) written')
 
 
 def main(path: str) -> None:
     board = np.asarray(Image.open(path).convert('RGB'))
     assert board.shape[:2] == (667, 2000), f'unexpected reference size {board.shape[1]} x {board.shape[0]}'
-    admin, admin_interior = extract(board, LOGOS['admin'])
-    solutions, solutions_interior = extract(board, LOGOS['solutions'])
-    save_webp(admin, 'nawara-admin-logo.webp')
-    save_webp(on_dark(admin, admin_interior), 'nawara-admin-logo-on-dark.webp')
-    save_webp(solutions, 'nawara-solutions-logo.webp')
-    save_webp(on_dark(solutions, solutions_interior), 'nawara-solutions-logo-on-dark.webp')
-    symbol = symbol_only(admin, admin_interior, LOGOS['admin']['symbol_x'], LOGOS['admin']['box'][0])
-    save_webp(symbol, 'nawara-admin-symbol.webp')
-    write_icons(to_image(symbol))
+    for name in ('admin', 'solutions'):
+        rgba, interior = extract(board, LOGOS[name])
+        layers = split_layers(rgba, interior)
+        verify(rgba, layers, name)
+        lettering, mask, details = layers
+        save_webp(lettering, f'nawara-{name}-lettering.webp')
+        save_webp(with_colour(lettering, DARK_LETTERING), f'nawara-{name}-lettering-on-dark.webp')
+        save_webp(mask, f'nawara-{name}-symbol-mask.webp')
+        save_webp(details, f'nawara-{name}-symbol-details.webp')
+        if name == 'admin':
+            mark_mask, mark_details = crop_symbol(layers, LOGOS['admin']['symbol_x'], LOGOS['admin']['box'][0])
+            save_webp(mark_mask, 'nawara-admin-mark-mask.webp')
+            save_webp(mark_details, 'nawara-admin-mark-details.webp')
+            write_icons(mark_mask, mark_details)
 
 
 if __name__ == '__main__':

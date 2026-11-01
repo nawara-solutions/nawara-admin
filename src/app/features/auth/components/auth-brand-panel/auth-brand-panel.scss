@@ -152,15 +152,20 @@
 
 // The Nawara Solutions mark after "© 2026" (B1, 2026-11-01): the blue-leaf logo of the owner's reference, its lettering's
 // x-height (57 of the artwork's 174 px) about the height of the copyright's figures and its baseline (8 px above the
-// artwork's foot) on the text baseline. The negative top margin keeps the symbol, which rises above the lettering, from
-// growing the line, so the copyright keeps its height, position and text size. Artwork: it never mirrors in RTL.
+// artwork's foot) on the text baseline. Its botanical symbol follows the accent palette (abstracts/_logo.scss). The
+// negative top margin keeps the symbol, which rises above the lettering, from growing the line, so the copyright keeps its
+// height, position and text size. Artwork: it never mirrors in RTL.
 .auth-brand-panel__copyright-mark {
   display: inline-block;
   block-size: 2em;
   aspect-ratio: 891 / 174;
   margin-block-start: -1.1em;
   vertical-align: -0.092em;
-  background: var(--nw-logo-solutions) center / contain no-repeat;
+  @include nw.accent-logo(
+    var(--nw-logo-solutions-lettering),
+    var(--nw-logo-solutions-symbol-mask),
+    var(--nw-logo-solutions-symbol-details)
+  );
 }
 
 @media (forced-colors: active) {
