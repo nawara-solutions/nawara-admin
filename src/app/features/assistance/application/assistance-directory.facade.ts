@@ -1,23 +1,34 @@
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { Params, Router } from '@angular/router';
 import { Subject, combineLatest, startWith } from 'rxjs';
 import { can } from '../../../core/access/capability-policy';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { ScopeContext } from '../../../core/context/scope-context';
-import { PlatformId, PlatformRef } from '../../../core/context/scope.model';
+import { PlatformId, PlatformRef, platformId } from '../../../core/context/scope.model';
 import { AssistanceGateway } from '../data-access/assistance.gateway';
 import {
   AssistanceReadFailure,
   assistanceReadFailureOf,
   noContext,
 } from '../data-access/assistance-read-failure';
-import { AssistanceReadContext, assistanceReadContext } from '../domain/assistance-read-context';
+import {
+  AssistanceReadContext,
+  assistanceReadContext,
+  selectionId,
+} from '../domain/assistance-read-context';
 import {
   AssistanceCaseFilter,
   AssistanceCaseOrder,
   AssistanceCaseSummary,
 } from '../domain/assistance-read.model';
-import { AssistanceRequestState, SettlementChannelState } from '../domain/assistance.model';
+import {
+  ASSISTANCE_REQUEST_STATES,
+  AssistanceRequestState,
+  SETTLEMENT_CHANNEL_STATES,
+  SettlementChannelState,
+} from '../domain/assistance.model';
+import { oneOf, pageQuery, single, writePageQuery } from './assistance-url-state';
 
 /** The indicator filter: machine values, never translated. */
 export type AssistanceIndicatorFilter =
@@ -52,6 +63,40 @@ export const DEFAULT_DIRECTORY_QUERY: AssistanceDirectoryQuery = {
   order: 'consentNewest',
   reference: null,
 };
+
+/** The directory's address (A11): its query string holds the owner's filters, order and search. */
+export const ASSISTANCE_DIRECTORY_PATH = '/billing/assistance';
+
+/**
+ * The directory query from the address (A11). Untrusted: a value outside Core's closed sets, or a reference that is not a full case
+ * reference, is dropped (never sent). A Platform id is kept as written: one outside the Company is Core's not found, as before.
+ */
+export function directoryQueryOf(params: Params): AssistanceDirectoryQuery {
+  const platform = single(params, 'platform');
+  const reference = single(params, 'ref');
+  return {
+    platform: platform === null || platform === '' ? null : platformId(platform),
+    state: oneOf(ASSISTANCE_REQUEST_STATES, single(params, 'state')),
+    channel: oneOf(SETTLEMENT_CHANNEL_STATES, single(params, 'channel')),
+    indicator: oneOf(INDICATOR_FILTERS, single(params, 'attention')) ?? 'all',
+    order: oneOf(CASE_ORDERS, single(params, 'order')) ?? 'consentNewest',
+    reference: reference === null ? null : selectionId({ kind: 'case', requestId: reference }),
+  };
+}
+
+/** The address's query of a directory query: defaults are left out, so the plain address is the default view. */
+export function directoryParamsOf(
+  query: AssistanceDirectoryQuery,
+): Readonly<Record<string, string | null>> {
+  return {
+    ref: query.reference,
+    platform: query.platform,
+    state: query.state,
+    channel: query.channel,
+    attention: query.indicator === 'all' ? null : query.indicator,
+    order: query.order === 'consentNewest' ? null : query.order,
+  };
+}
 
 /** Cases per page ("Show more" asks for the next keyset page). */
 export const ASSISTANCE_DIRECTORY_PAGE_SIZE = 10;
@@ -94,19 +139,21 @@ type Loaded =
  * The owner's Assistance case directory (`/billing/assistance`; Assistance A4). READ ONLY: it reads through the A2 gateway and
  * offers no decision, command or payment. The Company owner only; anyone else gets `forbidden` and no request (UX: the route
  * guard already sends an operator away, and Core refuses them). Filters, order and search are sent to the gateway; nothing is
- * computed from amounts, and nothing is counted beyond the cases shown.
+ * computed from amounts, and nothing is counted beyond the cases shown. Since A11 the query lives in the address.
  */
 @Injectable()
 export class AssistanceDirectoryFacade {
   private readonly gateway = inject(AssistanceGateway);
   private readonly session = inject(AuthSession);
   private readonly scope = inject(ScopeContext);
+  private readonly router = inject(Router);
   private readonly reloads = new Subject<void>();
   private readonly loaded = signal<Loaded>({ status: 'loading' });
   /** Increments with every new first page: a late "Show more" answer of an earlier query is dropped. */
   private generation = 0;
 
-  readonly query = signal<AssistanceDirectoryQuery>(DEFAULT_DIRECTORY_QUERY);
+  /** The owner's query, from the address (A11): a deep link, a reload, back and forward all show the same view. */
+  readonly query = pageQuery(this.router, ASSISTANCE_DIRECTORY_PATH, directoryQueryOf);
 
   /** The Company's Platforms, for the Platform filter and the Platform column (owner only). */
   readonly platforms = computed<readonly PlatformRef[]>(() => {
@@ -166,12 +213,16 @@ export class AssistanceDirectoryFacade {
 
   /** Changes the query (filters, order or search); the first page is read again. */
   update(change: Partial<AssistanceDirectoryQuery>): void {
-    this.query.update((query) => ({ ...query, ...change }));
+    this.write({ ...this.query(), ...change });
   }
 
   /** Back to every case of the Company, newest first. */
   clear(): void {
-    this.query.set(DEFAULT_DIRECTORY_QUERY);
+    this.write(DEFAULT_DIRECTORY_QUERY);
+  }
+
+  private write(query: AssistanceDirectoryQuery): void {
+    writePageQuery(this.router, ASSISTANCE_DIRECTORY_PATH, directoryParamsOf(query));
   }
 
   reload(): void {

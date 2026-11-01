@@ -1,5 +1,6 @@
+import { Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { ScopeContext, organizationPath, platformPath } from '../../../core/context/scope-context';
@@ -12,6 +13,11 @@ import { NwIconName } from '../../../shared/ui/icon/icon.registry';
 import { NwLink } from '../../../shared/ui/link/link';
 import { NwStatusBadge, NwStatusTone } from '../../../shared/ui/status-badge/status-badge';
 import { AssistanceCaseFacade } from '../application/assistance-case.facade';
+import {
+  AssistanceListPage,
+  RETURN_STATE_KEY,
+  assistanceReturnOf,
+} from '../application/assistance-url-state';
 import {
   AssistanceInformationSource,
   AssistanceRequestState,
@@ -94,6 +100,14 @@ const DECLINED_KEYS = {
   organization_actor: 'assistanceCases.case.actor.organizationActor',
 } as const;
 
+/** The back link's words, by the list the case was opened from (A11). */
+const BACK_KEYS = {
+  directory: 'assistanceCases.case.back',
+  disputes: 'assistanceCases.case.backTo.disputes',
+  settlements: 'assistanceCases.case.backTo.settlements',
+  recovery: 'assistanceCases.case.backTo.recovery',
+} as const satisfies Record<AssistanceListPage, string>;
+
 /** The last characters of a Core id; the full id is always available to assistive technology and as a tooltip. */
 const shortRef = (id: string): string => id.slice(-8);
 
@@ -136,7 +150,23 @@ export class AssistanceCasePage {
   protected readonly isDemo = inject(AuthSession).isDemo;
   private readonly scope = inject(ScopeContext);
 
-  protected readonly directoryPath = '/billing/assistance';
+  private readonly router = inject(Router);
+  private readonly location = inject(Location);
+
+  /**
+   * Where the back link goes (A11): the Assistance list this case was opened from, with its filters, from the history entry (kept by
+   * back and forward); a deep link or anything unrecognised goes to the case directory.
+   */
+  protected readonly backTo = computed(() => {
+    this.scope.url();
+    const state: unknown =
+      this.router.lastSuccessfulNavigation()?.extras.state ?? this.location.getState();
+    return assistanceReturnOf(state);
+  });
+  protected readonly backTree = computed(() => this.router.parseUrl(this.backTo().url));
+  protected readonly backKeys = BACK_KEYS;
+  /** A link from this case to another keeps the same way back. */
+  protected readonly forwardState = computed(() => ({ [RETURN_STATE_KEY]: this.backTo().url }));
   /** The disputes and exceptions overview (A7). */
   protected readonly disputesPath = '/billing/assistance/disputes';
   /** The late settlements and cash returns overview (A8). */

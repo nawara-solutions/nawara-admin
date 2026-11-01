@@ -1,4 +1,5 @@
-import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, computed, inject } from '@angular/core';
+import { Params, Router } from '@angular/router';
 import { forkJoin, map, of, switchMap } from 'rxjs';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { AssistanceGateway } from '../data-access/assistance.gateway';
@@ -10,8 +11,9 @@ import {
   LateSettlementFilter,
   LateSettlementStatus,
 } from '../domain/assistance-read.model';
-import { CashReturnState } from '../domain/assistance.model';
+import { CASH_RETURN_STATES, CashReturnState } from '../domain/assistance.model';
 import { PagedList, ownerCompanyContext } from './assistance-paged-list';
+import { oneOf, pageQuery, single, writePageQuery } from './assistance-url-state';
 
 export { type AssistanceListView } from './assistance-paged-list';
 
@@ -28,6 +30,37 @@ export interface CashReturnQuery {
 
 export const DEFAULT_LATE_QUERY: LateSettlementQuery = { status: null };
 export const DEFAULT_CASH_RETURN_QUERY: CashReturnQuery = { state: null, disputed: null };
+
+/** The overview's address (A11): its query string holds both lists' filters. */
+export const ASSISTANCE_SETTLEMENTS_PATH = '/billing/assistance/settlements';
+
+interface SettlementsPageQuery {
+  readonly late: LateSettlementQuery;
+  readonly returns: CashReturnQuery;
+}
+
+const LATE_STATUSES: readonly LateSettlementStatus[] = ['applied', 'unapplied'];
+const DISPUTED = ['true', 'false'] as const;
+
+/** The overview's query from the address (A11; untrusted: anything outside Core's closed sets is dropped). */
+export function settlementsQueryOf(params: Params): SettlementsPageQuery {
+  const disputed = oneOf(DISPUTED, single(params, 'disputed'));
+  return {
+    late: { status: oneOf(LATE_STATUSES, single(params, 'late')) },
+    returns: {
+      state: oneOf(CASH_RETURN_STATES, single(params, 'return')),
+      disputed: disputed === null ? null : disputed === 'true',
+    },
+  };
+}
+
+function settlementsParamsOf(query: SettlementsPageQuery): Readonly<Record<string, string | null>> {
+  return {
+    late: query.late.status,
+    return: query.returns.state,
+    disputed: query.returns.disputed === null ? null : String(query.returns.disputed),
+  };
+}
 
 /** One late settlement with its decision state (Core's BIL-32 owner read) and its case (restrictions, returns, disputes). */
 export interface AssistanceLateRow {
@@ -49,9 +82,20 @@ export class AssistanceSettlementsFacade {
   private readonly gateway = inject(AssistanceGateway);
   private readonly session = inject(AuthSession);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
-  readonly lateQuery = signal<LateSettlementQuery>(DEFAULT_LATE_QUERY);
-  readonly returnQuery = signal<CashReturnQuery>(DEFAULT_CASH_RETURN_QUERY);
+  /** Both lists' queries, from the address (A11). */
+  private readonly pageQuery = pageQuery(
+    this.router,
+    ASSISTANCE_SETTLEMENTS_PATH,
+    settlementsQueryOf,
+  );
+  readonly lateQuery = computed(() => this.pageQuery().late, {
+    equal: (a, b) => JSON.stringify(a) === JSON.stringify(b),
+  });
+  readonly returnQuery = computed(() => this.pageQuery().returns, {
+    equal: (a, b) => JSON.stringify(a) === JSON.stringify(b),
+  });
 
   private readonly context = ownerCompanyContext(this.session);
 
@@ -85,11 +129,15 @@ export class AssistanceSettlementsFacade {
   readonly cashReturns = this.returnList.view;
 
   updateLate(change: Partial<LateSettlementQuery>): void {
-    this.lateQuery.update((query) => ({ ...query, ...change }));
+    this.write({ ...this.pageQuery(), late: { ...this.lateQuery(), ...change } });
   }
 
   updateReturns(change: Partial<CashReturnQuery>): void {
-    this.returnQuery.update((query) => ({ ...query, ...change }));
+    this.write({ ...this.pageQuery(), returns: { ...this.returnQuery(), ...change } });
+  }
+
+  private write(query: SettlementsPageQuery): void {
+    writePageQuery(this.router, ASSISTANCE_SETTLEMENTS_PATH, settlementsParamsOf(query));
   }
 
   moreLate(): void {

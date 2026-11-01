@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { vi } from 'vitest';
 import ar from '../../../../i18n/ar.json';
@@ -117,6 +117,8 @@ async function render({
     caseDetail: vi.spyOn(instance, 'caseDetail'),
     cashReturnCases: vi.spyOn(instance, 'cashReturnCases'),
   };
+  // Entered through its own address (A11: the address holds the view's filters).
+  await TestBed.inject(Router).navigateByUrl('/billing/assistance/settlements');
   const fixture = TestBed.createComponent(AssistanceSettlementsPage);
   const element = fixture.nativeElement as HTMLElement;
   const settle = async () => {
@@ -164,12 +166,18 @@ const returnOf = (element: HTMLElement, n: number) =>
 describe('Assistance late settlements and cash returns page (A8)', { timeout: 60_000 }, () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it('labels the data as simulated, and links back to the directory', async () => {
+  it('labels the data as simulated, and links to the other Assistance views', async () => {
     const { element } = await render();
     expect(text(element.querySelector('h1'))).toBe(s.title);
     expect(text(element.querySelector('[data-demo]'))).toContain(en.shell.demo.badge);
     expect(text(element.querySelector('[data-simulation]'))).toBe(s.simulation);
-    expect(element.querySelector('[data-back]')?.getAttribute('href')).toBe('/billing/assistance');
+    // A11: the directory is one link away in the Assistance section navigation; this overview is the current section.
+    expect(element.querySelector('[data-section-link="cases"]')?.getAttribute('href')).toBe(
+      '/billing/assistance',
+    );
+    expect(element.querySelector('[aria-current="page"]')?.getAttribute('data-section-link')).toBe(
+      'settlements',
+    );
   });
 
   it('lists the late settlements newest recorded first: pending without basis, pending but blocked, applied', async () => {
@@ -350,6 +358,12 @@ describe('Assistance late settlements and cash returns page (A8)', { timeout: 60
       text(r.element.querySelector('[data-section="late-settlements"] nw-data-state')),
     ).toContain(t.states.unavailableTitle);
     expect(r.element.querySelector('[data-returns-unavailable]')).not.toBeNull();
+    // A11: the second list states the outage the same way, with its own retry (never a bare sentence, never "none").
+    expect(r.element.querySelector('[data-returns-unavailable]')?.tagName).toBe('NW-DATA-STATE');
+    expect(text(r.element.querySelector('[data-returns-unavailable]'))).toContain(
+      t.states.unavailableTitle,
+    );
+    expect(r.element.querySelector('[data-returns-unavailable] button')).not.toBeNull();
     const calls = r.spies.lateSettlements.mock.calls.length;
     r.element.querySelector<HTMLButtonElement>('nw-data-state button')!.click();
     await r.settle();
@@ -374,7 +388,10 @@ describe('Assistance late settlements and cash returns page (A8)', { timeout: 60
 
   it('is keyboard and screen-reader friendly, with references kept left-to-right', async () => {
     const { element } = await render();
-    expect(element.querySelector('a, button, select')?.hasAttribute('data-back')).toBe(true);
+    // The first stop is the Assistance section navigation (A11), before any filter or list.
+    expect(element.querySelector('a, button, select')?.hasAttribute('data-section-link')).toBe(
+      true,
+    );
     for (const focusable of element.querySelectorAll('a, select, [tabindex]'))
       expect(focusable.getAttribute('tabindex')).not.toBe('-1');
     for (const control of element.querySelectorAll('select'))

@@ -1,8 +1,5 @@
 @let rows = facade.obligations();
 @let query = facade.query();
-<a nw-link class="assistance-recovery__back" [routerLink]="directoryPath" data-back>
-  <nw-icon name="arrow-left" size="sm" />{{ 'assistanceCases.disputes.back' | transloco }}
-</a>
 
 <header class="assistance-recovery__header">
   <span class="assistance-recovery__mark" aria-hidden="true"
@@ -20,6 +17,7 @@
     </span>
   }
 </header>
+<adm-assistance-section-nav />
 
 @if (isDemo()) {
   <p class="assistance-recovery__note" role="note" data-simulation>
@@ -115,7 +113,12 @@
                   [attr.aria-labelledby]="'recovery-' + o.id"
                 >
                   <h3 class="assistance-recovery__item-title" [id]="'recovery-' + o.id">
-                    <a nw-link [routerLink]="casePath(o.assistanceRequestId)" data-case-link>
+                    <a
+                      nw-link
+                      [routerLink]="casePath(o.assistanceRequestId)"
+                      [state]="returnState()"
+                      data-case-link
+                    >
                       {{ 'assistanceCases.case.title' | transloco }}
                       <code
                         class="assistance-recovery__ref"

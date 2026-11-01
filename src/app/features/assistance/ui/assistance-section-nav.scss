@@ -1,0 +1,45 @@
+// The Assistance section navigation (A11): a row of links under the page header. On a narrow screen the row scrolls inside its
+// own box (never the page); the current link is underlined and heavier, so colour is never the only signal (§25).
+:host {
+  display: block;
+  min-inline-size: 0;
+}
+
+.assistance-section-nav__list {
+  display: flex;
+  gap: var(--nw-space-1);
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  border-block-end: 1px solid var(--nw-border-hairline);
+  scrollbar-width: thin;
+}
+
+.assistance-section-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  min-block-size: 2.75rem;
+  padding-inline: var(--nw-space-3);
+  border-block-end: 2px solid transparent;
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    color: var(--nw-text-primary);
+  }
+
+  // The global focus ring, drawn inside the link so the scrolling row never clips it.
+  &:focus-visible {
+    outline-offset: calc(var(--nw-focus-ring-width) * -1);
+    border-radius: var(--nw-radius-sm);
+  }
+
+  &--active {
+    border-block-end-color: var(--nw-text-brand);
+    color: var(--nw-text-primary);
+    font-weight: var(--nw-font-weight-semibold);
+  }
+}

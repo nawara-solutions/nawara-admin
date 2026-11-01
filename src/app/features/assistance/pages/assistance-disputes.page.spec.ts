@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { map } from 'rxjs';
 import { vi } from 'vitest';
@@ -141,6 +141,8 @@ async function render({
     disputeCases: vi.spyOn(instance, 'disputeCases'),
     cases: vi.spyOn(instance, 'cases'),
   };
+  // Entered through its own address (A11: the address holds the view's filters).
+  await TestBed.inject(Router).navigateByUrl('/billing/assistance/disputes');
   const fixture = TestBed.createComponent(AssistanceDisputesPage);
   const element = fixture.nativeElement as HTMLElement;
   const settle = async () => {
@@ -180,12 +182,18 @@ const exceptionRows = (element: HTMLElement) =>
 describe('Assistance disputes and exceptions page (A7)', { timeout: 60_000 }, () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it('labels the data as simulated, and links back to the directory', async () => {
+  it('labels the data as simulated, and links to the other Assistance views', async () => {
     const { element } = await render();
     expect(text(element.querySelector('h1'))).toBe(d.title);
     expect(text(element.querySelector('[data-demo]'))).toContain(en.shell.demo.badge);
     expect(text(element.querySelector('[data-simulation]'))).toBe(d.simulation);
-    expect(element.querySelector('[data-back]')?.getAttribute('href')).toBe('/billing/assistance');
+    // A11: the directory is one link away in the Assistance section navigation; this overview is the current section.
+    expect(element.querySelector('[data-section-link="cases"]')?.getAttribute('href')).toBe(
+      '/billing/assistance',
+    );
+    expect(element.querySelector('[aria-current="page"]')?.getAttribute('data-section-link')).toBe(
+      'disputes',
+    );
   });
 
   it('lists the open disputes by default, each linked to its case, with Core’s resolution path', async () => {
@@ -317,6 +325,12 @@ describe('Assistance disputes and exceptions page (A7)', { timeout: 60_000 }, ()
       t.states.unavailableTitle,
     );
     expect(r.element.querySelector('[data-exceptions-unavailable]')).not.toBeNull();
+    // A11: the second list states the outage the same way, with its own retry (never a bare sentence, never "none").
+    expect(r.element.querySelector('[data-exceptions-unavailable]')?.tagName).toBe('NW-DATA-STATE');
+    expect(text(r.element.querySelector('[data-exceptions-unavailable]'))).toContain(
+      t.states.unavailableTitle,
+    );
+    expect(r.element.querySelector('[data-exceptions-unavailable] button')).not.toBeNull();
     const calls = r.spies.disputeCases.mock.calls.length;
     r.element.querySelector<HTMLButtonElement>('nw-data-state button')!.click();
     await r.settle();
@@ -342,7 +356,10 @@ describe('Assistance disputes and exceptions page (A7)', { timeout: 60_000 }, ()
 
   it('is keyboard and screen-reader friendly, with references kept left-to-right', async () => {
     const { element } = await render();
-    expect(element.querySelector('a, button, select')?.hasAttribute('data-back')).toBe(true);
+    // The first stop is the Assistance section navigation (A11), before any filter or list.
+    expect(element.querySelector('a, button, select')?.hasAttribute('data-section-link')).toBe(
+      true,
+    );
     for (const focusable of element.querySelectorAll('a, select, [tabindex]'))
       expect(focusable.getAttribute('tabindex')).not.toBe('-1');
     for (const control of element.querySelectorAll('select'))

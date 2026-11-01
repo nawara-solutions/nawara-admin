@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  linkedSignal,
+  signal,
+} from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { organizationPath, platformPath } from '../../../core/context/scope-context';
@@ -9,7 +16,6 @@ import { NwButton } from '../../../shared/ui/button/button';
 import { NwDataState } from '../../../shared/ui/data-state/data-state';
 import { NwControl, NwFormField } from '../../../shared/ui/form-field/form-field';
 import { NwIcon } from '../../../shared/ui/icon/icon';
-import { NwLink } from '../../../shared/ui/link/link';
 import { NwStatusBadge, NwStatusTone } from '../../../shared/ui/status-badge/status-badge';
 import {
   AssistanceDirectoryFacade,
@@ -39,6 +45,8 @@ import {
   RecoveryObligationState,
   SettlementChannelState,
 } from '../domain/assistance.model';
+import { AssistanceSectionNav } from '../ui/assistance-section-nav';
+import { returnStateOf } from '../application/assistance-url-state';
 
 /** Catalog keys, listed in full (never built at runtime). */
 const STATE_KEYS = {
@@ -130,6 +138,7 @@ const shortRef = (id: string): string => id.slice(-8);
 @Component({
   selector: 'adm-assistance-directory-page',
   imports: [
+    AssistanceSectionNav,
     RouterLink,
     TranslocoPipe,
     NwButton,
@@ -138,7 +147,6 @@ const shortRef = (id: string): string => id.slice(-8);
     NwDatePipe,
     NwFormField,
     NwIcon,
-    NwLink,
     NwNumberPipe,
     NwStatusBadge,
     AssistanceSourceTag,
@@ -149,6 +157,7 @@ const shortRef = (id: string): string => id.slice(-8);
   host: { class: 'assistance' },
 })
 export class AssistanceDirectoryPage {
+  private readonly router = inject(Router);
   protected readonly facade = inject(AssistanceDirectoryFacade);
   protected readonly isDemo = inject(AuthSession).isDemo;
   protected readonly states = ASSISTANCE_REQUEST_STATES;
@@ -168,15 +177,9 @@ export class AssistanceDirectoryPage {
   protected readonly sources = STAGE_SOURCE;
   protected readonly settlementKeys = SETTLEMENT_STAGE_KEYS;
   protected readonly returnKeys = RETURN_STAGE_KEYS;
-  /** The disputes and exceptions overview (A7). */
-  protected readonly disputesPath = '/billing/assistance/disputes';
-  /** The late settlements and cash returns overview (A8). */
-  protected readonly settlementsPath = '/billing/assistance/settlements';
-  /** The recovery and surplus overview (A9). */
-  protected readonly recoveryPath = '/billing/assistance/recovery';
 
-  /** The search field's text, and whether its last submission was not a full case reference. */
-  protected readonly reference = signal('');
+  /** The search field's text (restored from the address, A11), and whether its last submission was not a full case reference. */
+  protected readonly reference = linkedSignal(() => this.facade.query().reference ?? '');
   protected readonly referenceInvalid = signal(false);
 
   protected readonly platformName = computed(() => {
@@ -189,6 +192,11 @@ export class AssistanceDirectoryPage {
   }
 
   /** One case's page (A5). */
+  /** The history state of a case link: the case page's back link returns here, with this view's filters (A11). */
+  protected returnState(): Record<string, string> {
+    return returnStateOf(this.router);
+  }
+
   protected casePath(requestId: string): string {
     return `/billing/assistance/${requestId}`;
   }

@@ -39,9 +39,13 @@
                   · {{ relationKeys[rel] | transloco }}</span
                 >
                 @if (casePath(row); as path) {
-                  &ngsp;<a nw-link [routerLink]="path" data-source-case>{{
-                    'assistanceCases.restrictions.openCase' | transloco
-                  }}</a>
+                  &ngsp;<a
+                    nw-link
+                    [routerLink]="path"
+                    [state]="linkState() ?? undefined"
+                    data-source-case
+                    >{{ 'assistanceCases.restrictions.openCase' | transloco }}</a
+                  >
                 }
               </dd>
               <dt>{{ 'assistanceCases.restrictions.sinceLabel' | transloco }}</dt>

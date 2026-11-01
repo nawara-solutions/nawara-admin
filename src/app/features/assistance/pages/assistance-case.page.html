@@ -1,6 +1,7 @@
 @let view = facade.view();
-<a nw-link class="assistance-case__back" [routerLink]="directoryPath" data-back>
-  <nw-icon name="arrow-left" size="sm" />{{ 'assistanceCases.case.back' | transloco }}
+@let back = backTo();
+<a nw-link class="assistance-case__back" [routerLink]="backTree()" [attr.data-back]="back.page">
+  <nw-icon name="arrow-left" size="sm" />{{ backKeys[back.page] | transloco }}
 </a>
 
 @switch (view.status) {
@@ -66,7 +67,11 @@
         {{ 'assistanceCases.restrictions.title' | transloco }}
       </h2>
       <p class="assistance-case__hint">{{ 'assistanceCases.restrictions.intro' | transloco }}</p>
-      <adm-assistance-restriction-panel [read]="record.restrictions" [detail]="detail" />
+      <adm-assistance-restriction-panel
+        [read]="record.restrictions"
+        [detail]="detail"
+        [linkState]="forwardState()"
+      />
     </section>
 
     <div class="assistance-case__grid">
