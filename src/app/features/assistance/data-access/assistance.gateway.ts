@@ -12,6 +12,7 @@ import {
   AssistanceDisputeView,
   AssistancePage,
   AssistancePageRequest,
+  AssistanceRestrictionsView,
   AssistanceSettlementView,
   AssistanceTimelineEntry,
   CashReturnFilter,
@@ -121,6 +122,15 @@ export abstract class AssistanceGateway {
     context: AssistanceReadContext,
     obligationId: string,
   ): Observable<RecoveryObligationDetail>;
+
+  /**
+   * An Organization's current restrictions (A10): T1, T2 and T3 rows with their source and since, in Core's order. Core's BIL-26
+   * owner read; an Organization outside the context is not found.
+   */
+  abstract organizationRestrictions(
+    context: AssistanceReadContext,
+    organizationId: string,
+  ): Observable<AssistanceRestrictionsView>;
 }
 
 export type AssistanceRead = keyof AssistanceGateway;
@@ -130,7 +140,8 @@ export type AssistanceRead = keyof AssistanceGateway;
  * - `none`: no owner route at all;
  * - `byIdOnly`: an owner read by id exists, but no owner list to discover the ids (they surface only through BIL-33);
  * - `discoveryVia`: no own list; only SOME records surface as BIL-33 reconciliation cases: an UNAPPLIED late settlement
- *   (`late_assisted_settlement`), and an obligation only through a surplus (`recovery_surplus`, the surplus id), never all of them.
+ *   (`late_assisted_settlement`), and an obligation only through a surplus (`recovery_surplus`, the surplus id), never all of them;
+ * - `perOrganization`: an owner read of one Organization's records exists (BIL-26: the Owner of its Platform, live), A10.
  *
  * Real integration is `unavailable` for EVERY read: the missing contracts below, Core's Billing owner routes being development
  * and simulation only (each refuses in production), and the open browser session decision (D-A4).
@@ -148,6 +159,11 @@ export type AssistanceCoreRead =
       readonly route: string;
       readonly register: 'BIL-33';
       readonly followUp: 'CF-68' | 'CF-69';
+    }
+  | {
+      readonly core: 'perOrganization';
+      readonly route: string;
+      readonly register: 'BIL-26';
     };
 
 export interface AssistanceReadContract {
@@ -215,6 +231,17 @@ export const ASSISTANCE_READ_CONTRACTS: Readonly<Record<AssistanceRead, Assistan
     realIntegration: 'unavailable',
     blockedBy: ['D-A4', 'development-only'],
   },
+  // The Owner of the Organization's Platform (live), its administrator, or a `restriction.read` service
+  // (`src/assistance/assistance-restriction.service.ts:13-24`). Not mounted in production.
+  organizationRestrictions: {
+    coreRead: {
+      core: 'perOrganization',
+      route: 'GET /billing/organizations/:organizationId/restrictions',
+      register: 'BIL-26',
+    },
+    realIntegration: 'unavailable',
+    blockedBy: ['D-A4', 'development-only'],
+  },
 };
 
 /** Every non-demo build: nothing to call, so every read is unavailable (never demo records, never a request). */
@@ -253,6 +280,9 @@ export class UnavailableAssistanceGateway extends AssistanceGateway {
     return throwError(adapterUnavailable);
   }
   recoveryObligation(): Observable<RecoveryObligationDetail> {
+    return throwError(adapterUnavailable);
+  }
+  organizationRestrictions(): Observable<AssistanceRestrictionsView> {
     return throwError(adapterUnavailable);
   }
 }

@@ -113,6 +113,12 @@
             }}</span
             >&ngsp;
           }
+          @if (surplus.externalRecordedAt !== null) {
+            <span class="assistance-recovery-standing__secondary" data-external-evidence>{{
+              'assistanceCases.recovery.externalEvidence' | transloco: { followUp: fileFollowUp }
+            }}</span
+            >&ngsp;
+          }
         </li>
       }
     </ul>

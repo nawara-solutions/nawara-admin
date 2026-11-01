@@ -1,0 +1,107 @@
+// One case's history (A5, A10). Each source has its own icon, label and edge style: colour is never the only signal (§25).
+:host {
+  display: grid;
+  gap: var(--nw-space-3);
+  container-type: inline-size;
+}
+
+.assistance-history__legend {
+  display: grid;
+  gap: var(--nw-space-2);
+  margin: 0;
+  padding: 0;
+  font-size: var(--nw-text-size-sm);
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nw-space-1) var(--nw-space-2);
+  }
+}
+
+.assistance-history__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--nw-space-3) var(--nw-space-5);
+}
+
+.assistance-history__order {
+  flex: 0 1 18rem;
+  min-inline-size: 0;
+}
+
+.assistance-history__sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nw-space-2) var(--nw-space-4);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: var(--nw-text-size-sm);
+}
+
+.assistance-history__label {
+  margin-block-end: var(--nw-space-1);
+  padding: 0;
+  color: var(--nw-text-secondary);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.assistance-history__secondary {
+  margin: 0;
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+
+.assistance-history__timeline {
+  display: grid;
+  gap: var(--nw-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.assistance-history__event {
+  display: grid;
+  justify-items: start;
+  gap: var(--nw-space-1);
+  padding-block: var(--nw-space-2);
+  padding-inline: var(--nw-space-3) 0;
+  border-inline-start: 3px solid var(--nw-border-default);
+  font-size: var(--nw-text-size-sm);
+
+  &--fact {
+    border-inline-start-color: var(--nw-status-success-fg);
+  }
+
+  &--report {
+    border-inline-start-style: dashed;
+    border-inline-start-color: var(--nw-status-warning-fg);
+  }
+
+  &--decision {
+    border-inline-start-color: var(--nw-text-brand);
+  }
+
+  &--derived {
+    border-inline-start-style: dotted;
+  }
+}
+
+.assistance-history__event-title {
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.assistance-history__standing {
+  color: var(--nw-text-secondary);
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+@container (max-width: 36rem) {
+  .assistance-history__order {
+    flex-basis: 100%;
+  }
+}

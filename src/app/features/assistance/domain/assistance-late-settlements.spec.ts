@@ -30,6 +30,7 @@ const late = (patch: Partial<LateSettlementDetail> = {}): LateSettlementDetail =
   applied: false,
   platformId: caseOf(11).request.platformId,
   organizationId: caseOf(11).request.organizationId,
+  paymentRequestId: 'pr-1',
   recordedAt: '2026-10-29T10:00:00.000Z',
   settledAt: '2026-10-29T09:00:00.000Z',
   attestedAt: '2026-10-29T11:00:00.000Z',

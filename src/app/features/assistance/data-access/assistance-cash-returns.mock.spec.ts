@@ -87,9 +87,9 @@ describe('MockAssistanceGateway (A8): the cash-return projection', () => {
     const { gateway } = setUp();
     const page = await firstValueFrom(gateway.cashReturnCases(COMPANY, {}, FIRST_ASSISTANCE_PAGE));
     expect(page.next).toBeNull();
-    // Opened: case 11 at -46 h, 8 at -76 h, 12 at -144 h, 10 at -183 h, 7 at -224 h.
+    // Opened: case 11 at -46 h, 8 at -76 h, 12 at -144 h, 10 at -183 h, 15 at -184 h, 7 at -224 h.
     expect(page.items.map((r) => r.obligation.id)).toEqual(
-      [11, 8, 12, 10, 7].map((n) => obligationOf(n).id),
+      [11, 8, 12, 10, 15, 7].map((n) => obligationOf(n).id),
     );
     for (const row of page.items)
       expect(row.case.requestId).toBe(row.obligation.assistanceRequestId);
@@ -103,7 +103,7 @@ describe('MockAssistanceGateway (A8): the cash-return projection', () => {
       open: [11, 8],
       return_reported: [10],
       confirmed_returned: [7],
-      superseded_by_settlement: [12],
+      superseded_by_settlement: [12, 15],
     } as const;
     for (const state of CASH_RETURN_STATES)
       expect([state, await ids(gateway, { state })]).toEqual([
@@ -112,7 +112,7 @@ describe('MockAssistanceGateway (A8): the cash-return projection', () => {
       ]);
     expect(await ids(gateway, { disputed: true })).toEqual([8, 10].map((n) => obligationOf(n).id));
     expect(await ids(gateway, { disputed: false })).toEqual(
-      [11, 12, 7].map((n) => obligationOf(n).id),
+      [11, 12, 15, 7].map((n) => obligationOf(n).id),
     );
     expect(await ids(gateway, { state: 'return_reported', disputed: true })).toEqual([
       obligationOf(10).id,
@@ -130,10 +130,10 @@ describe('MockAssistanceGateway (A8): the cash-return projection', () => {
     const third = await firstValueFrom(
       gateway.cashReturnCases(COMPANY, {}, { after: second.next, limit: 2 }),
     );
-    expect([first, second, third].map((p) => p.items.length)).toEqual([2, 2, 1]);
+    expect([first, second, third].map((p) => p.items.length)).toEqual([2, 2, 2]);
     expect(third.next).toBeNull();
     expect([...first.items, ...second.items, ...third.items].map((r) => r.obligation.id)).toEqual(
-      [11, 8, 12, 10, 7].map((n) => obligationOf(n).id),
+      [11, 8, 12, 10, 15, 7].map((n) => obligationOf(n).id),
     );
     for (const request of [
       { after: null, limit: 0 },

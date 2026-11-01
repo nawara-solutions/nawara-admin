@@ -8,7 +8,7 @@ import {
   demoAssistanceCases,
 } from '../../../demo/world/assistance/assistance.seed';
 import { DemoWorld } from '../../../demo/world/demo-world';
-import { grantsOf, isCompanyPlatform } from '../../../demo/world/selectors';
+import { grantsOf, isCompanyPlatform, organizationsOfCompany } from '../../../demo/world/selectors';
 import { NW_CLOCK } from '../../../shared/format/clock';
 import {
   AssistanceReadContext,
@@ -27,6 +27,7 @@ import {
   AssistanceDisputeView,
   AssistancePage,
   AssistancePageRequest,
+  AssistanceRestrictionsView,
   AssistanceSettlementView,
   AssistanceTimelineEntry,
   CashReturnFilter,
@@ -42,6 +43,7 @@ import {
 import {
   SETTLEMENT_CHANNEL_STATES,
   AssistanceRestriction,
+  AssistanceRestrictionRow,
   CashReturnObligation,
   LateSettlement,
   RecoveryObligation,
@@ -71,23 +73,49 @@ const INVALID: AppError = {
 };
 
 /**
- * What Core derives for an Organization (billing-service `0039_recovery.sql`, `billing_assistance_restrictions`), at `now`:
- * T1 a collected request past its `settleBy`; T2 an open or reported cash return; T3 an open recovery obligation. In order.
+ * The rows Core derives for an Organization (billing-service `billing_assistance_restrictions`, `0032` as replaced by `0039:425-440`),
+ * at `now`, as BIL-26 states them (A10): T1 a collected request past its `settleBy` (source: the request, since: `settleBy`); T2 an open
+ * or reported cash return (the obligation, its opening); T3 an open recovery obligation (the obligation, its opening). Ordered by kind,
+ * then `since`, then `sourceId`, like Core. Nothing here clears a restriction: a row exists exactly while its source qualifies.
  */
+export function demoRestrictionRowsOf(
+  cases: readonly DemoAssistanceCase[],
+  organizationId: string,
+  now: number,
+): readonly AssistanceRestrictionRow[] {
+  const mine = cases.filter((c) => c.request.organizationId === organizationId);
+  const rows: AssistanceRestrictionRow[] = [
+    ...mine
+      .filter((c) => overdue(c, now))
+      .map((c) => ({
+        kind: 'T1' as const,
+        sourceId: c.request.id,
+        since: c.request.collection!.settleBy,
+      })),
+    ...mine.flatMap((c) =>
+      c.cashReturns
+        .filter((o) => o.state === 'open' || o.state === 'return_reported')
+        .map((o) => ({ kind: 'T2' as const, sourceId: o.id, since: o.openedAt })),
+    ),
+    ...mine
+      .filter((c) => c.recovery?.state === 'open')
+      .map((c) => ({ kind: 'T3' as const, sourceId: c.recovery!.id, since: c.recovery!.openedAt })),
+  ];
+  return rows.sort(
+    (a, b) =>
+      a.kind.localeCompare(b.kind) ||
+      a.since.localeCompare(b.since) ||
+      a.sourceId.localeCompare(b.sourceId),
+  );
+}
+
+/** The kinds of those rows, distinct and in order: the case read's summary of the same model (never a second derivation). */
 export function demoRestrictionsOf(
   cases: readonly DemoAssistanceCase[],
   organizationId: string,
   now: number,
 ): readonly AssistanceRestriction[] {
-  const mine = cases.filter((c) => c.request.organizationId === organizationId);
-  const kinds: AssistanceRestriction[] = [];
-  if (mine.some((c) => overdue(c, now))) kinds.push('T1');
-  if (
-    mine.some((c) => c.cashReturns.some((o) => o.state === 'open' || o.state === 'return_reported'))
-  )
-    kinds.push('T2');
-  if (mine.some((c) => c.recovery?.state === 'open')) kinds.push('T3');
-  return kinds;
+  return [...new Set(demoRestrictionRowsOf(cases, organizationId, now).map((r) => r.kind))];
 }
 
 /** Core's T1 source: a collected request whose `settleBy` has passed. */
@@ -379,6 +407,22 @@ export class MockAssistanceGateway extends AssistanceGateway {
     return this.read(context, (cases) => {
       const id = selectionId({ kind: 'recoveryObligation', obligationId });
       return cases.find((c) => c.recovery !== null && c.recovery.id === id)?.recovery ?? NOT_FOUND;
+    });
+  }
+
+  organizationRestrictions(
+    context: AssistanceReadContext,
+    organizationId: string,
+  ): Observable<AssistanceRestrictionsView> {
+    return this.read(context, (cases, now) => {
+      // Core's one 404: a malformed id, an unknown Organization, another Company's, or one outside the context's Platform.
+      const id = selectionId({ kind: 'organization', organizationId });
+      const organization = organizationsOfCompany(this.world.snapshot()).find((o) => o.id === id);
+      if (organization === undefined || !recordInContext(context, organization)) return NOT_FOUND;
+      return {
+        organizationId: organization.id,
+        restrictions: demoRestrictionRowsOf(cases, organization.id, now),
+      };
     });
   }
 

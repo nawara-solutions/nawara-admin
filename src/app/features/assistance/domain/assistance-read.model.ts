@@ -10,6 +10,7 @@ import {
   AssistanceRequest,
   AssistanceRequestState,
   AssistanceRestriction,
+  AssistanceRestrictionRow,
   CASH_RETURN_STATES,
   CashReturnObligation,
   CashReturnState,
@@ -203,6 +204,16 @@ export interface AssistanceCaseDetail {
   readonly overdue: boolean | null;
 }
 
+/**
+ * An Organization's current restrictions (A10), as Core's BIL-26 owner read answers them
+ * (`GET /billing/organizations/:organizationId/restrictions`, `assistance-restriction.service.ts:13-24`): read at Billing's current
+ * clock, never cached, never computed by Admin. Empty when the Organization is unrestricted.
+ */
+export interface AssistanceRestrictionsView {
+  readonly organizationId: OrganizationId;
+  readonly restrictions: readonly AssistanceRestrictionRow[];
+}
+
 /** Who stated an item of the history. `core`: Billing itself (a sweep, a deadline). */
 export type AssistanceTimelineActor = 'beneficiary' | 'organization_actor' | 'owner' | 'core';
 
@@ -277,6 +288,8 @@ export interface AssistanceDisputeView {
 export interface LateSettlementDetail extends LateSettlement {
   readonly platformId: PlatformId;
   readonly organizationId: OrganizationId;
+  /** The payment request whose Payment-verified late success this is (BIL-32 read, `late-settlement.service.ts:162`), A10. */
+  readonly paymentRequestId: string;
   readonly recordedAt: string;
   /** The original instant of the late success, or `null` when Core cannot state it. */
   readonly settledAt: string | null;
@@ -290,8 +303,16 @@ export interface LateSettlementDetail extends LateSettlement {
     readonly purchaseId: string | null;
     readonly supersededObligationId: string | null;
   } | null;
-  /** File evidence references only: Admin has no human File path (CF-71). */
-  readonly evidence: readonly { readonly grantId: string; readonly verifiedAt: string }[];
+  /**
+   * Path B File evidence, as BIL-32 states it (`late-settlement.service.ts:158`, `:171`): REFERENCES only. `grantId` is File's
+   * `settlement_evidence` grant to Billing and `fileId` the file it grants; `verifiedAt` is when Billing verified the grant live, never
+   * a verification of the file's content. Admin has no human File path, so no file can be opened or downloaded (CF-71).
+   */
+  readonly evidence: readonly {
+    readonly grantId: string;
+    readonly fileId: string;
+    readonly verifiedAt: string;
+  }[];
   readonly refundCases: readonly { readonly id: string; readonly status: string }[];
 }
 

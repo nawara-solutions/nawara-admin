@@ -1,0 +1,76 @@
+@let r = read();
+@switch (r.status) {
+  @case ('unavailable') {
+    <p class="assistance-restriction__unavailable" role="note" data-restrictions-unavailable>
+      <nw-icon name="cloud-off" size="sm" />
+      <span>{{ 'assistanceCases.restrictions.unavailable' | transloco }}</span>
+    </p>
+  }
+  @case ('ready') {
+    @let rows = r.view.restrictions;
+    @if (rows.length === 0) {
+      <p class="assistance-restriction__secondary" data-restrictions-none>
+        {{ 'assistanceCases.oversight.noRestriction' | transloco }}
+      </p>
+    } @else {
+      <ul class="assistance-restriction__rows" role="list" data-restriction-rows>
+        @for (row of rows; track row.kind + row.sourceId) {
+          @let rel = relationOf(row);
+          <li
+            class="assistance-restriction__row"
+            [attr.data-restriction]="row.kind"
+            [attr.data-relation]="rel"
+          >
+            <p class="assistance-restriction__head">
+              <nw-status-badge tone="warning">{{ row.kind }}</nw-status-badge
+              >&ngsp;
+              <span class="assistance-restriction__meaning">{{
+                kindKeys[row.kind] | transloco
+              }}</span
+              >&ngsp;
+              <adm-assistance-source-tag source="derived" />
+            </p>
+            <dl class="assistance-restriction__facts">
+              <dt>{{ 'assistanceCases.restrictions.sourceLabel' | transloco }}</dt>
+              <dd data-source-ref>
+                <span>{{ sourceKeys[source[row.kind]] | transloco }}&#32;</span>
+                <code dir="ltr" [attr.title]="row.sourceId">…{{ shortRef(row.sourceId) }}</code>
+                <span class="assistance-restriction__secondary">
+                  · {{ relationKeys[rel] | transloco }}</span
+                >
+                @if (casePath(row); as path) {
+                  &ngsp;<a nw-link [routerLink]="path" data-source-case>{{
+                    'assistanceCases.restrictions.openCase' | transloco
+                  }}</a>
+                }
+              </dd>
+              <dt>{{ 'assistanceCases.restrictions.sinceLabel' | transloco }}</dt>
+              <dd data-since>
+                <time [attr.datetime]="row.since">{{
+                  sinceKeys[since[row.kind]]
+                    | transloco: { date: (row.since | nwDate: 'date-time') }
+                }}</time>
+              </dd>
+              <dt>{{ 'assistanceCases.restrictions.endsLabel' | transloco }}</dt>
+              <dd data-ends>{{ endsKeys[ends[row.kind]] | transloco }}</dd>
+            </dl>
+          </li>
+        }
+      </ul>
+    }
+    <p class="assistance-restriction__hint" data-restriction-scope>
+      {{ 'assistanceCases.restrictions.scope' | transloco }}
+    </p>
+  }
+}
+
+<div class="assistance-restriction__block" data-not-restrictions>
+  <h3 class="assistance-restriction__subtitle">
+    {{ 'assistanceCases.restrictions.notTitle' | transloco }}
+  </h3>
+  <ul class="assistance-restriction__list" role="list">
+    @for (item of notRestrictions; track item) {
+      <li [attr.data-not]="item">{{ notKeys[item] | transloco }}</li>
+    }
+  </ul>
+</div>

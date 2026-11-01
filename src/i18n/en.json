@@ -2448,8 +2448,7 @@
       "restriction": {
         "t1": "A collected request is past its settlement deadline.",
         "t2": "A cash return is owed.",
-        "t3": "A recovery obligation is open.",
-        "scope": "Restrictions block new assistance requests of this Organization only; settling and returning stay possible."
+        "t3": "A recovery obligation is open."
       },
       "cashReturn": {
         "title": "Cash return",
@@ -2881,6 +2880,116 @@
         "recovered": "Fully recovered",
         "surplusExternal": "The owner recorded a repayment outside Nawara Core",
         "surplusConfirmed": "The Organization confirmed the repayment"
+      },
+      "externalEvidence": "File evidence verified by Nawara Core; its reference is not in the owner read ({{followUp}})."
+    },
+    "restrictions": {
+      "title": "Restrictions on this Organization",
+      "intro": "What Nawara Core restricts for the case’s Organization right now, each with the record it rests on. Admin derives, lifts and predicts nothing.",
+      "unavailable": "The Organization’s restrictions could not be read. This does not mean there are none.",
+      "sourceLabel": "Rests on",
+      "sinceLabel": "Since",
+      "endsLabel": "Ends",
+      "openCase": "Open that case",
+      "scope": "Restrictions block new assistance requests of this Organization only; settling, returning cash and recovering stay possible. Nawara Core lifts each one exactly when its record no longer qualifies: there is no timer and no manual clearance.",
+      "notTitle": "Not restrictions",
+      "source": {
+        "request": "Assistance request",
+        "cashReturn": "Cash-return obligation",
+        "recovery": "Recovery obligation"
+      },
+      "since": {
+        "deadlinePassed": "Settlement deadline passed on {{date}}",
+        "obligationOpened": "Obligation opened on {{date}}"
+      },
+      "relation": {
+        "thisCase": "this case",
+        "otherCase": "another case of this Organization"
+      },
+      "not": {
+        "assistanceDispute": "An open assistance dispute: it holds some steps of its own case (see Disputes), never new requests of the Organization.",
+        "paymentDispute": "A Payment dispute (a card chargeback): it belongs to Payment and can hold a refund, not an assistance request. Only a full, final lost chargeback of an assisted purchase leads, through a recovery obligation, to T3.",
+        "fraudHold": "A fraud hold: a separate owner control, not an assistance restriction.",
+        "inactivity": "Organization inactivity (D6): reserved in Nawara Core and never returned."
+      }
+    },
+    "evidence": {
+      "title": "Evidence and references",
+      "intro": "Every piece of evidence Nawara Core holds about this case, oldest recorded first: who stated it, where it comes from, and the references Core exposes.",
+      "filePath": "Files cannot be uploaded, opened or downloaded in Nawara Admin: Nawara Core has no human File path yet ({{followUp}}). A File reference is an id, never a document.",
+      "none": "No evidence is recorded for this case yet.",
+      "counts": "Pieces of evidence: {{total}} · File references: {{references}} · Files not in the owner read: {{notInRead}}",
+      "recordedAt": "recorded {{date}}",
+      "timeNotStated": "time not stated by Nawara Core",
+      "never": "Evidence is read, never added or changed here. A report is never a payment, and a File reference is never proof of what the file contains.",
+      "verifiedOn": "grant verified {{date}}",
+      "referenceOnly": "References only: the files cannot be opened here.",
+      "kind": {
+        "collectionReport": "Cash collection report",
+        "returnReport": "Cash return report",
+        "returnConfirmation": "Return confirmed by the beneficiary",
+        "disputeFiling": "Dispute filed",
+        "disputeResponse": "Organization’s answer to the dispute",
+        "correction": "Owner time correction",
+        "lateSuccess": "Verified late payment",
+        "lateAttestation": "Beneficiary’s statement on the cash",
+        "lateApplication": "Late settlement applied",
+        "lateFileGrant": "File evidence for the application",
+        "recoveryPayment": "Verified recovery payment",
+        "surplusExternalRecord": "External surplus repayment recorded",
+        "surplusConfirmation": "Surplus repayment confirmed by the Organization",
+        "surplusRefund": "Surplus refunded"
+      },
+      "reference": {
+        "record": "Record",
+        "actor": "Reporter",
+        "fileGrant": "File grant",
+        "file": "File",
+        "receipt": "Authorization receipt",
+        "purchase": "Purchase",
+        "supersededObligation": "Replaced cash return",
+        "paymentRequest": "Payment request",
+        "refundCase": "Refund case"
+      },
+      "file": {
+        "none": "No file: the record itself is the evidence.",
+        "reference": "File reference only: Nawara Core verified the grant, not the file’s content; it cannot be opened here ({{followUp}}).",
+        "notInRead": "Nawara Core verified a File grant when this was recorded, but the owner read does not return its reference ({{followUp}})."
+      },
+      "statement": {
+        "correction": "{{field}}: {{from}} → {{to}} (the original report is kept)",
+        "disputeReason": "Reason: {{reason}} (a closed reason; no text or attachment)"
+      },
+      "by": {
+        "beneficiary": "Beneficiary",
+        "organizationActor": "Organization administrator",
+        "owner": "Company owner",
+        "core": "Nawara Core"
+      }
+    },
+    "history": {
+      "intro": "Ordered by when each event happened or by when Nawara Core recorded it. A reported time can be earlier than its recording; both are shown.",
+      "show": "Show",
+      "sourceCount": "{{source}} ({{count}})",
+      "shown": "Showing {{shown}} of {{total}} events",
+      "filteredEmpty": "No event matches the sources chosen.",
+      "order": {
+        "label": "Order",
+        "occurred": "When it happened",
+        "recorded": "When Nawara Core recorded it"
+      },
+      "standing": {
+        "verifiedFinancial": "Verified by Payment.",
+        "verifiedNoPayment": "Verified by Payment: no money moved.",
+        "reportedOnly": "A statement kept as evidence: never a payment or a confirmation of money.",
+        "ownerDecision": "An owner decision recorded by Nawara Core.",
+        "coreDerived": "Derived by Nawara Core from the records."
+      },
+      "explain": {
+        "fact": "Payment verified it.",
+        "report": "Someone states it; Nawara Core keeps it as evidence.",
+        "decision": "The Company owner decided it.",
+        "derived": "Nawara Core derived it from the other records."
       }
     }
   },

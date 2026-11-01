@@ -44,6 +44,15 @@
   `refundCaseId`. Verified: a recovery payment is a Payment-verified success or (S6h-B) verified late success, split by the database
   into principal and surplus; a surplus is owed to the Organization, never revenue. Owner discovery stays **CF-68** (and **CF-77**); no
   new Core follow-up. Business rules: [`design/assistance-a9-recovery.md`](design/assistance-a9-recovery.md).
+- **Assistance A10 (2026-11-01), same Core revision `0044b20`:** the restriction read (BIL-26) and the evidence Core keeps were re-read
+  from source (`apps/billing-service/src/assistance/assistance-restriction.service.ts:13-24`, `assistance.controller.ts:452-476`,
+  `db/migrations/0032_assistance_restrictions.sql`, `0039_recovery.sql:276-283`, `:425-440`, `0040:116-122`,
+  `src/late-settlements/late-settlement.service.ts:150-174`, `src/recovery/recovery.service.ts:246-273`). BIL-26 is an **owner** read
+  (the Owner of the Organization's Platform, live; development only) of `{kind, sourceId, since}` rows: Admin models it
+  (`organizationRestrictions`), correcting the A7 note that no owner contract exposes `since` and `sourceId`. BIL-32 exposes each Path B
+  File grant's `fileId` and the late success's `paymentRequestId`; BIL-28 does **not** return the external surplus repayment's File grant.
+  Assistance disputes carry no free text or evidence store. Files stay references only (**CF-71**, unchanged); no new Core follow-up.
+  Business rules: [`design/assistance-a10-evidence.md`](design/assistance-a10-evidence.md).
 - **Precedence:** a service's OpenAPI (`GET /<service>/docs`) and Core ADRs win over this document. Report differences to Core.
 
 ---

@@ -56,6 +56,7 @@ describe('Assistance oversight (A6): each demo scenario, stage by stage', () => 
     12: ['reported', 'verifiedLate', 'met', 'superseded', 'none', false, false],
     13: ['reported', 'verified', 'met', 'none', 'open', false, true],
     14: ['reported', 'verified', 'met', 'none', 'recovered', false, false],
+    15: ['reported', 'verifiedLate', 'met', 'superseded', 'none', false, false],
   };
   for (const [n, row] of Object.entries(expected))
     it(`case ${n}`, () => {

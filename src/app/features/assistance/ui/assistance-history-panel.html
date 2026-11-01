@@ -1,0 +1,95 @@
+@let all = entries();
+<ul class="assistance-history__legend" role="list" data-legend>
+  @for (source of sources; track source) {
+    <li [attr.data-source]="source">
+      <adm-assistance-source-tag [source]="source" />&ngsp;
+      <span class="assistance-history__secondary">{{ explanationKeys[source] | transloco }}</span>
+    </li>
+  }
+</ul>
+
+@if (all.length === 0) {
+  <p class="assistance-history__secondary" data-timeline-empty>
+    {{ 'assistanceCases.case.timeline.empty' | transloco }}
+  </p>
+} @else {
+  <div class="assistance-history__controls" data-history-controls>
+    <nw-form-field
+      class="assistance-history__order"
+      [label]="'assistanceCases.history.order.label' | transloco"
+    >
+      <select nwControl aria-controls="case-history-list" (change)="onOrder($event)" data-order>
+        <option value="occurred" [selected]="order() === 'occurred'">
+          {{ orderKeys.occurred | transloco }}
+        </option>
+        <option value="recorded" [selected]="order() === 'recorded'">
+          {{ orderKeys.recorded | transloco }}
+        </option>
+      </select>
+    </nw-form-field>
+    <fieldset class="assistance-history__sources" data-source-filter>
+      <legend class="assistance-history__label">
+        {{ 'assistanceCases.history.show' | transloco }}
+      </legend>
+      @for (source of sources; track source) {
+        <nw-checkbox
+          [checked]="shown().has(source)"
+          (checkedChange)="toggle(source, $event)"
+          [attr.data-show]="source"
+        >
+          {{
+            'assistanceCases.history.sourceCount'
+              | transloco
+                : {
+                    source: (sourceKeys[source] | transloco),
+                    count: counts()[source],
+                  }
+          }}
+        </nw-checkbox>
+      }
+    </fieldset>
+  </div>
+  <p class="assistance-history__secondary" role="status" data-history-count>
+    {{
+      'assistanceCases.history.shown' | transloco: { shown: visible().length, total: all.length }
+    }}
+  </p>
+  @if (visible().length === 0) {
+    <p class="assistance-history__secondary" data-history-filtered-empty>
+      {{ 'assistanceCases.history.filteredEmpty' | transloco }}
+    </p>
+  } @else {
+    <ol class="assistance-history__timeline" id="case-history-list" data-timeline>
+      @for (entry of visible(); track entry.id) {
+        <li
+          class="assistance-history__event"
+          [class.assistance-history__event--fact]="entry.source === 'fact'"
+          [class.assistance-history__event--report]="entry.source === 'report'"
+          [class.assistance-history__event--decision]="entry.source === 'decision'"
+          [class.assistance-history__event--derived]="entry.source === 'derived'"
+          [attr.data-source]="entry.source"
+          [attr.data-kind]="entry.kind"
+        >
+          <adm-assistance-source-tag [source]="entry.source" />&ngsp;
+          <span class="assistance-history__event-title">{{
+            kindKeys[entry.kind] | transloco
+          }}</span>
+          <span class="assistance-history__secondary">
+            {{ actorKeys[entry.by] | transloco }} ·
+            <time [attr.datetime]="entry.at">{{ entry.at | nwDate: 'date-time' }}</time>
+            @if (recordedLater(entry)) {
+              ·
+              <span data-recorded-at>{{
+                'assistanceCases.case.timeline.recordedAt'
+                  | transloco: { date: (entry.recordedAt | nwDate: 'date-time') }
+              }}</span>
+            }
+          </span>
+          <span class="assistance-history__standing" [attr.data-standing]="standing[entry.kind]">{{
+            standingKeys[standing[entry.kind]] | transloco
+          }}</span>
+        </li>
+      }
+    </ol>
+  }
+}

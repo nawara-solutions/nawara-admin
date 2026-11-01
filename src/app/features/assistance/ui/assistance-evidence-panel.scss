@@ -1,0 +1,86 @@
+// One case's evidence register (A10): an item per piece of evidence. A file-backed item has a solid edge, a record-only one a
+// dashed edge, and each says so in words and with its own icon (never colour alone, §25).
+:host {
+  display: grid;
+  gap: var(--nw-space-3);
+  container-type: inline-size;
+  font-size: var(--nw-text-size-sm);
+}
+
+.assistance-evidence__note,
+.assistance-evidence__file {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  margin: 0;
+}
+
+.assistance-evidence__note {
+  padding: var(--nw-space-2) var(--nw-space-3);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-md);
+}
+
+.assistance-evidence__items {
+  display: grid;
+  gap: var(--nw-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.assistance-evidence__item {
+  display: grid;
+  gap: var(--nw-space-1);
+  padding: var(--nw-space-3);
+  border: 1px dashed var(--nw-border-default);
+  border-radius: var(--nw-radius-md);
+}
+
+.assistance-evidence__item--file {
+  border-style: solid;
+  border-inline-start-width: 3px;
+}
+
+.assistance-evidence__head,
+.assistance-evidence__statement {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-1) var(--nw-space-2);
+  margin: 0;
+}
+
+.assistance-evidence__title {
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.assistance-evidence__secondary,
+.assistance-evidence__hint,
+.assistance-evidence__file {
+  margin: 0;
+  color: var(--nw-text-secondary);
+}
+
+.assistance-evidence__refs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nw-space-1) var(--nw-space-3);
+  margin: 0;
+}
+
+.assistance-evidence__ref {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nw-space-1);
+  min-inline-size: 0;
+
+  dt {
+    color: var(--nw-text-secondary);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}

@@ -10,6 +10,7 @@ import {
   recoveryStanding,
   surplusStage,
 } from '../domain/assistance-recovery';
+import { EVIDENCE_FILE_FOLLOW_UP } from '../domain/assistance-evidence';
 import { RecoveryObligationDetail, RecoverySurplusView } from '../domain/assistance-read.model';
 import { Money } from '../domain/assistance.model';
 import { AssistanceMoneyPipe } from './assistance-money.pipe';
@@ -67,6 +68,8 @@ export class AssistanceRecoveryStanding {
   readonly headingLevel = input(4);
 
   protected readonly surplusKeys = SURPLUS_KEYS;
+  /** Path B's File evidence has no human path, and BIL-28 does not return its reference (A10). */
+  protected readonly fileFollowUp = EVIDENCE_FILE_FOLLOW_UP;
   protected readonly surplusTones = SURPLUS_TONES;
   protected readonly surplusSources = SURPLUS_STAGE_SOURCE;
   protected readonly historyKeys = HISTORY_KEYS;

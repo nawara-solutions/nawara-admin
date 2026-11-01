@@ -114,6 +114,19 @@ export type RecoveryObligationState = 'open' | 'recovered';
 /** Restrictions Core derives (never stored; block NEW requests only). D6 inactivity is not enforced at `0044b20` (V-4). */
 export type AssistanceRestriction = 'T1' | 'T2' | 'T3';
 
+/**
+ * One restriction row as Core's BIL-26 read states it (`src/assistance/assistance.controller.ts:452-456`, `RestrictionDto`; derived by
+ * `billing_assistance_restrictions`, `0032`/`0039`), A10:
+ * - `sourceId`: the assistance request (T1), the cash-return obligation (T2) or the recovery obligation (T3);
+ * - `since`: the request's `settleBy` (T1) or the obligation's opening (T2, T3).
+ * Core orders rows by kind, then `since`, then `sourceId`. `inactive` (D6) is a reserved kind Core never returns, so it is not modelled.
+ */
+export interface AssistanceRestrictionRow {
+  readonly kind: AssistanceRestriction;
+  readonly sourceId: string;
+  readonly since: string;
+}
+
 /** An amount in minor units with its ISO 4217 currency. */
 export interface Money {
   readonly amount: number;

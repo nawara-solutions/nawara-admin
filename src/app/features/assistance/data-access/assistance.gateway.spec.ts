@@ -13,6 +13,7 @@ import {
   AssistanceDisputeView,
   AssistancePage,
   AssistancePageRequest,
+  AssistanceRestrictionsView,
   AssistanceSettlementView,
   AssistanceTimelineEntry,
   FIRST_ASSISTANCE_PAGE,
@@ -61,6 +62,7 @@ const READS: Readonly<Record<AssistanceRead, (g: AssistanceGateway) => Observabl
   recoveryObligations: (g) =>
     g.recoveryObligations(CONTEXT, { state: 'open' }, FIRST_ASSISTANCE_PAGE),
   recoveryObligation: (g) => g.recoveryObligation(CONTEXT, ID),
+  organizationRestrictions: (g) => g.organizationRestrictions(CONTEXT, ID),
 };
 
 const readNames = (): string[] =>
@@ -133,7 +135,11 @@ describe('AssistanceGateway contract (Assistance A2)', () => {
         expect(contract.blockedBy, name).toContain(read.followUp);
       } else {
         // Every Core route named is an owner READ; none changes anything.
-        expect(read.route, name).toMatch(/^GET \/billing\/admin\//);
+        expect(read.route, name).toMatch(
+          read.core === 'perOrganization'
+            ? /^GET \/billing\/organizations\/:organizationId\//
+            : /^GET \/billing\/admin\//,
+        );
         expect(contract.blockedBy, name).toContain('development-only');
       }
     }
@@ -164,6 +170,17 @@ describe('AssistanceGateway contract (Assistance A2)', () => {
     expect(ASSISTANCE_READ_CONTRACTS.lateSettlements.blockedBy).toContain('CF-69');
     expect(ASSISTANCE_READ_CONTRACTS.recoveryObligations.blockedBy).toContain('CF-68');
     expect(ASSISTANCE_READ_CONTRACTS.timeline.blockedBy).toContain('CF-71');
+    // The one per-Organization owner read (A10): restrictions, BIL-26; only D-A4 and production refusal block it.
+    expect(byCore('perOrganization')).toEqual(['organizationRestrictions']);
+    expect(ASSISTANCE_READ_CONTRACTS.organizationRestrictions).toEqual({
+      coreRead: {
+        core: 'perOrganization',
+        route: 'GET /billing/organizations/:organizationId/restrictions',
+        register: 'BIL-26',
+      },
+      realIntegration: 'unavailable',
+      blockedBy: ['D-A4', 'development-only'],
+    });
   });
 
   it('is type-compatible with an adapter built on the A1 domain types', async () => {
@@ -212,6 +229,9 @@ describe('AssistanceGateway contract (Assistance A2)', () => {
         return EMPTY;
       }
       cashReturnCases(): Observable<AssistancePage<AssistanceCashReturnSummary>> {
+        return EMPTY;
+      }
+      organizationRestrictions(): Observable<AssistanceRestrictionsView> {
         return EMPTY;
       }
       lateSettlements(): Observable<AssistancePage<LateSettlement>> {

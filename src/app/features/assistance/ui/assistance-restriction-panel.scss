@@ -1,0 +1,92 @@
+// Core's restrictions on an Organization (A10): one card per row; its facts in two columns once the panel is wide enough.
+:host {
+  display: grid;
+  gap: var(--nw-space-3);
+  container-type: inline-size;
+  font-size: var(--nw-text-size-sm);
+}
+
+.assistance-restriction__rows {
+  display: grid;
+  gap: var(--nw-space-2);
+  margin: 0;
+  padding: 0;
+}
+
+.assistance-restriction__row {
+  display: grid;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3);
+  border: 1px solid var(--nw-border-default);
+  border-inline-start-width: 3px;
+  border-radius: var(--nw-radius-md);
+}
+
+.assistance-restriction__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-1) var(--nw-space-2);
+  margin: 0;
+}
+
+.assistance-restriction__meaning {
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.assistance-restriction__facts {
+  display: grid;
+  gap: var(--nw-space-1) var(--nw-space-3);
+  margin: 0;
+
+  dt {
+    color: var(--nw-text-secondary);
+  }
+
+  dd {
+    margin: 0;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.assistance-restriction__secondary,
+.assistance-restriction__hint {
+  color: var(--nw-text-secondary);
+}
+
+.assistance-restriction__hint {
+  margin: 0;
+}
+
+.assistance-restriction__unavailable {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  margin: 0;
+}
+
+.assistance-restriction__block {
+  display: grid;
+  gap: var(--nw-space-2);
+}
+
+.assistance-restriction__subtitle {
+  margin: 0;
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.assistance-restriction__list {
+  display: grid;
+  gap: var(--nw-space-1);
+  margin: 0;
+  padding-inline-start: var(--nw-space-4);
+  color: var(--nw-text-secondary);
+}
+
+@container (min-width: 32rem) {
+  .assistance-restriction__facts {
+    grid-template-columns: minmax(6rem, max-content) minmax(0, 1fr);
+  }
+}

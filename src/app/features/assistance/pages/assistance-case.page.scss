@@ -168,8 +168,7 @@
   gap: var(--nw-space-1);
 }
 
-.assistance-case__list,
-.assistance-case__legend {
+.assistance-case__list {
   display: grid;
   gap: var(--nw-space-2);
   font-size: var(--nw-text-size-sm);
@@ -180,50 +179,6 @@
     align-items: center;
     gap: var(--nw-space-2);
   }
-}
-
-.assistance-case__legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--nw-space-2) var(--nw-space-4);
-  color: var(--nw-text-secondary);
-}
-
-.assistance-case__timeline {
-  display: grid;
-  gap: var(--nw-space-2);
-}
-
-// Each source has its own icon, label and edge style: colour is never the only signal (§25).
-.assistance-case__event {
-  display: grid;
-  justify-items: start;
-  gap: var(--nw-space-1);
-  padding-block: var(--nw-space-2);
-  padding-inline: var(--nw-space-3) 0;
-  border-inline-start: 3px solid var(--nw-border-default);
-  font-size: var(--nw-text-size-sm);
-
-  &--fact {
-    border-inline-start-color: var(--nw-status-success-fg);
-  }
-
-  &--report {
-    border-inline-start-style: dashed;
-    border-inline-start-color: var(--nw-status-warning-fg);
-  }
-
-  &--decision {
-    border-inline-start-color: var(--nw-text-brand);
-  }
-
-  &--derived {
-    border-inline-start-style: dotted;
-  }
-}
-
-.assistance-case__event-title {
-  font-weight: var(--nw-font-weight-semibold);
 }
 
 @container (min-width: 40rem) {

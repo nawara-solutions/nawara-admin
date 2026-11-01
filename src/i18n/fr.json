@@ -2448,8 +2448,7 @@
       "restriction": {
         "t1": "Une demande collectée a dépassé son délai de règlement.",
         "t2": "Une restitution d’espèces est due.",
-        "t3": "Une obligation de recouvrement est ouverte.",
-        "scope": "Les restrictions bloquent uniquement les nouvelles demandes d’assistance de cette organisation ; régler et restituer restent possibles."
+        "t3": "Une obligation de recouvrement est ouverte."
       },
       "cashReturn": {
         "title": "Restitution des espèces",
@@ -2881,6 +2880,116 @@
         "recovered": "Entièrement recouvrée",
         "surplusExternal": "Le propriétaire a enregistré un remboursement hors de Nawara Core",
         "surplusConfirmed": "L’organisation a confirmé le remboursement"
+      },
+      "externalEvidence": "Fichier de preuve vérifié par Nawara Core ; sa référence ne figure pas dans la lecture propriétaire ({{followUp}})."
+    },
+    "restrictions": {
+      "title": "Restrictions de cette organisation",
+      "intro": "Ce que Nawara Core restreint actuellement pour l’organisation du dossier, avec l’enregistrement sur lequel chaque restriction repose. Admin n’en déduit, n’en lève et n’en prévoit aucune.",
+      "unavailable": "Les restrictions de l’organisation n’ont pas pu être lues. Cela ne signifie pas qu’il n’y en a aucune.",
+      "sourceLabel": "Repose sur",
+      "sinceLabel": "Depuis",
+      "endsLabel": "Fin",
+      "openCase": "Ouvrir ce dossier",
+      "scope": "Les restrictions bloquent uniquement les nouvelles demandes d’assistance de cette organisation ; le règlement, la restitution des espèces et le recouvrement restent possibles. Nawara Core lève chacune exactement lorsque son enregistrement ne la justifie plus : aucun délai, aucune levée manuelle.",
+      "notTitle": "Ce ne sont pas des restrictions",
+      "source": {
+        "request": "Demande d’assistance",
+        "cashReturn": "Obligation de restitution",
+        "recovery": "Obligation de recouvrement"
+      },
+      "since": {
+        "deadlinePassed": "Délai de règlement dépassé le {{date}}",
+        "obligationOpened": "Obligation ouverte le {{date}}"
+      },
+      "relation": {
+        "thisCase": "ce dossier",
+        "otherCase": "un autre dossier de cette organisation"
+      },
+      "not": {
+        "assistanceDispute": "Une contestation d’assistance ouverte : elle suspend certaines étapes de son propre dossier (voir Contestations), jamais les nouvelles demandes de l’organisation.",
+        "paymentDispute": "Un litige de paiement (une rétrofacturation) : il relève de Payment et peut suspendre un remboursement, pas une demande d’assistance. Seule une rétrofacturation totale, définitive et perdue d’un achat assisté mène, par une obligation de recouvrement, à T3.",
+        "fraudHold": "Un blocage pour fraude : un contrôle distinct du propriétaire, pas une restriction d’assistance.",
+        "inactivity": "L’inactivité de l’organisation (D6) : réservée dans Nawara Core et jamais renvoyée."
+      }
+    },
+    "evidence": {
+      "title": "Preuves et références",
+      "intro": "Chaque preuve que Nawara Core détient sur ce dossier, de la plus ancienne enregistrée à la plus récente : qui l’a déclarée, d’où elle provient et les références que Core expose.",
+      "filePath": "Aucun fichier ne peut être téléversé, ouvert ou téléchargé dans Nawara Admin : Nawara Core n’a pas encore d’accès humain aux fichiers ({{followUp}}). Une référence de fichier est un identifiant, jamais un document.",
+      "none": "Aucune preuve n’est encore enregistrée pour ce dossier.",
+      "counts": "Preuves : {{total}} · Références de fichiers : {{references}} · Fichiers absents de la lecture propriétaire : {{notInRead}}",
+      "recordedAt": "enregistré le {{date}}",
+      "timeNotStated": "heure non indiquée par Nawara Core",
+      "never": "Les preuves sont consultées ici, jamais ajoutées ni modifiées. Une déclaration n’est jamais un paiement, et une référence de fichier ne prouve jamais ce que contient le fichier.",
+      "verifiedOn": "autorisation vérifiée le {{date}}",
+      "referenceOnly": "Références uniquement : les fichiers ne peuvent pas être ouverts ici.",
+      "kind": {
+        "collectionReport": "Déclaration de collecte en espèces",
+        "returnReport": "Déclaration de restitution des espèces",
+        "returnConfirmation": "Restitution confirmée par le bénéficiaire",
+        "disputeFiling": "Contestation déposée",
+        "disputeResponse": "Réponse de l’organisation à la contestation",
+        "correction": "Correction d’heure par le propriétaire",
+        "lateSuccess": "Paiement tardif vérifié",
+        "lateAttestation": "Déclaration du bénéficiaire sur les espèces",
+        "lateApplication": "Règlement tardif appliqué",
+        "lateFileGrant": "Fichier de preuve de l’application",
+        "recoveryPayment": "Paiement de recouvrement vérifié",
+        "surplusExternalRecord": "Remboursement externe de l’excédent enregistré",
+        "surplusConfirmation": "Remboursement de l’excédent confirmé par l’organisation",
+        "surplusRefund": "Excédent remboursé"
+      },
+      "reference": {
+        "record": "Enregistrement",
+        "actor": "Déclarant",
+        "fileGrant": "Autorisation de fichier",
+        "file": "Fichier",
+        "receipt": "Reçu d’autorisation",
+        "purchase": "Achat",
+        "supersededObligation": "Restitution remplacée",
+        "paymentRequest": "Demande de paiement",
+        "refundCase": "Dossier de remboursement"
+      },
+      "file": {
+        "none": "Aucun fichier : l’enregistrement lui-même est la preuve.",
+        "reference": "Référence de fichier uniquement : Nawara Core a vérifié l’autorisation, pas le contenu du fichier ; il ne peut pas être ouvert ici ({{followUp}}).",
+        "notInRead": "Nawara Core a vérifié une autorisation de fichier lors de l’enregistrement, mais la lecture propriétaire ne renvoie pas sa référence ({{followUp}})."
+      },
+      "statement": {
+        "correction": "{{field}} : {{from}} → {{to}} (la déclaration d’origine est conservée)",
+        "disputeReason": "Motif : {{reason}} (un motif fermé ; ni texte ni pièce jointe)"
+      },
+      "by": {
+        "beneficiary": "Bénéficiaire",
+        "organizationActor": "Administrateur de l’organisation",
+        "owner": "Propriétaire de l’entreprise",
+        "core": "Nawara Core"
+      }
+    },
+    "history": {
+      "intro": "Trié selon le moment où chaque événement s’est produit ou celui où Nawara Core l’a enregistré. Une heure déclarée peut précéder son enregistrement ; les deux sont affichées.",
+      "show": "Afficher",
+      "sourceCount": "{{source}} ({{count}})",
+      "shown": "{{shown}} événements affichés sur {{total}}",
+      "filteredEmpty": "Aucun événement ne correspond aux sources choisies.",
+      "order": {
+        "label": "Ordre",
+        "occurred": "Date de l’événement",
+        "recorded": "Date d’enregistrement par Nawara Core"
+      },
+      "standing": {
+        "verifiedFinancial": "Vérifié par Payment.",
+        "verifiedNoPayment": "Vérifié par Payment : aucun argent n’a circulé.",
+        "reportedOnly": "Une déclaration conservée comme preuve : jamais un paiement ni une confirmation d’argent reçu.",
+        "ownerDecision": "Une décision du propriétaire enregistrée par Nawara Core.",
+        "coreDerived": "Déduit par Nawara Core à partir des enregistrements."
+      },
+      "explain": {
+        "fact": "Payment l’a vérifié.",
+        "report": "Quelqu’un le déclare ; Nawara Core le conserve comme preuve.",
+        "decision": "Le propriétaire de l’entreprise l’a décidé.",
+        "derived": "Nawara Core l’a déduit des autres enregistrements."
       }
     }
   },
