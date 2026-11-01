@@ -9,14 +9,15 @@ import {
 /**
  * The Nawara Admin logo (docs/BRAND.md §0). Since B1 (2026-11-01) the artwork is the blue-leaf "nawara admin" logo of the
  * owner's logo-family reference, cut from its pixels (tools/brand/extract_blue_leaf.py), never redrawn; provisional rasters
- * until official SVG masters exist. Its colours are the approved artwork and do not follow the accent palette.
+ * until official SVG masters exist. Its botanical symbol follows the selected accent palette; the lettering and the white
+ * details do not (abstracts/_logo.scss).
  *
  * - Without an option: the Admin symbol alone, icon only (scope switcher).
  * - `wordmark` (or `lockup`, the earlier name of the same thing): the "nawara admin" logo.
  * - `full` / `inline`: the logo with a live "SOLUTIONS" line beneath or beside it (the /foundation gallery only).
  *
- * The artwork is the `--nw-logo-admin` and `--nw-logo-admin-symbol` tokens (light or dark lettering per theme), drawn
- * inside the earlier logo boxes so callers keep their layout. The size follows `--nw-brand-mark-size`;
+ * The artwork is the `--nw-logo-admin-*` layers (lettering per theme, the symbol painted with `--nw-logo-accent`, its white
+ * details), drawn inside the earlier logo boxes so callers keep their layout. The size follows `--nw-brand-mark-size`;
  * `--nw-brand-mark-word-size` optionally sizes the word and its "SOLUTIONS" line alone. The logo never mirrors in RTL. The
  * kit owns no copy, so the accessible name is an input; the artwork is hidden from assistive technology, so the name is
  * announced once.

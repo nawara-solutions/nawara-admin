@@ -10,37 +10,40 @@
 
 ## B1. Current logo: the blue-leaf Nawara family (owner decision, 2026-11-01)
 
-The owner approved a new logo family (B1): **Nawara Admin**, **Nawara Solutions** and **Nawara ERP**, one blue leaf with
-circuit stems and a product glyph inside its upper leaf (people, puzzle, layers). **It replaces the floral-R logo of §0 in every
-logo placement and in the favicons.** The rest of §0 (palette, typefaces, the botanical illustrations, the eleven accent
-palettes) is unchanged.
+The owner approved a new logo family (B1): **Nawara Admin**, **Nawara Solutions** and **Nawara ERP**, one botanical symbol
+(a leaf with circuit stems, rings and a sprig) with a product glyph inside its upper leaf (people, puzzle, layers). **It
+replaces the floral-R logo of §0 in every logo placement and in the favicons.** The rest of §0 (palette, typefaces, the
+botanical illustrations, the eleven accent palettes) is unchanged.
+
+**Owner correction (same day):** the botanical symbol of every logo and favicon **follows the selected accent palette**, in
+light and dark; the lettering and the white details inside the leaf never change; the geometry is the approved extraction.
 
 | Item | Current (B1) | Provenance |
 |---|---|---|
 | Source | the owner's logo-family reference, `docs/brand/references/nawara-logo-family-2026-11-01.webp` (2000 × 667 WebP, flat ground `#fefefe`; leaf blue `#046efa` and lettering navy `#040b2d`, sampled medians) | owner, 2026-11-01. **No vector master exists in any Nawara repository** (Admin, nawara-frontend, nawara-core, ai-standard, nawara-ia, nawara-school, nawara-drive were searched) |
-| Method | **cut from the reference's pixels, never redrawn, traced or re-lettered** (owner decision B1, Option 1): colour-to-alpha against the measured ground, so edges keep their true ink colour with no halo; the white glyph inside the leaf keeps the reference's own pixels, opaque; stem rings and letter counters stay transparent. `tools/brand/extract_blue_leaf.py` | extracted 2026-11-01. **Provisional raster assets: official SVG masters are still needed** |
-| Admin logo | `public/brand/nawara-admin-logo.webp` (794 × 174, as in the reference) on light grounds; `nawara-admin-logo-on-dark.webp` on dark grounds, **derived**: the same pixels with only the navy lettering set to the dark theme's text colour `#ffffff`, the blue symbol unchanged | sign-in brand panel, phone sign-in header, minimal shell header, workspace sidebar (`nw-brand-mark`, `--nw-logo-admin`) |
-| Admin symbol | `public/brand/nawara-admin-symbol.webp` (200 × 163): the leaf, glyph, stems, rings and sprig alone; the neighbouring letters removed by colour | scope switcher (`nw-brand-mark` without options, `--nw-logo-admin-symbol`) and the favicon family |
-| Solutions logo | `public/brand/nawara-solutions-logo.webp` (891 × 174) and `-on-dark.webp` (derived, as above) | the copyright line of the sign-in pages: "© 2026" stays text at its existing size, followed by the mark (`--nw-logo-solutions`) |
-| Sizing | each logo is drawn inside the box of the logo it replaces, scaled with `contain` (never stretched): no element moves (`docs/review/b1/rendered-checks.txt`). The copyright mark is set in em of the copyright's own text, its lettering's baseline on the text baseline, and does not grow the line | — |
-| Colour | the logos are the approved artwork: **the same in every accent palette** | owner decision B1 |
-| Favicons | the Admin symbol on transparency (3 % margin), per accent palette and appearance at the existing file names (`favicon.svg`, `icons/favicon-<palette>[-light].svg`, embedded 128 px raster; no code change): only the blue pixels move, mapped deterministically to the palette's primary (OKLCH hue and chroma; Midnight and Pearl use their tonal mapping and Burgundy its depth, as the artwork, `tools/brand/recolor_artwork.py`); geometry, alpha and the white glyph never change. Static icons keep the reference colours: `favicon.ico` (16/32/48), `icons/icon-{16,32,48,192,512}.png`, and opaque white squares for `apple-touch-icon.png` (180) and `icons/icon-maskable-512.png` (symbol inside the 80 % safe zone) | B1 brief (accent-aware favicons) |
-| Fidelity limits | the symbol is about 200 px wide in the reference, so `icon-512.png` and the maskable icon are upscaled (softer than a vector); at **16 px** the stem rings blur and the people glyph becomes a small white mark (32 px is clear in every palette); in dark tabs the Midnight and Pearl leaves are pale, so the white glyph has low contrast; the reference is a lossy WebP, so the extraction carries its compression texture at large sizes | inspected at browser sizes, `docs/review/b1/favicons-all-accents.webp` |
+| Method | **cut from the reference's pixels, never redrawn, traced or re-lettered** (owner decision B1, Option 1): colour-to-alpha against the measured ground, so edges keep their coverage with no halo; the white glyph inside the leaf is opaque; stem rings and letter counters stay transparent. Each logo is then split into three aligned layers of the same size: **lettering**, **symbol mask** (the symbol's coverage) and **symbol details** (the white glyph; inside the leaf each pixel is split by its position between the reference blue and white, so the blue-to-white edges stay as drawn). Composited with the reference blue, the layers give back the reference (mean premultiplied difference 0.4 / 255). `tools/brand/extract_blue_leaf.py` | extracted 2026-11-01. **Provisional raster assets: official SVG masters are still needed** |
+| Colour | the symbol layer is painted at run time with `--nw-logo-accent` = the selected palette's `--nw-color-primary` (its light or dark value) through a CSS mask (`src/styles/abstracts/_logo.scss`), so an accent or appearance change repaints every logo at once, in the token's exact colour, with no per-palette logo file and no second preference. **Sapphire**, the blue palette, keeps the reference blue `#046efa` (owner: the blue accent retains the approved reference). The default palette is **Coral**, so a first visit shows the coral-red symbol. No CSS filter is used; the lettering and white details are separate layers and never recoloured | owner correction B1 |
+| Admin logo | `public/brand/nawara-admin-lettering.webp` (794 × 174; the reference's navy) and `-lettering-on-dark.webp` (**derived**: the dark theme's text colour `#ffffff`), `nawara-admin-symbol-mask.webp`, `nawara-admin-symbol-details.webp` | sign-in brand panel, phone sign-in header, minimal shell header, workspace sidebar (`nw-brand-mark`) |
+| Admin symbol | `nawara-admin-mark-mask.webp` and `nawara-admin-mark-details.webp` (200 × 163): the symbol alone, the neighbouring letters removed by colour | scope switcher (`nw-brand-mark` without options) and the favicon family |
+| Solutions logo | `nawara-solutions-lettering{,-on-dark}.webp`, `-symbol-mask.webp`, `-symbol-details.webp` (891 × 174) | the copyright line of the sign-in pages: "© 2026" stays text at its existing size, followed by the mark |
+| Sizing | each logo is drawn inside the box of the logo it replaces, every layer scaled with `contain` (never stretched): no element moves (`docs/review/b1/rendered-checks.txt`). The copyright mark is set in em of the copyright's own text, its lettering's baseline on the text baseline, and does not grow the line | — |
+| Favicons | tab icons per palette and appearance at the existing file names (`favicon.svg`, `icons/favicon-<palette>[-light].svg`, embedded 128 px raster), so the existing switching (`index.html` before first paint, `ThemeService` live) needs no change: the symbol composited in the palette's primary **read from the token files** (`_accents.scss`; Coral from the foundation's `coral-600` / `coral-400`), Sapphire in the reference blue. Static icons cannot follow a palette and use the default (Coral, light primary `#c42427`): `favicon.ico` (16/32/48), `icons/icon-{16,32,48,192,512}.png`, and opaque white squares for `apple-touch-icon.png` (180) and `icons/icon-maskable-512.png` (symbol inside the 80 % safe zone) | owner correction B1 |
+| Fidelity and contrast limits | the symbol is about 200 px wide in the reference, so `icon-512.png` and the maskable icon are upscaled (softer than a vector); at **16 px** the stem rings blur and the people glyph becomes a small white mark (32 px is clear); the reference is a lossy WebP, so its compression texture shows at large sizes. With the exact tokens, the white glyph has little contrast where the primary is pale: **Pearl dark** (`#f4f1f6`, glyph nearly invisible) and **Midnight dark** (`#c8c2dc`); in **Midnight light** (`#17131f`) the symbol is nearly the lettering's navy. No variant was invented: an approved variant would be an owner decision | inspected in the browser, `docs/review/b1/accents-side-by-side.webp`, `favicons-all-accents.webp` |
 | Not used | the floral-R wordmark, symbol and favicon files of §0 stay in `public/brand/` for history and are no longer referenced by any logo placement | — |
 
 ### Logo asset manifest (three identities)
 
-One naming scheme, `nawara-<identity>-<asset>[-on-dark].<ext>`, for every Nawara product. Only Admin's repository is changed by
+One naming scheme, `nawara-<identity>-<layer>[-on-dark].<ext>`, for every Nawara product. Only Admin's repository is changed by
 B1; the other identities are listed so that their own repositories adopt the same names under separate authorization.
 
-| Identity | Glyph in the leaf | Logo | Logo on dark | Symbol | Status in Admin |
+| Identity | Glyph in the leaf | Lettering | Symbol mask / details (full logo) | Symbol alone (mask / details) | Status in Admin |
 |---|---|---|---|---|---|
-| Nawara Admin | people | `nawara-admin-logo.webp` | `nawara-admin-logo-on-dark.webp` | `nawara-admin-symbol.webp` | extracted, in use (logo, symbol, favicons) |
-| Nawara Solutions | puzzle | `nawara-solutions-logo.webp` | `nawara-solutions-logo-on-dark.webp` | (`nawara-solutions-symbol.webp`, not needed) | extracted, in use (copyright line) |
-| Nawara ERP | layers | (`nawara-erp-logo.webp`) | (`nawara-erp-logo-on-dark.webp`) | (`nawara-erp-symbol.webp`) | **not extracted**: no Admin placement; the ERP repository adopts it separately |
+| Nawara Admin | people | `nawara-admin-lettering{,-on-dark}.webp` | `nawara-admin-symbol-mask.webp` / `-symbol-details.webp` | `nawara-admin-mark-mask.webp` / `-mark-details.webp` | extracted, in use (logo, symbol, favicons) |
+| Nawara Solutions | puzzle | `nawara-solutions-lettering{,-on-dark}.webp` | `nawara-solutions-symbol-mask.webp` / `-symbol-details.webp` | (not needed) | extracted, in use (copyright line) |
+| Nawara ERP | layers | (`nawara-erp-lettering{,-on-dark}.webp`) | (`nawara-erp-symbol-mask.webp` / `-symbol-details.webp`) | (`nawara-erp-mark-*.webp`) | **not extracted**: no Admin placement; the ERP repository adopts it separately |
 
-Official SVG masters should use the same stems (`.svg`). When they arrive they replace these rasters with no consumer change
-(the tokens `--nw-logo-admin`, `--nw-logo-admin-symbol` and `--nw-logo-solutions` point at them).
+Official SVG masters should provide the same three layers (lettering, symbol, white details) as separate paths or files. When
+they arrive they replace these rasters with no consumer change (the `--nw-logo-*` tokens point at them).
 
 ## 0. Current theme: coral + ink (owner decision, 2026-10-04)
 

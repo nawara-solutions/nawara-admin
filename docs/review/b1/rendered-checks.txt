@@ -1,9 +1,74 @@
-# B1 rendered checks (2026-11-01)
+# B1 rendered checks (2026-11-01, accent-aware correction)
 
 Dev server (ng serve, demo build) on main 2690526 + B1; design tokens: @nawara-solutions/design-tokens 0.1.0, byte-identical
-to the published package (sha512 equal to the lockfile integrity). Chromium (Playwright), deviceScaleFactor 2.
+to the published package (sha512 equal to the lockfile integrity; installed files equal to the tarball). Chromium (Playwright).
 
-## Layout: element boxes before and after B1 (x, y, width, height in CSS px)
+## 1. Accent colour of every logo and favicon (all 11 palettes x light and dark)
+
+Pixel analysis of element screenshots: "exact" = pixels within 2/255 of the expected colour (the palette primary token;
+Sapphire: the reference blue #046efa, owner decision); "blue" = pixels within 24/255 of the reference blue (must be 0 outside
+Sapphire). Live switching uses the real Appearance menu on a signed-in page; "same page" means a JavaScript marker set before
+switching survived (no reload). Shown as exact/blue.
+
+# A. Persisted accent at start (sign-in, desktop 1440; EN light, AR dark): exact token pixels / reference-blue pixels
+light coral     token #c42427  data-accent=coral     favicon=icons/favicon-coral-light.svg      logo   957/0   copyright   76/0   favicon  540/0   ok
+light rose      token #be185d  data-accent=rose      favicon=icons/favicon-rose-light.svg       logo   957/0   copyright   76/0   favicon  539/0   ok
+light plum      token #7e22ce  data-accent=plum      favicon=icons/favicon-plum-light.svg       logo   957/0   copyright   76/0   favicon  540/0   ok
+light indigo    token #4338ca  data-accent=indigo    favicon=icons/favicon-indigo-light.svg     logo  1003/0   copyright   84/0   favicon  542/0   ok
+light teal      token #0f766e  data-accent=teal      favicon=icons/favicon-teal-light.svg       logo   957/0   copyright   76/0   favicon  542/0   ok
+light amber     token #b45309  data-accent=amber     favicon=icons/favicon-amber-light.svg      logo   957/0   copyright   76/0   favicon  542/0   ok
+light midnight  token #17131f  data-accent=midnight  favicon=icons/favicon-midnight-light.svg   logo   957/0   copyright   76/0   favicon  542/0   ok
+light pearl     token #5e5769  data-accent=pearl     favicon=icons/favicon-pearl-light.svg      logo  1012/0   copyright   85/0   favicon  545/0   ok
+light sapphire  token #046efa  data-accent=sapphire  favicon=icons/favicon-sapphire-light.svg   logo   957/1397 copyright   76/153 favicon  542/560 ok
+light emerald   token #047857  data-accent=emerald   favicon=icons/favicon-emerald-light.svg    logo   957/0   copyright   76/0   favicon  542/0   ok
+light burgundy  token #8e2849  data-accent=burgundy  favicon=icons/favicon-burgundy-light.svg   logo   957/0   copyright   82/0   favicon  542/0   ok
+dark  coral     token #ff5c5f  data-accent=coral     favicon=favicon.svg                        logo   968/0   copyright   80/0   favicon  546/0   ok
+dark  rose      token #f472b6  data-accent=rose      favicon=icons/favicon-rose.svg             logo   973/0   copyright   82/0   favicon  546/0   ok
+dark  plum      token #c084fc  data-accent=plum      favicon=icons/favicon-plum.svg             logo   977/0   copyright   88/0   favicon  547/0   ok
+dark  indigo    token #818cf8  data-accent=indigo    favicon=icons/favicon-indigo.svg           logo   975/0   copyright   89/0   favicon  548/0   ok
+dark  teal      token #2dd4bf  data-accent=teal      favicon=icons/favicon-teal.svg             logo  1012/0   copyright   86/0   favicon  541/0   ok
+dark  amber     token #fbbf24  data-accent=amber     favicon=icons/favicon-amber.svg            logo   965/0   copyright   77/0   favicon  539/0   ok
+dark  midnight  token #c8c2dc  data-accent=midnight  favicon=icons/favicon-midnight.svg         logo  1010/0   copyright   96/0   favicon  551/0   ok
+dark  pearl     token #f4f1f6  data-accent=pearl     favicon=icons/favicon-pearl.svg            logo  1102/0   copyright  113/0   favicon  584/0   ok
+dark  sapphire  token #046efa  data-accent=sapphire  favicon=icons/favicon-sapphire.svg         logo   965/1427 copyright   83/165 favicon  542/560 ok
+dark  emerald   token #34d399  data-accent=emerald   favicon=icons/favicon-emerald.svg          logo  1012/0   copyright   86/0   favicon  542/0   ok
+dark  burgundy  token #ec8aa8  data-accent=burgundy  favicon=icons/favicon-burgundy.svg         logo   977/0   copyright   83/0   favicon  546/0   ok
+
+# B. Live switching without reload (signed in, sidebar logo and scope-switcher symbol, favicon)
+light coral     token #c42427 stored=None      same page=True favicon=icons/favicon-coral-light.svg      sidebar   489/0   symbol  254/0   favicon  540/0   ok
+light rose      token #be185d stored=rose      same page=True favicon=icons/favicon-rose-light.svg       sidebar   489/0   symbol  254/0   favicon  539/0   ok
+light plum      token #7e22ce stored=plum      same page=True favicon=icons/favicon-plum-light.svg       sidebar   489/0   symbol  254/0   favicon  540/0   ok
+light indigo    token #4338ca stored=indigo    same page=True favicon=icons/favicon-indigo-light.svg     sidebar   510/0   symbol  265/0   favicon  542/0   ok
+light teal      token #0f766e stored=teal      same page=True favicon=icons/favicon-teal-light.svg       sidebar   489/0   symbol  254/0   favicon  542/0   ok
+light amber     token #b45309 stored=amber     same page=True favicon=icons/favicon-amber-light.svg      sidebar   489/0   symbol  254/0   favicon  542/0   ok
+light midnight  token #17131f stored=midnight  same page=True favicon=icons/favicon-midnight-light.svg   sidebar   489/0   symbol  254/0   favicon  542/0   ok
+light pearl     token #5e5769 stored=pearl     same page=True favicon=icons/favicon-pearl-light.svg      sidebar   512/0   symbol  269/0   favicon  545/0   ok
+light sapphire  token #046efa stored=sapphire  same page=True favicon=icons/favicon-sapphire-light.svg   sidebar   489/701 symbol  254/329 favicon  542/560 ok
+light emerald   token #047857 stored=emerald   same page=True favicon=icons/favicon-emerald-light.svg    sidebar   489/0   symbol  254/0   favicon  542/0   ok
+light burgundy  token #8e2849 stored=burgundy  same page=True favicon=icons/favicon-burgundy-light.svg   sidebar   489/0   symbol  254/0   favicon  542/0   ok
+light after reload: data-accent=burgundy favicon=icons/favicon-burgundy-light.svg (page reloaded: marker=None)
+dark  coral     token #ff5c5f stored=None      same page=True favicon=favicon.svg                        sidebar   493/0   symbol  258/0   favicon  546/0   ok
+dark  rose      token #f472b6 stored=rose      same page=True favicon=icons/favicon-rose.svg             sidebar   493/0   symbol  260/0   favicon  546/0   ok
+dark  plum      token #c084fc stored=plum      same page=True favicon=icons/favicon-plum.svg             sidebar   496/0   symbol  264/0   favicon  547/0   ok
+dark  indigo    token #818cf8 stored=indigo    same page=True favicon=icons/favicon-indigo.svg           sidebar   496/0   symbol  264/0   favicon  548/0   ok
+dark  teal      token #2dd4bf stored=teal      same page=True favicon=icons/favicon-teal.svg             sidebar   513/0   symbol  269/0   favicon  541/0   ok
+dark  amber     token #fbbf24 stored=amber     same page=True favicon=icons/favicon-amber.svg            sidebar   491/0   symbol  258/0   favicon  539/0   ok
+dark  midnight  token #c8c2dc stored=midnight  same page=True favicon=icons/favicon-midnight.svg         sidebar   515/0   symbol  271/0   favicon  551/0   ok
+dark  pearl     token #f4f1f6 stored=pearl     same page=True favicon=icons/favicon-pearl.svg            sidebar   534/0   symbol  292/0   favicon  584/0   ok
+dark  sapphire  token #046efa stored=sapphire  same page=True favicon=icons/favicon-sapphire.svg         sidebar   491/719 symbol  258/340 favicon  542/560 ok
+dark  emerald   token #34d399 stored=emerald   same page=True favicon=icons/favicon-emerald.svg          sidebar   513/0   symbol  269/0   favicon  542/0   ok
+dark  burgundy  token #ec8aa8 stored=burgundy  same page=True favicon=icons/favicon-burgundy.svg         sidebar   496/0   symbol  264/0   favicon  546/0   ok
+dark  after reload: data-accent=burgundy favicon=icons/favicon-burgundy.svg (page reloaded: marker=None)
+
+# C. Phone sign-in (390 px): header logo and footer copyright
+light emerald   fr token #047857 header  190/0   copyright   76/0   ok
+dark  plum      ar token #c084fc header  196/0   copyright   83/0   ok
+light sapphire  fr token #046efa header  190/262 copyright   76/153 ok
+light coral     en token #c42427 header  190/0   copyright   66/0   ok
+
+failures: 0
+
+## 2. Layout: element boxes before B1 and after the correction (x, y, width, height in CSS px)
 
 signin-en-desktop-light      .auth-brand-panel__logo          [52.8, 44, 172.9, 52.7]  unchanged
 signin-en-desktop-light      .auth-brand-panel__copyright     [52.8, 839.9, 528, 16.1]  unchanged
@@ -32,8 +97,10 @@ dashboard-ar-dark            .context-switcher__symbol        [478, 19.8, 23.7, 
 dashboard-ar-dark            .sidebar                         [1158.4, 0, 281.6, 900]  unchanged
 dashboard-ar-dark            main                             [0, 70.4, 1158.4, 1948.5]  unchanged
 
-25 boxes unchanged. The one change: the phone footer copyright is wider (the mark is wider than the words it
+25 of 26 boxes unchanged. The one change: the phone footer copyright is wider (the mark is wider than the words it
 replaces); it stays centred, and its height and position are unchanged.
+
+## 3. Favicon links, served types, static assets and rendered logo boxes
 
 ## Favicon per accent palette and appearance (live page, link#nw-favicon after load)
 light coral     data-accent=coral     icon links=1 href=icons/favicon-coral-light.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
@@ -60,20 +127,25 @@ dark  emerald   data-accent=emerald   icon links=1 href=icons/favicon-emerald.sv
 dark  burgundy  data-accent=burgundy  icon links=1 href=icons/favicon-burgundy.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
 
 ## Static icons and logo assets (served by the dev server)
-favicon.ico                              200 image/x-icon 5660 B 
-favicon.svg                              200 image/svg+xml 19297 B n/a
-apple-touch-icon.png                     200 image/png 13310 B 180x180
-icons/icon-16.png                        200 image/png 670 B 16x16
-icons/icon-32.png                        200 image/png 1730 B 32x32
-icons/icon-48.png                        200 image/png 3161 B 48x48
-icons/icon-192.png                       200 image/png 23411 B 192x192
-icons/icon-512.png                       200 image/png 110626 B 512x512
-icons/icon-maskable-512.png              200 image/png 47852 B 512x512
-brand/nawara-admin-logo.webp             200 image/webp 64302 B 794x174
-brand/nawara-admin-logo-on-dark.webp     200 image/webp 45566 B 794x174
-brand/nawara-solutions-logo.webp         200 image/webp 73716 B 891x174
-brand/nawara-solutions-logo-on-dark.webp 200 image/webp 51946 B 891x174
-brand/nawara-admin-symbol.webp           200 image/webp 18970 B 200x163
+favicon.ico                              200 image/x-icon 5718 B 
+favicon.svg                              200 image/svg+xml 12769 B n/a
+apple-touch-icon.png                     200 image/png 11303 B 180x180
+icons/icon-16.png                        200 image/png 697 B 16x16
+icons/icon-32.png                        200 image/png 1774 B 32x32
+icons/icon-48.png                        200 image/png 3125 B 48x48
+icons/icon-192.png                       200 image/png 19393 B 192x192
+icons/icon-512.png                       200 image/png 94915 B 512x512
+icons/icon-maskable-512.png              200 image/png 39613 B 512x512
+brand/nawara-admin-lettering.webp        200 image/webp 46048 B 794x174
+brand/nawara-admin-lettering-on-dark.webp 200 image/webp 16598 B 794x174
+brand/nawara-admin-symbol-mask.webp      200 image/webp 5492 B 794x174
+brand/nawara-admin-symbol-details.webp   200 image/webp 1736 B 794x174
+brand/nawara-admin-mark-mask.webp        200 image/webp 5378 B 200x163
+brand/nawara-admin-mark-details.webp     200 image/webp 1674 B 200x163
+brand/nawara-solutions-lettering.webp    200 image/webp 53590 B 891x174
+brand/nawara-solutions-lettering-on-dark.webp 200 image/webp 19554 B 891x174
+brand/nawara-solutions-symbol-mask.webp  200 image/webp 5838 B 891x174
+brand/nawara-solutions-symbol-details.webp 200 image/webp 2192 B 891x174
 manifest.webmanifest                     200 application/manifest+json 569 B 
 
 ## <head> icon links
@@ -83,11 +155,17 @@ manifest manifest.webmanifest
 
 ## Rendered logos (artwork token, box, drawn size; `contain` keeps the aspect ratio)
 - light en 1440px
-  nw-brand-mark__word                    nawara-admin-logo.webp               box 172.9x52.7 drawn 172.9x37.9 size=contain name="Nawara Admin"
-  auth-brand-panel__copyright-mark       nawara-solutions-logo.webp           box 110.1x21.5 drawn 110.1x21.5 size=contain name="Nawara Solutions"
+  nw-brand-mark__word                    nawara-admin-lettering.webp          box 172.9x52.7 drawn 172.9x37.9 size=contain name="Nawara Admin"
+  auth-brand-panel__copyright-mark       nawara-solutions-lettering.webp      box 110.1x21.5 drawn 110.1x21.5 size=contain name="Nawara Solutions"
 - dark ar 1440px
-  nw-brand-mark__word                    nawara-admin-logo-on-dark.webp       box 172.9x52.7 drawn 172.9x37.9 size=contain name="Nawara Admin"
-  auth-brand-panel__copyright-mark       nawara-solutions-logo-on-dark.webp   box 110.1x21.5 drawn 110.1x21.5 size=contain name="نوارة سولوشنز"
+  nw-brand-mark__word                    nawara-admin-lettering-on-dark.webp  box 172.9x52.7 drawn 172.9x37.9 size=contain name="Nawara Admin"
+  auth-brand-panel__copyright-mark       nawara-solutions-lettering-on-dark.webp box 110.1x21.5 drawn 110.1x21.5 size=contain name="نوارة سولوشنز"
 - light fr 390px
-  nw-brand-mark__word                    nawara-admin-logo.webp               box 85.3x26.0 drawn 85.3x18.7 size=contain name="Nawara Admin"
-  auth-frame__footer-copyright-mark      nawara-solutions-logo.webp           box 110.1x21.5 drawn 110.1x21.5 size=contain name="Nawara Solutions"
+  nw-brand-mark__word                    nawara-admin-lettering.webp          box 85.3x26.0 drawn 85.3x18.7 size=contain name="Nawara Admin"
+  auth-frame__footer-copyright-mark      nawara-solutions-lettering.webp      box 110.1x21.5 drawn 110.1x21.5 size=contain name="Nawara Solutions"
+
+## 4. Production build (dist, served statically; no demo session, so the app shows "Sign-in is not available yet" with the
+## minimal shell's Nawara Admin logo)
+
+light emerald: --nw-logo-accent #047857 = --nw-color-primary; favicon icons/favicon-emerald-light.svg; logo pixels at #047857: 447, reference blue: 0
+dark  plum:    --nw-logo-accent #c084fc = --nw-color-primary; favicon icons/favicon-plum.svg;          logo pixels at #c084fc: 460, reference blue: 0

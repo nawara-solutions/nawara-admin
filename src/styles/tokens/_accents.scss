@@ -271,6 +271,8 @@
 // Sapphire
 @mixin sapphire-light {
   @include brand-artwork.sapphire-light;
+  // The blue palette keeps the Nawara logos' reference blue (owner, B1): the approved artwork's own colour.
+  --nw-logo-accent: #046efa;
   --nw-color-primary: #2563eb;
   --nw-color-primary-hover: #1d4ed8;
   --nw-color-primary-active: #1e40af;
@@ -289,6 +291,8 @@
 
 @mixin sapphire-dark {
   @include brand-artwork.sapphire-dark;
+  // The blue palette keeps the Nawara logos' reference blue (owner, B1): the approved artwork's own colour.
+  --nw-logo-accent: #046efa;
   --nw-color-primary: #60a5fa;
   --nw-color-primary-hover: #93c5fd;
   --nw-color-primary-active: #bfdbfe;
