@@ -1,0 +1,45 @@
+// The financial authorization preview (F1-S6b, development only): one column of controls to open the dialog.
+:host {
+  display: block;
+  min-block-size: 100dvh;
+  background-color: var(--nw-surface-page);
+}
+
+.financial-authorization-preview__main {
+  display: grid;
+  gap: var(--nw-space-5);
+  max-inline-size: 40rem;
+  margin-inline: auto;
+  padding: var(--nw-space-7) var(--nw-space-4);
+}
+
+.financial-authorization-preview__title {
+  color: var(--nw-text-primary);
+  font-size: var(--nw-text-size-2xl);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.financial-authorization-preview__intro {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-accent-orange-bg);
+  color: var(--nw-accent-orange-fg);
+  font-size: var(--nw-text-size-sm);
+}
+
+.financial-authorization-preview__note {
+  color: var(--nw-text-secondary);
+}
+
+.financial-authorization-preview__form {
+  display: grid;
+  gap: var(--nw-space-4);
+  justify-items: start;
+
+  nw-form-field {
+    inline-size: 100%;
+  }
+}

@@ -64,6 +64,7 @@ const FOUNDATION_MARKERS = [
   'adm-foundation-toolbar', // its toolbar (features/foundation/components/foundation-toolbar)
   'adm-brand-assets', // its brand-asset panel (features/foundation/components/brand-assets)
   'adm-suspend-member-dialog', // its dialog specimen (features/foundation/components/suspend-member-dialog)
+  'adm-financial-authorization-preview-page', // the financial authorization preview (pages/financial-authorization-preview.page.ts, F1-S6b)
 ];
 
 if (!existsSync(DIST)) {

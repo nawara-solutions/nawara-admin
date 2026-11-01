@@ -1,0 +1,38 @@
+<adm-foundation-toolbar />
+<main class="financial-authorization-preview__main">
+  <h1 class="financial-authorization-preview__title">
+    {{ 'financialAuthorization.preview.title' | transloco }}
+  </h1>
+  <p class="financial-authorization-preview__intro">
+    <nw-icon name="flask-conical" size="sm" />
+    <span>{{ 'financialAuthorization.preview.intro' | transloco }}</span>
+  </p>
+  @if (!signedIn()) {
+    <p class="financial-authorization-preview__note" role="note">
+      {{ 'financialAuthorization.preview.signedOut' | transloco }}
+    </p>
+  }
+  <div class="financial-authorization-preview__form">
+    <nw-form-field [label]="'financialAuthorization.preview.operation' | transloco">
+      <select nwControl name="preview-operation" (change)="onOperation($event)">
+        @for (option of operations; track option) {
+          <option [value]="option" [selected]="option === operation()">
+            {{ operationKeys[option] | transloco }}
+          </option>
+        }
+      </select>
+    </nw-form-field>
+    <nw-form-field [label]="'financialAuthorization.preview.consumer' | transloco">
+      <select nwControl name="preview-answer" (change)="onAnswer($event)">
+        @for (option of answers; track option) {
+          <option [value]="option" [selected]="option === answer()">
+            {{ answerKeys[option] | transloco }}
+          </option>
+        }
+      </select>
+    </nw-form-field>
+    <button nw-button type="button" data-open (click)="open()">
+      {{ 'financialAuthorization.preview.open' | transloco }}
+    </button>
+  </div>
+</main>

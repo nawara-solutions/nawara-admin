@@ -1,0 +1,226 @@
+@let v = view();
+<nw-dialog
+  size="wide"
+  [title]="titleKey | transloco"
+  [closeLabel]="'common.close' | transloco"
+  [busy]="busy()"
+>
+  <div class="financial-authorization">
+    <section
+      class="financial-authorization__summary"
+      aria-labelledby="financial-authorization-summary"
+    >
+      <h3 class="financial-authorization__heading" id="financial-authorization-summary">
+        {{ 'financialAuthorization.summary.title' | transloco }}
+      </h3>
+      <dl class="financial-authorization__facts">
+        <div class="financial-authorization__fact">
+          <dt>{{ 'financialAuthorization.summary.purpose' | transloco }}</dt>
+          <dd>
+            <code dir="ltr">{{ purpose }}</code>
+          </dd>
+        </div>
+        <div class="financial-authorization__fact">
+          <dt>{{ 'financialAuthorization.summary.service' | transloco }}</dt>
+          <dd>
+            <code dir="ltr">{{ audience }}</code>
+          </dd>
+        </div>
+        @for (row of summary; track row.label) {
+          <div class="financial-authorization__fact">
+            <dt>{{ row.label | transloco }}</dt>
+            <dd>
+              @switch (row.value.kind) {
+                @case ('money') {
+                  <bdi class="financial-authorization__money">{{ money(row.value) }}</bdi>
+                }
+                @case ('flag') {
+                  {{
+                    (flag(row.value) ? 'financialAuthorization.yes' : 'financialAuthorization.no')
+                      | transloco
+                  }}
+                }
+                @default {
+                  <code dir="ltr">{{ machineValue(row.value) }}</code>
+                }
+              }
+            </dd>
+          </div>
+        }
+      </dl>
+    </section>
+
+    @if (refusalKey(); as refusal) {
+      <nw-inline-alert tone="danger">
+        {{ refusal | transloco }}
+      </nw-inline-alert>
+    } @else {
+      <section
+        class="financial-authorization__states"
+        [attr.aria-label]="'financialAuthorization.states' | transloco"
+      >
+        <div
+          class="financial-authorization__state financial-authorization__state--{{
+            v.authorization.tone
+          }}"
+          data-line="authorization"
+        >
+          <nw-icon [name]="icons[v.authorization.tone]" size="sm" />
+          <div class="financial-authorization__state-text">
+            <span class="financial-authorization__state-label">{{
+              'financialAuthorization.authorization.label' | transloco
+            }}</span>
+            <span>{{ v.authorization.key | transloco }}</span>
+            @if (expiresAt(); as until) {
+              <span class="financial-authorization__state-meta">
+                {{
+                  'financialAuthorization.authorization.validUntil'
+                    | transloco: { time: (until | nwDate: 'time') }
+                }}
+              </span>
+            }
+            @if (receiptId(); as id) {
+              <span class="financial-authorization__state-meta">
+                {{ 'financialAuthorization.authorization.receipt' | transloco }}
+                <code dir="ltr">{{ id }}</code>
+              </span>
+            }
+          </div>
+        </div>
+        <div
+          class="financial-authorization__state financial-authorization__state--{{
+            v.outcome.tone
+          }}"
+          data-line="outcome"
+        >
+          <nw-icon [name]="icons[v.outcome.tone]" size="sm" />
+          <div class="financial-authorization__state-text">
+            <span class="financial-authorization__state-label">{{
+              'financialAuthorization.outcome.label' | transloco
+            }}</span>
+            <span>{{ v.outcome.key | transloco }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!--
+        The state lines above are what is read; these regions announce each change once (they exist before their text does,
+        so screen readers hear it): danger and warning at once, the rest politely.
+      -->
+      <p class="nw-visually-hidden" role="alert" data-announce="urgent">
+        @if (codeError(); as key) {
+          {{ key | transloco: { seconds: retryAfter() } }}
+        } @else if (urgent(); as key) {
+          {{ key | transloco }}
+        }
+      </p>
+      <p class="nw-visually-hidden" role="status" data-announce="polite">
+        @if (polite(); as key) {
+          {{ key | transloco }}
+        }
+      </p>
+
+      @switch (v.body) {
+        @case ('code') {
+          <form
+            id="financial-authorization-verify"
+            class="financial-authorization__verify"
+            novalidate
+            (submit)="act('verify', $event)"
+          >
+            @if (askedAgain()) {
+              <nw-inline-alert tone="warning">
+                {{ 'financialAuthorization.authorization.askedAgain' | transloco }}
+              </nw-inline-alert>
+            }
+            <nw-step-up-code
+              [labels]="{
+                purposeIntro: 'actions.stepUp.purposeIntro' | transloco,
+                label: 'actions.stepUp.codeLabel' | transloco,
+                hint: 'actions.stepUp.codeHint' | transloco,
+                expired: 'actions.stepUp.expired' | transloco,
+                demoTitle: 'actions.stepUp.demoTitle' | transloco,
+              }"
+              [purpose]="purposeKey | transloco"
+              [(code)]="code"
+              [error]="
+                codeError() ? (codeError()! | transloco: { seconds: retryAfter() }) : undefined
+              "
+              [busy]="busy()"
+              [demoNote]="
+                demoCode()
+                  ? ('financialAuthorization.demoNote' | transloco: { code: demoCode() })
+                  : null
+              "
+            />
+          </form>
+        }
+        @case ('working') {
+          <p class="financial-authorization__working" role="status">
+            <nw-spinner />
+            {{ (v.outcome.tone === 'progress' ? v.outcome.key : v.authorization.key) | transloco }}
+          </p>
+        }
+      }
+
+      <ul class="financial-authorization__notes" role="list">
+        <li>
+          <nw-icon name="shield-check" size="sm" />{{
+            'financialAuthorization.notes.notCompletion' | transloco
+          }}
+        </li>
+        @if (data.simulatedConsumer) {
+          <li class="financial-authorization__simulated">
+            <nw-icon name="flask-conical" size="sm" />{{
+              'financialAuthorization.notes.simulatedConsumer' | transloco
+            }}
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  <div nwDialogActions>
+    <button
+      #dismissAction
+      data-autofocus
+      nw-button
+      variant="ghost"
+      type="button"
+      [attr.aria-disabled]="busy() || null"
+      (click)="dismiss()"
+    >
+      {{ (v.dismiss === 'cancel' ? 'common.cancel' : 'common.close') | transloco }}
+    </button>
+    @for (action of v.actions; track action; let last = $last) {
+      @if (last) {
+        <button
+          #mainAction
+          nw-button
+          [attr.type]="action === 'verify' ? 'submit' : 'button'"
+          [attr.form]="action === 'verify' ? 'financial-authorization-verify' : null"
+          [attr.data-action]="action"
+          [busy]="busy()"
+          [attr.aria-disabled]="busy() || null"
+          (click)="action === 'verify' ? null : act(action)"
+        >
+          @if (busy()) {
+            <nw-spinner />
+          }
+          {{ actionKeys[action] | transloco }}
+        </button>
+      } @else {
+        <button
+          nw-button
+          variant="secondary"
+          type="button"
+          [attr.data-action]="action"
+          [attr.aria-disabled]="busy() || null"
+          (click)="act(action)"
+        >
+          {{ actionKeys[action] | transloco }}
+        </button>
+      }
+    }
+  </div>
+</nw-dialog>

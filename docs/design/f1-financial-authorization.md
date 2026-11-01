@@ -516,6 +516,11 @@ F1-S1 → S2 and S3 (parallel) → S4 → S5 → S6 → S7. Each slice is indepe
 platform); no factor chooser (no new authentication behaviour); record in [`f1-s6a-step-up-code.md`](f1-s6a-step-up-code.md). In Owner
 review. F1-S6b (the receipt authorization dialog) is not started.
 
+**F1-S6b (2026-11-01):** F1-S6a merged (PR #84). The financial authorization dialog over the F1-S5 run, with a pure presentation
+adapter. The receipt demo adapters are bound only in the development-only `/foundation/financial-authorization` preview. TOTP only
+(no factor chooser). Record in [`f1-s6b-financial-authorization-dialog.md`](f1-s6b-financial-authorization-dialog.md). In Owner
+review.
+
 ---
 
 ## 14. D-A4 dependencies

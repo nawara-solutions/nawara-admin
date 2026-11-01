@@ -21,7 +21,7 @@ A7  Identity & access administration         🟢       ⏳
 A8  Organization & platform management       🟢/🔴/⚠  ⏳
 A9  Audit                                    🟢/🔴    ⏳
 A10 Release administration                   🟢/🔴    ⏳
-A11 Licenses / Billing / Payments            🟡       ⏳ (F0: Core S3–S6 are 🟡 DEV-ONLY, refused in production. F1-S0–F1-S5 merged, headless (PRs #53–#61); F1-S7 merged (PR #77); F1-S6a shared step-up code entry implemented, in Owner review; F1-S6b pending (G0-D1); Assistance AS-A1–AS-A12 merged, mock-first accepted (PRs #58–#72); F2–F16 not collectively authorized (G0-D8))
+A11 Licenses / Billing / Payments            🟡       ⏳ (F0: Core S3–S6 are 🟡 DEV-ONLY, refused in production. F1-S0–F1-S5 merged, headless (PRs #53–#61); F1-S7 merged (PR #77); F1-S6a merged (PR #84); F1-S6b financial authorization dialog implemented, in Owner review (G0-D1); Assistance AS-A1–AS-A12 merged, mock-first accepted (PRs #58–#72); F2–F16 not collectively authorized (G0-D8))
 A12 Files / Notifications                    🟡       ⏳
 A13 Services / Health / Monitoring           🟡/🔴    ⏳
     ── Shared-frontend review FK-2 (or earlier, on trigger) ──
@@ -347,7 +347,7 @@ No financial page may present simulation data as real, and a production build ke
 (and the read side of F8 and F9) was delivered by Assistance AS-A1–AS-A12; their owner commands (T2/T3) are not built. F2–F10 and
 F12–F16 are not started and are **not collectively authorized** (G0-D8): read-only mock-first features are proposed one at a time.
 
-## F1: Financial Authorization Foundation (F1-S0–F1-S5 and F1-S7 merged; F1-S6a in review; F1-S6b pending)
+## F1: Financial Authorization Foundation (F1-S0–F1-S5, F1-S6a and F1-S7 merged; F1-S6b in review)
 
 Design: [`design/f1-financial-authorization.md`](design/f1-financial-authorization.md), reviewed by the Owner with safety
 corrections (its §0). F1-S0 and F1-S1 were authorized on 2026-10-30; the Owner confirmed on 2026-11-01 that **F1-S2 to F1-S5 were
@@ -364,8 +364,8 @@ nothing here is production availability.
 | F1-S4 | demo authorization-receipt gateway (`authorization-receipt.mock.ts`); **not yet bound to a demo domain** | #59 (merged) |
 | F1-S5 | headless `FinancialAuthorizationRun` coordinator: authorization and financial outcome as separate machines; uncertain outcomes never resent (`financial-authorization-run.ts`) | #61 (merged) |
 | **F1-S7** | contract fixtures of Core step-up transports, receipt issuance and the eight receipt consumers, citing source lines; fixture-driven mapping, coordinator and authority specs (321 tests); integration-readiness report and HTTP-adapter checklist ([`design/f1-s7-contract-fixtures.md`](design/f1-s7-contract-fixtures.md)); CF-78 proposed | #77 (merged) |
-| **F1-S6a** | shared, presentational step-up code entry `nw-step-up-code` (purpose, authenticator code, demo note; no factor chooser: every existing entry offers the authenticator code only), first used by **Create platform**; the other 10 entries unchanged (G0-P2-1) ([`design/f1-s6a-step-up-code.md`](design/f1-s6a-step-up-code.md)) | implemented, **in Owner review** |
-| **F1-S6b** | receipt authorization dialog over `FinancialAuthorizationRun`, with a receipt demo binding; no feature wiring | **pending** (prioritized, G0-D1) |
+| **F1-S6a** | shared, presentational step-up code entry `nw-step-up-code` (purpose, authenticator code, demo note; no factor chooser: every existing entry offers the authenticator code only), first used by **Create platform**; the other 10 entries unchanged (G0-P2-1) ([`design/f1-s6a-step-up-code.md`](design/f1-s6a-step-up-code.md)) | #84 (merged) |
+| **F1-S6b** | financial authorization dialog `adm-financial-authorization-dialog` over `FinancialAuthorizationRun` through a pure presentation adapter and `FinancialAuthorizationDialogs` (operation and target summary, `nw-step-up-code`, authorization and financial result as separate lines, every coordinator state); receipt demo adapters bound only through the new `financialAuthorization` demo domain, loaded only by the development-only `/foundation/financial-authorization` preview with a simulated service; TOTP only; no feature wiring, no consumer, no HTTP adapter ([`design/f1-s6b-financial-authorization-dialog.md`](design/f1-s6b-financial-authorization-dialog.md)) | implemented, **in Owner review** |
 
 Each pending slice needs its own authorization. Every receipt-consuming route stays refused in production. D-A4 stays open.
 
@@ -1353,6 +1353,7 @@ before A4-S2) are `nawara-frontend` tasks, not Admin's.
 | tokens, themes, typography, breakpoints | SHARED: `@nawara-solutions/design-tokens` 0.1.0 adopted 2026-10-06 (exact pin, `check:tokens`) | same names and values (verified 2026-10-06); Admin-only tokens, palettes, artwork and shadows stay LOCAL |
 | `nw-*` primitives | CANDIDATE (from A2) | labels injected, never owned; 5 approved + 9 pending the scope decision (D-A2-7) |
 | `adm-secret-key-groups` (a one-time key as numbered LTR groups, masked or revealed, read letter by letter) | LOCAL (P9-S4c) | Admin's secret-key flow only; a shared one-time-secret display would be considered with a second consumer |
+| `adm-financial-authorization-dialog` + presentation adapter (one receipt operation: summary, code, authorization vs financial result) | LOCAL (F1-S6b) | Admin financial-authorization UI over the F1-S5 coordinator; no consumer yet |
 | `nw-step-up-code` (step-up purpose, authenticator-code entry, demo note) | LOCAL (F1-S6a) | Admin's owner step-up flows; presentational, labels injected; holds the typed code in the caller's signal only; one consumer so far (Create platform) |
 | `nw-totp-setup` (QR from an `otpauth` URI, grouped setup key, copy) | CANDIDATE (P9-S4b) | product-independent presentation, labels injected; holds no authentication state; uses `uqr`; extracted from Admin's sign-in enrollment and reused by Settings; not proposed to `nawara-frontend` yet |
 | HTTP interceptors, `AppError`, Core error mapping | CANDIDATE (from A3) | Core contract is shared by all products |

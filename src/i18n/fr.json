@@ -201,6 +201,7 @@
     "notFound": "Page introuvable",
     "sessionUnavailable": "Connexion indisponible",
     "foundation": "Fondation du design",
+    "financialAuthorizationPreview": "Aperçu de l’autorisation financière",
     "platforms": "Plateformes",
     "signIn": "Connexion",
     "verify": "Vérifiez votre connexion",
@@ -3233,6 +3234,134 @@
       "errorDescription": "Réessayez dans un instant.",
       "retry": "Réessayer",
       "forbiddenDescription": "Versions n’est visible que par le propriétaire de l’entreprise."
+    }
+  },
+  "financialAuthorization": {
+    "operations": {
+      "refund": "Autoriser un remboursement",
+      "dispute_decision": "Autoriser une décision sur un litige",
+      "fraud_hold_place": "Autoriser la pose d’un blocage pour fraude",
+      "fraud_hold_release": "Autoriser la levée d’un blocage pour fraude",
+      "recovery_surplus_external": "Autoriser l’enregistrement d’un remboursement externe d’excédent",
+      "late_settlement_apply": "Autoriser l’application d’un règlement tardif",
+      "provider_fact_associate": "Autoriser l’association d’un fait du prestataire",
+      "recovery_write_off": "Autoriser la passation en perte d’une créance"
+    },
+    "purposes": {
+      "refund": "Autoriser un remboursement",
+      "dispute_decision": "Autoriser une décision sur un litige",
+      "fraud_hold_place": "Autoriser un blocage pour fraude",
+      "fraud_hold_release": "Autoriser la levée d’un blocage pour fraude",
+      "recovery_surplus_external": "Autoriser un remboursement externe d’excédent",
+      "late_settlement_apply": "Autoriser un règlement tardif",
+      "provider_fact_associate": "Autoriser l’association d’un fait du prestataire",
+      "recovery_write_off": "Autoriser une passation en perte"
+    },
+    "summary": {
+      "title": "Ce à quoi cette autorisation est liée",
+      "purpose": "Objet de la vérification",
+      "service": "Utilisable uniquement par"
+    },
+    "fields": {
+      "company": "Entreprise",
+      "refundCase": "Dossier de remboursement",
+      "payment": "Paiement",
+      "captureFact": "Fait de capture",
+      "dispute": "Litige",
+      "hold": "Blocage pour fraude",
+      "beneficiary": "Bénéficiaire",
+      "product": "Produit",
+      "surplus": "Excédent",
+      "organization": "Organisation",
+      "lateSettlement": "Règlement tardif",
+      "assistanceRequest": "Demande d’assistance",
+      "fact": "Fait du prestataire",
+      "target": "Cible",
+      "obligation": "Créance",
+      "reason": "Code de motif",
+      "reasonCode": "Code de motif",
+      "decision": "Décision",
+      "factKind": "Type de fait",
+      "targetType": "Type de cible",
+      "legalOverride": "Dérogation légale",
+      "amount": "Montant"
+    },
+    "yes": "Oui",
+    "no": "Non",
+    "refused": {
+      "signedOut": "Connectez-vous pour autoriser cette opération.",
+      "actorKind": "Seul le propriétaire de l’entreprise peut autoriser cette opération. Rien n’a été demandé à Core.",
+      "outOfScope": "Cette opération est hors de votre entreprise actuelle. Rien n’a été demandé à Core.",
+      "unavailable": "Cette opération ne peut pas encore être autorisée : Core ne la propose pas aux utilisateurs d’Admin.",
+      "notReceipt": "Cette opération n’utilise pas d’autorisation financière."
+    },
+    "states": "Autorisation et résultat financier",
+    "authorization": {
+      "label": "Autorisation",
+      "validUntil": "Valable jusqu’à {{time}}, pour cette seule demande.",
+      "receipt": "Autorisation",
+      "askedAgain": "L’autorisation n’a pas été délivrée et rien n’a changé. Saisissez un nouveau code.",
+      "closed": "Non commencée.",
+      "blocked": "Une demande précédente pour cette cible a un résultat inconnu. Rien ne peut être autorisé pour elle tant qu’une vérification n’a pas confirmé ce qui s’est passé.",
+      "awaitingFactor": "Pas encore autorisée. Confirmez votre identité.",
+      "verifying": "Vérification de votre code…",
+      "issuing": "Délivrance de l’autorisation…",
+      "issueUnknown": "Aucune réponse n’est revenue pendant la délivrance de l’autorisation. Vous pouvez redemander une fois avec la même demande ; cela ne crée jamais une seconde autorisation.",
+      "issuedSimulated": "Autorisée (simulation). Rien n’a encore été envoyé.",
+      "issued": "Autorisée. Rien n’a encore été envoyé.",
+      "heldSimulated": "Autorisée (simulation) et envoyée. Conservée en mémoire uniquement pour renvoyer cette même demande.",
+      "held": "Autorisée et envoyée. Conservée en mémoire uniquement pour renvoyer cette même demande.",
+      "consumed": "Utilisée pour cette demande.",
+      "cancelled": "Annulée. L’autorisation a été supprimée et plus rien ne sera envoyé.",
+      "contextChanged": "Votre session ou votre périmètre a changé. L’autorisation a été supprimée et plus rien ne sera envoyé.",
+      "revoked": "Vous ne pouvez plus autoriser cette opération. Plus rien ne sera envoyé.",
+      "expired": "L’autorisation a expiré avant d’être envoyée. Elle a été supprimée et n’a jamais servi.",
+      "voided": "Core a annulé l’autorisation après la perte d’une réponse. Elle ne pourra jamais servir.",
+      "issueRefused": "L’autorisation a été refusée. Rien n’a été envoyé.",
+      "notInBuild": "L’autorisation financière n’est pas disponible dans cette version. Rien n’a été demandé à Core.",
+      "spent": "L’autorisation a été utilisée et ne peut plus servir.",
+      "outcomeUncertain": "L’autorisation a été supprimée : le résultat de la demande est inconnu et elle ne peut pas être renvoyée."
+    },
+    "outcome": {
+      "label": "Résultat financier",
+      "notSubmitted": "Non envoyée. Rien n’a été payé, remboursé, réglé ni modifié.",
+      "nothingChanged": "Le service a indiqué que rien n’a changé. Vous pouvez renvoyer la même demande tant que l’autorisation est valable.",
+      "submitted": "Envoi de la demande…",
+      "applied": "Le service indique que la demande a été appliquée.",
+      "appliedByCheck": "Une vérification a confirmé que la demande a été appliquée.",
+      "refused": "Le service a refusé la demande. Rien n’a été appliqué.",
+      "unresolved": "Le service n’a pas encore traité la demande. Vous pouvez répéter la demande à l’identique, ou vérifier le résultat.",
+      "unknownReplay": "Aucune réponse : la demande a pu être appliquée ou non. Répéter la demande à l’identique est sans risque (le service la reconnaît), ou vérifiez le résultat.",
+      "unknownBlocked": "Aucune réponse : la demande a pu être appliquée ou non, et elle ne peut pas être renvoyée. Vérifiez le résultat avant toute autre action."
+    },
+    "demoNote": "Cette démo accepte le code {{code}}. L’autorisation est simulée : rien n’est demandé à Nawara Core ni délivré par lui.",
+    "notes": {
+      "notCompletion": "Une autorisation n’est ni un paiement, ni un remboursement, ni un règlement. Rien ne se passe tant que la demande n’est pas envoyée et appliquée par le service.",
+      "simulatedConsumer": "Service simulé : aucune commande Billing ou Payment n’est envoyée depuis cette fenêtre."
+    },
+    "actions": {
+      "discard": "Supprimer l’autorisation",
+      "startAgain": "Nouvelle autorisation",
+      "reconcile": "Vérifier le résultat",
+      "replayIssue": "Redemander avec la même demande",
+      "repeatIdentical": "Répéter la demande à l’identique",
+      "submit": "Envoyer la demande",
+      "verify": "Vérifier et autoriser"
+    },
+    "preview": {
+      "title": "Autorisation financière (aperçu)",
+      "intro": "Un aperçu réservé au développement de la fenêtre partagée d’autorisation financière. Les autorisations viennent de l’adaptateur de démo et le service est simulé : aucune commande Billing ou Payment n’existe ici.",
+      "operation": "Opération",
+      "consumer": "Réponse simulée du service",
+      "open": "Ouvrir la fenêtre",
+      "signedOut": "Connectez-vous d’abord en tant que propriétaire de démo : la fenêtre utilise la session connectée.",
+      "answers": {
+        "applied": "Appliquée",
+        "refused": "Refusée",
+        "nothingChanged": "Rien n’a changé",
+        "unresolved": "Pas encore traitée",
+        "noAnswer": "Aucune réponse"
+      }
     }
   }
 }

@@ -46,6 +46,7 @@ const DEMO_BINDINGS_STUB: DemoBindings = {
     operators: [],
     stepUp: [],
     assistance: [],
+    financialAuthorization: [],
   },
 };
 const DEMO_BUILD: AppEnvironment = {
