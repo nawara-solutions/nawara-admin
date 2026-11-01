@@ -34,7 +34,8 @@
     }
   },
   "brand": {
-    "logoLabel": "نوارة سولوشنز"
+    "logoLabel": "نوارة سولوشنز",
+    "adminLogoLabel": "Nawara Admin"
   },
   "preferences": {
     "theme": {
@@ -1177,7 +1178,7 @@
       "product": "Nawara Admin",
       "tagline": "حلول ذكية\nمدعومة بالذكاء الاصطناعي.",
       "line": "مساحة الإدارة الخاصة بنوارة سولوشنز.",
-      "copyright": "© 2026 نوارة سولوشنز"
+      "copyright": "© 2026"
     },
     "signIn": {
       "title": "تسجيل الدخول إلى Nawara Admin",

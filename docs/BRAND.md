@@ -4,8 +4,43 @@
   No vector artwork, font files or written guidelines were supplied.
 - **Purpose:** record what the board *states*, what was *sampled* from its pixels, and what Admin *proposes* for UI use, so an
   approximation is never mistaken for a brand value.
-- **Status of the logo:** board rasters are faithful but small; the vector symbol is a **provisional reconstruction**.
-  **An official vector source (symbol, wordmark, lockups) is still needed** (D-A2-6).
+- **Status of the logo (B1, 2026-11-01):** the current logos are the blue-leaf Nawara Admin and Nawara Solutions logos, cut
+  from the owner's reference as **provisional rasters** (§B1). **Official SVG masters are still needed.** Sections 0 to 5
+  describe earlier logos where they disagree with §B1.
+
+## B1. Current logo: the blue-leaf Nawara family (owner decision, 2026-11-01)
+
+The owner approved a new logo family (B1): **Nawara Admin**, **Nawara Solutions** and **Nawara ERP**, one blue leaf with
+circuit stems and a product glyph inside its upper leaf (people, puzzle, layers). **It replaces the floral-R logo of §0 in every
+logo placement and in the favicons.** The rest of §0 (palette, typefaces, the botanical illustrations, the eleven accent
+palettes) is unchanged.
+
+| Item | Current (B1) | Provenance |
+|---|---|---|
+| Source | the owner's logo-family reference, `docs/brand/references/nawara-logo-family-2026-11-01.webp` (2000 × 667 WebP, flat ground `#fefefe`; leaf blue `#046efa` and lettering navy `#040b2d`, sampled medians) | owner, 2026-11-01. **No vector master exists in any Nawara repository** (Admin, nawara-frontend, nawara-core, ai-standard, nawara-ia, nawara-school, nawara-drive were searched) |
+| Method | **cut from the reference's pixels, never redrawn, traced or re-lettered** (owner decision B1, Option 1): colour-to-alpha against the measured ground, so edges keep their true ink colour with no halo; the white glyph inside the leaf keeps the reference's own pixels, opaque; stem rings and letter counters stay transparent. `tools/brand/extract_blue_leaf.py` | extracted 2026-11-01. **Provisional raster assets: official SVG masters are still needed** |
+| Admin logo | `public/brand/nawara-admin-logo.webp` (794 × 174, as in the reference) on light grounds; `nawara-admin-logo-on-dark.webp` on dark grounds, **derived**: the same pixels with only the navy lettering set to the dark theme's text colour `#ffffff`, the blue symbol unchanged | sign-in brand panel, phone sign-in header, minimal shell header, workspace sidebar (`nw-brand-mark`, `--nw-logo-admin`) |
+| Admin symbol | `public/brand/nawara-admin-symbol.webp` (200 × 163): the leaf, glyph, stems, rings and sprig alone; the neighbouring letters removed by colour | scope switcher (`nw-brand-mark` without options, `--nw-logo-admin-symbol`) and the favicon family |
+| Solutions logo | `public/brand/nawara-solutions-logo.webp` (891 × 174) and `-on-dark.webp` (derived, as above) | the copyright line of the sign-in pages: "© 2026" stays text at its existing size, followed by the mark (`--nw-logo-solutions`) |
+| Sizing | each logo is drawn inside the box of the logo it replaces, scaled with `contain` (never stretched): no element moves (`docs/review/b1/rendered-checks.txt`). The copyright mark is set in em of the copyright's own text, its lettering's baseline on the text baseline, and does not grow the line | — |
+| Colour | the logos are the approved artwork: **the same in every accent palette** | owner decision B1 |
+| Favicons | the Admin symbol on transparency (3 % margin), per accent palette and appearance at the existing file names (`favicon.svg`, `icons/favicon-<palette>[-light].svg`, embedded 128 px raster; no code change): only the blue pixels move, mapped deterministically to the palette's primary (OKLCH hue and chroma; Midnight and Pearl use their tonal mapping and Burgundy its depth, as the artwork, `tools/brand/recolor_artwork.py`); geometry, alpha and the white glyph never change. Static icons keep the reference colours: `favicon.ico` (16/32/48), `icons/icon-{16,32,48,192,512}.png`, and opaque white squares for `apple-touch-icon.png` (180) and `icons/icon-maskable-512.png` (symbol inside the 80 % safe zone) | B1 brief (accent-aware favicons) |
+| Fidelity limits | the symbol is about 200 px wide in the reference, so `icon-512.png` and the maskable icon are upscaled (softer than a vector); at **16 px** the stem rings blur and the people glyph becomes a small white mark (32 px is clear in every palette); in dark tabs the Midnight and Pearl leaves are pale, so the white glyph has low contrast; the reference is a lossy WebP, so the extraction carries its compression texture at large sizes | inspected at browser sizes, `docs/review/b1/favicons-all-accents.webp` |
+| Not used | the floral-R wordmark, symbol and favicon files of §0 stay in `public/brand/` for history and are no longer referenced by any logo placement | — |
+
+### Logo asset manifest (three identities)
+
+One naming scheme, `nawara-<identity>-<asset>[-on-dark].<ext>`, for every Nawara product. Only Admin's repository is changed by
+B1; the other identities are listed so that their own repositories adopt the same names under separate authorization.
+
+| Identity | Glyph in the leaf | Logo | Logo on dark | Symbol | Status in Admin |
+|---|---|---|---|---|---|
+| Nawara Admin | people | `nawara-admin-logo.webp` | `nawara-admin-logo-on-dark.webp` | `nawara-admin-symbol.webp` | extracted, in use (logo, symbol, favicons) |
+| Nawara Solutions | puzzle | `nawara-solutions-logo.webp` | `nawara-solutions-logo-on-dark.webp` | (`nawara-solutions-symbol.webp`, not needed) | extracted, in use (copyright line) |
+| Nawara ERP | layers | (`nawara-erp-logo.webp`) | (`nawara-erp-logo-on-dark.webp`) | (`nawara-erp-symbol.webp`) | **not extracted**: no Admin placement; the ERP repository adopts it separately |
+
+Official SVG masters should use the same stems (`.svg`). When they arrive they replace these rasters with no consumer change
+(the tokens `--nw-logo-admin`, `--nw-logo-admin-symbol` and `--nw-logo-solutions` point at them).
 
 ## 0. Current theme: coral + ink (owner decision, 2026-10-04)
 
@@ -197,8 +232,9 @@ logo, never a UI icon set.
 
 ## 6. Open items for the owner
 
-1. **Official vector artwork** (symbol, wordmark, lockups, light and dark): replaces the reconstruction and the rasters with no
-   consumer change (D-A2-6). The owner rejected the provisional reconstruction as the logo; the shell therefore uses the
+1. **Official SVG masters of the blue-leaf family** (Admin, Solutions, ERP; logo, symbol, light and dark) (B1, 2026-11-01):
+   they replace the provisional rasters of §B1 with no consumer change (D-A2-6). Earlier: official vector artwork for the
+   earlier logos. The owner rejected the provisional reconstruction as the logo; the shell therefore uses the
    board-pixel lockup above, which is faithful but raster.
 2. Which flower rendition is canonical (with or without orbits).
 3. Confirm the compact toolbar usage (symbol + wordmark, no tagline).

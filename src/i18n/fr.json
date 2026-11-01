@@ -34,7 +34,8 @@
     }
   },
   "brand": {
-    "logoLabel": "Nawara Solutions"
+    "logoLabel": "Nawara Solutions",
+    "adminLogoLabel": "Nawara Admin"
   },
   "preferences": {
     "theme": {
@@ -1177,7 +1178,7 @@
       "product": "Nawara Admin",
       "tagline": "Des solutions intelligentes\npropulsées par l’IA.",
       "line": "L’espace d’administration de Nawara Solutions.",
-      "copyright": "© 2026 Nawara Solutions"
+      "copyright": "© 2026"
     },
     "signIn": {
       "title": "Connexion à Nawara Admin",

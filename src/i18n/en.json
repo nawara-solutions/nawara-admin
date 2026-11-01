@@ -34,7 +34,8 @@
     }
   },
   "brand": {
-    "logoLabel": "Nawara Solutions"
+    "logoLabel": "Nawara Solutions",
+    "adminLogoLabel": "Nawara Admin"
   },
   "preferences": {
     "theme": {
@@ -1177,7 +1178,7 @@
       "product": "Nawara Admin",
       "tagline": "Smart\nsolutions\npowered by AI.",
       "line": "The administrative workspace of Nawara Solutions.",
-      "copyright": "© 2026 Nawara Solutions"
+      "copyright": "© 2026"
     },
     "signIn": {
       "title": "Sign in to Nawara Admin",

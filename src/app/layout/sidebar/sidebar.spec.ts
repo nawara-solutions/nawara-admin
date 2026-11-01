@@ -260,9 +260,11 @@ describe('Sidebar', () => {
     expect(sidebar.querySelector('.sidebar__role')?.textContent).toBe(en.shell.role.owner);
   });
 
-  it('renders the floral-R wordmark alone, without a SOLUTIONS line', async () => {
+  it('renders the Nawara Admin logo alone, named "Nawara Admin", without a SOLUTIONS line', async () => {
     const { sidebar } = await render(owner);
     const mark = sidebar.querySelector('nw-brand-mark');
+    expect(mark?.getAttribute('aria-label')).toBe(en.brand.adminLogoLabel);
+    expect(en.brand.adminLogoLabel).toBe('Nawara Admin');
     expect(mark?.querySelector('.nw-brand-mark__word')).not.toBeNull();
     expect(mark?.classList).not.toContain('nw-brand-mark--full');
     expect(mark?.querySelector('.nw-brand-mark__solutions-text')).toBeNull();

@@ -3,7 +3,11 @@
 <div class="auth-frame__column">
   <span class="auth-frame__corner" aria-hidden="true"></span>
   <header class="auth-frame__header">
-    <nw-brand-mark class="auth-frame__header-logo" [label]="'brand.logoLabel' | transloco" lockup />
+    <nw-brand-mark
+      class="auth-frame__header-logo"
+      [label]="'brand.adminLogoLabel' | transloco"
+      lockup
+    />
     <adm-preference-menus framed />
   </header>
 
@@ -39,7 +43,14 @@
 
     <div class="auth-frame__footer">
       <p class="auth-frame__footer-tagline">{{ 'auth.brand.tagline' | transloco }}</p>
-      <p class="auth-frame__footer-copyright">{{ 'auth.brand.copyright' | transloco }}</p>
+      <p class="auth-frame__footer-copyright">
+        {{ 'auth.brand.copyright' | transloco }}
+        <span
+          class="auth-frame__footer-copyright-mark"
+          role="img"
+          [attr.aria-label]="'brand.logoLabel' | transloco"
+        ></span>
+      </p>
     </div>
   </main>
 </div>
