@@ -102,11 +102,6 @@
       color: inherit;
     }
   }
-
-  // Not built yet: shown in the approved navigation, but not a link and never activated (announced as not available).
-  &--unavailable {
-    cursor: default;
-  }
 }
 
 .sidebar__icon {

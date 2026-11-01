@@ -306,6 +306,14 @@ separate session before any code.
 10. **G0-P3-5a — tooling dependency proposal** (docs): accessibility and visual regression.
 11. **Read-only financial proposals** (G0-D8), one feature at a time, each starting with a Core evidence check.
 
+**Follow-up status** (the Owner's slice identifiers differ from the item numbers above):
+
+| Item | Owner slice | Status |
+|---|---|---|
+| 1. G0-P0-1 roadmap alignment | G0-P0-1 | merged (PR #74) |
+| 2. `/foundation` excluded from production (audit G0-P0-4) | G0-P0-2 | merged (PR #75) |
+| 3. dead sidebar entries (audit G0-P1-4, U1) | G0-P0-3 | in review: Users & identity, Files and Monitoring hidden; Organizations reached through "Platforms & organizations" (`/platforms`); rendered checks: [`review/g0-p0-3/rendered-checks.txt`](../review/g0-p0-3/rendered-checks.txt) |
+
 Architecture decisions needing a separate session:
 
 | Id | Decision | Why separate |

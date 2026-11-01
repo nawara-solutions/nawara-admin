@@ -1,0 +1,25 @@
+# Rendered checks: raw output (2026-11-01, G0-P0-3 sidebar navigation cleanup; Playwright + the preinstalled Chromium, reducedMotion
+# "reduce", run ad hoc from outside the project). Demo build (ng serve) with @nawara-solutions/design-tokens 0.1.0 byte-identical to
+# the published package (sha512 equals the lockfile integrity). Owner (desktop light EN; desktop dark AR, RTL; desktop light FR;
+# mobile 390x844 drawer), operator (operator.school), and the 11 accents. links = sidebar entries as href|label|current; inert = entries
+# that are not links (must be 0); owner-keyboard = sidebar Tab stops and whether each shows a visible focus ring.
+
+owner-en-overview {"links":["/overview|Overview|current","/platforms|Platforms & organizations","/operators|Operators & access","/licenses|Licenses & entitlements","/billing|Billing & payments","/releases|Releases","/audit|Audit log","/notifications|Notifications","/services|Services & health"],"inert":0,"dir":"ltr","overflow":false}
+owner-en-organizations {"url":"/platforms/5b8d2a10-3c4e-4f61-8a2b-9d0e1f2a3b01/organizations","links":["/overview|Overview","/platforms|Platforms & organizations|current","/operators|Operators & access","/licenses|Licenses & entitlements","/billing|Billing & payments","/releases|Releases","/audit|Audit log","/notifications|Notifications","/services|Services & health"],"inert":0,"dir":"ltr","overflow":false} errors: []
+owner-keyboard {"sidebarStops":["/overview","/platforms","/operators","/licenses","/billing","/releases","/audit","/notifications","/services"],"allVisibleFocus":true}
+owner-ar-dark-platforms {"links":["/overview|نظرة عامة","/platforms|المنصات والمؤسسات|current","/operators|المشغّلون والوصول","/licenses|التراخيص والاستحقاقات","/billing|الفوترة والمدفوعات","/releases|الإصدارات","/audit|سجل التدقيق","/notifications|الإشعارات","/services|الخدمات والحالة"],"inert":0,"dir":"rtl","overflow":false} errors: []
+owner-fr-light-platforms {"links":["/overview|Vue d’ensemble","/platforms|Plateformes et organisations|current","/operators|Opérateurs et accès","/licenses|Licences et droits","/billing|Facturation et paiements","/releases|Versions","/audit|Journal d’audit","/notifications|Notifications","/services|Services et santé"],"inert":0,"dir":"ltr","overflow":false} errors: []
+owner-mobile-drawer {"links":["/overview|Overview|current","/platforms|Platforms & organizations","/operators|Operators & access","/licenses|Licenses & entitlements","/billing|Billing & payments","/releases|Releases","/audit|Audit log","/notifications|Notifications","/services|Services & health"],"inert":0,"dir":"ltr","overflow":false} errors: []
+owner-mobile-navigated /platforms
+operator {"links":["/platforms/5b8d2a10-3c4e-4f61-8a2b-9d0e1f2a3b01|Nawara School|current"],"inert":0,"dir":"ltr","overflow":false} errors: []
+accent-coral {"current":["/platforms|Platforms & organizations|current"],"inert":0,"overflow":false} errors: []
+accent-rose {"current":["/platforms|Platforms & organizations|current"],"inert":0,"overflow":false} errors: []
+accent-plum {"current":["/platforms|Platforms & organizations|current"],"inert":0,"overflow":false} errors: []
+accent-indigo {"current":["/platforms|Platforms & organizations|current"],"inert":0,"overflow":false} errors: []
+accent-teal {"current":["/platforms|Platforms & organizations|current"],"inert":0,"overflow":false} errors: []
+accent-amber {"current":["/platforms|Platforms & organizations|current"],"inert":0,"overflow":false} errors: []
+accent-midnight {"current":["/platforms|Platforms & organizations|current"],"inert":0,"overflow":false} errors: []
+accent-pearl {"current":["/platforms|Platforms & organizations|current"],"inert":0,"overflow":false} errors: []
+accent-sapphire {"current":["/platforms|Platforms & organizations|current"],"inert":0,"overflow":false} errors: []
+accent-emerald {"current":["/platforms|Platforms & organizations|current"],"inert":0,"overflow":false} errors: []
+accent-burgundy {"current":["/platforms|Platforms & organizations|current"],"inert":0,"overflow":false} errors: []
