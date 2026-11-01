@@ -41,6 +41,11 @@ export class NwFormField {
    * invalid and described by it, without repeating the message under the field.
    */
   readonly errorRef = input<string>();
+  /**
+   * Space-separated ids of other text that describes the control (for example what a verification is for, shown above
+   * the field). Listed first in `aria-describedby`; it never marks the control invalid.
+   */
+  readonly describedByRef = input<string>();
   /** Shows the required marker and sets `aria-required`; validation itself stays with the forms API. */
   readonly required = input(false, { transform: booleanAttribute });
 
@@ -51,6 +56,7 @@ export class NwFormField {
   readonly invalid = computed(() => Boolean(this.error() || this.errorRef()));
   readonly describedBy = computed(() => {
     const ids = [
+      this.describedByRef() || null,
       this.errorRef() ?? null,
       this.hint() ? this.hintId : null,
       this.error() ? this.errorId : null,

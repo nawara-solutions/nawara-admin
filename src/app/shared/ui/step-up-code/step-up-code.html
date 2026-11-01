@@ -1,0 +1,40 @@
+@if (purpose(); as purposeText) {
+  <p class="nw-step-up-code__purpose" [id]="purposeId">
+    <span class="nw-step-up-code__purpose-intro">{{ labels().purposeIntro }}</span
+    >&ngsp;
+    <strong>{{ purposeText }}</strong>
+  </p>
+}
+<nw-form-field
+  [label]="labels().label"
+  [hint]="labels().hint"
+  [error]="shownError()"
+  [describedByRef]="purpose() ? purposeId : undefined"
+>
+  <input
+    #codeInput
+    nwControl
+    class="nw-step-up-code__code"
+    type="text"
+    inputmode="numeric"
+    autocomplete="one-time-code"
+    autocapitalize="off"
+    spellcheck="false"
+    dir="ltr"
+    [name]="name()"
+    [readOnly]="busy()"
+    [disabled]="disabled()"
+    [attr.aria-busy]="busy() || null"
+    (input)="onInput($event)"
+    (paste)="onPaste($event)"
+  />
+</nw-form-field>
+@if (demoNote(); as note) {
+  <p class="nw-step-up-code__demo" role="note">
+    <nw-icon name="flask-conical" size="sm" />
+    <span>
+      <strong>{{ labels().demoTitle }}</strong>
+      {{ note }}
+    </span>
+  </p>
+}

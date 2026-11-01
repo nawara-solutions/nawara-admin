@@ -1610,7 +1610,7 @@ but are bound to no route or demo domain yet (F1-S6b). Rows added below are mark
 | Notifications (`/notifications`) | `NotificationSummaryGateway` | 🔴 (NOT-00; CF-14, CF-48) | mock |
 | Settings and security (`/settings/*`) | `AccountSecurityGateway`, `CompanySettingsGateway`, `StepUpGateway` | 🟢 owner security; Company profile 🔴 (CF-49) | mock |
 | Assistance & Settlements (`/billing/assistance/*`) — G0 | `AssistanceGateway` | 🟡 DEV-ONLY by id (BIL-26, BIL-28, BIL-32); no owner list or request read (CF-68, CF-69, CF-70, CF-77); no human File path (CF-71) | mock, read only; AS-A1–AS-A12 accepted mock-first, not production certification |
-| Financial authorization foundation — G0 | `ReceiptStepUpGateway`, `AuthorizationReceiptGateway` | 🟡 DEV-ONLY (receipt issuance; consumers refused in production) | headless (F1-S1–F1-S5); no UI (F1-S6a/S6b pending), no fixtures (F1-S7 pending) |
+| Financial authorization foundation — G0 | `ReceiptStepUpGateway`, `AuthorizationReceiptGateway` | 🟡 DEV-ONLY (receipt issuance; consumers refused in production) | headless (F1-S1–F1-S5); no receipt UI (F1-S6b pending; F1-S6a is the shared step-up code entry, in review); contract fixtures merged (F1-S7) |
 | Finance workflows of §11.5 | none | 🟡 DEV-ONLY | **not built**; planned slices F1–F12 are **not authorized** (`admin:docs/ROADMAP.md`). G0: F1-S0–F1-S5 merged; F2–F12 not collectively authorized (G0-D8) |
 
 ### 11.10 Certification and deployment restrictions

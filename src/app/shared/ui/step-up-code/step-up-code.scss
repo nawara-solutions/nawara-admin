@@ -1,0 +1,45 @@
+// The step-up code entry (F1-S6a): purpose, code field and the demo note. Logical properties only; the code itself is
+// always left to right (digits), the rest follows the page direction.
+:host {
+  display: grid;
+  gap: var(--nw-space-4);
+  min-inline-size: 0;
+}
+
+.nw-step-up-code__purpose {
+  display: grid;
+  gap: 2px;
+  padding: var(--nw-space-3) var(--nw-space-4);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+  color: var(--nw-text-primary);
+
+  strong {
+    font-weight: var(--nw-font-weight-semibold);
+    overflow-wrap: anywhere;
+  }
+}
+
+.nw-step-up-code__purpose-intro {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+}
+
+.nw-step-up-code__code {
+  font-family: var(--nw-font-mono);
+  font-size: var(--nw-text-size-xl);
+  letter-spacing: 0.3em;
+  text-align: center;
+}
+
+.nw-step-up-code__demo {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-accent-orange-bg);
+  color: var(--nw-accent-orange-fg);
+  font-size: var(--nw-text-size-sm);
+}
