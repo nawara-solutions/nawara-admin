@@ -20,6 +20,7 @@ import { NwControl, NwFormField } from '../../../../shared/ui/form-field/form-fi
 import { NwIcon } from '../../../../shared/ui/icon/icon';
 import { NwInlineAlert } from '../../../../shared/ui/inline-alert/inline-alert';
 import { NwSpinner } from '../../../../shared/ui/spinner/spinner';
+import { NwStepUpCode } from '../../../../shared/ui/step-up-code/step-up-code';
 import type { CreatePlatformAction } from '../../application/create-platform.action';
 import {
   PLATFORM_NAME_MAX,
@@ -35,7 +36,8 @@ const NAME_PROBLEM_KEYS = {
 /**
  * The "Create platform" dialog (P4 design, artboards 1, 3–8): the name (a standard confirmation: the button names the
  * verb), then the owner's simulated verification for `platform.create`, then pending and the result. Driven by the
- * action's `ActionRun`; it owns only the typed values and focus. While the command runs it cannot be dismissed
+ * action's `ActionRun`; it owns only the typed values and focus. The code entry is the shared, presentational
+ * `nw-step-up-code` (F1-S6a). While the command runs it cannot be dismissed
  * (`nw-dialog` busy); leaving the page closes it without cancelling the command, whose result is then a toast.
  */
 @Component({
@@ -49,6 +51,7 @@ const NAME_PROBLEM_KEYS = {
     NwIcon,
     NwInlineAlert,
     NwSpinner,
+    NwStepUpCode,
   ],
   templateUrl: './create-platform-dialog.html',
   styleUrl: './create-platform-dialog.scss',
@@ -69,7 +72,7 @@ export class CreatePlatformDialog {
   protected readonly demoCode = signal<string | null>(null);
 
   private readonly nameInput = viewChild<ElementRef<HTMLInputElement>>('nameInput');
-  private readonly codeInput = viewChild<ElementRef<HTMLInputElement>>('codeInput');
+  private readonly stepUp = viewChild(NwStepUpCode);
   private readonly mainButton = viewChild<ElementRef<HTMLButtonElement>>('mainButton');
 
   protected readonly isolatedName = computed(() => isolated(this.name().trim()));
@@ -133,10 +136,6 @@ export class CreatePlatformDialog {
     this.name.set((event.target as HTMLInputElement).value);
   }
 
-  protected onCode(event: Event): void {
-    this.code.set((event.target as HTMLInputElement).value);
-  }
-
   protected submit(event: Event): void {
     event.preventDefault();
     this.submitted.set(true);
@@ -171,7 +170,7 @@ export class CreatePlatformDialog {
 
   private focusFor(phase: string): void {
     if (phase === 'editing') this.nameInput()?.nativeElement.focus();
-    else if (phase === 'verifying' && !this.busy()) this.codeInput()?.nativeElement.focus();
+    else if (phase === 'verifying' && !this.busy()) this.stepUp()?.focus();
     else if (phase === 'failed') this.mainButton()?.nativeElement.focus();
   }
 }

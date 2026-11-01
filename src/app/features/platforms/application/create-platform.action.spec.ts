@@ -1,4 +1,5 @@
 import { Dialog } from '@angular/cdk/dialog';
+import { vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
@@ -6,6 +7,7 @@ import en from '../../../../i18n/en.json';
 import { Actor } from '../../../core/auth/actor';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { DemoAuthState } from '../../../core/auth/auth.mock-state';
+import { StepUpGateway } from '../../../core/auth/step-up.gateway';
 import { APP_ENVIRONMENT, DemoBindings } from '../../../core/config/app-environment';
 import { DEMO_LATENCY_MS } from '../../../core/context/scope-directory.mock';
 import { DemoWorld } from '../../../demo/world/demo-world';
@@ -227,5 +229,90 @@ describe('Create platform (owner, demo build)', () => {
   it('is never offered to an operator', async () => {
     const { page } = await render(operator);
     expect(page.querySelector('.platforms-header__create-button')).toBeNull();
+  });
+});
+
+describe('Create platform: the shared step-up entry (F1-S6a)', () => {
+  afterEach(() => TestBed.inject(Dialog).closeAll());
+
+  async function verifying() {
+    const rendered = await render(owner);
+    rendered.page
+      .querySelector<HTMLButtonElement>('.platforms-header__create-button--live')
+      ?.click();
+    await rendered.settle();
+    rendered.type('input[name="platform-name"]', 'Nawara Academy');
+    rendered.press(en.platforms.create.submit);
+    await rendered.settle();
+    const code = () =>
+      rendered.dialog()?.querySelector<HTMLInputElement>('nw-step-up-code input') ?? null;
+    return { ...rendered, code };
+  }
+
+  it('asks for the code in the shared entry: focused, described by the purpose, with the demo note', async () => {
+    const { dialog, code } = await verifying();
+    expect(dialog()?.querySelectorAll('nw-step-up-code')).toHaveLength(1);
+    const field = code()!;
+    expect(field.name).toBe('step-up-code');
+    expect(field.getAttribute('autocomplete')).toBe('one-time-code');
+    expect(document.activeElement).toBe(field);
+    const purposeId = field.getAttribute('aria-describedby')!.split(' ')[0]!;
+    expect(text(document.getElementById(purposeId))).toBe(
+      `${en.actions.stepUp.purposeIntro} Creating the platform “\u2068Nawara Academy\u2069”`,
+    );
+    expect(text(dialog()?.querySelector('[role="note"]'))).toContain(en.actions.stepUp.demoTitle);
+    expect(text(dialog()?.querySelector('[role="note"]'))).toContain('123456');
+  });
+
+  it('sends the typed code as the one platform.create TOTP proof, and keeps a refused one on screen', async () => {
+    const { settle, type, press, code, world } = await verifying();
+    const obtain = vi.spyOn(TestBed.inject(StepUpGateway), 'obtain');
+    const setItem = vi.spyOn(Storage.prototype, 'setItem');
+
+    type('input[name="step-up-code"]', '000000');
+    press(en.platforms.create.verifyAndCreate);
+    await settle();
+    expect(obtain).toHaveBeenCalledTimes(1);
+    expect(obtain).toHaveBeenLastCalledWith('platform.create', { method: 'totp', code: '000000' });
+    expect(code()?.getAttribute('aria-invalid')).toBe('true');
+    expect(code()?.value).toBe('000000');
+    expect(document.activeElement).toBe(code());
+    expect(world.snapshot().platforms).toHaveLength(2);
+
+    type('input[name="step-up-code"]', '123456');
+    press(en.platforms.create.verifyAndCreate);
+    await settle(20);
+    expect(obtain).toHaveBeenCalledTimes(2);
+    expect(obtain).toHaveBeenLastCalledWith('platform.create', { method: 'totp', code: '123456' });
+    expect(world.snapshot().platforms).toHaveLength(3);
+    expect(setItem).not.toHaveBeenCalled();
+    setItem.mockRestore();
+  });
+
+  it('accepts a pasted code with its space', async () => {
+    const { settle, press, code, world } = await verifying();
+    const obtain = vi.spyOn(TestBed.inject(StepUpGateway), 'obtain');
+    const event = new Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(event, 'clipboardData', { value: { getData: () => '123 456' } });
+    code()!.dispatchEvent(event);
+    await settle();
+    press(en.platforms.create.verifyAndCreate);
+    await settle(20);
+    expect(obtain).toHaveBeenCalledWith('platform.create', { method: 'totp', code: '123456' });
+    expect(world.snapshot().platforms).toHaveLength(3);
+  });
+
+  it('goes back to the name, and asks for a fresh code when continued', async () => {
+    const { dialog, settle, type, press, code } = await verifying();
+    type('input[name="step-up-code"]', '12');
+    press(en.actions.stepUp.back);
+    await settle();
+    expect(code()).toBeNull();
+    expect(dialog()?.querySelector<HTMLInputElement>('input[name="platform-name"]')?.value).toBe(
+      'Nawara Academy',
+    );
+    press(en.platforms.create.submit);
+    await settle();
+    expect(code()?.value).toBe('');
   });
 });

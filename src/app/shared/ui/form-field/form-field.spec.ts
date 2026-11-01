@@ -10,7 +10,13 @@ import { NwControl, NwFormField } from './form-field';
     </nw-form-field>
     <nw-form-field label="Role"><select nwControl></select></nw-form-field>
     <p id="page-error">Banner about the code</p>
-    <nw-form-field label="Code" hint="6 digits" [errorRef]="errorRef()">
+    <p id="purpose">For creating a platform</p>
+    <nw-form-field
+      label="Code"
+      hint="6 digits"
+      [errorRef]="errorRef()"
+      [describedByRef]="describedByRef()"
+    >
       <input nwControl class="code" />
     </nw-form-field>
   `,
@@ -18,6 +24,7 @@ import { NwControl, NwFormField } from './form-field';
 class Host {
   readonly error = signal<string | undefined>(undefined);
   readonly errorRef = signal<string | undefined>(undefined);
+  readonly describedByRef = signal<string | undefined>(undefined);
 }
 
 describe('NwFormField', () => {
@@ -67,5 +74,25 @@ describe('NwFormField', () => {
     expect(described[0]).toBe('page-error');
     expect(described.length).toBe(2);
     expect(input.closest('nw-form-field')?.querySelector('.nw-form-field__error')).toBeNull();
+  });
+
+  it('lists other describing text first, without marking the control invalid', async () => {
+    const fixture = TestBed.createComponent(Host);
+    await fixture.whenStable();
+    const root = fixture.nativeElement as HTMLElement;
+    const input = root.querySelector<HTMLInputElement>('input.code')!;
+
+    fixture.componentInstance.describedByRef.set('purpose');
+    await fixture.whenStable();
+    expect(input.getAttribute('aria-invalid')).toBeNull();
+    let described = input.getAttribute('aria-describedby')!.split(' ');
+    expect(described[0]).toBe('purpose');
+    expect(described.length).toBe(2);
+
+    fixture.componentInstance.errorRef.set('page-error');
+    await fixture.whenStable();
+    described = input.getAttribute('aria-describedby')!.split(' ');
+    expect(described.slice(0, 2)).toEqual(['purpose', 'page-error']);
+    expect(input.getAttribute('aria-invalid')).toBe('true');
   });
 });

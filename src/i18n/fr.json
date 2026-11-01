@@ -13,6 +13,7 @@
       "purposeIntro": "Cette vérification sert uniquement à",
       "codeLabel": "Code de votre application d’authentification",
       "codeHint": "6 chiffres. Il ne sert qu’une fois, pour cette action seulement.",
+      "expired": "Cette vérification a expiré. Saisissez un nouveau code.",
       "demoTitle": "Vérification simulée.",
       "demoNote": "Cette démo accepte le code {{code}}. Aucune vérification Nawara Core n’est demandée ni émise.",
       "back": "Retour",

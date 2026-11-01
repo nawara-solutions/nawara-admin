@@ -13,6 +13,7 @@
       "purposeIntro": "This verification is only for",
       "codeLabel": "Code from your authenticator app",
       "codeHint": "6 digits. It is used once, for this action only.",
+      "expired": "This verification has expired. Enter a new code.",
       "demoTitle": "Simulated verification.",
       "demoNote": "This demo accepts the code {{code}}. No Nawara Core verification is requested or issued.",
       "back": "Back",

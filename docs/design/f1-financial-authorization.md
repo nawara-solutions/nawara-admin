@@ -512,6 +512,10 @@ F1-S1 → S2 and S3 (parallel) → S4 → S5 → S6 → S7. Each slice is indepe
 **F1-S7 (2026-11-01):** implemented as tests and documentation only, ahead of F1-S6 (G0-D1 order); record in
 [`f1-s7-contract-fixtures.md`](f1-s7-contract-fixtures.md). In Owner review.
 
+**F1-S6a (2026-11-01):** the shared, presentational step-up code entry `nw-step-up-code`, used by one existing flow (Create
+platform); no factor chooser (no new authentication behaviour); record in [`f1-s6a-step-up-code.md`](f1-s6a-step-up-code.md). In Owner
+review. F1-S6b (the receipt authorization dialog) is not started.
+
 ---
 
 ## 14. D-A4 dependencies

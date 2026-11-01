@@ -14,44 +14,24 @@
         novalidate
         (submit)="verify($event)"
       >
-        <p class="create-platform__purpose" id="create-platform-purpose">
-          <span class="create-platform__purpose-label">{{
-            'actions.stepUp.purposeIntro' | transloco
-          }}</span>
-          <strong>{{ 'platforms.create.purpose' | transloco: { name: isolatedName() } }}</strong>
-        </p>
-        <nw-form-field
-          [label]="'actions.stepUp.codeLabel' | transloco"
-          [hint]="'actions.stepUp.codeHint' | transloco"
+        <nw-step-up-code
+          [labels]="{
+            purposeIntro: 'actions.stepUp.purposeIntro' | transloco,
+            label: 'actions.stepUp.codeLabel' | transloco,
+            hint: 'actions.stepUp.codeHint' | transloco,
+            expired: 'actions.stepUp.expired' | transloco,
+            demoTitle: 'actions.stepUp.demoTitle' | transloco,
+          }"
+          [purpose]="'platforms.create.purpose' | transloco: { name: isolatedName() }"
+          [(code)]="code"
           [error]="
             failureKey() ? (failureKey()! | transloco: { seconds: retryAfter() }) : undefined
           "
-        >
-          <input
-            #codeInput
-            nwControl
-            class="create-platform__code"
-            type="text"
-            name="step-up-code"
-            inputmode="numeric"
-            autocomplete="one-time-code"
-            spellcheck="false"
-            dir="ltr"
-            aria-describedby="create-platform-purpose"
-            [value]="code()"
-            [readOnly]="busy()"
-            (input)="onCode($event)"
-          />
-        </nw-form-field>
-        @if (demoCode(); as demo) {
-          <p class="create-platform__demo" role="note">
-            <nw-icon name="flask-conical" size="sm" />
-            <span>
-              <strong>{{ 'actions.stepUp.demoTitle' | transloco }}</strong>
-              {{ 'actions.stepUp.demoNote' | transloco: { code: demo } }}
-            </span>
-          </p>
-        }
+          [busy]="busy()"
+          [demoNote]="
+            demoCode() ? ('actions.stepUp.demoNote' | transloco: { code: demoCode() }) : null
+          "
+        />
       </form>
     }
     @case ('pending') {
