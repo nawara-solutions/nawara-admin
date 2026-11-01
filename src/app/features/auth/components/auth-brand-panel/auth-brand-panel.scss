@@ -73,26 +73,6 @@
   margin-block-end: 14vh;
 }
 
-// The product label: small tracked capitals in the accent's brand text colour (no decorative rule, owner B1 polish).
-.auth-brand-panel__eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-block-end: 1.125rem;
-  color: var(--nw-text-brand);
-  font-family: var(--nw-font-mono);
-  font-size: calc(0.6875rem * var(--nw-admin-text-scale, 1));
-  font-weight: var(--nw-font-weight-medium);
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-
-  &:lang(ar) {
-    font-family: inherit;
-    letter-spacing: 0;
-    text-transform: none;
-  }
-}
-
 // Each locale sets its own deliberate line breaks in the translation ("\n"; owner layout 2026-10-06: "Smart /
 // solutions / powered by AI." in English); `pre-line` honours them and still wraps a line that is too long. Elsewhere
 // (the phone footer) the same text collapses to one line. A display size with tight leading and tracking.

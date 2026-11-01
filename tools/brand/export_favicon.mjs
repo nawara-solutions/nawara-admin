@@ -3,11 +3,11 @@
 // Master: docs/brand/nawara-admin-favicon.svg (Option A, owner selection 2026-11-01): hand-drawn on a 64-unit grid, the
 // botanical colour `currentColor`, the users glyph (class "detail") painted with the palette's pictogram colour.
 //
-// Outputs (the existing paths, so index.html, ThemeService and palette-artwork.ts need no change):
+// Outputs (the existing paths; ThemeService applies them with a version suffix, tools/brand/recolor_artwork.py FAVICON_VERSION):
 // - public/favicon.svg and public/icons/favicon-<palette>[-light].svg: real vector SVGs (no embedded raster), one per
-//   palette and appearance file name. Each colours the symbol with the palette's logo colour for the BROWSER's own
-//   appearance (`prefers-color-scheme`, so a dark tab strip gets the palette's lighter dark value) and falls back to the
-//   light value. Colours are read from the token files, never approximated: tokens/_accents.scss (`--nw-color-primary`
+//   palette and appearance file name, each in that appearance's leaf and pictogram colours: the APP's resolved
+//   appearance, which the file name encodes (B1 finishing pass; no browser-scheme switching, so the dark-mode tab icon
+//   always carries the dark treatment). Colours are read from the token files, never approximated: tokens/_accents.scss (`--nw-color-primary`
 //   per palette and appearance), the foundation's coral-600 / coral-400 for Coral, and the reference blue #046efa for
 //   Sapphire (owner decision B1, `--nw-logo-accent`).
 // - public/favicon.ico (16, 32, 48), public/icons/icon-{16,32,48,192,512}.png (transparent), public/apple-touch-icon.png
@@ -76,11 +76,9 @@ function logoColours() {
   return table;
 }
 
-/** The master with its colours set: the leaf and pictogram of the light value, and of the dark value when the browser is dark. */
-function themed(light, dark) {
-  const style =
-    `<style>svg{color:${light.leaf}}.detail{fill:${light.detail}}` +
-    `@media (prefers-color-scheme:dark){svg{color:${dark.leaf}}.detail{fill:${dark.detail}}}</style>`;
+/** The master in one appearance's colours: its leaf and its pictogram. */
+function themed(colours) {
+  const style = `<style>svg{color:${colours.leaf}}.detail{fill:${colours.detail}}</style>`;
   return MASTER.replace(/<!--[\s\S]*?-->\s*/, '')
     .replace(/ color="#[0-9a-f]{6}"/, '')
     .replace(/(<svg[^>]*>)/, `$1${style}`)
@@ -117,9 +115,8 @@ function writeIco(pngs, file) {
 
 const colours = logoColours();
 for (const palette of PALETTES) {
-  const svg = themed(colours[palette].light, colours[palette].dark);
   for (const theme of ['light', 'dark'])
-    writeFileSync(resolve(ROOT, 'public', href(palette, theme)), svg);
+    writeFileSync(resolve(ROOT, 'public', href(palette, theme)), themed(colours[palette][theme]));
 }
 console.log(
   'public/favicon.svg and public/icons/favicon-<palette>[-light].svg written (22 vector files)',
@@ -129,8 +126,7 @@ const { chromium } = createRequire(import.meta.url)('playwright');
 const browser = await chromium.launch();
 const page = await (await browser.newContext({ deviceScaleFactor: 1 })).newPage();
 const master =
-  'data:image/svg+xml;base64,' +
-  Buffer.from(themed(colours.coral.light, colours.coral.light)).toString('base64');
+  'data:image/svg+xml;base64,' + Buffer.from(themed(colours.coral.light)).toString('base64');
 async function render(size, margin = 0, ground = 'transparent') {
   const inner = Math.round(size * (1 - 2 * margin));
   await page.setViewportSize({ width: size, height: size });

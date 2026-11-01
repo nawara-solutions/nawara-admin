@@ -223,11 +223,20 @@ def write_floral_r_symbols(palettes):
             print(f'{dst.relative_to(ROOT)} written')
 
 
-def favicon_href(palette: str, theme: str = 'dark') -> str:
+# Appended to the favicon URLs ThemeService applies (B1 finishing pass): the files keep stable names, so a version
+# makes browsers fetch the corrected icons instead of a cached earlier treatment. Bump it when the icons change.
+FAVICON_VERSION = '?v=b1'
+
+
+def favicon_file(palette: str, theme: str = 'dark') -> str:
     """Dark keeps the original file names; light icons are `icons/favicon-<palette>-light.svg` (coral included)."""
     if theme == 'light':
         return f'icons/favicon-{palette}-light.svg'
     return 'favicon.svg' if palette == 'coral' else f'icons/favicon-{palette}.svg'
+
+
+def favicon_href(palette: str, theme: str = 'dark') -> str:
+    return favicon_file(palette, theme) + FAVICON_VERSION
 
 
 def write_floral_r(palettes):
@@ -259,7 +268,7 @@ def write_floral_r(palettes):
             buf = io.BytesIO()
             icon.save(buf, 'PNG', optimize=True)
             data = base64.b64encode(buf.getvalue()).decode()
-            dst = ROOT / 'public' / favicon_href(palette, theme)
+            dst = ROOT / 'public' / favicon_file(palette, theme)
             dst.write_text(
                 '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 64">'
                 f'<image width="64" height="64" xlink:href="data:image/png;base64,{data}"/></svg>\n'
