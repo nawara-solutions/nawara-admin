@@ -15,7 +15,7 @@
 | Container | `nawara-admin-web`: unprivileged nginx on port 8080, read-only filesystem, all capabilities dropped, `no-new-privileges` |
 | Traefik | network `deploy_edge`, router `nawara-admin-web`, `Host(admin.nawara-solutions.com)`, entrypoint `websecure`, certresolver `le` (as Core's services) |
 | Build | `Dockerfile`: Node 24.18.0 / npm 11.16.0 (`.node-version`, `packageManager`), `npm ci`, `npm run build`, `npm run check:production` |
-| Content | the production environment only (`demo: null`): no mock adapter, demo account, demo credential or simulated passkey; every route without a session shows "Sign-in is not available yet" |
+| Content | the production environment only (`demo: null`, `foundation: null`): no mock adapter, demo account, demo credential or simulated passkey, and no design-foundation gallery (`/foundation` is not registered or bundled, G0-D6); every route without a session shows "Sign-in is not available yet" |
 
 **Serving (`deploy/nginx.conf`):** client routes (`/login`, `/overview`, `/platforms/…`) fall back to `index.html`; a missing file
 with an extension is a real 404. `index.html` is `no-cache`; content-hashed bundles, styles and fonts are `immutable` for a year;
