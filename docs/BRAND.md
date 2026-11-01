@@ -38,6 +38,20 @@ light and dark; the lettering and the white details inside the leaf never change
 - **Regression checks.** `npm run check:brand` (in `validate`) guards the layer wiring, the removed rules, the box
   proportions, the 22 favicon colours and the icon sizes. Evidence is in `docs/review/b1-polish/`.
 
+**Finishing pass (owner, 2026-11-01):**
+
+- **Admin people pictogram:** enlarged 1.20× about its own centre, the largest scale that keeps it 3 px inside the leaf. This
+  is `enlarge_pictogram` in `tools/brand/extract_blue_leaf.py`, and only the pictogram layers change. The favicon master
+  applies the same 1.2×.
+- **Sign-in label:** "NAWARA ADMIN" is removed from above the headline.
+- **Footer patch:** the sign-in illustration had a fully transparent rectangle behind the copyright (rows 859–895, columns
+  0–250, baked into both masters and all 22 variants). It is filled from its own surroundings by
+  `tools/brand/repair_botanical_patch.py`; outside the block the files are unchanged.
+- **Favicon appearance:** each favicon now follows the **app's** appearance named in its file (dark files: dark leaf value,
+  navy pictogram), no longer the browser's own scheme. `ThemeService` applies the links with a version suffix
+  (`FAVICON_VERSION`) so browsers fetch the corrected icons. Trade-off: a dark-mode favicon on a light browser tab uses the
+  pale dark leaf, faint for Pearl.
+
 | Item | Current (B1) | Provenance |
 |---|---|---|
 | Source | the owner's logo-family reference, `docs/brand/references/nawara-logo-family-2026-11-01.webp` (2000 × 667 WebP, flat ground `#fefefe`; leaf blue `#046efa` and lettering navy `#040b2d`, sampled medians) | owner, 2026-11-01. **No vector master exists in any Nawara repository** (Admin, nawara-frontend, nawara-core, ai-standard, nawara-ia, nawara-school, nawara-drive were searched) |

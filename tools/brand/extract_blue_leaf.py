@@ -158,6 +158,42 @@ def split_layers(rgba: np.ndarray, interior: np.ndarray):
     return lettering, mask, details
 
 
+def enlarge_pictogram(details: np.ndarray, mask: np.ndarray, max_factor: float = 1.45, inset: int = 3):
+    """The pictogram scaled about its own centre (owner B1 finishing pass: the Admin people were too small in the leaf), by the
+    largest factor up to `max_factor` that keeps it at least `inset` px inside the solid leaf. The leaf, stems and lettering
+    are untouched; only the pictogram layer changes. Returns the new layer and the factor used."""
+    alpha = details[..., 3]
+    ys, xs = np.nonzero(alpha > 0.02)
+    y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+    cy, cx = (y0 + y1) / 2, (x0 + x1) / 2
+    glyph = to_image(details[y0:y1, x0:x1])
+    # The solid symbol, holes filled (WebP noise leaves isolated pixels below full coverage inside the leaf).
+    solid = mask[..., 3] > 0.5
+    h, w = solid.shape
+    edge = [(0, x) for x in range(w)] + [(h - 1, x) for x in range(w)] + [(y, 0) for y in range(h)] + [(y, w - 1) for y in range(h)]
+    leaf = ~flood(~solid, edge)
+    inside = leaf.copy()
+    for _ in range(inset):
+        e = inside.copy()
+        e[1:] &= inside[:-1]
+        e[:-1] &= inside[1:]
+        e[:, 1:] &= inside[:, :-1]
+        e[:, :-1] &= inside[:, 1:]
+        inside = e
+    for factor in np.arange(max_factor, 0.999, -0.025):
+        w, h = round((x1 - x0) * factor), round((y1 - y0) * factor)
+        scaled = np.asarray(glyph.resize((w, h), Image.LANCZOS)).astype(np.float64) / 255
+        out = np.zeros_like(details)
+        out[..., :3] = 1
+        top, left = round(cy - h / 2), round(cx - w / 2)
+        if top < 0 or left < 0 or top + h > out.shape[0] or left + w > out.shape[1]:
+            continue
+        out[top:top + h, left:left + w, 3] = scaled[..., 3]
+        if not (out[..., 3] > 0.02)[~inside].any():
+            return out, float(factor)
+    return details, 1.0
+
+
 def with_colour(rgba: np.ndarray, rgb) -> np.ndarray:
     out = rgba.copy()
     out[..., :3] = rgb
@@ -279,6 +315,10 @@ def main(path: str) -> None:
         layers = split_layers(rgba, interior)
         verify(rgba, layers, name)
         lettering, mask, details = layers
+        if name == 'admin':
+            details, factor = enlarge_pictogram(details, mask)
+            layers = (lettering, mask, details)
+            print(f'admin: people pictogram enlarged x{factor:.3f} about its centre (inside the leaf, 3 px inset)')
         save_webp(lettering, f'nawara-{name}-lettering.webp')
         save_webp(with_colour(lettering, DARK_LETTERING), f'nawara-{name}-lettering-on-dark.webp')
         save_webp(mask, f'nawara-{name}-symbol-mask.webp')

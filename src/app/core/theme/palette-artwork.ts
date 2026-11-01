@@ -36,7 +36,7 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       wordmark: '/brand/nawara-floral-r-wordmark-on-dark-coral.webp',
       symbol: '/brand/nawara-floral-r-symbol-on-dark-coral.webp',
     },
-    favicon: { light: 'icons/favicon-coral-light.svg', dark: 'favicon.svg' },
+    favicon: { light: 'icons/favicon-coral-light.svg?v=b1', dark: 'favicon.svg?v=b1' },
   },
   rose: {
     light: {
@@ -51,7 +51,7 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       wordmark: '/brand/nawara-floral-r-wordmark-on-dark-rose.webp',
       symbol: '/brand/nawara-floral-r-symbol-on-dark-rose.webp',
     },
-    favicon: { light: 'icons/favicon-rose-light.svg', dark: 'icons/favicon-rose.svg' },
+    favicon: { light: 'icons/favicon-rose-light.svg?v=b1', dark: 'icons/favicon-rose.svg?v=b1' },
   },
   plum: {
     light: {
@@ -66,7 +66,7 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       wordmark: '/brand/nawara-floral-r-wordmark-on-dark-plum.webp',
       symbol: '/brand/nawara-floral-r-symbol-on-dark-plum.webp',
     },
-    favicon: { light: 'icons/favicon-plum-light.svg', dark: 'icons/favicon-plum.svg' },
+    favicon: { light: 'icons/favicon-plum-light.svg?v=b1', dark: 'icons/favicon-plum.svg?v=b1' },
   },
   indigo: {
     light: {
@@ -81,7 +81,10 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       wordmark: '/brand/nawara-floral-r-wordmark-on-dark-indigo.webp',
       symbol: '/brand/nawara-floral-r-symbol-on-dark-indigo.webp',
     },
-    favicon: { light: 'icons/favicon-indigo-light.svg', dark: 'icons/favicon-indigo.svg' },
+    favicon: {
+      light: 'icons/favicon-indigo-light.svg?v=b1',
+      dark: 'icons/favicon-indigo.svg?v=b1',
+    },
   },
   teal: {
     light: {
@@ -96,7 +99,7 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       wordmark: '/brand/nawara-floral-r-wordmark-on-dark-teal.webp',
       symbol: '/brand/nawara-floral-r-symbol-on-dark-teal.webp',
     },
-    favicon: { light: 'icons/favicon-teal-light.svg', dark: 'icons/favicon-teal.svg' },
+    favicon: { light: 'icons/favicon-teal-light.svg?v=b1', dark: 'icons/favicon-teal.svg?v=b1' },
   },
   amber: {
     light: {
@@ -111,7 +114,7 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       wordmark: '/brand/nawara-floral-r-wordmark-on-dark-amber.webp',
       symbol: '/brand/nawara-floral-r-symbol-on-dark-amber.webp',
     },
-    favicon: { light: 'icons/favicon-amber-light.svg', dark: 'icons/favicon-amber.svg' },
+    favicon: { light: 'icons/favicon-amber-light.svg?v=b1', dark: 'icons/favicon-amber.svg?v=b1' },
   },
   midnight: {
     light: {
@@ -126,7 +129,10 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       wordmark: '/brand/nawara-floral-r-wordmark-on-dark-midnight.webp',
       symbol: '/brand/nawara-floral-r-symbol-on-dark-midnight.webp',
     },
-    favicon: { light: 'icons/favicon-midnight-light.svg', dark: 'icons/favicon-midnight.svg' },
+    favicon: {
+      light: 'icons/favicon-midnight-light.svg?v=b1',
+      dark: 'icons/favicon-midnight.svg?v=b1',
+    },
   },
   pearl: {
     light: {
@@ -141,7 +147,7 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       wordmark: '/brand/nawara-floral-r-wordmark-on-dark-pearl.webp',
       symbol: '/brand/nawara-floral-r-symbol-on-dark-pearl.webp',
     },
-    favicon: { light: 'icons/favicon-pearl-light.svg', dark: 'icons/favicon-pearl.svg' },
+    favicon: { light: 'icons/favicon-pearl-light.svg?v=b1', dark: 'icons/favicon-pearl.svg?v=b1' },
   },
   sapphire: {
     light: {
@@ -156,7 +162,10 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       wordmark: '/brand/nawara-floral-r-wordmark-on-dark-sapphire.webp',
       symbol: '/brand/nawara-floral-r-symbol-on-dark-sapphire.webp',
     },
-    favicon: { light: 'icons/favicon-sapphire-light.svg', dark: 'icons/favicon-sapphire.svg' },
+    favicon: {
+      light: 'icons/favicon-sapphire-light.svg?v=b1',
+      dark: 'icons/favicon-sapphire.svg?v=b1',
+    },
   },
   emerald: {
     light: {
@@ -171,7 +180,10 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       wordmark: '/brand/nawara-floral-r-wordmark-on-dark-emerald.webp',
       symbol: '/brand/nawara-floral-r-symbol-on-dark-emerald.webp',
     },
-    favicon: { light: 'icons/favicon-emerald-light.svg', dark: 'icons/favicon-emerald.svg' },
+    favicon: {
+      light: 'icons/favicon-emerald-light.svg?v=b1',
+      dark: 'icons/favicon-emerald.svg?v=b1',
+    },
   },
   burgundy: {
     light: {
@@ -186,6 +198,9 @@ export const PALETTE_ARTWORK: Readonly<Record<AccentPalette, PaletteArtwork>> = 
       wordmark: '/brand/nawara-floral-r-wordmark-on-dark-burgundy.webp',
       symbol: '/brand/nawara-floral-r-symbol-on-dark-burgundy.webp',
     },
-    favicon: { light: 'icons/favicon-burgundy-light.svg', dark: 'icons/favicon-burgundy.svg' },
+    favicon: {
+      light: 'icons/favicon-burgundy-light.svg?v=b1',
+      dark: 'icons/favicon-burgundy.svg?v=b1',
+    },
   },
 };

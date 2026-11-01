@@ -2,7 +2,7 @@
 // It reads what ships (token sources, component styles, public assets) and fails on any drift from the owner's decisions:
 // 1. the logos paint their symbol with the accent token and their pictogram with the pictogram token (no fixed colour,
 //    no filter), and every logo placement uses that layer system;
-// 2. the decorative accent rules beside the sign-in label and the copyright are gone;
+// 2. the decorative accent rules beside the copyright and the "NAWARA ADMIN" label above the headline are gone;
 // 3. the logo boxes keep the logo's own proportions (no letterboxing, no distortion);
 // 4. every tab favicon (11 palettes x 2 file names) is vector and coloured exactly with its palette's leaf and pictogram
 //    colours for each browser scheme, read independently from the token files; the favicon map and the pre-paint script
@@ -76,7 +76,17 @@ expect(
   !panel.includes('--nw-logo-line'),
   'auth-brand-panel.scss: the decorative accent rules (--nw-logo-line) must stay removed',
 );
-for (const block of ['auth-brand-panel__eyebrow', 'auth-brand-panel__copyright {']) {
+expect(
+  !panel.includes('auth-brand-panel__eyebrow'),
+  'auth-brand-panel.scss: the "NAWARA ADMIN" label above the headline stays removed',
+);
+expect(
+  !read('src/app/features/auth/components/auth-brand-panel/auth-brand-panel.html').includes(
+    'eyebrow',
+  ),
+  'auth-brand-panel.html: no "NAWARA ADMIN" label above the headline',
+);
+for (const block of ['auth-brand-panel__copyright {']) {
   const start = panel.indexOf(`.${block}`);
   const body = panel.slice(start, panel.indexOf('\n}', start));
   expect(
@@ -133,12 +143,16 @@ expect(
 const artwork = read('src/app/core/theme/palette-artwork.ts');
 const index = read('src/index.html');
 for (const palette of PALETTES) {
-  const [light, dark] = [expected[palette].light, expected[palette].dark];
-  const style = `<style>svg{color:${light[0]}}.detail{fill:${light[1]}}@media (prefers-color-scheme:dark){svg{color:${dark[0]}}.detail{fill:${dark[1]}}}</style>`;
-  for (const file of [
-    `icons/favicon-${palette}-light.svg`,
-    palette === 'coral' ? 'favicon.svg' : `icons/favicon-${palette}.svg`,
-  ]) {
+  for (const theme of ['light', 'dark']) {
+    // Each file follows the app appearance its name encodes (B1 finishing pass), never the browser scheme.
+    const [leaf, detail] = expected[palette][theme];
+    const style = `<style>svg{color:${leaf}}.detail{fill:${detail}}</style>`;
+    const file =
+      theme === 'light'
+        ? `icons/favicon-${palette}-light.svg`
+        : palette === 'coral'
+          ? 'favicon.svg'
+          : `icons/favicon-${palette}.svg`;
     const path = `public/${file}`;
     if (!existsSync(path)) {
       errors.push(`${path} missing`);
@@ -146,11 +160,12 @@ for (const palette of PALETTES) {
     }
     const svg = read(path);
     expect(svg.includes(style), `${path}: colours must be ${style}`);
+    expect(!svg.includes('prefers-color-scheme'), `${path}: must not switch on the browser scheme`);
     expect(
       !svg.includes('<image') && svg.includes('<path'),
       `${path}: must be vector (no embedded raster)`,
     );
-    expect(artwork.includes(`'${file}'`), `palette-artwork.ts: no entry for ${file}`);
+    expect(artwork.includes(`'${file}?v=`), `palette-artwork.ts: no versioned entry for ${file}`);
   }
 }
 expect(
