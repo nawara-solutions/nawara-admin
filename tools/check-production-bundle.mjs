@@ -57,6 +57,15 @@ const MARKERS = [
   'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', // the demo secret-key alphabet (account-security.mock.ts, P9-S4c)
 ];
 
+// The A2 design-foundation gallery (`/foundation`, G0-D6): development and demo builds only. src/environments/environment.ts
+// does not reference it, so its code (component selectors, unique to the gallery) must not appear in any production file.
+const FOUNDATION_MARKERS = [
+  'adm-foundation-preview-page', // the gallery page (features/foundation/pages/foundation-preview.page.ts)
+  'adm-foundation-toolbar', // its toolbar (features/foundation/components/foundation-toolbar)
+  'adm-brand-assets', // its brand-asset panel (features/foundation/components/brand-assets)
+  'adm-suspend-member-dialog', // its dialog specimen (features/foundation/components/suspend-member-dialog)
+];
+
 if (!existsSync(DIST)) {
   console.error(`✖ ${DIST} not found: run the production build first.`);
   process.exit(1);
@@ -64,13 +73,23 @@ if (!existsSync(DIST)) {
 
 const files = readdirSync(DIST).filter((name) => /\.(js|html)$/.test(name));
 const problems = [];
+const foundation = [];
 for (const name of files) {
   const source = readFileSync(join(DIST, name), 'utf8');
   for (const marker of MARKERS) if (source.includes(marker)) problems.push(`${name}: "${marker}"`);
+  for (const marker of FOUNDATION_MARKERS)
+    if (source.includes(marker)) foundation.push(`${name}: "${marker}"`);
 }
 
-if (problems.length > 0) {
-  console.error(problems.map((p) => `✖ demo content in the production build: ${p}`).join('\n'));
+if (problems.length > 0 || foundation.length > 0) {
+  console.error(
+    [
+      ...problems.map((p) => `✖ demo content in the production build: ${p}`),
+      ...foundation.map((p) => `✖ design-foundation gallery in the production build: ${p}`),
+    ].join('\n'),
+  );
   process.exit(1);
 }
-console.log(`✔ production bundle: ${files.length} files, no demo session, mock adapter or fixture`);
+console.log(
+  `✔ production bundle: ${files.length} files, no demo session, mock adapter, fixture or design-foundation gallery`,
+);

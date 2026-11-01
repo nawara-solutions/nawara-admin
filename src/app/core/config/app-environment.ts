@@ -1,4 +1,5 @@
 import { InjectionToken, Provider } from '@angular/core';
+import { Routes } from '@angular/router';
 import { Locale } from '../i18n/locale';
 
 /** Domains that can be served by a demo (mock) adapter. Each has an `unavailable` adapter for every other build. */
@@ -64,6 +65,12 @@ export interface DemoBindings {
 export interface AppEnvironment {
   readonly production: boolean;
   readonly demo: { readonly load: () => Promise<DemoBindings> } | null;
+  /**
+   * The A2 design-foundation gallery (`/foundation`, an internal token and primitive verification surface), as a loader of its
+   * routes; absent or `null`: the route is not registered (G0-D6). Only the development environment file sets it, so a production
+   * build neither registers the route nor bundles the gallery's code; `assertEnvironment` refuses it in production as well.
+   */
+  readonly foundation?: { readonly load: () => Promise<Routes> } | null;
 }
 
 export const APP_ENVIRONMENT = new InjectionToken<AppEnvironment>('APP_ENVIRONMENT');
@@ -71,6 +78,9 @@ export const APP_ENVIRONMENT = new InjectionToken<AppEnvironment>('APP_ENVIRONME
 export function assertEnvironment(environment: AppEnvironment): AppEnvironment {
   if (environment.production && environment.demo !== null) {
     throw new Error('A production build cannot enable demo data (docs/ARCHITECTURE.md §3).');
+  }
+  if (environment.production && environment.foundation) {
+    throw new Error('A production build cannot register the design-foundation gallery (G0-D6).');
   }
   return environment;
 }

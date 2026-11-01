@@ -5,7 +5,7 @@ import {
 } from '@angular/core';
 import { TitleStrategy, provideRouter } from '@angular/router';
 import { environment } from '../environments/environment';
-import { routes } from './app.routes';
+import { appRoutes } from './app.routes';
 import { APP_ENVIRONMENT, assertEnvironment } from './core/config/app-environment';
 import { LocalizedTitleStrategy } from './core/i18n/localized-title.strategy';
 import { provideI18n } from './core/i18n/provide-i18n';
@@ -18,7 +18,8 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     // Build-time environment; a production build with demo data refuses to start (docs/ARCHITECTURE.md §3, §24).
     { provide: APP_ENVIRONMENT, useValue: assertEnvironment(environment) },
-    provideRouter(routes),
+    // Routes for this build: the design-foundation gallery exists in development and demo builds only (G0-D6).
+    provideRouter(appRoutes(environment)),
     { provide: TitleStrategy, useClass: LocalizedTitleStrategy },
     provideI18n(),
     provideTheme(),

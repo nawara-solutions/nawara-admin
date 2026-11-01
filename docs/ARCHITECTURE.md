@@ -186,7 +186,8 @@ Lazy-loaded feature routes. Titles are localized through a custom `TitleStrategy
 /platforms/:platformId/organizations/:organizationId  Organization detail, read only  🟢 single read · 🟡 commercial (owner)
 /forbidden  /** (in the shell) "not available to your account" / "page not found"
 /session-unavailable           no session in this build (every production build until A4)
-/foundation                    A2 design-foundation gallery (verification surface)
+/foundation                    A2 design-foundation gallery (verification surface); development and demo builds only:
+                               not registered or bundled in production (G0-D6; `appRoutes`, `check:production`)
 
 Organizations are entities of platform scope (amendment, P3a, 2026-10-23): their pages live below
 /platforms/:platformId/organizations/:organizationId. Planned child pages (not built; one page today):

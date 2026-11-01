@@ -68,6 +68,24 @@ describe('app environment and adapter configuration', () => {
     expect(isDemo(development)).toBe(true);
   });
 
+  it('only the development environment provides the design-foundation gallery (G0-D6)', async () => {
+    expect(production.foundation ?? null).toBeNull();
+    expect(development.production).toBe(false);
+    const routes = await development.foundation!.load();
+    expect(routes.length).toBeGreaterThan(0);
+  });
+
+  it('refuses a production environment that registers the design-foundation gallery (G0-D6)', () => {
+    const tampered: AppEnvironment = { ...production, foundation: { load: async () => [] } };
+    expect(() => assertEnvironment(tampered)).toThrow(
+      /cannot register the design-foundation gallery/,
+    );
+    expect(assertEnvironment({ ...production, foundation: null })).toEqual({
+      ...production,
+      foundation: null,
+    });
+  });
+
   it('refuses a production environment with demo data', () => {
     const tampered: AppEnvironment = { production: true, demo: { load: async () => bindings } };
     expect(() => assertEnvironment(tampered)).toThrow(/production build cannot enable demo data/);
