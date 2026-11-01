@@ -123,28 +123,16 @@
 </div>
 
 <ng-template #entry let-item>
-  @if (item.path) {
-    <a
-      class="sidebar__item"
-      [routerLink]="item.path"
-      routerLinkActive="sidebar__item--active"
-      ariaCurrentWhenActive="page"
-    >
-      <nw-icon class="sidebar__icon" [name]="item.icon" size="lg" />
-      <span class="sidebar__label">{{ item.labelKey | transloco }}</span>
-      <ng-container [ngTemplateOutlet]="badge" [ngTemplateOutletContext]="{ $implicit: item }" />
-    </a>
-  } @else {
-    <span
-      class="sidebar__item sidebar__item--unavailable"
-      [title]="'shell.notAvailableYet' | transloco"
-    >
-      <nw-icon class="sidebar__icon" [name]="item.icon" size="lg" />
-      <span class="sidebar__label">{{ item.labelKey | transloco }}</span>
-      <ng-container [ngTemplateOutlet]="badge" [ngTemplateOutletContext]="{ $implicit: item }" />
-      <span class="nw-visually-hidden">({{ 'shell.notAvailableYet' | transloco }})</span>
-    </span>
-  }
+  <a
+    class="sidebar__item"
+    [routerLink]="item.path"
+    routerLinkActive="sidebar__item--active"
+    ariaCurrentWhenActive="page"
+  >
+    <nw-icon class="sidebar__icon" [name]="item.icon" size="lg" />
+    <span class="sidebar__label">{{ item.labelKey | transloco }}</span>
+    <ng-container [ngTemplateOutlet]="badge" [ngTemplateOutletContext]="{ $implicit: item }" />
+  </a>
 </ng-template>
 
 <!-- The unread badge: the shell's one count (NotificationIndicator), shown only when positive. -->

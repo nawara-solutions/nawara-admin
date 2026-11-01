@@ -27,8 +27,8 @@ Nawara Admin is used by Nawara Solutions staff only.
 
 | Item | State |
 |---|---|
-| Checkpoint | A0 ✅ · A1 ✅ (owner review) · **A2 — Design foundation 🟡 implemented and verified, owner review pending** · A3 ⏸️ not started |
-| Angular application | Angular **22.2.1** (standalone, zoneless, strict). The root route is a design-foundation gallery (tokens, themes, EN/FR/AR, primitives, brand assets); no shell, authentication or business features yet |
+| Checkpoint | see the stage table in [`CLAUDE.md`](CLAUDE.md) and [`docs/ROADMAP.md`](docs/ROADMAP.md) |
+| Angular application | Angular **22.2.1** (standalone, zoneless, strict). A signed-in shell with mock-first features in demo builds; production builds have no sign-in yet ("Sign-in is not available yet"). The design-foundation gallery (`/foundation`) exists in development and demo builds only (G0-D6) |
 | Production origin (owner decision, recorded in Core) | `https://admin.nawara-solutions.com` |
 
 ## Development

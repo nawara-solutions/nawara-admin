@@ -2,15 +2,19 @@ import { Capability } from '../../core/access/capability-policy';
 import { NwIconName } from '../../shared/ui/icon/icon.registry';
 
 /**
- * Sidebar navigation, in the order of the owner's Company Overview design. An item with a `path` is a working page; an item
- * without one is a destination that is not built yet: it is shown (the approved navigation) but is not a link and
- * never behaves as a page. Items declare the capability they require (§10); unavailable ones are hidden. Every entry
- * here is company scope (owner only): an operator's sidebar instead lists their assigned Platforms ("Your platforms").
+ * Sidebar navigation, in the order of the owner's Company Overview design. Every item is a working page (G0-P0-3): a
+ * destination that is not built is not listed at all (no inert entry). Items declare the capability they require (§10);
+ * unavailable ones are hidden. Every entry here is company scope (owner only): an operator's sidebar instead lists their
+ * assigned Platforms ("Your platforms").
+ *
+ * Not listed until they exist (G0-D5): Users & identity (no owner directory, CF-03), Files (no human File path, CF-71) and
+ * Monitoring (no operator-facing health, CF-06; Services & health is the built inventory). Organizations have no company-wide
+ * list (ORG-00, CF-02): they live under each Platform, so their entry is "Platforms & organizations" (`/platforms`).
  */
 export interface NavigationItem {
   readonly labelKey: string;
   readonly icon: NwIconName;
-  readonly path?: string;
+  readonly path: string;
   readonly requires?: Capability;
   /** Shows the unread notification count beside the label (shell `NotificationIndicator`). */
   readonly unreadBadge?: true;
@@ -43,8 +47,13 @@ export const NAVIGATION: readonly NavigationGroup[] = [
         path: '/overview',
         requires: 'company.overview.view',
       },
-      { labelKey: 'shell.nav.organizations', icon: 'building-2', requires: 'company.scope' },
-      { labelKey: 'shell.nav.users', icon: 'users', requires: 'company.scope' },
+      // The Platforms directory, the way into each Platform's Organizations (`/platforms/:platformId/organizations`).
+      {
+        labelKey: 'shell.nav.platforms',
+        icon: 'building-2',
+        path: '/platforms',
+        requires: 'company.platforms.view',
+      },
       {
         labelKey: 'shell.nav.operators',
         icon: 'shield-check',
@@ -85,7 +94,6 @@ export const NAVIGATION: readonly NavigationGroup[] = [
         path: '/audit',
         requires: 'company.audit.view',
       },
-      { labelKey: 'shell.nav.files', icon: 'folder', requires: 'company.scope' },
       // The owner's place for their personal Notifications (P8-S3); an operator gets NOTIFICATIONS_ITEM instead.
       { ...NOTIFICATIONS_LINK, requires: 'company.scope' },
       {
@@ -94,7 +102,6 @@ export const NAVIGATION: readonly NavigationGroup[] = [
         path: '/services',
         requires: 'company.services.view',
       },
-      { labelKey: 'shell.nav.monitoring', icon: 'chart-line', requires: 'company.scope' },
     ],
   },
 ];

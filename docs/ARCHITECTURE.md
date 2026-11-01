@@ -341,6 +341,11 @@ type AppError =
 - **Company-scope navigation (A3-S3):** every company-wide sidebar destination requires `company.scope` (owner only), so an
   operator never sees them; an operator's sidebar lists their assigned Platforms ("Your platforms") instead. A destination
   gets its own capability when it is built.
+- **Only working pages in the sidebar (G0-P0-3, G0-D5, 2026-11-01):** every sidebar entry is a link to a registered route; a
+  destination that is not built is not listed (no inert "not available yet" entry). Users & identity (CF-03), Files (CF-71)
+  and Monitoring (CF-06) return when they exist. Organizations have no company-wide list (ORG-00, CF-02): the entry
+  "Platforms & organizations" (`/platforms`, `company.platforms.view`) leads to each Platform's Organizations and stays active
+  on every Platform-scoped page.
 
 ## 11. Authentication and session
 
