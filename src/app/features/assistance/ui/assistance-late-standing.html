@@ -3,16 +3,18 @@
   @if (standing.kind === 'applied') {
     <nw-status-badge tone="success" data-decision="applied">{{
       'assistanceCases.late.applied' | transloco
-    }}</nw-status-badge>
-    <adm-assistance-source-tag source="decision" />
+    }}</nw-status-badge
+    >&ngsp; <adm-assistance-source-tag source="decision" />&ngsp;
   } @else {
     <nw-status-badge tone="warning" data-decision="pending">{{
       'assistanceCases.late.pending' | transloco
-    }}</nw-status-badge>
+    }}</nw-status-badge
+    >&ngsp;
     @if (standing.kind === 'refused') {
       <nw-status-badge tone="danger" data-blocked>{{
         'assistanceCases.late.blocked' | transloco
-      }}</nw-status-badge>
+      }}</nw-status-badge
+      >&ngsp;
     }
   }
 </p>
@@ -61,11 +63,13 @@
 <ol class="assistance-late-standing__history" data-late-history>
   @for (entry of history(); track entry.kind) {
     <li [attr.data-kind]="entry.kind" [attr.data-source]="entry.source">
-      <adm-assistance-source-tag [source]="entry.source" />
-      <span>{{ historyKeys[entry.kind] | transloco }}</span>
+      <adm-assistance-source-tag [source]="entry.source" />&ngsp;
+      <span>{{ historyKeys[entry.kind] | transloco }}</span
+      >&ngsp;
       <time class="assistance-late-standing__secondary" [attr.datetime]="entry.at">{{
         entry.at | nwDate: 'date-time'
-      }}</time>
+      }}</time
+      >&ngsp;
     </li>
   }
   @if (late().settledAt === null) {

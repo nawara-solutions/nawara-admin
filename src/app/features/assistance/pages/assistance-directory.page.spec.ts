@@ -180,6 +180,10 @@ describe('Assistance case directory (A4)', { timeout: 20_000 }, () => {
     const settlements = element.querySelector('[data-settlements-link]');
     expect(settlements?.getAttribute('href')).toBe('/billing/assistance/settlements');
     expect(text(settlements)).toBe(t.settlements.link);
+    // A9: the recovery and surplus overview.
+    const recovery = element.querySelector('[data-recovery-link]');
+    expect(recovery?.getAttribute('href')).toBe('/billing/assistance/recovery');
+    expect(text(recovery)).toBe(t.recovery.link);
   });
 
   it('shows Core states only: status, collection, settlement and indicators; no amount', async () => {

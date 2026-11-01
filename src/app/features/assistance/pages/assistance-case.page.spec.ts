@@ -709,3 +709,46 @@ describe('Assistance case late settlements and cash returns (A8)', { timeout: 60
     expect(returns.querySelector('[data-held]')).toBeNull();
   });
 });
+
+describe('Assistance case recovery and surplus (A9)', { timeout: 60_000 }, () => {
+  const rv = t.recovery;
+
+  it('an open obligation: why it exists, verified payments, a payment in progress that recovers nothing, no surplus', async () => {
+    const r = await render(caseOf(13).request.id);
+    const recovery = section(r.element, 'recovery')!;
+    expect(text(recovery.querySelector('[data-recovery-why]'))).toContain(rv.whyLoss);
+    expect(recovery.querySelector('[data-recovery-why] code')?.getAttribute('title')).toBe(
+      caseOf(13).recovery!.disputeId,
+    );
+    // The case page keeps its own summary: the standing does not repeat base, recovered and outstanding.
+    expect(recovery.querySelector('[data-recovery-summary]')).toBeNull();
+    expect(text(recovery.querySelector('[data-in-progress]'))).toContain(rv.inProgressExplain);
+    expect(recovery.querySelectorAll('[data-payment]')).toHaveLength(1);
+    expect(text(recovery.querySelector('[data-surpluses-none]'))).toBe(rv.surplusNone);
+    for (const h of recovery.querySelectorAll('adm-assistance-recovery-standing [role="heading"]'))
+      expect(h.getAttribute('aria-level')).toBe('3');
+    expect(recovery.querySelector('[data-recovery-link]')?.getAttribute('href')).toBe(
+      '/billing/assistance/recovery',
+    );
+  });
+
+  it('a recovered obligation: surpluses payable to the Organization, owed and recorded, with the history', async () => {
+    const r = await render(caseOf(14).request.id);
+    const recovery = section(r.element, 'recovery')!;
+    expect(
+      [...recovery.querySelectorAll<HTMLElement>('[data-surplus]')].map(
+        (li) => li.dataset['surplus'],
+      ),
+    ).toEqual(['owed', 'externalRecorded']);
+    expect(text(recovery.querySelector('[data-awaiting-confirmation]'))).toBe(
+      rv.awaitingConfirmation,
+    );
+    expect(text(recovery)).toContain(rv.surplusNever);
+    const kinds = [...recovery.querySelectorAll<HTMLElement>('[data-recovery-history] li')].map(
+      (li) => li.dataset['kind'],
+    );
+    expect(kinds.at(-1)).toBe('surplusExternal');
+    // The case history shows the owner's external record as a decision.
+    expect(events(r.element)).toContainEqual(['decision', 'surplusExternal']);
+  });
+});

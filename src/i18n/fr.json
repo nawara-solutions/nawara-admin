@@ -233,7 +233,8 @@
     "notifications": "Notifications",
     "releases": "Versions",
     "assistanceDisputes": "Contestations et exceptions d’assistance",
-    "assistanceSettlements": "Règlements tardifs et restitutions d’espèces"
+    "assistanceSettlements": "Règlements tardifs et restitutions d’espèces",
+    "assistanceRecovery": "Recouvrement et excédents"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -273,7 +274,8 @@
       "notifications": "Notifications",
       "releases": "Versions",
       "assistanceDisputes": "Contestations et exceptions",
-      "assistanceSettlements": "Règlements tardifs et restitutions"
+      "assistanceSettlements": "Règlements tardifs et restitutions",
+      "assistanceRecovery": "Recouvrement et excédents"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -2563,12 +2565,9 @@
         "outstanding": "Restant",
         "openedAt": "Ouvert",
         "recoveredAt": "Recouvré le",
-        "surplusTitle": "Excédent dû à l’organisation",
         "baseOnly": "Le recouvrement ne porte que sur le prix, jamais sur les frais de l’organisation ; ces montants sont ceux de Nawara Core.",
         "surplus": {
-          "owedToOrganization": "dû à l’organisation",
-          "externalExecutionEvidenced": "remboursement enregistré, en attente de confirmation",
-          "resolved": "réglé"
+          "owedToOrganization": "dû à l’organisation"
         }
       },
       "timeline": {
@@ -2823,6 +2822,66 @@
       "errorTitle": "Les règlements tardifs n’ont pas pu être chargés",
       "loading": "Chargement des règlements tardifs…",
       "readOnly": "Lecture seule : aucune application, aucun reçu, aucune déclaration de restitution, aucune confirmation ni aucun paiement ne peut être effectué depuis cette page."
+    },
+    "recovery": {
+      "link": "Recouvrement et excédents",
+      "title": "Recouvrement et excédents",
+      "subtitle": "Ce que les organisations doivent après une rétrofacturation définitive d’un achat assisté, ce qui a été vérifié comme recouvré, et l’excédent qui leur est dû, tels que Nawara Core les enregistre.",
+      "simulation": "Enregistrements simulés — pas des données de Nawara Core. Nawara Core n’offre pas encore au propriétaire de liste des obligations de recouvrement ; ces enregistrements fictifs suivent ses états et ses règles pour permettre la revue de cette vue.",
+      "notInBuildDescription": "Le service de facturation de Nawara Core n’offre pas encore au propriétaire de liste des obligations de recouvrement ; il n’y a donc rien à afficher.",
+      "forbiddenDescription": "Les obligations de recouvrement et les excédents ne sont présentés qu’au propriétaire de l’entreprise.",
+      "listTitle": "Obligations de recouvrement",
+      "intro": "Nawara Core ouvre une obligation pour le prix d’un achat assisté perdu par une rétrofacturation définitive totale. Seuls les paiements vérifiés par le service de paiement le recouvrent ; tout excédent est dû à l’organisation, jamais un revenu.",
+      "count": "{{shown}} obligations de recouvrement affichées",
+      "countMore": "Les {{shown}} premières obligations de recouvrement sont affichées ; d’autres sont disponibles",
+      "none": "Aucune obligation de recouvrement ne correspond.",
+      "errorTitle": "Les obligations de recouvrement n’ont pas pu être chargées",
+      "loading": "Chargement des obligations de recouvrement…",
+      "readOnly": "Lecture seule : aucun règlement, aucune affectation, aucun remboursement, aucun enregistrement de remboursement, aucune confirmation ni aucun passage en perte ne peut être effectué depuis cette page.",
+      "filter": {
+        "state": "Recouvrement",
+        "allStates": "Ouvertes et recouvrées",
+        "surplus": "Excédent",
+        "anySurplus": "Avec ou sans",
+        "surplusOwed": "Excédent encore dû à l’organisation"
+      },
+      "why": "Pourquoi elle existe",
+      "whyLoss": "Une rétrofacturation définitive totale de l’achat assisté, vérifiée par le service de paiement. Référence du litige :",
+      "standing": "Recouvrement",
+      "lateSettlements": "Règlements tardifs du dossier",
+      "noLateSettlement": "Aucun",
+      "owedBase": "Dû par l’organisation",
+      "baseOnly": "le prix uniquement, jamais les frais de l’organisation",
+      "recovered": "Recouvré (vérifié)",
+      "outstanding": "Restant dû",
+      "inProgress": "Paiement en cours",
+      "inProgressExplain": "L’organisation a commencé à payer. Rien n’est recouvré tant que le service de paiement ne l’a pas vérifié.",
+      "paymentsTitle": "Paiements de recouvrement vérifiés",
+      "paymentsNone": "Aucun paiement n’a encore été vérifié.",
+      "split": "recouvré {{principal}}, excédent {{surplus}}",
+      "surplusTitle": "Excédent payable à l’organisation",
+      "surplusNone": "Aucun excédent.",
+      "surplusNever": "Un excédent est dû à l’organisation : jamais un revenu, jamais compensé, et il ne rouvre jamais une restriction.",
+      "surplus": {
+        "externalRecorded": "Remboursement enregistré par le propriétaire",
+        "confirmed": "Remboursé, confirmé par l’organisation",
+        "refunded": "Remboursé par un remboursement achevé"
+      },
+      "externalRecordedOn": "enregistré le {{date}}",
+      "awaitingConfirmation": "Toujours dû tant que l’organisation n’a pas confirmé l’avoir reçu.",
+      "channelsTitle": "Tentatives de paiement",
+      "channelActive": "En cours",
+      "channelEnded": "Terminée",
+      "historyTitle": "Historique",
+      "history": {
+        "opened": "Ouverte par Nawara Core après la perte définitive",
+        "channel": "L’organisation a lancé un paiement",
+        "payment": "Le service de paiement a vérifié un paiement de recouvrement",
+        "surplus": "Un excédent a été enregistré",
+        "recovered": "Entièrement recouvrée",
+        "surplusExternal": "Le propriétaire a enregistré un remboursement hors de Nawara Core",
+        "surplusConfirmed": "L’organisation a confirmé le remboursement"
+      }
     }
   },
   "activity": {

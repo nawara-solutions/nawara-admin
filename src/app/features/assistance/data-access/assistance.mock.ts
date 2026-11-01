@@ -352,11 +352,17 @@ export class MockAssistanceGateway extends AssistanceGateway {
   ): Observable<AssistancePage<RecoveryObligation>> {
     return this.read(context, (cases) => {
       if (!filterInContext(context, filter)) return INVALID;
+      if (filter.state !== undefined && filter.state !== 'open' && filter.state !== 'recovered')
+        return INVALID;
+      if (filter.surplusOwed !== undefined && typeof filter.surplusOwed !== 'boolean')
+        return INVALID;
       const rows = cases
         .flatMap((c) => (c.recovery === null ? [] : [c.recovery]))
         .filter(
           (o) =>
             (filter.state === undefined || o.state === filter.state) &&
+            (filter.surplusOwed === undefined ||
+              o.surpluses.some((s) => s.status !== 'resolved') === filter.surplusOwed) &&
             (filter.platformId === undefined || o.platformId === filter.platformId) &&
             (filter.organizationId === undefined || o.organizationId === filter.organizationId),
         )

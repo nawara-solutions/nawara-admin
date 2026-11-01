@@ -5,6 +5,7 @@ import { BREADCRUMB_DATA, BREADCRUMB_PARENT_DATA } from '../../layout/breadcrumb
 import { AssistanceCaseFacade } from '../assistance/application/assistance-case.facade';
 import { AssistanceDirectoryFacade } from '../assistance/application/assistance-directory.facade';
 import { AssistanceDisputesFacade } from '../assistance/application/assistance-disputes.facade';
+import { AssistanceRecoveryFacade } from '../assistance/application/assistance-recovery.facade';
 import { AssistanceSettlementsFacade } from '../assistance/application/assistance-settlements.facade';
 import { UNAVAILABLE_ASSISTANCE_PROVIDERS } from '../assistance/data-access/assistance.gateway';
 import { BillingFacade } from './application/billing.facade';
@@ -16,8 +17,9 @@ import { BillingGateway, UnavailableBillingGateway } from './data-access/billing
  * `unavailable` adapter otherwise.
  *
  * Below it, the Organization Assistance case directory (`/billing/assistance`; A4), its disputes and exceptions
- * (`/billing/assistance/disputes`; A7), its late settlements and cash returns (`/billing/assistance/settlements`; A8; both
- * before `:requestId` so neither is ever read as a case reference) and one case
+ * (`/billing/assistance/disputes`; A7), its late settlements and cash returns (`/billing/assistance/settlements`; A8), its
+ * recovery obligations and surpluses (`/billing/assistance/recovery`; A9; all before `:requestId` so none is ever read as a case
+ * reference) and one case
  * (`/billing/assistance/:requestId`; A5): read only, the owner only (their own capability guard as well), with the
  * Assistance gateway bound the same way.
  */
@@ -80,6 +82,23 @@ export async function loadBillingRoutes(environment: AppEnvironment): Promise<Ro
       loadComponent: () =>
         import('../assistance/pages/assistance-settlements.page').then(
           (m) => m.AssistanceSettlementsPage,
+        ),
+    },
+    {
+      path: 'assistance/recovery',
+      title: 'titles.assistanceRecovery',
+      data: {
+        [BREADCRUMB_DATA]: 'shell.breadcrumb.assistanceRecovery',
+        [BREADCRUMB_PARENT_DATA]: {
+          key: 'shell.breadcrumb.assistance',
+          link: '/billing/assistance',
+        },
+      },
+      canActivate: [capabilityGuard('company.assistance.view')],
+      providers: [...assistance, AssistanceRecoveryFacade],
+      loadComponent: () =>
+        import('../assistance/pages/assistance-recovery.page').then(
+          (m) => m.AssistanceRecoveryPage,
         ),
     },
     {

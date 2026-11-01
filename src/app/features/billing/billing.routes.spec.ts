@@ -18,6 +18,7 @@ import { loadShellRoutes } from '../../layout/shell.routes';
 import { AssistanceCaseFacade } from '../assistance/application/assistance-case.facade';
 import { AssistanceDirectoryFacade } from '../assistance/application/assistance-directory.facade';
 import { AssistanceDisputesFacade } from '../assistance/application/assistance-disputes.facade';
+import { AssistanceRecoveryFacade } from '../assistance/application/assistance-recovery.facade';
 import { AssistanceSettlementsFacade } from '../assistance/application/assistance-settlements.facade';
 import { UnavailableAssistanceGateway } from '../assistance/data-access/assistance.gateway';
 import { BillingFacade } from './application/billing.facade';
@@ -169,6 +170,27 @@ describe('billing routes (P7-S3)', () => {
     expect(providers.map((p) => (typeof p === 'function' ? p : p.useClass))).toEqual([
       UnavailableAssistanceGateway,
       AssistanceSettlementsFacade,
+    ]);
+    expect(guardResult(route, owner)).toBe(true);
+    TestBed.resetTestingModule();
+    expect(guardResult(route, operator)).toBe('/forbidden');
+  });
+
+  it('guards recovery and surplus (A9) like the directory, before the case route, unavailable in production', async () => {
+    const routes = await loadBillingRoutes(PRODUCTION);
+    const index = routes.findIndex((r) => r.path === 'assistance/recovery');
+    const route = routes[index];
+    if (!route) throw new Error('no recovery route');
+    expect(index).toBeLessThan(routes.findIndex((r) => r.path === 'assistance/:requestId'));
+    expect(route.title).toBe('titles.assistanceRecovery');
+    expect(route.data).toEqual({
+      breadcrumb: 'shell.breadcrumb.assistanceRecovery',
+      breadcrumbParent: { key: 'shell.breadcrumb.assistance', link: '/billing/assistance' },
+    });
+    const providers = (route.providers ?? []) as (Provider & { useClass?: unknown })[];
+    expect(providers.map((p) => (typeof p === 'function' ? p : p.useClass))).toEqual([
+      UnavailableAssistanceGateway,
+      AssistanceRecoveryFacade,
     ]);
     expect(guardResult(route, owner)).toBe(true);
     TestBed.resetTestingModule();

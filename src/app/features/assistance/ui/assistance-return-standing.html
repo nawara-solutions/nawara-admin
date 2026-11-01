@@ -3,14 +3,16 @@
 <p class="assistance-return-standing__status">
   <nw-status-badge [tone]="tones[o.state]" data-return-badge>{{
     labels[o.state] | transloco
-  }}</nw-status-badge>
+  }}</nw-status-badge
+  >&ngsp;
   @if (source(); as source) {
-    <adm-assistance-source-tag [source]="source" />
+    <adm-assistance-source-tag [source]="source" />&ngsp;
   }
   @if (s.confirmationHeld) {
     <nw-status-badge tone="danger" data-held>{{
       'assistanceCases.returns.held' | transloco
-    }}</nw-status-badge>
+    }}</nw-status-badge
+    >&ngsp;
   }
 </p>
 <p class="assistance-return-standing__secondary" data-awaiting>
@@ -35,16 +37,16 @@
   <dl class="assistance-return-standing__times">
     <dt>{{ 'assistanceCases.returns.openedAt' | transloco }}</dt>
     <dd data-opened-at>
-      <time [attr.datetime]="o.openedAt">{{ o.openedAt | nwDate: 'date-time' }}</time>
-      <adm-assistance-source-tag source="derived" />
+      <time [attr.datetime]="o.openedAt">{{ o.openedAt | nwDate: 'date-time' }}</time
+      >&ngsp; <adm-assistance-source-tag source="derived" />&ngsp;
     </dd>
     @if (o.returnReport; as report) {
       <dt>{{ 'assistanceCases.returns.reportedReturn' | transloco }}</dt>
       <dd data-reported-return>
         <time [attr.datetime]="report.returnedAt">{{
           report.returnedAt | nwDate: 'date-time'
-        }}</time>
-        <adm-assistance-source-tag source="report" />
+        }}</time
+        >&ngsp; <adm-assistance-source-tag source="report" />&ngsp;
         <span class="assistance-return-standing__secondary">{{
           'assistanceCases.case.cashReturn.reportedOn'
             | transloco: { date: (report.returnReportedAt | nwDate: 'date-time') }
@@ -54,15 +56,15 @@
     @if (o.confirmedAt; as confirmed) {
       <dt>{{ 'assistanceCases.returns.confirmedAt' | transloco }}</dt>
       <dd data-confirmed-at>
-        <time [attr.datetime]="confirmed">{{ confirmed | nwDate: 'date-time' }}</time>
-        <adm-assistance-source-tag source="report" />
+        <time [attr.datetime]="confirmed">{{ confirmed | nwDate: 'date-time' }}</time
+        >&ngsp; <adm-assistance-source-tag source="report" />&ngsp;
       </dd>
     }
     @if (o.supersededAt; as superseded) {
       <dt>{{ 'assistanceCases.returns.supersededAt' | transloco }}</dt>
       <dd data-superseded-at>
-        <time [attr.datetime]="superseded">{{ superseded | nwDate: 'date-time' }}</time>
-        <adm-assistance-source-tag source="decision" />
+        <time [attr.datetime]="superseded">{{ superseded | nwDate: 'date-time' }}</time
+        >&ngsp; <adm-assistance-source-tag source="decision" />&ngsp;
       </dd>
     }
   </dl>

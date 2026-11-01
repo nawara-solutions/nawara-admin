@@ -1,0 +1,66 @@
+// One recovery obligation's standing (A9): owed, recovered and payable kept apart; sized by its own width (§15).
+:host {
+  display: grid;
+  flex: 1 1 100%;
+  gap: var(--nw-space-3);
+  inline-size: 100%;
+  font-size: var(--nw-text-size-sm);
+  container-type: inline-size;
+}
+
+.assistance-recovery-standing__facts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--nw-space-1) var(--nw-space-3);
+
+  dt {
+    color: var(--nw-text-secondary);
+  }
+
+  dd {
+    margin: 0 0 var(--nw-space-1);
+  }
+}
+
+.assistance-recovery-standing__facts dd,
+.assistance-recovery-standing__note,
+.assistance-recovery-standing__list li,
+.assistance-recovery-standing__history li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-1) var(--nw-space-2);
+  min-inline-size: 0;
+}
+
+.assistance-recovery-standing__block,
+.assistance-recovery-standing__list {
+  display: grid;
+  gap: var(--nw-space-2);
+}
+
+.assistance-recovery-standing__subtitle {
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.assistance-recovery-standing__history {
+  display: grid;
+  gap: var(--nw-space-1);
+  padding-inline-start: var(--nw-space-3);
+  border-inline-start: 2px solid var(--nw-border-hairline);
+}
+
+.assistance-recovery-standing__secondary,
+.assistance-recovery-standing__hint {
+  color: var(--nw-text-secondary);
+}
+
+@container (min-width: 28rem) {
+  .assistance-recovery-standing__facts {
+    grid-template-columns: minmax(8rem, 2fr) minmax(0, 3fr);
+
+    dd {
+      margin: 0;
+    }
+  }
+}

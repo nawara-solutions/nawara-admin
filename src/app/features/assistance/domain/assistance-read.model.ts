@@ -96,6 +96,11 @@ export interface LateSettlementFilter {
 
 export interface RecoveryFilter {
   readonly state?: RecoveryObligationState;
+  /**
+   * Only obligations with a surplus not yet resolved (A9). Core's only owner discovery of obligations is through their surpluses
+   * (BIL-33 `type=recovery_surplus`, CF-68), so this mirrors it.
+   */
+  readonly surplusOwed?: boolean;
   readonly platformId?: PlatformId;
   readonly organizationId?: OrganizationId;
 }
@@ -296,6 +301,43 @@ export type RecoverySurplusStatus =
 
 export interface RecoverySurplusView extends RecoverySurplus {
   readonly status: RecoverySurplusStatus;
+  /** When Core recorded it, with the verified payment it is the excess of (`recovery.service.ts:255-259`). */
+  readonly recordedAt: string;
+  /** Path B: when the owner recorded the external repayment (a decision, not a provider fact), else `null`. */
+  readonly externalRecordedAt: string | null;
+  /** Path B: when the receiving Organization's administrator confirmed it, else `null`. */
+  readonly confirmedAt: string | null;
+  /** Path A: the completed refund case that resolved it, else `null`. */
+  readonly refundCaseId: string | null;
+}
+
+/** `payment_request.status` (billing-service `db/migrations`, `payment_request_status_valid`). Machine values. */
+export const PAYMENT_REQUEST_STATES = [
+  'created',
+  'sending',
+  'requested',
+  'paid',
+  'failed',
+  'cancelled',
+  'expired',
+  'rejected',
+] as const;
+export type PaymentRequestState = (typeof PAYMENT_REQUEST_STATES)[number];
+
+/**
+ * A recovery settlement channel (B8, DB-8, DB-13; `0039_recovery.sql`): one invoice paid by the Organization for the outstanding
+ * amount when it opened, and its payment request. At most one is `active` (its payment request missing or not final). A channel is
+ * an ATTEMPT to pay: only a Payment-verified success of it is a recovery payment.
+ */
+export interface RecoveryChannelView {
+  readonly id: string;
+  readonly invoiceId: string;
+  readonly paymentRequestId: string | null;
+  /** The outstanding amount when the channel opened, minor units of the obligation's currency (never recomputed). */
+  readonly amount: number;
+  readonly paymentRequestStatus: PaymentRequestState | null;
+  readonly active: boolean;
+  readonly createdAt: string;
 }
 
 /** A recovery obligation as Core's BIL-28 owner read states it (`recovery.controller.ts:40-57`): base only, never a fee. */
@@ -309,10 +351,14 @@ export interface RecoveryObligationDetail extends RecoveryObligation {
   readonly recoveredAt: string | null;
   readonly payments: readonly {
     readonly id: string;
+    /** The payment request whose verified success (or verified late success, S6h-B) it is. */
+    readonly paymentRequestId: string;
     readonly amount: number;
     readonly principalAmount: number;
     readonly surplusAmount: number;
     readonly recordedAt: string;
   }[];
   readonly surpluses: readonly RecoverySurplusView[];
+  /** Settlement channels, oldest first (`recovery.service.ts:260-261`). */
+  readonly channels: readonly RecoveryChannelView[];
 }

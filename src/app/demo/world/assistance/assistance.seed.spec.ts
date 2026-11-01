@@ -382,9 +382,58 @@ describe('Demo assistance cases (A3): every record satisfies the A1 invariants',
         expect(o.surpluses.reduce((sum, s) => sum + s.amount.amount, 0)).toBe(surplus);
         for (const s of o.surpluses) {
           expect(s.organizationId).toBe(r.organizationId);
-          expect(surplusResolution(s)).toBe('owed');
-          expect(s.status).toBe('owed_to_organization');
+          // Core's status (`recovery.service.ts:271`) and the A1 resolution read the same records.
+          expect(s.status).toBe(
+            s.refundCaseId !== null || s.confirmedAt !== null
+              ? 'resolved'
+              : s.externalRecordedAt !== null
+                ? 'external_execution_evidenced'
+                : 'owed_to_organization',
+          );
+          expect(s.refunded).toBe(s.refundCaseId !== null);
+          expect(s.external === null).toBe(s.externalRecordedAt === null);
+          expect(s.external?.confirmed ?? false).toBe(s.confirmedAt !== null);
+          expect(surplusResolution(s)).not.toBe(s.refunded ? 'owed' : 'refunded');
+          // A surplus is exactly one verified payment's excess, recorded with it (R-1).
+          expect(
+            o.payments.some(
+              (p) => p.surplusAmount === s.amount.amount && p.recordedAt === s.recordedAt,
+            ),
+          ).toBe(true);
         }
+      });
+
+      it('follows Core’s recovery arithmetic and channels (A9): never recovered by an attempt alone', () => {
+        const o = c.recovery;
+        if (o === null) return;
+        // Replays the database's split (`billing_recovery_payment_insert_guard`) in recorded order: principal = min(amount, outstanding).
+        let outstanding = o.base.amount;
+        for (const p of [...o.payments].sort((a, b) => a.recordedAt.localeCompare(b.recordedAt))) {
+          expect(p.principalAmount).toBe(Math.min(p.amount, Math.max(0, outstanding)));
+          expect(p.surplusAmount).toBe(p.amount - p.principalAmount);
+          outstanding -= p.principalAmount;
+          expect(o.channels.map((ch) => ch.paymentRequestId)).toContain(p.paymentRequestId);
+        }
+        expect(o.outstanding.amount).toBe(Math.max(0, outstanding));
+        // DB-13: at most one active channel; an active payment request is never a recovery.
+        expect(o.channels.filter((ch) => ch.active).length).toBeLessThanOrEqual(1);
+        for (const ch of o.channels) {
+          expect(ch.active).toBe(
+            ['created', 'sending', 'requested'].includes(ch.paymentRequestStatus ?? 'created'),
+          );
+          expect(ch.amount).toBeGreaterThan(0);
+          expect(ch.amount).toBeLessThanOrEqual(o.base.amount);
+        }
+        if (o.state === 'recovered') expect(o.channels.some((ch) => ch.active)).toBe(false);
+        // The active channel was opened for exactly the outstanding amount (DB-8).
+        const active = o.channels.find((ch) => ch.active);
+        if (active) expect(active.amount).toBe(o.outstanding.amount);
+        expect(Date.parse(o.openedAt)).toBeLessThanOrEqual(
+          Math.min(
+            ...o.channels.map((ch) => Date.parse(ch.createdAt)),
+            Date.parse(o.recoveredAt ?? '9999'),
+          ),
+        );
       });
 
       it('tells a stable history in order, with reports never presented as facts', () => {
