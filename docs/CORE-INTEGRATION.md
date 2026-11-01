@@ -1345,6 +1345,11 @@ Admin requirement: a stated replay contract for these routes. Until then an unce
                   authorize a repeat.
 Classification:   🔴 undefined (contract clarification).
 Recommended checkpoint: before any Admin consumer of these routes (roadmap F8, F10).
+Evidence (F1-S7, 2026-11-01; `design/f1-s7-contract-fixtures.md` §3 F-2): each of the four routes documents a `200` for an
+                  identical repeat ("this holdId is already this hold", "already released", "the same record repeated (same
+                  grant and file): answered, nothing consumed again", "the same request again (same obligation and receipt):
+                  answered, nothing consumed again"; `reconciliation.service.ts:393-396`). Not yet stated by Core as the
+                  replay contract after a transport loss: CF-74 stays OPEN and Admin keeps blocking.
 
 CF-75  Owner-facing read of a receipt's state                              OPEN (F1-S0)
 Service:          auth-service
@@ -1384,6 +1389,24 @@ Admin requirement: a continuation contract for this list: a `nextCursor` (or the
                   recovery discovery, CF-68, CF-69) could silently omit cases.
 Classification:   🔴 undefined (contract clarification; the route is development and simulation only).
 Recommended checkpoint: before any Admin HTTP adapter that pages BIL-33 (Assistance; roadmap F8, F9).
+
+CF-78 (F1-S7, 2026-11-01) is an open Core question found while fixing the receipt-consumer contracts as fixtures
+(`design/f1-s7-contract-fixtures.md` §3 F-1). Recording it is not an approved Core implementation request.
+
+CF-78  Undocumented "nothing changed" 503s of receipt consumers             PROPOSED (F1-S7, 2026-11-01)
+Service:          billing-service
+Current behavior: (verified `0044b20`) `fraud_evidence_unavailable`, `surplus_evidence_unavailable`,
+                  `late_settlement_evidence_unavailable`, `recovery_authorization_unavailable`,
+                  `late_settlement_authorization_unavailable` and the release's `fraud_hold_unavailable` are listed in their
+                  controllers without saying whether anything changed (only placement's `fraud_hold_unavailable` says "nothing
+                  changed", `fraud-hold.controller.ts:40`). The source throws each before the receipt is consumed and before any
+                  write (`fraud-hold.service.ts:118-128, :176-189`; `recovery.service.ts:299-304, :370`;
+                  `late-settlement.service.ts:284-290, :358-367`; `reconciliation.service.ts:454`); a repeat reuses the same
+                  `consumeRef`.
+Admin requirement: Core states "nothing changed" for these answers in its contract (OpenAPI), so Admin's "same request again
+                  while the receipt is unexpired" reading rests on a documented contract rather than on source reading.
+Classification:   🟡 documentation clarification (behaviour appears correct).
+Recommended checkpoint: before the first receipt-consumer HTTP adapter (roadmap F5, F8, F9, F10).
 
 Residual risk recorded with P6-S3: block and unblock require no step-up (Core's deliberate choice for an emergency
 control), so a stolen owner session can block every operator or unblock one. Admin adds no verification Core does not ask

@@ -1,0 +1,247 @@
+{
+  "$comment": "F1-S7 fixture: Core facts of receipt issuance (AUTH-01) only, at nawara-core 0044b20. Never a Core response; never sent anywhere.",
+  "core": {
+    "repository": "nawara-solutions/nawara-core",
+    "revision": "0044b20"
+  },
+  "register": "AUTH-01",
+  "method": "POST",
+  "route": "/auth/admin/authorization-receipts",
+  "success": 201,
+  "actor": "owner",
+  "routeSource": "apps/auth-service/src/receipts/authorization-receipt.controller.ts:26-50",
+  "headers": {
+    "Idempotency-Key": {
+      "required": true,
+      "pattern": "^[A-Za-z0-9._:-]{8,128}$",
+      "source": "apps/auth-service/src/receipts/authorization-receipt.service.ts:17; authorization-receipt.controller.ts:35, :45-47"
+    },
+    "Cache-Control": {
+      "value": "no-store",
+      "source": "apps/auth-service/src/receipts/authorization-receipt.controller.ts:32"
+    }
+  },
+  "body": {
+    "fields": ["stepUpToken", "binding"],
+    "stepUpTokenMaxLength": 64,
+    "source": "apps/auth-service/src/receipts/dto.ts:108-114"
+  },
+  "response": {
+    "fields": ["receiptId", "secret", "expiresAt"],
+    "secretOnce": true,
+    "source": "apps/auth-service/src/receipts/authorization-receipt.controller.ts:51-52; dto.ts:116-120"
+  },
+  "secret": {
+    "bytes": 32,
+    "encoding": "base64url",
+    "pattern": "^[A-Za-z0-9_-]{43}$",
+    "source": "apps/auth-service/src/receipts/authorization-receipt.service.ts:112; consumers: apps/billing-service/src/refunds/refund-input.ts:56, apps/payment-service/src/disputes/dispute-owner.service.ts:18"
+  },
+  "lifetimeMs": {
+    "value": 600000,
+    "source": "apps/auth-service/src/receipts/authorization-receipt.service.ts:15"
+  },
+  "replayHashCoversStepUp": {
+    "value": false,
+    "source": "apps/auth-service/src/receipts/dto.ts:108; authorization-receipt.service.ts:106-108"
+  },
+  "operations": {
+    "refund": {
+      "purpose": "refund.authorize",
+      "audience": "payment-service",
+      "fields": [
+        "operation",
+        "audience",
+        "companyId",
+        "refundCaseId",
+        "paymentId",
+        "amount",
+        "currency",
+        "reason",
+        "legalOverride",
+        "captureFactId"
+      ],
+      "optional": ["legalOverride", "captureFactId"]
+    },
+    "dispute_decision": {
+      "purpose": "payment.dispute.decide",
+      "audience": "payment-service",
+      "fields": ["operation", "audience", "companyId", "disputeId", "paymentId", "decision"],
+      "optional": []
+    },
+    "fraud_hold_place": {
+      "purpose": "billing.fraud_hold.place",
+      "audience": "billing-service",
+      "fields": [
+        "operation",
+        "audience",
+        "companyId",
+        "holdId",
+        "beneficiaryUserId",
+        "productId",
+        "reason"
+      ],
+      "optional": []
+    },
+    "fraud_hold_release": {
+      "purpose": "billing.fraud_hold.release",
+      "audience": "billing-service",
+      "fields": ["operation", "audience", "companyId", "holdId", "beneficiaryUserId", "productId"],
+      "optional": []
+    },
+    "recovery_surplus_external": {
+      "purpose": "billing.recovery_surplus.record_external",
+      "audience": "billing-service",
+      "fields": [
+        "operation",
+        "audience",
+        "companyId",
+        "surplusId",
+        "organizationId",
+        "amount",
+        "currency"
+      ],
+      "optional": []
+    },
+    "late_settlement_apply": {
+      "purpose": "billing.late_settlement.apply",
+      "audience": "billing-service",
+      "fields": [
+        "operation",
+        "audience",
+        "companyId",
+        "lateSettlementId",
+        "assistanceRequestId",
+        "beneficiaryUserId",
+        "reasonCode"
+      ],
+      "optional": []
+    },
+    "provider_fact_associate": {
+      "purpose": "payment.provider_fact.associate",
+      "audience": "payment-service",
+      "fields": [
+        "operation",
+        "audience",
+        "companyId",
+        "factId",
+        "kind",
+        "amount",
+        "currency",
+        "targetType",
+        "targetId"
+      ],
+      "optional": []
+    },
+    "recovery_write_off": {
+      "purpose": "billing.recovery.write_off",
+      "audience": "billing-service",
+      "fields": [
+        "operation",
+        "audience",
+        "companyId",
+        "obligationId",
+        "organizationId",
+        "amount",
+        "currency"
+      ],
+      "optional": []
+    }
+  },
+  "operationsSource": "apps/auth-service/src/receipts/receipt-binding.ts:152-173",
+  "answers": [
+    {
+      "status": 400,
+      "code": "idempotency_key_required",
+      "coreSays": null,
+      "source": "apps/auth-service/src/receipts/authorization-receipt.controller.ts:39, :45-47"
+    },
+    {
+      "status": 400,
+      "code": "receipt_binding_invalid",
+      "coreSays": "malformed binding, or not the Owner's Company",
+      "source": "apps/auth-service/src/receipts/receipt-http.ts:14; authorization-receipt.controller.ts:39"
+    },
+    {
+      "status": 400,
+      "code": "validation_error",
+      "coreSays": null,
+      "source": "apps/auth-service/src/receipts/receipt-http.ts:27; authorization-receipt.controller.ts:39"
+    },
+    {
+      "status": 400,
+      "code": "step_up_unsupported",
+      "coreSays": null,
+      "source": "apps/auth-service/src/receipts/authorization-receipt.controller.ts:39"
+    },
+    {
+      "status": 401,
+      "code": null,
+      "coreSays": "unauthenticated",
+      "source": "apps/auth-service/src/receipts/authorization-receipt.controller.ts:40"
+    },
+    {
+      "status": 403,
+      "code": "forbidden",
+      "coreSays": "not an Owner",
+      "source": "apps/auth-service/src/receipts/authorization-receipt.controller.ts:41"
+    },
+    {
+      "status": 403,
+      "code": "step_up_required",
+      "coreSays": "missing, expired, used, wrong-purpose or wrong-session proof",
+      "source": "apps/auth-service/src/receipts/authorization-receipt.controller.ts:41; apps/auth-service/src/owner/step-up.service.ts:231"
+    },
+    {
+      "status": 403,
+      "code": "authority_revoked",
+      "coreSays": null,
+      "source": "apps/auth-service/src/receipts/receipt-http.ts:20"
+    },
+    {
+      "status": 409,
+      "code": "receipt_issued_response_lost",
+      "coreSays": "replay of the key: the receipt is voided",
+      "source": "apps/auth-service/src/receipts/receipt-http.ts:16; authorization-receipt.controller.ts:42"
+    },
+    {
+      "status": 409,
+      "code": "receipt_already_consumed",
+      "coreSays": "replay of the key",
+      "source": "apps/auth-service/src/receipts/receipt-http.ts:17; authorization-receipt.controller.ts:42"
+    },
+    {
+      "status": 409,
+      "code": "receipt_expired",
+      "coreSays": "replay of the key",
+      "source": "apps/auth-service/src/receipts/receipt-http.ts:19; authorization-receipt.controller.ts:42"
+    },
+    {
+      "status": 409,
+      "code": "idempotency_key_reused",
+      "coreSays": "replay of the key for another request",
+      "source": "apps/auth-service/src/receipts/receipt-http.ts:15; authorization-receipt.controller.ts:42"
+    },
+    {
+      "status": 503,
+      "code": "receipt_unavailable",
+      "coreSays": "nothing changed",
+      "source": "apps/auth-service/src/receipts/receipt-http.ts:12; authorization-receipt.controller.ts:43"
+    },
+    {
+      "status": 503,
+      "code": "receipt_outcome_unknown",
+      "coreSays": "replay the same key",
+      "source": "apps/auth-service/src/receipts/receipt-http.ts:13; authorization-receipt.controller.ts:43"
+    }
+  ],
+  "serviceOnly": {
+    "routes": [
+      "POST /auth/service/authorization-receipts/consume",
+      "POST /auth/service/authorization-receipts/consumptions/lookup"
+    ],
+    "codes": ["receipt_invalid", "consume_ref_conflict"],
+    "meaning": "AUTH-02/AUTH-03: service-token routes; never called by a browser, their codes never reach Admin directly",
+    "source": "apps/auth-service/src/receipts/authorization-receipt.controller.ts:56-70; receipt-http.ts:18, :21"
+  }
+}
