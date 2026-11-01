@@ -22,10 +22,8 @@ never change). Each logo becomes three aligned rasters of the same size, so `con
   split by projecting it on the line from the reference blue to white, so the blue-to-white edges stay as drawn.
 Composited with the reference blue, the layers give back the reference (checked below, `verify`).
 
-Favicons cannot read CSS, so each palette and appearance gets its own tab icon at the existing file names, filled with the
-palette's primary read from the token files (never approximated); Sapphire keeps the reference blue (owner decision). Static
-icons (favicon.ico, icons/icon-*.png, apple-touch and maskable) cannot follow a palette: they use the default palette
-(Coral, light primary).
+Favicons: since B2 they are exported from the hand-drawn vector master docs/brand/nawara-admin-favicon.svg by
+tools/brand/export_favicon.mjs; this script no longer writes them (write_icons is kept for the record).
 
 Usage, from the repository root:
   python3 -B tools/brand/extract_blue_leaf.py docs/brand/references/nawara-logo-family-2026-11-01.webp
@@ -289,7 +287,8 @@ def main(path: str) -> None:
             mark_mask, mark_details = crop_symbol(layers, LOGOS['admin']['symbol_x'], LOGOS['admin']['box'][0])
             save_webp(mark_mask, 'nawara-admin-mark-mask.webp')
             save_webp(mark_details, 'nawara-admin-mark-details.webp')
-            write_icons(mark_mask, mark_details)
+            # The favicon family is exported from its vector master since B2 (tools/brand/export_favicon.mjs);
+            # write_icons(mark_mask, mark_details) is kept for the record and no longer run.
 
 
 if __name__ == '__main__':
