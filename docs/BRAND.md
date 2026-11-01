@@ -18,6 +18,23 @@ botanical illustrations, the eleven accent palettes) is unchanged.
 **Owner correction (same day):** the botanical symbol of every logo and favicon **follows the selected accent palette**, in
 light and dark; the lettering and the white details inside the leaf never change; the geometry is the approved extraction.
 
+**Final polish (owner, 2026-11-01):**
+
+- **Pictogram colour.** The pictogram inside the leaf (Admin people, Solutions puzzle) is painted with `--nw-logo-detail`:
+  whichever of white `#ffffff` and the logo's own navy `#040b2d` has the higher contrast on that leaf. That gives white on
+  every light-mode leaf and navy on every dark-mode leaf, except Sapphire, whose reference blue keeps white (4.55:1 against
+  4.23:1). Every combination is at least 4.55:1, and `check:contrast` holds the pair to 3:1. The same colours are used in
+  the favicons.
+- **Logo boxes.** The logo boxes take the logo's own proportions, so the logo fills them instead of floating in them. Same
+  height, so nothing moves vertically:
+  - sign-in logo 173 → 240 px wide;
+  - sidebar logo 122 → 169 px;
+  - scope symbol 24 → 35 px;
+  - copyright mark 110 → 127 px (line height unchanged).
+- **Decorative rules removed.** The short accent rules before "NAWARA ADMIN" and before the copyright are gone.
+- **Regression checks.** `npm run check:brand` (in `validate`) guards the layer wiring, the removed rules, the box
+  proportions, the 22 favicon colours and the icon sizes. Evidence is in `docs/review/b1-polish/`.
+
 | Item | Current (B1) | Provenance |
 |---|---|---|
 | Source | the owner's logo-family reference, `docs/brand/references/nawara-logo-family-2026-11-01.webp` (2000 × 667 WebP, flat ground `#fefefe`; leaf blue `#046efa` and lettering navy `#040b2d`, sampled medians) | owner, 2026-11-01. **No vector master exists in any Nawara repository** (Admin, nawara-frontend, nawara-core, ai-standard, nawara-ia, nawara-school, nawara-drive were searched) |

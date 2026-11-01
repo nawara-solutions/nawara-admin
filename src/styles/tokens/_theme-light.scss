@@ -56,6 +56,9 @@
   // (abstracts/_logo.scss). The botanical symbol is painted with --nw-logo-accent, the selected palette's primary (Sapphire
   // keeps the reference blue, tokens/_accents.scss); the lettering is per theme; the white details never change.
   --nw-logo-accent: var(--nw-color-primary);
+  // The pictogram inside the leaf (people, puzzle): the candidate (white or the logo's navy) with the higher contrast on
+  // the leaf, white: the higher contrast on every light-mode leaf; check:contrast holds it to 3:1 on every palette.
+  --nw-logo-detail: var(--nw-ref-ink-0);
   --nw-logo-admin-lettering: url('/brand/nawara-admin-lettering.webp');
   --nw-logo-admin-symbol-mask: url('/brand/nawara-admin-symbol-mask.webp');
   --nw-logo-admin-symbol-details: url('/brand/nawara-admin-symbol-details.webp');

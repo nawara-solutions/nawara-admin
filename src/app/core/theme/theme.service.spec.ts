@@ -169,6 +169,46 @@ describe('ThemeService', () => {
     document.getElementById('nw-favicon')?.remove();
   });
 
+  it('restores the stored accent and appearance into the favicon at start, for every palette (B1)', () => {
+    const palettes = [
+      'coral',
+      'rose',
+      'plum',
+      'indigo',
+      'teal',
+      'amber',
+      'midnight',
+      'pearl',
+      'sapphire',
+      'emerald',
+      'burgundy',
+    ];
+    for (const theme of ['light', 'dark'] as const) {
+      for (const accent of palettes) {
+        stubSystemTheme(false);
+        const link = document.createElement('link');
+        link.id = 'nw-favicon';
+        link.rel = 'icon';
+        link.setAttribute('href', 'favicon.svg');
+        document.head.append(link);
+        localStorage.setItem('nw.theme', theme);
+        if (accent !== 'coral') localStorage.setItem('nw.accent', accent);
+        TestBed.inject(ThemeService);
+        TestBed.tick();
+        const expected =
+          theme === 'light'
+            ? `icons/favicon-${accent}-light.svg`
+            : accent === 'coral'
+              ? 'favicon.svg'
+              : `icons/favicon-${accent}.svg`;
+        expect(document.getElementById('nw-favicon')?.getAttribute('href')).toBe(expected);
+        document.getElementById('nw-favicon')?.remove();
+        localStorage.clear();
+        TestBed.resetTestingModule();
+      }
+    }
+  });
+
   it('offers the five added palettes after the original six, and keeps an unknown stored value on coral', async () => {
     stubSystemTheme(false);
     localStorage.setItem('nw.accent', 'violet');

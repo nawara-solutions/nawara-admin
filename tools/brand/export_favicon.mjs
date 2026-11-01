@@ -1,7 +1,7 @@
 // Exports the Nawara Admin favicon family from its vector master (B2; docs/BRAND.md §B1).
 //
 // Master: docs/brand/nawara-admin-favicon.svg (Option A, owner selection 2026-11-01): hand-drawn on a 64-unit grid, the
-// botanical colour `currentColor`, the users glyph white.
+// botanical colour `currentColor`, the users glyph (class "detail") painted with the palette's pictogram colour.
 //
 // Outputs (the existing paths, so index.html, ThemeService and palette-artwork.ts need no change):
 // - public/favicon.svg and public/icons/favicon-<palette>[-light].svg: real vector SVGs (no embedded raster), one per
@@ -41,30 +41,46 @@ const PALETTES = [
 
 function logoColours() {
   const accents = readFileSync(resolve(ROOT, 'src/styles/tokens/_accents.scss'), 'utf8');
+  const foundation = readFileSync(
+    resolve(ROOT, 'node_modules/@nawara-solutions/design-tokens/dist/tokens.css'),
+    'utf8',
+  );
+  const ref = (name) => foundation.match(new RegExp(`${name}: (#[0-9a-f]{6});`))[1];
+  const value = (v) => (v.startsWith('var(') ? ref(v.slice(4, -1)) : v);
+  // The pictogram colour per appearance (theme defaults), then each palette's override (tokens/_accents.scss).
+  const detail = {};
+  for (const theme of ['light', 'dark']) {
+    const source = readFileSync(resolve(ROOT, `src/styles/tokens/_theme-${theme}.scss`), 'utf8');
+    detail[theme] = value(source.match(/--nw-logo-detail: ([^;]+);/)[1]);
+  }
   const table = {};
   for (const [, name, theme, body] of accents.matchAll(
     /@mixin (\w+)-(light|dark) \{([\s\S]*?)\n\}/g,
   )) {
     const primary = body.match(/--nw-color-primary: (#[0-9a-f]{6});/)[1];
     const logo = body.match(/--nw-logo-accent: (#[0-9a-f]{6});/)?.[1];
-    (table[name] ??= {})[theme] = logo ?? primary;
+    const own = body.match(/--nw-logo-detail: ([^;]+);/)?.[1];
+    (table[name] ??= {})[theme] = {
+      leaf: logo ?? primary,
+      detail: own ? value(own) : detail[theme],
+    };
   }
-  const foundation = readFileSync(
-    resolve(ROOT, 'node_modules/@nawara-solutions/design-tokens/dist/tokens.css'),
-    'utf8',
-  );
-  const ref = (n) => foundation.match(new RegExp(`--nw-ref-coral-${n}: (#[0-9a-f]{6});`))[1];
-  table.coral = { light: ref(600), dark: ref(400) };
+  table.coral = {
+    light: { leaf: ref('--nw-ref-coral-600'), detail: detail.light },
+    dark: { leaf: ref('--nw-ref-coral-400'), detail: detail.dark },
+  };
   for (const p of PALETTES)
     if (!table[p]?.light || !table[p]?.dark) throw new Error(`no colour for ${p}`);
-  if (table.sapphire.light !== REFERENCE_BLUE || table.sapphire.dark !== REFERENCE_BLUE)
+  if (table.sapphire.light.leaf !== REFERENCE_BLUE || table.sapphire.dark.leaf !== REFERENCE_BLUE)
     throw new Error('sapphire must keep the reference blue');
   return table;
 }
 
-/** The master with its colour set: the light value, and the dark value when the browser is dark. */
+/** The master with its colours set: the leaf and pictogram of the light value, and of the dark value when the browser is dark. */
 function themed(light, dark) {
-  const style = `<style>svg{color:${light}}@media (prefers-color-scheme:dark){svg{color:${dark}}}</style>`;
+  const style =
+    `<style>svg{color:${light.leaf}}.detail{fill:${light.detail}}` +
+    `@media (prefers-color-scheme:dark){svg{color:${dark.leaf}}.detail{fill:${dark.detail}}}</style>`;
   return MASTER.replace(/<!--[\s\S]*?-->\s*/, '')
     .replace(/ color="#[0-9a-f]{6}"/, '')
     .replace(/(<svg[^>]*>)/, `$1${style}`)
@@ -144,5 +160,5 @@ writeFileSync(
 );
 await browser.close();
 console.log(
-  `favicon.ico, icons/icon-{16,32,48,192,512}.png, apple-touch-icon.png, icons/icon-maskable-512.png written (Coral ${colours.coral.light})`,
+  `favicon.ico, icons/icon-{16,32,48,192,512}.png, apple-touch-icon.png, icons/icon-maskable-512.png written (Coral ${colours.coral.light.leaf})`,
 );
