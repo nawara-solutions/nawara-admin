@@ -1,0 +1,105 @@
+@let list = items();
+<p class="assistance-evidence__note" role="note" data-file-path>
+  <nw-icon name="file-badge" size="sm" />
+  <span>{{ 'assistanceCases.evidence.filePath' | transloco: { followUp: followUp } }}</span>
+</p>
+@if (list.length === 0) {
+  <p class="assistance-evidence__secondary" data-evidence-none>
+    {{ 'assistanceCases.evidence.none' | transloco }}
+  </p>
+} @else {
+  <p class="assistance-evidence__secondary" data-evidence-counts>
+    {{
+      'assistanceCases.evidence.counts'
+        | transloco
+          : {
+              total: list.length,
+              references: counts().reference,
+              notInRead: counts().notInRead,
+            }
+    }}
+  </p>
+  <ol class="assistance-evidence__items" data-evidence-list>
+    @for (item of list; track item.id) {
+      <li
+        class="assistance-evidence__item"
+        [class.assistance-evidence__item--file]="item.file !== 'none'"
+        [attr.data-evidence-kind]="item.kind"
+        [attr.data-file]="item.file"
+        [attr.data-source]="item.source"
+      >
+        <p class="assistance-evidence__head">
+          <span class="assistance-evidence__title">{{ kindKeys[item.kind] | transloco }}</span
+          >&ngsp;
+          <adm-assistance-source-tag [source]="item.source" />
+        </p>
+        <p class="assistance-evidence__secondary" data-evidence-meta>
+          {{ actorKeys[item.by] | transloco }} ·
+          @if (item.recordedAt; as recorded) {
+            <time [attr.datetime]="recorded">{{
+              'assistanceCases.evidence.recordedAt'
+                | transloco: { date: (recorded | nwDate: 'date-time') }
+            }}</time>
+          } @else {
+            <span data-time-unstated>{{
+              'assistanceCases.evidence.timeNotStated' | transloco
+            }}</span>
+          }
+        </p>
+        @if (item.statement; as statement) {
+          <p class="assistance-evidence__statement" data-statement>
+            @switch (statement.type) {
+              @case ('correction') {
+                <span data-correction-trail
+                  >#{{ statement.sequence }} ·
+                  {{
+                    'assistanceCases.evidence.statement.correction'
+                      | transloco
+                        : {
+                            field: (fieldKeys[statement.field] | transloco),
+                            from: (statement.supersededValue | nwDate: 'date-time'),
+                            to: (statement.correctedValue | nwDate: 'date-time'),
+                          }
+                  }}
+                  · {{ correctionReasonKeys[statement.reason] | transloco }}</span
+                >
+              }
+              @case ('disputeReason') {
+                {{
+                  'assistanceCases.evidence.statement.disputeReason'
+                    | transloco: { reason: (reasonKeys[statement.reason] | transloco) }
+                }}
+              }
+              @case ('responsePosition') {
+                {{ positionKeys[statement.position] | transloco }}
+              }
+              @case ('attestation') {
+                {{ attestationKeys[statement.statement] | transloco }}
+              }
+              @case ('applicationBasis') {
+                {{ basisKeys[statement.reasonCode] | transloco }}
+              }
+            }
+          </p>
+        }
+        <dl class="assistance-evidence__refs" data-references>
+          @for (ref of item.references; track ref.kind + ref.id) {
+            <div class="assistance-evidence__ref" [attr.data-reference]="ref.kind">
+              <dt>{{ referenceKeys[ref.kind] | transloco }}</dt>
+              <dd>
+                <code dir="ltr" [attr.title]="ref.id">…{{ shortRef(ref.id) }}</code>
+              </dd>
+            </div>
+          }
+        </dl>
+        <p class="assistance-evidence__file" [attr.data-file-note]="item.file">
+          <nw-icon [name]="fileIcons[item.file]" size="sm" />
+          <span>{{ fileKeys[item.file] | transloco: { followUp: followUp } }}</span>
+        </p>
+      </li>
+    }
+  </ol>
+}
+<p class="assistance-evidence__hint" data-evidence-never>
+  {{ 'assistanceCases.evidence.never' | transloco }}
+</p>

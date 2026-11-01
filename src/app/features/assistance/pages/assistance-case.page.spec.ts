@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import { throwError } from 'rxjs';
 import { vi } from 'vitest';
 import ar from '../../../../i18n/ar.json';
 import en from '../../../../i18n/en.json';
@@ -70,11 +71,14 @@ async function render(
     gateway = 'mock',
     scenario = 'normal',
     lang = 'en',
+    restrictionsFail = false,
   }: {
     actor?: Actor;
     gateway?: 'mock' | 'unavailable';
     scenario?: AssistanceDemoScenario;
     lang?: 'en' | 'fr' | 'ar';
+    /** The BIL-26 read fails while the case reads (A10). */
+    restrictionsFail?: boolean;
   } = {},
 ) {
   TestBed.configureTestingModule({
@@ -121,7 +125,12 @@ async function render(
     late: vi.spyOn(instance, 'lateSettlement'),
     recovery: vi.spyOn(instance, 'recoveryObligation'),
     cases: vi.spyOn(instance, 'cases'),
+    restrictions: vi.spyOn(instance, 'organizationRestrictions'),
   };
+  if (restrictionsFail)
+    spies.restrictions.mockReturnValue(
+      throwError(() => ({ kind: 'unavailable', code: 'billing_unavailable', status: 503 })),
+    );
   await TestBed.inject(Router).navigateByUrl(
     `/billing/assistance/${encodeURIComponent(requestId)}`,
   );
@@ -193,11 +202,13 @@ describe('Assistance case page (A5)', { timeout: 30_000 }, () => {
     expect(text(collection.querySelector('[data-channel]'))).toBe(t.channel.closed);
     expect(text(collection)).not.toContain(c.collection.settledFact);
     const restrictions = [
-      ...element.querySelectorAll('[data-section="oversight"] [data-restriction]'),
+      ...element.querySelectorAll('[data-section="restrictions"] [data-restriction]'),
     ].map((li) => li.getAttribute('data-restriction'));
     expect(restrictions).toEqual(['T1', 'T2']);
-    expect(text(section(element, 'oversight'))).toContain(c.restriction.t1);
-    expect(text(section(element, 'oversight'))).toContain(t.oversight.clears.settledOrReturned);
+    expect(text(section(element, 'restrictions'))).toContain(c.restriction.t1);
+    expect(text(section(element, 'restrictions'))).toContain(t.oversight.clears.settledOrReturned);
+    // The oversight card no longer repeats them (A10): one place for Core's restrictions.
+    expect(section(element, 'oversight')!.querySelector('[data-restriction]')).toBeNull();
     const returns = section(element, 'returns')!;
     expect(text(returns)).toContain(c.cashReturn.state.open);
     expect(text(returns.querySelector('[data-amount]'))).toMatch(/TND\s?46\.500/);
@@ -295,9 +306,11 @@ describe('Assistance case page (A5)', { timeout: 30_000 }, () => {
       expect.stringMatching(/TND\s?30\.000/),
     ]);
     expect(
-      r.element.querySelector('[data-section="oversight"] [data-restriction="T3"]'),
+      r.element.querySelector('[data-section="restrictions"] [data-restriction="T3"]'),
     ).not.toBeNull();
-    expect(text(section(r.element, 'oversight'))).toContain(t.oversight.clears.principalRecovered);
+    expect(text(section(r.element, 'restrictions'))).toContain(
+      t.oversight.clears.principalRecovered,
+    );
     TestBed.resetTestingModule();
     r = await render(caseOf(14).request.id);
     recovery = section(r.element, 'recovery')!;
@@ -359,9 +372,14 @@ describe('Assistance case page (A5)', { timeout: 30_000 }, () => {
     const fetchSpy = typeof globalThis.fetch === 'function' ? vi.spyOn(globalThis, 'fetch') : null;
     const open = vi.spyOn(XMLHttpRequest.prototype, 'open');
     const { element, spies } = await render(caseOf(12).request.id);
-    expect(
-      element.querySelectorAll('button, form, input, select, textarea, [role="dialog"]'),
-    ).toHaveLength(0);
+    expect(element.querySelectorAll('button, form, textarea, [role="dialog"]')).toHaveLength(0);
+    // The only controls are the history's view controls (A10): an order and the sources shown. They submit nothing.
+    const controls = [...element.querySelectorAll<HTMLElement>('input, select')];
+    expect(controls.length).toBeGreaterThan(0);
+    for (const control of controls) {
+      expect(control.closest('[data-history-controls]')).not.toBeNull();
+      if (control instanceof HTMLInputElement) expect(control.type).toBe('checkbox');
+    }
     expect(spies.cases).not.toHaveBeenCalled();
     if (fetchSpy) expect(fetchSpy).not.toHaveBeenCalled();
     expect(open).not.toHaveBeenCalled();
@@ -461,12 +479,15 @@ describe('Assistance case oversight (A6)', { timeout: 60_000 }, () => {
 
   it('explains each restriction and how it clears; the overdue deadline is flagged', async () => {
     const { element } = await render(caseOf(11).request.id);
-    const items = [...element.querySelectorAll('[data-restriction]')].map((li) =>
-      [...li.children].map(text),
-    );
+    const items = [...element.querySelectorAll<HTMLElement>('[data-restriction]')].map((li) => [
+      li.dataset['restriction'],
+      text(li.querySelector('nw-status-badge')),
+      text(li.querySelector('.assistance-restriction__meaning')),
+      text(li.querySelector('[data-ends]')),
+    ]);
     expect(items).toEqual([
-      ['T1', c.restriction.t1, t.oversight.clears.settledOrReturned],
-      ['T2', c.restriction.t2, t.oversight.clears.returnConfirmedOrSuperseded],
+      ['T1', 'T1', c.restriction.t1, t.oversight.clears.settledOrReturned],
+      ['T2', 'T2', c.restriction.t2, t.oversight.clears.returnConfirmedOrSuperseded],
     ]);
     expect(text(element.querySelector('[data-stage="deadline"] nw-status-badge'))).toBe(
       t.oversight.deadline.overdue,
@@ -751,4 +772,221 @@ describe('Assistance case recovery and surplus (A9)', { timeout: 60_000 }, () =>
     // The case history shows the owner's external record as a decision.
     expect(events(r.element)).toContainEqual(['decision', 'surplusExternal']);
   });
+});
+
+describe('Assistance case evidence, history and restrictions (A10)', { timeout: 60_000 }, () => {
+  const ev = t.evidence;
+  const h = t.history;
+  const rs = t.restrictions;
+  const items = (element: HTMLElement) =>
+    [...element.querySelectorAll<HTMLElement>('[data-evidence-list] > li')].map((li) => [
+      li.dataset['evidenceKind'],
+      li.dataset['file'],
+      li.dataset['source'],
+    ]);
+
+  it('Path B evidence: File references are ids, never links; the file path is unavailable (CF-71)', async () => {
+    const kase = caseOf(15);
+    const { element } = await render(kase.request.id);
+    const evidence = section(element, 'evidence')!;
+    expect(text(evidence.querySelector('h2'))).toBe(ev.title);
+    expect(items(element)).toEqual([
+      ['collectionReport', 'none', 'report'],
+      ['lateSuccess', 'none', 'fact'],
+      ['lateApplication', 'none', 'decision'],
+      ['lateFileGrant', 'reference', 'decision'],
+      ['lateFileGrant', 'reference', 'decision'],
+    ]);
+    expect(text(evidence.querySelector('[data-file-path]'))).toBe(
+      ev.filePath.replace('{{followUp}}', 'CF-71'),
+    );
+    const grant = kase.lateSettlements[0]!.evidence[0]!;
+    const first = evidence.querySelector('[data-evidence-kind="lateFileGrant"]')!;
+    const refs = [...first.querySelectorAll<HTMLElement>('[data-reference] code')].map((code) =>
+      code.getAttribute('title'),
+    );
+    expect(refs).toEqual([grant.grantId, grant.fileId]);
+    expect(text(first.querySelector('[data-file-note]'))).toBe(
+      ev.file.reference.replace('{{followUp}}', 'CF-71'),
+    );
+    // Nothing can be opened, downloaded or uploaded: no link, no download, no file input anywhere in the register.
+    expect(
+      evidence.querySelectorAll('a, [download], input[type="file"], iframe, object'),
+    ).toHaveLength(0);
+    expect(element.innerHTML).not.toMatch(/https?:\/\/[^"]*(file|grant|download)/i);
+    expect(text(evidence.querySelector('[data-evidence-counts]'))).toBe(
+      ev.counts
+        .replace('{{total}}', '5')
+        .replace('{{references}}', '2')
+        .replace('{{notInRead}}', '0'),
+    );
+    // The late-settlement section names the same references, and says they are references only.
+    const late = section(element, 'late')!;
+    expect(late.querySelectorAll('[data-file-reference]')).toHaveLength(2);
+    expect(text(late.querySelector('[data-reference-only]'))).toBe(ev.referenceOnly);
+  });
+
+  it('a correction keeps its original report; a recorded external surplus repayment has no readable File', async () => {
+    let r = await render(caseOf(9).request.id);
+    const correction = r.element.querySelector('[data-evidence-kind="correction"]')!;
+    expect(correction.getAttribute('data-source')).toBe('decision');
+    expect(text(correction.querySelector('[data-correction-trail]'))).toContain(
+      c.correction.field.cashCollectedAt,
+    );
+    expect(r.element.querySelector('[data-evidence-kind="collectionReport"]')).not.toBeNull();
+    TestBed.resetTestingModule();
+    r = await render(caseOf(14).request.id);
+    const external = r.element.querySelector('[data-evidence-kind="surplusExternalRecord"]')!;
+    expect(external.getAttribute('data-file')).toBe('notInRead');
+    expect(text(external.querySelector('[data-file-note]'))).toBe(
+      ev.file.notInRead.replace('{{followUp}}', 'CF-71'),
+    );
+    expect(text(section(r.element, 'recovery')!.querySelector('[data-external-evidence]'))).toBe(
+      t.recovery.externalEvidence.replace('{{followUp}}', 'CF-71'),
+    );
+    TestBed.resetTestingModule();
+    r = await render(caseOf(1).request.id);
+    expect(text(r.element.querySelector('[data-evidence-none]'))).toBe(ev.none);
+  });
+
+  it('every history entry states what it means for money; a report never reads as a payment', async () => {
+    const { element } = await render(caseOf(8).request.id);
+    const standing = (kind: string) =>
+      element.querySelector(`[data-timeline] [data-kind="${kind}"] [data-standing]`);
+    expect(standing('cashCollected')?.getAttribute('data-standing')).toBe('reportedOnly');
+    expect(text(standing('cashCollected'))).toBe(h.standing.reportedOnly);
+    expect(standing('settlementFailed')?.getAttribute('data-standing')).toBe('verifiedNoPayment');
+    expect(standing('lateSuccess')?.getAttribute('data-standing')).toBe('verifiedFinancial');
+    // Each source is explained in the legend, in words and icons (never colour alone).
+    const legend = [...element.querySelectorAll('[data-legend] li')].map(text);
+    expect(legend).toEqual([
+      `${c.source.fact} ${h.explain.fact}`,
+      `${c.source.report} ${h.explain.report}`,
+      `${c.source.decision} ${h.explain.decision}`,
+      `${c.source.derived} ${h.explain.derived}`,
+    ]);
+    // A report recorded after the time it asserts shows both times.
+    expect(element.querySelector('[data-kind="cashCollected"] [data-recorded-at]')).not.toBeNull();
+  });
+
+  it('orders and filters the history as a view only: nothing is read again', async () => {
+    const kase = caseOf(12);
+    const { element, spies, settle } = await render(kase.request.id);
+    const reads = spies.timeline.mock.calls.length + spies.detail.mock.calls.length;
+    const order = element.querySelector<HTMLSelectElement>('[data-order]')!;
+    order.value = 'recorded';
+    order.dispatchEvent(new Event('change'));
+    await settle();
+    expect(events(element)).toHaveLength(kase.timeline.length);
+    const box = (source: string) =>
+      element.querySelector<HTMLInputElement>(`[data-show="${source}"] input`)!;
+    box('report').click();
+    await settle();
+    expect(events(element).some(([source]) => source === 'report')).toBe(false);
+    const shown = kase.timeline.filter((e) => e.source !== 'report').length;
+    expect(text(element.querySelector('[data-history-count]'))).toBe(
+      h.shown
+        .replace('{{shown}}', String(shown))
+        .replace('{{total}}', String(kase.timeline.length)),
+    );
+    for (const source of ['fact', 'decision', 'derived']) box(source).click();
+    await settle();
+    expect(element.querySelector('[data-timeline]')).toBeNull();
+    expect(text(element.querySelector('[data-history-filtered-empty]'))).toBe(h.filteredEmpty);
+    expect(spies.timeline.mock.calls.length + spies.detail.mock.calls.length).toBe(reads);
+    // The controls are labelled: the order by its field, each source by its checkbox text.
+    expect(text(element.querySelector('[data-source-filter] legend'))).toBe(h.show);
+    expect(box('fact').closest('label')).not.toBeNull();
+  });
+
+  it('restrictions: each row with its source, since and end; this case or another of the Organization', async () => {
+    let r = await render(caseOf(12).request.id);
+    const rows = () => [
+      ...r.element.querySelectorAll<HTMLElement>(
+        '[data-section="restrictions"] [data-restriction]',
+      ),
+    ];
+    // Case 12's Organization is restricted by case 11's overdue request and open cash return, not by case 12.
+    expect(rows().map((li) => [li.dataset['restriction'], li.dataset['relation']])).toEqual([
+      ['T1', 'otherCase'],
+      ['T2', 'otherCase'],
+    ]);
+    const [t1, t2] = rows();
+    expect(t1!.querySelector('[data-source-case]')?.getAttribute('href')).toBe(
+      `/billing/assistance/${caseOf(11).request.id}`,
+    );
+    // An obligation id never resolves to its case (CF-70): a reference, no link.
+    expect(t2!.querySelector('[data-source-case]')).toBeNull();
+    expect(t2!.querySelector('[data-source-ref] code')?.getAttribute('title')).toBe(
+      caseOf(11).cashReturns[0]!.id,
+    );
+    expect(text(t1!.querySelector('[data-source-ref]'))).toContain(rs.relation.otherCase);
+    expect(t1!.querySelector('[data-since] time')?.getAttribute('datetime')).toBe(
+      caseOf(11).request.collection!.settleBy,
+    );
+    expect(
+      text(section(r.element, 'restrictions')!.querySelector('[data-restriction-scope]')),
+    ).toBe(rs.scope);
+    TestBed.resetTestingModule();
+    r = await render(caseOf(11).request.id);
+    expect(rows().map((li) => li.dataset['relation'])).toEqual(['thisCase', 'thisCase']);
+    expect(r.spies.restrictions).toHaveBeenCalledWith(
+      expect.objectContaining({ companyId: DEMO_COMPANY_ID }),
+      caseOf(11).request.organizationId,
+    );
+  });
+
+  it('keeps assistance disputes and Payment disputes apart from T1/T2/T3; no restriction is "none", not missing', async () => {
+    const { element } = await render(caseOf(4).request.id);
+    // Case 4 has an open assistance dispute: it is not a restriction.
+    expect(section(element, 'restrictions')!.querySelector('[data-restriction]')).toBeNull();
+    expect(text(section(element, 'restrictions')!.querySelector('[data-restrictions-none]'))).toBe(
+      t.oversight.noRestriction,
+    );
+    const not = [...element.querySelectorAll<HTMLElement>('[data-not-restrictions] li')];
+    expect(not.map((li) => li.dataset['not'])).toEqual([
+      'assistanceDispute',
+      'paymentDispute',
+      'fraudHold',
+      'inactivity',
+    ]);
+    expect(text(not[1])).toBe(rs.not.paymentDispute);
+  });
+
+  it('a failed restriction read is said, never shown as "no restriction"; the case still shows', async () => {
+    const { element } = await render(caseOf(11).request.id, { restrictionsFail: true });
+    expect(text(element.querySelector('[data-restrictions-unavailable]'))).toBe(rs.unavailable);
+    expect(element.querySelector('[data-restrictions-none]')).toBeNull();
+    expect(element.querySelector('[data-section="restrictions"] [data-restriction]')).toBeNull();
+    expect(section(element, 'evidence')).not.toBeNull();
+    expect(element.querySelector('ol[data-timeline]')).not.toBeNull();
+  });
+
+  it('an operator reads nothing: no restriction, evidence or history request', async () => {
+    const { element, spies } = await render(caseOf(11).request.id, { actor: operator });
+    expect(text(element.querySelector('nw-data-state'))).toContain(en.shell.pages.forbidden.title);
+    expect(spies.restrictions).not.toHaveBeenCalled();
+    expect(spies.timeline).not.toHaveBeenCalled();
+    expect(section(element, 'evidence')).toBeNull();
+  });
+
+  it('another Company’s case is not found: none of its evidence or restrictions leak', async () => {
+    const { element, spies } = await render(FOREIGN[0]!.request.id);
+    expect(text(element.querySelector('nw-data-state'))).toContain(t.states.notFoundTitle);
+    expect(spies.restrictions).not.toHaveBeenCalled();
+    expect(element.innerHTML).not.toContain(FOREIGN[0]!.request.organizationId);
+  });
+
+  for (const lang of ['fr', 'ar'] as const)
+    it(`renders the A10 sections in ${lang}, references left-to-right`, async () => {
+      const catalog = (lang === 'fr' ? fr : ar).assistanceCases;
+      const { element } = await render(caseOf(15).request.id, { lang });
+      expect(text(section(element, 'evidence')!.querySelector('h2'))).toBe(catalog.evidence.title);
+      expect(text(section(element, 'restrictions')!.querySelector('h2'))).toBe(
+        catalog.restrictions.title,
+      );
+      expect(text(element.querySelector('[data-source-filter] legend'))).toBe(catalog.history.show);
+      for (const code of section(element, 'evidence')!.querySelectorAll('code'))
+        expect(code.getAttribute('dir')).toBe('ltr');
+    });
 });

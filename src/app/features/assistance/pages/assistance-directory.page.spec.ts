@@ -249,7 +249,7 @@ describe('Assistance case directory (A4)', { timeout: 20_000 }, () => {
   it('filters by status, attention and Platform, and orders both ways', async () => {
     const { element, settle } = await render();
     await choose(element, settle, 1, 'settled');
-    expect(rowIds(element)!.length).toBe(5);
+    expect(rowIds(element)!.length).toBe(6);
     await choose(element, settle, 1, '');
     await choose(element, settle, 3, 'disputed');
     expect(rowIds(element).sort()).toEqual(
@@ -403,7 +403,7 @@ describe('Assistance directory oversight (A6)', { timeout: 30_000 }, () => {
     const { element, settle, spy } = await render();
     await choose(element, settle, 2, 'closed');
     expect(rowIds(element).sort()).toEqual(
-      [7, 8, 10, 11, 12].map((n) => caseOf(n).request.id).sort(),
+      [7, 8, 10, 11, 12, 15].map((n) => caseOf(n).request.id).sort(),
     );
     expect(spy.mock.calls.at(-1)?.[1]).toMatchObject({ channel: 'closed' });
     await choose(element, settle, 2, '');

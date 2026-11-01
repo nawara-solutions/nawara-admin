@@ -48,23 +48,26 @@
         <adm-assistance-oversight-panel
           [oversight]="oversight"
           [settleBy]="request.collection?.settleBy ?? null"
-          [restrictions]="detail.restrictions"
         />
         <h3 class="assistance-case__subtitle">
           {{ 'assistanceCases.exception.title' | transloco }}
         </h3>
         <adm-assistance-exception-badges data-case-exceptions [exceptions]="exceptions() ?? []" />
-        @if (detail.restrictions !== null && detail.restrictions.length > 0) {
-          <p class="assistance-case__hint">
-            {{ 'assistanceCases.case.restriction.scope' | transloco }}
-          </p>
-        } @else if (detail.restrictions !== null) {
-          <p class="assistance-case__hint" data-restrictions-none>
-            {{ 'assistanceCases.oversight.noRestriction' | transloco }}
-          </p>
-        }
       </section>
     }
+
+    <!-- Core's restrictions on the Organization (BIL-26 rows, A10) -->
+    <section
+      class="assistance-case__card"
+      aria-labelledby="case-restrictions"
+      data-section="restrictions"
+    >
+      <h2 id="case-restrictions" class="assistance-case__card-title">
+        {{ 'assistanceCases.restrictions.title' | transloco }}
+      </h2>
+      <p class="assistance-case__hint">{{ 'assistanceCases.restrictions.intro' | transloco }}</p>
+      <adm-assistance-restriction-panel [read]="record.restrictions" [detail]="detail" />
+    </section>
 
     <div class="assistance-case__grid">
       <!-- Context -->
@@ -347,12 +350,25 @@
                 } @else {
                   <ul class="assistance-case__list" role="list">
                     @for (evidence of late.evidence; track evidence.grantId) {
-                      <li>
-                        <code dir="ltr">…{{ shortRef(evidence.grantId) }}</code>
-                        {{ evidence.verifiedAt | nwDate: 'date-time' }}
+                      <li data-file-reference>
+                        {{ 'assistanceCases.evidence.reference.fileGrant' | transloco }}
+                        <code dir="ltr" [attr.title]="evidence.grantId"
+                          >…{{ shortRef(evidence.grantId) }}</code
+                        >
+                        · {{ 'assistanceCases.evidence.reference.file' | transloco }}
+                        <code dir="ltr" [attr.title]="evidence.fileId"
+                          >…{{ shortRef(evidence.fileId) }}</code
+                        >
+                        <span class="assistance-case__secondary">{{
+                          'assistanceCases.evidence.verifiedOn'
+                            | transloco: { date: (evidence.verifiedAt | nwDate: 'date-time') }
+                        }}</span>
                       </li>
                     }
                   </ul>
+                  <span class="assistance-case__secondary" data-reference-only>{{
+                    'assistanceCases.evidence.referenceOnly' | transloco
+                  }}</span>
                 }
               </dd>
               @if (late.application; as application) {
@@ -437,51 +453,22 @@
       }
     </div>
 
-    <!-- History: facts, reports, decisions and derived states, never mixed up -->
+    <!-- Evidence and references (A10): what Core holds, by whom, and whether a file stands behind it -->
+    <section class="assistance-case__card" aria-labelledby="case-evidence" data-section="evidence">
+      <h2 id="case-evidence" class="assistance-case__card-title">
+        {{ 'assistanceCases.evidence.title' | transloco }}
+      </h2>
+      <p class="assistance-case__hint">{{ 'assistanceCases.evidence.intro' | transloco }}</p>
+      <adm-assistance-evidence-panel [items]="evidence() ?? []" />
+    </section>
+
+    <!-- History: facts, reports, decisions and derived states, never mixed up (A5, A10) -->
     <section class="assistance-case__card" aria-labelledby="case-timeline" data-section="timeline">
       <h2 id="case-timeline" class="assistance-case__card-title">
         {{ 'assistanceCases.case.timeline.title' | transloco }}
       </h2>
-      <ul class="assistance-case__legend" role="list" data-legend>
-        @for (source of sources; track source) {
-          <li [attr.data-source]="source"><adm-assistance-source-tag [source]="source" /></li>
-        }
-      </ul>
-      @if (record.timeline.length === 0) {
-        <p class="assistance-case__secondary" data-timeline-empty>
-          {{ 'assistanceCases.case.timeline.empty' | transloco }}
-        </p>
-      } @else {
-        <ol class="assistance-case__timeline" data-timeline>
-          @for (entry of record.timeline; track entry.id) {
-            <li
-              class="assistance-case__event"
-              [class.assistance-case__event--fact]="entry.source === 'fact'"
-              [class.assistance-case__event--report]="entry.source === 'report'"
-              [class.assistance-case__event--decision]="entry.source === 'decision'"
-              [class.assistance-case__event--derived]="entry.source === 'derived'"
-              [attr.data-source]="entry.source"
-              [attr.data-kind]="entry.kind"
-            >
-              <adm-assistance-source-tag [source]="entry.source" />
-              <span class="assistance-case__event-title">{{
-                kindKeys[entry.kind] | transloco
-              }}</span>
-              <span class="assistance-case__secondary">
-                {{ actorKeys[entry.by] | transloco }} ·
-                <time [attr.datetime]="entry.at">{{ entry.at | nwDate: 'date-time' }}</time>
-                @if (entry.recordedAt !== entry.at) {
-                  ·
-                  {{
-                    'assistanceCases.case.timeline.recordedAt'
-                      | transloco: { date: (entry.recordedAt | nwDate: 'date-time') }
-                  }}
-                }
-              </span>
-            </li>
-          }
-        </ol>
-      }
+      <p class="assistance-case__hint">{{ 'assistanceCases.history.intro' | transloco }}</p>
+      <adm-assistance-history-panel [entries]="record.timeline" />
     </section>
 
     <p class="assistance-case__hint assistance-case__hint--read-only">

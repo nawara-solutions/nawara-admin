@@ -74,6 +74,7 @@ describe('Assistance exceptions (A7)', () => {
       12: [],
       13: ['recoveryRestriction'],
       14: [],
+      15: [],
     };
     expect(Object.keys(expected)).toHaveLength(OWN.length);
     for (const [n, exceptions] of Object.entries(expected))

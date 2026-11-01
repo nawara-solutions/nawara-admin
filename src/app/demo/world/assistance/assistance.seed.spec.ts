@@ -87,7 +87,14 @@ describe('Demo assistance cases (A3): deterministic and complete', () => {
       false,
       false,
       true,
+      true,
     ]);
+    // Both L-4 bases are represented (A10): the beneficiary's attestation (Path A) and File evidence (Path B).
+    expect(
+      OWN.flatMap((c) => c.lateSettlements.map((l) => l.application?.reasonCode ?? null))
+        .filter((reason) => reason !== null)
+        .sort(),
+    ).toEqual(['cash_not_returned_attested', 'cash_not_returned_evidenced']);
     expect(OWN.flatMap((c) => (c.recovery ? [c.recovery.state] : [])).sort()).toEqual([
       'open',
       'recovered',

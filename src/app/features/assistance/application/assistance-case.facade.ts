@@ -3,6 +3,7 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
   Observable,
   Subject,
+  catchError,
   combineLatest,
   expand,
   forkJoin,
@@ -30,6 +31,7 @@ import {
   ASSISTANCE_PAGE_LIMIT,
   AssistanceCaseDetail,
   AssistancePage,
+  AssistanceRestrictionsView,
   AssistanceTimelineEntry,
   LateSettlementDetail,
   RecoveryObligationDetail,
@@ -42,7 +44,13 @@ export interface AssistanceCaseRecord {
   readonly timeline: readonly AssistanceTimelineEntry[];
   readonly lateSettlements: readonly LateSettlementDetail[];
   readonly recovery: RecoveryObligationDetail | null;
+  /** Core's restriction rows of the case's Organization (BIL-26, A10), or `unavailable` when that read failed (the case still shows). */
+  readonly restrictions: AssistanceRestrictionsRead;
 }
+
+export type AssistanceRestrictionsRead =
+  | { readonly status: 'ready'; readonly view: AssistanceRestrictionsView }
+  | { readonly status: 'unavailable' };
 
 export type AssistanceCaseView =
   | { readonly status: 'loading' }
@@ -71,7 +79,7 @@ const MAX_TIMELINE_PAGES = 5;
 
 /**
  * One Organization Assistance case for the owner (`/billing/assistance/:requestId`; Assistance A5). READ ONLY: it reads the
- * case, its history, its late settlements and its recovery obligation through the A2 gateway, and offers no decision, command
+ * case, its history, its late settlements, its recovery obligation and (A10) its Organization's restrictions through the A2 gateway, and offers no decision, command
  * or payment. Company scope (the owner's Company): any case outside it is not found. Anyone but the owner gets `forbidden`
  * and no request (UX: the route guard already sends an operator away, and Core refuses them).
  */
@@ -141,6 +149,13 @@ export class AssistanceCaseFacade {
             detail.recoveryObligationId === null
               ? of(null)
               : this.gateway.recoveryObligation(context, detail.recoveryObligationId),
+          // A failed restriction read never hides the case: the section says it could not be read (never "none").
+          restrictions: this.gateway
+            .organizationRestrictions(context, detail.request.organizationId)
+            .pipe(
+              map((view): AssistanceRestrictionsRead => ({ status: 'ready', view })),
+              catchError(() => of<AssistanceRestrictionsRead>({ status: 'unavailable' })),
+            ),
         }).pipe(map((parts): AssistanceCaseRecord => ({ detail, ...parts }))),
       ),
       map((record): AssistanceCaseView => ({ status: 'ready', record })),

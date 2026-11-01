@@ -265,6 +265,19 @@ export function demoAssistanceCases(
   });
   const channelRequest = (b: CaseBase, k: number) => id(0x940 + 0x10 * k + b.n);
 
+  /** The payment request whose verified late success a late settlement records (BIL-32 `paymentRequestId`): 0xd00 + n. */
+  const latePaymentRequest = (b: CaseBase) => id(0xd00 + b.n);
+
+  /**
+   * A File `settlement_evidence` grant of an evidenced (Path B) application, as BIL-32 states it (A10): REFERENCES only, never a
+   * file. Ids: the k-th grant of case n is 0xe00 + 0x10·k + n, its file 0xe80 + 0x10·k + n.
+   */
+  const fileEvidence = (b: CaseBase, k: number, verifiedHours: number) => ({
+    grantId: id(0xe00 + 0x10 * k + b.n),
+    fileId: id(0xe80 + 0x10 * k + b.n),
+    verifiedAt: at(verifiedHours),
+  });
+
   /** An open dispute as Core represents it; `escalationDue` is what Core derives at `now` (open for more than seven days). */
   const openDispute = (
     b: CaseBase,
@@ -338,6 +351,11 @@ export function demoAssistanceCases(
   // ── 14. Recovery recovered with a surplus owed to the Organization (no external repayment: CF-71) ─────────────────
   const b14 = base(14, 9, 1, -500, NO_FEE);
   const r14 = request(b14, 'settled', { collected: { at: -496, reported: -495 } });
+
+  // ── 15. Late settlement applied by the owner on File evidence (L-4 Path B, `cash_not_returned_evidenced`, A10): no attestation,
+  //       the owner's determination rests on two File grants Billing verified live. Admin shows their REFERENCES only (CF-71) ─────
+  const b15 = base(15, 3, 2, -262);
+  const r15 = request(b15, 'settled', { collected: { at: -256, reported: -255 } });
 
   const cases: DemoAssistanceCase[] = [
     kase(b1, r1, { timeline: timeline(b1, [consent(b1)]) }),
@@ -443,6 +461,7 @@ export function demoAssistanceCases(
           applied: false,
           platformId: b8.platformId,
           organizationId: b8.organizationId,
+          paymentRequestId: latePaymentRequest(b8),
           recordedAt: at(-19),
           settledAt: at(-20),
           attestedAt: at(-15),
@@ -565,6 +584,7 @@ export function demoAssistanceCases(
           applied: false,
           platformId: b11.platformId,
           organizationId: b11.organizationId,
+          paymentRequestId: latePaymentRequest(b11),
           recordedAt: at(-10),
           settledAt: at(-12),
           attestedAt: null,
@@ -608,6 +628,7 @@ export function demoAssistanceCases(
           applied: true,
           platformId: b12.platformId,
           organizationId: b12.organizationId,
+          paymentRequestId: latePaymentRequest(b12),
           recordedAt: at(-98),
           settledAt: at(-100),
           attestedAt: at(-95),
@@ -765,6 +786,59 @@ export function demoAssistanceCases(
         { source: 'decision', kind: 'surplusExternal', by: 'owner', at: at(-40) },
       ]),
     }),
+    kase(b15, r15, {
+      channel: channel(b15, 'closed'),
+      purchaseExists: true,
+      cashReturns: [
+        {
+          id: id(0x300 + 15),
+          assistanceRequestId: r15.id,
+          origin: 'deadline',
+          state: 'superseded_by_settlement',
+          amount: money(b15, b15.terms.totalAmount),
+          cashCollectedAt: at(-256),
+          openedAt: at(-184),
+          returnReport: null,
+          confirmedAt: null,
+          supersededAt: at(-36),
+        },
+      ],
+      lateSettlements: [
+        {
+          id: id(0x600 + 15),
+          assistanceRequestId: r15.id,
+          reason: 'channel_closed',
+          attestation: null,
+          applied: true,
+          platformId: b15.platformId,
+          organizationId: b15.organizationId,
+          paymentRequestId: latePaymentRequest(b15),
+          recordedAt: at(-140),
+          settledAt: at(-142),
+          attestedAt: null,
+          application: {
+            reasonCode: 'cash_not_returned_evidenced',
+            appliedAt: at(-36),
+            appliedBy: DEMO_OWNER_USER_ID,
+            receiptId: id(0xb00 + 15),
+            purchaseId: id(0xc00 + 15),
+            supersededObligationId: id(0x300 + 15),
+          },
+          // Verified by Billing in the application's transaction (`late_settlement_evidence`, `0040:116-122`), oldest first.
+          evidence: [fileEvidence(b15, 0, -36), fileEvidence(b15, 1, -36)],
+          refundCases: [],
+        },
+      ],
+      timeline: timeline(b15, [
+        consent(b15),
+        collected(r15),
+        { source: 'fact', kind: 'settlementFailed', by: 'core', at: at(-190) },
+        { source: 'derived', kind: 'channelClosed', by: 'core', at: at(-190) },
+        { source: 'derived', kind: 'cashReturnOwed', by: 'core', at: at(-184) },
+        { source: 'fact', kind: 'lateSuccess', by: 'core', at: at(-142), recordedAt: at(-140) },
+        { source: 'decision', kind: 'lateSettlementApplied', by: 'owner', at: at(-36) },
+      ]),
+    }),
   ];
 
   return [...cases, ...foreignCases(at)];
@@ -840,6 +914,7 @@ function foreignCases(at: (hours: number) => string): readonly DemoAssistanceCas
           applied: false,
           platformId: DEMO_FOREIGN_PLATFORM_ID,
           organizationId: FOREIGN_ORGANIZATION_ID,
+          paymentRequestId: id(0xf15),
           recordedAt: at(-6),
           settledAt: at(-7),
           attestedAt: at(-5),

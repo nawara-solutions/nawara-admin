@@ -135,16 +135,17 @@ describe('MockAssistanceGateway (A3): the case directory', () => {
   it('pages deterministically by keyset; every page joins to the whole list', async () => {
     const { gateway } = setUp();
     const pages = await allPages(gateway, COMPANY, 5);
-    expect(pages.map((p) => p.items.length)).toEqual([5, 5, 4]);
+    expect(pages.map((p) => p.items.length)).toEqual([5, 5, 5]);
     const whole = await firstValueFrom(gateway.cases(COMPANY, {}, FIRST_ASSISTANCE_PAGE));
     expect(pages.flatMap((p) => p.items)).toEqual(whole.items);
     expect(await allPages(gateway, COMPANY, 5)).toEqual(pages);
     // A page that ends exactly at the last case says so: no empty extra page.
     expect(
-      (await allPages(gateway, COMPANY, 7)).map((p) => [p.items.length, p.next === null]),
+      (await allPages(gateway, COMPANY, 5)).map((p) => [p.items.length, p.next === null]),
     ).toEqual([
-      [7, false],
-      [7, true],
+      [5, false],
+      [5, false],
+      [5, true],
     ]);
     expect((await allPages(gateway, COMPANY, OWN.length)).map((p) => p.next)).toEqual([null]);
     for (let i = 0; i + 1 < pages.length; i += 1)
@@ -175,7 +176,7 @@ describe('MockAssistanceGateway (A3): the case directory', () => {
       OWN.filter((_, i) => predicate(i + 1))
         .map((c) => c.request.id)
         .sort();
-    expect(await ids({ state: 'settled' })).toEqual(own((n) => [5, 9, 12, 13, 14].includes(n)));
+    expect(await ids({ state: 'settled' })).toEqual(own((n) => [5, 9, 12, 13, 14, 15].includes(n)));
     expect(await ids({ state: 'declined' })).toEqual(own((n) => n === 2 || n === 3));
     expect(await ids({ organizationId: orgOf(7) })).toEqual(own((n) => n === 7 || n === 8));
     expect(await ids({ overdue: true })).toEqual(own((n) => [8, 10, 11].includes(n)));
@@ -390,11 +391,12 @@ describe('MockAssistanceGateway (A3): one case and its records', () => {
   it('late settlements and recovery: lists, filters and details', async () => {
     const { gateway } = setUp();
     const late = await firstValueFrom(gateway.lateSettlements(COMPANY, {}, FIRST_ASSISTANCE_PAGE));
-    // Newest recorded first: case 11 (-10 h), case 8 (-19 h), case 12 (-98 h).
+    // Newest recorded first: case 11 (-10 h), case 8 (-19 h), case 12 (-98 h), case 15 (-140 h).
     expect(late.items.map((l) => [l.assistanceRequestId, l.applied])).toEqual([
       [caseOf(11).request.id, false],
       [caseOf(8).request.id, false],
       [caseOf(12).request.id, true],
+      [caseOf(15).request.id, true],
     ]);
     const unapplied = await firstValueFrom(
       gateway.lateSettlements(COMPANY, { status: 'unapplied' }, FIRST_ASSISTANCE_PAGE),

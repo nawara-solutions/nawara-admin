@@ -178,19 +178,22 @@ describe('Assistance late settlements and cash returns page (A8)', { timeout: 60
       [caseOf(11).request.id, 'needsBasis'],
       [caseOf(8).request.id, 'refused'],
       [caseOf(12).request.id, 'applied'],
+      [caseOf(15).request.id, 'applied'],
     ]);
-    // Pending is never shown as applied; only case 12 carries the owner's decision.
+    // Pending is never shown as applied; only cases 12 and 15 carry the owner's decision.
     const decisions = [
       ...element.querySelectorAll<HTMLElement>('[data-late-list] [data-decision]'),
     ].map((b) => b.dataset['decision']);
-    expect(decisions).toEqual(['pending', 'pending', 'applied']);
+    expect(decisions).toEqual(['pending', 'pending', 'applied', 'applied']);
     expect(text(element.querySelector('[data-section="late-settlements"] [data-count]'))).toBe(
-      s.late.count.replace('{{shown}}', '3'),
+      s.late.count.replace('{{shown}}', '4'),
     );
     const links = [...element.querySelectorAll('[data-late-list] [data-case-link]')].map((a) =>
       a.getAttribute('href'),
     );
-    expect(links).toEqual([11, 8, 12].map((n) => `/billing/assistance/${caseOf(n).request.id}`));
+    expect(links).toEqual(
+      [11, 8, 12, 15].map((n) => `/billing/assistance/${caseOf(n).request.id}`),
+    );
   });
 
   it('explains each standing: the blocking refusal, the missing basis, the applied basis, and the receipt Core requires', async () => {
@@ -265,7 +268,10 @@ describe('Assistance late settlements and cash returns page (A8)', { timeout: 60
   it('filters late settlements by the owner’s decision', async () => {
     const r = await render();
     await r.select('late', 'applied');
-    expect(lateRows(r.element)).toEqual([[caseOf(12).request.id, 'applied']]);
+    expect(lateRows(r.element)).toEqual([
+      [caseOf(12).request.id, 'applied'],
+      [caseOf(15).request.id, 'applied'],
+    ]);
     await r.select('late', 'unapplied');
     expect(lateRows(r.element).map(([id]) => id)).toEqual([11, 8].map((n) => caseOf(n).request.id));
     expect(r.spies.lateSettlements).toHaveBeenLastCalledWith(
@@ -282,6 +288,7 @@ describe('Assistance late settlements and cash returns page (A8)', { timeout: 60
       [caseOf(8).request.id, 'open'],
       [caseOf(12).request.id, 'superseded_by_settlement'],
       [caseOf(10).request.id, 'return_reported'],
+      [caseOf(15).request.id, 'superseded_by_settlement'],
       [caseOf(7).request.id, 'confirmed_returned'],
     ]);
     const awaiting = (n: number) => text(returnOf(element, n).querySelector('[data-awaiting]'));

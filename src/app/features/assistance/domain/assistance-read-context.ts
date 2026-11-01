@@ -60,7 +60,9 @@ export const filterInContext = (
 export type AssistanceSelection =
   | { readonly kind: 'case'; readonly requestId: string }
   | { readonly kind: 'lateSettlement'; readonly lateSettlementId: string }
-  | { readonly kind: 'recoveryObligation'; readonly obligationId: string };
+  | { readonly kind: 'recoveryObligation'; readonly obligationId: string }
+  /** An Organization, for its restrictions (A10, BIL-26). */
+  | { readonly kind: 'organization'; readonly organizationId: string };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -74,7 +76,9 @@ export function selectionId(selection: AssistanceSelection): string | null {
       ? selection.requestId
       : selection.kind === 'lateSettlement'
         ? selection.lateSettlementId
-        : selection.obligationId;
+        : selection.kind === 'recoveryObligation'
+          ? selection.obligationId
+          : selection.organizationId;
   return UUID.test(id) ? id.toLowerCase() : null;
 }
 

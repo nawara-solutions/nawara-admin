@@ -12,7 +12,6 @@ import { NwIconName } from '../../../shared/ui/icon/icon.registry';
 import { NwLink } from '../../../shared/ui/link/link';
 import { NwStatusBadge, NwStatusTone } from '../../../shared/ui/status-badge/status-badge';
 import { AssistanceCaseFacade } from '../application/assistance-case.facade';
-import { AssistanceTimelineActor, AssistanceTimelineEntry } from '../domain/assistance-read.model';
 import {
   AssistanceInformationSource,
   AssistanceRequestState,
@@ -23,16 +22,19 @@ import {
   SettlementChannelState,
 } from '../domain/assistance.model';
 import { effectiveTime } from '../domain/assistance.rules';
+import { caseEvidence } from '../domain/assistance-evidence';
 import { assistanceExceptions } from '../domain/assistance-exceptions';
 import { assistanceOversight, oversightInputOfCase } from '../domain/assistance-oversight';
 import { AssistanceDisputePanel } from '../ui/assistance-dispute-panel';
+import { AssistanceEvidencePanel } from '../ui/assistance-evidence-panel';
 import { AssistanceExceptionBadges } from '../ui/assistance-exception-badges';
+import { AssistanceHistoryPanel } from '../ui/assistance-history-panel';
 import { AssistanceLateStanding } from '../ui/assistance-late-standing';
 import { AssistanceMoneyPipe } from '../ui/assistance-money.pipe';
 import { AssistanceOversightPanel } from '../ui/assistance-oversight-panel';
 import { AssistanceRecoveryStanding } from '../ui/assistance-recovery-standing';
+import { AssistanceRestrictionPanel } from '../ui/assistance-restriction-panel';
 import { AssistanceReturnStanding } from '../ui/assistance-return-standing';
-import { AssistanceSourceTag } from '../ui/assistance-source-tag';
 
 /** Catalog keys, listed in full (never built at runtime). */
 const STATE_KEYS = {
@@ -64,39 +66,6 @@ const SOURCE_ICONS = {
   decision: 'user-cog',
   derived: 'refresh-cw',
 } as const satisfies Record<AssistanceInformationSource, NwIconName>;
-
-const ACTOR_KEYS = {
-  beneficiary: 'assistanceCases.case.actor.beneficiary',
-  organization_actor: 'assistanceCases.case.actor.organizationActor',
-  owner: 'assistanceCases.case.actor.owner',
-  core: 'assistanceCases.case.actor.core',
-} as const satisfies Record<AssistanceTimelineActor, string>;
-
-const KIND_KEYS = {
-  settlementSucceeded: 'assistanceCases.case.kind.settlementSucceeded',
-  settlementFailed: 'assistanceCases.case.kind.settlementFailed',
-  lateSuccess: 'assistanceCases.case.kind.lateSuccess',
-  refundCompleted: 'assistanceCases.case.kind.refundCompleted',
-  chargebackFinal: 'assistanceCases.case.kind.chargebackFinal',
-  recoveryPayment: 'assistanceCases.case.kind.recoveryPayment',
-  consent: 'assistanceCases.case.kind.consent',
-  declined: 'assistanceCases.case.kind.declined',
-  cashCollected: 'assistanceCases.case.kind.cashCollected',
-  cashReturnReported: 'assistanceCases.case.kind.cashReturnReported',
-  cashReturnConfirmed: 'assistanceCases.case.kind.cashReturnConfirmed',
-  disputeOpened: 'assistanceCases.case.kind.disputeOpened',
-  disputeResponse: 'assistanceCases.case.kind.disputeResponse',
-  lateAttestation: 'assistanceCases.case.kind.lateAttestation',
-  correction: 'assistanceCases.case.kind.correction',
-  disputeResolved: 'assistanceCases.case.kind.disputeResolved',
-  lateSettlementApplied: 'assistanceCases.case.kind.lateSettlementApplied',
-  writeOff: 'assistanceCases.case.kind.writeOff',
-  surplusExternal: 'assistanceCases.case.kind.surplusExternal',
-  cashReturnOwed: 'assistanceCases.case.kind.cashReturnOwed',
-  channelUncertain: 'assistanceCases.case.kind.channelUncertain',
-  channelClosed: 'assistanceCases.case.kind.channelClosed',
-  recoveryOpened: 'assistanceCases.case.kind.recoveryOpened',
-} as const satisfies Record<AssistanceTimelineEntry['kind'], string>;
 
 const RETURN_ORIGIN_KEYS = {
   deadline: 'assistanceCases.case.cashReturn.origin.deadline',
@@ -131,8 +100,8 @@ const shortRef = (id: string): string => id.slice(-8);
 /**
  * One Organization Assistance case (`/billing/assistance/:requestId`; Assistance A5): the Company owner's READ-ONLY view of
  * the request, its frozen terms, the Organization's collection report, the settlement channel, cash returns, disputes and
- * owner corrections, late settlements, recovery and surpluses, Core's restrictions, and a history that keeps verified facts,
- * reports, owner decisions and Core-derived states apart. A report is never shown as a payment. Nothing can be decided,
+ * owner corrections, late settlements, recovery and surpluses, Core's restrictions row by row (A10), the evidence register
+ * (A10), and a history that keeps verified facts, reports, owner decisions and Core-derived states apart. A report is never shown as a payment. Nothing can be decided,
  * collected, paid, corrected or written off here. Demo builds show simulated cases and say so; other builds: not available.
  */
 @Component({
@@ -147,13 +116,15 @@ const shortRef = (id: string): string => id.slice(-8);
     NwLink,
     NwStatusBadge,
     AssistanceDisputePanel,
+    AssistanceEvidencePanel,
     AssistanceExceptionBadges,
+    AssistanceHistoryPanel,
     AssistanceLateStanding,
     AssistanceMoneyPipe,
     AssistanceOversightPanel,
     AssistanceRecoveryStanding,
+    AssistanceRestrictionPanel,
     AssistanceReturnStanding,
-    AssistanceSourceTag,
   ],
   templateUrl: './assistance-case.page.html',
   styleUrl: './assistance-case.page.scss',
@@ -181,15 +152,7 @@ export class AssistanceCasePage {
   protected readonly stateKeys = STATE_KEYS;
   protected readonly stateTones = STATE_TONES;
   protected readonly channelKeys = CHANNEL_KEYS;
-  protected readonly sources: readonly AssistanceInformationSource[] = [
-    'fact',
-    'report',
-    'decision',
-    'derived',
-  ];
   protected readonly sourceIcons = SOURCE_ICONS;
-  protected readonly actorKeys = ACTOR_KEYS;
-  protected readonly kindKeys = KIND_KEYS;
   protected readonly returnOriginKeys = RETURN_ORIGIN_KEYS;
   protected readonly lateReasonKeys = LATE_REASON_KEYS;
   protected readonly attestationKeys = ATTESTATION_KEYS;
@@ -213,6 +176,14 @@ export class AssistanceCasePage {
     if (view.status !== 'ready') return null;
     const { detail, lateSettlements, recovery } = view.record;
     return assistanceExceptions(oversightInputOfCase(detail, lateSettlements, recovery));
+  });
+
+  /** The case's evidence register (A10), from the same records the sections show. */
+  protected readonly evidence = computed(() => {
+    const view = this.facade.view();
+    if (view.status !== 'ready') return null;
+    const { detail, lateSettlements, recovery } = view.record;
+    return caseEvidence({ detail, lateSettlements, recovery });
   });
 
   protected readonly platformName = computed(() => {
