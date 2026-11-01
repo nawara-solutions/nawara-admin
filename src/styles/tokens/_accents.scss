@@ -273,8 +273,7 @@
   @include brand-artwork.sapphire-light;
   // The blue palette keeps the Nawara logos' reference blue (owner, B1): the approved artwork's own colour.
   --nw-logo-accent: #046efa;
-  // Owner pre-merge fix: on the saturated reference blue the pictogram is the logo's navy (4.23:1), never white.
-  --nw-logo-detail: #040b2d;
+  // Light mode: the theme's white pictogram on the reference blue (4.55:1, owner B1 final correction).
   --nw-color-primary: #2563eb;
   --nw-color-primary-hover: #1d4ed8;
   --nw-color-primary-active: #1e40af;

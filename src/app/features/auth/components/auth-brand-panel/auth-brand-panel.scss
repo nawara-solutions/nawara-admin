@@ -62,7 +62,8 @@
 .auth-brand-panel__logo {
   // The floral-R wordmark alone (owner refinement 2026-10-30: no "SOLUTIONS" line), on the pages' text scale. Set here
   // only, so other logos (sidebar, phone header) keep theirs.
-  --nw-brand-mark-size: calc(3.42rem * var(--nw-admin-text-scale, 1));
+  // 11 % smaller than the B1 polish size (owner B1 final correction, 2026-11-01).
+  --nw-brand-mark-size: calc(3.04rem * var(--nw-admin-text-scale, 1));
 
   align-self: flex-start;
 }
