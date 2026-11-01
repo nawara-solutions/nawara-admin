@@ -10,7 +10,7 @@ import { PreferenceMenus } from '../preference-menus/preference-menus';
   imports: [RouterOutlet, TranslocoPipe, NwBrandMark, PreferenceMenus],
   template: `
     <header class="minimal-shell__header">
-      <nw-brand-mark [label]="'brand.logoLabel' | transloco" lockup />
+      <nw-brand-mark [label]="'brand.adminLogoLabel' | transloco" lockup />
       <adm-preference-menus />
     </header>
     <main class="minimal-shell__main"><router-outlet /></main>

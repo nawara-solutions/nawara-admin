@@ -20,7 +20,7 @@ describe('NwBrandMark', () => {
     );
     expect(wordmark?.getAttribute('role')).toBe('img');
     expect(wordmark?.getAttribute('aria-label')).toBe('Nawara Solutions');
-    // The wordmark: the floral-R artwork (the --nw-logo-wordmark token, per theme and accent palette), no text.
+    // The logo: the blue-leaf Nawara Admin artwork (the --nw-logo-admin token, per theme), no text.
     const word = wordmark?.querySelector('.nw-brand-mark__word');
     expect(word?.getAttribute('aria-hidden')).toBe('true');
     expect(word?.textContent).toBe('');
@@ -28,7 +28,7 @@ describe('NwBrandMark', () => {
     expect(wordmark?.querySelector('img')).toBeNull();
     expect(wordmark?.querySelector('.nw-brand-mark__solutions')).toBeNull();
 
-    // The floral R alone: artwork (the --nw-logo-symbol token), no text and no drawing.
+    // The symbol alone: artwork (the --nw-logo-admin-symbol token), no text and no drawing.
     expect(symbol?.classList).toContain('nw-brand-mark--symbol');
     expect(symbol?.querySelector('.nw-brand-mark__word')).toBeNull();
     const mark = symbol?.querySelector('.nw-brand-mark__symbol');

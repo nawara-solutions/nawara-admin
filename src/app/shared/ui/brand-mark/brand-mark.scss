@@ -1,8 +1,10 @@
-// The floral-R wordmark is artwork from the owner's branding board (--nw-logo-wordmark, 614 x 187 px). It is 3.38em
-// wide, the width of the earlier lettered "nawara" at the same font size, so every caller keeps its footprint.
-// The "SOLUTIONS" line follows the board's subtitle, measured in wordmark pixels (614 px = 3.38em, 1 px = 0.0055em):
-// capitals 26 px tall (Readex Pro at 0.2043em), tracked 0.6em, 14 px below the artwork, between 2.5 px rules that span
-// the word's width and stop 33 px from the lettering (44 px after it, the board's trailing tracking).
+// The Nawara Admin logo is artwork cut from the owner's blue-leaf logo-family reference (--nw-logo-admin, 794 x 174 px;
+// B1, 2026-11-01; docs/BRAND.md §0). It is drawn inside the box of the earlier floral-R wordmark (3.38em wide, 614 / 187),
+// scaled to fit without distortion (`contain`), so every caller keeps its footprint: no layout moves. The symbol alone
+// (--nw-logo-admin-symbol, 200 x 163 px) likewise fits the earlier symbol box.
+// The "SOLUTIONS" line (`full`, `inline`; the /foundation gallery only) still follows the earlier board's subtitle,
+// measured in wordmark-box pixels (614 px = 3.38em, 1 px = 0.0055em): capitals 26 px tall (Readex Pro at 0.2043em),
+// tracked 0.6em, 14 px below the artwork, between 2.5 px rules that span the word's width.
 // Everything is in em, so `--nw-brand-mark-size` scales the whole logo. `--nw-brand-mark-word-size` (optional, unset by
 // default) sizes the word and its "SOLUTIONS" line apart from the logo size.
 // The logo is artwork: it never mirrors in RTL and keeps its own typeface in every locale.
@@ -26,16 +28,16 @@
   flex-shrink: 0;
   inline-size: 3.38em;
   aspect-ratio: 614 / 187;
-  background: var(--nw-logo-wordmark) center / contain no-repeat;
+  background: var(--nw-logo-admin) center / contain no-repeat;
   font-size: var(--nw-brand-mark-word-size, 1em);
 }
 
-// The floral R alone, in the box of the earlier bloom symbol (0.83em x 1em), so callers keep their layout.
+// The Admin symbol alone (icon only), in the box of the earlier symbol (0.83em x 1em), so callers keep their layout.
 .nw-brand-mark__symbol {
   flex-shrink: 0;
   inline-size: 0.83em;
   block-size: 1em;
-  background: var(--nw-logo-symbol) center / contain no-repeat;
+  background: var(--nw-logo-admin-symbol) center / contain no-repeat;
 }
 
 :host(.nw-brand-mark--symbol) {

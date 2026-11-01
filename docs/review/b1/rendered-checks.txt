@@ -1,0 +1,93 @@
+# B1 rendered checks (2026-11-01)
+
+Dev server (ng serve, demo build) on main 2690526 + B1; design tokens: @nawara-solutions/design-tokens 0.1.0, byte-identical
+to the published package (sha512 equal to the lockfile integrity). Chromium (Playwright), deviceScaleFactor 2.
+
+## Layout: element boxes before and after B1 (x, y, width, height in CSS px)
+
+signin-en-desktop-light      .auth-brand-panel__logo          [52.8, 44, 172.9, 52.7]  unchanged
+signin-en-desktop-light      .auth-brand-panel__copyright     [52.8, 839.9, 528, 16.1]  unchanged
+signin-en-desktop-light      .auth-brand-panel__intro         [52.8, 301.3, 422.4, 208]  unchanged
+signin-en-desktop-light      .auth-brand-panel__botanical     [0, 0, 633.6, 900]  unchanged
+signin-en-desktop-light      form                             [849.7, 225.3, 374.2, 222.8]  unchanged
+signin-ar-desktop-dark       .auth-brand-panel__logo          [1214.3, 44, 172.9, 52.7]  unchanged
+signin-ar-desktop-dark       .auth-brand-panel__copyright     [859.2, 837.7, 528, 18.3]  unchanged
+signin-ar-desktop-dark       .auth-brand-panel__intro         [964.8, 320.3, 422.4, 167.9]  unchanged
+signin-ar-desktop-dark       .auth-brand-panel__botanical     [806.4, 0, 633.6, 900]  unchanged
+signin-ar-desktop-dark       form                             [216.1, 227.7, 374.2, 227.3]  unchanged
+signin-fr-mobile-light       .auth-frame__header-logo         [17.6, 18.3, 85.3, 26]  unchanged
+signin-fr-mobile-light       .auth-frame__footer-copyright    [126.2, 2030.8, 137.6, 16.1] -> [119.1, 2030.8, 151.9, 16.1]  CHANGED
+signin-fr-mobile-light       form                             [40.6, 189, 308.8, 222.8]  unchanged
+signin-en-desktop-sapphire   .auth-brand-panel__logo          [52.8, 44, 172.9, 52.7]  unchanged
+signin-en-desktop-sapphire   .auth-brand-panel__copyright     [52.8, 839.9, 528, 16.1]  unchanged
+signin-en-desktop-sapphire   .auth-brand-panel__intro         [52.8, 301.3, 422.4, 208]  unchanged
+signin-en-desktop-sapphire   .auth-brand-panel__botanical     [0, 0, 633.6, 900]  unchanged
+signin-en-desktop-sapphire   form                             [849.7, 225.3, 374.2, 222.8]  unchanged
+dashboard-en-light           .sidebar__logo                   [22, 13.2, 121.9, 37.1]  unchanged
+dashboard-en-light           .context-switcher__symbol        [938, 20.4, 23.7, 28.6]  unchanged
+dashboard-en-light           .sidebar                         [0, 0, 281.6, 900]  unchanged
+dashboard-en-light           main                             [281.6, 70.4, 1158.4, 1938.3]  unchanged
+dashboard-ar-dark            .sidebar__logo                   [1296.1, 13.2, 121.9, 37.1]  unchanged
+dashboard-ar-dark            .context-switcher__symbol        [478, 19.8, 23.7, 28.6]  unchanged
+dashboard-ar-dark            .sidebar                         [1158.4, 0, 281.6, 900]  unchanged
+dashboard-ar-dark            main                             [0, 70.4, 1158.4, 1948.5]  unchanged
+
+25 boxes unchanged. The one change: the phone footer copyright is wider (the mark is wider than the words it
+replaces); it stays centred, and its height and position are unchanged.
+
+## Favicon per accent palette and appearance (live page, link#nw-favicon after load)
+light coral     data-accent=coral     icon links=1 href=icons/favicon-coral-light.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+light rose      data-accent=rose      icon links=1 href=icons/favicon-rose-light.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+light plum      data-accent=plum      icon links=1 href=icons/favicon-plum-light.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+light indigo    data-accent=indigo    icon links=1 href=icons/favicon-indigo-light.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+light teal      data-accent=teal      icon links=1 href=icons/favicon-teal-light.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+light amber     data-accent=amber     icon links=1 href=icons/favicon-amber-light.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+light midnight  data-accent=midnight  icon links=1 href=icons/favicon-midnight-light.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+light pearl     data-accent=pearl     icon links=1 href=icons/favicon-pearl-light.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+light sapphire  data-accent=sapphire  icon links=1 href=icons/favicon-sapphire-light.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+light emerald   data-accent=emerald   icon links=1 href=icons/favicon-emerald-light.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+light burgundy  data-accent=burgundy  icon links=1 href=icons/favicon-burgundy-light.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+dark  coral     data-accent=coral     icon links=1 href=favicon.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+dark  rose      data-accent=rose      icon links=1 href=icons/favicon-rose.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+dark  plum      data-accent=plum      icon links=1 href=icons/favicon-plum.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+dark  indigo    data-accent=indigo    icon links=1 href=icons/favicon-indigo.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+dark  teal      data-accent=teal      icon links=1 href=icons/favicon-teal.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+dark  amber     data-accent=amber     icon links=1 href=icons/favicon-amber.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+dark  midnight  data-accent=midnight  icon links=1 href=icons/favicon-midnight.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+dark  pearl     data-accent=pearl     icon links=1 href=icons/favicon-pearl.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+dark  sapphire  data-accent=sapphire  icon links=1 href=icons/favicon-sapphire.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+dark  emerald   data-accent=emerald   icon links=1 href=icons/favicon-emerald.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+dark  burgundy  data-accent=burgundy  icon links=1 href=icons/favicon-burgundy.svg type=image/svg+xml served=200 image/svg+xml embedded-png=true
+
+## Static icons and logo assets (served by the dev server)
+favicon.ico                              200 image/x-icon 5660 B 
+favicon.svg                              200 image/svg+xml 19297 B n/a
+apple-touch-icon.png                     200 image/png 13310 B 180x180
+icons/icon-16.png                        200 image/png 670 B 16x16
+icons/icon-32.png                        200 image/png 1730 B 32x32
+icons/icon-48.png                        200 image/png 3161 B 48x48
+icons/icon-192.png                       200 image/png 23411 B 192x192
+icons/icon-512.png                       200 image/png 110626 B 512x512
+icons/icon-maskable-512.png              200 image/png 47852 B 512x512
+brand/nawara-admin-logo.webp             200 image/webp 64302 B 794x174
+brand/nawara-admin-logo-on-dark.webp     200 image/webp 45566 B 794x174
+brand/nawara-solutions-logo.webp         200 image/webp 73716 B 891x174
+brand/nawara-solutions-logo-on-dark.webp 200 image/webp 51946 B 891x174
+brand/nawara-admin-symbol.webp           200 image/webp 18970 B 200x163
+manifest.webmanifest                     200 application/manifest+json 569 B 
+
+## <head> icon links
+icon icons/favicon-coral-light.svg image/svg+xml
+apple-touch-icon apple-touch-icon.png 
+manifest manifest.webmanifest 
+
+## Rendered logos (artwork token, box, drawn size; `contain` keeps the aspect ratio)
+- light en 1440px
+  nw-brand-mark__word                    nawara-admin-logo.webp               box 172.9x52.7 drawn 172.9x37.9 size=contain name="Nawara Admin"
+  auth-brand-panel__copyright-mark       nawara-solutions-logo.webp           box 110.1x21.5 drawn 110.1x21.5 size=contain name="Nawara Solutions"
+- dark ar 1440px
+  nw-brand-mark__word                    nawara-admin-logo-on-dark.webp       box 172.9x52.7 drawn 172.9x37.9 size=contain name="Nawara Admin"
+  auth-brand-panel__copyright-mark       nawara-solutions-logo-on-dark.webp   box 110.1x21.5 drawn 110.1x21.5 size=contain name="نوارة سولوشنز"
+- light fr 390px
+  nw-brand-mark__word                    nawara-admin-logo.webp               box 85.3x26.0 drawn 85.3x18.7 size=contain name="Nawara Admin"
+  auth-frame__footer-copyright-mark      nawara-solutions-logo.webp           box 110.1x21.5 drawn 110.1x21.5 size=contain name="Nawara Solutions"

@@ -49,6 +49,11 @@
   // Logo colours (--nw-logo-*) and botanical artwork (--nw-illustration-botanical, -corner) of coral, the default palette;
   // the other palettes override them (tokens/_accents.scss, generated values in tokens/_brand-artwork.scss)
   @include brand-artwork.coral-dark;
+  // The blue-leaf logos (B1, 2026-11-01; docs/BRAND.md §0): rasters cut from the owner's logo-family reference, the same
+  // in every accent palette (the logo's colours are the approved artwork; only the favicon follows the palette).
+  --nw-logo-admin: url('/brand/nawara-admin-logo-on-dark.webp');
+  --nw-logo-admin-symbol: url('/brand/nawara-admin-symbol.webp');
+  --nw-logo-solutions: url('/brand/nawara-solutions-logo-on-dark.webp');
   --nw-sidebar-illustration-opacity: 0.45;
   --nw-sidebar-atmosphere: radial-gradient(
     20rem 26rem at 110% 100%,
