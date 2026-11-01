@@ -12,7 +12,7 @@
 A0  Discovery / Core alignment / architecture         ✅ COMPLETE
 A1  Workspace & tooling                               ✅ COMPLETE (owner review) ┐
 A2  Design-system foundation                          🟡 IMPLEMENTED + VERIFIED, owner review and scope decision pending ├─ M1 FOUNDATION
-A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation (PR #34); P7-S1 mock Licenses & entitlements overview (PR #35); P7-S2 Platform and Organization subscriptions (PR #36); P7-S3 Billing & payment follow-ups (PR #37); P8-S1 simulated administrative activity browser (PR #38); P8-S2 Services & health inventory (PR #39); P8-S3 personal Notifications (PR #40); P8-S4 Releases information page (PR #41); P9-S1 Settings hub & Language (PR #42); P9-S2 personal Account (PR #43); P9-S3 Company settings (PR #44); P9-S4a owner Security overview (read only; PR #45); P9-S4b add an authenticator app (mock-first; PR #46); P9-S4c create a new secret key (mock-first; PR #47); P9-S4d remove a factor (mock-first; PR #48); P9-S4e change the password (mock-first); R0/F0 Core V2 alignment, documentation only (Core `0044b20`; awaiting review); rest ⏳ ┘
+A3  Application shell & infrastructure                🟡 bounded slices: A3-S1 Company Overview; A3-S3 account menu + sign-out + operator navigation (PR #17); P2 platform dashboard (PR #18); P2.5 demo world (PR #19); P3a Organization directory and details (PR #20); P4-S1 action foundation + mock Create platform (PR #21); P3b-S1 mock Create organization (PR #22); P3b-S2 mock Edit organization details (PR #23); P3b-S3 mock admin invitations (PR #24); P5-S1 read-only Organization members (PR #25); P5-S2 mock membership decisions (PR #26); P5-S3a mock membership revocation (PR #27); P5-S3b mock organization-admin role (PR #28); P5-S4 account suspend/restore DEFERRED / BLOCKED BY CORE (read-only card only); P6-S1 read-only operators & access (provisional directory); P6-S2 mock Platform access give/remove (PR #31); P6-S2b operator Platform-list refresh (PR #32); P6-S3 mock operator block/unblock (PR #33); P6-S4 mock operator creation (PR #34); P7-S1 mock Licenses & entitlements overview (PR #35); P7-S2 Platform and Organization subscriptions (PR #36); P7-S3 Billing & payment follow-ups (PR #37); P8-S1 simulated administrative activity browser (PR #38); P8-S2 Services & health inventory (PR #39); P8-S3 personal Notifications (PR #40); P8-S4 Releases information page (PR #41); P9-S1 Settings hub & Language (PR #42); P9-S2 personal Account (PR #43); P9-S3 Company settings (PR #44); P9-S4a owner Security overview (read only; PR #45); P9-S4b add an authenticator app (mock-first; PR #46); P9-S4c create a new secret key (mock-first; PR #47); P9-S4d remove a factor (mock-first; PR #48); P9-S4e change the password (mock-first; PR #49); floral branding refresh and eleven accent palettes (PRs #50, #51); R0/F0 Core V2 alignment, documentation only (Core `0044b20`; PR #52); rest ⏳ ┘
     ── Shared-frontend review FK-1 ──
 A4  Authentication & session                 🟢       🟡 A4-S1 reviewed as a mock prototype (not production auth); A4-S2 working-code mock prototype complete (owner-approved); A4-S3 contact-confirmation mock prototype complete (owner-approved); A4-S4 owner TOTP enrollment mock prototype complete (owner-approved, PR #16); real integration and rest ⏳
 A5  Scope & organization context             🟢/🔴    ⏳
@@ -21,13 +21,18 @@ A7  Identity & access administration         🟢       ⏳
 A8  Organization & platform management       🟢/🔴/⚠  ⏳
 A9  Audit                                    🟢/🔴    ⏳
 A10 Release administration                   🟢/🔴    ⏳
-A11 Licenses / Billing / Payments            🟡       ⏳ (F0: Core S3–S6 are 🟡 DEV-ONLY, refused in production; financial slices F1–F16 proposed, NOT authorized)
+A11 Licenses / Billing / Payments            🟡       ⏳ (F0: Core S3–S6 are 🟡 DEV-ONLY, refused in production. F1-S0–F1-S5 merged, headless (PRs #53–#61); F1-S6a, F1-S6b, F1-S7 pending (G0-D1); Assistance AS-A1–AS-A12 merged, mock-first accepted (PRs #58–#72); F2–F16 not collectively authorized (G0-D8))
 A12 Files / Notifications                    🟡       ⏳
 A13 Services / Health / Monitoring           🟡/🔴    ⏳
     ── Shared-frontend review FK-2 (or earlier, on trigger) ──
 A14 Integration hardening (mock → HTTP as Core V2 lands; production session model; CSP; origins)  ⏳
 A15 Admin release certification                       ⏳
 ```
+
+**Identifiers (G0-D2, 2026-11-01).** The stages above (A0–A15, including A9 Audit to A13 Services) are Admin development
+stages. The Assistance & Settlements milestones are named **AS-A1 to AS-A12** in roadmap documentation
+([Assistance AS-A1–AS-A12](#assistance-as-a1as-a12-merged-mock-first-accepted)). Their historical PR titles, branch names, commit
+messages and source-code comments say "A1" to "A12" and are kept as they are.
 
 ### Current priorities (owner, 2026-10-06)
 
@@ -298,7 +303,7 @@ Policy (A14), and everything listed open for A4-S1 below.
 reconciliation inside Admin. No later slice is authorized by that approval. Evidence: the complete master roadmap, the
 source-derived 208-route inventories and their scripts in [`review/r0-core-alignment/`](review/r0-core-alignment/README.md).
 
-**F0 (documentation only; diff approved by the Owner 2026-10-30 with D-R0-4 and D-R0-5; awaiting merge). D-A4 and every financial product decision stay OPEN:**
+**F0 (documentation only; diff approved by the Owner 2026-10-30 with D-R0-4 and D-R0-5; merged, PR #52). D-A4 and every financial product decision stay OPEN:**
 
 - [`CORE-INTEGRATION.md`](CORE-INTEGRATION.md): new baseline bullet; §2, §4, §5, §6, §7, §8 annotated (historical text kept);
   CF-01, CF-02, CF-04, CF-05, CF-38, CF-40 status lines; new **CF-65 to CF-73**; §10 Core-side open items; new **§11** (baseline
@@ -337,21 +342,77 @@ priorities):**
 
 No financial page may present simulation data as real, and a production build keeps every 🟡 DEV-ONLY gateway unavailable.
 
-## F1: Financial Authorization Foundation (design reviewed 2026-10-30; F1-S0 and F1-S1 authorized)
+**Status at G0 (2026-11-01, Admin `e8fae1f`):** F1 is F1-S0–F1-S5 merged and headless, with F1-S6a, F1-S6b and F1-S7 pending
+([F1](#f1-financial-authorization-foundation-f1-s0f1-s5-merged-f1-s6a-f1-s6b-f1-s7-pending)). The read-only, mock-first side of F11
+(and the read side of F8 and F9) was delivered by Assistance AS-A1–AS-A12; their owner commands (T2/T3) are not built. F2–F10 and
+F12–F16 are not started and are **not collectively authorized** (G0-D8): read-only mock-first features are proposed one at a time.
+
+## F1: Financial Authorization Foundation (F1-S0–F1-S5 merged; F1-S6a, F1-S6b, F1-S7 pending)
 
 Design: [`design/f1-financial-authorization.md`](design/f1-financial-authorization.md), reviewed by the Owner with safety
-corrections (its §0). **Authorized:** F1-S0 and F1-S1 only. **Not authorized:** F1-S2 to F1-S7 (authority rules, receipt
-contract types, demo receipt mock, coordinator, UI, contract fixtures).
+corrections (its §0). F1-S0 and F1-S1 were authorized on 2026-10-30; the Owner confirmed on 2026-11-01 that **F1-S2 to F1-S5 were
+also authorized and are complete** (G0-D1). Everything below is headless or demo-only: no feature uses it, no screen shows it, and
+nothing here is production availability.
 
-- **F1-S0 (documentation only; awaiting review):** dated errata E-1 to E-5 to the F0 record in
-  [`CORE-INTEGRATION.md` §11.12](CORE-INTEGRATION.md#1112-errata-f1-s0-2026-10-30) (receipt issuance and Audit legal holds take
-  **body** `stepUpToken`; Organization, Release and Billing assistance take the header; a receipt may stay in memory for one
-  intent; issuance, consumption and completion are separate outcomes; uncertain outcomes on routes without `Idempotency-Key`
-  stay blocked); open Core follow-ups **CF-74 to CF-76**; the design stored under `docs/design/`.
-- **F1-S1 (separate PR):** a headless, typed registry of Core's step-up purposes, their transports, factors and delivery, and
-  branded proof types, additive to `StepUpGateway`; no runtime behaviour change.
+| Slice | Content | PR |
+|---|---|---|
+| F1-S0 | dated errata E-1 to E-5 to the F0 record in [`CORE-INTEGRATION.md` §11.12](CORE-INTEGRATION.md#1112-errata-f1-s0-2026-10-30); open Core follow-ups **CF-74 to CF-76**; the design stored under `docs/design/` (documentation only) | #53 (merged) |
+| F1-S1 | typed registry of Core step-up purposes, transports, factors and delivery; branded proof types (`core/authorization/purpose-registry.ts`, `step-up-proof.ts`) | #54 (merged) |
+| F1-S2a | exact-value i18n machine-value exemption (`tools/check-i18n.mjs`) | #55 (merged) |
+| F1-S2b | headless financial authority registry: owner/operator rules per operation (`financial-operation.ts`, `financial-authority.ts`) | #56 (merged) |
+| F1-S3 | authorization-receipt contract, typed failures and the in-memory secret holder (`receipt.model.ts`, `receipt.gateway.ts`, `receipt-failure.ts`, `receipt-secret.ts`) | #57 (merged) |
+| F1-S4 | demo authorization-receipt gateway (`authorization-receipt.mock.ts`); **not yet bound to a demo domain** | #59 (merged) |
+| F1-S5 | headless `FinancialAuthorizationRun` coordinator: authorization and financial outcome as separate machines; uncertain outcomes never resent (`financial-authorization-run.ts`) | #61 (merged) |
+| **F1-S7** | contract fixtures of Core receipt DTOs and refusal codes, citing source lines; mapping specs; HTTP-adapter checklist | **pending** (prioritized, G0-D1) |
+| **F1-S6a** | shared step-up block (factor and code), first used by one existing dialog | **pending** (prioritized, G0-D1) |
+| **F1-S6b** | receipt authorization dialog over `FinancialAuthorizationRun`, with a receipt demo binding; no feature wiring | **pending** (prioritized, G0-D1) |
 
-Every receipt-consuming route stays refused in production; nothing here is production availability. D-A4 stays open.
+Each pending slice needs its own authorization. Every receipt-consuming route stays refused in production. D-A4 stays open.
+
+## Assistance AS-A1–AS-A12 (merged; mock-first accepted)
+
+Organization Assistance & Settlements oversight for the Company owner, read only, under `/billing/assistance` (directory, case,
+disputes and exceptions, late settlements and cash returns, recovery and surplus). Mock-first: every Assistance read is demo-only or
+unavailable; Core has no owner list for most of them (CF-68, CF-69, CF-70, CF-77), no human File path (CF-71), and its Billing owner
+routes are development and simulation only. **Accepted as mock-first frontend acceptance, not production financial certification**
+([acceptance report](review/assistance-a12/README.md)).
+
+| Milestone | Content | PR |
+|---|---|---|
+| AS-A1 | domain models and state invariants | #58 |
+| AS-A2 | typed read gateway contracts | #60 |
+| AS-A3 | deterministic demo scenarios (and CF-77, PR #62) | #63 |
+| AS-A4 | read-only case directory | #64 |
+| AS-A5 | read-only case page and timeline | #65 |
+| AS-A6 | cash collection and settlement oversight ([design](design/assistance-a6-oversight.md)) | #66 |
+| AS-A7 | disputes and exceptions ([design](design/assistance-a7-disputes.md)) | #67 |
+| AS-A8 | late settlements and cash returns ([design](design/assistance-a8-late-settlements.md)) | #68 |
+| AS-A9 | recovery and surplus ([design](design/assistance-a9-recovery.md)) | #69 |
+| AS-A10 | evidence, audit history and restrictions ([design](design/assistance-a10-evidence.md)) | #70 |
+| AS-A11 | navigation and workflow integration ([design](design/assistance-a11-navigation.md)) | #71 |
+| AS-A12 | full acceptance ([report](review/assistance-a12/README.md)) | #72 |
+
+Accepted UX decisions (AS-A12): filter changes replace the history entry; "Show more" depth is not restored; case pages keep their
+contextual back link without the section navigation. No owner command (correction, resolution, application, recovery action,
+receipt) exists.
+
+## G0: frontend gap audit and Owner decisions (2026-11-01)
+
+The G0 audit ([`audits/g0-frontend-gap-audit.md`](audits/g0-frontend-gap-audit.md), PR #73) is accepted as a **proposed planning
+baseline**. Its Owner decisions are planning decisions only; **none authorizes implementation**:
+
+| Id | Decision |
+|---|---|
+| G0-D1 | F1-S2–F1-S5 confirmed completed and previously authorized; F1-S7, F1-S6a, F1-S6b prioritized as separate slices |
+| G0-D2 | Assistance milestones named AS-A1–AS-A12 in roadmap documentation; source identifiers, PR names and Git history kept |
+| G0-D3 | D-A4: a same-origin BFF is the **preferred candidate, not approved** and not to be implemented; a separate Admin/Core Auth architecture decision (AD-1) is to be prepared |
+| G0-D4 | CSP: a separate, tested hardening slice, after an inventory of the bundle's asset and script requirements |
+| G0-D5 | misleading dead sidebar entries get unavailable or hidden states; no working feature is deleted |
+| G0-D6 | `/foundation` restricted or excluded in production; development access kept |
+| G0-D7 | accessibility and visual-regression tooling need a separate dependency proposal and Owner approval |
+| G0-D8 | F2–F12 not collectively authorized; read-only mock-first features prioritized by gap, Core evidence and value |
+
+Recommended order and the architecture decisions needing separate sessions (AD-1 to AD-5): the audit's §11.
 
 ## P9-S4e: change the password, mock-first (implemented 2026-10-25)
 
@@ -1203,13 +1264,13 @@ working-code sign-in, enrollment and recovery screens, step-up, a sign-out entry
 
 Recorded, not authorized: each is its own task.
 
-- **QF-1 (recorded 2026-10-30, Assistance A5): timing-sensitive P9-S4b spec.**
+- **QF-1 (recorded 2026-10-30, Assistance AS-A5): timing-sensitive P9-S4b spec.**
   `src/app/features/settings/pages/add-authenticator.page.spec.ts`, test "a wrong new code (the existing factor's) is refused;
   the next code is confirmed with the same, unspent grant", failed once in CI on PR #64 (`no new-authenticator-code field`) and
   passed on a single re-run; it passes locally and on `main`. Its `render()` waits one fixed `settle()` (10 ms) before the demo
   enrollment has rendered the field. Proposed fix: wait until the field exists (as other specs do with a bounded loop), in a
-  separate test-only change. Not changed in A5 (no regression demonstrated there).
-- **QF-2 (recorded 2026-11-01, Assistance A12): French high punctuation.** French copy puts an ordinary space before `;`, `:`, `!`
+  separate test-only change. Not changed in AS-A5 (no regression demonstrated there).
+- **QF-2 (recorded 2026-11-01, Assistance AS-A12): French high punctuation.** French copy puts an ordinary space before `;`, `:`, `!`
   and `?` (309 places in `src/i18n/fr.json` outside Assistance), so a wrapped line can start with the punctuation mark (seen in the A12
   rendered checks). A12 fixed the Assistance strings only (a no-break space, with a regression test). Proposed fix: the same no-break
   space across the catalog, plus a `check:i18n` rule, in a separate localization task.
@@ -1218,12 +1279,12 @@ Recorded, not authorized: each is its own task.
 
 | Id | Before | Decision |
 |---|---|---|
-| D-A2-5 | A3 | axe-core as a project dependency for automated accessibility tests (with Playwright). In A2 it was run ad hoc from outside the project: 0 violations |
+| D-A2-5 | A3 | axe-core as a project dependency for automated accessibility tests (with Playwright). In A2 it was run ad hoc from outside the project: 0 violations. G0-D7: needs a separate dependency proposal |
 | D-A2-6 | A2 review | **Official vector logo files** (symbol, wordmark, lockups, light and dark). Until supplied: board rasters plus a provisional vector reconstruction ([`BRAND.md`](BRAND.md)) |
 | D-A2-7 | A2 review | **Primitive scope**: keep or defer the nine extra primitives (table in "A2 state") |
 | D-A2-8 | A2 review | Stylelint logical-properties rule (physical `left`/`right` ban): not added in the conservative configuration; currently no violations exist |
 | D-A3-2 | A3 | CI pipeline (GitHub Actions running `npm run validate`), Playwright, Testing Library |
-| D-A4 | A4 (dev) / A14 (prod) | Refresh-token strategy: memory (dev) → token-handler BFF **or** Core V2 cookie mode (CF-01) |
+| D-A4 | A4 (dev) / A14 (prod) | Refresh-token strategy: memory (dev) → token-handler BFF **or** Core V2 cookie mode (CF-01). **Undecided.** G0-D3 (2026-11-01): a same-origin BFF is the preferred candidate, **not approved**; the Admin/Core Auth architecture decision (AD-1) is to be prepared for Owner review |
 | D-A4-1 | A4-S1 review (**unresolved**) | Demo session: demo builds sign in through the mock (fictional accounts listed on `/login`) instead of starting as the demo owner, and a reload ends the demo session. Demo-only; it decides nothing about real sessions (D-A4). Confirm, or keep a direct demo entry |
 | D-A4-2 | A4-S1 review | Copy of the "not available in this prototype" states: the working-code and recovery entries, and the `enrollment_required` / `recovery_required` banners (not in the design) |
 | D-A3-1 | A3 | Response validation: hand-written decoders vs a schema library (Valibot/Zod) |

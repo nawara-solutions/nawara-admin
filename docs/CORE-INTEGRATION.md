@@ -53,6 +53,10 @@
   File grant's `fileId` and the late success's `paymentRequestId`; BIL-28 does **not** return the external surplus repayment's File grant.
   Assistance disputes carry no free text or evidence store. Files stay references only (**CF-71**, unchanged); no new Core follow-up.
   Business rules: [`design/assistance-a10-evidence.md`](design/assistance-a10-evidence.md).
+- **G0 audit (2026-11-01):** Core `main` re-read at `c49bd59` (31 commits after `0044b20`: tests, stage-record documentation and one
+  Auth concurrency fix, `cd932f0`). No controller, route or CORS bootstrap changed, so every contract state in this document still
+  holds; the baseline stays `0044b20`. No Core financial capability is production-ready (§11.3, §11.10). D-A4 is unchanged
+  (undecided; same-origin BFF is only the preferred candidate, G0-D3). Audit: [`audits/g0-frontend-gap-audit.md`](audits/g0-frontend-gap-audit.md).
 - **Precedence:** a service's OpenAPI (`GET /<service>/docs`) and Core ADRs win over this document. Report differences to Core.
 
 ---
@@ -1563,6 +1567,11 @@ From each route's guard at `0044b20`; Core decides per request, Admin's capabili
 At `cf4b1a9`: 25 gateways, 21 mock adapter files, **no HTTP adapter**, 143 spec files; capability policy: owner 22 capabilities,
 operator none. Against `0044b20`:
 
+**Update (G0-P0-1, 2026-11-01, Admin `e8fae1f`):** 28 gateways (`*.gateway.ts`; added: `AssistanceGateway`, `ReceiptStepUpGateway`,
+`AuthorizationReceiptGateway`), 22 `*.mock.ts` files, **still no HTTP adapter** (no `HttpClient` in `src/app`), 180 spec files;
+owner 23 capabilities (added `company.assistance.view`), operator none. The two receipt gateways have unavailable and demo classes
+but are bound to no route or demo domain yet (F1-S6b). Rows added below are marked G0.
+
 | Admin area (route) | Gateway(s) | Core state at `0044b20` | Note |
 |---|---|---|---|
 | Sign-in, enrollment, working code (`/login/*`) | `AuthGateway` | 🟢 (production presence documentary) | mock prototype; HTTP after D-A4 |
@@ -1577,7 +1586,9 @@ operator none. Against `0044b20`:
 | Services (`/services`) | `ServiceInventoryGateway` | 🔴 (CF-06) | mock |
 | Notifications (`/notifications`) | `NotificationSummaryGateway` | 🔴 (NOT-00; CF-14, CF-48) | mock |
 | Settings and security (`/settings/*`) | `AccountSecurityGateway`, `CompanySettingsGateway`, `StepUpGateway` | 🟢 owner security; Company profile 🔴 (CF-49) | mock |
-| Finance workflows of §11.5 | none | 🟡 DEV-ONLY | **not built**; planned slices F1–F12 are **not authorized** (`admin:docs/ROADMAP.md`) |
+| Assistance & Settlements (`/billing/assistance/*`) — G0 | `AssistanceGateway` | 🟡 DEV-ONLY by id (BIL-26, BIL-28, BIL-32); no owner list or request read (CF-68, CF-69, CF-70, CF-77); no human File path (CF-71) | mock, read only; AS-A1–AS-A12 accepted mock-first, not production certification |
+| Financial authorization foundation — G0 | `ReceiptStepUpGateway`, `AuthorizationReceiptGateway` | 🟡 DEV-ONLY (receipt issuance; consumers refused in production) | headless (F1-S1–F1-S5); no UI (F1-S6a/S6b pending), no fixtures (F1-S7 pending) |
+| Finance workflows of §11.5 | none | 🟡 DEV-ONLY | **not built**; planned slices F1–F12 are **not authorized** (`admin:docs/ROADMAP.md`). G0: F1-S0–F1-S5 merged; F2–F12 not collectively authorized (G0-D8) |
 
 ### 11.10 Certification and deployment restrictions
 

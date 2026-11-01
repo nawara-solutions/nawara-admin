@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | **Read-only audit** for Owner review. No application code, test, dependency or configuration was changed. |
+| Status | **Read-only audit, accepted by the Owner on 2026-11-01 as a proposed planning baseline** (subject to Owner review and merge; Owner decisions in §0). No application code, test, dependency or configuration was changed. **No implementation is authorized by this document.** |
 | Admin baseline | `main` at **`8228136`** (merge of PR #72, A12). PR #72's required checks (validate, production image smoke test) passed; the post-merge `main` run (Admin CI #137) was in progress when this audit was written. |
 | Core baseline | Admin's register is pinned to nawara-core **`0044b20`**. Core `main` is now **`c49bd59`** (31 commits later). Those commits change tests, stage-record documentation (S0-C7, S1–S6 closure) and one Auth fix (`cd932f0`, concurrent hierarchy placement). **No controller, route or CORS bootstrap changed** (`git diff 0044b20 c49bd59 -- 'apps/*/src/**/*.controller.ts' libs/service-kit/src/bootstrap.ts` is empty), so every route-level conclusion at `0044b20` holds at `c49bd59`. |
 | Local verification | `npm test` on `8228136`: **180 files, 2118 tests, all passing**. No browser run was made for this audit; visual evidence cited below comes from earlier recorded runs (`docs/review/*/rendered-checks.txt`). |
@@ -14,11 +14,27 @@ at the baseline. Each statement cites a path. **Mock-first means simulated:** no
 
 ---
 
+## 0. Owner review decisions (2026-11-01)
+
+Recorded from the Owner's G0 review. They are **planning decisions**: none authorizes implementation; each slice below still needs
+its own authorization.
+
+| Id | Decision | Effect on this audit |
+|---|---|---|
+| G0-D1 | F1-S2 through F1-S5 are **confirmed completed and previously authorized**. F1-S7, F1-S6a and F1-S6b are prioritized as **separate future slices**. | OD-G0-1 answered; G0-P0-1 records it in the roadmap documents. |
+| G0-D2 | The Assistance milestones are named **AS-A1 to AS-A12** in roadmap documentation. Source-code identifiers, historical PR names and Git history are kept. | OD-G0-2 answered; this audit uses AS-A in prose. |
+| G0-D3 | D-A4: a **same-origin BFF is the preferred candidate**, **not approved**, not to be implemented. A separate Admin/Core Auth architecture decision is to be prepared for Owner review (session cookies, CSRF, token custody, step-up, authorization, logout, expiry, deployment topology, service trust). | OD-G0-3 becomes AD-1 (§11); G0-P0-2 becomes that decision record. |
+| G0-D4 | CSP: a **separate, tested security-hardening slice** is prioritized. A strict same-origin policy is **not assumed** compatible until the current asset and script requirements are inventoried. | OD-G0-4 answered; G0-P0-3 starts with the inventory. |
+| G0-D5 | Misleading dead sidebar links are replaced with **appropriate unavailable or hidden states**; no working feature is deleted. | OD-G0-5 answered; G0-P1-4 scoped accordingly. |
+| G0-D6 | `/foundation` is **restricted or excluded in production**; development access is kept. | OD-G0-6 answered; G0-P0-4 scoped accordingly. |
+| G0-D7 | Accessibility and visual-regression tooling need a **separate dependency proposal** and Owner approval. | OD-G0-7 answered; G0-P3-5 is a proposal first. |
+| G0-D8 | Financial F2–F12 are **not collectively authorized**. Read-only mock-first features are prioritized by actual gaps, Core evidence and product value. | OD-G0-8 answered; G0-P1-7 becomes per-feature read-only proposals. |
+
 ## 1. Executive status summary
 
 - **Mock-first completeness is high for the Company owner's non-financial administration.** Shell, sign-in prototypes, Company
   overview, Platforms, Platform dashboard, Organizations and memberships, Operators, Licenses (read), Settings and owner security,
-  and the whole Assistance module (A1–A12, accepted mock-first) are implemented behind typed gateways with demo adapters and
+  and the whole Assistance module (AS-A1–AS-A12, accepted mock-first) are implemented behind typed gateways with demo adapters and
   production "unavailable" adapters, with owner/operator tests.
 - **Financial administration beyond Assistance is not built.** Refunds, Payment disputes/chargebacks, fraud holds, reconciliation,
   write-off, fees/delegations and invoices/payments have **no screen**. The F1 authorization foundation is **headless only**
@@ -28,8 +44,8 @@ at the baseline. Each statement cites a path. **Mock-first means simulated:** no
   development/simulation-only in Core and S-INT has not run.
 - **Unsafe or inconsistent items found** (none is a live risk today, because production has no session and no Core calls):
   1. **Governance drift:** `CLAUDE.md` and `docs/ROADMAP.md` say F1-S2–S7 are "not authorized", yet F1-S2a/S2b/S3/S4/S5 are merged
-     (PRs #55–#61); Assistance A1–A12 is absent from both stage tables; "A9 Audit / A10 Release / A11 Billing / A12 Files" (ROADMAP
-     stages) collide with the Assistance milestone names A9–A12.
+     (PRs #55–#61); Assistance AS-A1–AS-A12 is absent from both stage tables; the ROADMAP stages "A9 Audit / A10 Release / A11 Billing / A12
+     Files" collided with the Assistance milestone names (now AS-A1–AS-A12, Owner decision G0-D2).
   2. **No Content-Security-Policy** in production (`docs/DEPLOYMENT.md` "No Content-Security-Policy yet"); must exist before any
      real session or Core origin.
   3. **Step-up entry is duplicated** in 11 in-app dialogs/pages (`autocomplete="one-time-code"` in operators ×2, organizations ×4,
@@ -56,7 +72,7 @@ in production no session can exist (`app.routes.ts` → session-unavailable page
 | Operators directory, detail, Platform access, block/unblock, create | `/operators[/:id]` · owner | 3 gateways in `features/operators/data-access` | demo world | `company.operators.view` + per-command capabilities | keys | 11 / 103 | **CMF** · directory CF-03 (provisional); CF-32–CF-35 |
 | Licenses & entitlements, Platform/Organization subscriptions | `/licenses`, `/licenses/platforms/:id` · owner | `licenses.gateway.ts`, `organization-commercial.gateway.ts` | demo world | `company.commercial.view` | keys | 4 / 37 | **CMF (read)** · CF-36–CF-39, CF-42; commands **CB** CF-41 (P7-S4) |
 | Billing & payment follow-ups | `/billing` · owner | `billing.gateway.ts` | demo | `company.commercial.view` | keys | 3 / 26 | **PART** · invoices/payments CF-40, CF-66 |
-| Assistance & Settlements (A1–A12) | `/billing/assistance[/disputes|settlements|recovery|:requestId]` · owner | `assistance.gateway.ts` (13 reads), `assistance.mock.ts`, 5 facades | 15 own + 2 foreign cases; normal/empty/unavailable | `company.assistance.view` per route; gateway context | EN/FR/AR incl. AR render specs | 26 / 277 | **CMF, accepted** (`docs/review/assistance-a12/README.md`) · CF-68–CF-71, CF-77, D-A4, dev-only |
+| Assistance & Settlements (AS-A1–AS-A12) | `/billing/assistance[/disputes|settlements|recovery|:requestId]` · owner | `assistance.gateway.ts` (13 reads), `assistance.mock.ts`, 5 facades | 15 own + 2 foreign cases; normal/empty/unavailable | `company.assistance.view` per route; gateway context | EN/FR/AR incl. AR render specs | 26 / 277 | **CMF, accepted** (`docs/review/assistance-a12/README.md`) · CF-68–CF-71, CF-77, D-A4, dev-only |
 | Refunds, Payment disputes/chargebacks, fraud holds, reconciliation, write-off, provider-fact association | none | none (receipt purposes exist in `core/authorization/purpose-registry.ts:186`) | — | `financial-authority.ts` rules (headless) | — | — | **MISS** (F2–F12 not authorized) · CF-65, CF-66, CF-67, CF-74, CF-75, CF-77; dev-only modules (`CORE-INTEGRATION.md` §11.3) |
 | Fees, caps, delegations, proposals | none | none | — | rules in `financial-operation.ts` | — | — | **MISS** · CF-72 (no reads) |
 | Financial authorization foundation (F1) | none (headless) | `core/authorization/*` (5 163 lines: registry, authority, receipt model/gateway/secret/failures, mock, run) | `authorization-receipt.mock.ts` (not bound to any domain) | owner/operator matrix | — | 10 / 101 | **PART** (S1–S5 done; S6 UI, S7 fixtures **MISS**) |
@@ -190,7 +206,7 @@ everything in column 1. **Owner decisions:** D-A4, CSP policy, inert sidebar ent
 | U7 | `/foundation` reachable without session in production | `app.routes.ts` | low (exposure decision) |
 | U8 | Demo labelling: every data page carries the demo badge/simulation note (per-feature templates matched: activity, assistance, billing, overview, licenses, notifications, operators, organizations, platform-dashboard, platforms, releases, services, settings; auth has `auth-demo-note`) | `grep shell.demo/simulat` per feature | ok |
 | U9 | No permission leak found (operator has no company capability; platform scope checked in facades) | §4 | ok |
-| U10 | Accessibility and responsive evidence is **rendered** only for A2/A3 and Assistance (A10–A12); other features rely on unit specs and token contrast (`check:contrast`) | `docs/review/*` | medium (acceptance gap) |
+| U10 | Accessibility and responsive evidence is **rendered** only for A2/A3 and Assistance (AS-A10–AS-A12); other features rely on unit specs and token contrast (`check:contrast`) | `docs/review/*` | medium (acceptance gap) |
 
 ## 8. Test and acceptance coverage findings
 
@@ -216,10 +232,10 @@ Sizes: S ≤ ~300 changed lines, M ≤ ~1 000, L larger.
 
 | Id | Workstream | Evidence | Missing / expected change | Depends on | Risk | Acceptance criteria | Size | Core first |
 |---|---|---|---|---|---|---|---|---|
-| G0-P0-1 | Governance docs | `CLAUDE.md` stage table, `ROADMAP.md` §F1 (:340-344) vs PRs #55–#61; Assistance absent; stage-name collision; `CORE-INTEGRATION.md` §11.9 counts | record F1-S1–S5 and Assistance A1–A12 as merged; rename or prefix the Assistance track (e.g. "AS-1…AS-12") or the ROADMAP stages; refresh §11.9 | Owner confirmation of what was authorized | low | stage tables match `git log`; no identifier means two things | S (docs) | no |
-| G0-P0-2 | D-A4 decision record | `CORE-INTEGRATION.md` §11.7; ROADMAP D-A4 | Owner chooses BFF (ADR-0050 D13) vs Core cookie mode vs development memory-only; record constraints (forward step-up/idempotency/receipts unchanged, never log) | Owner (+ Core if cookie mode) | high | written decision; HTTP-adapter work unblocked or explicitly deferred | S (docs) | decision |
-| G0-P0-3 | Production CSP | `docs/DEPLOYMENT.md` "No Content-Security-Policy yet"; ARCHITECTURE §21 | strict CSP in `deploy/nginx.conf` (`default-src 'self'`, hash of the no-flash script, fonts self-hosted, no Core origin yet); smoke-test assertion | Owner approval (config change) | medium | CI smoke test checks the header; app loads with no CSP violation in all three languages | S | no |
-| G0-P0-4 | `/foundation` exposure | `app.routes.ts` | decide: keep public, gate behind demo builds, or remove from production | Owner decision | low | decision recorded; route/production check updated if changed | S | no |
+| G0-P0-1 | Governance docs | `CLAUDE.md` stage table, `ROADMAP.md` §F1 (:340-344) vs PRs #55–#61; Assistance absent; stage-name collision; `CORE-INTEGRATION.md` §11.9 counts | record F1-S1–S5 and Assistance AS-A1–AS-A12 as merged (G0-D1, G0-D2: AS-A identifiers in roadmap documentation; source identifiers, PR names and Git history unchanged); refresh §11.9 | Owner confirmation of what was authorized | low | stage tables match `git log`; no identifier means two things | S (docs) | no |
+| G0-P0-2 | Admin/Core Auth architecture decision (AD-1; G0-D3) | `CORE-INTEGRATION.md` §11.7; ROADMAP D-A4 | decision record for the preferred same-origin BFF candidate (not approved): session cookies, CSRF, token custody, step-up forwarding, authorization, logout, expiry, deployment topology, service trust; alternatives (Core cookie mode, development memory-only) | Owner (+ Core if cookie mode) | high | written decision; HTTP-adapter work unblocked or explicitly deferred | S (docs) | decision |
+| G0-P0-3 | Production CSP | `docs/DEPLOYMENT.md` "No Content-Security-Policy yet"; ARCHITECTURE §21 | first inventory every script, style, font, image and inline requirement of the production bundle (G0-D4), then a CSP in `deploy/nginx.conf` derived from it, with a smoke-test assertion | Owner approval (config change) | medium | CI smoke test checks the header; app loads with no CSP violation in all three languages | S | no |
+| G0-P0-4 | `/foundation` exposure | `app.routes.ts` | exclude or restrict the gallery in production, keep it in development (G0-D6); `check:production` asserts it | — | low | decision recorded; route/production check updated if changed | S | no |
 
 ### P1 — Missing or incomplete core Admin workflows
 
@@ -228,10 +244,10 @@ Sizes: S ≤ ~300 changed lines, M ≤ ~1 000, L larger.
 | G0-P1-1 (F1-S6a) | Shared step-up block | 11 local step-up entries (§7 U2); `actions.stepUp.*` keys | one reusable factor-and-code component used by **one** existing dialog first (no behaviour change) | F1 authorization by the Owner | medium | migrated dialog's specs unchanged and green; EN/FR/AR, RTL, keyboard | M | no |
 | G0-P1-2 (F1-S6b) | Receipt authorization dialog | `financial-authorization-run.ts`; mock unbound | dialog over the run (purpose, factor, verify, submit, uncertain/expired/spent states; authorization vs completion shown separately); a receipt `DemoDomain` binding; no feature wiring | G0-P1-1 | medium | state-machine-driven component specs; secret never in DOM/URL/log (spies); production bundle clean | M | no |
 | G0-P1-3 (F1-S7) | Contract fixtures | no `core/authorization/testing/` | JSON fixtures of receipt DTOs and refusal codes citing Core lines at the pinned revision; mapping specs parse them; HTTP-adapter checklist | — | low | fixtures cite file:line; mapping specs green | S–M | no |
-| G0-P1-4 | Inert sidebar entries | `navigation.ts:46,47,88,97` | per entry: remove, or route to an honest "not available" page with its Core follow-up (Files CF-71, Monitoring CF-06, Users CF-03, Organizations ORG-00), or point Organizations to the per-Platform directory | Owner decision | low | no unexplained dead item; spec per entry | S | no |
+| G0-P1-4 | Inert sidebar entries | `navigation.ts:46,47,88,97` | per entry: an honest unavailable state (with its Core follow-up: Files CF-71, Monitoring CF-06, Users CF-03, Organizations ORG-00) or hidden; no working feature deleted (G0-D5) | — | low | no unexplained dead item; spec per entry | S | no |
 | G0-P1-5 | P9-S5 Platform settings | ROADMAP :372 "P9-S5 Platform settings (S5-0 first)" | S5-0 Core verification, then a read-only page | Owner authorization | medium | per ROADMAP P9 pattern | M | verify first |
 | G0-P1-6 | Auth HTTP adapter | `core/auth/auth.gateway.ts` (unavailable in prod) | first HTTP adapter against a local Core, per D-A4 | G0-P0-2, CF-07, CF-15 | high | works against local Core; tokens never in storage/URL/log | L | decision + origin config |
-| G0-P1-7 | Financial screens (refunds, fraud holds, reconciliation, Payment disputes, fees) | none | read-first mock screens behind typed gateways, each its own slice (ROADMAP F2–F12) | Owner authorization; for real data CF-65/66/67/72/74/77 and S-INT | high | per slice; never executes money movement in demo beyond simulation | L (many slices) | for real integration |
+| G0-P1-7 | Financial screens (refunds, fraud holds, reconciliation, Payment disputes, fees) | none | per-feature **read-only** mock-first proposals ranked by gap, Core evidence and value (G0-D8); never collectively | Owner authorization per feature; for real data CF-65/66/67/72/74/77 and S-INT | high | per slice; never executes money movement in demo beyond simulation | L (many slices) | for real integration |
 
 ### P2 — Product completeness and UX
 
@@ -251,7 +267,7 @@ Sizes: S ≤ ~300 changed lines, M ≤ ~1 000, L larger.
 | G0-P3-2 | Route-table specs | missing for company-overview, platforms, platform-dashboard, organizations | guard and binding specs like `billing.routes.spec.ts` | — | low | specs green | S | no |
 | G0-P3-3 | Arabic/RTL render specs | AR specs only in assistance, settings, foundation | one AR render spec per feature page | — | low | `dir="rtl"`, references `dir="ltr"`, translated headings | S each | no |
 | G0-P3-4 | Rendered acceptance per area | `docs/review/*` only A2/A3/Assistance | per-area rendered checks (3 viewports × 2 themes × 3 languages, 11 accents, keyboard) | byte-identical tokens | low | report per area like A12 | M each | no |
-| G0-P3-5 | Automated a11y and visual regression | no axe/Playwright dependency | propose tools and baseline policy | **Owner dependency approval** | medium | CI job with stable baselines | M | no |
+| G0-P3-5 | Automated a11y and visual regression | no axe/Playwright dependency | a dependency proposal first (G0-D7), then a CI job | **Owner dependency approval** | medium | CI job with stable baselines | M | no |
 | G0-P3-6 | QF-1 | ROADMAP QF-1 | wait-until-field fix | — | low | spec stable over repeated runs | S | no |
 | G0-P3-7 | Remote branch hygiene | many squash-merged branches remain on origin (e.g. `feat/admin-p3a-organizations`, `claude/*-f1-s*`) | Owner deletes stale branches | Owner | low | only active branches remain | S | no |
 
@@ -259,6 +275,8 @@ Sizes: S ≤ ~300 changed lines, M ≤ ~1 000, L larger.
 → remaining P1/P2 as the Owner authorizes. Real HTTP adapters start only after D-A4 and per-capability Core readiness.
 
 ## 10. Owner decisions required
+
+**Answered on 2026-11-01** by G0-D1 to G0-D8 (§0); kept for traceability.
 
 | Id | Decision | Why now |
 |---|---|---|
@@ -270,6 +288,33 @@ Sizes: S ≤ ~300 changed lines, M ≤ ~1 000, L larger.
 | OD-G0-6 | `/foundation` in production | exposure |
 | OD-G0-7 | Approve test dependencies (axe-core, Playwright test runner) for automated a11y and visual regression, or keep ad hoc runs | acceptance automation |
 | OD-G0-8 | Which financial slices (F2–F12) to authorize as mock-first screens while Core lists are missing | scope of P1-7 |
+
+## 11. Recommended PR sequence (after G0-D1 to G0-D8)
+
+Each item is one independently reviewable PR and needs its own authorization. **AD** marks an architecture decision that needs a
+separate session before any code.
+
+1. **G0-P0-1 — roadmap documentation alignment** (docs only): F1-S1–S5 completed; AS-A1–AS-A12 recorded; G0 decisions; §11.9 counts.
+2. **G0-P0-4 — `/foundation` excluded from production** (small code + `check:production` assertion; development unchanged).
+3. **G0-P1-4 — dead sidebar entries** to unavailable or hidden states (small code + specs).
+4. **G0-P0-3a — CSP inventory** (docs: every script, style, font, image, inline and runtime requirement of the production bundle).
+5. **G0-P0-3b — CSP hardening** (`deploy/nginx.conf` + smoke test), from the inventory.
+6. **F1-S7 — contract fixtures** (test-only).
+7. **F1-S6a — shared step-up block**, migrating one existing dialog.
+8. **F1-S6b — receipt authorization dialog** over `FinancialAuthorizationRun`, with a receipt demo domain; no feature wiring.
+9. **G0-P3-2 / G0-P3-3 / G0-P3-1** — route-table specs, Arabic render specs, routed journeys (one feature per PR).
+10. **G0-P3-5a — tooling dependency proposal** (docs): accessibility and visual regression.
+11. **Read-only financial proposals** (G0-D8), one feature at a time, each starting with a Core evidence check.
+
+Architecture decisions needing a separate session:
+
+| Id | Decision | Why separate |
+|---|---|---|
+| **AD-1** | Admin/Core Auth architecture (G0-D3): same-origin BFF candidate — session cookies, CSRF, token custody, step-up and receipt forwarding, authorization boundary, logout and expiry, deployment topology, service trust; alternatives | spans Admin, Core Auth and deployment; prerequisite of every HTTP adapter |
+| **AD-2** | CSP policy shape (after the inventory): nonces vs hashes for the no-flash script, font and image sources, future Core/BFF origins | depends on AD-1's topology for `connect-src` |
+| **AD-3** | Shared step-up/authorization UI scope (F1-S6): which existing dialogs migrate, and how receipt flows differ from plain step-up | decides whether F1-S6 replaces the 11 local entries or stays additive |
+| **AD-4** | Test tooling (G0-D7): accessibility engine, visual-regression runner, baseline storage and CI cost | new dependencies need Owner approval |
+| **AD-5** | Ranking of read-only financial features (G0-D8) against Core evidence (CF-65/66/67/72) | product value and Core readiness, per feature |
 
 ## Appendix A — Verified facts, assumptions, uncertainties, tests not run
 
