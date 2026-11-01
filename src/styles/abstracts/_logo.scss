@@ -1,0 +1,29 @@
+// Accent-aware Nawara logos (B1; docs/BRAND.md §B1). A logo is three aligned layers cut from the same extracted raster,
+// each drawn with `contain`, so they coincide exactly:
+// - the lettering, as it is (the element's own background; `none` for the symbol alone);
+// - the botanical symbol (leaf, circuit stems, rings, sprig), painted with `--nw-logo-accent` (the selected palette's
+//   primary) through its alpha mask (::before): an accent change repaints it at once, in the token's exact colour;
+// - the symbol's white details on top (::after).
+// Only the symbol takes the palette colour; the lettering and the white details never change. Emits CSS only when used.
+@mixin accent-logo($lettering, $mask, $details) {
+  position: relative;
+  background: $lettering center / contain no-repeat;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  &::before {
+    background-color: var(--nw-logo-accent);
+    mask: $mask center / contain no-repeat;
+    // Artwork: forced colours must not swap the palette fill for the system background (the symbol would vanish).
+    forced-color-adjust: none;
+  }
+
+  &::after {
+    background: $details center / contain no-repeat;
+  }
+}

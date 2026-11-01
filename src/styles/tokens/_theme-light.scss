@@ -52,11 +52,18 @@
   // Logo colours (--nw-logo-*) and botanical artwork (--nw-illustration-botanical, -corner) of coral, the default palette;
   // the other palettes override them (tokens/_accents.scss, generated values in tokens/_brand-artwork.scss)
   @include brand-artwork.coral-light;
-  // The blue-leaf logos (B1, 2026-11-01; docs/BRAND.md §0): rasters cut from the owner's logo-family reference, the same
-  // in every accent palette (the logo's colours are the approved artwork; only the favicon follows the palette).
-  --nw-logo-admin: url('/brand/nawara-admin-logo.webp');
-  --nw-logo-admin-symbol: url('/brand/nawara-admin-symbol.webp');
-  --nw-logo-solutions: url('/brand/nawara-solutions-logo.webp');
+  // The blue-leaf logos (B1, 2026-11-01; docs/BRAND.md §B1): layers cut from the owner's logo-family reference
+  // (abstracts/_logo.scss). The botanical symbol is painted with --nw-logo-accent, the selected palette's primary (Sapphire
+  // keeps the reference blue, tokens/_accents.scss); the lettering is per theme; the white details never change.
+  --nw-logo-accent: var(--nw-color-primary);
+  --nw-logo-admin-lettering: url('/brand/nawara-admin-lettering.webp');
+  --nw-logo-admin-symbol-mask: url('/brand/nawara-admin-symbol-mask.webp');
+  --nw-logo-admin-symbol-details: url('/brand/nawara-admin-symbol-details.webp');
+  --nw-logo-admin-mark-mask: url('/brand/nawara-admin-mark-mask.webp');
+  --nw-logo-admin-mark-details: url('/brand/nawara-admin-mark-details.webp');
+  --nw-logo-solutions-lettering: url('/brand/nawara-solutions-lettering.webp');
+  --nw-logo-solutions-symbol-mask: url('/brand/nawara-solutions-symbol-mask.webp');
+  --nw-logo-solutions-symbol-details: url('/brand/nawara-solutions-symbol-details.webp');
   --nw-sidebar-illustration-opacity: 0.5;
   --nw-sidebar-atmosphere: radial-gradient(
     20rem 26rem at 110% 100%,
