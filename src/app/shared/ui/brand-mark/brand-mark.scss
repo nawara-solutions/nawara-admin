@@ -2,9 +2,8 @@
 
 // The Nawara Admin logo is artwork cut from the owner's blue-leaf logo-family reference (794 x 174 px; B1, 2026-11-01;
 // docs/BRAND.md §B1), drawn as accent-aware layers (abstracts/_logo.scss: lettering, the symbol in the palette's primary,
-// its white details). It sits inside the box of the earlier floral-R wordmark (3.38em wide, 614 / 187), scaled to fit
-// without distortion (`contain`), so every caller keeps its footprint: no layout moves. The symbol alone (200 x 163 px)
-// likewise fits the earlier symbol box.
+// its pictogram). Its box has the logo's own proportions at the height of the earlier floral-R wordmark (owner B1 polish),
+// and every layer is drawn with `contain`, never stretched. The symbol alone (200 x 163 px) likewise.
 // The "SOLUTIONS" line (`full`, `inline`; the /foundation gallery only) still follows the earlier board's subtitle,
 // measured in wordmark-box pixels (614 px = 3.38em, 1 px = 0.0055em): capitals 26 px tall (Readex Pro at 0.2043em),
 // tracked 0.6em, 14 px below the artwork, between 2.5 px rules that span the word's width.
@@ -29,8 +28,10 @@
 .nw-brand-mark__word {
   display: block;
   flex-shrink: 0;
-  inline-size: 3.38em;
-  aspect-ratio: 614 / 187;
+  // The logo's own proportions (794 / 174) at the height of the earlier box (1.03em), so it fills its box instead of
+  // floating in it: about 39 % larger than before with no vertical change (owner B1 polish).
+  inline-size: 4.69em;
+  aspect-ratio: 794 / 174;
   font-size: var(--nw-brand-mark-word-size, 1em);
   @include nw.accent-logo(
     var(--nw-logo-admin-lettering),
@@ -39,10 +40,11 @@
   );
 }
 
-// The Admin symbol alone (icon only), in the box of the earlier symbol (0.83em x 1em), so callers keep their layout.
+// The Admin symbol alone (icon only), at its own proportions (200 / 163) and the full height of the earlier symbol box (1em):
+// it fills the height instead of floating in a 0.83em-wide box (owner B1 polish).
 .nw-brand-mark__symbol {
   flex-shrink: 0;
-  inline-size: 0.83em;
+  inline-size: 1.227em;
   block-size: 1em;
   @include nw.accent-logo(none, var(--nw-logo-admin-mark-mask), var(--nw-logo-admin-mark-details));
 }

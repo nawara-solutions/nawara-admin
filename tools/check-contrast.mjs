@@ -106,6 +106,8 @@ const PAIRS = [
     [`--nw-alert-${t}-fg`, `--nw-alert-${t}-bg`, 4.5],
     [`--nw-alert-${t}-icon`, `--nw-alert-${t}-bg`, 3],
   ]),
+  // Nawara logos (B1): the pictogram inside the leaf (people, puzzle) on the leaf's accent colour (a graphic, 3:1)
+  ['--nw-logo-detail', '--nw-logo-accent', 3],
 ];
 
 const declarations = (file) =>

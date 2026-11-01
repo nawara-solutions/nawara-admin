@@ -73,7 +73,7 @@
   margin-block-end: 14vh;
 }
 
-// The product label: small tracked capitals behind a short accent rule, in the accent's brand text colour.
+// The product label: small tracked capitals in the accent's brand text colour (no decorative rule, owner B1 polish).
 .auth-brand-panel__eyebrow {
   display: flex;
   align-items: center;
@@ -85,14 +85,6 @@
   font-weight: var(--nw-font-weight-medium);
   letter-spacing: 0.24em;
   text-transform: uppercase;
-
-  &::before {
-    content: '';
-    flex-shrink: 0;
-    inline-size: 1.75rem;
-    block-size: 1px;
-    background-color: var(--nw-logo-line);
-  }
 
   &:lang(ar) {
     font-family: inherit;
@@ -127,7 +119,8 @@
   line-height: 1.6;
 }
 
-// The footer: a short accent rule and quiet, slightly tracked small text, on the panel's bottom margin.
+// The footer: quiet, slightly tracked small text and the Nawara Solutions mark, on the panel's bottom margin (no
+// decorative rule, owner B1 polish).
 .auth-brand-panel__copyright {
   display: flex;
   align-items: center;
@@ -137,30 +130,22 @@
   letter-spacing: 0.04em;
   font-variant-numeric: tabular-nums;
 
-  &::before {
-    content: '';
-    flex-shrink: 0;
-    inline-size: 1rem;
-    block-size: 1px;
-    background-color: var(--nw-logo-line);
-  }
-
   &:lang(ar) {
     letter-spacing: 0;
   }
 }
 
-// The Nawara Solutions mark after "© 2026" (B1, 2026-11-01): the blue-leaf logo of the owner's reference, its lettering's
-// x-height (57 of the artwork's 174 px) about the height of the copyright's figures and its baseline (8 px above the
-// artwork's foot) on the text baseline. Its botanical symbol follows the accent palette (abstracts/_logo.scss). The
-// negative top margin keeps the symbol, which rises above the lettering, from growing the line, so the copyright keeps its
-// height, position and text size. Artwork: it never mirrors in RTL.
+// The Nawara Solutions mark after "© 2026" (B1, 2026-11-01): the blue-leaf logo of the owner's reference. Its lettering's
+// x-height (57 of the artwork's 174 px) sits a little above the copyright's figures, so the mark reads (owner B1 polish),
+// and its baseline (8 px above the artwork's foot) on the text baseline. Its symbol and pictogram follow the accent palette
+// (abstracts/_logo.scss). The negative top margin keeps the symbol, which rises above the lettering, from growing the line,
+// so the copyright keeps its height, position and text size. Artwork: it never mirrors in RTL.
 .auth-brand-panel__copyright-mark {
   display: inline-block;
-  block-size: 2em;
+  block-size: 2.3em;
   aspect-ratio: 891 / 174;
-  margin-block-start: -1.1em;
-  vertical-align: -0.092em;
+  margin-block-start: -1.3em;
+  vertical-align: -0.106em;
   @include nw.accent-logo(
     var(--nw-logo-solutions-lettering),
     var(--nw-logo-solutions-symbol-mask),
