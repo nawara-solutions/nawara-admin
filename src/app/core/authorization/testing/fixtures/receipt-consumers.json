@@ -1,0 +1,657 @@
+{
+  "$comment": "F1-S7 fixture: Core facts of the eight receipt consumers only, at nawara-core 0044b20 (paths relative to the repository root). coreSays: Core's own words for that answer (controller), or, where 'basis' is given, what the cited source does. Never a Core response; never sent anywhere.",
+  "core": {
+    "repository": "nawara-solutions/nawara-core",
+    "revision": "0044b20"
+  },
+  "secretPattern": {
+    "value": "^[A-Za-z0-9_-]{43}$",
+    "source": "apps/billing-service/src/late-settlements/late-settlement.service.ts:18; fraud-holds/fraud-hold.service.ts:20; reconciliation/reconciliation.service.ts:21; refunds/refund-input.ts:56; recovery/recovery.service.ts:24; apps/payment-service/src/disputes/dispute-owner.service.ts:18"
+  },
+  "consumers": [
+    {
+      "operation": "refund",
+      "register": "BIL-24",
+      "method": "POST",
+      "route": "/billing/admin/refund-cases/:id/authorizations",
+      "service": "billing-service",
+      "idempotencyKey": true,
+      "body": ["receiptSecret"],
+      "bodySource": "apps/billing-service/src/refunds/refund-input.ts:59-67",
+      "receiptField": "receiptSecret",
+      "production": "notMounted",
+      "productionSource": "apps/billing-service/src/refunds/refund.module.ts:33; refunds/refund-authorization.service.ts:52",
+      "success": [
+        {
+          "status": 201
+        },
+        {
+          "status": 200,
+          "meaning": "replay of this key (Idempotent-Replayed: true)"
+        }
+      ],
+      "answers": [
+        {
+          "status": 400,
+          "code": "invalid_refund_request",
+          "coreSays": null
+        },
+        {
+          "status": 400,
+          "code": "idempotency_key_required",
+          "coreSays": null
+        },
+        {
+          "status": 401,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 403,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 404,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "refund_case_completed",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "refund_case_not_open",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "refund_dispute_open",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "refund_authorization_in_progress",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "refund_authorization_invalid",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "refund_authorization_expired",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "refund_authorization_conflict",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "refund_rejected_by_payment",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "idempotency_key_conflict",
+          "coreSays": null
+        },
+        {
+          "status": 503,
+          "code": "refund_authorization_unresolved",
+          "coreSays": "retry with the same Idempotency-Key and receipt",
+          "basis": "apps/billing-service/src/refunds/refund-case.controller.ts:106-107 (\"Retry with the same Idempotency-Key and receipt when the answer is 503\")"
+        },
+        {
+          "status": 503,
+          "code": "refund_payment_unavailable",
+          "coreSays": "the relay is recorded; its outcome is confirmed from Payment"
+        },
+        {
+          "status": 503,
+          "code": "auth_timeout",
+          "coreSays": "nothing changed",
+          "basis": "apps/billing-service/src/refunds/refund-case.controller.ts:46 (R503: \"nothing was changed\")"
+        },
+        {
+          "status": 503,
+          "code": "auth_unavailable",
+          "coreSays": "nothing changed",
+          "basis": "apps/billing-service/src/refunds/refund-case.controller.ts:46 (R503: \"nothing was changed\")"
+        }
+      ],
+      "source": "apps/billing-service/src/refunds/refund-case.controller.ts:102-120"
+    },
+    {
+      "operation": "dispute_decision",
+      "register": "PAY-11",
+      "method": "POST",
+      "route": "/payment/admin/disputes/:id/decision",
+      "service": "payment-service",
+      "idempotencyKey": true,
+      "body": ["decision", "receiptSecret"],
+      "bodySource": "apps/payment-service/src/disputes/disputes.controller.ts:110, :120",
+      "receiptField": "receiptSecret",
+      "production": "notMounted",
+      "productionSource": "apps/payment-service/src/disputes/disputes.module.ts:21",
+      "success": [
+        {
+          "status": 201
+        },
+        {
+          "status": 200,
+          "meaning": "replay"
+        }
+      ],
+      "answers": [
+        {
+          "status": 400,
+          "code": "invalid_dispute_request",
+          "coreSays": null
+        },
+        {
+          "status": 400,
+          "code": "idempotency_key_required",
+          "coreSays": null
+        },
+        {
+          "status": 404,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "dispute_not_open",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "dispute_decision_exists",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "dispute_decision_refused",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "dispute_decision_conflict",
+          "coreSays": null
+        },
+        {
+          "status": 422,
+          "code": "idempotency_key_reused",
+          "coreSays": null
+        },
+        {
+          "status": 503,
+          "code": "dispute_decision_unresolved",
+          "coreSays": "repeat the same request"
+        },
+        {
+          "status": 503,
+          "code": "owner_authority_unavailable",
+          "coreSays": "nothing changed",
+          "basis": "apps/payment-service/src/disputes/owner-company.authority.ts:18 (Auth cannot say; nothing is inferred); disputes.controller.ts:97 (\"nothing recorded\")"
+        }
+      ],
+      "source": "apps/payment-service/src/disputes/disputes.controller.ts:105-120"
+    },
+    {
+      "operation": "fraud_hold_place",
+      "register": "BIL-27",
+      "method": "POST",
+      "route": "/billing/admin/fraud-holds",
+      "service": "billing-service",
+      "idempotencyKey": false,
+      "body": ["holdId", "beneficiaryUserId", "productId", "reason", "evidence", "receiptSecret"],
+      "bodySource": "apps/billing-service/src/fraud-holds/fraud-hold.controller.ts:28; fraud-holds/fraud-hold.service.ts:90-100",
+      "receiptField": "receiptSecret",
+      "production": "notConfigured",
+      "productionSource": "apps/billing-service/src/config/billing-config.ts:170 (fraud holds are simulation only)",
+      "success": [
+        {
+          "status": 201
+        },
+        {
+          "status": 200,
+          "meaning": "this holdId is already this hold"
+        }
+      ],
+      "answers": [
+        {
+          "status": 400,
+          "code": "invalid_fraud_hold_request",
+          "coreSays": null
+        },
+        {
+          "status": 401,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 403,
+          "code": "operation_not_permitted",
+          "coreSays": null
+        },
+        {
+          "status": 404,
+          "code": "not_found",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "fraud_hold_active",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "fraud_hold_conflict",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "fraud_hold_authorization_refused",
+          "coreSays": null
+        },
+        {
+          "status": 422,
+          "code": "fraud_evidence_invalid",
+          "coreSays": null
+        },
+        {
+          "status": 503,
+          "code": "fraud_evidence_unavailable",
+          "coreSays": "nothing changed",
+          "basis": "apps/billing-service/src/fraud-holds/fraud-hold.service.ts:118-128 (thrown before the receipt is consumed and before any write; not annotated in the controller)"
+        },
+        {
+          "status": 503,
+          "code": "fraud_hold_authorization_unresolved",
+          "coreSays": "repeat the same request"
+        },
+        {
+          "status": 503,
+          "code": "fraud_hold_unavailable",
+          "coreSays": "nothing changed"
+        }
+      ],
+      "source": "apps/billing-service/src/fraud-holds/fraud-hold.controller.ts:24-40",
+      "idempotencyKeyNote": "none: the same holdId repeated answers the hold (fraud-hold.controller.ts:28-30)"
+    },
+    {
+      "operation": "fraud_hold_release",
+      "register": "BIL-27",
+      "method": "POST",
+      "route": "/billing/admin/fraud-holds/:id/release",
+      "service": "billing-service",
+      "idempotencyKey": false,
+      "body": ["receiptSecret"],
+      "bodySource": "apps/billing-service/src/fraud-holds/fraud-hold.service.ts:155",
+      "receiptField": "receiptSecret",
+      "production": "notConfigured",
+      "productionSource": "apps/billing-service/src/config/billing-config.ts:170 (fraud holds are simulation only)",
+      "success": [
+        {
+          "status": 201
+        },
+        {
+          "status": 200,
+          "meaning": "already released"
+        }
+      ],
+      "answers": [
+        {
+          "status": 400,
+          "code": "invalid_fraud_hold_request",
+          "coreSays": null
+        },
+        {
+          "status": 404,
+          "code": "not_found",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "fraud_hold_not_active",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "fraud_hold_authorization_refused",
+          "coreSays": null
+        },
+        {
+          "status": 503,
+          "code": "fraud_hold_authorization_unresolved",
+          "coreSays": "repeat the same request",
+          "basis": "apps/billing-service/src/fraud-holds/fraud-hold.service.ts:176-189 (the same consume as placement, annotated \"repeat the same request\" at fraud-hold.controller.ts:40; the release controller line :55 does not repeat it)"
+        },
+        {
+          "status": 503,
+          "code": "fraud_hold_unavailable",
+          "coreSays": "nothing changed",
+          "basis": "apps/billing-service/src/fraud-holds/fraud-hold.service.ts:176, :185-187 (\"anything but a provable consumption by this Owner changes nothing\")"
+        }
+      ],
+      "source": "apps/billing-service/src/fraud-holds/fraud-hold.controller.ts:47-56",
+      "idempotencyKeyNote": "none: a repeat answers the release (fraud-hold.controller.ts:49)"
+    },
+    {
+      "operation": "recovery_surplus_external",
+      "register": "BIL-30",
+      "method": "POST",
+      "route": "/billing/admin/recovery-surpluses/:id/resolution",
+      "service": "billing-service",
+      "idempotencyKey": false,
+      "body": ["kind", "grantId", "fileId", "receiptSecret"],
+      "bodySource": "apps/billing-service/src/recovery/recovery.controller.ts:183-185; recovery/recovery.service.ts:285",
+      "receiptField": "receiptSecret",
+      "production": "notMounted",
+      "productionSource": "apps/billing-service/src/recovery/recovery.module.ts:21; recovery/recovery.service.ts:282",
+      "success": [
+        {
+          "status": 201
+        },
+        {
+          "status": 200,
+          "meaning": "the same record repeated (same grant and file): answered, nothing consumed again"
+        }
+      ],
+      "answers": [
+        {
+          "status": 400,
+          "code": "invalid_recovery_request",
+          "coreSays": null
+        },
+        {
+          "status": 401,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 403,
+          "code": "operation_not_permitted",
+          "coreSays": null
+        },
+        {
+          "status": 404,
+          "code": "not_found",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "surplus_not_owed",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "recovery_authorization_refused",
+          "coreSays": null
+        },
+        {
+          "status": 422,
+          "code": "surplus_evidence_invalid",
+          "coreSays": null
+        },
+        {
+          "status": 503,
+          "code": "surplus_evidence_unavailable",
+          "coreSays": "nothing changed",
+          "basis": "apps/billing-service/src/recovery/recovery.service.ts:299-304 (thrown before the receipt is consumed and before any write; not annotated in the controller)"
+        },
+        {
+          "status": 503,
+          "code": "recovery_authorization_unresolved",
+          "coreSays": "repeat the same request"
+        },
+        {
+          "status": 503,
+          "code": "recovery_authorization_unavailable",
+          "coreSays": "nothing changed",
+          "basis": "apps/billing-service/src/recovery/recovery.service.ts:370 (the receipt consumption could not be called; nothing written); the same consume pattern as fraud-hold.service.ts:176-187"
+        }
+      ],
+      "source": "apps/billing-service/src/recovery/recovery.controller.ts:163-180",
+      "idempotencyKeyNote": "none: an identical record (same grant and file) answers the record (recovery.controller.ts:173)"
+    },
+    {
+      "operation": "late_settlement_apply",
+      "register": "BIL-32",
+      "method": "POST",
+      "route": "/billing/admin/late-settlements/:id/application",
+      "service": "billing-service",
+      "idempotencyKey": true,
+      "body": ["reasonCode", "receiptSecret", "evidence", "ownerDetermination"],
+      "bodySource": "apps/billing-service/src/late-settlements/late-settlement.service.ts:271-272; late-settlement.controller.ts:37",
+      "receiptField": "receiptSecret",
+      "production": "notMounted",
+      "productionSource": "apps/billing-service/src/late-settlements/late-settlement.module.ts:21; late-settlements/late-settlement.service.ts:275",
+      "success": [
+        {
+          "status": 201,
+          "meaning": "applied, or a replay of this key (Idempotent-Replayed: true; nothing is consumed again)"
+        }
+      ],
+      "answers": [
+        {
+          "status": 400,
+          "code": "invalid_late_settlement_request",
+          "coreSays": null
+        },
+        {
+          "status": 400,
+          "code": "idempotency_key_required",
+          "coreSays": null
+        },
+        {
+          "status": 401,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 403,
+          "code": "operation_not_permitted",
+          "coreSays": null
+        },
+        {
+          "status": 404,
+          "code": "not_found",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "late_settlement_refused",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "late_settlement_authorization_refused",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "idempotency_key_conflict",
+          "coreSays": null
+        },
+        {
+          "status": 422,
+          "code": "late_settlement_evidence_invalid",
+          "coreSays": null
+        },
+        {
+          "status": 503,
+          "code": "late_settlement_evidence_unavailable",
+          "coreSays": "nothing changed",
+          "basis": "apps/billing-service/src/late-settlements/late-settlement.service.ts:284-290 (thrown before the receipt is consumed and before any write; not annotated in the controller)"
+        },
+        {
+          "status": 503,
+          "code": "late_settlement_authorization_unresolved",
+          "coreSays": "repeat the same request"
+        },
+        {
+          "status": 503,
+          "code": "late_settlement_authorization_unavailable",
+          "coreSays": "nothing changed",
+          "basis": "apps/billing-service/src/late-settlements/late-settlement.service.ts:358-367 (the receipt consumption could not be called; nothing written; a repeat reuses the same consumeRef); the same consume pattern as fraud-hold.service.ts:176-187"
+        }
+      ],
+      "source": "apps/billing-service/src/late-settlements/late-settlement.controller.ts:125-139"
+    },
+    {
+      "operation": "provider_fact_associate",
+      "register": "PAY-13",
+      "method": "POST",
+      "route": "/payment/admin/provider-facts/:id/associations",
+      "service": "payment-service",
+      "idempotencyKey": true,
+      "body": ["targetType", "targetId", "receiptSecret"],
+      "bodySource": "apps/payment-service/src/reconciliation/reconciliation.controller.ts:78, :90",
+      "receiptField": "receiptSecret",
+      "production": "notMounted",
+      "productionSource": "apps/payment-service/src/reconciliation/reconciliation.module.ts:17",
+      "success": [
+        {
+          "status": 201
+        },
+        {
+          "status": 200,
+          "meaning": "replay"
+        }
+      ],
+      "answers": [
+        {
+          "status": 400,
+          "code": "invalid_reconciliation_request",
+          "coreSays": null
+        },
+        {
+          "status": 400,
+          "code": "idempotency_key_required",
+          "coreSays": null
+        },
+        {
+          "status": 404,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "provider_fact_matched",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "fact_already_associated",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "provider_fact_association_invalid",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "provider_fact_association_refused",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "provider_fact_association_conflict",
+          "coreSays": null
+        },
+        {
+          "status": 422,
+          "code": "idempotency_key_reused",
+          "coreSays": null
+        },
+        {
+          "status": 503,
+          "code": "provider_fact_association_unresolved",
+          "coreSays": "repeat the same request"
+        },
+        {
+          "status": 503,
+          "code": "owner_authority_unavailable",
+          "coreSays": "nothing changed",
+          "basis": "apps/payment-service/src/disputes/owner-company.authority.ts:18 (Auth cannot say; nothing is inferred)"
+        }
+      ],
+      "source": "apps/payment-service/src/reconciliation/reconciliation.controller.ts:73-90"
+    },
+    {
+      "operation": "recovery_write_off",
+      "register": "BIL-34",
+      "method": "POST",
+      "route": "/billing/admin/recovery-obligations/:id/write-off",
+      "service": "billing-service",
+      "idempotencyKey": false,
+      "body": ["receiptSecret"],
+      "bodySource": "apps/billing-service/src/reconciliation/reconciliation.service.ts:386-388",
+      "receiptField": "receiptSecret",
+      "production": "notMounted",
+      "productionSource": "apps/billing-service/src/reconciliation/reconciliation.module.ts:20; reconciliation/reconciliation.service.ts:320",
+      "success": [
+        {
+          "status": 201
+        },
+        {
+          "status": 200,
+          "meaning": "the same request again (same obligation and receipt): answered, nothing consumed again"
+        }
+      ],
+      "answers": [
+        {
+          "status": 400,
+          "code": "invalid_reconciliation_request",
+          "coreSays": null
+        },
+        {
+          "status": 401,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 403,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 404,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "write_off_not_permitted",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "recovery_authorization_refused",
+          "coreSays": null
+        },
+        {
+          "status": 503,
+          "code": "recovery_authorization_unresolved",
+          "coreSays": "repeat the same request"
+        },
+        {
+          "status": 503,
+          "code": "recovery_authorization_unavailable",
+          "coreSays": "nothing changed",
+          "basis": "apps/billing-service/src/reconciliation/reconciliation.service.ts:454 (the receipt consumption could not be called; nothing written); the same consume pattern as fraud-hold.service.ts:176-187"
+        }
+      ],
+      "source": "apps/billing-service/src/reconciliation/reconciliation.controller.ts:89-104",
+      "idempotencyKeyNote": "none: the same obligation and receipt answer the stored write-off (reconciliation.controller.ts:98; reconciliation.service.ts:393-396)"
+    }
+  ]
+}

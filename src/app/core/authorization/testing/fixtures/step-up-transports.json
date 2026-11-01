@@ -1,0 +1,324 @@
+{
+  "$comment": "F1-S7 fixture: Core facts only, at nawara-core 0044b20 (paths relative to the repository root). Never a Core response; never sent anywhere.",
+  "core": {
+    "repository": "nawara-solutions/nawara-core",
+    "revision": "0044b20",
+    "source": "apps/auth-service/src/owner/step-up.service.ts:23-100",
+    "purposeCount": 32
+  },
+  "headerName": {
+    "value": "x-step-up-token",
+    "source": "apps/organization-service/src/admin/admin.controller.ts:22; apps/billing-service/src/assistance/assistance.controller.ts:377"
+  },
+  "bodyField": {
+    "value": "stepUpToken",
+    "maxLength": 64,
+    "source": "apps/audit-service/src/legal-hold/legal-hold.controller.ts:9, :15; apps/auth-service/src/receipts/dto.ts:111"
+  },
+  "serviceVerify": {
+    "method": "POST",
+    "route": "/auth/step-up/verify",
+    "success": 204,
+    "refusal": {
+      "status": 403,
+      "code": "step_up_required"
+    },
+    "refusesWithoutConsuming": "the Auth-local purposes (receipt purposes and hierarchy.reference.repair)",
+    "source": "apps/auth-service/src/auth/auth.controller.ts:106-116; apps/auth-service/src/owner/step-up.service.ts:128, :250-252"
+  },
+  "factorRefusal": {
+    "status": 400,
+    "code": "step_up_unsupported",
+    "meaning": "the method does not satisfy the purpose (secret_key on a factor-only purpose)",
+    "source": "apps/auth-service/src/owner/step-up.service.ts:173, :184"
+  },
+  "excluded": [
+    {
+      "purpose": "hierarchy.reference.repair",
+      "factors": ["totp", "webauthn"],
+      "source": "apps/auth-service/src/owner/step-up.service.ts:55",
+      "reason": "ADR-0061 reference repair (MOVE V3); no Admin capability"
+    }
+  ],
+  "purposes": [
+    {
+      "purpose": "platform_assignment.grant",
+      "factors": ["totp", "webauthn", "secret_key"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:24",
+      "consumer": "apps/auth-service/src/platform/platform.controller.ts:57-59"
+    },
+    {
+      "purpose": "platform_assignment.revoke",
+      "factors": ["totp", "webauthn", "secret_key"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:25",
+      "consumer": "apps/auth-service/src/platform/platform.controller.ts:67-69"
+    },
+    {
+      "purpose": "platform.create",
+      "factors": ["totp", "webauthn", "secret_key"],
+      "transport": "serviceVerified",
+      "delivery": "header",
+      "recipient": "organization",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:26",
+      "consumer": "apps/organization-service/src/admin/admin.controller.ts:22, :91"
+    },
+    {
+      "purpose": "organization.create",
+      "factors": ["totp", "webauthn", "secret_key"],
+      "transport": "serviceVerified",
+      "delivery": "header",
+      "recipient": "organization",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:29",
+      "consumer": "apps/organization-service/src/admin/admin.controller.ts:22, :149"
+    },
+    {
+      "purpose": "operator.create",
+      "factors": ["totp", "webauthn", "secret_key"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:30",
+      "consumer": "apps/auth-service/src/operator/operator.controller.ts:57-59"
+    },
+    {
+      "purpose": "owner.secret_key.rotate",
+      "factors": ["totp", "webauthn"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:31",
+      "consumer": "apps/auth-service/src/owner/owner.controller.ts:189-191"
+    },
+    {
+      "purpose": "owner.factor.enroll",
+      "factors": ["totp", "webauthn"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:32",
+      "consumer": "apps/auth-service/src/owner/owner.controller.ts:123-144"
+    },
+    {
+      "purpose": "owner.factor.remove",
+      "factors": ["totp", "webauthn"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:33",
+      "consumer": "apps/auth-service/src/owner/owner.controller.ts:152-154"
+    },
+    {
+      "purpose": "owner.password.change",
+      "factors": ["totp", "webauthn"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:34",
+      "consumer": "apps/auth-service/src/owner/owner.controller.ts:205-207"
+    },
+    {
+      "purpose": "join_code.create",
+      "factors": ["totp", "webauthn", "secret_key"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:36",
+      "consumer": "apps/auth-service/src/membership/organization.controller.ts:12, :49"
+    },
+    {
+      "purpose": "join_code.revoke",
+      "factors": ["totp", "webauthn", "secret_key"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:37",
+      "consumer": "apps/auth-service/src/membership/organization.controller.ts:12, :65"
+    },
+    {
+      "purpose": "organization.admin.grant",
+      "factors": ["totp", "webauthn"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:39",
+      "consumer": "apps/auth-service/src/membership/organization.controller.ts:12, :109"
+    },
+    {
+      "purpose": "organization.admin.revoke",
+      "factors": ["totp", "webauthn"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:40",
+      "consumer": "apps/auth-service/src/membership/organization.controller.ts:12, :118"
+    },
+    {
+      "purpose": "admin_invitation.create",
+      "factors": ["totp", "webauthn"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:42",
+      "consumer": "apps/auth-service/src/membership/organization.controller.ts:12, :130"
+    },
+    {
+      "purpose": "admin_invitation.revoke",
+      "factors": ["totp", "webauthn"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:43",
+      "consumer": "apps/auth-service/src/membership/organization.controller.ts:12, :146"
+    },
+    {
+      "purpose": "account.suspend",
+      "factors": ["totp", "webauthn"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:45",
+      "consumer": "apps/auth-service/src/members/member-security.controller.ts:38-43"
+    },
+    {
+      "purpose": "account.restore",
+      "factors": ["totp", "webauthn"],
+      "transport": "authLocal",
+      "delivery": "header",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:46",
+      "consumer": "apps/auth-service/src/members/member-security.controller.ts:52-57"
+    },
+    {
+      "purpose": "release.withdraw",
+      "factors": ["totp", "webauthn"],
+      "transport": "serviceVerified",
+      "delivery": "header",
+      "recipient": "release",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:50",
+      "consumer": "apps/release-service/src/admin/admin.controller.ts:9, :88"
+    },
+    {
+      "purpose": "compatibility_policy.change",
+      "factors": ["totp", "webauthn"],
+      "transport": "serviceVerified",
+      "delivery": "header",
+      "recipient": "release",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:51",
+      "consumer": "apps/release-service/src/admin/admin.controller.ts:9, :114"
+    },
+    {
+      "purpose": "refund.authorize",
+      "factors": ["totp", "webauthn"],
+      "transport": "receipt",
+      "delivery": "body",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:59",
+      "consumer": "apps/auth-service/src/receipts/receipt-binding.ts:158-162 (refund)"
+    },
+    {
+      "purpose": "audit.legal_hold.place",
+      "factors": ["totp", "webauthn"],
+      "transport": "serviceVerified",
+      "delivery": "body",
+      "recipient": "audit",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:63",
+      "consumer": "apps/audit-service/src/legal-hold/legal-hold.service.ts:52-60"
+    },
+    {
+      "purpose": "audit.legal_hold.release",
+      "factors": ["totp", "webauthn"],
+      "transport": "serviceVerified",
+      "delivery": "body",
+      "recipient": "audit",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:64",
+      "consumer": "apps/audit-service/src/legal-hold/legal-hold.service.ts:83-89"
+    },
+    {
+      "purpose": "billing.assistance.correct",
+      "factors": ["totp", "webauthn"],
+      "transport": "serviceVerified",
+      "delivery": "header",
+      "recipient": "billing",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:69",
+      "consumer": "apps/billing-service/src/assistance/assistance.controller.ts:377, :413"
+    },
+    {
+      "purpose": "billing.assistance.dispute.resolve",
+      "factors": ["totp", "webauthn"],
+      "transport": "serviceVerified",
+      "delivery": "header",
+      "recipient": "billing",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:70",
+      "consumer": "apps/billing-service/src/assistance/assistance.controller.ts:377, :439"
+    },
+    {
+      "purpose": "payment.dispute.decide",
+      "factors": ["totp", "webauthn"],
+      "transport": "receipt",
+      "delivery": "body",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:75",
+      "consumer": "apps/auth-service/src/receipts/receipt-binding.ts:158-162 (dispute_decision)"
+    },
+    {
+      "purpose": "billing.fraud_hold.place",
+      "factors": ["totp", "webauthn"],
+      "transport": "receipt",
+      "delivery": "body",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:80",
+      "consumer": "apps/auth-service/src/receipts/receipt-binding.ts:158-162 (fraud_hold_place)"
+    },
+    {
+      "purpose": "billing.fraud_hold.release",
+      "factors": ["totp", "webauthn"],
+      "transport": "receipt",
+      "delivery": "body",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:81",
+      "consumer": "apps/auth-service/src/receipts/receipt-binding.ts:158-162 (fraud_hold_release)"
+    },
+    {
+      "purpose": "billing.recovery_surplus.record_external",
+      "factors": ["totp", "webauthn"],
+      "transport": "receipt",
+      "delivery": "body",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:86",
+      "consumer": "apps/auth-service/src/receipts/receipt-binding.ts:158-162 (recovery_surplus_external)"
+    },
+    {
+      "purpose": "billing.late_settlement.apply",
+      "factors": ["totp", "webauthn"],
+      "transport": "receipt",
+      "delivery": "body",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:91",
+      "consumer": "apps/auth-service/src/receipts/receipt-binding.ts:158-162 (late_settlement_apply)"
+    },
+    {
+      "purpose": "payment.provider_fact.associate",
+      "factors": ["totp", "webauthn"],
+      "transport": "receipt",
+      "delivery": "body",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:97",
+      "consumer": "apps/auth-service/src/receipts/receipt-binding.ts:158-162 (provider_fact_associate)"
+    },
+    {
+      "purpose": "billing.recovery.write_off",
+      "factors": ["totp", "webauthn"],
+      "transport": "receipt",
+      "delivery": "body",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:98",
+      "consumer": "apps/auth-service/src/receipts/receipt-binding.ts:158-162 (recovery_write_off)"
+    }
+  ]
+}

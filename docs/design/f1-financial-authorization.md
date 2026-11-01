@@ -509,6 +509,9 @@ Order: domain rules → actor permissions → API contracts → typed models →
 
 F1-S1 → S2 and S3 (parallel) → S4 → S5 → S6 → S7. Each slice is independently revertible.
 
+**F1-S7 (2026-11-01):** implemented as tests and documentation only, ahead of F1-S6 (G0-D1 order); record in
+[`f1-s7-contract-fixtures.md`](f1-s7-contract-fixtures.md). In Owner review.
+
 ---
 
 ## 14. D-A4 dependencies
