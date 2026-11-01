@@ -6,15 +6,6 @@
     <p class="assistance__eyebrow">{{ 'assistanceCases.header.eyebrow' | transloco }}</p>
     <h1 class="assistance__title">{{ 'assistanceCases.header.title' | transloco }}</h1>
     <p class="assistance__muted">{{ 'assistanceCases.header.subtitle' | transloco }}</p>
-    <a nw-link class="assistance__related" [routerLink]="disputesPath" data-disputes-link>
-      <nw-icon name="circle-alert" size="sm" />{{ 'assistanceCases.disputes.link' | transloco }}
-    </a>
-    <a nw-link class="assistance__related" [routerLink]="settlementsPath" data-settlements-link>
-      <nw-icon name="rotate-ccw" size="sm" />{{ 'assistanceCases.settlements.link' | transloco }}
-    </a>
-    <a nw-link class="assistance__related" [routerLink]="recoveryPath" data-recovery-link>
-      <nw-icon name="trending-down" size="sm" />{{ 'assistanceCases.recovery.link' | transloco }}
-    </a>
   </div>
   @if (isDemo()) {
     <span class="assistance__demo" data-demo>
@@ -23,6 +14,7 @@
     </span>
   }
 </header>
+<adm-assistance-section-nav />
 
 @if (isDemo()) {
   <p class="assistance__note assistance__note--demo" role="note" data-simulation>
@@ -167,7 +159,11 @@
               @for (row of view.rows; track row.requestId) {
                 <tr [attr.data-request]="row.requestId" [attr.data-state]="row.state">
                   <th scope="row">
-                    <a [routerLink]="casePath(row.requestId)" data-case-link>
+                    <a
+                      [routerLink]="casePath(row.requestId)"
+                      [state]="returnState()"
+                      data-case-link
+                    >
                       <code class="assistance__ref" dir="ltr" [attr.title]="row.requestId">
                         <span aria-hidden="true">…{{ shortRef(row.requestId) }}</span>
                         <span class="nw-visually-hidden">{{

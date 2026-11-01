@@ -121,7 +121,11 @@ describe('billing routes (P7-S3)', () => {
     expect(route.title).toBe('titles.assistanceCase');
     expect(route.data).toEqual({
       breadcrumb: 'shell.breadcrumb.assistanceCase',
-      breadcrumbParent: { key: 'shell.breadcrumb.assistance', link: '/billing/assistance' },
+      // A11: the whole trail, Company › Billing › Assistance › page.
+      breadcrumbParent: [
+        { key: 'shell.breadcrumb.billing', link: '/billing' },
+        { key: 'shell.breadcrumb.assistance', link: '/billing/assistance' },
+      ],
     });
     const providers = (route.providers ?? []) as (Provider & { useClass?: unknown })[];
     expect(providers.map((p) => (typeof p === 'function' ? p : p.useClass))).toEqual([
@@ -143,7 +147,11 @@ describe('billing routes (P7-S3)', () => {
     expect(route.title).toBe('titles.assistanceDisputes');
     expect(route.data).toEqual({
       breadcrumb: 'shell.breadcrumb.assistanceDisputes',
-      breadcrumbParent: { key: 'shell.breadcrumb.assistance', link: '/billing/assistance' },
+      // A11: the whole trail, Company › Billing › Assistance › page.
+      breadcrumbParent: [
+        { key: 'shell.breadcrumb.billing', link: '/billing' },
+        { key: 'shell.breadcrumb.assistance', link: '/billing/assistance' },
+      ],
     });
     const providers = (route.providers ?? []) as (Provider & { useClass?: unknown })[];
     expect(providers.map((p) => (typeof p === 'function' ? p : p.useClass))).toEqual([
@@ -164,7 +172,11 @@ describe('billing routes (P7-S3)', () => {
     expect(route.title).toBe('titles.assistanceSettlements');
     expect(route.data).toEqual({
       breadcrumb: 'shell.breadcrumb.assistanceSettlements',
-      breadcrumbParent: { key: 'shell.breadcrumb.assistance', link: '/billing/assistance' },
+      // A11: the whole trail, Company › Billing › Assistance › page.
+      breadcrumbParent: [
+        { key: 'shell.breadcrumb.billing', link: '/billing' },
+        { key: 'shell.breadcrumb.assistance', link: '/billing/assistance' },
+      ],
     });
     const providers = (route.providers ?? []) as (Provider & { useClass?: unknown })[];
     expect(providers.map((p) => (typeof p === 'function' ? p : p.useClass))).toEqual([
@@ -185,7 +197,11 @@ describe('billing routes (P7-S3)', () => {
     expect(route.title).toBe('titles.assistanceRecovery');
     expect(route.data).toEqual({
       breadcrumb: 'shell.breadcrumb.assistanceRecovery',
-      breadcrumbParent: { key: 'shell.breadcrumb.assistance', link: '/billing/assistance' },
+      // A11: the whole trail, Company › Billing › Assistance › page.
+      breadcrumbParent: [
+        { key: 'shell.breadcrumb.billing', link: '/billing' },
+        { key: 'shell.breadcrumb.assistance', link: '/billing/assistance' },
+      ],
     });
     const providers = (route.providers ?? []) as (Provider & { useClass?: unknown })[];
     expect(providers.map((p) => (typeof p === 'function' ? p : p.useClass))).toEqual([

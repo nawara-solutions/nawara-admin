@@ -23,6 +23,12 @@ import { BillingGateway, UnavailableBillingGateway } from './data-access/billing
  * (`/billing/assistance/:requestId`; A5): read only, the owner only (their own capability guard as well), with the
  * Assistance gateway bound the same way.
  */
+/** The trail above every Assistance page below the directory (A11): Company › Billing › Assistance › page. */
+const ASSISTANCE_PARENTS = [
+  { key: 'shell.breadcrumb.billing', link: '/billing' },
+  { key: 'shell.breadcrumb.assistance', link: '/billing/assistance' },
+] as const;
+
 export async function loadBillingRoutes(environment: AppEnvironment): Promise<Routes> {
   const [billing, assistance] = await Promise.all([
     adapterProviders(environment, 'billing', [
@@ -55,10 +61,7 @@ export async function loadBillingRoutes(environment: AppEnvironment): Promise<Ro
       title: 'titles.assistanceDisputes',
       data: {
         [BREADCRUMB_DATA]: 'shell.breadcrumb.assistanceDisputes',
-        [BREADCRUMB_PARENT_DATA]: {
-          key: 'shell.breadcrumb.assistance',
-          link: '/billing/assistance',
-        },
+        [BREADCRUMB_PARENT_DATA]: ASSISTANCE_PARENTS,
       },
       canActivate: [capabilityGuard('company.assistance.view')],
       providers: [...assistance, AssistanceDisputesFacade],
@@ -72,10 +75,7 @@ export async function loadBillingRoutes(environment: AppEnvironment): Promise<Ro
       title: 'titles.assistanceSettlements',
       data: {
         [BREADCRUMB_DATA]: 'shell.breadcrumb.assistanceSettlements',
-        [BREADCRUMB_PARENT_DATA]: {
-          key: 'shell.breadcrumb.assistance',
-          link: '/billing/assistance',
-        },
+        [BREADCRUMB_PARENT_DATA]: ASSISTANCE_PARENTS,
       },
       canActivate: [capabilityGuard('company.assistance.view')],
       providers: [...assistance, AssistanceSettlementsFacade],
@@ -89,10 +89,7 @@ export async function loadBillingRoutes(environment: AppEnvironment): Promise<Ro
       title: 'titles.assistanceRecovery',
       data: {
         [BREADCRUMB_DATA]: 'shell.breadcrumb.assistanceRecovery',
-        [BREADCRUMB_PARENT_DATA]: {
-          key: 'shell.breadcrumb.assistance',
-          link: '/billing/assistance',
-        },
+        [BREADCRUMB_PARENT_DATA]: ASSISTANCE_PARENTS,
       },
       canActivate: [capabilityGuard('company.assistance.view')],
       providers: [...assistance, AssistanceRecoveryFacade],
@@ -106,10 +103,7 @@ export async function loadBillingRoutes(environment: AppEnvironment): Promise<Ro
       title: 'titles.assistanceCase',
       data: {
         [BREADCRUMB_DATA]: 'shell.breadcrumb.assistanceCase',
-        [BREADCRUMB_PARENT_DATA]: {
-          key: 'shell.breadcrumb.assistance',
-          link: '/billing/assistance',
-        },
+        [BREADCRUMB_PARENT_DATA]: ASSISTANCE_PARENTS,
       },
       canActivate: [capabilityGuard('company.assistance.view')],
       providers: [...assistance, AssistanceCaseFacade],

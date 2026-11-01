@@ -172,18 +172,21 @@ describe('Assistance case directory (A4)', { timeout: 20_000 }, () => {
       'Showing the first 10 cases; more are available',
     );
     expect(text(element.querySelector('.assistance__hint'))).toBe(t.readOnly);
-    // A7: the disputes and exceptions overview, one link away.
-    const disputes = element.querySelector('[data-disputes-link]');
-    expect(disputes?.getAttribute('href')).toBe('/billing/assistance/disputes');
-    expect(text(disputes)).toBe(t.disputes.link);
-    // A8: the late settlements and cash returns overview.
-    const settlements = element.querySelector('[data-settlements-link]');
-    expect(settlements?.getAttribute('href')).toBe('/billing/assistance/settlements');
-    expect(text(settlements)).toBe(t.settlements.link);
-    // A9: the recovery and surplus overview.
-    const recovery = element.querySelector('[data-recovery-link]');
-    expect(recovery?.getAttribute('href')).toBe('/billing/assistance/recovery');
-    expect(text(recovery)).toBe(t.recovery.link);
+    // A11: the Assistance section navigation (A7, A8 and A9 one link away); the directory is the current section.
+    const sections = [
+      ...element.querySelectorAll<HTMLAnchorElement>('nav [data-section-link]'),
+    ].map((a) => [
+      a.dataset['sectionLink'],
+      a.getAttribute('href'),
+      text(a),
+      a.getAttribute('aria-current'),
+    ]);
+    expect(sections).toEqual([
+      ['cases', '/billing/assistance', t.nav.cases, 'page'],
+      ['disputes', '/billing/assistance/disputes', t.nav.disputes, null],
+      ['settlements', '/billing/assistance/settlements', t.nav.settlements, null],
+      ['recovery', '/billing/assistance/recovery', t.nav.recovery, null],
+    ]);
   });
 
   it('shows Core states only: status, collection, settlement and indicators; no amount', async () => {

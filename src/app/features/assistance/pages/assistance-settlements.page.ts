@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { ScopeContext, organizationPath, platformPath } from '../../../core/context/scope-context';
@@ -32,6 +32,8 @@ import { AssistanceLateStanding } from '../ui/assistance-late-standing';
 import { AssistanceMoneyPipe } from '../ui/assistance-money.pipe';
 import { AssistanceReturnStanding, RETURN_STATE_LABELS } from '../ui/assistance-return-standing';
 import { AssistanceSourceTag } from '../ui/assistance-source-tag';
+import { AssistanceSectionNav } from '../ui/assistance-section-nav';
+import { returnStateOf } from '../application/assistance-url-state';
 
 /** Catalog keys, listed in full (never built at runtime). */
 const STATE_KEYS = {
@@ -76,6 +78,7 @@ const shortRef = (id: string): string => id.slice(-8);
 @Component({
   selector: 'adm-assistance-settlements-page',
   imports: [
+    AssistanceSectionNav,
     RouterLink,
     TranslocoPipe,
     NwButton,
@@ -98,11 +101,11 @@ const shortRef = (id: string): string => id.slice(-8);
   host: { class: 'assistance-settlements' },
 })
 export class AssistanceSettlementsPage {
+  private readonly router = inject(Router);
   protected readonly facade = inject(AssistanceSettlementsFacade);
   protected readonly isDemo = inject(AuthSession).isDemo;
   private readonly scope = inject(ScopeContext);
 
-  protected readonly directoryPath = '/billing/assistance';
   protected readonly returnStates = CASH_RETURN_STATES;
   protected readonly returnLabels = RETURN_STATE_LABELS;
   protected readonly lateReasonKeys = LATE_REASON_KEYS;
@@ -124,6 +127,11 @@ export class AssistanceSettlementsPage {
     );
     return (id: PlatformId): string | null => names.get(id) ?? null;
   });
+
+  /** The history state of a case link: the case page's back link returns here, with this view's filters (A11). */
+  protected returnState(): Record<string, string> {
+    return returnStateOf(this.router);
+  }
 
   protected casePath(requestId: string): string {
     return `/billing/assistance/${requestId}`;

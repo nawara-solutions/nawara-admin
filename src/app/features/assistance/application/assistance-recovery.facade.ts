@@ -1,4 +1,5 @@
-import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, computed, inject } from '@angular/core';
+import { Params, Router } from '@angular/router';
 import { forkJoin, map, of, switchMap } from 'rxjs';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { AssistanceGateway } from '../data-access/assistance.gateway';
@@ -10,6 +11,7 @@ import {
 } from '../domain/assistance-read.model';
 import { RecoveryObligationState } from '../domain/assistance.model';
 import { PagedList, ownerCompanyContext } from './assistance-paged-list';
+import { oneOf, pageQuery, single, writePageQuery } from './assistance-url-state';
 
 export { type AssistanceListView } from './assistance-paged-list';
 
@@ -21,6 +23,23 @@ export interface RecoveryQuery {
 }
 
 export const DEFAULT_RECOVERY_QUERY: RecoveryQuery = { state: null, surplusOwed: null };
+
+/** The overview's address (A11): its query string holds the filters. */
+export const ASSISTANCE_RECOVERY_PATH = '/billing/assistance/recovery';
+
+const RECOVERY_STATES: readonly RecoveryObligationState[] = ['open', 'recovered'];
+
+/** The overview's query from the address (A11; untrusted: anything outside Core's closed sets is dropped). */
+export function recoveryQueryOf(params: Params): RecoveryQuery {
+  return {
+    state: oneOf(RECOVERY_STATES, single(params, 'state')),
+    surplusOwed: single(params, 'surplus') === 'owed' ? true : null,
+  };
+}
+
+function recoveryParamsOf(query: RecoveryQuery): Readonly<Record<string, string | null>> {
+  return { state: query.state, surplus: query.surplusOwed === true ? 'owed' : null };
+}
 
 /** One recovery obligation (Core's BIL-28 owner read) with its case (restrictions) and the case's late settlements. */
 export interface AssistanceRecoveryRow {
@@ -41,8 +60,10 @@ export class AssistanceRecoveryFacade {
   private readonly gateway = inject(AssistanceGateway);
   private readonly session = inject(AuthSession);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
-  readonly query = signal<RecoveryQuery>(DEFAULT_RECOVERY_QUERY);
+  /** The owner's query, from the address (A11). */
+  readonly query = pageQuery(this.router, ASSISTANCE_RECOVERY_PATH, recoveryQueryOf);
 
   private readonly context = ownerCompanyContext(this.session);
 
@@ -80,7 +101,11 @@ export class AssistanceRecoveryFacade {
   readonly obligations = this.list.view;
 
   update(change: Partial<RecoveryQuery>): void {
-    this.query.update((query) => ({ ...query, ...change }));
+    writePageQuery(
+      this.router,
+      ASSISTANCE_RECOVERY_PATH,
+      recoveryParamsOf({ ...this.query(), ...change }),
+    );
   }
 
   more(): void {

@@ -2624,6 +2624,11 @@
         "money": "change an amount, a fee, the settlement deadline or the original evidence. A correction changes a reported time only, and the original stays on record.",
         "beneficiary": "open a dispute or confirm a cash return. Only the beneficiary can; the owner never acts on their behalf.",
         "organization": "report a collection or a return, or answer a dispute. Only an administrator of the Organization can."
+      },
+      "backTo": {
+        "disputes": "Back to disputes and exceptions",
+        "settlements": "Back to late settlements and cash returns",
+        "recovery": "Back to recovery and surplus"
       }
     },
     "oversight": {
@@ -2701,7 +2706,6 @@
     },
     "disputes": {
       "link": "Disputes and exceptions",
-      "back": "All assistance cases",
       "title": "Disputes and exceptions",
       "subtitle": "Beneficiaries’ disputes and the cases that need your attention, as Nawara Core records them.",
       "simulation": "Simulated disputes — not Nawara Core data. Nawara Core has no owner list of assistance disputes yet; these fictional records follow its states and rules so the overview can be reviewed.",
@@ -2991,6 +2995,13 @@
         "decision": "The Company owner decided it.",
         "derived": "Nawara Core derived it from the other records."
       }
+    },
+    "nav": {
+      "label": "Assistance sections",
+      "cases": "Cases",
+      "disputes": "Disputes and exceptions",
+      "settlements": "Late settlements and cash returns",
+      "recovery": "Recovery and surplus"
     }
   },
   "activity": {

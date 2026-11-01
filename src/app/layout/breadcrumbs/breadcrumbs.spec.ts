@@ -125,6 +125,51 @@ describe('Breadcrumbs', () => {
     ]);
   });
 
+  it('shows a chain of parents, outermost first, each linked (A11: Company › Billing › Assistance › page)', async () => {
+    const nav = await render(OWNER, '/billing/assistance/disputes', [
+      {
+        path: 'billing/assistance/disputes',
+        component: Blank,
+        data: {
+          [BREADCRUMB_DATA]: 'shell.breadcrumb.assistanceDisputes',
+          [BREADCRUMB_PARENT_DATA]: [
+            { key: 'shell.breadcrumb.billing', link: '/billing' },
+            { key: 'shell.breadcrumb.assistance', link: '/billing/assistance' },
+          ],
+        },
+      },
+    ]);
+    expect(crumbs(nav)).toEqual([
+      { text: en.shell.breadcrumb.company, href: '/overview' },
+      { text: en.shell.breadcrumb.billing, href: '/billing' },
+      { text: en.shell.breadcrumb.assistance, href: '/billing/assistance' },
+      { text: en.shell.breadcrumb.assistanceDisputes, href: null },
+    ]);
+    expect(nav.querySelector('[aria-current="page"]')?.textContent?.trim()).toBe(
+      en.shell.breadcrumb.assistanceDisputes,
+    );
+  });
+
+  it('drops an ill-formed parent chain entirely, never showing a partial trail', async () => {
+    const nav = await render(OWNER, '/x', [
+      {
+        path: 'x',
+        component: Blank,
+        data: {
+          [BREADCRUMB_DATA]: 'shell.breadcrumb.assistanceCase',
+          [BREADCRUMB_PARENT_DATA]: [
+            { key: 'shell.breadcrumb.billing', link: '/billing' },
+            { key: 1 },
+          ],
+        },
+      },
+    ]);
+    expect(crumbs(nav)).toEqual([
+      { text: en.shell.breadcrumb.company, href: '/overview' },
+      { text: en.shell.breadcrumb.assistanceCase, href: null },
+    ]);
+  });
+
   it('shows an owner the Company, linked to the overview', async () => {
     const nav = await render({
       kind: 'owner',

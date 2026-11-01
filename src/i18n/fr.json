@@ -2624,6 +2624,11 @@
         "money": "modifier un montant, des frais, l’échéance de règlement ou la preuve d’origine. Une correction ne modifie qu’une heure déclarée, et l’original reste enregistré.",
         "beneficiary": "ouvrir une contestation ou confirmer une restitution. Seul le bénéficiaire le peut ; le propriétaire n’agit jamais à sa place.",
         "organization": "déclarer une collecte ou une restitution, ou répondre à une contestation. Seul un administrateur de l’organisation le peut."
+      },
+      "backTo": {
+        "disputes": "Retour aux contestations et exceptions",
+        "settlements": "Retour aux règlements tardifs et restitutions",
+        "recovery": "Retour au recouvrement et aux excédents"
       }
     },
     "oversight": {
@@ -2701,7 +2706,6 @@
     },
     "disputes": {
       "link": "Contestations et exceptions",
-      "back": "Tous les dossiers d’assistance",
       "title": "Contestations et exceptions",
       "subtitle": "Les contestations des bénéficiaires et les dossiers qui demandent votre attention, tels que Nawara Core les enregistre.",
       "simulation": "Contestations simulées — pas des données de Nawara Core. Nawara Core n’offre pas encore au propriétaire de liste des contestations d’assistance ; ces enregistrements fictifs suivent ses états et ses règles pour permettre la revue de cette vue.",
@@ -2991,6 +2995,13 @@
         "decision": "Le propriétaire de l’entreprise l’a décidé.",
         "derived": "Nawara Core l’a déduit des autres enregistrements."
       }
+    },
+    "nav": {
+      "label": "Sections de l’assistance",
+      "cases": "Dossiers",
+      "disputes": "Contestations et exceptions",
+      "settlements": "Règlements tardifs et restitutions",
+      "recovery": "Recouvrement et excédents"
     }
   },
   "activity": {

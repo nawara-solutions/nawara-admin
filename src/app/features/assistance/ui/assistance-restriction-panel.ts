@@ -87,6 +87,8 @@ export class AssistanceRestrictionPanel {
     input.required<
       Pick<AssistanceCaseDetail, 'request' | 'cashReturns' | 'recoveryObligationId'>
     >();
+  /** The history state of a link to another case (A11: it keeps the case page's way back). */
+  readonly linkState = input<Record<string, string> | null>(null);
 
   protected readonly kindKeys = KIND_KEYS;
   protected readonly sourceKeys = SOURCE_KEYS;

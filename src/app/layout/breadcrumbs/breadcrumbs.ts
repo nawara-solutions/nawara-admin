@@ -19,15 +19,23 @@ import { NwIcon } from '../../shared/ui/icon/icon';
 /** Route data key: the catalog key of the page's last breadcrumb ("Overview"). */
 export const BREADCRUMB_DATA = 'breadcrumb';
 
-/** Route data key: the company-scope page above it, as `{ key, link }` ("Operators & access" above "Operator"). */
+/**
+ * Route data key: the company-scope page above it, as `{ key, link }` ("Operators & access" above "Operator"), or the pages above
+ * it, outermost first, as an array ("Billing", "Assistance" above "Disputes", A11).
+ */
 export const BREADCRUMB_PARENT_DATA = 'breadcrumbParent';
+
+interface ParentCrumb {
+  readonly key: string;
+  readonly link: string;
+}
 
 interface PageCrumbs {
   readonly key: string;
-  readonly parent: { readonly key: string; readonly link: string } | null;
+  readonly parents: readonly ParentCrumb[];
 }
 
-const parentOf = (value: unknown): PageCrumbs['parent'] =>
+const parentOf = (value: unknown): ParentCrumb | null =>
   typeof value === 'object' &&
   value !== null &&
   'key' in value &&
@@ -36,6 +44,13 @@ const parentOf = (value: unknown): PageCrumbs['parent'] =>
   typeof value.link === 'string'
     ? { key: value.key, link: value.link }
     : null;
+
+/** One parent or a chain of them; an ill-formed entry drops the whole chain (never a partial trail). */
+const parentsOf = (value: unknown): readonly ParentCrumb[] => {
+  const list: unknown[] = Array.isArray(value) ? value : value === undefined ? [] : [value];
+  const parents = list.map(parentOf);
+  return parents.every((p): p is ParentCrumb => p !== null) ? parents : [];
+};
 
 interface Crumb {
   readonly label: string;
@@ -74,7 +89,7 @@ export class Breadcrumbs {
         while (route.firstChild) route = route.firstChild;
         const key: unknown = route.data[BREADCRUMB_DATA];
         return typeof key === 'string'
-          ? ({ key, parent: parentOf(route.data[BREADCRUMB_PARENT_DATA]) } satisfies PageCrumbs)
+          ? ({ key, parents: parentsOf(route.data[BREADCRUMB_PARENT_DATA]) } satisfies PageCrumbs)
           : null;
       }),
     ),
@@ -146,9 +161,11 @@ export class Breadcrumbs {
     }
     const page = this.pageKey();
     if (page === null) return [company];
-    const parent: Crumb[] = page.parent
-      ? [{ label: page.parent.key, translate: true, link: page.parent.link }]
-      : [];
-    return [company, ...parent, { label: page.key, translate: true }];
+    const parents: Crumb[] = page.parents.map((p) => ({
+      label: p.key,
+      translate: true,
+      link: p.link,
+    }));
+    return [company, ...parents, { label: page.key, translate: true }];
   });
 }

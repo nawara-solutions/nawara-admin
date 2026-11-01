@@ -2,9 +2,6 @@
 @let returns = facade.cashReturns();
 @let lateQuery = facade.lateQuery();
 @let returnQuery = facade.returnQuery();
-<a nw-link class="assistance-settlements__back" [routerLink]="directoryPath" data-back>
-  <nw-icon name="arrow-left" size="sm" />{{ 'assistanceCases.disputes.back' | transloco }}
-</a>
 
 <header class="assistance-settlements__header">
   <span class="assistance-settlements__mark" aria-hidden="true"
@@ -28,6 +25,7 @@
     </span>
   }
 </header>
+<adm-assistance-section-nav />
 
 @if (isDemo()) {
   <p class="assistance-settlements__note" role="note" data-simulation>
@@ -115,7 +113,12 @@
                   [attr.aria-labelledby]="'late-' + late.id"
                 >
                   <h3 class="assistance-settlements__item-title" [id]="'late-' + late.id">
-                    <a nw-link [routerLink]="casePath(late.assistanceRequestId)" data-case-link>
+                    <a
+                      nw-link
+                      [routerLink]="casePath(late.assistanceRequestId)"
+                      [state]="returnState()"
+                      data-case-link
+                    >
                       {{ 'assistanceCases.case.title' | transloco }}
                       <code
                         class="assistance-settlements__ref"
@@ -363,7 +366,12 @@
                   [attr.aria-labelledby]="'return-' + o.id"
                 >
                   <h3 class="assistance-settlements__item-title" [id]="'return-' + o.id">
-                    <a nw-link [routerLink]="casePath(o.assistanceRequestId)" data-case-link>
+                    <a
+                      nw-link
+                      [routerLink]="casePath(o.assistanceRequestId)"
+                      [state]="returnState()"
+                      data-case-link
+                    >
                       {{ 'assistanceCases.case.title' | transloco }}
                       <code
                         class="assistance-settlements__ref"
@@ -452,14 +460,36 @@
           </p>
         }
         @case ('unavailable') {
-          <p class="assistance-settlements__muted" role="alert" data-returns-unavailable>
-            {{ 'assistanceCases.states.unavailableDescription' | transloco }}
-          </p>
+          <nw-data-state
+            state="error"
+            data-returns-unavailable
+            [title]="'assistanceCases.states.unavailableTitle' | transloco"
+            [description]="'assistanceCases.states.unavailableDescription' | transloco"
+          >
+            <div nwDataStateActions>
+              <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+                <nw-icon name="refresh-cw" size="sm" />{{
+                  'assistanceCases.states.retry' | transloco
+                }}
+              </button>
+            </div>
+          </nw-data-state>
         }
         @case ('error') {
-          <p class="assistance-settlements__muted" role="alert" data-returns-error>
-            {{ 'assistanceCases.states.errorDescription' | transloco }}
-          </p>
+          <nw-data-state
+            state="error"
+            data-returns-error
+            [title]="'assistanceCases.states.errorTitle' | transloco"
+            [description]="'assistanceCases.states.errorDescription' | transloco"
+          >
+            <div nwDataStateActions>
+              <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+                <nw-icon name="refresh-cw" size="sm" />{{
+                  'assistanceCases.states.retry' | transloco
+                }}
+              </button>
+            </div>
+          </nw-data-state>
         }
         @default {
           <nw-data-state state="loading" [title]="'assistanceCases.states.loading' | transloco" />
