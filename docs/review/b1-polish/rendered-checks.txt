@@ -22,64 +22,64 @@ shell   390-fr-light: overflow=false sidebar-logo=[22,16.6,169.2,37.1] sidebar-b
 sign-in 320-ar-dark: overflow=false panel-logo=null header-logo=[190.9,18.4,111.5,25.9] copyright=[77.3,2388.1,165.3,18.3] mark=[77.3,2377.5,126.6,24.7] eyebrow before=none after=none | copyright before=none after=none
 shell   320-ar-dark: overflow=false sidebar-logo=[128.8,16.6,169.2,37.1] sidebar-brand-overflow=false switcher-symbol=[209.1,19.8,35.1,28.6] switcher=[147.3,12.1,104.5,45.2]
 
-## 2. Accent matrix: all 11 palettes x light / dark
+## 2. Accent matrix: all 11 palettes x light / dark (re-run after the Sapphire pre-merge fix)
 
-# Pictogram sample point: the most interior pixel of each pictogram layer, mapped onto the element screenshot.
-# A. Persisted accent at start (sign-in desktop; EN light, AR dark). Favicons are drawn in a LIGHT browser scheme here (their colour follows the browser scheme, checked separately in section D).
-light coral     leaf #c42427 pictogram #ffffff: logo leaf px  2145, pictogram sample (254, 250, 251); copyright leaf px  119; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-light rose      leaf #be185d pictogram #ffffff: logo leaf px  2145, pictogram sample (254, 250, 252); copyright leaf px  119; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-light plum      leaf #7e22ce pictogram #ffffff: logo leaf px  2145, pictogram sample (252, 250, 254); copyright leaf px  119; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-light indigo    leaf #4338ca pictogram #ffffff: logo leaf px  2267, pictogram sample (251, 251, 254); copyright leaf px  127; favicon (light scheme) leaf  712 pictogram 114; ref-blue 0  ok
-light teal      leaf #0f766e pictogram #ffffff: logo leaf px  2145, pictogram sample (250, 252, 252); copyright leaf px  119; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-light amber     leaf #b45309 pictogram #ffffff: logo leaf px  2145, pictogram sample (253, 252, 250); copyright leaf px  119; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-light midnight  leaf #17131f pictogram #ffffff: logo leaf px  2145, pictogram sample (250, 250, 250); copyright leaf px  119; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-light pearl     leaf #5e5769 pictogram #ffffff: logo leaf px  2281, pictogram sample (252, 252, 252); copyright leaf px  130; favicon (light scheme) leaf  712 pictogram 114; ref-blue 0  ok
-light sapphire  leaf #046efa pictogram #ffffff: logo leaf px  2145, pictogram sample (250, 252, 255); copyright leaf px  119; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-light emerald   leaf #047857 pictogram #ffffff: logo leaf px  2145, pictogram sample (250, 252, 252); copyright leaf px  119; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-light burgundy  leaf #8e2849 pictogram #ffffff: logo leaf px  2145, pictogram sample (253, 251, 251); copyright leaf px  125; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-dark  coral     leaf #ff5c5f pictogram #040b2d: logo leaf px  2137, pictogram sample (7, 11, 45); copyright leaf px  130; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-dark  rose      leaf #f472b6 pictogram #040b2d: logo leaf px  2137, pictogram sample (7, 12, 46); copyright leaf px  130; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-dark  plum      leaf #c084fc pictogram #040b2d: logo leaf px  2137, pictogram sample (6, 12, 47); copyright leaf px  130; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-dark  indigo    leaf #818cf8 pictogram #040b2d: logo leaf px  2139, pictogram sample (5, 12, 47); copyright leaf px  130; favicon (light scheme) leaf  712 pictogram 114; ref-blue 0  ok
-dark  teal      leaf #2dd4bf pictogram #040b2d: logo leaf px  2259, pictogram sample (4, 14, 46); copyright leaf px  139; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-dark  amber     leaf #fbbf24 pictogram #040b2d: logo leaf px  2137, pictogram sample (7, 13, 44); copyright leaf px  130; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-dark  midnight  leaf #c8c2dc pictogram #040b2d: logo leaf px  2137, pictogram sample (6, 13, 47); copyright leaf px  130; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-dark  pearl     leaf #f4f1f6 pictogram #040b2d: logo leaf px  2167, pictogram sample (7, 14, 47); copyright leaf px  144; favicon (light scheme) leaf  712 pictogram 114; ref-blue 0  ok
-dark  sapphire  leaf #046efa pictogram #ffffff: logo leaf px  2152, pictogram sample (251, 253, 255); copyright leaf px  133; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-dark  emerald   leaf #34d399 pictogram #040b2d: logo leaf px  2259, pictogram sample (4, 14, 46); copyright leaf px  139; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
-dark  burgundy  leaf #ec8aa8 pictogram #040b2d: logo leaf px  2137, pictogram sample (7, 12, 46); copyright leaf px  130; favicon (light scheme) leaf  710 pictogram 113; ref-blue 0  ok
+# Pictogram sampled at its most interior pixel. Rule: navy #040b2d in dark mode and on Sapphire (owner pre-merge fix); white otherwise.
+# A. Persisted accent at start (sign-in desktop; EN light, AR dark); favicon drawn in a light browser scheme
+light coral     leaf #c42427 pictogram #ffffff: logo pictogram sample (254, 250, 251); copyright leaf px 357; favicon leaf 710 pictogram 113  ok
+light rose      leaf #be185d pictogram #ffffff: logo pictogram sample (254, 250, 252); copyright leaf px 357; favicon leaf 710 pictogram 113  ok
+light plum      leaf #7e22ce pictogram #ffffff: logo pictogram sample (252, 250, 254); copyright leaf px 357; favicon leaf 710 pictogram 113  ok
+light indigo    leaf #4338ca pictogram #ffffff: logo pictogram sample (251, 251, 254); copyright leaf px 380; favicon leaf 712 pictogram 114  ok
+light teal      leaf #0f766e pictogram #ffffff: logo pictogram sample (250, 252, 252); copyright leaf px 357; favicon leaf 710 pictogram 113  ok
+light amber     leaf #b45309 pictogram #ffffff: logo pictogram sample (253, 252, 250); copyright leaf px 357; favicon leaf 710 pictogram 113  ok
+light midnight  leaf #17131f pictogram #ffffff: logo pictogram sample (250, 250, 250); copyright leaf px 357; favicon leaf 710 pictogram 113  ok
+light pearl     leaf #5e5769 pictogram #ffffff: logo pictogram sample (252, 252, 252); copyright leaf px 384; favicon leaf 712 pictogram 114  ok
+light sapphire  leaf #046efa pictogram #040b2d: logo pictogram sample (4, 12, 48); copyright leaf px 360; favicon leaf 709 pictogram 114  ok
+light emerald   leaf #047857 pictogram #ffffff: logo pictogram sample (250, 252, 252); copyright leaf px 357; favicon leaf 710 pictogram 113  ok
+light burgundy  leaf #8e2849 pictogram #ffffff: logo pictogram sample (253, 251, 251); copyright leaf px 367; favicon leaf 710 pictogram 113  ok
+dark  coral     leaf #ff5c5f pictogram #040b2d: logo pictogram sample (7, 11, 45); copyright leaf px 355; favicon leaf 710 pictogram 113  ok
+dark  rose      leaf #f472b6 pictogram #040b2d: logo pictogram sample (7, 12, 46); copyright leaf px 355; favicon leaf 710 pictogram 113  ok
+dark  plum      leaf #c084fc pictogram #040b2d: logo pictogram sample (6, 12, 47); copyright leaf px 355; favicon leaf 710 pictogram 113  ok
+dark  indigo    leaf #818cf8 pictogram #040b2d: logo pictogram sample (5, 12, 47); copyright leaf px 356; favicon leaf 712 pictogram 114  ok
+dark  teal      leaf #2dd4bf pictogram #040b2d: logo pictogram sample (4, 14, 46); copyright leaf px 377; favicon leaf 710 pictogram 113  ok
+dark  amber     leaf #fbbf24 pictogram #040b2d: logo pictogram sample (7, 13, 44); copyright leaf px 355; favicon leaf 710 pictogram 113  ok
+dark  midnight  leaf #c8c2dc pictogram #040b2d: logo pictogram sample (6, 13, 47); copyright leaf px 355; favicon leaf 710 pictogram 113  ok
+dark  pearl     leaf #f4f1f6 pictogram #040b2d: logo pictogram sample (7, 14, 47); copyright leaf px 369; favicon leaf 712 pictogram 114  ok
+dark  sapphire  leaf #046efa pictogram #040b2d: logo pictogram sample (4, 12, 47); copyright leaf px 356; favicon leaf 709 pictogram 114  ok
+dark  emerald   leaf #34d399 pictogram #040b2d: logo pictogram sample (4, 14, 46); copyright leaf px 377; favicon leaf 710 pictogram 113  ok
+dark  burgundy  leaf #ec8aa8 pictogram #040b2d: logo pictogram sample (7, 12, 46); copyright leaf px 355; favicon leaf 710 pictogram 113  ok
 
-# B. Live switching without reload (signed in): sidebar logo and scope-switcher symbol (pictogram sampled), favicon
-light coral     stored=None      same page=True sidebar leaf  906 pictogram (254, 250, 250); symbol leaf  656 pictogram (254, 250, 250); favicon=icons/favicon-coral-light.svg      ok
-light rose      stored=rose      same page=True sidebar leaf  906 pictogram (254, 250, 252); symbol leaf  656 pictogram (254, 250, 252); favicon=icons/favicon-rose-light.svg       ok
-light plum      stored=plum      same page=True sidebar leaf  906 pictogram (252, 250, 254); symbol leaf  656 pictogram (252, 250, 254); favicon=icons/favicon-plum-light.svg       ok
-light indigo    stored=indigo    same page=True sidebar leaf  959 pictogram (251, 251, 254); symbol leaf  694 pictogram (251, 251, 254); favicon=icons/favicon-indigo-light.svg     ok
-light teal      stored=teal      same page=True sidebar leaf  906 pictogram (250, 252, 252); symbol leaf  656 pictogram (250, 252, 252); favicon=icons/favicon-teal-light.svg       ok
-light amber     stored=amber     same page=True sidebar leaf  906 pictogram (254, 251, 250); symbol leaf  656 pictogram (253, 251, 250); favicon=icons/favicon-amber-light.svg      ok
-light midnight  stored=midnight  same page=True sidebar leaf  906 pictogram (250, 250, 250); symbol leaf  656 pictogram (250, 250, 250); favicon=icons/favicon-midnight-light.svg   ok
-light pearl     stored=pearl     same page=True sidebar leaf  967 pictogram (252, 252, 252); symbol leaf  696 pictogram (252, 252, 252); favicon=icons/favicon-pearl-light.svg      ok
-light sapphire  stored=sapphire  same page=True sidebar leaf  906 pictogram (250, 252, 255); symbol leaf  656 pictogram (250, 252, 255); favicon=icons/favicon-sapphire-light.svg   ok
-light emerald   stored=emerald   same page=True sidebar leaf  906 pictogram (250, 252, 252); symbol leaf  656 pictogram (250, 252, 252); favicon=icons/favicon-emerald-light.svg    ok
-light burgundy  stored=burgundy  same page=True sidebar leaf  906 pictogram (253, 250, 251); symbol leaf  656 pictogram (253, 250, 251); favicon=icons/favicon-burgundy-light.svg   ok
-light after reload: data-accent=burgundy favicon=icons/favicon-burgundy-light.svg (reloaded page: marker=None)
-dark  coral     stored=None      same page=True sidebar leaf  901 pictogram (8, 12, 45); symbol leaf  653 pictogram (8, 12, 45); favicon=favicon.svg                        ok
-dark  rose      stored=rose      same page=True sidebar leaf  901 pictogram (8, 12, 47); symbol leaf  653 pictogram (8, 13, 47); favicon=icons/favicon-rose.svg             ok
-dark  plum      stored=plum      same page=True sidebar leaf  901 pictogram (7, 13, 48); symbol leaf  653 pictogram (7, 13, 48); favicon=icons/favicon-plum.svg             ok
-dark  indigo    stored=indigo    same page=True sidebar leaf  901 pictogram (6, 13, 48); symbol leaf  653 pictogram (6, 13, 48); favicon=icons/favicon-indigo.svg           ok
-dark  teal      stored=teal      same page=True sidebar leaf  952 pictogram (4, 14, 47); symbol leaf  691 pictogram (4, 15, 47); favicon=icons/favicon-teal.svg             ok
-dark  amber     stored=amber     same page=True sidebar leaf  901 pictogram (8, 14, 44); symbol leaf  653 pictogram (8, 14, 44); favicon=icons/favicon-amber.svg            ok
-dark  midnight  stored=midnight  same page=True sidebar leaf  901 pictogram (7, 14, 48); symbol leaf  653 pictogram (7, 14, 48); favicon=icons/favicon-midnight.svg         ok
-dark  pearl     stored=pearl     same page=True sidebar leaf  901 pictogram (8, 15, 48); symbol leaf  653 pictogram (8, 15, 48); favicon=icons/favicon-pearl.svg            ok
-dark  sapphire  stored=sapphire  same page=True sidebar leaf  914 pictogram (250, 252, 255); symbol leaf  658 pictogram (250, 252, 255); favicon=icons/favicon-sapphire.svg         ok
-dark  emerald   stored=emerald   same page=True sidebar leaf  952 pictogram (4, 14, 46); symbol leaf  691 pictogram (4, 15, 46); favicon=icons/favicon-emerald.svg          ok
-dark  burgundy  stored=burgundy  same page=True sidebar leaf  901 pictogram (8, 13, 47); symbol leaf  653 pictogram (8, 13, 47); favicon=icons/favicon-burgundy.svg         ok
-dark  after reload: data-accent=burgundy favicon=icons/favicon-burgundy.svg (reloaded page: marker=None)
+# B. Live switching without reload (signed in): sidebar logo and scope symbol
+light coral     same page=True sidebar pictogram (254, 250, 250) symbol pictogram (254, 250, 250) favicon=icons/favicon-coral-light.svg  ok
+light rose      same page=True sidebar pictogram (254, 250, 252) symbol pictogram (254, 250, 252) favicon=icons/favicon-rose-light.svg  ok
+light plum      same page=True sidebar pictogram (252, 250, 254) symbol pictogram (252, 250, 254) favicon=icons/favicon-plum-light.svg  ok
+light indigo    same page=True sidebar pictogram (251, 251, 254) symbol pictogram (251, 251, 254) favicon=icons/favicon-indigo-light.svg  ok
+light teal      same page=True sidebar pictogram (250, 252, 252) symbol pictogram (250, 252, 252) favicon=icons/favicon-teal-light.svg  ok
+light amber     same page=True sidebar pictogram (254, 251, 250) symbol pictogram (253, 251, 250) favicon=icons/favicon-amber-light.svg  ok
+light midnight  same page=True sidebar pictogram (250, 250, 250) symbol pictogram (250, 250, 250) favicon=icons/favicon-midnight-light.svg  ok
+light pearl     same page=True sidebar pictogram (252, 252, 252) symbol pictogram (252, 252, 252) favicon=icons/favicon-pearl-light.svg  ok
+light sapphire  same page=True sidebar pictogram (4, 12, 48) symbol pictogram (4, 13, 48) favicon=icons/favicon-sapphire-light.svg  ok
+light emerald   same page=True sidebar pictogram (250, 252, 252) symbol pictogram (250, 252, 252) favicon=icons/favicon-emerald-light.svg  ok
+light burgundy  same page=True sidebar pictogram (253, 250, 251) symbol pictogram (253, 250, 251) favicon=icons/favicon-burgundy-light.svg  ok
+light after reload: data-accent=burgundy favicon=icons/favicon-burgundy-light.svg
+dark  coral     same page=True sidebar pictogram (8, 12, 45) symbol pictogram (8, 12, 45) favicon=favicon.svg  ok
+dark  rose      same page=True sidebar pictogram (8, 12, 47) symbol pictogram (8, 13, 47) favicon=icons/favicon-rose.svg  ok
+dark  plum      same page=True sidebar pictogram (7, 13, 48) symbol pictogram (7, 13, 48) favicon=icons/favicon-plum.svg  ok
+dark  indigo    same page=True sidebar pictogram (6, 13, 48) symbol pictogram (6, 13, 48) favicon=icons/favicon-indigo.svg  ok
+dark  teal      same page=True sidebar pictogram (4, 14, 47) symbol pictogram (4, 15, 47) favicon=icons/favicon-teal.svg  ok
+dark  amber     same page=True sidebar pictogram (8, 14, 44) symbol pictogram (8, 14, 44) favicon=icons/favicon-amber.svg  ok
+dark  midnight  same page=True sidebar pictogram (7, 14, 48) symbol pictogram (7, 14, 48) favicon=icons/favicon-midnight.svg  ok
+dark  pearl     same page=True sidebar pictogram (8, 15, 48) symbol pictogram (8, 15, 48) favicon=icons/favicon-pearl.svg  ok
+dark  sapphire  same page=True sidebar pictogram (4, 12, 48) symbol pictogram (4, 13, 48) favicon=icons/favicon-sapphire.svg  ok
+dark  emerald   same page=True sidebar pictogram (4, 14, 46) symbol pictogram (4, 15, 46) favicon=icons/favicon-emerald.svg  ok
+dark  burgundy  same page=True sidebar pictogram (8, 13, 47) symbol pictogram (8, 13, 47) favicon=icons/favicon-burgundy.svg  ok
+dark  after reload: data-accent=burgundy favicon=icons/favicon-burgundy.svg
 
-# C. Phone sign-in (390 px): header logo and footer copyright
-light emerald   fr header leaf  443 pictogram (242, 248, 246); copyright leaf  119 ok
-dark  plum      ar header leaf  441 pictogram (9, 14, 50); copyright leaf  121 ok
-light sapphire  fr header leaf  443 pictogram (242, 247, 254); copyright leaf  119 ok
-light coral     en header leaf  443 pictogram (252, 243, 243); copyright leaf  105 ok
+# C. Phone sign-in (390 px)
+light emerald   fr header pictogram (242, 248, 246)  ok
+dark  plum      ar header pictogram (9, 14, 50)  ok
+light sapphire  fr header pictogram (4, 16, 55)  ok
+light coral     en header pictogram (252, 243, 243)  ok
 
 failures: 0
 
@@ -94,7 +94,7 @@ light scheme teal      leaf #0f766e pictogram #ffffff
 light scheme amber     leaf #b45309 pictogram #ffffff
 light scheme midnight  leaf #17131f pictogram #ffffff
 light scheme pearl     leaf #5e5769 pictogram #ffffff
-light scheme sapphire  leaf #046efa pictogram #ffffff
+light scheme sapphire  leaf #046efa pictogram #040b2d
 light scheme emerald   leaf #047857 pictogram #ffffff
 light scheme burgundy  leaf #8e2849 pictogram #ffffff
 dark  scheme coral     leaf #ff5c5f pictogram #040b2d
@@ -105,13 +105,14 @@ dark  scheme teal      leaf #2dd4bf pictogram #040b2d
 dark  scheme amber     leaf #fbbf24 pictogram #040b2d
 dark  scheme midnight  leaf #c8c2dc pictogram #040b2d
 dark  scheme pearl     leaf #f4f1f6 pictogram #040b2d
-dark  scheme sapphire  leaf #046efa pictogram #ffffff
+dark  scheme sapphire  leaf #046efa pictogram #040b2d
 dark  scheme emerald   leaf #34d399 pictogram #040b2d
 dark  scheme burgundy  leaf #ec8aa8 pictogram #040b2d
 
 ## 4. Pictogram contrast (check:contrast, --nw-logo-detail on --nw-logo-accent, needs 3:1)
 
-Rule: the candidate (white #ffffff or the logo navy #040b2d) with the higher contrast on the leaf.
+Rule: white #ffffff or the logo navy #040b2d per palette for the clearest definition: navy on every dark-mode leaf and on
+Sapphire in both modes (owner pre-merge fix, 4.23:1); white on the other light-mode leaves.
 coral     light leaf #c42427 pictogram #ffffff   5.79:1  (white  5.79, navy  3.33)
 coral     dark  leaf #ff5c5f pictogram #040b2d   6.37:1  (white  3.02, navy  6.37)
 rose      light leaf #be185d pictogram #ffffff   6.04:1  (white  6.04, navy  3.19)
@@ -128,8 +129,8 @@ midnight  light leaf #17131f pictogram #ffffff  18.27:1  (white 18.27, navy  1.0
 midnight  dark  leaf #c8c2dc pictogram #040b2d  11.19:1  (white  1.72, navy 11.19)
 pearl     light leaf #5e5769 pictogram #ffffff   6.90:1  (white  6.90, navy  2.79)
 pearl     dark  leaf #f4f1f6 pictogram #040b2d  17.20:1  (white  1.12, navy 17.20)
-sapphire  light leaf #046efa pictogram #ffffff   4.55:1  (white  4.55, navy  4.23)
-sapphire  dark  leaf #046efa pictogram #ffffff   4.55:1  (white  4.55, navy  4.23)
+sapphire  light leaf #046efa pictogram #040b2d   4.23:1  (white  4.55, navy  4.23)
+sapphire  dark  leaf #046efa pictogram #040b2d   4.23:1  (white  4.55, navy  4.23)
 emerald   light leaf #047857 pictogram #ffffff   5.48:1  (white  5.48, navy  3.51)
 emerald   dark  leaf #34d399 pictogram #040b2d  10.01:1  (white  1.92, navy 10.01)
 burgundy  light leaf #8e2849 pictogram #ffffff   8.24:1  (white  8.24, navy  2.34)

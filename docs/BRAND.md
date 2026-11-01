@@ -20,11 +20,14 @@ light and dark; the lettering and the white details inside the leaf never change
 
 **Final polish (owner, 2026-11-01):**
 
-- **Pictogram colour.** The pictogram inside the leaf (Admin people, Solutions puzzle) is painted with `--nw-logo-detail`:
-  whichever of white `#ffffff` and the logo's own navy `#040b2d` has the higher contrast on that leaf. That gives white on
-  every light-mode leaf and navy on every dark-mode leaf, except Sapphire, whose reference blue keeps white (4.55:1 against
-  4.23:1). Every combination is at least 4.55:1, and `check:contrast` holds the pair to 3:1. The same colours are used in
-  the favicons.
+- **Pictogram colour.** The pictogram inside the leaf (Admin people, Solutions puzzle) is painted with `--nw-logo-detail`,
+  white `#ffffff` or the logo's own navy `#040b2d`, chosen per palette for the clearest definition:
+  - **navy** on every dark-mode leaf and on **Sapphire** in both modes. On Sapphire's saturated reference blue the owner
+    requires the dark pictogram (pre-merge fix): 4.23:1, against 4.55:1 for white;
+  - **white** on the other light-mode leaves.
+
+  Every combination is at least 4.23:1, and `check:contrast` holds the pair to 3:1. The same colours are used in the
+  favicons.
 - **Logo boxes.** The logo boxes take the logo's own proportions, so the logo fills them instead of floating in them. Same
   height, so nothing moves vertically:
   - sign-in logo 173 → 240 px wide;
