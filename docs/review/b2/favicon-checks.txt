@@ -1,0 +1,48 @@
+# B2 favicon checks (2026-11-01)
+
+Option A (owner selection), exported by `node tools/brand/export_favicon.mjs` from `docs/brand/nawara-admin-favicon.svg`.
+Dev server (ng serve) on main aa6b86b + B2; Chromium (Playwright). Design tokens: @nawara-solutions/design-tokens 0.1.0
+(byte-identical to the published package).
+
+Determinism: two consecutive exports give identical files (sha1 of favicon.ico, icons/icon-*.png, apple-touch-icon.png,
+favicon.svg). favicon.ico holds 16, 32 and 48 px; apple-touch-icon.png 180 px opaque; icons/icon-maskable-512.png opaque.
+
+## 1. Favicon per accent palette and app appearance (live page after load)
+light coral     links=1 icons/favicon-coral-light.svg      image/svg+xml 200 image/svg+xml vector=true color:#c42427 color:#ff5c5f
+light rose      links=1 icons/favicon-rose-light.svg       image/svg+xml 200 image/svg+xml vector=true color:#be185d color:#f472b6
+light plum      links=1 icons/favicon-plum-light.svg       image/svg+xml 200 image/svg+xml vector=true color:#7e22ce color:#c084fc
+light indigo    links=1 icons/favicon-indigo-light.svg     image/svg+xml 200 image/svg+xml vector=true color:#4338ca color:#818cf8
+light teal      links=1 icons/favicon-teal-light.svg       image/svg+xml 200 image/svg+xml vector=true color:#0f766e color:#2dd4bf
+light amber     links=1 icons/favicon-amber-light.svg      image/svg+xml 200 image/svg+xml vector=true color:#b45309 color:#fbbf24
+light midnight  links=1 icons/favicon-midnight-light.svg   image/svg+xml 200 image/svg+xml vector=true color:#17131f color:#c8c2dc
+light pearl     links=1 icons/favicon-pearl-light.svg      image/svg+xml 200 image/svg+xml vector=true color:#5e5769 color:#f4f1f6
+light sapphire  links=1 icons/favicon-sapphire-light.svg   image/svg+xml 200 image/svg+xml vector=true color:#046efa color:#046efa
+light emerald   links=1 icons/favicon-emerald-light.svg    image/svg+xml 200 image/svg+xml vector=true color:#047857 color:#34d399
+light burgundy  links=1 icons/favicon-burgundy-light.svg   image/svg+xml 200 image/svg+xml vector=true color:#8e2849 color:#ec8aa8
+dark  coral     links=1 favicon.svg                        image/svg+xml 200 image/svg+xml vector=true color:#c42427 color:#ff5c5f
+dark  rose      links=1 icons/favicon-rose.svg             image/svg+xml 200 image/svg+xml vector=true color:#be185d color:#f472b6
+dark  plum      links=1 icons/favicon-plum.svg             image/svg+xml 200 image/svg+xml vector=true color:#7e22ce color:#c084fc
+dark  indigo    links=1 icons/favicon-indigo.svg           image/svg+xml 200 image/svg+xml vector=true color:#4338ca color:#818cf8
+dark  teal      links=1 icons/favicon-teal.svg             image/svg+xml 200 image/svg+xml vector=true color:#0f766e color:#2dd4bf
+dark  amber     links=1 icons/favicon-amber.svg            image/svg+xml 200 image/svg+xml vector=true color:#b45309 color:#fbbf24
+dark  midnight  links=1 icons/favicon-midnight.svg         image/svg+xml 200 image/svg+xml vector=true color:#17131f color:#c8c2dc
+dark  pearl     links=1 icons/favicon-pearl.svg            image/svg+xml 200 image/svg+xml vector=true color:#5e5769 color:#f4f1f6
+dark  sapphire  links=1 icons/favicon-sapphire.svg         image/svg+xml 200 image/svg+xml vector=true color:#046efa color:#046efa
+dark  emerald   links=1 icons/favicon-emerald.svg          image/svg+xml 200 image/svg+xml vector=true color:#047857 color:#34d399
+dark  burgundy  links=1 icons/favicon-burgundy.svg         image/svg+xml 200 image/svg+xml vector=true color:#8e2849 color:#ec8aa8
+
+## 2. Browser appearance inside the SVG (prefers-color-scheme), favicon.svg (Coral) and favicon-sapphire.svg
+light scheme  favicon.svg                  leaf pixel #c42427
+light scheme  icons/favicon-sapphire.svg   leaf pixel #046efa
+dark  scheme  favicon.svg                  leaf pixel #ff5c5f
+dark  scheme  icons/favicon-sapphire.svg   leaf pixel #046efa
+
+## 3. Visual comparison (docs/review/b2)
+
+- before-after-light.webp, before-after-dark.webp: B1 favicon and Option A at 16 / 32 / 48 / 64 px, Coral and Sapphire, on a
+  light tab (#ffffff) and a dark tab (#35363a, dark browser scheme), with a tab-strip mock-up at real size.
+- before-after-16px-pixels.webp: the real 16 px pixels, enlarged 8x.
+- accents-light.webp, accents-dark.webp: all 11 palettes at 16 and 32 px in each browser scheme.
+
+Headless Chromium draws no browser chrome, so the tab strip is a faithful mock-up (the same 16 px image on the tab colours)
+rather than a capture of the real tab UI.
