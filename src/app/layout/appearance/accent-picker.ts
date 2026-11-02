@@ -1,9 +1,9 @@
-import { A11yModule } from '@angular/cdk/a11y';
-import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
 import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  Injector,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -30,31 +30,30 @@ export const ACCENT_KEYS = {
   burgundy: 'preferences.accent.burgundy',
 } as const satisfies Record<AccentPalette, string>;
 
-/** Below the selector, its width (above as fallback); CDK mirrors these in RTL. */
-const POSITIONS: ConnectedPosition[] = [
-  { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 6 },
-  { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -6 },
-];
-
-/** Case-, accent- and width-insensitive matching ("émeraude" finds "Émeraude" from "emeraude"). */
+/** Case-, accent- and width-insensitive matching ("emer" finds "Émeraude"). */
 const normalize = (text: string) =>
   text.normalize('NFKD').replace(/\p{M}/gu, '').toLocaleLowerCase().trim();
 
 let nextId = 0;
 
 /**
- * The accent colour of the Appearance panel: one compact row (the current palette's swatch and name) that opens a
- * searchable palette list, so the panel keeps its height however many palettes the registry (ACCENT_PALETTES) holds.
+ * The accent colour of the Appearance panel: one compact row (the current palette's swatch and name) that expands, in
+ * place, into a searchable palette list built from the registry (ACCENT_PALETTES), so the closed panel keeps its height
+ * however many palettes exist.
  *
- * ARIA combobox pattern: the search field keeps focus and owns a listbox; arrow keys move the active option
- * (aria-activedescendant), Enter or a click chooses it, Escape or Tab closes the list. Choosing applies the palette
- * through ThemeService.setAccent (the one accent state: persistence, logo, favicon and artwork follow), closes the list
- * and returns focus to the selector. Search matches anywhere in the localized name, or the start of the palette's machine
- * value (so the English id still finds a palette in French or Arabic).
+ * The list is a contained section of the panel, not a second overlay: it moves with its selector, is clipped by nothing,
+ * and never lies over the page outside the panel. Only the results scroll (capped height); the search field stays
+ * visible above them.
+ *
+ * ARIA combobox pattern: the search field keeps focus and owns a listbox; arrow and Page keys move the active option
+ * (aria-activedescendant), Enter or a click chooses it, Escape closes the list (the panel stays open). Choosing applies
+ * the palette through ThemeService.setAccent (the one accent state: persistence, logo, favicon and artwork follow),
+ * closes the list and returns focus to the selector. Search matches anywhere in the localized name, or the start of the
+ * palette's machine value (so the English id still finds a palette in French or Arabic).
  */
 @Component({
   selector: 'adm-accent-picker',
-  imports: [A11yModule, CdkConnectedOverlay, CdkOverlayOrigin, TranslocoPipe, NwIcon],
+  imports: [TranslocoPipe, NwIcon],
   templateUrl: './accent-picker.html',
   styleUrl: './accent-picker.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -65,13 +64,11 @@ export class AccentPicker {
   readonly labelledBy = input.required<string>();
 
   protected readonly theme = inject(ThemeService);
+  private readonly injector = inject(Injector);
   protected readonly id = `accent-picker-${nextId++}`;
-  protected readonly positions = POSITIONS;
   protected readonly open = signal(false);
   protected readonly query = signal('');
   protected readonly activeIndex = signal(0);
-  /** The selector's width, so the list lines up with it. */
-  protected readonly width = signal(0);
 
   private readonly trigger = viewChild.required<ElementRef<HTMLButtonElement>>('trigger');
   private readonly search = viewChild<ElementRef<HTMLInputElement>>('search');
@@ -105,12 +102,16 @@ export class AccentPicker {
   });
 
   constructor() {
-    // Keep the active option visible while the arrow keys move through a long list.
+    // Keep the active option visible inside the scrolling results (never the page) while the keys move through them.
     effect(() => {
       const id = this.activeId();
       const list = this.listbox()?.nativeElement;
-      if (!id || !list) return;
-      list.querySelector(`#${id}`)?.scrollIntoView?.({ block: 'nearest' });
+      const option = id ? list?.querySelector<HTMLElement>(`#${id}`) : null;
+      if (!list || !option) return;
+      const top = option.offsetTop - list.offsetTop;
+      if (top < list.scrollTop) list.scrollTop = top;
+      else if (top + option.offsetHeight > list.scrollTop + list.clientHeight)
+        list.scrollTop = top + option.offsetHeight - list.clientHeight;
     });
   }
 
@@ -120,18 +121,21 @@ export class AccentPicker {
 
   protected toggle(): void {
     if (this.open()) {
-      this.close(true);
+      this.close();
       return;
     }
-    this.width.set(this.trigger().nativeElement.getBoundingClientRect().width);
     this.query.set('');
     this.activeIndex.set(Math.max(0, ACCENT_PALETTES.indexOf(this.theme.accent())));
     this.open.set(true);
-  }
-
-  protected onAttach(): void {
-    // The overlay content exists once attached; the search field takes focus.
-    queueMicrotask(() => this.search()?.nativeElement.focus());
+    afterNextRender(
+      () => {
+        const search = this.search()?.nativeElement;
+        search?.focus();
+        // The section appeared inside the panel: bring it into view if the panel itself had to scroll.
+        search?.closest('.accent-picker')?.scrollIntoView?.({ block: 'nearest' });
+      },
+      { injector: this.injector },
+    );
   }
 
   protected onQuery(value: string): void {
@@ -167,23 +171,14 @@ export class AccentPicker {
         // Closes the list only, never the Appearance popover around it.
         event.preventDefault();
         event.stopPropagation();
-        this.close(true);
-        return;
-      case 'Tab':
-        event.preventDefault();
-        this.close(true);
+        this.close();
         return;
     }
   }
 
-  protected choose(value: AccentPalette): void {
-    void this.theme.setAccent(value);
-    this.close(true);
-  }
-
   /**
-   * A click on an option (delegated to the listbox: the options are not focusable, the search field keeps focus and
-   * the keyboard, as the combobox pattern requires; the listbox's mousedown is cancelled so focus never leaves it).
+   * A click or tap on an option (delegated to the listbox: the options are not focusable, the search field keeps focus
+   * and the keyboard, as the combobox pattern requires; the listbox's mousedown is cancelled so focus never leaves it).
    */
   protected onListClick(event: MouseEvent): void {
     const option = (event.target as Element | null)?.closest<HTMLElement>('[role=option]');
@@ -191,25 +186,15 @@ export class AccentPicker {
     if (value) this.choose(value);
   }
 
-  protected onOutsideClick(event: MouseEvent): void {
-    // A click on the selector toggles; it must not also count as "outside".
-    if (this.trigger().nativeElement.contains(event.target as Node)) return;
-    // Focus goes where the user clicked; it returns to the selector only if it would otherwise be lost.
-    this.close(false);
+  protected choose(value: AccentPalette): void {
+    void this.theme.setAccent(value);
+    this.close();
   }
 
-  /** Closes the list. `restoreFocus`: back to the selector (Escape, Tab, a choice, the selector itself). */
-  close(restoreFocus: boolean): void {
+  /** Closes the list and returns focus to the selector. */
+  close(): void {
     if (!this.open()) return;
-    const lost = this.focusWouldBeLost();
     this.open.set(false);
-    if (restoreFocus || lost) this.trigger().nativeElement.focus();
-  }
-
-  /** Focus is in the list (removed on close) or nowhere (a click on plain text). */
-  private focusWouldBeLost(): boolean {
-    const document = this.trigger().nativeElement.ownerDocument;
-    const active = document.activeElement;
-    return !active || active === document.body || active === this.search()?.nativeElement;
+    this.trigger().nativeElement.focus();
   }
 }

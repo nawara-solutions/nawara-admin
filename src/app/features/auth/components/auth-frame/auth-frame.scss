@@ -6,12 +6,6 @@
   // these pages, and in the shared controls they use (buttons, fields, alerts, the framed language and appearance
   // triggers), is multiplied by this scale; elsewhere it is unset and the scale is 1.
   --nw-admin-text-scale: 0.85;
-  // The page's edge grid on desktop (owner refinement 2026-11-02): one block and one inline inset shared by the brand
-  // panel (logo, headline, copyright) and the top-right controls, and the height of the logo row, so the controls sit
-  // on the logo's centre line. Read by AuthBrandPanel through inheritance.
-  --adm-auth-edge-block: var(--nw-space-7);
-  --adm-auth-edge-inline: var(--nw-space-8);
-  --adm-auth-logo-row: calc(3.04rem * var(--nw-admin-text-scale, 1));
 
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -64,17 +58,8 @@
     padding: var(--nw-space-5) var(--nw-space-7);
   }
 
-  // The controls on the same edge grid and centre line as the brand panel's logo. The header keeps its height (the
-  // padding below is what the taller logo row takes), so the card does not move.
   @include nw.from(desktop) {
     justify-content: flex-end;
-    padding: var(--adm-auth-edge-block) var(--adm-auth-edge-inline) 0;
-  }
-}
-
-.auth-frame__preferences {
-  @include nw.from(desktop) {
-    min-block-size: var(--adm-auth-logo-row);
   }
 }
 

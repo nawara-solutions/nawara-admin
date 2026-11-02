@@ -77,22 +77,17 @@
   }
 }
 
-// The palette list: a search field above a scrolling listbox. Its height is capped, so 11 or 100 palettes take the same
-// room; it never grows the Appearance panel.
-.accent-picker__panel {
+// The palette list, expanded in place under the selector (a contained section of the Appearance panel, not an overlay):
+// the search field on top, then the results, which alone scroll. The results' height is capped (and shrinks on short
+// screens), so 11 or 100 palettes take the same room.
+.accent-picker__section {
   display: grid;
-  // The overlay pane is a flex row: fill it, so the list is exactly as wide as the selector.
-  flex: 1;
-  min-inline-size: 0;
-  grid-template-rows: auto minmax(0, 1fr);
   gap: var(--nw-space-2);
-  max-block-size: min(20rem, calc(100dvh - 2rem));
+  margin-block-start: var(--nw-space-2);
   padding: var(--nw-space-2);
   border: 1px solid var(--nw-border-subtle);
   border-radius: var(--nw-radius-md);
-  background-color: var(--nw-surface-overlay);
-  box-shadow: var(--nw-shadow-md);
-  color: var(--nw-text-primary);
+  background-color: var(--nw-surface-sunken);
 }
 
 .accent-picker__search {
@@ -133,7 +128,7 @@
   display: grid;
   align-content: start;
   gap: 1px;
-  min-block-size: 0;
+  max-block-size: min(12.5rem, 32dvh);
   margin: 0;
   padding: 0;
   overflow-y: auto;
@@ -197,7 +192,7 @@
 }
 
 @media (forced-colors: active) {
-  .accent-picker__panel {
+  .accent-picker__section {
     border-color: CanvasText;
   }
 

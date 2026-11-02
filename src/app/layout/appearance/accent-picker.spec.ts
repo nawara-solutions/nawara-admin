@@ -1,4 +1,3 @@
-import { OverlayContainer } from '@angular/cdk/overlay';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
@@ -41,7 +40,8 @@ async function render(lang: 'en' | 'fr' | 'ar' = 'en') {
   fixture.detectChanges();
   await fixture.whenStable();
   const host = fixture.nativeElement as HTMLElement;
-  const overlay = TestBed.inject(OverlayContainer).getContainerElement();
+  // The list is a contained section of the component (no separate overlay).
+  const overlay = host;
   const trigger = host.querySelector<HTMLButtonElement>('.accent-picker__trigger')!;
   const settle = async () => {
     fixture.detectChanges();
@@ -94,7 +94,8 @@ describe('AccentPicker', () => {
   it('shows the current palette in one compact, labelled selector', async () => {
     const { host, trigger, options } = await render();
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
-    expect(trigger.getAttribute('aria-haspopup')).toBe('dialog');
+    // A disclosure: it controls the section only while that section exists.
+    expect(trigger.getAttribute('aria-controls')).toBeNull();
     // Named by the visible label plus the current value; described by "Choose an accent".
     const [label, value] = (trigger.getAttribute('aria-labelledby') ?? '').split(' ');
     expect(label).toBe('accent-label');
@@ -202,46 +203,59 @@ describe('AccentPicker', () => {
     expect(document.activeElement).toBe(trigger);
   });
 
-  it('closes on Escape (the list only, the event goes no further) and on Tab, focus back on the selector', async () => {
-    const { trigger, open, search, options, theme } = await render();
+  it('closes on Escape (the list only: the event goes no further), focus back on the selector', async () => {
+    const { trigger, open, search, options, theme, settle } = await render();
     await open();
     const escape = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
     const outer = vi.fn();
     document.body.addEventListener('keydown', outer);
     search()!.dispatchEvent(escape);
-    await Promise.resolve();
     document.body.removeEventListener('keydown', outer);
+    await settle();
     expect(outer).not.toHaveBeenCalled();
     expect(escape.defaultPrevented).toBe(true);
     expect(theme.accent()).toBe('coral');
     expect(document.activeElement).toBe(trigger);
-
-    await open();
-    expect(options()).toHaveLength(11);
-    const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
-    search()!.dispatchEvent(tab);
-    expect(document.activeElement).toBe(trigger);
-    expect(theme.accent()).toBe('coral');
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(options()).toHaveLength(0);
   });
 
-  it('closes when the selector is pressed again, or on a click elsewhere, without choosing', async () => {
-    const { host, trigger, open, options, settle, theme } = await render();
+  it('closes when the selector is pressed again, without choosing', async () => {
+    const { trigger, open, options, settle, theme } = await render();
     await open();
+    expect(trigger.getAttribute('aria-controls')).toBe(
+      trigger.parentElement?.querySelector('.accent-picker__section')?.id,
+    );
     trigger.click();
     await settle();
     expect(options()).toHaveLength(0);
     expect(document.activeElement).toBe(trigger);
-
-    await open();
-    const elsewhere = host.querySelector<HTMLButtonElement>('.elsewhere')!;
-    elsewhere.focus();
-    elsewhere.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
-    elsewhere.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    await settle();
-    expect(options()).toHaveLength(0);
-    // Focus stays where the user clicked.
-    expect(document.activeElement).toBe(elsewhere);
     expect(theme.accent()).toBe('coral');
+  });
+
+  it('keeps the list inside the component, the search field above the scrolling results', async () => {
+    const { host, open } = await render();
+    await open();
+    const section = host.querySelector('.accent-picker__section');
+    expect(section).not.toBeNull();
+    expect(document.querySelector('.cdk-overlay-container .accent-picker__section')).toBeNull();
+    // The search field is outside the scrolling listbox, so it stays visible while the results scroll.
+    const list = section?.querySelector('[role=listbox]');
+    expect(section?.querySelector('.accent-picker__input')?.closest('[role=listbox]')).toBeNull();
+    expect(list?.querySelectorAll('[role=option]')).toHaveLength(11);
+  });
+
+  it('selects every palette of the registry', async () => {
+    const { open, options, theme, settle } = await render();
+    for (const value of ACCENT_PALETTES) {
+      await open();
+      options()
+        .find((o) => o.dataset['value'] === value)
+        ?.click();
+      await settle();
+      await vi.waitFor(() => expect(theme.accent()).toBe(value));
+      expect(localStorage.getItem('nw.accent')).toBe(value === 'coral' ? null : value);
+    }
   });
 
   it('names and searches the palettes in French (accents ignored) and Arabic', async () => {

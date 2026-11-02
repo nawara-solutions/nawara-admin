@@ -2,10 +2,8 @@
   #trigger
   type="button"
   class="accent-picker__trigger"
-  cdkOverlayOrigin
-  #origin="cdkOverlayOrigin"
-  aria-haspopup="dialog"
   [attr.aria-expanded]="open()"
+  [attr.aria-controls]="open() ? id + '-section' : null"
   [attr.aria-labelledby]="labelledBy() + ' ' + id + '-value'"
   [attr.aria-describedby]="id + '-hint'"
   (click)="toggle()"
@@ -24,21 +22,11 @@
   <nw-icon class="accent-picker__chevron" name="chevron-down" size="sm" />
 </button>
 
-<ng-template
-  cdkConnectedOverlay
-  [cdkConnectedOverlayOrigin]="origin"
-  [cdkConnectedOverlayOpen]="open()"
-  [cdkConnectedOverlayPositions]="positions"
-  [cdkConnectedOverlayWidth]="width()"
-  [cdkConnectedOverlayViewportMargin]="12"
-  [cdkConnectedOverlayPush]="true"
-  (attach)="onAttach()"
-  (overlayOutsideClick)="onOutsideClick($event)"
-  (detach)="close(false)"
->
+@if (open()) {
   <div
-    class="accent-picker__panel"
-    role="dialog"
+    class="accent-picker__section"
+    role="group"
+    [id]="id + '-section'"
     [attr.aria-label]="'preferences.appearance.chooseAccent' | transloco"
   >
     <div class="accent-picker__search">
@@ -105,4 +93,4 @@
       }
     </p>
   </div>
-</ng-template>
+}

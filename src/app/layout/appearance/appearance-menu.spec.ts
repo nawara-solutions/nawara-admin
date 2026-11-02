@@ -48,6 +48,7 @@ async function render() {
 
 describe('AppearanceMenu', () => {
   afterEach(() => {
+    vi.restoreAllMocks();
     localStorage.clear();
     document.body.innerHTML = '';
     vi.unstubAllGlobals();
@@ -68,6 +69,41 @@ describe('AppearanceMenu', () => {
     expect(connected.push).toBe(true);
   });
 
+  it('caps the popover to the room below its trigger, and re-measures on resize', async () => {
+    const { trigger, overlay, settle } = await render();
+    vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ bottom: 58 } as DOMRect);
+    const height = vi.spyOn(window, 'innerHeight', 'get').mockReturnValue(900);
+    trigger.click();
+    await settle();
+    const popover = overlay.querySelector<HTMLElement>('.appearance-menu__popover')!;
+    // 900 − 58 (trigger bottom) − 8 (gap) − 12 (viewport margin): it ends 12 px above the bottom edge, never past it.
+    expect(popover.style.maxBlockSize).toBe('822px');
+
+    height.mockReturnValue(500);
+    window.dispatchEvent(new Event('resize'));
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    await settle();
+    expect(popover.style.maxBlockSize).toBe('422px');
+
+    // Never below a usable minimum: the page scrolls instead.
+    height.mockReturnValue(200);
+    window.dispatchEvent(new Event('resize'));
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    await settle();
+    expect(popover.style.maxBlockSize).toBe('160px');
+  });
+
+  it('opens the accent list inside the popover, not as a second overlay', async () => {
+    const { trigger, overlay, settle } = await render();
+    trigger.click();
+    await settle();
+    overlay.querySelector<HTMLButtonElement>('.accent-picker__trigger')!.click();
+    await settle();
+    const popover = overlay.querySelector('.appearance-menu__popover');
+    expect(popover?.querySelector('.accent-picker__section')).not.toBeNull();
+    expect(overlay.querySelectorAll('.cdk-overlay-pane')).toHaveLength(1);
+  });
+
   it('closes the accent list first on Escape, then the popover, focus returning step by step', async () => {
     const { trigger, overlay, settle, escape } = await render();
     trigger.click();
@@ -83,7 +119,7 @@ describe('AppearanceMenu', () => {
     expect(document.activeElement).toBe(search);
 
     await escape(search);
-    expect(overlay.querySelector('.accent-picker__panel')).toBeNull();
+    expect(overlay.querySelector('.accent-picker__section')).toBeNull();
     expect(overlay.querySelector('.appearance-menu__popover')).not.toBeNull();
     expect(document.activeElement).toBe(selector);
 
@@ -103,6 +139,6 @@ describe('AppearanceMenu', () => {
     list.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await settle();
     expect(overlay.querySelector('.appearance-menu__popover')).not.toBeNull();
-    expect(overlay.querySelector('.accent-picker__panel')).not.toBeNull();
+    expect(overlay.querySelector('.accent-picker__section')).not.toBeNull();
   });
 });
