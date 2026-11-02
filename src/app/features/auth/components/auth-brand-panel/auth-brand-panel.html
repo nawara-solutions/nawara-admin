@@ -8,16 +8,16 @@
   wordmark
 />
 <div class="auth-brand-panel__intro">
-  <p class="auth-brand-panel__tagline">{{ 'auth.brand.tagline' | transloco }}</p>
+  <!-- Spans only (no loose text): the tagline is pre-line, so template whitespace must not reach it. -->
+  <p class="auth-brand-panel__tagline">
+    <span>{{ 'auth.brand.taglineLead' | transloco }}</span>
+    <span class="auth-brand-panel__tagline-emphasis">{{
+      'auth.brand.taglineEmphasis' | transloco
+    }}</span>
+  </p>
   <p class="auth-brand-panel__line">{{ 'auth.brand.line' | transloco }}</p>
 </div>
+<!-- Isolated: the Latin company line keeps its own order ("© 2026 Nawara Solutions") on an Arabic page. -->
 <p class="auth-brand-panel__copyright">
-  <span class="auth-brand-panel__copyright-text"
-    >{{ 'auth.brand.copyright' | transloco }}
-    <span
-      class="auth-brand-panel__copyright-mark"
-      role="img"
-      [attr.aria-label]="'brand.logoLabel' | transloco"
-    ></span
-  ></span>
+  <bdi>{{ 'auth.brand.copyrightCompany' | transloco }}</bdi>
 </p>

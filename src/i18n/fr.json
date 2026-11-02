@@ -64,7 +64,25 @@
     "appearance": {
       "title": "Apparence",
       "mode": "Mode",
+      "modeHint": {
+        "system": "Suit l’apparence de votre appareil.",
+        "light": "Utilise toujours l’apparence claire.",
+        "dark": "Utilise toujours l’apparence sombre."
+      },
       "accent": "Couleur d’accent",
+      "chooseAccent": "Choisir une couleur d’accent",
+      "currentAccent": "Couleur actuelle · {{count}} disponibles",
+      "familyLabel": "Famille de couleurs",
+      "family": {
+        "all": "Toutes",
+        "warm": "Chaudes",
+        "cool": "Froides",
+        "purple": "Violettes",
+        "neutral": "Neutres"
+      },
+      "searchAccents": "Rechercher une couleur",
+      "noAccent": "Aucune couleur ne correspond à « {{query}} ».",
+      "accentResults": "Couleurs correspondantes : {{count}}",
       "note": "Enregistré uniquement dans ce navigateur. Ce réglage ne fait pas partie de votre compte et n’est pas partagé avec vos autres appareils.",
       "reset": "Rétablir les valeurs Nawara"
     }
@@ -1178,8 +1196,11 @@
   "auth": {
     "brand": {
       "tagline": "Des solutions intelligentes\npropulsées par l’IA.",
+      "taglineLead": "Des solutions intelligentes\npropulsées par l’",
+      "taglineEmphasis": "IA.",
       "line": "L’espace d’administration de Nawara Solutions.",
-      "copyright": "© 2026"
+      "copyright": "© 2026",
+      "copyrightCompany": "© 2026 Nawara Solutions"
     },
     "signIn": {
       "title": "Connexion à Nawara Admin",

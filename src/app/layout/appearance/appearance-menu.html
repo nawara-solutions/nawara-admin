@@ -20,6 +20,9 @@
   [cdkConnectedOverlayOrigin]="origin"
   [cdkConnectedOverlayOpen]="open()"
   [cdkConnectedOverlayPositions]="positions"
+  [cdkConnectedOverlayViewportMargin]="12"
+  [cdkConnectedOverlayPush]="true"
+  (attach)="measure(trigger)"
   (overlayOutsideClick)="onOutsideClick($event, trigger)"
   (overlayKeydown)="$event.key === 'Escape' && close()"
   (detach)="close()"
@@ -27,6 +30,7 @@
   <div
     class="appearance-menu__popover"
     role="dialog"
+    [style.max-block-size.px]="maxHeight()"
     [attr.aria-label]="'preferences.appearance.title' | transloco"
     cdkTrapFocus
     [cdkTrapFocusAutoCapture]="true"

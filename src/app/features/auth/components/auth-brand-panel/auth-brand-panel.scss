@@ -10,7 +10,8 @@
   justify-content: space-between;
   gap: var(--nw-space-8);
   block-size: 100dvh;
-  padding: var(--nw-space-8) var(--nw-space-9);
+  // Owner layout 2026-11-02: the logo close to the top start corner, the copyright close to the bottom.
+  padding: var(--nw-space-5) var(--nw-space-7) var(--nw-space-3);
   overflow: hidden;
   background: var(--nw-auth-panel-background);
   isolation: isolate;
@@ -62,15 +63,16 @@
 .auth-brand-panel__logo {
   // The floral-R wordmark alone (owner refinement 2026-10-30: no "SOLUTIONS" line), on the pages' text scale. Set here
   // only, so other logos (sidebar, phone header) keep theirs.
-  // 11 % smaller than the B1 polish size (owner B1 final correction, 2026-11-01).
-  --nw-brand-mark-size: calc(3.04rem * var(--nw-admin-text-scale, 1));
+  // 11 % smaller than the B1 polish size (owner B1 final correction, 2026-11-01), then a further 11 % smaller (owner
+  // layout 2026-11-02).
+  --nw-brand-mark-size: calc(2.7rem * var(--nw-admin-text-scale, 1));
 
   align-self: flex-start;
 }
 
 .auth-brand-panel__intro {
   display: grid;
-  max-inline-size: 24rem;
+  max-inline-size: 34rem;
   margin-block-end: 14vh;
 }
 
@@ -92,46 +94,30 @@
   }
 }
 
+// "AI." in the accent colour (follows the palette; the brand text token meets AA on the panel).
+.auth-brand-panel__tagline-emphasis {
+  color: var(--nw-text-brand);
+}
+
 .auth-brand-panel__line {
-  max-inline-size: 28ch;
-  margin-block-start: 1.125rem;
+  // One line (owner layout 2026-11-02); it still wraps if the panel is too narrow.
+  margin-block-start: var(--nw-space-5);
   color: var(--nw-text-label);
-  font-size: calc(0.9375rem * var(--nw-admin-text-scale, 1));
+  font-size: calc(1.125rem * var(--nw-admin-text-scale, 1));
   line-height: 1.6;
 }
 
-// The footer: quiet, slightly tracked small text and the Nawara Solutions mark, on the panel's bottom margin (no
-// decorative rule, owner B1 polish).
+// The footer: "© 2026 Nawara Solutions" as quiet, compact text on the panel's bottom margin (owner layout 2026-11-02; no
+// decorative rule, no logo mark).
 .auth-brand-panel__copyright {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  color: var(--nw-text-secondary);
-  font-size: calc(0.71875rem * var(--nw-admin-text-scale, 1));
-  letter-spacing: 0.04em;
+  color: var(--nw-text-label);
+  font-size: calc(0.875rem * var(--nw-admin-text-scale, 1));
+  letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
 
   &:lang(ar) {
     letter-spacing: 0;
   }
-}
-
-// The Nawara Solutions mark after "© 2026" (B1, 2026-11-01): the blue-leaf logo of the owner's reference. Its lettering's
-// x-height (57 of the artwork's 174 px) sits a little above the copyright's figures, so the mark reads (owner B1 polish),
-// and its baseline (8 px above the artwork's foot) on the text baseline. Its symbol and pictogram follow the accent palette
-// (abstracts/_logo.scss). The negative top margin keeps the symbol, which rises above the lettering, from growing the line,
-// so the copyright keeps its height, position and text size. Artwork: it never mirrors in RTL.
-.auth-brand-panel__copyright-mark {
-  display: inline-block;
-  block-size: 2.3em;
-  aspect-ratio: 891 / 174;
-  margin-block-start: -1.3em;
-  vertical-align: -0.106em;
-  @include nw.accent-logo(
-    var(--nw-logo-solutions-lettering),
-    var(--nw-logo-solutions-symbol-mask),
-    var(--nw-logo-solutions-symbol-details)
-  );
 }
 
 @media (forced-colors: active) {

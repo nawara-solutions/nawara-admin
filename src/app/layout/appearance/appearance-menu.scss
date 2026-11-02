@@ -52,7 +52,11 @@
   display: grid;
   gap: var(--nw-space-3);
   inline-size: min(22rem, calc(100vw - 2rem));
+  // Its maximum height is the room left below the trigger (AppearanceMenu measures it): on a short screen it scrolls
+  // inside, never past the bottom edge.
   padding: var(--nw-space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--nw-border-subtle);
   border-radius: var(--nw-radius-lg);
   background-color: var(--nw-surface-overlay);

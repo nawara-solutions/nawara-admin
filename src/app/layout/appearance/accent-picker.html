@@ -1,0 +1,113 @@
+<button
+  #trigger
+  type="button"
+  class="accent-picker__trigger"
+  [attr.aria-expanded]="open()"
+  [attr.aria-controls]="open() ? id + '-section' : null"
+  [attr.aria-labelledby]="labelledBy() + ' ' + id + '-value'"
+  [attr.aria-describedby]="id + '-hint'"
+  (click)="toggle()"
+>
+  <span
+    class="accent-picker__swatch"
+    [style.background-color]="current().swatch"
+    aria-hidden="true"
+  ></span>
+  <span class="accent-picker__text">
+    <span class="accent-picker__value" [id]="id + '-value'">{{ current().name }}</span>
+    <span class="accent-picker__hint" [id]="id + '-hint'">{{
+      'preferences.appearance.currentAccent' | transloco: { count }
+    }}</span>
+  </span>
+  <nw-icon class="accent-picker__chevron" name="chevron-down" size="sm" />
+</button>
+
+@if (open()) {
+  <div
+    class="accent-picker__section"
+    role="group"
+    [id]="id + '-section'"
+    [attr.aria-label]="'preferences.appearance.chooseAccent' | transloco"
+  >
+    <div class="accent-picker__search">
+      <nw-icon class="accent-picker__search-icon" name="search" size="sm" />
+      <input
+        #search
+        class="accent-picker__input"
+        type="text"
+        role="combobox"
+        autocomplete="off"
+        spellcheck="false"
+        aria-autocomplete="list"
+        aria-expanded="true"
+        [attr.aria-controls]="id + '-listbox'"
+        [attr.aria-activedescendant]="activeId()"
+        [attr.aria-label]="'preferences.appearance.searchAccents' | transloco"
+        [placeholder]="'preferences.appearance.searchAccents' | transloco"
+        [value]="query()"
+        (input)="onQuery(search.value)"
+        (keydown)="onKeydown($event)"
+      />
+    </div>
+
+    <div
+      class="accent-picker__families"
+      role="group"
+      [attr.aria-label]="'preferences.appearance.familyLabel' | transloco"
+    >
+      @for (option of families; track option.value) {
+        <button
+          type="button"
+          class="accent-picker__family"
+          [attr.aria-pressed]="family() === option.value"
+          (click)="setFamily(option.value)"
+        >
+          {{ option.labelKey | transloco }}
+        </button>
+      }
+    </div>
+
+    <ul
+      #listbox
+      class="accent-picker__list"
+      role="listbox"
+      [id]="id + '-listbox'"
+      [attr.aria-labelledby]="labelledBy()"
+      [hidden]="filtered().length === 0"
+      tabindex="-1"
+      (mousedown)="$event.preventDefault()"
+      (click)="onListClick($event)"
+      (keydown)="onKeydown($event)"
+    >
+      @for (accent of filtered(); track accent.value; let index = $index) {
+        <li
+          class="accent-picker__option"
+          role="option"
+          [id]="optionId(accent.value)"
+          [class.accent-picker__option--active]="index === activeIndex()"
+          [attr.aria-selected]="accent.value === theme.accent()"
+          [attr.data-value]="accent.value"
+        >
+          <span
+            class="accent-picker__swatch"
+            [style.background-color]="accent.swatch"
+            aria-hidden="true"
+          ></span>
+          <span class="accent-picker__name">{{ accent.name }}</span>
+          <nw-icon class="accent-picker__check" name="check" size="sm" />
+        </li>
+      }
+    </ul>
+
+    @if (filtered().length === 0) {
+      <p class="accent-picker__empty">
+        {{ 'preferences.appearance.noAccent' | transloco: { query: query() } }}
+      </p>
+    }
+    <p class="nw-visually-hidden" role="status" aria-live="polite">
+      @if (query()) {
+        {{ 'preferences.appearance.accentResults' | transloco: { count: filtered().length } }}
+      }
+    </p>
+  </div>
+}

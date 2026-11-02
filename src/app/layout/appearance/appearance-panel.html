@@ -1,4 +1,4 @@
-<fieldset class="appearance-panel__group">
+<fieldset class="appearance-panel__group" [attr.aria-describedby]="id + '-mode-hint'">
   <legend class="appearance-panel__legend">{{ 'preferences.appearance.mode' | transloco }}</legend>
   <div class="appearance-panel__modes">
     @for (mode of modes; track mode.value) {
@@ -16,35 +16,18 @@
       </label>
     }
   </div>
+  <p class="appearance-panel__hint" [id]="id + '-mode-hint'">{{ modeHint() | transloco }}</p>
 </fieldset>
 
-<fieldset class="appearance-panel__group">
-  <legend class="appearance-panel__legend">
+<div class="appearance-panel__group">
+  <span
+    class="appearance-panel__legend appearance-panel__legend--label"
+    [id]="id + '-accent-label'"
+  >
     {{ 'preferences.appearance.accent' | transloco }}
-  </legend>
-  <div class="appearance-panel__accents">
-    @for (accent of accents; track accent.value) {
-      <label class="appearance-panel__accent">
-        <input
-          class="appearance-panel__input"
-          type="radio"
-          [name]="id + '-accent'"
-          [value]="accent.value"
-          [checked]="theme.accent() === accent.value"
-          (change)="theme.setAccent(accent.value)"
-        />
-        <span
-          class="appearance-panel__swatch"
-          [class]="'appearance-panel__swatch--' + accent.value"
-          aria-hidden="true"
-        >
-          <nw-icon class="appearance-panel__check" name="check" size="sm" />
-        </span>
-        <span class="appearance-panel__accent-name">{{ accent.labelKey | transloco }}</span>
-      </label>
-    }
-  </div>
-</fieldset>
+  </span>
+  <adm-accent-picker [labelledBy]="id + '-accent-label'" />
+</div>
 
 <div class="appearance-panel__footer">
   <p class="appearance-panel__note">{{ 'preferences.appearance.note' | transloco }}</p>

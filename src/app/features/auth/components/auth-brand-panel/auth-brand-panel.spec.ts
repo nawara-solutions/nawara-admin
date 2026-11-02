@@ -6,7 +6,7 @@ import fr from '../../../../../i18n/fr.json';
 import { settle } from '../../testing/auth-testing';
 import { AuthBrandPanel } from './auth-brand-panel';
 
-/** B1 (2026-11-01): the blue-leaf logos on the sign-in brand panel; the rest of the panel is unchanged. */
+/** The sign-in brand panel: the Nawara Admin logo (B1), the headline and the copyright (owner layout 2026-11-02). */
 describe('AuthBrandPanel logos', () => {
   async function render(lang: 'en' | 'fr' | 'ar') {
     TestBed.configureTestingModule({
@@ -39,17 +39,31 @@ describe('AuthBrandPanel logos', () => {
       expect(logo?.querySelector('.nw-brand-mark__solutions')).toBeNull();
     });
 
-    it(`${lang}: the copyright keeps "© 2026" as text, then the Nawara Solutions mark as one named image`, async () => {
+    it(`${lang}: the copyright reads "© 2026 Nawara Solutions" as compact, direction-isolated text`, async () => {
       const panel = await render(lang);
       const copyright = panel.querySelector('.auth-brand-panel__copyright');
-      expect(copyright?.textContent?.trim()).toBe('© 2026');
-      expect(catalog.auth.brand.copyright).toBe('© 2026');
-      const mark = copyright?.querySelector('.auth-brand-panel__copyright-mark');
-      expect(mark?.getAttribute('role')).toBe('img');
-      expect(mark?.getAttribute('aria-label')).toBe(catalog.brand.logoLabel);
-      expect(mark?.textContent).toBe('');
-      // Artwork through a theme token (light or dark lettering), never an <img> fetched per language.
-      expect(copyright?.querySelector('img')).toBeNull();
+      expect(copyright?.textContent?.trim()).toBe('© 2026 Nawara Solutions');
+      expect(catalog.auth.brand.copyrightCompany).toBe('© 2026 Nawara Solutions');
+      // <bdi>: the Latin line keeps its order on an Arabic (RTL) page.
+      expect(copyright?.querySelector('bdi')?.textContent?.trim()).toBe('© 2026 Nawara Solutions');
+      expect(copyright?.querySelector('img, [role=img]')).toBeNull();
+    });
+
+    it(`${lang}: the headline keeps its wording, its last words in the accent colour`, async () => {
+      const panel = await render(lang);
+      const tagline = panel.querySelector('.auth-brand-panel__tagline');
+      const emphasis = tagline?.querySelector('.auth-brand-panel__tagline-emphasis');
+      expect(emphasis?.textContent?.trim()).toBe(catalog.auth.brand.taglineEmphasis);
+      // Lead + emphasis is exactly the full tagline (same wording and line breaks as the phone footer).
+      expect(catalog.auth.brand.taglineLead + catalog.auth.brand.taglineEmphasis).toBe(
+        catalog.auth.brand.tagline,
+      );
+      expect(tagline?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+        catalog.auth.brand.tagline.replace(/\s+/g, ' '),
+      );
+      expect(panel.querySelector('.auth-brand-panel__line')?.textContent?.trim()).toBe(
+        catalog.auth.brand.line,
+      );
     });
   }
 

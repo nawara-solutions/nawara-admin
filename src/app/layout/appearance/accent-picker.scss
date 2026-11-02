@@ -1,0 +1,262 @@
+@use 'abstracts' as nw;
+
+:host {
+  display: block;
+  min-inline-size: 0;
+}
+
+// The selector: one compact row, styled like the panel's other fields.
+.accent-picker__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-3);
+  inline-size: 100%;
+  min-block-size: 3.5rem;
+  padding: var(--nw-space-2) var(--nw-space-3);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-raised);
+  color: var(--nw-text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover,
+  &[aria-expanded='true'] {
+    border-color: var(--nw-border-strong);
+    background-color: var(--nw-surface-sunken);
+  }
+
+  &[aria-expanded='true'] .accent-picker__chevron {
+    transform: rotate(180deg);
+  }
+
+  &:focus-visible {
+    @include nw.focus-ring;
+  }
+}
+
+.accent-picker__swatch {
+  flex-shrink: 0;
+  inline-size: 1rem;
+  block-size: 1rem;
+  border-radius: var(--nw-radius-pill);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--nw-text-primary) 12%, transparent);
+}
+
+// The selector's swatch: the current accent, large.
+.accent-picker__trigger > .accent-picker__swatch {
+  inline-size: 2rem;
+  block-size: 2rem;
+}
+
+.accent-picker__text {
+  display: grid;
+  flex: 1;
+  min-inline-size: 0;
+  line-height: 1.25;
+}
+
+.accent-picker__value {
+  overflow: hidden;
+  font-size: 0.9375rem;
+  font-weight: var(--nw-font-weight-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accent-picker__hint {
+  overflow: hidden;
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accent-picker__chevron {
+  flex-shrink: 0;
+  color: var(--nw-text-secondary);
+  transition: transform 120ms ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+// The palette list, expanded in place under the selector (a contained section of the Appearance panel, not an overlay):
+// the search field on top, then the results, which alone scroll. The results' height is capped (and shrinks on short
+// screens), so 11 or 100 palettes take the same room.
+.accent-picker__section {
+  display: grid;
+  gap: var(--nw-space-2);
+  margin-block-start: var(--nw-space-2);
+  padding: var(--nw-space-3);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-lg);
+  background-color: var(--nw-surface-sunken);
+}
+
+.accent-picker__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.accent-picker__search-icon {
+  position: absolute;
+  inset-inline-start: 0.875rem;
+  color: var(--nw-text-secondary);
+  pointer-events: none;
+}
+
+.accent-picker__input {
+  inline-size: 100%;
+  min-block-size: 2.5rem;
+  padding-block: 0;
+  padding-inline: 2.25rem 0.875rem;
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-surface-raised);
+  color: var(--nw-text-primary);
+  font: inherit;
+  font-size: 0.8125rem;
+
+  &::placeholder {
+    color: var(--nw-text-secondary);
+  }
+
+  &:focus-visible {
+    @include nw.focus-ring;
+  }
+}
+
+// Family filter: pill chips; the pressed one filled.
+.accent-picker__families {
+  display: flex;
+  gap: 0.25rem;
+  // One row; a longer translation scrolls sideways inside the panel instead of wrapping.
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.accent-picker__family {
+  flex-shrink: 0;
+  min-block-size: 1.75rem;
+  padding: 0 0.625rem;
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-pill);
+  background-color: transparent;
+  color: var(--nw-text-label);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--nw-border-strong);
+    color: var(--nw-text-primary);
+  }
+
+  &[aria-pressed='true'] {
+    border-color: var(--nw-text-primary);
+    background-color: var(--nw-text-primary);
+    color: var(--nw-surface-raised);
+    font-weight: var(--nw-font-weight-semibold);
+  }
+
+  &:focus-visible {
+    @include nw.focus-ring;
+  }
+}
+
+// The results: compact cards, two per row.
+.accent-picker__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: var(--nw-space-2);
+  padding-inline-end: 0.25rem;
+  max-block-size: min(13rem, 34dvh);
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.accent-picker__option {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  min-inline-size: 0;
+  min-block-size: 2.5rem;
+  padding: 0.25rem var(--nw-space-3);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-raised);
+  font-size: 0.8125rem;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--nw-border-default);
+  }
+
+  // The keyboard's current option: a visible outline, never colour alone.
+  &--active {
+    background-color: var(--nw-color-neutral-hover);
+    box-shadow: inset 0 0 0 1px var(--nw-color-primary);
+  }
+
+  // Selected: bold name and the check mark.
+  &[aria-selected='true'] {
+    border-color: var(--nw-color-primary);
+    font-weight: var(--nw-font-weight-semibold);
+
+    .accent-picker__check {
+      visibility: visible;
+    }
+  }
+}
+
+.accent-picker__name {
+  flex: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accent-picker__check {
+  flex-shrink: 0;
+  color: var(--nw-text-brand);
+  visibility: hidden;
+}
+
+.accent-picker__empty {
+  padding: var(--nw-space-3) var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+  text-align: center;
+}
+
+@media (forced-colors: active) {
+  .accent-picker__section {
+    border-color: CanvasText;
+  }
+
+  .accent-picker__family[aria-pressed='true'] {
+    outline: 2px solid Highlight;
+  }
+
+  .accent-picker__option--active {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  .accent-picker__swatch {
+    forced-color-adjust: none;
+  }
+}

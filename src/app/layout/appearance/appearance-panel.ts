@@ -1,15 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import {
-  ACCENT_PALETTES,
-  AccentPalette,
-  THEME_PREFERENCES,
-  ThemePreference,
-  ThemeService,
-} from '../../core/theme/theme.service';
+import { THEME_PREFERENCES, ThemePreference, ThemeService } from '../../core/theme/theme.service';
 import { NwButton } from '../../shared/ui/button/button';
 import { NwIcon } from '../../shared/ui/icon/icon';
 import { NwIconName } from '../../shared/ui/icon/icon.registry';
+import { AccentPicker } from './accent-picker';
 
 const MODES = {
   light: { icon: 'sun', labelKey: 'preferences.theme.light' },
@@ -17,19 +12,11 @@ const MODES = {
   system: { icon: 'monitor', labelKey: 'preferences.theme.system' },
 } as const satisfies Record<ThemePreference, { icon: NwIconName; labelKey: string }>;
 
-const ACCENT_KEYS = {
-  coral: 'preferences.accent.coral',
-  rose: 'preferences.accent.rose',
-  plum: 'preferences.accent.plum',
-  indigo: 'preferences.accent.indigo',
-  teal: 'preferences.accent.teal',
-  amber: 'preferences.accent.amber',
-  midnight: 'preferences.accent.midnight',
-  pearl: 'preferences.accent.pearl',
-  sapphire: 'preferences.accent.sapphire',
-  emerald: 'preferences.accent.emerald',
-  burgundy: 'preferences.accent.burgundy',
-} as const satisfies Record<AccentPalette, string>;
+const MODE_HINTS = {
+  system: 'preferences.appearance.modeHint.system',
+  light: 'preferences.appearance.modeHint.light',
+  dark: 'preferences.appearance.modeHint.dark',
+} as const satisfies Record<ThemePreference, string>;
 
 let nextId = 0;
 
@@ -38,12 +25,14 @@ let nextId = 0;
  * the Nawara defaults. One panel, used by the Appearance popover (sign-in pages, top bar) and by Settings → Appearance,
  * all bound to the same ThemeService state. Changes apply at once.
  *
- * Native radio groups inside fieldsets: arrow keys move the choice, and the checked state is what a screen reader
- * announces. Available before and after sign-in; it never depends on the session, role or scope.
+ * Mode is a native radio group inside a fieldset (arrow keys move the choice; the checked state is what a screen reader
+ * announces), described by a one-line hint for the chosen mode. Accent is one compact selector that opens a searchable
+ * palette list (AccentPicker), so the panel keeps its height however many palettes the registry holds. Available before
+ * and after sign-in; it never depends on the session, role or scope.
  */
 @Component({
   selector: 'adm-appearance-panel',
-  imports: [TranslocoPipe, NwButton, NwIcon],
+  imports: [TranslocoPipe, NwButton, NwIcon, AccentPicker],
   templateUrl: './appearance-panel.html',
   styleUrl: './appearance-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,8 +42,5 @@ export class AppearancePanel {
   protected readonly theme = inject(ThemeService);
   protected readonly id = `appearance-${nextId++}`;
   protected readonly modes = THEME_PREFERENCES.map((value) => ({ value, ...MODES[value] }));
-  protected readonly accents = ACCENT_PALETTES.map((value) => ({
-    value,
-    labelKey: ACCENT_KEYS[value],
-  }));
+  protected readonly modeHint = computed(() => MODE_HINTS[this.theme.preference()]);
 }

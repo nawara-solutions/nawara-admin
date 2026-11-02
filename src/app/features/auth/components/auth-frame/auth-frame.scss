@@ -58,8 +58,10 @@
     padding: var(--nw-space-5) var(--nw-space-7);
   }
 
+  // The controls a little closer to the end edge, as in the owner's layout (2026-11-02); same height, so the card stays.
   @include nw.from(desktop) {
     justify-content: flex-end;
+    padding-inline-end: var(--nw-space-6);
   }
 }
 
