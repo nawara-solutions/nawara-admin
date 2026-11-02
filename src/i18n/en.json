@@ -64,7 +64,16 @@
     "appearance": {
       "title": "Appearance",
       "mode": "Mode",
+      "modeHint": {
+        "system": "Follows your device appearance.",
+        "light": "Always uses the light appearance.",
+        "dark": "Always uses the dark appearance."
+      },
       "accent": "Accent colour",
+      "chooseAccent": "Choose an accent",
+      "searchAccents": "Search accents",
+      "noAccent": "No accent matches “{{query}}”.",
+      "accentResults": "Matching accents: {{count}}",
       "note": "Saved in this browser only. It is not part of your account and is not shared with other devices.",
       "reset": "Reset to Nawara default"
     }

@@ -16,7 +16,10 @@ import { AppearancePanel } from './appearance-panel';
 
 const MODE_ICONS = { light: 'sun', dark: 'moon', system: 'monitor' } as const;
 
-/** Below the trigger, aligned to its end edge (start edge as fallback); CDK mirrors these in RTL. */
+/**
+ * Below the trigger, aligned to its end edge (start edge as fallback), 8 px away; CDK mirrors these in RTL. A 12 px
+ * viewport margin and `push` keep it on screen on narrow viewports instead of letting it overflow.
+ */
 const POSITIONS: ConnectedPosition[] = [
   { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 8 },
   { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 8 },

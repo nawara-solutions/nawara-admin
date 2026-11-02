@@ -1,0 +1,108 @@
+<button
+  #trigger
+  type="button"
+  class="accent-picker__trigger"
+  cdkOverlayOrigin
+  #origin="cdkOverlayOrigin"
+  aria-haspopup="dialog"
+  [attr.aria-expanded]="open()"
+  [attr.aria-labelledby]="labelledBy() + ' ' + id + '-value'"
+  [attr.aria-describedby]="id + '-hint'"
+  (click)="toggle()"
+>
+  <span
+    class="accent-picker__swatch"
+    [style.background-color]="current().swatch"
+    aria-hidden="true"
+  ></span>
+  <span class="accent-picker__text">
+    <span class="accent-picker__value" [id]="id + '-value'">{{ current().name }}</span>
+    <span class="accent-picker__hint" [id]="id + '-hint'">{{
+      'preferences.appearance.chooseAccent' | transloco
+    }}</span>
+  </span>
+  <nw-icon class="accent-picker__chevron" name="chevron-down" size="sm" />
+</button>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="origin"
+  [cdkConnectedOverlayOpen]="open()"
+  [cdkConnectedOverlayPositions]="positions"
+  [cdkConnectedOverlayWidth]="width()"
+  [cdkConnectedOverlayViewportMargin]="12"
+  [cdkConnectedOverlayPush]="true"
+  (attach)="onAttach()"
+  (overlayOutsideClick)="onOutsideClick($event)"
+  (detach)="close(false)"
+>
+  <div
+    class="accent-picker__panel"
+    role="dialog"
+    [attr.aria-label]="'preferences.appearance.chooseAccent' | transloco"
+  >
+    <div class="accent-picker__search">
+      <nw-icon class="accent-picker__search-icon" name="search" size="sm" />
+      <input
+        #search
+        class="accent-picker__input"
+        type="text"
+        role="combobox"
+        autocomplete="off"
+        spellcheck="false"
+        aria-autocomplete="list"
+        aria-expanded="true"
+        [attr.aria-controls]="id + '-listbox'"
+        [attr.aria-activedescendant]="activeId()"
+        [attr.aria-label]="'preferences.appearance.searchAccents' | transloco"
+        [placeholder]="'preferences.appearance.searchAccents' | transloco"
+        [value]="query()"
+        (input)="onQuery(search.value)"
+        (keydown)="onKeydown($event)"
+      />
+    </div>
+
+    <ul
+      #listbox
+      class="accent-picker__list"
+      role="listbox"
+      [id]="id + '-listbox'"
+      [attr.aria-labelledby]="labelledBy()"
+      [hidden]="filtered().length === 0"
+      tabindex="-1"
+      (mousedown)="$event.preventDefault()"
+      (click)="onListClick($event)"
+      (keydown)="onKeydown($event)"
+    >
+      @for (accent of filtered(); track accent.value; let index = $index) {
+        <li
+          class="accent-picker__option"
+          role="option"
+          [id]="optionId(accent.value)"
+          [class.accent-picker__option--active]="index === activeIndex()"
+          [attr.aria-selected]="accent.value === theme.accent()"
+          [attr.data-value]="accent.value"
+        >
+          <span
+            class="accent-picker__swatch"
+            [style.background-color]="accent.swatch"
+            aria-hidden="true"
+          ></span>
+          <span class="accent-picker__name">{{ accent.name }}</span>
+          <nw-icon class="accent-picker__check" name="check" size="sm" />
+        </li>
+      }
+    </ul>
+
+    @if (filtered().length === 0) {
+      <p class="accent-picker__empty">
+        {{ 'preferences.appearance.noAccent' | transloco: { query: query() } }}
+      </p>
+    }
+    <p class="nw-visually-hidden" role="status" aria-live="polite">
+      @if (query()) {
+        {{ 'preferences.appearance.accentResults' | transloco: { count: filtered().length } }}
+      }
+    </p>
+  </div>
+</ng-template>

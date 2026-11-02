@@ -1,0 +1,212 @@
+@use 'abstracts' as nw;
+
+:host {
+  display: block;
+  min-inline-size: 0;
+}
+
+// The selector: one compact row, styled like the panel's other fields.
+.accent-picker__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-3);
+  inline-size: 100%;
+  min-block-size: 2.75rem;
+  padding: 0.375rem var(--nw-space-3);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-raised);
+  color: var(--nw-text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover,
+  &[aria-expanded='true'] {
+    border-color: var(--nw-border-strong);
+    background-color: var(--nw-surface-sunken);
+  }
+
+  &[aria-expanded='true'] .accent-picker__chevron {
+    transform: rotate(180deg);
+  }
+
+  &:focus-visible {
+    @include nw.focus-ring;
+  }
+}
+
+.accent-picker__swatch {
+  flex-shrink: 0;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  border-radius: var(--nw-radius-pill);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--nw-text-primary) 12%, transparent);
+}
+
+.accent-picker__text {
+  display: grid;
+  flex: 1;
+  min-inline-size: 0;
+  line-height: 1.25;
+}
+
+.accent-picker__value {
+  overflow: hidden;
+  font-size: 0.8125rem;
+  font-weight: var(--nw-font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accent-picker__hint {
+  overflow: hidden;
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accent-picker__chevron {
+  flex-shrink: 0;
+  color: var(--nw-text-secondary);
+  transition: transform 120ms ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+// The palette list: a search field above a scrolling listbox. Its height is capped, so 11 or 100 palettes take the same
+// room; it never grows the Appearance panel.
+.accent-picker__panel {
+  display: grid;
+  // The overlay pane is a flex row: fill it, so the list is exactly as wide as the selector.
+  flex: 1;
+  min-inline-size: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--nw-space-2);
+  max-block-size: min(20rem, calc(100dvh - 2rem));
+  padding: var(--nw-space-2);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-overlay);
+  box-shadow: var(--nw-shadow-md);
+  color: var(--nw-text-primary);
+}
+
+.accent-picker__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.accent-picker__search-icon {
+  position: absolute;
+  inset-inline-start: 0.625rem;
+  color: var(--nw-text-secondary);
+  pointer-events: none;
+}
+
+.accent-picker__input {
+  inline-size: 100%;
+  min-block-size: 2.25rem;
+  padding-block: 0;
+  padding-inline: 2rem 0.625rem;
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-sm);
+  background-color: var(--nw-surface-raised);
+  color: var(--nw-text-primary);
+  font: inherit;
+  font-size: 0.8125rem;
+
+  &::placeholder {
+    color: var(--nw-text-secondary);
+  }
+
+  &:focus-visible {
+    @include nw.focus-ring;
+  }
+}
+
+.accent-picker__list {
+  display: grid;
+  align-content: start;
+  gap: 1px;
+  min-block-size: 0;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.accent-picker__option {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-3);
+  min-block-size: 2.25rem;
+  padding: 0.25rem var(--nw-space-2);
+  border-radius: var(--nw-radius-sm);
+  font-size: 0.8125rem;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--nw-color-neutral-hover);
+  }
+
+  // The keyboard's current option: a visible outline, never colour alone.
+  &--active {
+    background-color: var(--nw-color-neutral-hover);
+    box-shadow: inset 0 0 0 1px var(--nw-color-primary);
+  }
+
+  // Selected: bold name and the check mark.
+  &[aria-selected='true'] {
+    font-weight: var(--nw-font-weight-semibold);
+
+    .accent-picker__check {
+      visibility: visible;
+    }
+  }
+}
+
+.accent-picker__name {
+  flex: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accent-picker__check {
+  flex-shrink: 0;
+  color: var(--nw-text-brand);
+  visibility: hidden;
+}
+
+.accent-picker__empty {
+  padding: var(--nw-space-3) var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+  text-align: center;
+}
+
+@media (forced-colors: active) {
+  .accent-picker__panel {
+    border-color: CanvasText;
+  }
+
+  .accent-picker__option--active {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  .accent-picker__swatch {
+    forced-color-adjust: none;
+  }
+}

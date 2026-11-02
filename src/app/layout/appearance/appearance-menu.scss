@@ -51,8 +51,13 @@
 .appearance-menu__popover {
   display: grid;
   gap: var(--nw-space-3);
-  inline-size: min(22rem, calc(100vw - 2rem));
+  // Compact (owner refinement 2026-11-02): the accent list opens beside it, so the panel never grows with the palettes.
+  // On a short viewport it scrolls inside, never past the screen edge.
+  inline-size: min(20rem, calc(100vw - 1.5rem));
+  max-block-size: calc(100dvh - 5rem);
   padding: var(--nw-space-4);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--nw-border-subtle);
   border-radius: var(--nw-radius-lg);
   background-color: var(--nw-surface-overlay);

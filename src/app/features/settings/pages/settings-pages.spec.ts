@@ -196,9 +196,9 @@ describe('Settings pages (P9-S1)', () => {
     links(root())[0]?.click();
     await settle();
     expect(router.url).toBe('/settings/appearance');
-    // The Appearance panel: three modes, the eleven palettes, the reset.
+    // The Appearance panel: three modes, the compact accent selector (its list holds the palettes), the reset.
     expect(root().querySelectorAll('input[type=radio][name$="-mode"]')).toHaveLength(3);
-    expect(root().querySelectorAll('input[type=radio][name$="-accent"]')).toHaveLength(11);
+    expect(root().querySelectorAll('.accent-picker__trigger')).toHaveLength(1);
     expect(root().querySelector('.appearance-panel__reset')).not.toBeNull();
   });
 

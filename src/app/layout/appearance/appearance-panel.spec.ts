@@ -9,6 +9,8 @@ function render() {
     matches: false,
     addEventListener: () => undefined,
     removeEventListener: () => undefined,
+    addListener: () => undefined,
+    removeListener: () => undefined,
   }));
   TestBed.configureTestingModule({
     imports: [
@@ -23,9 +25,11 @@ function render() {
   const fixture = TestBed.createComponent(AppearancePanel);
   fixture.detectChanges();
   const host = fixture.nativeElement as HTMLElement;
-  const radios = (group: string) =>
-    Array.from(host.querySelectorAll<HTMLInputElement>(`input[type=radio][name$="-${group}"]`));
-  return { fixture, host, radios, theme: TestBed.inject(ThemeService) };
+  const modes = () =>
+    Array.from(host.querySelectorAll<HTMLInputElement>('input[type=radio][name$="-mode"]'));
+  const text = (selector: string) =>
+    host.querySelector(selector)?.textContent?.replace(/\s+/g, ' ').trim();
+  return { fixture, host, modes, text, theme: TestBed.inject(ThemeService) };
 }
 
 describe('AppearancePanel', () => {
@@ -35,57 +39,66 @@ describe('AppearancePanel', () => {
     vi.unstubAllGlobals();
   });
 
-  it('offers the three modes and the eleven named palettes as native radio groups', () => {
-    const { host, radios } = render();
-    const legends = Array.from(host.querySelectorAll('fieldset legend')).map((l) =>
-      l.textContent?.trim(),
-    );
-    expect(legends).toEqual([en.preferences.appearance.mode, en.preferences.appearance.accent]);
-    expect(radios('mode').map((r) => r.value)).toEqual(['system', 'light', 'dark']);
-    expect(radios('accent').map((r) => r.closest('label')?.textContent?.trim())).toEqual([
-      'Coral',
-      'Rose',
-      'Plum',
-      'Indigo',
-      'Teal',
-      'Amber',
-      'Midnight',
-      'Pearl',
-      'Sapphire',
-      'Emerald',
-      'Burgundy',
+  it('keeps Mode, Accent colour, the browser-only note and the reset, in that order', () => {
+    const { host, modes, text } = render();
+    const sections = Array.from(
+      host.querySelectorAll(
+        '.appearance-panel__legend, .appearance-panel__note, .appearance-panel__reset',
+      ),
+    ).map((element) => element.textContent?.replace(/\s+/g, ' ').trim());
+    expect(sections).toEqual([
+      en.preferences.appearance.mode,
+      en.preferences.appearance.accent,
+      en.preferences.appearance.note,
+      en.preferences.appearance.reset,
     ]);
+    expect(modes().map((r) => r.value)).toEqual(['system', 'light', 'dark']);
     // The checked radio is what assistive technology announces as selected.
-    expect(radios('mode').find((r) => r.checked)?.value).toBe('system');
-    expect(radios('accent').find((r) => r.checked)?.value).toBe('coral');
+    expect(modes().find((r) => r.checked)?.value).toBe('system');
+    // Accent: one compact selector showing the current palette, never the whole list.
+    expect(host.querySelectorAll('.accent-picker__trigger')).toHaveLength(1);
+    expect(host.querySelectorAll('[role=option], input[name$="-accent"]')).toHaveLength(0);
+    expect(text('.accent-picker__value')).toBe('Coral');
   });
 
-  it('applies a choice at once and reflects it', async () => {
-    const { fixture, radios, theme } = render();
-    const teal = radios('accent').find((r) => r.value === 'teal');
-    teal?.click();
+  it('describes the chosen mode under the segmented control', async () => {
+    const { fixture, host, modes, text, theme } = render();
+    const fieldset = host.querySelector('fieldset');
+    const hint = host.querySelector('.appearance-panel__hint');
+    expect(fieldset?.getAttribute('aria-describedby')).toBe(hint?.id);
+    expect(text('.appearance-panel__hint')).toBe(en.preferences.appearance.modeHint.system);
+
+    modes()
+      .find((r) => r.value === 'light')
+      ?.click();
     await fixture.whenStable();
-    expect(theme.accent()).toBe('teal');
-    expect(teal?.checked).toBe(true);
-    radios('mode')
+    expect(theme.preference()).toBe('light');
+    expect(text('.appearance-panel__hint')).toBe(en.preferences.appearance.modeHint.light);
+
+    modes()
       .find((r) => r.value === 'dark')
       ?.click();
-    expect(theme.preference()).toBe('dark');
+    await fixture.whenStable();
+    expect(text('.appearance-panel__hint')).toBe(en.preferences.appearance.modeHint.dark);
   });
 
-  it('enables reset only after a change, and resets to the Nawara defaults', async () => {
-    const { fixture, host, radios, theme } = render();
+  it('enables reset only after a change, and resets mode and accent to the Nawara defaults', async () => {
+    const { fixture, host, modes, text, theme } = render();
     const reset = host.querySelector<HTMLButtonElement>('.appearance-panel__reset');
     expect(reset?.disabled).toBe(true);
-    radios('accent')
-      .find((r) => r.value === 'amber')
-      ?.click();
+    await theme.setAccent('amber');
+    theme.setPreference('dark');
     await fixture.whenStable();
     expect(reset?.disabled).toBe(false);
+    expect(text('.accent-picker__value')).toBe('Amber');
+
     reset?.click();
     await fixture.whenStable();
     expect(theme.accent()).toBe('coral');
-    expect(radios('accent').find((r) => r.checked)?.value).toBe('coral');
-    expect(host.textContent).toContain(en.preferences.appearance.note);
+    expect(theme.preference()).toBe('system');
+    expect(modes().find((r) => r.checked)?.value).toBe('system');
+    expect(text('.accent-picker__value')).toBe('Coral');
+    expect(localStorage.getItem('nw.accent')).toBeNull();
+    expect(localStorage.getItem('nw.theme')).toBeNull();
   });
 });

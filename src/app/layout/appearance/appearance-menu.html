@@ -20,6 +20,8 @@
   [cdkConnectedOverlayOrigin]="origin"
   [cdkConnectedOverlayOpen]="open()"
   [cdkConnectedOverlayPositions]="positions"
+  [cdkConnectedOverlayViewportMargin]="12"
+  [cdkConnectedOverlayPush]="true"
   (overlayOutsideClick)="onOutsideClick($event, trigger)"
   (overlayKeydown)="$event.key === 'Escape' && close()"
   (detach)="close()"

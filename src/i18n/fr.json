@@ -64,7 +64,16 @@
     "appearance": {
       "title": "Apparence",
       "mode": "Mode",
+      "modeHint": {
+        "system": "Suit l’apparence de votre appareil.",
+        "light": "Utilise toujours l’apparence claire.",
+        "dark": "Utilise toujours l’apparence sombre."
+      },
       "accent": "Couleur d’accent",
+      "chooseAccent": "Choisir une couleur d’accent",
+      "searchAccents": "Rechercher une couleur",
+      "noAccent": "Aucune couleur ne correspond à « {{query}} ».",
+      "accentResults": "Couleurs correspondantes : {{count}}",
       "note": "Enregistré uniquement dans ce navigateur. Ce réglage ne fait pas partie de votre compte et n’est pas partagé avec vos autres appareils.",
       "reset": "Rétablir les valeurs Nawara"
     }
