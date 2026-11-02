@@ -16,7 +16,7 @@
   <span class="accent-picker__text">
     <span class="accent-picker__value" [id]="id + '-value'">{{ current().name }}</span>
     <span class="accent-picker__hint" [id]="id + '-hint'">{{
-      'preferences.appearance.chooseAccent' | transloco
+      'preferences.appearance.currentAccent' | transloco: { count }
     }}</span>
   </span>
   <nw-icon class="accent-picker__chevron" name="chevron-down" size="sm" />
@@ -48,6 +48,23 @@
         (input)="onQuery(search.value)"
         (keydown)="onKeydown($event)"
       />
+    </div>
+
+    <div
+      class="accent-picker__families"
+      role="group"
+      [attr.aria-label]="'preferences.appearance.familyLabel' | transloco"
+    >
+      @for (option of families; track option.value) {
+        <button
+          type="button"
+          class="accent-picker__family"
+          [attr.aria-pressed]="family() === option.value"
+          (click)="setFamily(option.value)"
+        >
+          {{ option.labelKey | transloco }}
+        </button>
+      }
     </div>
 
     <ul

@@ -71,6 +71,15 @@
       },
       "accent": "Couleur d’accent",
       "chooseAccent": "Choisir une couleur d’accent",
+      "currentAccent": "Couleur actuelle · {{count}} disponibles",
+      "familyLabel": "Famille de couleurs",
+      "family": {
+        "all": "Toutes",
+        "warm": "Chaudes",
+        "cool": "Froides",
+        "purple": "Violettes",
+        "neutral": "Neutres"
+      },
       "searchAccents": "Rechercher une couleur",
       "noAccent": "Aucune couleur ne correspond à « {{query}} ».",
       "accentResults": "Couleurs correspondantes : {{count}}",

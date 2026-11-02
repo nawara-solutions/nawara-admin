@@ -12,7 +12,14 @@ import {
   viewChild,
 } from '@angular/core';
 import { TranslocoPipe, translateSignal } from '@jsverse/transloco';
-import { ACCENT_PALETTES, AccentPalette, ThemeService } from '../../core/theme/theme.service';
+import {
+  ACCENT_FAMILIES,
+  ACCENT_FAMILY,
+  ACCENT_PALETTES,
+  AccentFamily,
+  AccentPalette,
+  ThemeService,
+} from '../../core/theme/theme.service';
 import { NwIcon } from '../../shared/ui/icon/icon';
 
 /** The display name of each palette (full keys, so the i18n check sees them). Typed against the registry: a new palette must add its name. */
@@ -30,6 +37,14 @@ export const ACCENT_KEYS = {
   burgundy: 'preferences.accent.burgundy',
 } as const satisfies Record<AccentPalette, string>;
 
+const FAMILY_KEYS = {
+  all: 'preferences.appearance.family.all',
+  warm: 'preferences.appearance.family.warm',
+  cool: 'preferences.appearance.family.cool',
+  purple: 'preferences.appearance.family.purple',
+  neutral: 'preferences.appearance.family.neutral',
+} as const satisfies Record<AccentFamily | 'all', string>;
+
 /** Case-, accent- and width-insensitive matching ("emer" finds "Émeraude"). */
 const normalize = (text: string) =>
   text.normalize('NFKD').replace(/\p{M}/gu, '').toLocaleLowerCase().trim();
@@ -45,8 +60,11 @@ let nextId = 0;
  * and never lies over the page outside the panel. Only the results scroll (capped height); the search field stays
  * visible above them.
  *
- * ARIA combobox pattern: the search field keeps focus and owns a listbox; arrow and Page keys move the active option
- * (aria-activedescendant), Enter or a click chooses it, Escape closes the list (the panel stays open). Choosing applies
+ * Family chips (All, Warm, Cool, Purple, Neutral; from ACCENT_FAMILY) narrow the list. The results are a two-column grid
+ * of compact cards.
+ *
+ * ARIA combobox pattern: the search field keeps focus and owns a listbox; arrow keys move the active option by row and
+ * along the reading order, Page keys to the ends (aria-activedescendant), Enter or a click chooses it, Escape closes the list (the panel stays open). Choosing applies
  * the palette through ThemeService.setAccent (the one accent state: persistence, logo, favicon and artwork follow),
  * closes the list and returns focus to the selector. Search matches anywhere in the localized name, or the start of the
  * palette's machine value (so the English id still finds a palette in French or Arabic).
@@ -69,6 +87,13 @@ export class AccentPicker {
   protected readonly open = signal(false);
   protected readonly query = signal('');
   protected readonly activeIndex = signal(0);
+  /** The colour-family filter ('all' or one family of the registry). */
+  protected readonly family = signal<AccentFamily | 'all'>('all');
+  protected readonly families = (['all', ...ACCENT_FAMILIES] as const).map((value) => ({
+    value,
+    labelKey: FAMILY_KEYS[value],
+  }));
+  protected readonly count = ACCENT_PALETTES.length;
 
   private readonly trigger = viewChild.required<ElementRef<HTMLButtonElement>>('trigger');
   private readonly search = viewChild<ElementRef<HTMLInputElement>>('search');
@@ -91,9 +116,11 @@ export class AccentPicker {
   });
   protected readonly filtered = computed(() => {
     const query = normalize(this.query());
-    if (!query) return this.accents();
+    const family = this.family();
     return this.accents().filter(
-      (accent) => normalize(accent.name).includes(query) || accent.value.startsWith(query),
+      (accent) =>
+        (family === 'all' || ACCENT_FAMILY[accent.value] === family) &&
+        (!query || normalize(accent.name).includes(query) || accent.value.startsWith(query)),
     );
   });
   protected readonly activeId = computed(() => {
@@ -125,6 +152,7 @@ export class AccentPicker {
       return;
     }
     this.query.set('');
+    this.family.set('all');
     this.activeIndex.set(Math.max(0, ACCENT_PALETTES.indexOf(this.theme.accent())));
     this.open.set(true);
     afterNextRender(
@@ -140,6 +168,16 @@ export class AccentPicker {
 
   protected onQuery(value: string): void {
     this.query.set(value);
+    this.resetActive();
+  }
+
+  protected setFamily(family: AccentFamily | 'all'): void {
+    this.family.set(family);
+    this.resetActive();
+  }
+
+  /** The active option after the results change: the current palette if listed, else the first. */
+  private resetActive(): void {
     const index = this.filtered().findIndex((accent) => accent.value === this.theme.accent());
     this.activeIndex.set(Math.max(0, index));
   }
@@ -149,10 +187,24 @@ export class AccentPicker {
     switch (event.key) {
       case 'ArrowDown':
       case 'ArrowUp': {
+        // The results are a grid: up and down move by one row.
         event.preventDefault();
         if (count === 0) return;
-        const step = event.key === 'ArrowDown' ? 1 : -1;
-        this.activeIndex.update((index) => (index + step + count) % count);
+        const step = this.columns() * (event.key === 'ArrowDown' ? 1 : -1);
+        this.activeIndex.update((index) => {
+          const next = index + step;
+          return next >= 0 && next < count ? next : index;
+        });
+        return;
+      }
+      case 'ArrowLeft':
+      case 'ArrowRight': {
+        // Along the reading order (mirrored in RTL), wrapping; only when the search field is empty, so the arrows
+        // still move the caret through a query.
+        if (count === 0 || this.query()) return;
+        event.preventDefault();
+        const forward = (event.key === 'ArrowRight') !== this.rtl();
+        this.activeIndex.update((index) => (index + (forward ? 1 : -1) + count) % count);
         return;
       }
       case 'PageDown':
@@ -184,6 +236,21 @@ export class AccentPicker {
     const option = (event.target as Element | null)?.closest<HTMLElement>('[role=option]');
     const value = ACCENT_PALETTES.find((accent) => accent === option?.dataset['value']);
     if (value) this.choose(value);
+  }
+
+  /** The number of grid columns the results are laid out in (1 where no layout is available). */
+  protected columns(): number {
+    const list = this.listbox()?.nativeElement;
+    const view = list?.ownerDocument.defaultView;
+    if (!list || !view) return 1;
+    // A laid-out grid reports its resolved tracks ("156px 156px"); anything else (no layout) counts as one column.
+    const tracks = view.getComputedStyle(list).gridTemplateColumns.trim().split(/\s+/);
+    return tracks.every((track) => /^[\d.]+px$/.test(track)) ? tracks.length : 1;
+  }
+
+  private rtl(): boolean {
+    const list = this.listbox()?.nativeElement;
+    return !!list && list.ownerDocument.defaultView?.getComputedStyle(list).direction === 'rtl';
   }
 
   protected choose(value: AccentPalette): void {

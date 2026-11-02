@@ -4,7 +4,12 @@ import { TranslocoTestingModule } from '@jsverse/transloco';
 import ar from '../../../i18n/ar.json';
 import en from '../../../i18n/en.json';
 import fr from '../../../i18n/fr.json';
-import { ACCENT_PALETTES, ThemeService } from '../../core/theme/theme.service';
+import {
+  ACCENT_FAMILIES,
+  ACCENT_FAMILY,
+  ACCENT_PALETTES,
+  ThemeService,
+} from '../../core/theme/theme.service';
 import { ACCENT_KEYS, AccentPicker } from './accent-picker';
 
 @Component({
@@ -101,7 +106,7 @@ describe('AccentPicker', () => {
     expect(label).toBe('accent-label');
     expect(host.querySelector(`#${value}`)?.textContent?.trim()).toBe('Coral');
     const hint = host.querySelector(`#${trigger.getAttribute('aria-describedby')}`);
-    expect(hint?.textContent?.trim()).toBe(en.preferences.appearance.chooseAccent);
+    expect(hint?.textContent?.trim()).toBe('Current accent · 11 available');
     // The list is not rendered until opened.
     expect(options()).toHaveLength(0);
   });
@@ -176,19 +181,92 @@ describe('AccentPicker', () => {
     expect(trigger.textContent).toContain('Rose');
   });
 
-  it('wraps around and jumps to the ends, and Enter on a filtered list picks the active match', async () => {
-    const { open, key, type, options, search, theme, settle } = await render();
+  it('moves through the grid: by row, along the reading order (mirrored in RTL), to the ends', async () => {
+    const { open, key, type, options, search, theme, settle, fixture } = await render();
     await open();
-    await key('ArrowUp'); // from Coral, wraps to Burgundy
-    expect(search()?.getAttribute('aria-activedescendant')).toBe(options()[10]?.id);
-    await key('PageUp');
-    expect(search()?.getAttribute('aria-activedescendant')).toBe(options()[0]?.id);
+    const active = () => search()?.getAttribute('aria-activedescendant');
+    // Two columns, as laid out by the stylesheet.
+    const list = fixture.nativeElement.querySelector('[role=listbox]') as HTMLElement;
+    const style = (direction: string) =>
+      vi.spyOn(window, 'getComputedStyle').mockImplementation(
+        (element) =>
+          ({
+            gridTemplateColumns: element === list ? '150px 150px' : '',
+            direction,
+          }) as CSSStyleDeclaration,
+      );
+    const computed = style('ltr');
+    await key('ArrowUp'); // first row: stays on Coral
+    expect(active()).toBe(options()[0]?.id);
+    await key('ArrowDown'); // Plum, one row below Coral
+    expect(active()).toBe(options()[2]?.id);
+    await key('ArrowRight'); // Indigo
+    expect(active()).toBe(options()[3]?.id);
+    await key('ArrowLeft'); // Plum
+    expect(active()).toBe(options()[2]?.id);
+    computed.mockRestore();
+    style('rtl');
+    await key('ArrowLeft'); // RTL: left is forward, Indigo
+    expect(active()).toBe(options()[3]?.id);
+    vi.restoreAllMocks();
+
     await key('PageDown');
-    expect(search()?.getAttribute('aria-activedescendant')).toBe(options()[10]?.id);
+    expect(active()).toBe(options()[10]?.id);
+    await key('PageUp');
+    expect(active()).toBe(options()[0]?.id);
     await type('tea');
     await key('Enter');
     await settle();
     expect(theme.accent()).toBe('teal');
+  });
+
+  it('filters by colour family with chips, combined with the search', async () => {
+    const { host, open, names, type, settle } = await render();
+    await open();
+    const chips = () =>
+      Array.from(host.querySelectorAll<HTMLButtonElement>('.accent-picker__family'));
+    const group = host.querySelector('.accent-picker__families');
+    expect(group?.getAttribute('role')).toBe('group');
+    expect(group?.getAttribute('aria-label')).toBe(en.preferences.appearance.familyLabel);
+    expect(chips().map((c) => c.textContent?.trim())).toEqual([
+      'All',
+      'Warm',
+      'Cool',
+      'Purple',
+      'Neutral',
+    ]);
+    expect(chips().map((c) => c.getAttribute('aria-pressed'))).toEqual([
+      'true',
+      'false',
+      'false',
+      'false',
+      'false',
+    ]);
+    const pick = async (label: string) => {
+      chips()
+        .find((c) => c.textContent?.trim() === label)
+        ?.click();
+      await settle();
+    };
+    await pick('Cool');
+    expect(names()).toEqual(['Indigo', 'Teal', 'Sapphire', 'Emerald']);
+    expect(chips()[2]?.getAttribute('aria-pressed')).toBe('true');
+    await pick('Warm');
+    expect(names()).toEqual(['Coral', 'Rose', 'Amber', 'Burgundy']);
+    await type('co'); // Warm and "co"
+    expect(names()).toEqual(['Coral']);
+    await type('');
+    await pick('Neutral');
+    expect(names()).toEqual(['Midnight', 'Pearl']);
+    await pick('Purple');
+    expect(names()).toEqual(['Plum']);
+    await pick('All');
+    expect(names()).toHaveLength(11);
+  });
+
+  it('gives every registry palette a family', () => {
+    expect(Object.keys(ACCENT_FAMILY)).toEqual([...ACCENT_PALETTES]);
+    expect(new Set(Object.values(ACCENT_FAMILY))).toEqual(new Set(ACCENT_FAMILIES));
   });
 
   it('chooses with a click', async () => {
@@ -261,7 +339,7 @@ describe('AccentPicker', () => {
   it('names and searches the palettes in French (accents ignored) and Arabic', async () => {
     const french = await render('fr');
     expect(french.trigger.textContent).toContain('Corail');
-    expect(french.trigger.textContent).toContain(fr.preferences.appearance.chooseAccent);
+    expect(french.trigger.textContent).toContain('Couleur actuelle · 11 disponibles');
     await french.open();
     expect(french.search()?.placeholder).toBe(fr.preferences.appearance.searchAccents);
     await french.type('emer');

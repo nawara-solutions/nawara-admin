@@ -71,6 +71,15 @@
       },
       "accent": "Accent colour",
       "chooseAccent": "Choose an accent",
+      "currentAccent": "Current accent · {{count}} available",
+      "familyLabel": "Colour family",
+      "family": {
+        "all": "All",
+        "warm": "Warm",
+        "cool": "Cool",
+        "purple": "Purple",
+        "neutral": "Neutral"
+      },
       "searchAccents": "Search accents",
       "noAccent": "No accent matches “{{query}}”.",
       "accentResults": "Matching accents: {{count}}",

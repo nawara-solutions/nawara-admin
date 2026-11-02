@@ -23,6 +23,24 @@ export const ACCENT_PALETTES = [
   'burgundy',
 ] as const;
 export type AccentPalette = (typeof ACCENT_PALETTES)[number];
+
+/** Colour families, for filtering the palette list (owner request 2026-11-02). Machine values, never translated. */
+export const ACCENT_FAMILIES = ['warm', 'cool', 'purple', 'neutral'] as const;
+export type AccentFamily = (typeof ACCENT_FAMILIES)[number];
+/** The family of each palette; typed against the registry, so a new palette must declare one. */
+export const ACCENT_FAMILY = {
+  coral: 'warm',
+  rose: 'warm',
+  plum: 'purple',
+  indigo: 'cool',
+  teal: 'cool',
+  amber: 'warm',
+  midnight: 'neutral',
+  pearl: 'neutral',
+  sapphire: 'cool',
+  emerald: 'cool',
+  burgundy: 'warm',
+} as const satisfies Record<AccentPalette, AccentFamily>;
 export const DEFAULT_THEME: ThemePreference = 'system';
 export const DEFAULT_ACCENT: AccentPalette = 'coral';
 export type ThemePreference = (typeof THEME_PREFERENCES)[number];

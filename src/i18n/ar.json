@@ -71,6 +71,15 @@
       },
       "accent": "لون التمييز",
       "chooseAccent": "اختر لون التمييز",
+      "currentAccent": "اللون الحالي · {{count}} متاحة",
+      "familyLabel": "فئة اللون",
+      "family": {
+        "all": "الكل",
+        "warm": "دافئة",
+        "cool": "باردة",
+        "purple": "بنفسجية",
+        "neutral": "محايدة"
+      },
       "searchAccents": "ابحث عن لون",
       "noAccent": "لا يوجد لون يطابق «{{query}}».",
       "accentResults": "الألوان المطابقة: {{count}}",
