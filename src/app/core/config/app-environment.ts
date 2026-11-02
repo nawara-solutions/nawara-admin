@@ -27,7 +27,9 @@ export type DemoDomain =
   | 'memberships'
   | 'operators'
   | 'stepUp'
-  | 'assistance';
+  | 'assistance'
+  /** The receipt step-up and issuance adapters (F1-S4), bound only for the financial authorization dialog (F1-S6b). */
+  | 'financialAuthorization';
 
 /** The fictional accounts a demo build's sign-in page lists, so a reviewer can sign in (catalog keys for roles). */
 export interface DemoSignInHint {

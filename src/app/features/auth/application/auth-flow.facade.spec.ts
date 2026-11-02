@@ -74,6 +74,7 @@ const DEMO: DemoBindings = {
     operators: [],
     stepUp: [],
     assistance: [],
+    financialAuthorization: [],
   },
 };
 const DEMO_BUILD: AppEnvironment = { production: false, demo: { load: async () => DEMO } };

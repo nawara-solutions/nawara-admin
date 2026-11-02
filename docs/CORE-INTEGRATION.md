@@ -1593,7 +1593,8 @@ operator none. Against `0044b20`:
 **Update (G0-P0-1, 2026-11-01, Admin `e8fae1f`):** 28 gateways (`*.gateway.ts`; added: `AssistanceGateway`, `ReceiptStepUpGateway`,
 `AuthorizationReceiptGateway`), 22 `*.mock.ts` files, **still no HTTP adapter** (no `HttpClient` in `src/app`), 180 spec files;
 owner 23 capabilities (added `company.assistance.view`), operator none. The two receipt gateways have unavailable and demo classes
-but are bound to no route or demo domain yet (F1-S6b). Rows added below are marked G0.
+but were bound to no route or demo domain yet (F1-S6b now binds them, demo only, through the `financialAuthorization` domain of the
+development-only preview). Rows added below are marked G0.
 
 | Admin area (route) | Gateway(s) | Core state at `0044b20` | Note |
 |---|---|---|---|
@@ -1610,7 +1611,7 @@ but are bound to no route or demo domain yet (F1-S6b). Rows added below are mark
 | Notifications (`/notifications`) | `NotificationSummaryGateway` | 🔴 (NOT-00; CF-14, CF-48) | mock |
 | Settings and security (`/settings/*`) | `AccountSecurityGateway`, `CompanySettingsGateway`, `StepUpGateway` | 🟢 owner security; Company profile 🔴 (CF-49) | mock |
 | Assistance & Settlements (`/billing/assistance/*`) — G0 | `AssistanceGateway` | 🟡 DEV-ONLY by id (BIL-26, BIL-28, BIL-32); no owner list or request read (CF-68, CF-69, CF-70, CF-77); no human File path (CF-71) | mock, read only; AS-A1–AS-A12 accepted mock-first, not production certification |
-| Financial authorization foundation — G0 | `ReceiptStepUpGateway`, `AuthorizationReceiptGateway` | 🟡 DEV-ONLY (receipt issuance; consumers refused in production) | headless (F1-S1–F1-S5); no receipt UI (F1-S6b pending; F1-S6a is the shared step-up code entry, in review); contract fixtures merged (F1-S7) |
+| Financial authorization foundation — G0 | `ReceiptStepUpGateway`, `AuthorizationReceiptGateway` | 🟡 DEV-ONLY (receipt issuance; consumers refused in production) | headless (F1-S1–F1-S5); receipt authorization dialog (F1-S6b, in review), with demo adapters bound only in the development-only preview; no consumer, no HTTP adapter; contract fixtures merged (F1-S7) |
 | Finance workflows of §11.5 | none | 🟡 DEV-ONLY | **not built**; planned slices F1–F12 are **not authorized** (`admin:docs/ROADMAP.md`). G0: F1-S0–F1-S5 merged; F2–F12 not collectively authorized (G0-D8) |
 
 ### 11.10 Certification and deployment restrictions

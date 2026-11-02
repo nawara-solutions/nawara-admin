@@ -1,0 +1,170 @@
+// The financial authorization dialog (F1-S6b): the target summary, the two separate state lines (authorization, financial
+// result), the code entry and the notes. Semantic tokens only; logical properties; one column, two summary columns when wide.
+// Machine values (ids, codes, purposes) are one left-to-right box each, so a wrapped id keeps its order in a right-to-left page.
+.financial-authorization code {
+  display: inline-block;
+  max-inline-size: 100%;
+  font-family: var(--nw-font-mono);
+  overflow-wrap: anywhere;
+}
+
+.financial-authorization {
+  display: grid;
+  gap: var(--nw-space-4);
+  container-type: inline-size;
+  min-inline-size: 0;
+}
+
+.financial-authorization__summary {
+  display: grid;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3) var(--nw-space-4);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-sunken);
+}
+
+.financial-authorization__heading {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.financial-authorization__facts {
+  display: grid;
+  gap: var(--nw-space-2);
+  margin: 0;
+}
+
+.financial-authorization__fact {
+  display: grid;
+  gap: 2px;
+  min-inline-size: 0;
+
+  dt {
+    color: var(--nw-text-secondary);
+    font-size: var(--nw-text-size-xs);
+  }
+
+  dd {
+    margin: 0;
+    color: var(--nw-text-primary);
+    font-weight: var(--nw-font-weight-semibold);
+    overflow-wrap: anywhere;
+  }
+
+  code {
+    font-family: var(--nw-font-mono);
+    font-size: var(--nw-text-size-sm);
+    font-weight: var(--nw-font-weight-regular);
+  }
+}
+
+.financial-authorization__states {
+  display: grid;
+  gap: var(--nw-space-2);
+}
+
+.financial-authorization__state {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-3);
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-md);
+  color: var(--nw-text-primary);
+
+  nw-icon {
+    flex: none;
+    margin-block-start: 2px;
+  }
+}
+
+.financial-authorization__state--info,
+.financial-authorization__state--progress {
+  border-color: transparent;
+  background-color: var(--nw-status-info-bg);
+  color: var(--nw-status-info-fg);
+}
+
+.financial-authorization__state--success {
+  border-color: transparent;
+  background-color: var(--nw-status-success-bg);
+  color: var(--nw-status-success-fg);
+}
+
+.financial-authorization__state--warning {
+  border-color: transparent;
+  background-color: var(--nw-status-warning-bg);
+  color: var(--nw-status-warning-fg);
+}
+
+.financial-authorization__state--danger {
+  border-color: transparent;
+  background-color: var(--nw-status-danger-bg);
+  color: var(--nw-status-danger-fg);
+}
+
+.financial-authorization__state-text {
+  display: grid;
+  gap: 2px;
+  min-inline-size: 0;
+  font-size: var(--nw-text-size-sm);
+  overflow-wrap: anywhere;
+}
+
+.financial-authorization__state-label {
+  font-size: var(--nw-text-size-xs);
+  font-weight: var(--nw-font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.financial-authorization__state-meta {
+  font-size: var(--nw-text-size-xs);
+
+  code {
+    font-family: var(--nw-font-mono);
+  }
+}
+
+.financial-authorization__verify {
+  display: grid;
+  gap: var(--nw-space-4);
+}
+
+.financial-authorization__working {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-primary);
+}
+
+.financial-authorization__notes {
+  display: grid;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--nw-space-2);
+  }
+
+  nw-icon {
+    flex: none;
+    margin-block-start: 2px;
+  }
+}
+
+.financial-authorization__simulated {
+  color: var(--nw-accent-orange-fg);
+}
+
+@container (min-width: 32rem) {
+  .financial-authorization__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--nw-space-4);
+  }
+}

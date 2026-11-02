@@ -2,6 +2,7 @@ import { DEMO_SIGN_IN_HINT } from '../core/auth/auth.fixtures';
 import { MOCK_AUTH_PROVIDERS } from '../core/auth/auth.mock';
 import { DemoBindings } from '../core/config/app-environment';
 import { MOCK_STEP_UP_PROVIDERS } from '../core/auth/step-up.mock';
+import { MOCK_AUTHORIZATION_RECEIPT_PROVIDERS } from '../core/authorization/authorization-receipt.mock';
 import { MOCK_SCOPE_DIRECTORY_PROVIDERS } from '../core/context/scope-directory.mock';
 import { MOCK_SERVICE_INVENTORY_PROVIDERS } from '../core/core-services/service-inventory.mock';
 import { MOCK_NOTIFICATION_SUMMARY_PROVIDERS } from '../core/notifications/notification-summary.mock';
@@ -62,5 +63,6 @@ export const DEMO_BINDINGS: DemoBindings = {
     operators: MOCK_OPERATOR_PROVIDERS,
     stepUp: MOCK_STEP_UP_PROVIDERS,
     assistance: MOCK_ASSISTANCE_PROVIDERS,
+    financialAuthorization: MOCK_AUTHORIZATION_RECEIPT_PROVIDERS,
   },
 };

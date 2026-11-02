@@ -54,6 +54,7 @@ const bindings: DemoBindings = {
     operators: [],
     stepUp: [],
     assistance: [],
+    financialAuthorization: [],
   },
 };
 

@@ -201,6 +201,7 @@
     "notFound": "Page not found",
     "sessionUnavailable": "Sign-in not available",
     "foundation": "Design foundation",
+    "financialAuthorizationPreview": "Financial authorization preview",
     "platforms": "Platforms",
     "signIn": "Sign in",
     "verify": "Verify your sign-in",
@@ -3233,6 +3234,134 @@
       "errorDescription": "Try again in a moment.",
       "retry": "Try again",
       "forbiddenDescription": "Releases is shown to the Company owner only."
+    }
+  },
+  "financialAuthorization": {
+    "operations": {
+      "refund": "Authorize a refund",
+      "dispute_decision": "Authorize a dispute decision",
+      "fraud_hold_place": "Authorize placing a fraud hold",
+      "fraud_hold_release": "Authorize releasing a fraud hold",
+      "recovery_surplus_external": "Authorize recording an external surplus repayment",
+      "late_settlement_apply": "Authorize applying a late settlement",
+      "provider_fact_associate": "Authorize associating a provider fact",
+      "recovery_write_off": "Authorize writing off a recovery obligation"
+    },
+    "purposes": {
+      "refund": "Authorizing a refund",
+      "dispute_decision": "Authorizing a dispute decision",
+      "fraud_hold_place": "Authorizing a fraud hold",
+      "fraud_hold_release": "Authorizing the release of a fraud hold",
+      "recovery_surplus_external": "Authorizing an external surplus repayment",
+      "late_settlement_apply": "Authorizing a late settlement",
+      "provider_fact_associate": "Authorizing a provider fact association",
+      "recovery_write_off": "Authorizing a recovery write-off"
+    },
+    "summary": {
+      "title": "What this authorization is bound to",
+      "purpose": "Verification purpose",
+      "service": "Only usable by"
+    },
+    "fields": {
+      "company": "Company",
+      "refundCase": "Refund case",
+      "payment": "Payment",
+      "captureFact": "Capture fact",
+      "dispute": "Dispute",
+      "hold": "Fraud hold",
+      "beneficiary": "Beneficiary",
+      "product": "Product",
+      "surplus": "Surplus",
+      "organization": "Organization",
+      "lateSettlement": "Late settlement",
+      "assistanceRequest": "Assistance request",
+      "fact": "Provider fact",
+      "target": "Target",
+      "obligation": "Obligation",
+      "reason": "Reason code",
+      "reasonCode": "Reason code",
+      "decision": "Decision",
+      "factKind": "Fact kind",
+      "targetType": "Target type",
+      "legalOverride": "Legal override",
+      "amount": "Amount"
+    },
+    "yes": "Yes",
+    "no": "No",
+    "refused": {
+      "signedOut": "Sign in to authorize this operation.",
+      "actorKind": "Only the Company owner can authorize this operation. Nothing was asked of Core.",
+      "outOfScope": "This operation is outside your current Company. Nothing was asked of Core.",
+      "unavailable": "This operation cannot be authorized yet: Core does not offer it to Admin users.",
+      "notReceipt": "This operation does not use a financial authorization."
+    },
+    "states": "Authorization and financial result",
+    "authorization": {
+      "label": "Authorization",
+      "validUntil": "Valid until {{time}}, for this one request only.",
+      "receipt": "Authorization",
+      "askedAgain": "The authorization was not issued and nothing changed. Enter a new code.",
+      "closed": "Not started.",
+      "blocked": "An earlier request for this target has an unknown outcome. Nothing can be authorized for it until a check confirms what happened.",
+      "awaitingFactor": "Not authorized yet. Confirm it’s you.",
+      "verifying": "Checking your code…",
+      "issuing": "Issuing the authorization…",
+      "issueUnknown": "No answer came back while issuing the authorization. You may ask once more with the same request; it never creates a second authorization.",
+      "issuedSimulated": "Authorized (simulated). Nothing has been sent yet.",
+      "issued": "Authorized. Nothing has been sent yet.",
+      "heldSimulated": "Authorized (simulated) and sent. Kept in memory only to send this same request again.",
+      "held": "Authorized and sent. Kept in memory only to send this same request again.",
+      "consumed": "Used for this request.",
+      "cancelled": "Cancelled. The authorization was discarded and nothing more will be sent.",
+      "contextChanged": "Your session or scope changed. The authorization was discarded and nothing more will be sent.",
+      "revoked": "You can no longer authorize this operation. Nothing more will be sent.",
+      "expired": "The authorization expired before it was sent. It was discarded and never used.",
+      "voided": "Core voided the authorization after an answer was lost. It can never be used.",
+      "issueRefused": "The authorization was refused. Nothing was sent.",
+      "notInBuild": "Financial authorization is not available in this build. Nothing was asked of Core.",
+      "spent": "The authorization was used and cannot be used again.",
+      "outcomeUncertain": "The authorization was discarded: the request’s outcome is unknown and it may not be sent again."
+    },
+    "outcome": {
+      "label": "Financial result",
+      "notSubmitted": "Not sent. Nothing has been paid, refunded, settled or changed.",
+      "nothingChanged": "The service stated that nothing changed. You may send the same request again while the authorization is valid.",
+      "submitted": "Sending the request…",
+      "applied": "The service reports that the request was applied.",
+      "appliedByCheck": "A check confirmed that the request was applied.",
+      "refused": "The service refused the request. Nothing was applied.",
+      "unresolved": "The service has not settled the request yet. You may repeat the identical request, or check the result.",
+      "unknownReplay": "No answer came back: the request may or may not have been applied. Repeating the identical request is safe (the service recognises it), or check the result.",
+      "unknownBlocked": "No answer came back: the request may or may not have been applied, and it may not be sent again. Check the result before doing anything else."
+    },
+    "demoNote": "This demo accepts the code {{code}}. The authorization is simulated: nothing is asked of, or issued by, Nawara Core.",
+    "notes": {
+      "notCompletion": "An authorization is not a payment, refund or settlement. Nothing happens until the request is sent and the service applies it.",
+      "simulatedConsumer": "Simulated service: no Billing or Payment command is sent from this dialog."
+    },
+    "actions": {
+      "discard": "Discard authorization",
+      "startAgain": "Start a new authorization",
+      "reconcile": "Check the result",
+      "replayIssue": "Ask again with the same request",
+      "repeatIdentical": "Repeat the identical request",
+      "submit": "Send the request",
+      "verify": "Verify and authorize"
+    },
+    "preview": {
+      "title": "Financial authorization (preview)",
+      "intro": "A development-only preview of the shared financial authorization dialog. Receipts come from the demo adapter and the service is a simulation: no Billing or Payment command exists here.",
+      "operation": "Operation",
+      "consumer": "Simulated service answer",
+      "open": "Open the dialog",
+      "signedOut": "Sign in as the demo owner first: the dialog uses the signed-in session.",
+      "answers": {
+        "applied": "Applied",
+        "refused": "Refused",
+        "nothingChanged": "Nothing changed",
+        "unresolved": "Not settled yet",
+        "noAnswer": "No answer"
+      }
     }
   }
 }
