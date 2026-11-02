@@ -1186,8 +1186,11 @@
   "auth": {
     "brand": {
       "tagline": "حلول ذكية\nمدعومة بالذكاء الاصطناعي.",
+      "taglineLead": "حلول ذكية\nمدعومة ",
+      "taglineEmphasis": "بالذكاء الاصطناعي.",
       "line": "مساحة الإدارة الخاصة بنوارة سولوشنز.",
-      "copyright": "© 2026"
+      "copyright": "© 2026",
+      "copyrightCompany": "© 2026 Nawara Solutions"
     },
     "signIn": {
       "title": "تسجيل الدخول إلى Nawara Admin",

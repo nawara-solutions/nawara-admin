@@ -45,10 +45,7 @@ for (const [file, layers] of [
     'src/app/shared/ui/brand-mark/brand-mark.scss',
     ['--nw-logo-admin-symbol-mask', '--nw-logo-admin-mark-mask'],
   ],
-  [
-    'src/app/features/auth/components/auth-brand-panel/auth-brand-panel.scss',
-    ['--nw-logo-solutions-symbol-mask'],
-  ],
+  // The desktop brand panel's copyright is plain text since the owner layout of 2026-11-02 (no Solutions mark there).
   [
     'src/app/features/auth/components/auth-frame/auth-frame.scss',
     ['--nw-logo-solutions-symbol-mask'],
@@ -105,7 +102,8 @@ expect(
   /inline-size: 1\.227em;\s*block-size: 1em;/.test(mark),
   'brand-mark.scss: the symbol box must be 1.227em x 1em (200 / 163)',
 );
-for (const file of ['auth-brand-panel/auth-brand-panel.scss', 'auth-frame/auth-frame.scss'])
+// The desktop panel's copyright is plain text since the owner layout of 2026-11-02; the phone footer keeps the mark.
+for (const file of ['auth-frame/auth-frame.scss'])
   expect(
     /aspect-ratio: 891 \/ 174;/.test(read(`src/app/features/auth/components/${file}`)),
     `${file}: the copyright mark must keep 891 / 174`,
