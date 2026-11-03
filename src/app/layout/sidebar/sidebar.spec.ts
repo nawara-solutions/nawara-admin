@@ -265,16 +265,11 @@ describe('Sidebar', () => {
 
   it('renders the Nawara Admin logo alone, named "Nawara Admin", without a SOLUTIONS line', async () => {
     const { sidebar } = await render(owner);
-    const mark = sidebar.querySelector('nw-brand-mark');
+    const mark = sidebar.querySelector('nw-admin-brand-lockup');
     expect(mark?.getAttribute('aria-label')).toBe(en.brand.adminLogoLabel);
     expect(en.brand.adminLogoLabel).toBe('Nawara Admin');
-    expect(mark?.querySelector('.nw-brand-mark__word')).not.toBeNull();
-    expect(mark?.querySelector('.nw-brand-mark__word-symbol')?.getAttribute('aria-hidden')).toBe(
-      'true',
-    );
-    expect(mark?.classList).not.toContain('nw-brand-mark--full');
-    expect(mark?.querySelector('.nw-brand-mark__solutions-text')).toBeNull();
-    expect(mark?.querySelector('.nw-brand-mark__rule')).toBeNull();
+    expect(mark?.querySelector('.admin-brand-lockup__nawara')?.textContent).toBe('Nawara');
+    expect(mark?.querySelector('.admin-brand-lockup__admin')?.textContent).toBe('Admin');
   });
 
   it('badges Notifications with the owner’s unread count, and shows no badge without a count', async () => {

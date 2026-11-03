@@ -106,6 +106,32 @@ expect(
   /inline-size: 1\.227em;\s*block-size: 1em;/.test(mark),
   'brand-mark.scss: the symbol box must be 1.227em x 1em (200 / 163)',
 );
+
+// 3a. The limited Owner-approved Nawara | Admin pilot uses a separate vector layer, scoped to sign-in and sidebar.
+const flowerMask = read('public/brand/nawara-admin-flower-mask.svg');
+const flowerDetails = read('public/brand/nawara-admin-flower-details.svg');
+const adminLockup = read('src/app/shared/ui/admin-brand-lockup/admin-brand-lockup.scss');
+expect(
+  flowerMask.includes('viewBox="0 0 200 163"') && flowerDetails.includes('viewBox="0 0 200 163"'),
+  'the Admin flower pilot layers must share the approved symbol aspect ratio',
+);
+expect(
+  adminLockup.includes("url('/brand/nawara-admin-flower-mask.svg')") &&
+    adminLockup.includes("url('/brand/nawara-admin-flower-details.svg')") &&
+    adminLockup.includes('--nw-logo-detail: var(--nw-text-primary)') &&
+    adminLockup.includes('font-weight: 700') &&
+    adminLockup.includes('--nw-font-weight-regular'),
+  'admin-brand-lockup.scss: the pilot must use accent-aware vector layers, contrasting glyph, and the requested word hierarchy',
+);
+for (const file of [
+  'src/app/features/auth/components/auth-brand-panel/auth-brand-panel.html',
+  'src/app/features/auth/components/auth-frame/auth-frame.html',
+  'src/app/layout/sidebar/sidebar.html',
+])
+  expect(
+    read(file).includes('nw-admin-brand-lockup'),
+    `${file}: the Admin concept pilot must be used at the approved surfaces`,
+  );
 // The desktop panel's copyright is plain text since the owner layout of 2026-11-02; the phone footer keeps the mark.
 for (const file of ['auth-frame/auth-frame.scss'])
   expect(

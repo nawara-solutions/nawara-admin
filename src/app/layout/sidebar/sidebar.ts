@@ -17,7 +17,7 @@ import { ScopeContext, platformPath } from '../../core/context/scope-context';
 import { PlatformRef } from '../../core/context/scope.model';
 import { NotificationIndicator } from '../../core/notifications/notification-indicator';
 import { NwNumberPipe } from '../../shared/format/format.pipes';
-import { NwBrandMark } from '../../shared/ui/brand-mark/brand-mark';
+import { AdminBrandLockup } from '../../shared/ui/admin-brand-lockup/admin-brand-lockup';
 import { NwIcon } from '../../shared/ui/icon/icon';
 import { NwIconButton } from '../../shared/ui/icon-button/icon-button';
 import { NwMenuTrigger } from '../../shared/ui/menu/menu';
@@ -43,7 +43,7 @@ import { profileOf } from './profile';
     RouterLinkActive,
     TranslocoPipe,
     NwNumberPipe,
-    NwBrandMark,
+    AdminBrandLockup,
     NwIcon,
     NwIconButton,
     NwMenuTrigger,

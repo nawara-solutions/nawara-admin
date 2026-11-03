@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { APP_ENVIRONMENT, DemoSignInHint } from '../../../../core/config/app-environment';
 import { PreferenceMenus } from '../../../../layout/preference-menus/preference-menus';
-import { NwBrandMark } from '../../../../shared/ui/brand-mark/brand-mark';
+import { AdminBrandLockup } from '../../../../shared/ui/admin-brand-lockup/admin-brand-lockup';
 import { NwSpinner } from '../../../../shared/ui/spinner/spinner';
 import { AuthFlowFacade } from '../../application/auth-flow.facade';
 import { AuthBrandPanel } from '../auth-brand-panel/auth-brand-panel';
@@ -23,7 +23,7 @@ import { AuthDemoNote } from '../auth-demo-note/auth-demo-note';
   imports: [
     RouterOutlet,
     TranslocoPipe,
-    NwBrandMark,
+    AdminBrandLockup,
     NwSpinner,
     PreferenceMenus,
     AuthBrandPanel,

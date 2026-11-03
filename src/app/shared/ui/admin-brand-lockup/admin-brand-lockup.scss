@@ -1,0 +1,65 @@
+@use 'abstracts' as nw;
+
+:host {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  direction: ltr;
+  color: var(--nw-text-primary);
+  font-family: var(--nw-font-latin);
+  font-size: var(--nw-brand-mark-size, 2rem);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.admin-brand-lockup__content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28em;
+}
+
+.admin-brand-lockup__symbol {
+  // The outlined leaf has no solid interior, so the people pictogram takes the theme's primary text colour.
+  --nw-logo-detail: var(--nw-text-primary);
+
+  position: relative;
+  flex: 0 0 auto;
+  inline-size: 1.23em;
+  block-size: 1em;
+  @include nw.accent-logo(
+    none,
+    url('/brand/nawara-admin-flower-mask.svg'),
+    url('/brand/nawara-admin-flower-details.svg')
+  );
+}
+
+.admin-brand-lockup__word {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  color: var(--nw-text-primary);
+  font-size: 0.68em;
+  letter-spacing: -0.035em;
+}
+
+.admin-brand-lockup__nawara {
+  font-weight: 700;
+}
+
+.admin-brand-lockup__admin {
+  color: var(--nw-text-secondary);
+  font-weight: var(--nw-font-weight-regular);
+}
+
+.admin-brand-lockup__separator {
+  flex: 0 0 auto;
+  inline-size: 1px;
+  block-size: 1.05em;
+  background-color: var(--nw-logo-line);
+}
+
+@media (forced-colors: active) {
+  .admin-brand-lockup__separator {
+    background-color: CanvasText;
+  }
+}
