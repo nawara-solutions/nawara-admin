@@ -4,8 +4,8 @@ import { NwBrandMark } from './brand-mark';
 
 @Component({
   imports: [NwBrandMark],
-  template: `<nw-brand-mark label="Nawara Solutions" wordmark />
-    <nw-brand-mark label="Nawara Solutions" />
+  template: `<nw-brand-mark label="Nawara Admin" wordmark />
+    <nw-brand-mark label="Nawara Admin" />
     <nw-brand-mark label="Nawara Solutions" full />
     <nw-brand-mark label="Nawara Solutions" inline />`,
 })
@@ -19,11 +19,16 @@ describe('NwBrandMark', () => {
       (fixture.nativeElement as HTMLElement).querySelectorAll('nw-brand-mark'),
     );
     expect(wordmark?.getAttribute('role')).toBe('img');
-    expect(wordmark?.getAttribute('aria-label')).toBe('Nawara Solutions');
+    expect(wordmark?.getAttribute('aria-label')).toBe('Nawara Admin');
     // The logo: the blue-leaf Nawara Admin artwork (the --nw-logo-admin-* layers: lettering, accent symbol, details), no text.
     const word = wordmark?.querySelector('.nw-brand-mark__word');
     expect(word?.getAttribute('aria-hidden')).toBe('true');
     expect(word?.textContent).toBe('');
+    const symbolAfterWord = wordmark?.querySelector('.nw-brand-mark__word-symbol');
+    expect(symbolAfterWord?.getAttribute('aria-hidden')).toBe('true');
+    expect(word!.compareDocumentPosition(symbolAfterWord!) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
     expect(wordmark?.querySelector('svg')).toBeNull();
     expect(wordmark?.querySelector('img')).toBeNull();
     expect(wordmark?.querySelector('.nw-brand-mark__solutions')).toBeNull();

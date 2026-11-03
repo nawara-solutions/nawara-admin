@@ -5,7 +5,10 @@ import {
   DEMO_LATENCY_MS,
   MockScopeDirectoryGateway,
 } from '../../core/context/scope-directory.mock';
-import { MockNotificationSummaryGateway } from '../../core/notifications/notification-summary.mock';
+import {
+  DemoNotificationInbox,
+  MockNotificationSummaryGateway,
+} from '../../core/notifications/notification-inbox.mock';
 import {
   MockCommercialSummaryGateway,
   MockCompanyOverviewGateway,
@@ -45,6 +48,7 @@ function mocks(signedInAs: AdminIdentityId, tier: 'owner' | 'operator') {
       { provide: NW_CLOCK, useValue: () => NOW },
       MockScopeDirectoryGateway,
       MockNotificationSummaryGateway,
+      DemoNotificationInbox,
       MockCompanyOverviewGateway,
       MockCommercialSummaryGateway,
       MockPlatformDirectoryGateway,

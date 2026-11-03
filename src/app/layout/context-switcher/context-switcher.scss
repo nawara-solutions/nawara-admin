@@ -1,27 +1,37 @@
+@use 'abstracts' as nw;
+
 :host {
   display: block;
+  flex: 0 0 3.375rem;
   min-inline-size: 0;
+  max-inline-size: 3.375rem;
 }
 
 .context-switcher__trigger {
   display: inline-flex;
   align-items: center;
-  gap: 0.625rem;
   inline-size: 100%;
   min-inline-size: 0;
   max-inline-size: 16rem;
   block-size: 2.5rem;
   padding-block: 0;
-  padding-inline: 0.375rem 0.625rem;
+  padding-inline: var(--nw-space-1);
   border: 1px solid var(--nw-border-subtle);
   border-radius: var(--nw-radius-md);
   background-color: var(--nw-surface-raised);
   color: var(--nw-text-primary);
   text-align: start;
   cursor: pointer;
+  justify-content: center;
+  gap: var(--nw-space-1);
 
   &:hover {
     border-color: var(--nw-border-default);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: 2px;
   }
 
   &[aria-expanded='true'] .context-switcher__chevron {
@@ -36,7 +46,7 @@
 }
 
 .context-switcher__text {
-  display: grid;
+  display: none;
   min-inline-size: 0;
   line-height: var(--nw-line-height-snug);
 }
@@ -85,6 +95,35 @@
 
 .context-switcher__menu {
   min-inline-size: 15rem;
+}
+
+// Wider desktop keeps the company and current scope labels beside the unchanged approved mark.
+@include nw.from(desktop) {
+  :host {
+    flex: 0 1 8rem;
+    min-inline-size: 6rem;
+    max-inline-size: 16rem;
+  }
+
+  .context-switcher__trigger {
+    justify-content: flex-start;
+    gap: 0.625rem;
+    padding-inline: 0.375rem 0.625rem;
+  }
+
+  .context-switcher__text {
+    display: grid;
+  }
+
+  .context-switcher__chevron {
+    margin-inline-start: auto;
+  }
+}
+
+@include nw.from(wide) {
+  :host {
+    flex-basis: 12rem;
+  }
 }
 
 @media (forced-colors: active) {

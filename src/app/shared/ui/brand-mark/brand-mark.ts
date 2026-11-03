@@ -19,8 +19,9 @@ import {
  * The artwork is the `--nw-logo-admin-*` layers (lettering per theme, the symbol painted with `--nw-logo-accent`, its white
  * details), drawn inside the earlier logo boxes so callers keep their layout. The size follows `--nw-brand-mark-size`;
  * `--nw-brand-mark-word-size` optionally sizes the word and its "SOLUTIONS" line alone. The logo never mirrors in RTL. The
- * kit owns no copy, so the accessible name is an input; the artwork is hidden from assistive technology, so the name is
- * announced once.
+ * Admin wordmarks place their original botanical symbol after "nawara admin"; the separate Solutions mark retains its
+ * existing artwork. The kit owns no copy, so the accessible name is an input; artwork is hidden from assistive
+ * technology, so the name is announced once.
  */
 @Component({
   selector: 'nw-brand-mark',

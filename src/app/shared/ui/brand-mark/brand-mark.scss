@@ -14,8 +14,9 @@
   --nw-brand-mark-size: 2rem;
 
   display: inline-flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  gap: 0.136em;
   direction: ltr;
   // "SOLUTIONS" follows the accent palette: the accent's brand text colour, held to 4.5:1 on every surface by
   // check:contrast. The "nawara" lettering is artwork and never takes this colour.
@@ -28,21 +29,41 @@
 .nw-brand-mark__word {
   display: block;
   flex-shrink: 0;
-  // The symbol-first lockup "[symbol] nawara admin" (906 x 133 px; owner sign-in polish, 2026-11-03). Its letters keep
-  // their approved size (the earlier 794 px logo drawn 4.69em wide: 906 / 794 x 4.69em), and the box keeps the earlier
-  // height (1.028em), so no row moves; the artwork is centred in it with `contain`, never stretched.
-  inline-size: 5.352em;
+  // The original 906px artwork reserves its first 187px for the symbol. Crop that transparent region by positioning
+  // the unchanged lettering layer at the right edge, keeping its original scale and aspect ratio.
+  inline-size: 4.247em;
   block-size: 1.028em;
   font-size: var(--nw-brand-mark-word-size, 1em);
+  @include nw.accent-logo(var(--nw-logo-admin-lockup-lettering), none, none);
+  background-position: right center;
+  background-size: 5.352em auto;
+
+  &::before,
+  &::after {
+    content: none;
+  }
+}
+
+// The lockup symbol is the existing 164×133px layer, scaled to the exact size it had in the original 906×133px lockup.
+.nw-brand-mark__word-symbol {
+  position: relative;
+  flex-shrink: 0;
+  inline-size: 0.969em;
+  block-size: 0.786em;
   @include nw.accent-logo(
-    var(--nw-logo-admin-lockup-lettering),
+    none,
     var(--nw-logo-admin-lockup-symbol-mask),
     var(--nw-logo-admin-lockup-symbol-details)
   );
+
+  &::before,
+  &::after {
+    mask-position: left center;
+    mask-size: 5.352em auto;
+  }
 }
 
-// The Admin symbol alone (icon only), at its own proportions (200 / 163) and the full height of the earlier symbol box (1em):
-// it fills the height instead of floating in a 0.83em-wide box (owner B1 polish).
+// The Admin symbol alone (icon only), at its own proportions (200 / 163).
 .nw-brand-mark__symbol {
   flex-shrink: 0;
   inline-size: 1.227em;
@@ -50,8 +71,20 @@
   @include nw.accent-logo(none, var(--nw-logo-admin-mark-mask), var(--nw-logo-admin-mark-details));
 }
 
+:host(.nw-brand-mark--full) {
+  flex-direction: column;
+  gap: 0;
+}
+
 :host(.nw-brand-mark--symbol) {
   flex-direction: row;
+}
+
+.nw-brand-mark__lockup {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.136em;
 }
 
 // The cap top sits 0.175 of the subtitle's font size below its line box (Readex Pro, line height 1), hence the margin.

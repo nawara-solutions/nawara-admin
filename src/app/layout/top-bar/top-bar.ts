@@ -8,18 +8,17 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthSession } from '../../core/auth/auth-session';
 import { SignOut } from '../../core/auth/sign-out';
-import { NotificationIndicator } from '../../core/notifications/notification-indicator';
-import { NwIcon } from '../../shared/ui/icon/icon';
 import { NwIconButton } from '../../shared/ui/icon-button/icon-button';
 import { NwMenuTrigger } from '../../shared/ui/menu/menu';
 import { AccountMenu } from '../account-menu/account-menu';
 import { Breadcrumbs } from '../breadcrumbs/breadcrumbs';
 import { ContextSwitcher } from '../context-switcher/context-switcher';
 import { PreferenceMenus } from '../preference-menus/preference-menus';
+import { GlobalSearch } from '../global-search/global-search';
+import { NotificationCenter } from '../notification-center/notification-center';
 import { profileOf } from '../sidebar/profile';
 
 /**
@@ -30,13 +29,12 @@ import { profileOf } from '../sidebar/profile';
 @Component({
   selector: 'adm-top-bar',
   imports: [
-    RouterLink,
-    RouterLinkActive,
     TranslocoPipe,
-    NwIcon,
     NwIconButton,
     NwMenuTrigger,
     Breadcrumbs,
+    GlobalSearch,
+    NotificationCenter,
     ContextSwitcher,
     PreferenceMenus,
     AccountMenu,
@@ -52,7 +50,6 @@ export class TopBar {
   readonly menuRequested = output<void>();
 
   private readonly session = inject(AuthSession);
-  protected readonly unread = inject(NotificationIndicator).unread;
   protected readonly profile = computed(() => profileOf(this.session.actor()));
   protected readonly signingOut = inject(SignOut).busy;
 

@@ -3,11 +3,8 @@
   type="button"
   [nwMenuTriggerFor]="scopes"
   [attr.aria-label]="
-    ('shell.context.label' | transloco) +
-    ': ' +
-    (companyName() ?? (titleKey() | transloco)) +
-    ', ' +
-    (currentPlatform()?.name ?? ('shell.context.allPlatforms' | transloco))
+    'shell.context.scopeTrigger'
+      | transloco: { scope: currentPlatform()?.name ?? ('shell.context.allPlatforms' | transloco) }
   "
 >
   <!-- The company's logo symbol, in the palette's colours; decorative (the button's label names the scope). -->

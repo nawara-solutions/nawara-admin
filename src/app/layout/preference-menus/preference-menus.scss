@@ -10,9 +10,9 @@
 .preference-menus__trigger {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: var(--nw-space-1);
   block-size: 2.5rem;
-  padding-inline: var(--nw-space-3);
+  padding-inline: var(--nw-space-1);
   border: 1px solid var(--nw-border-subtle);
   border-radius: var(--nw-radius-md);
   background-color: var(--nw-surface-raised);
@@ -32,8 +32,12 @@
   }
 }
 
-// The code is redundant with the globe on phones (the accessible name carries the language).
 .preference-menus__value {
+  display: inline;
+}
+
+// Keep the sign-in control compact as before; the application toolbar keeps its visible language code.
+:host(.preference-menus--framed) .preference-menus__value {
   display: none;
 
   @include nw.from(tablet) {
@@ -69,4 +73,11 @@
 
 .preference-menus__option {
   flex: 1;
+}
+
+@include nw.from(tablet) {
+  :host(:not(.preference-menus--framed)) .preference-menus__trigger {
+    gap: 0.375rem;
+    padding-inline: var(--nw-space-3);
+  }
 }

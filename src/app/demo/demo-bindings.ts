@@ -5,7 +5,7 @@ import { MOCK_STEP_UP_PROVIDERS } from '../core/auth/step-up.mock';
 import { MOCK_AUTHORIZATION_RECEIPT_PROVIDERS } from '../core/authorization/authorization-receipt.mock';
 import { MOCK_SCOPE_DIRECTORY_PROVIDERS } from '../core/context/scope-directory.mock';
 import { MOCK_SERVICE_INVENTORY_PROVIDERS } from '../core/core-services/service-inventory.mock';
-import { MOCK_NOTIFICATION_SUMMARY_PROVIDERS } from '../core/notifications/notification-summary.mock';
+import { MOCK_NOTIFICATION_PROVIDERS } from '../core/notifications/notification-inbox.mock';
 import {
   MOCK_COMMERCIAL_SUMMARY_PROVIDERS,
   MOCK_COMPANY_OVERVIEW_PROVIDERS,
@@ -41,7 +41,7 @@ export const DEMO_BINDINGS: DemoBindings = {
   providers: {
     auth: MOCK_AUTH_PROVIDERS,
     scopeDirectory: MOCK_SCOPE_DIRECTORY_PROVIDERS,
-    notificationSummary: MOCK_NOTIFICATION_SUMMARY_PROVIDERS,
+    notificationSummary: MOCK_NOTIFICATION_PROVIDERS,
     companyOverview: MOCK_COMPANY_OVERVIEW_PROVIDERS,
     platformDirectory: MOCK_PLATFORM_DIRECTORY_PROVIDERS,
     commercialSummary: MOCK_COMMERCIAL_SUMMARY_PROVIDERS,

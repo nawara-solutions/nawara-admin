@@ -1,26 +1,40 @@
-<nav [attr.aria-label]="'shell.breadcrumb.label' | transloco">
+<nav #nav [attr.aria-label]="'shell.breadcrumb.label' | transloco">
   <ol class="breadcrumbs__list" role="list">
-    <li class="breadcrumbs__item">
-      <a
-        class="breadcrumbs__home"
-        [routerLink]="home()"
-        [attr.aria-label]="homeLabel() | transloco"
-      >
-        <nw-icon name="house" size="sm" />
-      </a>
-    </li>
-    @for (crumb of crumbs(); track $index; let last = $last) {
-      <li class="breadcrumbs__item" [class.breadcrumbs__item--intermediate]="!last">
-        <nw-icon class="breadcrumbs__separator" name="chevron-right" size="sm" />
-        @if (last) {
-          <span class="breadcrumbs__current" aria-current="page">
-            @if (crumb.translate) {
-              {{ crumb.label | transloco }}
-            } @else {
-              <bdi>{{ crumb.label }}</bdi>
-            }
-          </span>
-        } @else if (crumb.link) {
+    @if (layout().showHome) {
+      <li class="breadcrumbs__item breadcrumbs__item--home">
+        <a
+          class="breadcrumbs__home"
+          [routerLink]="home()"
+          [attr.aria-label]="homeLabel() | transloco"
+        >
+          <nw-icon name="house" size="sm" />
+        </a>
+      </li>
+    }
+    @if (hiddenCrumbs().length > 0) {
+      <li class="breadcrumbs__item breadcrumbs__item--overflow">
+        @if (layout().showHome) {
+          <nw-icon
+            class="breadcrumbs__separator"
+            name="chevron-right"
+            size="sm"
+            aria-hidden="true"
+          />
+        }
+        <button
+          class="breadcrumbs__overflow-trigger"
+          type="button"
+          [nwMenuTriggerFor]="overflowMenu"
+          [attr.aria-label]="'shell.breadcrumb.showHidden' | transloco"
+        >
+          <nw-icon name="ellipsis-vertical" size="sm" />
+        </button>
+      </li>
+    }
+    @for (crumb of visibleAncestors(); track $index) {
+      <li class="breadcrumbs__item">
+        <nw-icon class="breadcrumbs__separator" name="chevron-right" size="sm" aria-hidden="true" />
+        @if (crumb.link) {
           <a class="breadcrumbs__link" [routerLink]="crumb.link">
             @if (crumb.translate) {
               {{ crumb.label | transloco }}
@@ -29,9 +43,79 @@
             }
           </a>
         } @else {
-          <span class="breadcrumbs__text">{{ crumb.label | transloco }}</span>
+          <span class="breadcrumbs__text">
+            @if (crumb.translate) {
+              {{ crumb.label | transloco }}
+            } @else {
+              <bdi>{{ crumb.label }}</bdi>
+            }
+          </span>
         }
       </li>
     }
+    <li class="breadcrumbs__item breadcrumbs__item--current-item">
+      @if (layout().showHome || hiddenCrumbs().length > 0 || visibleAncestors().length > 0) {
+        <nw-icon class="breadcrumbs__separator" name="chevron-right" size="sm" aria-hidden="true" />
+      }
+      <span
+        class="breadcrumbs__current"
+        [class.breadcrumbs__current--wrap]="layout().wrapCurrent"
+        [style.max-inline-size.px]="layout().currentMaxWidth"
+        aria-current="page"
+      >
+        @if (currentCrumb().translate) {
+          {{ currentCrumb().label | transloco }}
+        } @else {
+          <bdi>{{ currentCrumb().label }}</bdi>
+        }
+      </span>
+    </li>
   </ol>
+
+  @if (!layout().showHome && hiddenCrumbs().length === 0) {
+    <a class="breadcrumbs__home-alternative nw-visually-hidden" [routerLink]="home()">
+      {{ homeLabel() | transloco }}
+    </a>
+  }
+
+  <div class="breadcrumbs__measure" aria-hidden="true">
+    @for (crumb of crumbs(); track $index; let last = $last) {
+      <span class="breadcrumbs__measure-label" [class.breadcrumbs__measure-label--current]="last">
+        @if (crumb.translate) {
+          {{ crumb.label | transloco }}
+        } @else {
+          <bdi>{{ crumb.label }}</bdi>
+        }
+      </span>
+    }
+  </div>
 </nav>
+
+<ng-template #overflowMenu>
+  <nw-menu>
+    @if (!layout().showHome) {
+      <button nw-menu-item type="button" [routerLink]="home()">
+        {{ homeLabel() | transloco }}
+      </button>
+    }
+    @for (crumb of hiddenCrumbs(); track $index) {
+      @if (crumb.link) {
+        <button nw-menu-item type="button" [routerLink]="crumb.link">
+          @if (crumb.translate) {
+            {{ crumb.label | transloco }}
+          } @else {
+            <bdi>{{ crumb.label }}</bdi>
+          }
+        </button>
+      } @else {
+        <button nw-menu-item type="button" disabled>
+          @if (crumb.translate) {
+            {{ crumb.label | transloco }}
+          } @else {
+            <bdi>{{ crumb.label }}</bdi>
+          }
+        </button>
+      }
+    }
+  </nw-menu>
+</ng-template>

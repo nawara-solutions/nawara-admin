@@ -1,4 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  afterRenderEffect,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -7,6 +17,7 @@ import { can } from '../../core/access/capability-policy';
 import { homePath } from '../../core/access/home-path';
 import { AuthSession } from '../../core/auth/auth-session';
 import { EntityLabel } from '../../core/context/entity-label';
+import { LocaleService } from '../../core/i18n/locale.service';
 import {
   ScopeContext,
   membersPath,
@@ -15,6 +26,8 @@ import {
   platformPath,
 } from '../../core/context/scope-context';
 import { NwIcon } from '../../shared/ui/icon/icon';
+import { NwMenu, NwMenuItem, NwMenuTrigger } from '../../shared/ui/menu/menu';
+import { calculateBreadcrumbLayout, splitBreadcrumbs } from './breadcrumb-layout';
 
 /** Route data key: the catalog key of the page's last breadcrumb ("Overview"). */
 export const BREADCRUMB_DATA = 'breadcrumb';
@@ -67,18 +80,27 @@ interface Crumb {
  */
 @Component({
   selector: 'adm-breadcrumbs',
-  imports: [RouterLink, TranslocoPipe, NwIcon],
+  imports: [RouterLink, TranslocoPipe, NwIcon, NwMenu, NwMenuItem, NwMenuTrigger],
   templateUrl: './breadcrumbs.html',
   styleUrl: './breadcrumbs.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'breadcrumbs' },
 })
-export class Breadcrumbs {
+export class Breadcrumbs implements AfterViewInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly context = inject(ScopeContext);
   private readonly session = inject(AuthSession);
   private readonly entity = inject(EntityLabel, { optional: true });
+  private readonly locale = inject(LocaleService);
+  private readonly host = inject(ElementRef<HTMLElement>);
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly layout = signal({
+    hiddenAncestorCount: 0,
+    showHome: true,
+    currentMaxWidth: 320,
+    wrapCurrent: false,
+  });
 
   private readonly pageKey = toSignal(
     this.router.events.pipe(
@@ -168,4 +190,71 @@ export class Breadcrumbs {
     }));
     return [company, ...parents, { label: page.key, translate: true }];
   });
+
+  private readonly partition = computed(() =>
+    splitBreadcrumbs(this.crumbs(), this.layout().hiddenAncestorCount),
+  );
+  protected readonly currentCrumb = computed(
+    () => this.partition().current ?? { label: 'shell.breadcrumb.company', translate: true },
+  );
+  protected readonly hiddenCrumbs = computed(() => this.partition().hiddenAncestors);
+  protected readonly visibleAncestors = computed(() => this.partition().visibleAncestors);
+
+  constructor() {
+    // Measure after Angular has rendered new route labels. ResizeObserver handles space changes from sibling controls.
+    afterRenderEffect(() => {
+      this.crumbs();
+      this.locale.locale();
+      this.fitCrumbs();
+    });
+  }
+
+  ngAfterViewInit(): void {
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(() => this.fitCrumbs());
+      observer.observe(this.host.nativeElement);
+      this.destroyRef.onDestroy(() => observer.disconnect());
+    }
+    const fonts = this.host.nativeElement.ownerDocument.fonts;
+    if (fonts) {
+      const refit = () => this.fitCrumbs();
+      void fonts.ready.then(() => this.fitCrumbs());
+      fonts.addEventListener('loadingdone', refit);
+      this.destroyRef.onDestroy(() => fonts.removeEventListener('loadingdone', refit));
+    }
+    this.fitCrumbs();
+  }
+
+  private fitCrumbs(): void {
+    const nav = this.host.nativeElement.querySelector('nav');
+    const rail = this.host.nativeElement.querySelector('.breadcrumbs__measure');
+    if (!nav || !rail || nav.clientWidth <= 0) return;
+    const labels = Array.from(
+      rail.querySelectorAll('.breadcrumbs__measure-label'),
+    ) as HTMLElement[];
+    const widths = labels.map((item) => item.getBoundingClientRect().width || item.scrollWidth);
+    const homeWidth =
+      nav.querySelector('.breadcrumbs__home')?.getBoundingClientRect().width ??
+      parseFloat(getComputedStyle(nav.ownerDocument.documentElement).fontSize) * 2;
+    const separatorWidth =
+      nav.querySelector('.breadcrumbs__separator')?.getBoundingClientRect().width ?? 16;
+    const list = nav.querySelector('.breadcrumbs__list');
+    if (!list) return;
+    const gap = parseFloat(getComputedStyle(list).columnGap) || 8;
+    const rootFontSize = parseFloat(getComputedStyle(nav.ownerDocument.documentElement).fontSize);
+    const overflowWidth = rootFontSize * 1.75;
+    const currentWidth = widths.at(-1) ?? 0;
+    this.layout.set(
+      calculateBreadcrumbLayout(
+        nav.clientWidth,
+        widths.slice(0, -1),
+        currentWidth,
+        homeWidth,
+        separatorWidth,
+        overflowWidth,
+        gap,
+        currentWidth,
+      ),
+    );
+  }
 }

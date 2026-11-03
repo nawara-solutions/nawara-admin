@@ -215,9 +215,6 @@ export function platformViewerOf(
   return null;
 }
 
-export const unreadOf = (world: DemoWorldTables, identity: AdminIdentityId | null): number =>
-  world.inboxes.find((i) => i.identityId === identity)?.unread ?? 0;
-
 // ── Commercial: subscriptions, payments, policies ─────────────────────────────────────────────────────────────────
 
 export type SubscriptionState = 'active' | 'grace' | 'none';

@@ -265,6 +265,7 @@
     "notAvailableYet": "Pas encore disponible",
     "breadcrumb": {
       "label": "Fil d’Ariane",
+      "showHidden": "Afficher les pages masquées du fil d’Ariane",
       "home": "Vue d’ensemble de l’entreprise",
       "company": "Entreprise",
       "overview": "Vue d’ensemble",
@@ -300,6 +301,7 @@
     },
     "context": {
       "label": "Périmètre d’administration",
+      "scopeTrigger": "Périmètre actuel : {{scope}}. Modifier le périmètre.",
       "allPlatforms": "Toutes les plateformes",
       "platforms": "Plateformes",
       "current": "actuel",
@@ -360,7 +362,17 @@
     "sidebarLabel": "Barre latérale",
     "search": {
       "label": "Rechercher",
-      "placeholder": "Rechercher des organisations, des utilisateurs…"
+      "open": "Ouvrir la recherche globale",
+      "categoryLabel": "Catégorie de recherche",
+      "placeholder": "Rechercher des organisations, membres, opérateurs, plateformes…",
+      "unavailable": "La recherche globale n’est pas encore disponible. Aucune catégorie n’est reliée à une source de recherche.",
+      "categories": {
+        "all": "Tout",
+        "organizations": "Organisations",
+        "members": "Membres",
+        "operators": "Opérateurs",
+        "platforms": "Plateformes"
+      }
     },
     "notifications": {
       "unread": "Notifications non lues : {{count}}",
@@ -3178,19 +3190,7 @@
     "header": {
       "eyebrow": "Personnel",
       "title": "Notifications",
-      "subtitle": "Votre propre résumé de notifications. Vous seul le voyez."
-    },
-    "count": {
-      "label": "Notifications non lues (compte de démonstration)",
-      "note": "Un compte de démonstration issu des enregistrements de cette version, pas de Nawara Core. Les messages correspondants ne sont pas disponibles.",
-      "zero": "Aucune notification non lue n’est comptée pour vous dans cette démonstration. Cela ne signifie pas que vous n’en avez jamais reçu : l’historique des messages n’est pas disponible."
-    },
-    "inbox": {
-      "title": "Votre boîte de réception n’est pas encore disponible",
-      "body": "Nawara Core envoie des notifications mais n’offre pas encore de lecture des messages d’une personne : Admin n’affiche donc qu’un compte.",
-      "contents": "Aucun message, expéditeur ni horaire n’est affiché.",
-      "actions": "Marquer comme lu, ignorer et les préférences ne sont pas disponibles.",
-      "codes": "Les codes de connexion, de vérification et de confirmation ne sont jamais affichés ici."
+      "inboxSubtitle": "Votre boîte de notifications personnelle. Les notifications en direct ne sont pas encore disponibles ; les données de démonstration sont illustratives."
     },
     "separate": "Les notifications ne sont ni des enregistrements d’audit ni de l’activité administrative : rien ici ne provient du journal d’activité.",
     "states": {
@@ -3200,7 +3200,70 @@
       "errorTitle": "Vos notifications n’ont pas pu être chargées",
       "errorDescription": "Réessayez dans un instant.",
       "retry": "Réessayer",
-      "forbiddenDescription": "Votre résumé de notifications n’a pas pu être lu pour cette session."
+      "actionError": "Cette notification n’a pas pu être mise à jour. Réessayez."
+    },
+    "newCount": "{{count}} nouvelles",
+    "demoOnly": "Démo uniquement",
+    "filters": {
+      "label": "Filtrer les notifications",
+      "all": "Tout",
+      "invitations": "Invitations",
+      "approvals": "Approbations",
+      "licenses": "Licences",
+      "access": "Accès",
+      "updates": "Mises à jour"
+    },
+    "recent": "Récentes",
+    "markAllRead": "Tout marquer comme lu",
+    "emptyFiltered": "Aucune notification dans cette catégorie.",
+    "unreadItem": "Non lue",
+    "markRead": "Marquer comme lue",
+    "keepUnread": "Garder comme non lue",
+    "viewAll": "Voir toutes les notifications",
+    "priority": {
+      "urgent": "Urgent"
+    },
+    "records": {
+      "invitation": {
+        "title": "Invitation en attente",
+        "description": "Une invitation à rejoindre École Horizon est toujours en attente."
+      },
+      "license": {
+        "title": "Licence bientôt expirée",
+        "description": "Une licence Nawara School approche de sa date de renouvellement."
+      },
+      "organization": {
+        "title": "Organisation créée",
+        "description": "Une organisation a été ajoutée à Nawara School."
+      },
+      "approval": {
+        "title": "Adhésion approuvée",
+        "description": "Une demande d’adhésion à École Horizon a été approuvée."
+      },
+      "access": {
+        "title": "Demande d’accès opérateur",
+        "description": "Une demande d’accès opérateur est prête à être examinée."
+      }
+    },
+    "preferences": {
+      "title": "Paramètres des notifications",
+      "unavailable": "Les préférences de notification ne sont pas encore disponibles."
+    },
+    "list": {
+      "title": "Vos notifications",
+      "count": "{{count}} notifications"
+    },
+    "readFilter": {
+      "label": "État de lecture",
+      "all": "Tout",
+      "unread": "Non lues",
+      "read": "Lues"
+    },
+    "empty": {
+      "noNotifications": "Aucune notification pour le moment",
+      "allCaughtUp": "Tout est à jour",
+      "allCaughtUpDescription": "Aucune notification non lue.",
+      "noMatches": "Aucune notification ne correspond à ces filtres."
     }
   },
   "releases": {

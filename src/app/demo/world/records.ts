@@ -225,12 +225,6 @@ export interface CompanyActivityRecord {
 /** Any administrative event of the demo world. */
 export type ActivityRecord = PlatformActivityRecord | CompanyActivityRecord;
 
-/** Unread notifications of an administrative identity (a declared count: no inbox records yet, CF-14). */
-export interface NotificationInboxRecord {
-  readonly identityId: AdminIdentityId;
-  readonly unread: number;
-}
-
 /**
  * A command the world has already applied, by idempotency key (the simulated Core keeps its replay record). A repeat with
  * the same key, command, actor and request answers the stored result; any other reuse of the key is refused.
@@ -262,7 +256,6 @@ export interface DemoWorldTables {
   readonly paymentIssues: readonly PaymentIssueRecord[];
   readonly platformCommercial: readonly PlatformCommercialRecord[];
   readonly activity: readonly ActivityRecord[];
-  readonly inboxes: readonly NotificationInboxRecord[];
   /** Records created at run time so far: their ids are numbered from it, so they are stable and never reuse a seed id. */
   readonly sequence: number;
   readonly idempotency: readonly IdempotencyRecord[];

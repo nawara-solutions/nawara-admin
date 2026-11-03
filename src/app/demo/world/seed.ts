@@ -660,7 +660,6 @@ export function demoWorldSeed(now: number): DemoWorldTables {
       { platformId: D, personalPremium: 9, assistedPayments: 'disabled' },
     ],
     activity: ACTIVITY.map(({ hoursAgo, ...event }) => ({ ...event, occurredAt: at(-hoursAgo) })),
-    inboxes: [{ identityId: DEMO_OWNER_ID, unread: 4 }],
     sequence: 0,
     idempotency: [],
   };

@@ -36,6 +36,9 @@ describe('AuthBrandPanel logos', () => {
       expect(logo?.getAttribute('role')).toBe('img');
       expect(logo?.getAttribute('aria-label')).toBe(catalog.brand.adminLogoLabel);
       expect(logo?.querySelector('.nw-brand-mark__word')?.getAttribute('aria-hidden')).toBe('true');
+      expect(logo?.querySelector('.nw-brand-mark__word-symbol')?.getAttribute('aria-hidden')).toBe(
+        'true',
+      );
       expect(logo?.querySelector('.nw-brand-mark__solutions')).toBeNull();
     });
 

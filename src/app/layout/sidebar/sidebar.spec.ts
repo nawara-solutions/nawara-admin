@@ -28,6 +28,7 @@ import {
   UnavailableNotificationSummaryGateway,
 } from '../../core/notifications/notification-summary.gateway';
 import { MockNotificationSummaryGateway } from '../../core/notifications/notification-summary.mock';
+import { DemoNotificationInbox } from '../../core/notifications/notification-inbox.mock';
 import { loadShellRoutes } from '../shell.routes';
 import { NAVIGATION, NOTIFICATIONS_ITEM, SETTINGS_ITEM } from './navigation';
 import { Sidebar } from './sidebar';
@@ -145,6 +146,7 @@ async function render(
             ? MockNotificationSummaryGateway
             : UnavailableNotificationSummaryGateway,
       },
+      DemoNotificationInbox,
       { provide: ScopeDirectoryGateway, useClass: ScriptedDirectory },
       { provide: AuthGateway, useClass: UnavailableAuthGateway },
       NotificationIndicator,
@@ -267,6 +269,9 @@ describe('Sidebar', () => {
     expect(mark?.getAttribute('aria-label')).toBe(en.brand.adminLogoLabel);
     expect(en.brand.adminLogoLabel).toBe('Nawara Admin');
     expect(mark?.querySelector('.nw-brand-mark__word')).not.toBeNull();
+    expect(mark?.querySelector('.nw-brand-mark__word-symbol')?.getAttribute('aria-hidden')).toBe(
+      'true',
+    );
     expect(mark?.classList).not.toContain('nw-brand-mark--full');
     expect(mark?.querySelector('.nw-brand-mark__solutions-text')).toBeNull();
     expect(mark?.querySelector('.nw-brand-mark__rule')).toBeNull();

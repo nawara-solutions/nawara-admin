@@ -1,3 +1,5 @@
+@use 'abstracts' as nw;
+
 :host {
   display: inline-flex;
 }
@@ -5,9 +7,9 @@
 .appearance-menu__trigger {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: var(--nw-space-1);
   block-size: 2.5rem;
-  padding-inline: var(--nw-space-3);
+  padding-inline: var(--nw-space-1);
   border: 1px solid var(--nw-border-subtle);
   border-radius: var(--nw-radius-md);
   background-color: var(--nw-surface-raised);
@@ -68,6 +70,13 @@
   background-color: var(--nw-surface-overlay);
   box-shadow: var(--nw-shadow-md);
   color: var(--nw-text-primary);
+}
+
+@include nw.from(tablet) {
+  :host(:not(.appearance-menu--framed)) .appearance-menu__trigger {
+    gap: 0.375rem;
+    padding-inline: var(--nw-space-3);
+  }
 }
 
 .appearance-menu__title {

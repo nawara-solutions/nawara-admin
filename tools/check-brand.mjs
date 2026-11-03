@@ -95,8 +95,13 @@ for (const block of ['auth-brand-panel__copyright {']) {
 // 3. Logo boxes at the logo's own proportions
 const mark = read('src/app/shared/ui/brand-mark/brand-mark.scss');
 expect(
-  /inline-size: 5\.352em;\s*block-size: 1\.028em;/.test(mark),
-  'brand-mark.scss: the symbol-first lockup box must be 5.352em x 1.028em (letters at the approved size, earlier height)',
+  /\.nw-brand-mark__word \{[\s\S]*?inline-size: 4\.247em;\s*block-size: 1\.028em;[\s\S]*?background-size: 5\.352em auto;/.test(
+    mark,
+  ) &&
+    /\.nw-brand-mark__word-symbol \{[\s\S]*?inline-size: 0\.969em;\s*block-size: 0\.786em;[\s\S]*?mask-size: 5\.352em auto;/.test(
+      mark,
+    ),
+  'brand-mark.scss: the trailing-symbol lockup must preserve the original lettering and symbol scales',
 );
 expect(
   /inline-size: 1\.227em;\s*block-size: 1em;/.test(mark),

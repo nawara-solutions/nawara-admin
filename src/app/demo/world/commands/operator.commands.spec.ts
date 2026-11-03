@@ -58,7 +58,6 @@ const UNTOUCHED = [
   'memberships',
   'paymentIssues',
   'platformCommercial',
-  'inboxes',
   'idempotency',
 ] as const;
 

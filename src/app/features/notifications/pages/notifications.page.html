@@ -1,79 +1,184 @@
-@let view = facade.view();
 <header class="notifications__header">
   <span class="notifications__mark" aria-hidden="true"><nw-icon name="bell" size="lg" /></span>
   <div class="notifications__titles">
     <p class="notifications__eyebrow">{{ 'notifications.header.eyebrow' | transloco }}</p>
     <h1 class="notifications__title">{{ 'notifications.header.title' | transloco }}</h1>
-    <p class="notifications__muted">{{ 'notifications.header.subtitle' | transloco }}</p>
+    <p class="notifications__muted">{{ 'notifications.header.inboxSubtitle' | transloco }}</p>
+    <p class="notifications__muted">{{ 'notifications.separate' | transloco }}</p>
   </div>
   @if (isDemo()) {
-    <span class="notifications__demo">
-      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
-    </span>
+    <span class="notifications__demo"
+      ><nw-icon name="flask-conical" size="sm" />{{ 'notifications.demoOnly' | transloco }}</span
+    >
   }
 </header>
 
-@switch (view.status) {
-  @case ('ready') {
-    <div class="notifications__grid">
-      <section class="notifications__card" aria-labelledby="notifications-unread" data-unread>
-        <h2 id="notifications-unread" class="notifications__label">
-          {{ 'notifications.count.label' | transloco }}
-        </h2>
-        <p class="notifications__value">{{ view.unread | nwNumber }}</p>
-        <p class="notifications__muted">
-          {{
-            (view.unread === 0 ? 'notifications.count.zero' : 'notifications.count.note')
-              | transloco
-          }}
-        </p>
-      </section>
-      <section
-        class="notifications__card notifications__card--quiet"
-        aria-labelledby="notifications-inbox"
-        data-inbox
+@if (center.state().status === 'success') {
+  <section class="notifications__workspace" aria-labelledby="notifications-list-heading">
+    <div class="notifications__toolbar">
+      <nav
+        class="notifications__categories"
+        [attr.aria-label]="'notifications.filters.label' | transloco"
       >
-        <h2 id="notifications-inbox" class="notifications__heading">
-          {{ 'notifications.inbox.title' | transloco }}
-        </h2>
-        <p>{{ 'notifications.inbox.body' | transloco }}</p>
-        <ul class="notifications__list" role="list">
-          <li>{{ 'notifications.inbox.contents' | transloco }}</li>
-          <li>{{ 'notifications.inbox.actions' | transloco }}</li>
-          <li>{{ 'notifications.inbox.codes' | transloco }}</li>
-        </ul>
-      </section>
-    </div>
-    <p class="notifications__muted">{{ 'notifications.separate' | transloco }}</p>
-  }
-  @case ('notInBuild') {
-    <nw-data-state
-      state="empty"
-      [title]="'notifications.states.notInBuildTitle' | transloco"
-      [description]="'notifications.states.notInBuildDescription' | transloco"
-    />
-  }
-  @case ('error') {
-    <nw-data-state
-      state="error"
-      [title]="'notifications.states.errorTitle' | transloco"
-      [description]="'notifications.states.errorDescription' | transloco"
-    >
-      <div nwDataStateActions>
-        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
-          <nw-icon name="refresh-cw" size="sm" />{{ 'notifications.states.retry' | transloco }}
-        </button>
+        @for (item of filters; track item.id) {
+          <button
+            type="button"
+            class="notifications__filter"
+            [class.notifications__filter--active]="category() === item.id"
+            [attr.aria-pressed]="category() === item.id"
+            (click)="category.set(item.id)"
+          >
+            {{ item.key | transloco }}
+          </button>
+        }
+      </nav>
+      <div class="notifications__actions">
+        <div
+          class="notifications__read-filters"
+          role="group"
+          [attr.aria-label]="'notifications.readFilter.label' | transloco"
+        >
+          @for (option of readFilters; track option.id) {
+            <button
+              type="button"
+              [class.notifications__read-filter--active]="read() === option.id"
+              [attr.aria-pressed]="read() === option.id"
+              (click)="read.set(option.id)"
+            >
+              {{ option.key | transloco }}
+            </button>
+          }
+        </div>
+        @if (center.unread(); as unread) {
+          @if (unread > 0) {
+            <button
+              class="notifications__mark-all"
+              type="button"
+              [disabled]="center.actionPending()"
+              (click)="center.markAllRead()"
+            >
+              <nw-icon name="check" size="sm" />{{ 'notifications.markAllRead' | transloco }}
+            </button>
+          }
+        }
+        <div class="notifications__settings-wrap">
+          <button
+            class="notifications__settings"
+            type="button"
+            [attr.aria-expanded]="preferencesOpen()"
+            (click)="togglePreferences()"
+          >
+            <nw-icon name="settings" size="sm" />{{ 'notifications.preferences.title' | transloco }}
+          </button>
+          @if (preferencesOpen()) {
+            <p class="notifications__preferences-note" role="status">
+              {{ 'notifications.preferences.unavailable' | transloco }}
+            </p>
+          }
+        </div>
       </div>
-    </nw-data-state>
-  }
-  @case ('forbidden') {
-    <nw-data-state
-      state="empty"
-      [title]="'shell.pages.forbidden.title' | transloco"
-      [description]="'notifications.states.forbiddenDescription' | transloco"
-    />
-  }
-  @default {
-    <nw-data-state state="loading" [title]="'notifications.states.loading' | transloco" />
-  }
+    </div>
+
+    <div class="notifications__list-heading">
+      <h2 id="notifications-list-heading">{{ 'notifications.list.title' | transloco }}</h2>
+      <p>
+        {{ 'notifications.list.count' | transloco: { count: center.records().length | nwNumber } }}
+      </p>
+    </div>
+
+    @if (center.actionError()) {
+      <p class="notifications__action-error" role="alert">
+        {{ 'notifications.states.actionError' | transloco }}
+      </p>
+    }
+
+    <div class="notifications__list" role="list">
+      @for (record of visible(); track record.id) {
+        <article
+          class="notifications__row"
+          role="listitem"
+          [class.notifications__row--unread]="record.unread"
+        >
+          <span class="notifications__row-icon" aria-hidden="true"
+            ><nw-icon [name]="categoryIcon(record)"
+          /></span>
+          <div class="notifications__row-main">
+            @if (record.destination) {
+              <button class="notifications__row-title" type="button" (click)="openRecord(record)">
+                {{ record.titleKey | transloco }}
+              </button>
+            } @else {
+              <h3 class="notifications__row-title">{{ record.titleKey | transloco }}</h3>
+            }
+            <p>{{ record.descriptionKey | transloco }}</p>
+            <div class="notifications__row-meta">
+              <bdi>{{ record.context }}</bdi
+              ><span aria-hidden="true">·</span
+              ><time [attr.datetime]="record.createdAt">{{
+                record.createdAt | nwDate: 'relative'
+              }}</time>
+            </div>
+          </div>
+          <div class="notifications__row-trailing">
+            @if (record.priority === 'urgent') {
+              <span class="notifications__priority">{{
+                'notifications.priority.urgent' | transloco
+              }}</span>
+            }
+            @if (record.unread) {
+              <span class="notifications__unread"
+                ><span class="nw-visually-hidden">{{
+                  'notifications.unreadItem' | transloco
+                }}</span></span
+              >
+            }
+            <button
+              type="button"
+              class="notifications__read-action"
+              [disabled]="center.actionPending()"
+              [attr.aria-label]="
+                (record.unread ? 'notifications.markRead' : 'notifications.keepUnread') | transloco
+              "
+              [title]="
+                (record.unread ? 'notifications.markRead' : 'notifications.keepUnread') | transloco
+              "
+              (click)="record.unread ? center.markRead(record.id) : center.keepUnread(record.id)"
+            >
+              <nw-icon [name]="record.unread ? 'check' : 'bell'" size="sm" />
+            </button>
+          </div>
+        </article>
+      } @empty {
+        <div class="notifications__empty">
+          <span class="notifications__empty-icon" aria-hidden="true"
+            ><nw-icon [name]="read() === 'unread' ? 'circle-check' : 'bell'" size="lg"
+          /></span>
+          <h3>{{ emptyKey() | transloco }}</h3>
+          @if (read() === 'unread' && center.unread() === 0) {
+            <p>{{ 'notifications.empty.allCaughtUpDescription' | transloco }}</p>
+          }
+        </div>
+      }
+    </div>
+  </section>
+} @else if (center.unavailable()) {
+  <section class="notifications__unavailable" role="status">
+    <nw-icon name="info" size="lg" />
+    <h2>{{ 'notifications.states.notInBuildTitle' | transloco }}</h2>
+    <p>{{ 'notifications.states.notInBuildDescription' | transloco }}</p>
+  </section>
+} @else if (center.state().status === 'error') {
+  <section class="notifications__unavailable" role="alert">
+    <nw-icon name="circle-alert" size="lg" />
+    <h2>{{ 'notifications.states.errorTitle' | transloco }}</h2>
+    <p>{{ 'notifications.states.errorDescription' | transloco }}</p>
+    <button type="button" class="notifications__mark-all" (click)="center.reload()">
+      <nw-icon name="refresh-cw" size="sm" />{{ 'notifications.states.retry' | transloco }}
+    </button>
+  </section>
+} @else {
+  <section class="notifications__unavailable" role="status">
+    <nw-icon name="hourglass" size="lg" />
+    <p>{{ 'notifications.states.loading' | transloco }}</p>
+  </section>
 }

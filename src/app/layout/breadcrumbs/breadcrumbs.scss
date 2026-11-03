@@ -1,99 +1,129 @@
 @use 'abstracts' as nw;
 
+:host {
+  display: block;
+  flex: 1 1 18rem;
+  min-inline-size: 0;
+}
+
+nav {
+  position: relative;
+  min-inline-size: 0;
+}
+
 .breadcrumbs__list {
   display: flex;
   align-items: center;
-  gap: var(--nw-space-2);
-  overflow: hidden;
+  gap: var(--nw-space-1);
+  min-inline-size: 0;
+  overflow: visible;
   color: var(--nw-text-secondary);
   font-size: 0.8125rem;
   white-space: nowrap;
 }
 
-// On a deep page whose trail does not fit, crumbs truncate rather than push the top bar's controls: the earliest
-// levels give way first (flex-shrink weights act as priorities), each keeping room for an ellipsis; the current page
-// keeps its full name (its own ellipsis applies only if it alone is wider than the trail).
 .breadcrumbs__item {
   display: inline-flex;
-  flex-shrink: 1;
+  flex: 0 0 auto;
   align-items: center;
-  gap: var(--nw-space-2);
-  min-inline-size: 2.125rem;
-
-  &:first-child {
-    flex-shrink: 0;
-    min-inline-size: 0;
-  }
-
-  &:nth-child(2) {
-    flex-shrink: 10000;
-  }
-
-  &:nth-child(3) {
-    flex-shrink: 1000;
-  }
-
-  &:nth-child(4) {
-    flex-shrink: 100;
-  }
-
-  &:nth-child(5) {
-    flex-shrink: 10;
-  }
-
-  &:last-child {
-    flex-shrink: 0;
-    min-inline-size: 0;
-    max-inline-size: 100%;
-  }
-
-  // Only the page itself is kept on narrower top bars (owner design): Home › Overview.
-  &--intermediate:not(:first-child) {
-    display: none;
-
-    @include nw.from(desktop) {
-      display: inline-flex;
-    }
-  }
+  gap: var(--nw-space-1);
+  min-inline-size: 0;
 }
 
 .breadcrumbs__home,
-.breadcrumbs__link {
+.breadcrumbs__link,
+.breadcrumbs__overflow-trigger {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
-  min-block-size: 1.5rem;
+  justify-content: center;
+  min-block-size: 1.875rem;
+  border: 0;
   border-radius: var(--nw-radius-sm);
+  background: transparent;
   color: var(--nw-text-secondary);
   text-decoration: none;
+  cursor: pointer;
 
   &:hover {
     color: var(--nw-text-primary);
-    text-decoration: underline;
+    background-color: var(--nw-color-neutral-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: 1px;
   }
 }
 
-// Text-only crumbs (links and plain text) truncate with an ellipsis when the trail is too long.
-.breadcrumbs__link,
-.breadcrumbs__text {
-  display: block;
-  overflow: hidden;
-  line-height: 1.5rem;
-  text-overflow: ellipsis;
+.breadcrumbs__home {
+  inline-size: 1.875rem;
+}
+
+.breadcrumbs__overflow-trigger {
+  inline-size: 1.75rem;
+  min-block-size: 1.75rem;
 }
 
 .breadcrumbs__separator {
-  flex-shrink: 0;
+  flex: 0 0 auto;
   color: var(--nw-icon-muted);
 }
 
-// A crumb the actor cannot open (the Company, for an operator): the same quiet text, not a link.
+.breadcrumbs__link,
+.breadcrumbs__text,
+.breadcrumbs__current {
+  display: block;
+  min-inline-size: 0;
+  line-height: 1.5rem;
+  white-space: nowrap;
+}
+
 .breadcrumbs__text {
   color: var(--nw-text-secondary);
 }
 
 .breadcrumbs__current {
-  overflow: hidden;
   color: var(--nw-text-primary);
   font-weight: var(--nw-font-weight-semibold);
-  text-overflow: ellipsis;
+}
+
+.breadcrumbs__current--wrap {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.breadcrumbs__measure {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-start: -10000px;
+  display: flex;
+  gap: var(--nw-space-2);
+  inline-size: max-content;
+  block-size: 1px;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.breadcrumbs__measure-label {
+  inline-size: max-content;
+  font-size: 0.8125rem;
+
+  &--current {
+    font-weight: var(--nw-font-weight-semibold);
+  }
+}
+
+[dir='rtl'] .breadcrumbs__separator {
+  transform: rotate(180deg);
+}
+
+@media (forced-colors: active) {
+  .breadcrumbs__home,
+  .breadcrumbs__link,
+  .breadcrumbs__overflow-trigger {
+    border: 1px solid ButtonText;
+  }
 }

@@ -265,6 +265,7 @@
     "notAvailableYet": "Not available yet",
     "breadcrumb": {
       "label": "Breadcrumb",
+      "showHidden": "Show hidden breadcrumb pages",
       "home": "Company overview",
       "company": "Company",
       "overview": "Overview",
@@ -300,6 +301,7 @@
     },
     "context": {
       "label": "Administration scope",
+      "scopeTrigger": "Current scope: {{scope}}. Change scope.",
       "allPlatforms": "All platforms",
       "platforms": "Platforms",
       "current": "current",
@@ -360,7 +362,17 @@
     "sidebarLabel": "Sidebar",
     "search": {
       "label": "Search",
-      "placeholder": "Search organizations, users…"
+      "open": "Open global search",
+      "categoryLabel": "Search category",
+      "placeholder": "Search organizations, members, operators, platforms…",
+      "unavailable": "Global search is not available yet. No categories are connected to a search source.",
+      "categories": {
+        "all": "All",
+        "organizations": "Organizations",
+        "members": "Members",
+        "operators": "Operators",
+        "platforms": "Platforms"
+      }
     },
     "notifications": {
       "unread": "Unread notifications: {{count}}",
@@ -3178,19 +3190,7 @@
     "header": {
       "eyebrow": "Personal",
       "title": "Notifications",
-      "subtitle": "Your own notification summary. Only you see it."
-    },
-    "count": {
-      "label": "Unread notifications (demo count)",
-      "note": "A demo count from this build’s records, not from Nawara Core. The messages behind it are not available.",
-      "zero": "No unread notifications are counted for you in this demo. That does not mean you have never received one: message history is not available."
-    },
-    "inbox": {
-      "title": "Your inbox is not available yet",
-      "body": "Nawara Core delivers notifications but offers no read of a person’s messages yet, so Admin shows a count only.",
-      "contents": "No message, sender or time is shown.",
-      "actions": "Marking as read, dismissing and preferences are not available.",
-      "codes": "Sign-in, verification and confirmation codes are never shown here."
+      "inboxSubtitle": "Your personal notification inbox. Live notifications are not available yet; demo records are illustrative."
     },
     "separate": "Notifications are not audit records or administrative activity: nothing here comes from the activity log.",
     "states": {
@@ -3200,7 +3200,70 @@
       "errorTitle": "Your notifications could not be loaded",
       "errorDescription": "Try again in a moment.",
       "retry": "Try again",
-      "forbiddenDescription": "Your notification summary could not be read for this session."
+      "actionError": "That notification could not be updated. Please try again."
+    },
+    "newCount": "{{count}} new",
+    "demoOnly": "Demo only",
+    "filters": {
+      "label": "Filter notifications",
+      "all": "All",
+      "invitations": "Invitations",
+      "approvals": "Approvals",
+      "licenses": "Licenses",
+      "access": "Access",
+      "updates": "Updates"
+    },
+    "recent": "Recent",
+    "markAllRead": "Mark all as read",
+    "emptyFiltered": "No notifications in this category.",
+    "unreadItem": "Unread",
+    "markRead": "Mark as read",
+    "keepUnread": "Keep unread",
+    "viewAll": "View all notifications",
+    "priority": {
+      "urgent": "Urgent"
+    },
+    "records": {
+      "invitation": {
+        "title": "Invitation awaiting acceptance",
+        "description": "An invitation to join École Horizon is still pending."
+      },
+      "license": {
+        "title": "License nearing expiration",
+        "description": "A Nawara School license is approaching its renewal date."
+      },
+      "organization": {
+        "title": "Organization created",
+        "description": "A new organization was added to Nawara School."
+      },
+      "approval": {
+        "title": "Membership approved",
+        "description": "A membership request for École Horizon was approved."
+      },
+      "access": {
+        "title": "Operator access request",
+        "description": "An operator access request is ready for review."
+      }
+    },
+    "preferences": {
+      "title": "Notification settings",
+      "unavailable": "Notification preferences are not available yet."
+    },
+    "list": {
+      "title": "Your notifications",
+      "count": "{{count}} notifications"
+    },
+    "readFilter": {
+      "label": "Read status",
+      "all": "All",
+      "unread": "Unread",
+      "read": "Read"
+    },
+    "empty": {
+      "noNotifications": "No notifications yet",
+      "allCaughtUp": "You’re all caught up",
+      "allCaughtUpDescription": "There are no unread notifications.",
+      "noMatches": "No notifications match these filters."
     }
   },
   "releases": {
