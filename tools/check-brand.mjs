@@ -4,9 +4,8 @@
 //    no filter), and every logo placement uses that layer system;
 // 2. the decorative accent rules beside the copyright and the "NAWARA ADMIN" label above the headline are gone;
 // 3. the logo boxes keep the logo's own proportions (no letterboxing, no distortion);
-// 4. every tab favicon (11 palettes x 2 file names) is vector and coloured exactly with its palette's leaf and pictogram
-//    colours for each browser scheme, read independently from the token files; the favicon map and the pre-paint script
-//    still point at those files;
+// 4. every tab favicon (11 palettes x 2 file names) is the unmodified transparent vector master, coloured with the
+//    exact token values for its appearance; the favicon map and pre-paint script still point at those files;
 // 5. the static icons have their required pixel sizes.
 // Pictogram contrast itself is held to 3:1 by check:contrast (--nw-logo-detail on --nw-logo-accent).
 import { existsSync, readFileSync } from 'node:fs';
@@ -145,9 +144,23 @@ expect(
 );
 const artwork = read('src/app/core/theme/palette-artwork.ts');
 const index = read('src/index.html');
+const faviconMaster = read('docs/brand/nawara-admin-favicon.svg');
+const masterPaths = [...faviconMaster.matchAll(/<path d="([^"]+)"/g)].map((match) => match[1]);
+const masterCircles = [...faviconMaster.matchAll(/<circle\b[^>]*\/>/g)].map((match) => match[0]);
+const exporter = read('tools/brand/export_favicon.mjs');
+const artworkGenerator = read('tools/brand/recolor_artwork.py');
+expect(
+  exporter.includes('docs/brand/nawara-admin-favicon.svg') &&
+    exporter.includes('MASTER.replace(/<!--'),
+  'export_favicon.mjs: tab icons must use the approved vector master',
+);
+expect(
+  artworkGenerator.includes("FAVICON_VERSION = '?v=b3'"),
+  'recolor_artwork.py: generated favicon URLs must use the current asset version',
+);
 for (const palette of PALETTES) {
   for (const theme of ['light', 'dark']) {
-    // Each file follows the app appearance its name encodes (B1 finishing pass), never the browser scheme.
+    // Each file follows the app appearance its name encodes, never the browser scheme.
     const [leaf, detail] = expected[palette][theme];
     const style = `<style>svg{color:${leaf}}.detail{fill:${detail}}</style>`;
     const file =
@@ -162,18 +175,41 @@ for (const palette of PALETTES) {
       continue;
     }
     const svg = read(path);
+    const outputPaths = [...svg.matchAll(/<path d="([^"]+)"/g)].map((match) => match[1]);
+    const outputCircles = [...svg.matchAll(/<circle\b[^>]*\/>/g)].map((match) => match[0]);
     expect(svg.includes(style), `${path}: colours must be ${style}`);
+    expect(
+      svg.includes('viewBox="0 0 64 64"') && !svg.includes('data-nawara-favicon'),
+      `${path}: must use the original, unscaled 64-unit favicon canvas`,
+    );
+    expect(
+      !/<rect|<ellipse/.test(svg) &&
+        outputCircles.length === masterCircles.length &&
+        masterCircles.every((circle) => outputCircles.includes(circle)),
+      `${path}: must have a transparent background without a circle or enclosing tile`,
+    );
+    expect(
+      masterPaths.length > 0 &&
+        outputPaths.length === masterPaths.length &&
+        masterPaths.every((d, index) => outputPaths[index] === d) &&
+        !svg.includes('scale(0.78)'),
+      `${path}: must preserve every master path without shrinking or distorting it`,
+    );
     expect(!svg.includes('prefers-color-scheme'), `${path}: must not switch on the browser scheme`);
     expect(
       !svg.includes('<image') && svg.includes('<path'),
       `${path}: must be vector (no embedded raster)`,
     );
-    expect(artwork.includes(`'${file}?v=`), `palette-artwork.ts: no versioned entry for ${file}`);
+    expect(
+      artwork.includes(`'${file}?v=b3'`),
+      `palette-artwork.ts: no current versioned entry for ${file}`,
+    );
   }
 }
 expect(
   index.includes("'icons/favicon-' + accent + '-light.svg'") &&
-    index.includes('link id="nw-favicon"'),
+    index.includes('link id="nw-favicon"') &&
+    index.includes("+ '?v=b3'"),
   'index.html: the pre-paint favicon selection must stay',
 );
 
@@ -205,5 +241,5 @@ if (errors.length) {
   process.exit(1);
 }
 console.log(
-  `✔ brand: logo layers, no decorative rules, logo proportions, ${PALETTES.length * 2} favicons coloured from the tokens, icon sizes`,
+  `✔ brand: logo layers, no decorative rules, logo proportions, ${PALETTES.length * 2} transparent master favicons coloured from the tokens, icon sizes`,
 );

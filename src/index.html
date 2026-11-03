@@ -40,11 +40,12 @@
           )
             root.setAttribute('data-accent', accent);
           else accent = 'coral';
-          document.getElementById('nw-favicon').href = dark
-            ? accent === 'coral'
-              ? 'favicon.svg'
-              : 'icons/favicon-' + accent + '.svg'
-            : 'icons/favicon-' + accent + '-light.svg';
+          document.getElementById('nw-favicon').href =
+            (dark
+              ? accent === 'coral'
+                ? 'favicon.svg'
+                : 'icons/favicon-' + accent + '.svg'
+              : 'icons/favicon-' + accent + '-light.svg') + '?v=b3';
           var locale = localStorage.getItem('nw.locale');
           if (locale === 'en' || locale === 'fr' || locale === 'ar') {
             root.lang = locale;

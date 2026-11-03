@@ -16,7 +16,8 @@
 //   follow a palette.
 //
 // Deterministic for a given Chromium (the environment's Playwright; not a project dependency, like the Python tools).
-// Usage, from the repository root:  node tools/brand/export_favicon.mjs
+// Usage, from the repository root:  node tools/brand/export_favicon.mjs [--svg-only]
+// --svg-only skips raster app icons; it does not need the optional Playwright package.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
@@ -121,6 +122,11 @@ for (const palette of PALETTES) {
 console.log(
   'public/favicon.svg and public/icons/favicon-<palette>[-light].svg written (22 vector files)',
 );
+
+if (process.argv.includes('--svg-only')) {
+  console.log('Raster icon export skipped (--svg-only).');
+  process.exit(0);
+}
 
 const { chromium } = createRequire(import.meta.url)('playwright');
 const browser = await chromium.launch();
