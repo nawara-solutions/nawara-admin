@@ -116,6 +116,7 @@
 .auth-brand-panel__line-emphasis {
   color: var(--nw-text-brand);
   font-weight: var(--nw-font-weight-semibold);
+  white-space: nowrap;
 }
 
 // The footer: "© 2026 Nawara Solutions" as quiet, compact text on the panel's bottom margin (owner layout 2026-11-02; no
