@@ -38,6 +38,22 @@ light and dark; the lettering and the white details inside the leaf never change
 - **Regression checks.** `npm run check:brand` (in `validate`) guards the layer wiring, the removed rules, the box
   proportions, the 22 favicon colours and the icon sizes. Evidence is in `docs/review/b1-polish/`.
 
+**Symbol-first lockup (owner sign-in polish, 2026-11-03):**
+
+- **Composition.** The Admin logo now reads **`[symbol] nawara admin`**. `symbol_first_lockup` in
+  `tools/brand/extract_blue_leaf.py` composes it from the same pixels, nothing redrawn:
+  - the approved symbol, with its enlarged pictogram, at 0.82 (about 1.9× the wordmark's ascender-to-baseline height),
+    centred on the wordmark's optical centre;
+  - a 22 px gap;
+  - "nawara" and "admin" cut from the lettering layer at their own size and baseline, separated by a 26 px word space,
+    with stray specks removed.
+- **Files.** `public/brand/nawara-admin-lockup-{lettering,lettering-on-dark,symbol-mask,symbol-details}.webp` (906 ×
+  133), drawn by `nw-brand-mark` (all Admin wordmark placements). The Solutions and ERP logos, the scope-switcher symbol
+  and the favicons are unchanged.
+- **Box.** The logo box keeps the earlier height (1.028em), so no row moves. It is wider (5.352em) so the letters keep
+  their approved size: sign-in logo 189 → 216 px wide.
+- **RTL.** The Latin lockup keeps its order and is never mirrored.
+
 **Final correction (owner, 2026-11-01):**
 
 - **Sign-in logo size.** 11 % smaller on both sign-in views, light and dark: desktop 240 → 213 px wide

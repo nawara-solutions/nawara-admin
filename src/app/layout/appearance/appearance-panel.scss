@@ -80,17 +80,26 @@
 }
 
 .appearance-panel__footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--nw-space-2) var(--nw-space-3);
+  display: grid;
+  gap: var(--nw-space-3);
 }
 
 .appearance-panel__note {
-  flex: 1 1 12rem;
   color: var(--nw-text-secondary);
   font-size: var(--nw-text-size-xs);
+}
+
+// Reset (owner reference, 2026-11-03): the full width of the content area, a subtle border, the icon and the label centred
+// together. The ghost button keeps its own hover, press, disabled and focus states; only the border and width are added.
+.appearance-panel__reset {
+  --nw-button-border: var(--nw-border-default);
+
+  inline-size: 100%;
+  padding-block: var(--nw-space-2);
+
+  &:disabled {
+    --nw-button-border: var(--nw-border-subtle);
+  }
 }
 
 @media (forced-colors: active) {
