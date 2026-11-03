@@ -2,11 +2,6 @@
 
 // One column with a compact header below `desktop`; from `desktop` a 44/56 split with the brand panel at inline start.
 :host {
-  // The sign-in pages set their text 15% smaller than the workspace (owner refinement 2026-10-30): every font size on
-  // these pages, and in the shared controls they use (buttons, fields, alerts, the framed language and appearance
-  // triggers), is multiplied by this scale; elsewhere it is unset and the scale is 1.
-  --nw-admin-text-scale: 0.85;
-
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   min-block-size: 100dvh;
@@ -66,8 +61,8 @@
 }
 
 .auth-frame__header-logo {
-  // 11 % smaller than the B1 polish size, as on the desktop sign-in (owner B1 final correction).
-  --nw-brand-mark-size: calc(1.5rem * var(--nw-admin-text-scale, 1));
+  // Keep the compact tablet/phone wordmark size independent from authentication text sizing.
+  --nw-brand-mark-size: 1.275rem;
 
   min-inline-size: 0;
 
@@ -121,13 +116,13 @@
 
 .auth-frame__footer-tagline {
   color: var(--nw-text-label);
-  font-size: calc(0.8125rem * var(--nw-admin-text-scale, 1));
+  font-size: 0.8125rem;
   font-weight: var(--nw-font-weight-medium);
 }
 
 .auth-frame__footer-copyright {
   color: var(--nw-text-secondary);
-  font-size: calc(0.71875rem * var(--nw-admin-text-scale, 1));
+  font-size: var(--nw-text-size-xs);
   letter-spacing: 0.04em;
   font-variant-numeric: tabular-nums;
 
@@ -143,7 +138,8 @@
 // so the copyright keeps its height, position and text size. Artwork: it never mirrors in RTL.
 .auth-frame__footer-copyright-mark {
   display: inline-block;
-  block-size: 2.3em;
+  // Keep the approved mark's rendered size beside the more readable copyright text.
+  block-size: 1.875em;
   aspect-ratio: 891 / 174;
   margin-block-start: -1.3em;
   vertical-align: -0.106em;

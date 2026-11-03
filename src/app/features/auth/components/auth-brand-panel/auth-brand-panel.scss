@@ -61,11 +61,8 @@
 }
 
 .auth-brand-panel__logo {
-  // The floral-R wordmark alone (owner refinement 2026-10-30: no "SOLUTIONS" line), on the pages' text scale. Set here
-  // only, so other logos (sidebar, phone header) keep theirs.
-  // 11 % smaller than the B1 polish size (owner B1 final correction, 2026-11-01), then a further 11 % smaller (owner
-  // layout 2026-11-02).
-  --nw-brand-mark-size: calc(2.7rem * var(--nw-admin-text-scale, 1));
+  // Keep the approved desktop mark size separate from authentication text roles.
+  --nw-brand-mark-size: 2.3rem;
 
   align-self: flex-start;
 }
@@ -85,7 +82,7 @@
 // (the phone footer) the same text collapses to one line. A display size with tight leading and tracking.
 .auth-brand-panel__tagline {
   color: var(--nw-text-primary);
-  font-size: calc(clamp(2.125rem, 1.25rem + 1.25vw, 2.75rem) * var(--nw-admin-text-scale, 1));
+  font-size: clamp(2.125rem, 1.25rem + 1.25vw, 2.75rem);
   font-weight: var(--nw-font-weight-medium);
   line-height: 1.06;
   letter-spacing: -0.03em;
@@ -108,7 +105,7 @@
   max-inline-size: 22em;
   margin-block-start: var(--nw-space-4);
   color: var(--nw-text-label);
-  font-size: calc(1.125rem * var(--nw-admin-text-scale, 1));
+  font-size: 1rem;
   line-height: 1.5;
   text-wrap: pretty;
 }
@@ -123,7 +120,7 @@
 // decorative rule, no logo mark).
 .auth-brand-panel__copyright {
   color: var(--nw-text-label);
-  font-size: calc(0.875rem * var(--nw-admin-text-scale, 1));
+  font-size: 0.8125rem;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
 

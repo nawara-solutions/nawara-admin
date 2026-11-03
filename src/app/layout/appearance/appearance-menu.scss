@@ -30,8 +30,10 @@
 
 // Sign-in pages: outlined, like the language control beside it.
 :host(.appearance-menu--framed) .appearance-menu__trigger {
-  block-size: 2.0625rem;
-  padding-inline: 0.625rem;
+  block-size: 2.5rem;
+  gap: var(--nw-space-2);
+  padding-inline: var(--nw-space-3);
+  font-size: 0.8125rem;
   border: 1px solid var(--nw-border-default);
   background-color: var(--nw-surface-raised);
   color: var(--nw-text-label);
@@ -80,7 +82,7 @@
 }
 
 .appearance-menu__title {
-  font-size: calc(var(--nw-text-size-sm) * var(--nw-admin-text-scale, 1));
+  font-size: var(--nw-text-size-sm);
   font-weight: var(--nw-font-weight-semibold);
 }
 
