@@ -4,7 +4,7 @@
   [nwMenuTriggerFor]="languages"
   [attr.aria-label]="('preferences.language.label' | transloco) + ': ' + currentLanguage()"
 >
-  <nw-icon name="globe" />
+  <nw-icon name="globe" size="sm" />
   @if (framed()) {
     <span class="preference-menus__value" aria-hidden="true">{{ currentLanguage() }}</span>
     <nw-icon class="preference-menus__chevron" name="chevron-down" size="sm" />
@@ -12,6 +12,7 @@
     <span class="preference-menus__value" aria-hidden="true">{{
       locale.locale() | uppercase
     }}</span>
+    <nw-icon class="preference-menus__chevron" name="chevron-down" size="sm" />
   }
 </button>
 <ng-template #languages>
