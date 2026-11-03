@@ -15,7 +15,12 @@
       'auth.brand.taglineEmphasis' | transloco
     }}</span>
   </p>
-  <p class="auth-brand-panel__line">{{ 'auth.brand.line' | transloco }}</p>
+  <p class="auth-brand-panel__line">
+    <span>{{ 'auth.brand.lineLead' | transloco }}</span>
+    <bdi class="auth-brand-panel__line-emphasis" dir="ltr">{{
+      'auth.brand.lineEmphasis' | transloco
+    }}</bdi>
+  </p>
 </div>
 <!-- Isolated: the Latin company line keeps its own order ("© 2026 Nawara Solutions") on an Arabic page. -->
 <p class="auth-brand-panel__copyright">
