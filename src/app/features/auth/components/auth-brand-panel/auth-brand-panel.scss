@@ -104,11 +104,18 @@
 }
 
 .auth-brand-panel__line {
-  // One line (owner layout 2026-11-02); it still wraps if the panel is too narrow.
-  margin-block-start: var(--nw-space-5);
+  // Connected to the headline while leaving a clear, responsive break before the company name where space permits.
+  max-inline-size: 22em;
+  margin-block-start: var(--nw-space-4);
   color: var(--nw-text-label);
   font-size: calc(1.125rem * var(--nw-admin-text-scale, 1));
-  line-height: 1.6;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.auth-brand-panel__line-emphasis {
+  color: var(--nw-text-brand);
+  font-weight: var(--nw-font-weight-semibold);
 }
 
 // The footer: "© 2026 Nawara Solutions" as quiet, compact text on the panel's bottom margin (owner layout 2026-11-02; no

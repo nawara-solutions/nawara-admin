@@ -61,9 +61,15 @@ describe('AuthBrandPanel logos', () => {
       expect(tagline?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
         catalog.auth.brand.tagline.replace(/\s+/g, ' '),
       );
-      expect(panel.querySelector('.auth-brand-panel__line')?.textContent?.trim()).toBe(
-        catalog.auth.brand.line,
+      const line = panel.querySelector('.auth-brand-panel__line');
+      const lineEmphasis = line?.querySelector('.auth-brand-panel__line-emphasis');
+      expect(line?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+        `${catalog.auth.brand.lineLead}${catalog.auth.brand.lineEmphasis}`
+          .replace(/\s+/g, ' ')
+          .trim(),
       );
+      expect(lineEmphasis?.textContent?.trim()).toBe(catalog.auth.brand.lineEmphasis);
+      expect(lineEmphasis?.getAttribute('dir')).toBe('ltr');
     });
   }
 
