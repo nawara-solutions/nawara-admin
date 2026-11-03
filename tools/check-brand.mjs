@@ -43,7 +43,7 @@ expect(!/filter\s*:/.test(logo), '_logo.scss: no CSS filter on the logos');
 for (const [file, layers] of [
   [
     'src/app/shared/ui/brand-mark/brand-mark.scss',
-    ['--nw-logo-admin-symbol-mask', '--nw-logo-admin-mark-mask'],
+    ['--nw-logo-admin-lockup-symbol-mask', '--nw-logo-admin-mark-mask'],
   ],
   // The desktop brand panel's copyright is plain text since the owner layout of 2026-11-02 (no Solutions mark there).
   [
@@ -95,8 +95,8 @@ for (const block of ['auth-brand-panel__copyright {']) {
 // 3. Logo boxes at the logo's own proportions
 const mark = read('src/app/shared/ui/brand-mark/brand-mark.scss');
 expect(
-  /inline-size: 4\.69em;\s*aspect-ratio: 794 \/ 174;/.test(mark),
-  'brand-mark.scss: the logo box must be 4.69em at 794 / 174',
+  /inline-size: 5\.352em;\s*block-size: 1\.028em;/.test(mark),
+  'brand-mark.scss: the symbol-first lockup box must be 5.352em x 1.028em (letters at the approved size, earlier height)',
 );
 expect(
   /inline-size: 1\.227em;\s*block-size: 1em;/.test(mark),

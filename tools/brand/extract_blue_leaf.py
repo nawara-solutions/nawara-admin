@@ -194,6 +194,56 @@ def enlarge_pictogram(details: np.ndarray, mask: np.ndarray, max_factor: float =
     return details, 1.0
 
 
+# The symbol-first lockup (owner sign-in polish, 2026-11-03): "[symbol] nawara admin" composed from the same pixels: the
+# Admin symbol (with its enlarged pictogram) at LOCKUP_SCALE, then the two words cut from the lettering layer at their own
+# size and baseline. Nothing is redrawn. Columns of the words in the lettering layer (794 px wide), the gaps in source px.
+LOCKUP_WORDS = ((0, 376), (472, 794))  # "nawara", "admin"
+LOCKUP_SCALE = 0.82  # the symbol about 1.9x the wordmark's ascender-to-baseline height
+LOCKUP_GAP = 22  # symbol to "nawara"
+LOCKUP_SPACE = 26  # the word space between "nawara" and "admin"
+LOCKUP_CENTRE = 130.5  # the wordmark's optical centre (midway between ascender top 95 and baseline 166)
+
+
+def clean_word(word: np.ndarray, min_pixels: int = 40) -> np.ndarray:
+    """A word cut from the lettering layer without the faint stray specks the symbol left nearby."""
+    out = word.copy()
+    for part in components(out[..., 3] > 0.05):
+        if part.sum() < min_pixels:
+            out[part, 3] = 0
+    out[:88, :, 3] = 0  # nothing of the lowercase wordmark rises above its ascenders (row 95)
+    return out
+
+
+def symbol_first_lockup(lettering: np.ndarray, mark_mask: np.ndarray, mark_details: np.ndarray):
+    """(lettering, symbol mask, symbol details) of "[symbol] nawara admin", cropped to the artwork."""
+    words = [clean_word(lettering[:, a:b]) for a, b in LOCKUP_WORDS]
+
+    def scaled(img):
+        h, w = img.shape[:2]
+        im = to_image(img).resize((round(w * LOCKUP_SCALE), round(h * LOCKUP_SCALE)), Image.LANCZOS)
+        return np.asarray(im).astype(np.float64) / 255
+
+    sm, sd = scaled(mark_mask), scaled(mark_details)
+    sh, sw = sm.shape[:2]
+    top = round(LOCKUP_CENTRE - sh / 2)
+    shift = max(0, -top)
+    height = max(lettering.shape[0] + shift, top + shift + sh)
+    width = sw + LOCKUP_GAP + words[0].shape[1] + LOCKUP_SPACE + words[1].shape[1]
+    layers = [np.zeros((height, width, 4)) for _ in range(3)]
+    layers[1][..., :3] = 1
+    layers[2][..., :3] = 1
+    layers[1][top + shift:top + shift + sh, :sw] = sm
+    layers[2][top + shift:top + shift + sh, :sw] = sd
+    x = sw + LOCKUP_GAP
+    for word in words:
+        layers[0][shift:shift + lettering.shape[0], x:x + word.shape[1]] = word
+        x += word.shape[1] + LOCKUP_SPACE
+    alpha = np.maximum.reduce([layer[..., 3] for layer in layers])
+    ys, xs = np.nonzero(alpha > 0.02)
+    box = (slice(ys.min(), ys.max() + 1), slice(xs.min(), xs.max() + 1))
+    return tuple(layer[box] for layer in layers)
+
+
 def with_colour(rgba: np.ndarray, rgb) -> np.ndarray:
     out = rgba.copy()
     out[..., :3] = rgb
@@ -329,6 +379,11 @@ def main(path: str) -> None:
             save_webp(mark_details, 'nawara-admin-mark-details.webp')
             # The favicon family is exported from its vector master since B2 (tools/brand/export_favicon.mjs);
             # write_icons(mark_mask, mark_details) is kept for the record and no longer run.
+            lock_lettering, lock_mask, lock_details = symbol_first_lockup(lettering, mark_mask, mark_details)
+            save_webp(lock_lettering, 'nawara-admin-lockup-lettering.webp')
+            save_webp(with_colour(lock_lettering, DARK_LETTERING), 'nawara-admin-lockup-lettering-on-dark.webp')
+            save_webp(lock_mask, 'nawara-admin-lockup-symbol-mask.webp')
+            save_webp(lock_details, 'nawara-admin-lockup-symbol-details.webp')
 
 
 if __name__ == '__main__':

@@ -70,10 +70,14 @@
   align-self: flex-start;
 }
 
+// The hero (headline and line, one group) between the logo and the copyright (owner sign-in polish, 2026-11-03): the
+// panel's space-between centres it in the free space, and the bottom padding lifts it by half of --nw-space-10 so it sits
+// slightly above the geometric middle, where it reads as centred (top gap about 0.8 of the bottom gap at every height;
+// the panel's gap still keeps the three anchors apart on short screens). It replaces a fixed 14vh bottom margin.
 .auth-brand-panel__intro {
   display: grid;
   max-inline-size: 34rem;
-  margin-block-end: 14vh;
+  padding-block-end: var(--nw-space-10);
 }
 
 // Each locale sets its own deliberate line breaks in the translation ("\n"; owner layout 2026-10-06: "Smart /

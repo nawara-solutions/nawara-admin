@@ -28,15 +28,16 @@
 .nw-brand-mark__word {
   display: block;
   flex-shrink: 0;
-  // The logo's own proportions (794 / 174) at the height of the earlier box (1.03em), so it fills its box instead of
-  // floating in it: about 39 % larger than before with no vertical change (owner B1 polish).
-  inline-size: 4.69em;
-  aspect-ratio: 794 / 174;
+  // The symbol-first lockup "[symbol] nawara admin" (906 x 133 px; owner sign-in polish, 2026-11-03). Its letters keep
+  // their approved size (the earlier 794 px logo drawn 4.69em wide: 906 / 794 x 4.69em), and the box keeps the earlier
+  // height (1.028em), so no row moves; the artwork is centred in it with `contain`, never stretched.
+  inline-size: 5.352em;
+  block-size: 1.028em;
   font-size: var(--nw-brand-mark-word-size, 1em);
   @include nw.accent-logo(
-    var(--nw-logo-admin-lettering),
-    var(--nw-logo-admin-symbol-mask),
-    var(--nw-logo-admin-symbol-details)
+    var(--nw-logo-admin-lockup-lettering),
+    var(--nw-logo-admin-lockup-symbol-mask),
+    var(--nw-logo-admin-lockup-symbol-details)
   );
 }
 
