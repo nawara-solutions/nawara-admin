@@ -1,4 +1,8 @@
 :host {
+  // The shared auth controls inherit a compact scale for secondary flows. Sign-in is the primary entry point, so keep
+  // its text at the shared design-token sizes without changing typography on the other auth steps.
+  --nw-admin-text-scale: 1;
+
   display: contents;
 }
 

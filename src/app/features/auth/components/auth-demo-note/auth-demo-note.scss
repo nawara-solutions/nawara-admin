@@ -9,11 +9,14 @@
   border: 1px dashed var(--nw-border-default);
   border-radius: 0.75rem;
   color: var(--nw-text-secondary);
-  font-size: calc(0.8125rem * var(--nw-admin-text-scale, 1));
+  font-size: 0.78125rem;
+  line-height: 1.45;
 }
 
 .auth-demo-note__title {
   color: var(--nw-text-label);
+  font-size: 0.8125rem;
+  line-height: 1.4;
   font-weight: var(--nw-font-weight-semibold);
 
   // The operators' list starts a second section.
