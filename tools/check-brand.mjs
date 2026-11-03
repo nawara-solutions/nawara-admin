@@ -109,15 +109,14 @@ expect(
 
 // 3a. The limited Owner-approved Nawara | Admin pilot uses a separate vector layer, scoped to sign-in and sidebar.
 const flowerMask = read('public/brand/nawara-admin-flower-mask.svg');
-const flowerDetails = read('public/brand/nawara-admin-flower-details.svg');
 const adminLockup = read('src/app/shared/ui/admin-brand-lockup/admin-brand-lockup.scss');
 expect(
-  flowerMask.includes('viewBox="0 0 200 163"') && flowerDetails.includes('viewBox="0 0 200 163"'),
-  'the Admin flower pilot layers must share the approved symbol aspect ratio',
+  flowerMask.includes('viewBox="0 0 200 163"'),
+  'the Admin flower mark must retain the approved symbol aspect ratio',
 );
 expect(
   adminLockup.includes("url('/brand/nawara-admin-flower-mask.svg')") &&
-    adminLockup.includes("url('/brand/nawara-admin-flower-details.svg')") &&
+    adminLockup.includes("url('/brand/nawara-admin-mark-details.webp')") &&
     adminLockup.includes('--nw-logo-detail: var(--nw-text-primary)') &&
     adminLockup.includes('font-weight: 700') &&
     adminLockup.includes('--nw-font-weight-regular'),
