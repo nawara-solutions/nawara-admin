@@ -28,9 +28,19 @@
 <ng-template #scopes>
   <nw-menu class="context-switcher__menu">
     @if (hasCompanyScope()) {
-      <button nw-menu-item (triggered)="selectCompany()">
+      <button
+        nw-menu-item
+        class="context-switcher__item"
+        [attr.aria-current]="context.scope().kind === 'company' ? 'true' : null"
+        (triggered)="selectCompany()"
+      >
         <nw-product-symbol />
-        <span class="context-switcher__option">{{ 'shell.context.allPlatforms' | transloco }}</span>
+        <span class="context-switcher__option">
+          <bdi>{{ companyName() ?? (titleKey() | transloco) }}</bdi>
+          <span class="context-switcher__description">{{
+            'shell.context.allPlatforms' | transloco
+          }}</span>
+        </span>
         @if (context.scope().kind === 'company') {
           <nw-icon name="check" size="sm" />
           <span class="nw-visually-hidden">({{ 'shell.context.current' | transloco }})</span>
@@ -43,7 +53,12 @@
       </p>
     }
     @for (platform of platforms(); track platform.id) {
-      <button nw-menu-item (triggered)="selectPlatform(platform)">
+      <button
+        nw-menu-item
+        class="context-switcher__item"
+        [attr.aria-current]="currentPlatform()?.id === platform.id ? 'true' : null"
+        (triggered)="selectPlatform(platform)"
+      >
         <nw-product-symbol [product]="platform.product" />
         <bdi class="context-switcher__option">{{ platform.name }}</bdi>
         @if (currentPlatform()?.id === platform.id) {
