@@ -1,0 +1,9 @@
+@use 'abstracts' as nw;
+
+:host {
+  display: inline-block;
+  flex: 0 0 auto;
+  block-size: var(--nw-product-symbol-size, 1.75rem);
+  direction: ltr;
+  @include nw.accent-logo(none, var(--nw-product-mask), var(--nw-product-details));
+}

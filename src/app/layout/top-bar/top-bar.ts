@@ -16,14 +16,13 @@ import { NwMenuTrigger } from '../../shared/ui/menu/menu';
 import { AccountMenu } from '../account-menu/account-menu';
 import { Breadcrumbs } from '../breadcrumbs/breadcrumbs';
 import { ContextSwitcher } from '../context-switcher/context-switcher';
-import { PreferenceMenus } from '../preference-menus/preference-menus';
 import { GlobalSearch } from '../global-search/global-search';
 import { NotificationCenter } from '../notification-center/notification-center';
 import { profileOf } from '../sidebar/profile';
 
 /**
  * Top bar of the owner design: navigation toggle (drawer mode), breadcrumbs, search (not built: disabled), scope
- * switcher, language, theme, the unread-notification bell and the signed-in avatar, which opens the account menu.
+ * switcher, the unread-notification bell and the signed-in avatar, which opens the account menu.
  * Sticky, over a translucent wash.
  */
 @Component({
@@ -36,7 +35,6 @@ import { profileOf } from '../sidebar/profile';
     GlobalSearch,
     NotificationCenter,
     ContextSwitcher,
-    PreferenceMenus,
     AccountMenu,
   ],
   templateUrl: './top-bar.html',

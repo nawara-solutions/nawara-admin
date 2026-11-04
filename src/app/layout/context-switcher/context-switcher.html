@@ -8,7 +8,10 @@
   "
 >
   <!-- The company's logo symbol, in the palette's colours; decorative (the button's label names the scope). -->
-  <nw-brand-mark class="context-switcher__symbol" label="" aria-hidden="true" />
+  <nw-product-symbol
+    class="context-switcher__symbol"
+    [product]="currentPlatform()?.product ?? null"
+  />
   <span class="context-switcher__text">
     <bdi class="context-switcher__company">{{ companyName() ?? (titleKey() | transloco) }}</bdi>
     <span class="context-switcher__scope">
@@ -26,7 +29,7 @@
   <nw-menu class="context-switcher__menu">
     @if (hasCompanyScope()) {
       <button nw-menu-item (triggered)="selectCompany()">
-        <nw-icon name="building-2" size="sm" />
+        <nw-product-symbol />
         <span class="context-switcher__option">{{ 'shell.context.allPlatforms' | transloco }}</span>
         @if (context.scope().kind === 'company') {
           <nw-icon name="check" size="sm" />
@@ -41,7 +44,7 @@
     }
     @for (platform of platforms(); track platform.id) {
       <button nw-menu-item (triggered)="selectPlatform(platform)">
-        <nw-icon [name]="platform.product === 'drive' ? 'car' : 'hexagon'" size="sm" />
+        <nw-product-symbol [product]="platform.product" />
         <bdi class="context-switcher__option">{{ platform.name }}</bdi>
         @if (currentPlatform()?.id === platform.id) {
           <nw-icon name="check" size="sm" />

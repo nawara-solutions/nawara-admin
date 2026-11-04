@@ -5,7 +5,7 @@ import { can } from '../../core/access/capability-policy';
 import { AuthSession } from '../../core/auth/auth-session';
 import { ScopeContext, platformPath } from '../../core/context/scope-context';
 import { PlatformRef } from '../../core/context/scope.model';
-import { NwBrandMark } from '../../shared/ui/brand-mark/brand-mark';
+import { ProductSymbol } from '../../shared/ui/product-symbol/product-symbol';
 import { NwIcon } from '../../shared/ui/icon/icon';
 import { NwMenu, NwMenuItem, NwMenuTrigger } from '../../shared/ui/menu/menu';
 
@@ -15,7 +15,7 @@ import { NwMenu, NwMenuItem, NwMenuTrigger } from '../../shared/ui/menu/menu';
  */
 @Component({
   selector: 'adm-context-switcher',
-  imports: [TranslocoPipe, NwBrandMark, NwIcon, NwMenu, NwMenuItem, NwMenuTrigger],
+  imports: [TranslocoPipe, ProductSymbol, NwIcon, NwMenu, NwMenuItem, NwMenuTrigger],
   templateUrl: './context-switcher.html',
   styleUrl: './context-switcher.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
