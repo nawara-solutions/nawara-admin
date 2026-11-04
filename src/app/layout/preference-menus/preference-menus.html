@@ -16,7 +16,7 @@
   }
 </button>
 <ng-template #languages>
-  <nw-menu>
+  <nw-menu [class.preference-menus__auth-panel]="framed()">
     @for (option of locales; track option.value) {
       <button nw-menu-item [attr.lang]="option.value" (triggered)="setLocale(option.value)">
         <span class="preference-menus__option">{{ option.name }}</span>

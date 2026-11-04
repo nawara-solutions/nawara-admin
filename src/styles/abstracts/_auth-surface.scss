@@ -1,0 +1,5 @@
+// Authentication-only outer surfaces. Keep contents and geometry fully opaque and unchanged.
+@mixin auth-surface($surface) {
+  background-color: color-mix(in srgb, #{$surface} 94%, transparent);
+  border-color: color-mix(in srgb, var(--nw-color-primary) 22%, var(--nw-border-subtle));
+}

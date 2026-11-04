@@ -29,6 +29,7 @@
 >
   <div
     class="appearance-menu__popover"
+    [class.appearance-menu__popover--auth]="framed()"
     role="dialog"
     [style.max-block-size.px]="maxHeight()"
     [attr.aria-label]="'preferences.appearance.title' | transloco"
