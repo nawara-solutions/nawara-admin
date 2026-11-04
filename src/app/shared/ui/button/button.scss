@@ -58,6 +58,21 @@
   --nw-button-border: var(--nw-border-default);
 }
 
+:host(.nw-button--outline) {
+  --nw-button-bg: transparent;
+  --nw-button-bg-hover: var(--nw-color-neutral-hover);
+  --nw-button-bg-active: var(--nw-color-neutral-active);
+  --nw-button-fg: var(--nw-text-primary);
+  --nw-button-border: color-mix(in srgb, var(--nw-text-secondary) 25%, transparent);
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    --nw-button-bg-hover: transparent;
+    --nw-button-bg-active: transparent;
+    --nw-button-fg: var(--nw-text-disabled);
+  }
+}
+
 :host(.nw-button--ghost) {
   --nw-button-bg: transparent;
   --nw-button-bg-hover: var(--nw-color-neutral-hover);
