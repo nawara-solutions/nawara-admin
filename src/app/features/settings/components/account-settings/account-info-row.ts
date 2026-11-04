@@ -35,6 +35,7 @@ import { AccountInfo } from '../../application/account-settings-view';
   host: {
     '[class.account-info-row--stacked]': 'stacked()',
     '[class.account-info-row--badge]': 'badge()',
+    '[class.account-info-row--tile]': 'tile()',
   },
   styleUrl: './account-info-row.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,5 +44,6 @@ export class AccountInfoRow {
   readonly row = input.required<AccountInfo>();
   readonly stacked = input(false);
   readonly badge = input(false);
+  readonly tile = input(false);
   readonly icon = input<NwIconName | null>(null);
 }

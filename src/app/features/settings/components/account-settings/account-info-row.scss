@@ -49,3 +49,37 @@ dt {
   background: var(--nw-color-primary-subtle);
   color: var(--nw-text-brand);
 }
+
+:host(.account-info-row--tile) {
+  position: relative;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  gap: var(--nw-space-1);
+  padding: var(--nw-space-4);
+  padding-inline-start: 4.5rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background: var(--nw-surface-raised);
+  dt {
+    color: var(--nw-text-secondary);
+  }
+  dt nw-icon {
+    position: absolute;
+    inset-inline-start: var(--nw-space-4);
+    inset-block-start: var(--nw-space-4);
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    padding: var(--nw-space-2);
+    border-radius: var(--nw-radius-md);
+    color: var(--nw-text-brand);
+    background: var(--nw-color-primary-subtle);
+  }
+  dd {
+    color: var(--nw-text-primary);
+    font-weight: var(--nw-font-weight-medium);
+  }
+  .account-info-row__missing {
+    color: var(--nw-text-secondary);
+    font-weight: var(--nw-font-weight-regular);
+  }
+}

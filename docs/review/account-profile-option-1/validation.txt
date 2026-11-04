@@ -1,0 +1,99 @@
+
+> nawara-admin@0.0.0 test
+> ng test --watch=false --include=**/account*.spec.ts --runner-config=/tmp/nawara-account-vitest-serial.mjs
+
+✔ Console Ninja extension is connected to Angular, see https://tinyurl.com/2vt8jxzw
+Using Vitest configuration file: /tmp/nawara-account-vitest-serial.mjs
+❯ Building...
+✔ Building...
+Application bundle generation complete. [3.320 seconds] - 2026-11-04T23:03:13.634Z
+
+
+ RUN  v5.0.3 /home/anwar/Desktop/nawara-solutions/nawara-admin
+
+
+ Test Files  10 passed (10)
+      Tests  123 passed (123)
+   Start at  00:03:13
+   Duration  5.68s (tests 65%, environment 11%, import 10%, transform 9%, setup 5%)
+
+
+
+> nawara-admin@0.0.0 test
+> ng test --watch=false --runner-config=/tmp/nawara-account-vitest-serial.mjs
+
+✔ Console Ninja extension is connected to Angular, see https://tinyurl.com/2vt8jxzw
+Using Vitest configuration file: /tmp/nawara-account-vitest-serial.mjs
+❯ Building...
+✔ Building...
+Application bundle generation complete. [13.067 seconds] - 2026-11-04T23:02:40.300Z
+
+
+ RUN  v5.0.3 /home/anwar/Desktop/nawara-solutions/nawara-admin
+
+
+ Test Files  202 passed (202)
+      Tests  2589 passed (2589)
+   Start at  00:02:40
+   Duration  102.53s (tests 89%, transform 8%, import 1%, environment 1%, setup 1%)
+
+
+
+> nawara-admin@0.0.0 build
+> ng build
+
+❯ Building...
+✔ Building...
+Initial chunk files | Names                     |  Raw size | Estimated transfer size
+chunk-CrLc7X3U.js   | -                         | 159.50 kB |                47.16 kB
+main-D3L2M4NG.js    | main                      | 153.25 kB |                39.17 kB
+styles-URRIPAYJ.css | styles                    |  79.37 kB |                 7.16 kB
+chunk-DaQQOSwT.js   | -                         |   1.12 kB |               564 bytes
+
+                    | Initial total             | 393.24 kB |                94.06 kB
+
+Lazy chunk files    | Names                     |  Raw size | Estimated transfer size
+chunk-Cdnj7DJt.js   | ar-json                   | 199.01 kB |                36.74 kB
+chunk-CBrMqWZ_.js   | fr-json                   | 178.51 kB |                37.44 kB
+chunk-DNZ2QM3J.js   | en-json                   | 148.68 kB |                32.72 kB
+chunk-DqMYNEh0.js   | organizations-routes      | 132.47 kB |                21.02 kB
+chunk-DFMio88L.js   | -                         |  89.53 kB |                20.76 kB
+chunk-BQjTwYWL.js   | assistance-case-page      |  70.63 kB |                13.54 kB
+chunk-J6vUhHk9.js   | shell                     |  70.39 kB |                13.57 kB
+chunk-BaJPRMEX.js   | company-overview-page     |  54.11 kB |                10.66 kB
+chunk-WdwVmUOE.js   | platform-dashboard-page   |  43.57 kB |                 8.17 kB
+chunk-ptNH2Vsx.js   | account-security-page     |  43.34 kB |                 9.21 kB
+chunk-HxJ70PKX.js   | organization-detail-page  |  42.95 kB |                 8.71 kB
+chunk-CY_FkSY8.js   | account-settings-page     |  40.91 kB |                 7.29 kB
+chunk-BfSF5Sp7.js   | secret-key-page           |  40.36 kB |                 9.24 kB
+chunk-xLlPu1Wf.js   | operators-routes          |  39.98 kB |                 8.80 kB
+chunk-DTUTRoiB.js   | organization-members-page |  33.63 kB |                 7.53 kB
+...and 108 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [12.072 seconds] - 2026-11-04T23:03:53.851Z
+
+▲ [WARNING] src/app/features/settings/components/account-settings/account-identity-summary.scss exceeded maximum budget. Budget 4.00 kB was not met by 1.26 kB with a total of 5.26 kB.
+
+
+▲ [WARNING] src/app/features/operators/pages/operator-detail.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 348 bytes with a total of 4.35 kB.
+
+
+▲ [WARNING] src/app/layout/appearance/appearance-panel.scss exceeded maximum budget. Budget 4.00 kB was not met by 1.36 kB with a total of 5.36 kB.
+
+
+▲ [WARNING] src/app/shared/ui/brand-mark/brand-mark.scss exceeded maximum budget. Budget 4.00 kB was not met by 376 bytes with a total of 4.38 kB.
+
+
+▲ [WARNING] src/app/layout/appearance/accent-picker.scss exceeded maximum budget. Budget 4.00 kB was not met by 908 bytes with a total of 4.91 kB.
+
+
+▲ [WARNING] src/app/layout/global-search/global-search.scss exceeded maximum budget. Budget 4.00 kB was not met by 967 bytes with a total of 4.97 kB.
+
+
+▲ [WARNING] src/app/features/notifications/pages/notifications.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 3.97 kB with a total of 7.97 kB.
+
+
+▲ [WARNING] src/app/layout/notification-center/notification-center.scss exceeded maximum budget. Budget 4.00 kB was not met by 3.96 kB with a total of 7.96 kB.
+
+
+Output location: /home/anwar/Desktop/nawara-solutions/nawara-admin/dist/nawara-admin

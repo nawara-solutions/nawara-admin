@@ -26,21 +26,27 @@ import { AccountIdentitySummary as Identity } from '../../application/account-se
           <bdi>{{ identity().displayName ?? ('settings.account.profileTab' | transloco) }}</bdi>
         </p>
         @if (!stacked()) {
-          @if (identity().email; as email) {
-            <bdi class="account-summary__contact" dir="ltr" translate="no">{{ email }}</bdi>
-          } @else if (identity().phone; as phone) {
-            <bdi class="account-summary__contact" dir="ltr" translate="no">{{ phone }}</bdi>
-          }
+          <div class="account-summary__recognition">
+            @if (identity().email; as email) {
+              <bdi class="account-summary__contact" dir="ltr" translate="no">{{ email }}</bdi>
+            } @else if (identity().phone; as phone) {
+              <bdi class="account-summary__contact" dir="ltr" translate="no">{{ phone }}</bdi>
+            }
+            <dl class="account-summary__inline-role">
+              <dt class="nw-visually-hidden">{{ 'settings.account.type' | transloco }}</dt>
+              <dd><nw-icon name="id-card" size="sm" />{{ identity().roleKey | transloco }}</dd>
+            </dl>
+          </div>
         }
       </div>
     </div>
-    <dl class="account-summary__role">
-      <dt [class.nw-visually-hidden]="stacked()">
-        <nw-icon name="id-card" size="sm" />{{ 'settings.account.type' | transloco }}
-      </dt>
-      <dd>{{ identity().roleKey | transloco }}</dd>
-    </dl>
     @if (stacked()) {
+      <dl class="account-summary__role">
+        <dt class="nw-visually-hidden">
+          <nw-icon name="id-card" size="sm" />{{ 'settings.account.type' | transloco }}
+        </dt>
+        <dd>{{ identity().roleKey | transloco }}</dd>
+      </dl>
       <dl class="account-summary__contacts">
         <div>
           <dt><nw-icon name="mail" size="sm" />{{ 'settings.account.email' | transloco }}</dt>

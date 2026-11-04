@@ -191,3 +191,39 @@
     padding: var(--nw-space-1);
   }
 }
+
+// Profile only. The stacked Access summary retains its existing composition.
+:host(:not(.account-summary--stacked)) .account-summary__avatar {
+  inline-size: 4rem;
+  block-size: 4rem;
+}
+:host(:not(.account-summary--stacked)) .account-summary__name {
+  font-size: var(--nw-text-size-xl);
+}
+.account-summary__recognition {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-2) var(--nw-space-4);
+  min-inline-size: 0;
+}
+.account-summary__inline-role {
+  min-inline-size: 0;
+  margin: 0;
+  dd {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nw-space-2);
+    max-inline-size: 100%;
+    margin: 0;
+    padding: var(--nw-space-1) var(--nw-space-3);
+    border-radius: var(--nw-radius-pill);
+    color: var(--nw-text-brand);
+    background: var(--nw-color-primary-subtle);
+    font-size: var(--nw-text-size-sm);
+    overflow-wrap: anywhere;
+  }
+  nw-icon {
+    flex-shrink: 0;
+  }
+}
