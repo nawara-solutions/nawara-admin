@@ -17,7 +17,7 @@ import { AppearanceMenu } from '../appearance/appearance-menu';
 /**
  * Language and appearance controls of the top bar and the sign-in pages. The language shows its code (a machine
  * value); Appearance (theme mode and accent palette) is a compact button that opens a popover (AppearanceMenu).
- * `framed` is the borderless authentication variant of the sign-in pages (A4 design): the language is named, with a chevron.
+ * `framed` is the soft pill authentication variant of the sign-in pages (A4 design): the language is named, with a chevron.
  */
 @Component({
   selector: 'adm-preference-menus',

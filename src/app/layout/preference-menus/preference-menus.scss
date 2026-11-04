@@ -36,18 +36,19 @@
   display: inline;
 }
 
-// Authentication controls share the page surface; the dashboard retains its bordered variant.
+// Soft authentication pills; the dashboard retains its bordered variant.
 :host(.preference-menus--framed) {
-  gap: var(--nw-space-1);
+  gap: var(--nw-space-2);
 
   .preference-menus__trigger {
     justify-content: center;
     min-inline-size: 2.75rem;
     block-size: 2.75rem;
     gap: var(--nw-space-2);
-    padding-inline: var(--nw-space-1);
+    padding-inline: var(--nw-space-2);
     border-color: transparent;
-    background-color: transparent;
+    border-radius: var(--nw-radius-pill);
+    background-color: var(--nw-surface-sunken);
     color: var(--nw-text-label);
     font-size: 0.875rem;
     font-weight: var(--nw-font-weight-medium);
@@ -55,7 +56,7 @@
     &:hover,
     &[aria-expanded='true'] {
       border-color: transparent;
-      background-color: var(--nw-surface-sunken);
+      background-color: var(--nw-surface-raised);
     }
   }
 
@@ -66,12 +67,6 @@
       padding-inline: var(--nw-space-3);
     }
   }
-}
-
-.preference-menus__divider {
-  flex: 0 0 1px;
-  block-size: 1rem;
-  background-color: var(--nw-border-subtle);
 }
 
 .preference-menus__chevron {
