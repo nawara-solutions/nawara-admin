@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { THEME_PREFERENCES, ThemePreference, ThemeService } from '../../core/theme/theme.service';
 import { NwButton } from '../../shared/ui/button/button';
 import { NwIcon } from '../../shared/ui/icon/icon';
 import { NwIconName } from '../../shared/ui/icon/icon.registry';
+import { AccentGrid } from './accent-grid';
 import { AccentPicker } from './accent-picker';
 
 const MODES = {
@@ -32,13 +33,17 @@ let nextId = 0;
  */
 @Component({
   selector: 'adm-appearance-panel',
-  imports: [TranslocoPipe, NwButton, NwIcon, AccentPicker],
+  imports: [TranslocoPipe, NwButton, NwIcon, AccentPicker, AccentGrid],
   templateUrl: './appearance-panel.html',
   styleUrl: './appearance-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'appearance-panel' },
+  host: {
+    class: 'appearance-panel',
+    '[class.appearance-panel--workspace]': "accentPresentation() === 'grid'",
+  },
 })
 export class AppearancePanel {
+  readonly accentPresentation = input<'picker' | 'grid'>('picker');
   protected readonly theme = inject(ThemeService);
   protected readonly id = `appearance-${nextId++}`;
   protected readonly modes = THEME_PREFERENCES.map((value) => ({ value, ...MODES[value] }));

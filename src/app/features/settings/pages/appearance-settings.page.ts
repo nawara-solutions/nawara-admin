@@ -1,79 +1,30 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AppearancePanel } from '../../../layout/appearance/appearance-panel';
+import { NwIcon } from '../../../shared/ui/icon/icon';
+import { AppearancePreview } from '../components/appearance-preview/appearance-preview';
 
-/**
- * Settings → Appearance: the same Appearance panel as the popover of the top bar and the sign-in pages, bound to the
- * same state. Personal and browser-local; nothing here is a Company or Platform setting.
- */
+/** Settings-only customization workspace; all preferences still belong to ThemeService. */
 @Component({
   selector: 'adm-appearance-settings-page',
-  imports: [TranslocoPipe, AppearancePanel],
+  imports: [TranslocoPipe, AppearancePanel, AppearancePreview, NwIcon],
   template: `
-    <header class="appearance-settings__header">
-      <h2 class="appearance-settings__title">{{ 'settings.appearance.title' | transloco }}</h2>
-      <p class="appearance-settings__subtitle">{{ 'settings.appearance.subtitle' | transloco }}</p>
-    </header>
-    <section class="appearance-settings__card" aria-labelledby="appearance-settings-heading">
-      <h3 id="appearance-settings-heading" class="nw-visually-hidden">
-        {{ 'settings.appearance.title' | transloco }}
-      </h3>
-      <adm-appearance-panel />
+    <section class="appearance-settings__surface" aria-labelledby="appearance-settings-heading">
+      <adm-appearance-panel accentPresentation="grid">
+        <header class="appearance-settings__header" appearanceHeading>
+          <nw-icon name="palette" size="lg" />
+          <div>
+            <h2 class="appearance-settings__title" id="appearance-settings-heading">
+              {{ 'settings.appearance.title' | transloco }}
+            </h2>
+            <p>{{ 'settings.appearance.subtitle' | transloco }}</p>
+          </div>
+        </header>
+        <adm-appearance-preview appearancePreview />
+      </adm-appearance-panel>
     </section>
   `,
-  styles: `
-    :host {
-      display: grid;
-      align-content: start;
-      gap: var(--nw-space-5);
-      max-inline-size: 40rem;
-      min-inline-size: 0;
-      container-type: inline-size;
-    }
-
-    .appearance-settings__header {
-      display: grid;
-      gap: var(--nw-space-2);
-    }
-
-    .appearance-settings__eyebrow {
-      color: var(--nw-text-brand);
-      font-size: var(--nw-text-size-sm);
-      font-weight: var(--nw-font-weight-semibold);
-    }
-
-    .appearance-settings__title {
-      font-size: 1.625rem;
-      font-weight: var(--nw-font-weight-bold);
-      letter-spacing: -0.025em;
-      line-height: 1.1;
-
-      &:lang(ar) {
-        letter-spacing: 0;
-      }
-    }
-
-    .appearance-settings__subtitle {
-      color: var(--nw-text-label);
-      font-size: 0.90625rem;
-    }
-
-    .appearance-settings__card {
-      min-inline-size: 0;
-      padding: var(--nw-space-4);
-      border: 1px solid var(--nw-border-subtle);
-      border-radius: 1.125rem;
-      background-color: var(--nw-surface-raised);
-      box-shadow: var(--nw-shadow-card);
-    }
-
-    @container (min-width: 30rem) {
-      .appearance-settings__card {
-        padding: var(--nw-space-6);
-      }
-    }
-  `,
+  styleUrl: './appearance-settings.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'appearance-settings' },
 })
 export class AppearanceSettingsPage {}

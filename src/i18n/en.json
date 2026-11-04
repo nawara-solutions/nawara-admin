@@ -1423,7 +1423,13 @@
     "title": "Settings",
     "appearance": {
       "title": "Appearance",
-      "subtitle": "Choose how Nawara Admin looks in this browser."
+      "subtitle": "Choose how Nawara Admin looks in this browser.",
+      "preview": {
+        "title": "Live preview",
+        "description": "See how your choices look in Nawara Admin.",
+        "accessible": "Illustrative dashboard preview using your current theme and accent. No real account data or actions.",
+        "sample": "Illustrative preview — no live data"
+      }
     },
     "hub": {
       "subtitle": "Your personal preferences for Nawara Admin.",

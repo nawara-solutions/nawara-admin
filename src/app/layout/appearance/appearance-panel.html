@@ -1,3 +1,7 @@
+@if (accentPresentation() === 'grid') {
+  <div class="appearance-panel__intro"><ng-content select="[appearanceHeading]" /></div>
+}
+
 <fieldset class="appearance-panel__group" [attr.aria-describedby]="id + '-mode-hint'">
   <legend class="appearance-panel__legend">{{ 'preferences.appearance.mode' | transloco }}</legend>
   <div class="appearance-panel__modes">
@@ -26,8 +30,16 @@
   >
     {{ 'preferences.appearance.accent' | transloco }}
   </span>
-  <adm-accent-picker [labelledBy]="id + '-accent-label'" />
+  @if (accentPresentation() === 'grid') {
+    <adm-accent-grid [labelledBy]="id + '-accent-label'" />
+  } @else {
+    <adm-accent-picker [labelledBy]="id + '-accent-label'" />
+  }
 </div>
+
+@if (accentPresentation() === 'grid') {
+  <div class="appearance-panel__preview"><ng-content select="[appearancePreview]" /></div>
+}
 
 <div class="appearance-panel__footer">
   <p class="appearance-panel__note">{{ 'preferences.appearance.note' | transloco }}</p>

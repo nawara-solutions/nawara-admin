@@ -107,3 +107,29 @@
     outline: 2px solid Highlight;
   }
 }
+
+// Settings-only layout; the authentication preference panel retains its compact presentation.
+:host(.appearance-panel--workspace) {
+  gap: var(--nw-space-5);
+  .appearance-panel__legend {
+    font-size: var(--nw-text-size-sm);
+  }
+  .appearance-panel__mode {
+    min-block-size: 2.75rem;
+  }
+  @container (min-width: 54rem) {
+    grid-template-columns: minmax(0, 45fr) minmax(0, 55fr);
+    gap: var(--nw-space-5) var(--nw-space-6);
+    .appearance-panel__intro,
+    .appearance-panel__group,
+    .appearance-panel__footer {
+      grid-column: 1;
+    }
+    .appearance-panel__preview {
+      grid-column: 2;
+      grid-row: 1 / span 4;
+      padding-inline-start: var(--nw-space-6);
+      border-inline-start: 1px solid var(--nw-border-subtle);
+    }
+  }
+}

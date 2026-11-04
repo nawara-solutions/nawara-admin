@@ -273,3 +273,18 @@ The workspace owns the sole Settings h1 and a horizontally scrollable navigation
 controllers, forms and state; section headings are h2 and their subsections h3. No additional content card is introduced.
 AppearancePanel, LocaleService, account views, security workflows and company settings are reused. All preference state
 and persistence remain in the existing services. The workspace uses semantic surface, text, accent and focus tokens.
+
+## Appearance customization and preview (Option D)
+
+The Appearance route uses the full Settings content width. `AppearancePanel` keeps its default compact picker presentation
+for authentication; its explicit `accentPresentation="grid"` presentation projects the Settings heading and preview into a
+45/55 grid above 54rem of available content width. Below that, the order is controls, preview, browser-local note, reset.
+The outer Settings navigation and other sections are unchanged.
+
+`AccentGrid` reads `ACCENT_PALETTES`, existing translated `ACCENT_KEYS`, and `--nw-swatch-*` tokens. Native radio controls
+call the existing `ThemeService.setAccent`; mode and reset still use AppearancePanel's original handlers. No color registry,
+preference state or persistence mechanism is duplicated.
+
+`AppearancePreview` inherits resolved semantic theme/accent tokens and uses `NwBrandMark`. It has no injected services,
+links, inputs, buttons, routes, backend calls or account data. Placeholder metrics and chart shapes are explicitly labeled
+illustrative; they do not represent operational data. It updates through the same root tokens as the application.

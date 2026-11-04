@@ -1423,7 +1423,13 @@
     "title": "Paramètres",
     "appearance": {
       "title": "Apparence",
-      "subtitle": "Choisissez l’apparence de Nawara Admin dans ce navigateur."
+      "subtitle": "Choisissez l’apparence de Nawara Admin dans ce navigateur.",
+      "preview": {
+        "title": "Aperçu en direct",
+        "description": "Découvrez vos choix dans Nawara Admin.",
+        "accessible": "Aperçu illustratif du tableau de bord avec votre thème et votre couleur. Aucune donnée de compte ni action réelle.",
+        "sample": "Aperçu illustratif — aucune donnée réelle"
+      }
     },
     "hub": {
       "subtitle": "Vos préférences personnelles pour Nawara Admin.",

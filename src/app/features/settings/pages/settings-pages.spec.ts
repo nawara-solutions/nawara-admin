@@ -18,7 +18,7 @@ import { APP_ENVIRONMENT } from '../../../core/config/app-environment';
 import { companyId, platformId } from '../../../core/context/scope.model';
 import { LocaleService } from '../../../core/i18n/locale.service';
 import { PREFERENCE_KEYS } from '../../../core/preferences/preference-store';
-import { ThemeService } from '../../../core/theme/theme.service';
+import { ACCENT_PALETTES, ThemeService } from '../../../core/theme/theme.service';
 import { PreferenceMenus } from '../../../layout/preference-menus/preference-menus';
 import { SETTINGS_ROUTES } from '../settings.routes';
 
@@ -207,7 +207,7 @@ describe('Settings pages (P9-S1)', () => {
     expect(router.url).toBe('/settings/appearance');
     // The Appearance panel: three modes, the compact accent selector (its list holds the palettes), the reset.
     expect(root().querySelectorAll('input[type=radio][name$="-mode"]')).toHaveLength(3);
-    expect(root().querySelectorAll('.accent-picker__trigger')).toHaveLength(1);
+    expect(root().querySelectorAll('.accent-grid__tile')).toHaveLength(ACCENT_PALETTES.length);
     expect(root().querySelector('.appearance-panel__reset')).not.toBeNull();
   });
 
