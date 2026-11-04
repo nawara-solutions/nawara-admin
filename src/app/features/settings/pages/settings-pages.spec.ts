@@ -226,6 +226,27 @@ describe('Settings pages (P9-S1)', () => {
     }
   });
 
+  it('discards Appearance drafts when navigating away and initializes from committed preferences on return', async () => {
+    const { harness, root, theme, settle } = await setup();
+    await harness.navigateByUrl('/settings/appearance');
+    root().querySelector<HTMLInputElement>('input[name$="-mode"][value="dark"]')?.click();
+    root().querySelector<HTMLInputElement>('.accent-grid input[value="rose"]')?.click();
+    await settle();
+    expect(theme.preference()).toBe('system');
+    expect(theme.accent()).toBe('coral');
+    await harness.navigateByUrl('/settings/language');
+    await harness.navigateByUrl('/settings/appearance');
+    expect(
+      root().querySelector<HTMLInputElement>('input[name$="-mode"][value="system"]')?.checked,
+    ).toBe(true);
+    expect(
+      root().querySelector<HTMLInputElement>('.accent-grid input[value="coral"]')?.checked,
+    ).toBe(true);
+    expect(root().querySelector<HTMLButtonElement>('.appearance-panel__apply')?.disabled).toBe(
+      true,
+    );
+  });
+
   it('Language offers English, French and Arabic, each named in itself, as one native radio group', async () => {
     const { harness, root } = await setup();
     await harness.navigateByUrl('/settings/language');

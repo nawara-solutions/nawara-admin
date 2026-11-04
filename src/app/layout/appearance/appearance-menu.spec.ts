@@ -1,3 +1,4 @@
+import { ThemeService } from '../../core/theme/theme.service';
 import { CdkConnectedOverlay, OverlayContainer } from '@angular/cdk/overlay';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -140,5 +141,42 @@ describe('AppearanceMenu', () => {
     await settle();
     expect(overlay.querySelector('.appearance-menu__popover')).not.toBeNull();
     expect(overlay.querySelector('.accent-picker__section')).not.toBeNull();
+  });
+  it('discards unapplied choices on dismissal, and applies only from the shared footer', async () => {
+    const { trigger, overlay, settle, escape } = await render();
+    const theme = TestBed.inject(ThemeService);
+    trigger.click();
+    await settle();
+    overlay.querySelector<HTMLInputElement>('input[name$="-mode"][value="dark"]')?.click();
+    await settle();
+    expect(theme.preference()).toBe('system');
+    overlay.querySelector<HTMLButtonElement>('.accent-picker__trigger')?.click();
+    await settle();
+    overlay.querySelector<HTMLElement>('[role="option"][data-value="rose"]')?.click();
+    await settle();
+    expect(theme.accent()).toBe('coral');
+    expect(localStorage.getItem('nw.accent')).toBeNull();
+    expect(overlay.querySelector('.accent-picker__value')?.textContent).toContain('Rose');
+    expect(overlay.querySelector<HTMLButtonElement>('.appearance-panel__apply')?.disabled).toBe(
+      false,
+    );
+    await escape(overlay.querySelector('.appearance-panel__apply')!);
+    trigger.click();
+    await settle();
+    expect(
+      overlay.querySelector<HTMLInputElement>('input[name$="-mode"][value="system"]')?.checked,
+    ).toBe(true);
+    expect(overlay.querySelector<HTMLButtonElement>('.appearance-panel__apply')?.disabled).toBe(
+      true,
+    );
+    overlay.querySelector<HTMLInputElement>('input[name$="-mode"][value="dark"]')?.click();
+    await settle();
+    overlay.querySelector<HTMLButtonElement>('.appearance-panel__apply')?.click();
+    await settle();
+    expect(theme.preference()).toBe('dark');
+    expect(localStorage.getItem('nw.theme')).toBe('dark');
+    expect(overlay.querySelector<HTMLButtonElement>('.appearance-panel__apply')?.disabled).toBe(
+      true,
+    );
   });
 });

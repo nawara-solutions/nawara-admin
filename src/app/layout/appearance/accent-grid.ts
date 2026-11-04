@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ACCENT_PALETTES, ThemeService } from '../../core/theme/theme.service';
+import { AppearanceDraft } from './appearance-draft';
 import { NwIcon } from '../../shared/ui/icon/icon';
 import { ACCENT_KEYS } from './accent-picker';
 
@@ -15,6 +16,7 @@ let nextId = 0;
         <label class="accent-grid__tile">
           <input
             type="radio"
+            [disabled]="editor?.applying() ?? false"
             [name]="id"
             [value]="accent.value"
             [checked]="theme.accent() === accent.value"
@@ -38,7 +40,8 @@ let nextId = 0;
 })
 export class AccentGrid {
   readonly labelledBy = input.required<string>();
-  protected readonly theme = inject(ThemeService);
+  protected readonly editor = inject(AppearanceDraft, { optional: true });
+  protected readonly theme = this.editor ?? inject(ThemeService);
   protected readonly id = 'accent-grid-' + nextId++;
   protected readonly accents = ACCENT_PALETTES.map((value) => ({
     value,

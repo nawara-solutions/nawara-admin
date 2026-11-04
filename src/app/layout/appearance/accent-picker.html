@@ -1,5 +1,6 @@
 <button
   #trigger
+  [disabled]="editor?.applying() ?? false"
   type="button"
   class="accent-picker__trigger"
   [attr.aria-expanded]="open()"

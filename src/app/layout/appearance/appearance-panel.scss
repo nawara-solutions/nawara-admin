@@ -80,26 +80,54 @@
 }
 
 .appearance-panel__footer {
+  position: sticky;
+  inset-block-end: 0;
+  z-index: 1;
   display: grid;
   gap: var(--nw-space-3);
+  padding: var(--nw-space-3);
+  border-block-start: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background-color: var(--nw-surface-raised);
 }
 
-.appearance-panel__note {
+.appearance-panel__explanation {
+  display: flex;
+  align-items: start;
+  gap: var(--nw-space-2);
+  nw-icon {
+    flex-shrink: 0;
+    color: var(--nw-text-brand);
+  }
+}
+.appearance-panel__note,
+.appearance-panel__status {
   color: var(--nw-text-secondary);
   font-size: var(--nw-text-size-xs);
 }
-
-// Reset (owner reference, 2026-11-03): the full width of the content area, a subtle border, the icon and the label centred
-// together. The ghost button keeps its own hover, press, disabled and focus states; only the border and width are added.
+.appearance-panel__status {
+  margin-block-start: var(--nw-space-1);
+}
+.appearance-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nw-space-2);
+}
+.appearance-panel__reset,
+.appearance-panel__apply {
+  flex: 1 1 9rem;
+  min-inline-size: 0;
+  min-block-size: 2.75rem;
+  white-space: normal;
+  text-align: center;
+}
 .appearance-panel__reset {
   --nw-button-border: var(--nw-border-default);
-
-  inline-size: 100%;
-  padding-block: var(--nw-space-2);
-
-  &:disabled {
-    --nw-button-border: var(--nw-border-subtle);
-  }
+}
+.appearance-panel__preview {
+  background-color: var(--nw-surface-raised);
+  color: var(--nw-text-primary);
+  border-radius: var(--nw-radius-md);
 }
 
 @media (forced-colors: active) {
@@ -121,13 +149,17 @@
     grid-template-columns: minmax(0, 45fr) minmax(0, 55fr);
     gap: var(--nw-space-5) var(--nw-space-6);
     .appearance-panel__intro,
-    .appearance-panel__group,
-    .appearance-panel__footer {
+    .appearance-panel__group {
       grid-column: 1;
+    }
+    .appearance-panel__footer {
+      grid-column: 1 / -1;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
     }
     .appearance-panel__preview {
       grid-column: 2;
-      grid-row: 1 / span 4;
+      grid-row: 1 / span 3;
       padding-inline-start: var(--nw-space-6);
       border-inline-start: 1px solid var(--nw-border-subtle);
     }

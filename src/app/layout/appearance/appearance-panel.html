@@ -2,7 +2,11 @@
   <div class="appearance-panel__intro"><ng-content select="[appearanceHeading]" /></div>
 }
 
-<fieldset class="appearance-panel__group" [attr.aria-describedby]="id + '-mode-hint'">
+<fieldset
+  [disabled]="theme.applying()"
+  class="appearance-panel__group"
+  [attr.aria-describedby]="id + '-mode-hint'"
+>
   <legend class="appearance-panel__legend">{{ 'preferences.appearance.mode' | transloco }}</legend>
   <div class="appearance-panel__modes">
     @for (mode of modes; track mode.value) {
@@ -38,21 +42,53 @@
 </div>
 
 @if (accentPresentation() === 'grid') {
-  <div class="appearance-panel__preview"><ng-content select="[appearancePreview]" /></div>
+  <div
+    class="appearance-panel__preview"
+    [attr.data-theme]="theme.resolved()"
+    [attr.data-accent]="theme.accent()"
+  >
+    <ng-content select="[appearancePreview]" />
+  </div>
 }
 
 <div class="appearance-panel__footer">
-  <p class="appearance-panel__note">{{ 'preferences.appearance.note' | transloco }}</p>
-  <button
-    nw-button
-    variant="ghost"
-    size="sm"
-    type="button"
-    class="appearance-panel__reset"
-    [disabled]="!theme.customized()"
-    (click)="theme.reset()"
-  >
-    <nw-icon name="rotate-ccw" size="sm" />
-    <span>{{ 'preferences.appearance.reset' | transloco }}</span>
-  </button>
+  <div class="appearance-panel__explanation">
+    <nw-icon name="info" size="sm" />
+    <div>
+      <p class="appearance-panel__note">{{ 'preferences.appearance.note' | transloco }}</p>
+      <p class="appearance-panel__status" role="status">
+        {{
+          (theme.dirty() ? 'preferences.appearance.unsaved' : 'preferences.appearance.saved')
+            | transloco
+        }}
+      </p>
+    </div>
+  </div>
+  <div class="appearance-panel__actions">
+    <button
+      nw-button
+      variant="outline"
+      size="sm"
+      type="button"
+      class="appearance-panel__reset"
+      [disabled]="!theme.customized() || theme.applying()"
+      (click)="theme.reset()"
+    >
+      <nw-icon name="rotate-ccw" size="sm" />
+      <span>{{ 'preferences.appearance.reset' | transloco }}</span>
+    </button>
+    <button
+      nw-button
+      size="sm"
+      type="button"
+      class="appearance-panel__apply"
+      [disabled]="!theme.dirty() || theme.applying()"
+      [attr.aria-busy]="theme.applying() || null"
+      (click)="theme.apply()"
+    >
+      <nw-icon name="check" size="sm" /><span>{{
+        'preferences.appearance.apply' | transloco
+      }}</span>
+    </button>
+  </div>
 </div>

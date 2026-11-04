@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import en from '../../../i18n/en.json';
 import { ThemeService } from '../../core/theme/theme.service';
+import { AppearanceDraft } from './appearance-draft';
 import { AppearancePanel } from './appearance-panel';
 
 function render() {
@@ -72,7 +73,8 @@ describe('AppearancePanel', () => {
       .find((r) => r.value === 'light')
       ?.click();
     await fixture.whenStable();
-    expect(theme.preference()).toBe('light');
+    expect(theme.preference()).toBe('system');
+    expect(host.querySelector<HTMLButtonElement>('.appearance-panel__apply')?.disabled).toBe(false);
     expect(text('.appearance-panel__hint')).toBe(en.preferences.appearance.modeHint.light);
 
     modes()
@@ -82,7 +84,7 @@ describe('AppearancePanel', () => {
     expect(text('.appearance-panel__hint')).toBe(en.preferences.appearance.modeHint.dark);
   });
 
-  it('enables reset only after a change, and resets mode and accent to the Nawara defaults', async () => {
+  it('stages reset and persists the authoritative defaults only after Apply', async () => {
     const { fixture, host, modes, text, theme } = render();
     const reset = host.querySelector<HTMLButtonElement>('.appearance-panel__reset');
     expect(reset?.disabled).toBe(true);
@@ -94,11 +96,34 @@ describe('AppearancePanel', () => {
 
     reset?.click();
     await fixture.whenStable();
+    expect(theme.accent()).toBe('amber');
+    expect(theme.preference()).toBe('dark');
+    expect(host.querySelector<HTMLButtonElement>('.appearance-panel__apply')?.disabled).toBe(false);
+    (host.querySelector('.appearance-panel__apply') as HTMLButtonElement).click();
+    await fixture.whenStable();
     expect(theme.accent()).toBe('coral');
     expect(theme.preference()).toBe('system');
     expect(modes().find((r) => r.checked)?.value).toBe('system');
     expect(text('.accent-picker__value')).toBe('Coral');
     expect(localStorage.getItem('nw.accent')).toBeNull();
     expect(localStorage.getItem('nw.theme')).toBeNull();
+  });
+  it('synchronizes committed choices between editors without sharing their drafts', async () => {
+    const first = render();
+    const second = TestBed.createComponent(AppearancePanel);
+    await first.fixture.whenStable();
+    await second.whenStable();
+    const a = first.fixture.debugElement.injector.get(AppearanceDraft);
+    const b = second.debugElement.injector.get(AppearanceDraft);
+    a.setAccent('emerald');
+    a.setPreference('dark');
+    expect(b.accent()).toBe('coral');
+    expect(first.theme.accent()).toBe('coral');
+    await a.apply();
+    await second.whenStable();
+    expect(b.accent()).toBe('emerald');
+    expect(b.preference()).toBe('dark');
+    expect(b.dirty()).toBe(false);
+    second.destroy();
   });
 });

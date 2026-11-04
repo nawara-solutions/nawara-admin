@@ -84,7 +84,11 @@
       "noAccent": "Aucune couleur ne correspond à « {{query}} ».",
       "accentResults": "Couleurs correspondantes : {{count}}",
       "note": "Enregistré uniquement dans ce navigateur. Ce réglage ne fait pas partie de votre compte et n’est pas partagé avec vos autres appareils.",
-      "reset": "Rétablir les valeurs Nawara"
+      "reset": "Rétablir les valeurs Nawara",
+      "apply": "Appliquer les modifications",
+      "unsaved": "Modifications non appliquées",
+      "saved": "Aucune modification en attente",
+      "saveFailed": "Impossible d’enregistrer l’apparence dans ce navigateur. Votre brouillon reste disponible. Réessayez."
     }
   },
   "foundation": {

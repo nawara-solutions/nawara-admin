@@ -51,7 +51,7 @@ describe('Appearance customization workspace', () => {
     expect(host.querySelector('.accent-picker__trigger')).toBeNull();
   });
 
-  it('shares every accent and mode with ThemeService while keeping the preview inert and mounted', async () => {
+  it('previews all accents and modes without changing committed appearance, while keeping the preview inert', async () => {
     const { fixture, host, theme } = await render();
     const preview = host.querySelector('adm-appearance-preview');
     expect(preview?.querySelectorAll('a, button, input, select, iframe')).toHaveLength(0);
@@ -60,13 +60,18 @@ describe('Appearance customization workspace', () => {
     );
     expect(preview?.querySelector('nw-brand-mark')).not.toBeNull();
     for (const mode of ['light', 'dark'] as const) {
-      theme.setPreference(mode);
+      host.querySelector<HTMLInputElement>(`input[name$="-mode"][value="${mode}"]`)?.click();
       for (const accent of ACCENT_PALETTES) {
         host.querySelector<HTMLInputElement>(`.accent-grid input[value="${accent}"]`)?.click();
         await fixture.whenStable();
-        expect(theme.accent()).toBe(accent);
-        expect(document.documentElement.dataset['accent'] ?? 'coral').toBe(accent);
-        expect(document.documentElement.dataset['theme']).toBe(mode);
+        expect(theme.accent()).toBe('coral');
+        expect(document.documentElement.dataset['accent'] ?? 'coral').toBe('coral');
+        expect(host.querySelector('.appearance-panel__preview')?.getAttribute('data-accent')).toBe(
+          accent,
+        );
+        expect(host.querySelector('.appearance-panel__preview')?.getAttribute('data-theme')).toBe(
+          mode,
+        );
         expect(host.querySelectorAll('.accent-grid input:checked')).toHaveLength(1);
         expect(host.querySelectorAll('.accent-grid__check')).toHaveLength(1);
         expect(host.querySelector('adm-appearance-preview')).toBe(preview);
@@ -75,7 +80,7 @@ describe('Appearance customization workspace', () => {
     for (const mode of ['light', 'dark', 'system'] as const) {
       host.querySelector<HTMLInputElement>(`input[name$="-mode"][value="${mode}"]`)?.click();
       await fixture.whenStable();
-      expect(theme.preference()).toBe(mode);
+      expect(theme.preference()).toBe('system');
       expect(host.querySelector('adm-appearance-preview')).toBe(preview);
     }
     (host.querySelector('.appearance-panel__reset') as HTMLButtonElement).click();

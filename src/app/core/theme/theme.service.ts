@@ -83,11 +83,30 @@ export class ThemeService {
   readonly customized = computed(
     () => this.preference() !== DEFAULT_THEME || this.accent() !== DEFAULT_ACCENT,
   );
-  readonly resolved = computed<ResolvedTheme>(() => {
-    const preference = this.preference();
-    if (preference !== 'system') return preference;
-    return this.systemPrefersDark() ? 'dark' : 'light';
-  });
+  readonly resolved = computed<ResolvedTheme>(() => this.resolvePreference(this.preference()));
+
+  /** The same live OS resolution for committed appearance and isolated previews. */
+  resolvePreference(preference: ThemePreference): ResolvedTheme {
+    return preference === 'system' ? (this.systemPrefersDark() ? 'dark' : 'light') : preference;
+  }
+
+  private commitRevision = 0;
+
+  /** Commit the complete draft only after persistence succeeds. Existing immediate APIs remain compatible. */
+  async applyAppearance(preference: ThemePreference, accent: AccentPalette): Promise<boolean> {
+    const revision = ++this.commitRevision;
+    if (accent !== this.accent()) await this.preload(accent);
+    if (revision !== this.commitRevision) return false;
+    const saved = this.store.commitAppearance({
+      theme: preference === DEFAULT_THEME ? null : preference,
+      accent: accent === DEFAULT_ACCENT ? null : accent,
+    });
+    if (!saved) return false;
+    this.pendingAccent = accent;
+    this.preference.set(preference);
+    this.accent.set(accent);
+    return true;
+  }
 
   constructor() {
     const query = this.document.defaultView?.matchMedia?.('(prefers-color-scheme: dark)');

@@ -84,7 +84,11 @@
       "noAccent": "No accent matches “{{query}}”.",
       "accentResults": "Matching accents: {{count}}",
       "note": "Saved in this browser only. It is not part of your account and is not shared with other devices.",
-      "reset": "Reset to Nawara default"
+      "reset": "Reset to Nawara default",
+      "apply": "Apply changes",
+      "unsaved": "Unapplied changes",
+      "saved": "No unapplied changes",
+      "saveFailed": "Appearance could not be saved in this browser. Your draft is still available. Try again."
     }
   },
   "foundation": {

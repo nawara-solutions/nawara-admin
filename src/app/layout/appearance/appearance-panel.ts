@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { THEME_PREFERENCES, ThemePreference, ThemeService } from '../../core/theme/theme.service';
+import { THEME_PREFERENCES, ThemePreference } from '../../core/theme/theme.service';
 import { NwButton } from '../../shared/ui/button/button';
 import { NwIcon } from '../../shared/ui/icon/icon';
 import { NwIconName } from '../../shared/ui/icon/icon.registry';
+import { AppearanceDraft } from './appearance-draft';
 import { AccentGrid } from './accent-grid';
 import { AccentPicker } from './accent-picker';
 
@@ -24,7 +25,7 @@ let nextId = 0;
 /**
  * The appearance preferences of this browser (owner decision 2026-10-04): theme mode and accent palette, with a reset to
  * the Nawara defaults. One panel, used by the Appearance popover (sign-in pages, top bar) and by Settings → Appearance,
- * all bound to the same ThemeService state. Changes apply at once.
+ * using one disposable AppearanceDraft per panel and the same committed ThemeService state. Apply persists explicitly.
  *
  * Mode is a native radio group inside a fieldset (arrow keys move the choice; the checked state is what a screen reader
  * announces), described by a one-line hint for the chosen mode. Accent is one compact selector that opens a searchable
@@ -35,6 +36,7 @@ let nextId = 0;
   selector: 'adm-appearance-panel',
   imports: [TranslocoPipe, NwButton, NwIcon, AccentPicker, AccentGrid],
   templateUrl: './appearance-panel.html',
+  providers: [AppearanceDraft],
   styleUrl: './appearance-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -44,7 +46,7 @@ let nextId = 0;
 })
 export class AppearancePanel {
   readonly accentPresentation = input<'picker' | 'grid'>('picker');
-  protected readonly theme = inject(ThemeService);
+  protected readonly theme = inject(AppearanceDraft);
   protected readonly id = `appearance-${nextId++}`;
   protected readonly modes = THEME_PREFERENCES.map((value) => ({ value, ...MODES[value] }));
   protected readonly modeHint = computed(() => MODE_HINTS[this.theme.preference()]);
