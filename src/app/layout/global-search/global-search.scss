@@ -14,18 +14,14 @@
   inline-size: 100%;
   min-inline-size: 0;
   block-size: 2.5rem;
-  padding-inline: 0.375rem var(--nw-space-3);
-  border: 1px solid var(--nw-border-subtle);
+  padding-inline: var(--nw-space-2) var(--nw-space-3);
+  border: 1px solid transparent;
   border-radius: var(--nw-radius-pill);
-  background-color: var(--nw-surface-raised);
+  background-color: color-mix(in srgb, var(--nw-color-primary) 5%, var(--nw-surface-raised));
   color: var(--nw-text-secondary);
   transition:
     border-color var(--nw-duration-fast) var(--nw-ease-standard),
     box-shadow var(--nw-duration-fast) var(--nw-ease-standard);
-
-  &:hover {
-    border-color: var(--nw-border-default);
-  }
 
   &:focus-within {
     border-color: var(--nw-focus-ring);
@@ -148,7 +144,6 @@
 
 .global-search__field--popover {
   display: flex;
-  background-color: var(--nw-surface-raised);
 }
 
 .global-search__unavailable {
