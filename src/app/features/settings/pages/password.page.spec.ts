@@ -193,7 +193,7 @@ describe('Change your password page (P9-S4e)', { timeout: 20_000 }, () => {
 
   it('offers password-manager fields under the owner’s own identifier, left to right, paste allowed', async () => {
     const r = await render();
-    expect(text(r.element.querySelector('h1'))).toBe(t.title);
+    expect(text(r.element.querySelector('h2'))).toBe(t.title);
     const username = r.field('username');
     expect(username?.value).toBe(owner.email);
     expect(username?.getAttribute('autocomplete')).toBe('username');
@@ -396,7 +396,7 @@ describe('Change your password page (P9-S4e)', { timeout: 20_000 }, () => {
     await TestBed.inject(LocaleService).use('ar');
     await r.settle();
     expect(document.documentElement.dir).toBe('rtl');
-    expect(text(r.element.querySelector('h1'))).toBe(ar.settings.security.password.title);
+    expect(text(r.element.querySelector('h2'))).toBe(ar.settings.security.password.title);
     expect(r.field('new-password')?.getAttribute('dir')).toBe('ltr');
     expect(r.field('confirm-password')?.getAttribute('dir')).toBe('ltr');
   });

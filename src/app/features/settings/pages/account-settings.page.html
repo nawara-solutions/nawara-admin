@@ -1,8 +1,7 @@
 @let account = view();
 <header class="account-settings__header">
   <div class="account-settings__titles">
-    <p class="account-settings__eyebrow">{{ 'settings.title' | transloco }}</p>
-    <h1 class="account-settings__title">{{ 'settings.account.title' | transloco }}</h1>
+    <h2 class="account-settings__title">{{ 'settings.account.title' | transloco }}</h2>
     <p class="account-settings__subtitle">{{ 'settings.account.subtitle' | transloco }}</p>
   </div>
   @if (isDemo()) {
@@ -20,9 +19,9 @@
   />
 } @else {
   <section class="account-settings__card" aria-labelledby="account-identity" data-identity>
-    <h2 id="account-identity" class="account-settings__heading">
+    <h3 id="account-identity" class="account-settings__heading">
       {{ 'settings.account.identity' | transloco }}
-    </h2>
+    </h3>
     <dl class="account-settings__facts">
       <div class="account-settings__fact">
         <dt>{{ 'settings.account.type' | transloco }}</dt>
@@ -66,9 +65,9 @@
   </section>
 
   <section class="account-settings__card" aria-labelledby="account-access" data-access>
-    <h2 id="account-access" class="account-settings__heading">
+    <h3 id="account-access" class="account-settings__heading">
       {{ 'settings.account.access' | transloco }}
-    </h2>
+    </h3>
     @if (account.kind === 'owner') {
       @let company = account.company;
       <dl class="account-settings__facts">
@@ -180,9 +179,9 @@
   </section>
 
   <section class="account-settings__card" aria-labelledby="account-sign-in" data-sign-in>
-    <h2 id="account-sign-in" class="account-settings__heading">
+    <h3 id="account-sign-in" class="account-settings__heading">
       {{ 'settings.account.signIn' | transloco }}
-    </h2>
+    </h3>
     <p>
       {{
         (account.kind === 'owner'

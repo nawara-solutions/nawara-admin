@@ -176,7 +176,7 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
 
   it('the owner sees their own account: type, contact, Company and scope, and nothing of an operator', async () => {
     const { page } = await setup(owner);
-    expect(text(page().querySelector('h1'))).toBe(t.title);
+    expect(text(page().querySelector('h2'))).toBe(t.title);
     expect(fact(page(), 'type')).toBe(en.shell.role.owner);
     expect(fact(page(), 'email')).toBe('owner@demo.nawara.invalid');
     expect(page().querySelector('[data-email] [dir="ltr"]')).not.toBeNull();
@@ -203,7 +203,9 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
     expect(text(page())).toContain(t.managedByOwner);
     expect(text(page().querySelector('[data-sign-in]'))).toContain(t.operatorSignIn);
     // no owner or administration control: the page has no button and no link at all
-    expect(page().querySelectorAll('a, button')).toHaveLength(0);
+    expect(
+      page().querySelector('adm-account-settings-page')?.querySelectorAll('a, button'),
+    ).toHaveLength(0);
   });
 
   it('a phone-only operator: the phone, left to right, and no email', async () => {
@@ -221,7 +223,7 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
     expect(fact(page(), 'email')).toBe('operator.multi@demo.nawara.invalid');
     expect(fact(page(), 'type')).toBe(en.shell.role.operator);
     expect(text(page())).not.toContain('owner@demo.nawara.invalid');
-    const route = SETTINGS_ROUTES.find((r) => r.path === 'account');
+    const route = SETTINGS_ROUTES[0]?.children?.find((r) => r.path === 'account');
     expect(route?.path).not.toContain(':');
   });
 
@@ -303,7 +305,7 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
     await TestBed.inject(LocaleService).use('ar');
     await settle();
     expect(document.documentElement.dir).toBe('rtl');
-    expect(text(page().querySelector('h1'))).toBe(ar.settings.account.title);
+    expect(text(page().querySelector('h2'))).toBe(ar.settings.account.title);
     expect(page().querySelector('[data-phone] [dir="ltr"]')?.textContent).toBe('+99900000001');
   });
 });

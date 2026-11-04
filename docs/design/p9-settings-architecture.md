@@ -260,3 +260,16 @@ authorization; the rest wait for their slices.
   operator refused with no gateway call, production not available with no demo name, Try again, Arabic RTL); the hub,
   routes and capability specs updated. The demo-binding fixtures gained the one `companySettings: []` line their type
   requires.
+
+## Horizontal Settings workspace (Owner visual refinement, 2026-11-04)
+
+Settings now uses one presentation parent (`SettingsWorkspace`) and route navigation links rather than a card directory.
+`/settings` displays Appearance by default without redirecting; existing section and security-action URLs are unchanged.
+The original child route metadata, capability guards, lazy adapter providers and can-deactivate checks stay authoritative.
+The active link follows Router navigation, including deep links, browser history and nested security routes. Security and
+Company links remain owner-only, as before; hiding a link never replaces its route guard.
+
+The workspace owns the sole Settings h1 and a horizontally scrollable navigation region. Child pages retain their existing
+controllers, forms and state; section headings are h2 and their subsections h3. No additional content card is introduced.
+AppearancePanel, LocaleService, account views, security workflows and company settings are reused. All preference state
+and persistence remain in the existing services. The workspace uses semantic surface, text, accent and focus tokens.

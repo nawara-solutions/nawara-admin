@@ -122,7 +122,7 @@ describe('Settings → Company (P9-S3)', { timeout: 15_000 }, () => {
   it('shows the owner their Company: its name and Platform count, for their own Company only', async () => {
     const { element, spy } = await render();
     expect(spy).toHaveBeenCalledWith(DEMO_COMPANY_ID);
-    expect(text(element.querySelector('h1'))).toBe(t.title);
+    expect(text(element.querySelector('h2'))).toBe(t.title);
     expect(text(element.querySelector('[data-name]'))).toBe('Nawara Solutions');
     expect(text(element.querySelector('[data-platform-count]'))).toBe('2');
   });
@@ -186,7 +186,7 @@ describe('Settings → Company (P9-S3)', { timeout: 15_000 }, () => {
     await TestBed.inject(LocaleService).use('ar');
     await settle();
     expect(document.documentElement.dir).toBe('rtl');
-    expect(text(element.querySelector('h1'))).toBe(ar.settings.company.title);
+    expect(text(element.querySelector('h2'))).toBe(ar.settings.company.title);
     expect(element.querySelector('[data-name] bdi')?.textContent).toBe('Nawara Solutions');
   });
 });

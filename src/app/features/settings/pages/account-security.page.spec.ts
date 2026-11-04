@@ -153,7 +153,7 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
   it('lists the owner’s own factors from the simulated records: type and confirmation, no invented time', async () => {
     const { element, spy } = await render();
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(text(element.querySelector('h1'))).toBe(t.title);
+    expect(text(element.querySelector('h2'))).toBe(t.title);
     const factors = [...element.querySelectorAll<HTMLElement>('[data-factor]')];
     expect(factors.map((f) => [f.dataset['factor'], f.dataset['confirmed']])).toEqual([
       ['totp', 'true'],
@@ -240,7 +240,7 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
   it('the secret-key card claims nothing about an existing key and promises no recovery (P9-S4c)', async () => {
     const { element } = await render();
     const card = element.querySelector('[data-secret-key-card]');
-    expect(text(card?.querySelector('h2'))).toBe(t.secretKey.cardTitle);
+    expect(text(card?.querySelector('h3'))).toBe(t.secretKey.cardTitle);
     expect(text(card)).toContain(t.secretKey.cardBody);
     expect(t.secretKey.cardBody).toContain('Admin can’t check whether you have one');
     expect(text(card)).not.toMatch(
@@ -308,7 +308,7 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
   it('the password card: a link for an owner with an authenticator, disabled with the reason otherwise (P9-S4e)', async () => {
     const { element } = await render();
     const card = element.querySelector('[data-password-card]');
-    expect(text(card?.querySelector('h2'))).toBe(t.password.cardTitle);
+    expect(text(card?.querySelector('h3'))).toBe(t.password.cardTitle);
     expect(card?.querySelector('a')?.getAttribute('href')).toBe('/settings/security/password');
     expect(t.unavailable).not.toHaveProperty('password');
     TestBed.resetTestingModule();
@@ -396,7 +396,7 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
     await TestBed.inject(LocaleService).use('ar');
     await settle();
     expect(document.documentElement.dir).toBe('rtl');
-    expect(text(element.querySelector('h1'))).toBe(ar.settings.security.title);
+    expect(text(element.querySelector('h2'))).toBe(ar.settings.security.title);
     expect(text(element.querySelector('[data-factor] h3'))).toBe(ar.settings.security.factors.totp);
   });
 });

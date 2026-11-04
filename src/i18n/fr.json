@@ -1888,7 +1888,8 @@
         "retry": "Réessayer",
         "forbiddenDescription": "La sécurité du compte est réservée au propriétaire de l’entreprise."
       }
-    }
+    },
+    "workspaceDescription": "Vos préférences personnelles pour Nawara Admin."
   },
   "operators": {
     "demoExplanation": "Données de démonstration : opérateurs et accès aux plateformes fictifs. Nawara Core ne liste pas encore les opérateurs.",

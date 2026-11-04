@@ -166,7 +166,7 @@ describe('Add an authenticator app page (P9-S4b)', { timeout: 20_000 }, () => {
 
   it('end to end in the demo: scan, the new app’s code, confirm it’s you, back on Security with the factor confirmed', async () => {
     const { element, type, submit, navigations, spies, factors, settle } = await render();
-    expect(text(element.querySelector('h1'))).toBe(t.title);
+    expect(text(element.querySelector('h2'))).toBe(t.title);
     const qr = element.querySelector('.nw-totp-setup__qr');
     expect(qr?.getAttribute('role')).toBe('img');
     expect(qr?.getAttribute('aria-label')).toBe(t.setup.qrLabel);
@@ -178,7 +178,7 @@ describe('Add an authenticator app page (P9-S4b)', { timeout: 20_000 }, () => {
 
     await type('new-authenticator-code', DEMO_NEW_AUTHENTICATOR_CODE);
     await submit();
-    expect(text(element.querySelector('h2'))).toContain(t.verifyTitle);
+    expect(text(element.querySelector('#add-authenticator-verify'))).toContain(t.verifyTitle);
     expect(document.activeElement?.id).toBe('add-authenticator-verify');
     expect(element.querySelector('[aria-current="step"]')?.textContent).toContain(t.steps.verify);
     expect(spies.confirm).not.toHaveBeenCalled();
@@ -385,7 +385,7 @@ describe('Add an authenticator app page (P9-S4b)', { timeout: 20_000 }, () => {
     await TestBed.inject(LocaleService).use('ar');
     await settle();
     expect(document.documentElement.dir).toBe('rtl');
-    expect(text(element.querySelector('h1'))).toBe(ar.settings.security.add.title);
+    expect(text(element.querySelector('h2'))).toBe(ar.settings.security.add.title);
     expect(element.querySelector('.nw-totp-setup__key-value')?.getAttribute('dir')).toBe('ltr');
     expect(element.querySelector('input[name="new-authenticator-code"]')?.getAttribute('dir')).toBe(
       'ltr',

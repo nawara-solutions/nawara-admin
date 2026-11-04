@@ -1,8 +1,7 @@
 @let view = facade.view();
 <header class="company-settings__header">
   <div class="company-settings__titles">
-    <p class="company-settings__eyebrow">{{ 'settings.title' | transloco }}</p>
-    <h1 class="company-settings__title">{{ 'settings.company.title' | transloco }}</h1>
+    <h2 class="company-settings__title">{{ 'settings.company.title' | transloco }}</h2>
     <p class="company-settings__subtitle">{{ 'settings.company.subtitle' | transloco }}</p>
   </div>
   @if (isDemo()) {
@@ -15,9 +14,9 @@
 @switch (view.status) {
   @case ('ready') {
     <section class="company-settings__card" aria-labelledby="company-profile" data-profile>
-      <h2 id="company-profile" class="company-settings__heading">
+      <h3 id="company-profile" class="company-settings__heading">
         {{ 'settings.company.profile' | transloco }}
-      </h2>
+      </h3>
       <dl class="company-settings__facts">
         <div class="company-settings__fact">
           <dt>{{ 'settings.company.name' | transloco }}</dt>
@@ -34,9 +33,9 @@
 
     <section class="company-settings__card" aria-labelledby="company-management" data-management>
       <div class="company-settings__intro">
-        <h2 id="company-management" class="company-settings__heading">
+        <h3 id="company-management" class="company-settings__heading">
           {{ 'settings.company.management' | transloco }}
-        </h2>
+        </h3>
         <p class="company-settings__muted">{{ 'settings.company.managementNote' | transloco }}</p>
       </div>
       <ul class="company-settings__links" role="list">
@@ -62,9 +61,9 @@
       aria-labelledby="company-unavailable"
       data-unavailable
     >
-      <h2 id="company-unavailable" class="company-settings__heading">
+      <h3 id="company-unavailable" class="company-settings__heading">
         {{ 'settings.company.unavailable.title' | transloco }}
-      </h2>
+      </h3>
       <p>{{ 'settings.company.unavailable.body' | transloco }}</p>
       <ul class="company-settings__list" role="list">
         <li>{{ 'settings.company.unavailable.identity' | transloco }}</li>

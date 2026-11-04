@@ -21,14 +21,13 @@ const DIRECTION_KEYS = {
   imports: [TranslocoPipe],
   template: `
     <header class="language-settings__header">
-      <p class="language-settings__eyebrow">{{ 'settings.title' | transloco }}</p>
-      <h1 class="language-settings__title">{{ 'settings.language.title' | transloco }}</h1>
+      <h2 class="language-settings__title">{{ 'settings.language.title' | transloco }}</h2>
       <p class="language-settings__subtitle">{{ 'settings.language.subtitle' | transloco }}</p>
     </header>
     <section class="language-settings__card" aria-labelledby="language-settings-heading">
-      <h2 id="language-settings-heading" class="nw-visually-hidden">
+      <h3 id="language-settings-heading" class="nw-visually-hidden">
         {{ 'settings.language.title' | transloco }}
-      </h2>
+      </h3>
       <fieldset class="language-settings__group">
         <legend class="language-settings__legend">
           {{ 'preferences.language.label' | transloco }}

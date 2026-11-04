@@ -11,14 +11,13 @@ import { AppearancePanel } from '../../../layout/appearance/appearance-panel';
   imports: [TranslocoPipe, AppearancePanel],
   template: `
     <header class="appearance-settings__header">
-      <p class="appearance-settings__eyebrow">{{ 'settings.title' | transloco }}</p>
-      <h1 class="appearance-settings__title">{{ 'settings.appearance.title' | transloco }}</h1>
+      <h2 class="appearance-settings__title">{{ 'settings.appearance.title' | transloco }}</h2>
       <p class="appearance-settings__subtitle">{{ 'settings.appearance.subtitle' | transloco }}</p>
     </header>
     <section class="appearance-settings__card" aria-labelledby="appearance-settings-heading">
-      <h2 id="appearance-settings-heading" class="nw-visually-hidden">
+      <h3 id="appearance-settings-heading" class="nw-visually-hidden">
         {{ 'settings.appearance.title' | transloco }}
-      </h2>
+      </h3>
       <adm-appearance-panel />
     </section>
   `,

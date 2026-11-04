@@ -1,8 +1,7 @@
 @let view = facade.view();
 <header class="account-security__header">
   <div class="account-security__titles">
-    <p class="account-security__eyebrow">{{ 'settings.title' | transloco }}</p>
-    <h1 class="account-security__title">{{ 'settings.security.title' | transloco }}</h1>
+    <h2 class="account-security__title">{{ 'settings.security.title' | transloco }}</h2>
     <p class="account-security__subtitle">{{ 'settings.security.subtitle' | transloco }}</p>
   </div>
   @if (isDemo()) {
@@ -75,9 +74,9 @@
   @case ('ready') {
     <section class="account-security__card" aria-labelledby="security-factors" data-factors>
       <div class="account-security__intro">
-        <h2 id="security-factors" class="account-security__heading">
+        <h3 id="security-factors" class="account-security__heading">
           {{ 'settings.security.factors.title' | transloco }}
-        </h2>
+        </h3>
         <p class="account-security__muted" data-confirmed-count>
           {{
             'settings.security.factors.confirmedCount'
@@ -208,9 +207,9 @@
         data-secret-key-card
       >
         <div class="account-security__intro">
-          <h2 id="security-secret-key" class="account-security__heading">
+          <h3 id="security-secret-key" class="account-security__heading">
             {{ 'settings.security.secretKey.cardTitle' | transloco }}
-          </h2>
+          </h3>
           <p class="account-security__muted">
             {{ 'settings.security.secretKey.cardBody' | transloco }}
           </p>
@@ -253,9 +252,9 @@
         data-password-card
       >
         <div class="account-security__intro">
-          <h2 id="security-password" class="account-security__heading">
+          <h3 id="security-password" class="account-security__heading">
             {{ 'settings.security.password.cardTitle' | transloco }}
-          </h2>
+          </h3>
           <p class="account-security__muted">
             {{ 'settings.security.password.cardBody' | transloco }}
           </p>
@@ -292,9 +291,9 @@
     }
 
     <section class="account-security__card" aria-labelledby="security-actions" data-guidance>
-      <h2 id="security-actions" class="account-security__heading">
+      <h3 id="security-actions" class="account-security__heading">
         {{ 'settings.security.actions.title' | transloco }}
-      </h2>
+      </h3>
       <ul class="account-security__list" role="list">
         <li>{{ 'settings.security.actions.signIn' | transloco }}</li>
         <li>{{ 'settings.security.actions.stepUp' | transloco }}</li>
@@ -303,9 +302,9 @@
     </section>
 
     <section class="account-security__card" aria-labelledby="security-recovery" data-recovery>
-      <h2 id="security-recovery" class="account-security__heading">
+      <h3 id="security-recovery" class="account-security__heading">
         {{ 'settings.security.recovery.title' | transloco }}
-      </h2>
+      </h3>
       <ul class="account-security__list" role="list">
         <li>{{ 'settings.security.recovery.notGuaranteed' | transloco }}</li>
         <li data-secret-key>{{ 'settings.security.recovery.secretKey' | transloco }}</li>
@@ -318,9 +317,9 @@
       aria-labelledby="security-unavailable"
       data-unavailable
     >
-      <h2 id="security-unavailable" class="account-security__heading">
+      <h3 id="security-unavailable" class="account-security__heading">
         {{ 'settings.security.unavailable.title' | transloco }}
-      </h2>
+      </h3>
       <ul class="account-security__list" role="list">
         <li>{{ 'settings.security.unavailable.factors' | transloco }}</li>
         <li>{{ 'settings.security.unavailable.recovery' | transloco }}</li>

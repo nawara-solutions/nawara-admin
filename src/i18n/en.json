@@ -1888,7 +1888,8 @@
         "retry": "Try again",
         "forbiddenDescription": "Account security is for the Company owner."
       }
-    }
+    },
+    "workspaceDescription": "Your personal preferences for Nawara Admin."
   },
   "operators": {
     "demoExplanation": "Demo data: fictional operators and Platform access. Nawara Core does not list operators yet.",
