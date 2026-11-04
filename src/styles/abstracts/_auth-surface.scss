@@ -3,3 +3,10 @@
   background-color: transparent;
   border-color: color-mix(in srgb, var(--nw-color-primary) 7%, transparent);
 }
+
+// Authentication header triggers use neutral definition independent of the selected accent.
+@mixin auth-trigger-surface {
+  background-color: transparent;
+  border-color: color-mix(in srgb, var(--nw-text-secondary) 25%, transparent);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--nw-text-primary) 6%, transparent);
+}

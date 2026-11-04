@@ -54,7 +54,7 @@
     gap: var(--nw-space-2);
     padding-inline: var(--nw-space-3);
     border: 1px solid transparent;
-    @include nw.auth-surface;
+    @include nw.auth-trigger-surface;
     color: var(--nw-text-label);
     font-size: 0.8125rem;
     font-weight: var(--nw-font-weight-medium);

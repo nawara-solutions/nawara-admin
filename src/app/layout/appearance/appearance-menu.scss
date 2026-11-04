@@ -35,7 +35,7 @@
   padding-inline: var(--nw-space-3);
   font-size: 0.8125rem;
   border: 1px solid transparent;
-  @include nw.auth-surface;
+  @include nw.auth-trigger-surface;
   color: var(--nw-text-label);
 
   &:hover,
