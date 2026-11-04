@@ -53,7 +53,7 @@ const POSITIONS: ConnectedPosition[] = [
   host: { class: 'appearance-menu', '[class.appearance-menu--framed]': 'framed()' },
 })
 export class AppearanceMenu {
-  /** The outlined variant of the sign-in pages. */
+  /** The borderless authentication variant of the sign-in pages. */
   readonly framed = input(false, { transform: booleanAttribute });
 
   protected readonly theme = inject(ThemeService);

@@ -28,4 +28,7 @@
   </nw-menu>
 </ng-template>
 
+@if (framed()) {
+  <span class="preference-menus__divider" aria-hidden="true"></span>
+}
 <adm-appearance-menu [framed]="framed()" />

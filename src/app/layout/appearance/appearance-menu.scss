@@ -28,19 +28,25 @@
   }
 }
 
-// Sign-in pages: outlined, like the language control beside it.
+// Borderless authentication variant; popup and dashboard styling remain shared.
 :host(.appearance-menu--framed) .appearance-menu__trigger {
-  block-size: 2.5rem;
+  min-inline-size: 2.75rem;
+  block-size: 2.75rem;
   gap: var(--nw-space-2);
-  padding-inline: var(--nw-space-3);
-  font-size: 0.8125rem;
-  border: 1px solid var(--nw-border-default);
-  background-color: var(--nw-surface-raised);
+  padding-inline: var(--nw-space-1);
+  font-size: 0.875rem;
+  border-color: transparent;
+  background-color: transparent;
   color: var(--nw-text-label);
 
   &:hover,
   &[aria-expanded='true'] {
+    border-color: transparent;
     background-color: var(--nw-surface-sunken);
+  }
+
+  @include nw.from(tablet) {
+    padding-inline: var(--nw-space-3);
   }
 }
 
