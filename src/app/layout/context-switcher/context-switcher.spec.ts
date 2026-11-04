@@ -54,8 +54,14 @@ describe('ContextSwitcher', () => {
       await fixture.whenStable();
       const trigger = fixture.nativeElement.querySelector('button') as HTMLButtonElement;
       expect(trigger.textContent).toContain('Nawara Solutions');
+      expect(trigger.querySelector('.context-switcher__chevron')?.getAttribute('aria-hidden')).toBe(
+        'true',
+      );
+      expect(trigger.querySelector('button')).toBeNull();
+      expect(trigger.getAttribute('aria-expanded')).not.toBe('true');
       trigger.click();
       await fixture.whenStable();
+      expect(trigger.getAttribute('aria-expanded')).toBe('true');
       const rows = Array.from(
         document.querySelectorAll<HTMLButtonElement>('.context-switcher__item'),
       );
@@ -78,6 +84,7 @@ describe('ContextSwitcher', () => {
       rows[1]?.click();
       await fixture.whenStable();
       expect(navigateByUrl).toHaveBeenCalledWith('/platforms/school');
+      expect(trigger.getAttribute('aria-expanded')).not.toBe('true');
       scope.set({ kind: 'platform', platformId: platformId('drive') });
       await fixture.whenStable();
       expect(trigger.textContent).toContain('Nawara Drive');
