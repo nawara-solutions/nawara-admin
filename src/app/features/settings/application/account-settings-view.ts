@@ -2,6 +2,7 @@ import { can } from '../../../core/access/capability-policy';
 import { Actor } from '../../../core/auth/actor';
 import { CompanyDirectory, PlatformRef } from '../../../core/context/scope.model';
 import { ViewState } from '../../../core/state/view-state';
+import type { NwIconName } from '../../../shared/ui/icon/icon.registry';
 import { accountView } from './account-view';
 
 export interface AccountInfo {
@@ -16,8 +17,22 @@ export interface AccountAccessEntry {
   readonly id: string;
   readonly name: string;
 }
+/** Identity presentation only; a role label never grants authorization. */
+export interface AccountIdentitySummary {
+  readonly displayName: string | null;
+  readonly email: string | null;
+  readonly phone: string | null;
+  readonly initials: string | null;
+  readonly roleKey: string;
+}
+/** No enrollment or sign-in-method read exists in the current session contract. */
+export interface AccountSecurityInfo extends AccountInfo {
+  readonly status: 'not-reported';
+  readonly icon: NwIconName;
+}
 /** LOCAL presentation contract. No role-specific panel, invented membership or authorization rule. */
 export interface AccountSettingsView {
+  readonly identity: AccountIdentitySummary;
   readonly profile: readonly AccountInfo[];
   readonly access: {
     readonly rows: readonly AccountInfo[];
@@ -27,7 +42,7 @@ export interface AccountSettingsView {
     readonly unavailableDescription: string;
     readonly note: string | null;
   };
-  readonly security: readonly AccountInfo[];
+  readonly security: readonly AccountSecurityInfo[];
   readonly securityLink: boolean;
 }
 
@@ -61,12 +76,26 @@ export function accountSettingsView(
   } else {
     entries = source.platforms;
   }
+  const displayName = actor.displayName?.trim() || null;
+  const initials =
+    displayName
+      ?.split(/\s+/u)
+      .slice(0, 2)
+      .map((part) => Array.from(part)[0]?.toLocaleUpperCase() ?? '')
+      .join('') || null;
   return {
+    identity: {
+      displayName,
+      initials,
+      email: actor.email,
+      phone: actor.phone ?? null,
+      roleKey: roleKeys[actor.kind],
+    },
     profile: [
       {
         id: 'display-name',
         label: 'settings.account.displayName',
-        value: actor.displayName?.trim() || null,
+        value: displayName,
       },
       { id: 'email', label: 'settings.account.email', value: actor.email, machine: true },
       { id: 'phone', label: 'settings.account.phone', value: actor.phone ?? null, machine: true },
@@ -89,21 +118,27 @@ export function accountSettingsView(
     security: [
       {
         id: 'method',
+        icon: 'monitor',
+        status: 'not-reported',
         label: 'settings.account.signInMethod',
         value: null,
-        description: 'settings.account.methodUnknown',
+        description: 'settings.account.methodDetail',
       },
       {
         id: 'second-factor',
+        icon: 'lock-keyhole',
+        status: 'not-reported',
         label: 'settings.account.secondFactor',
         value: null,
-        description: 'settings.account.enrollmentUnknown',
+        description: 'settings.account.factorDetail',
       },
       {
         id: 'passkey',
+        icon: 'key-round',
+        status: 'not-reported',
         label: 'settings.account.passkey',
         value: null,
-        description: 'settings.account.enrollmentUnknown',
+        description: 'settings.account.passkeyDetail',
       },
     ],
     securityLink: can(actor, 'account.security.view'),

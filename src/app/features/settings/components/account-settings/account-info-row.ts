@@ -25,9 +25,11 @@ import { AccountInfo } from '../../application/account-settings-view';
       }
     </dd>
   `,
+  host: { '[class.account-info-row--stacked]': 'stacked()' },
   styleUrl: './account-info-row.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountInfoRow {
   readonly row = input.required<AccountInfo>();
+  readonly stacked = input(false);
 }

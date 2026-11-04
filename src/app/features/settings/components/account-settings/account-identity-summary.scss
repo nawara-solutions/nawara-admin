@@ -1,0 +1,99 @@
+:host {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-5);
+  min-inline-size: 0;
+  padding: var(--nw-space-5) var(--nw-space-6);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-lg);
+  background: var(--nw-surface-raised);
+}
+.account-summary__person {
+  display: flex;
+  flex: 1 1 16rem;
+  align-items: center;
+  gap: var(--nw-space-4);
+  min-inline-size: 0;
+}
+.account-summary__avatar {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  inline-size: 3.5rem;
+  block-size: 3.5rem;
+  border-radius: var(--nw-radius-pill);
+  color: var(--nw-text-brand);
+  background: var(--nw-color-primary-subtle);
+  font-size: var(--nw-text-size-xl);
+  font-weight: var(--nw-font-weight-semibold);
+}
+.account-summary__identity {
+  display: grid;
+  gap: var(--nw-space-1);
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+.account-summary__name {
+  font-size: var(--nw-text-size-lg);
+  font-weight: var(--nw-font-weight-semibold);
+}
+.account-summary__contact {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+.account-summary__role {
+  display: grid;
+  gap: var(--nw-space-2);
+  flex: 0 1 18rem;
+  min-inline-size: 0;
+  margin: 0;
+  padding-inline-start: var(--nw-space-5);
+  border-inline-start: 1px solid var(--nw-border-subtle);
+  overflow-wrap: anywhere;
+  dt {
+    display: flex;
+    align-items: center;
+    gap: var(--nw-space-2);
+    color: var(--nw-text-secondary);
+    font-size: var(--nw-text-size-sm);
+  }
+  dd {
+    margin: 0;
+    font-weight: var(--nw-font-weight-medium);
+  }
+}
+@container account-workspace (min-width: 52rem) {
+  :host(.account-summary--stacked) {
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--nw-space-6);
+  }
+  :host(.account-summary--stacked) .account-summary__person {
+    flex: initial;
+    flex-direction: column;
+    align-items: start;
+    gap: var(--nw-space-5);
+  }
+  :host(.account-summary--stacked) .account-summary__role {
+    flex: initial;
+    border-inline-start: 0;
+    border-block-start: 1px solid var(--nw-border-subtle);
+    padding-inline-start: 0;
+    padding-block-start: var(--nw-space-5);
+  }
+}
+@container account-workspace (max-width: 40rem) {
+  :host {
+    padding: var(--nw-space-4);
+    gap: var(--nw-space-4);
+  }
+  .account-summary__role {
+    flex-basis: 100%;
+    padding-inline-start: 0;
+    border-inline-start: 0;
+    padding-block-start: var(--nw-space-3);
+    border-block-start: 1px solid var(--nw-border-subtle);
+  }
+}

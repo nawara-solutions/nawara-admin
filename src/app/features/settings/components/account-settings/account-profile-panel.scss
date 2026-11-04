@@ -1,0 +1,28 @@
+:host {
+  display: block;
+  min-inline-size: 0;
+}
+.account-profile__columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--nw-space-6);
+}
+dl {
+  min-inline-size: 0;
+  margin: 0;
+}
+dl + dl {
+  padding-inline-start: var(--nw-space-6);
+  border-inline-start: 1px solid var(--nw-border-subtle);
+}
+@container account-workspace (max-width: 40rem) {
+  .account-profile__columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  dl + dl {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+    border-block-start: 1px solid var(--nw-border-subtle);
+  }
+}

@@ -24,7 +24,16 @@ describe('role-neutral account settings adapter', () => {
     const view = accountSettingsView(owner, loading, loading);
     expect(view?.profile.map((row) => row.value)).toEqual([null, owner.email, null]);
     expect(view?.securityLink).toBe(true);
-    expect(view?.security.every((row) => row.value === null)).toBe(true);
+    expect(view?.security.every((row) => row.value === null && row.status === 'not-reported')).toBe(
+      true,
+    );
+    expect(view?.identity).toEqual({
+      displayName: null,
+      initials: null,
+      email: owner.email,
+      phone: null,
+      roleKey: 'shell.role.owner',
+    });
   });
   it('uses only actual supplied identity and never injects demo records', () => {
     const view = accountSettingsView(
@@ -33,7 +42,30 @@ describe('role-neutral account settings adapter', () => {
       loading,
     );
     expect(view?.profile[0]?.value).toBe('Actual supplied name');
+    expect(view?.identity.initials).toBe('AS');
+    expect(view?.identity.displayName).toBe('Actual supplied name');
     expect(JSON.stringify(view)).not.toMatch(/Nawara Solutions|demo.nawara|Salim|password|enabled/);
+  });
+  it('never derives a name or initials from an email or phone', () => {
+    for (const actor of [
+      operator,
+      { ...operator, email: 'someone.named@example.invalid' },
+      { ...operator, phone: '+99900000001' },
+    ]) {
+      expect(accountSettingsView(actor, loading, loading)?.identity).toMatchObject({
+        displayName: null,
+        initials: null,
+      });
+    }
+  });
+  it('preserves real Unicode names and maps role data without granting security access', () => {
+    const view = accountSettingsView({ ...operator, displayName: 'ليلى منصور' }, loading, loading);
+    expect(view?.identity).toMatchObject({
+      displayName: 'ليلى منصور',
+      initials: 'لم',
+      roleKey: 'shell.role.operator',
+    });
+    expect(view?.securityLink).toBe(false);
   });
   it('retains loading, empty, error and forbidden access states', () => {
     expect(accountSettingsView(owner, loading, loading)?.access.entries.status).toBe('loading');

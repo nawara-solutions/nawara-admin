@@ -35,28 +35,39 @@
       </a>
     }
   </nav>
-  <section class="account-settings__panel" aria-labelledby="account-panel-title">
-    <header class="account-settings__panel-header">
-      <span class="account-settings__icon"><nw-icon [name]="selected().icon" size="lg" /></span>
-      <div>
-        <h3 id="account-panel-title">{{ selected().title | transloco }}</h3>
-        <p>{{ selected().description | transloco }}</p>
-      </div>
-    </header>
-    @switch (selected().id) {
-      @case ('profile') {
-        <adm-account-profile-panel [rows]="account.profile" />
-      }
-      @case ('access') {
-        <adm-account-access-panel [access]="account.access" (retry)="context.reload()" />
-      }
-      @case ('security') {
-        <adm-account-security-panel
-          [rows]="account.security"
-          [securityLink]="account.securityLink"
-        />
-      }
+  <div
+    class="account-settings__content"
+    [class.account-settings__content--access]="selected().id === 'access'"
+  >
+    @if (selected().id !== 'security') {
+      <adm-account-identity-summary
+        [identity]="account.identity"
+        [stacked]="selected().id === 'access'"
+      />
     }
-  </section>
+    <section class="account-settings__panel" aria-labelledby="account-panel-title">
+      <header class="account-settings__panel-header">
+        <span class="account-settings__icon"><nw-icon [name]="selected().icon" size="lg" /></span>
+        <div>
+          <h3 id="account-panel-title">{{ selected().title | transloco }}</h3>
+          <p>{{ selected().description | transloco }}</p>
+        </div>
+      </header>
+      @switch (selected().id) {
+        @case ('profile') {
+          <adm-account-profile-panel [rows]="account.profile" />
+        }
+        @case ('access') {
+          <adm-account-access-panel [access]="account.access" (retry)="context.reload()" />
+        }
+        @case ('security') {
+          <adm-account-security-panel
+            [rows]="account.security"
+            [securityLink]="account.securityLink"
+          />
+        }
+      }
+    </section>
+  </div>
   <p class="account-settings__source">{{ 'settings.account.source' | transloco }}</p>
 }

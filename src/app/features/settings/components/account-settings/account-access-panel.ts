@@ -10,7 +10,7 @@ import { AccountInfoRow } from './account-info-row';
 @Component({
   selector: 'adm-account-access-panel',
   imports: [AccountInfoRow, TranslocoPipe, NwIcon, NwSkeleton, NwButton, NgTemplateOutlet],
-  template: `<dl>
+  template: `<dl class="account-panel__access-facts">
       @for (row of access().rows; track row.id) {
         <div adm-account-info-row [row]="row"></div>
       }

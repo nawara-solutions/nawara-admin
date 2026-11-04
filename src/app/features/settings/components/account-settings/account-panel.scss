@@ -37,10 +37,11 @@ a {
   font-size: var(--nw-text-size-sm);
 }
 
-.account-panel__security-link.nw-button {
-  min-inline-size: 0;
-  max-inline-size: 100%;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  text-align: start;
+.account-panel__access-facts {
+  padding-inline: var(--nw-space-4);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+}
+.account-panel__entries {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
 }

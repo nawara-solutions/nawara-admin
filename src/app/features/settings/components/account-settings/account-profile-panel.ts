@@ -5,12 +5,19 @@ import { AccountInfoRow } from './account-info-row';
 @Component({
   selector: 'adm-account-profile-panel',
   imports: [AccountInfoRow],
-  template: `<dl>
-    @for (row of rows(); track row.id) {
-      <div adm-account-info-row [row]="row"></div>
-    }
-  </dl>`,
-  styleUrl: './account-panel.scss',
+  template: `<div class="account-profile__columns">
+    <dl>
+      @for (row of rows().slice(0, 2); track row.id) {
+        <div adm-account-info-row [row]="row" [stacked]="true"></div>
+      }
+    </dl>
+    <dl>
+      @for (row of rows().slice(2); track row.id) {
+        <div adm-account-info-row [row]="row" [stacked]="true"></div>
+      }
+    </dl>
+  </div>`,
+  styleUrl: './account-profile-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountProfilePanel {

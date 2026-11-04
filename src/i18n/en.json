@@ -1502,7 +1502,13 @@
       "passkey": "Passkey",
       "methodUnknown": "The current session does not report the sign-in method used.",
       "enrollmentUnknown": "Enrollment status is not provided by the current session.",
-      "reviewSecurity": "Review security settings"
+      "reviewSecurity": "Review security settings",
+      "securitySummary": "Security summary",
+      "notReported": "Not reported",
+      "securitySessionNote": "Your current session does not report the sign-in method used or factor enrollment. These entries do not indicate whether a method is configured.",
+      "methodDetail": "Method used for this session.",
+      "factorDetail": "Authenticator enrollment.",
+      "passkeyDetail": "Passkey enrollment."
     },
     "company": {
       "title": "Company",

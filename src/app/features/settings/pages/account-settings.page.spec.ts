@@ -187,6 +187,8 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
     const { page, harness } = await setup(owner);
     expect(text(page().querySelector('h2'))).toBe(t.title);
     expect(fact(page(), 'display-name')).toBe('Demo Owner');
+    expect(text(page().querySelector('.account-summary__name'))).toBe('Demo Owner');
+    expect(text(page().querySelector('.account-summary__avatar'))).toBe('DO');
     expect(fact(page(), 'email')).toBe(owner.email);
     expect(fact(page(), 'phone')).toBe(t.unavailable);
     expect(page().querySelector('adm-account-access-panel')).toBeNull();
@@ -196,7 +198,9 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
     expect(text(page().querySelector('[data-platform]'))).toBe('Nawara Solutions');
     expect(page().querySelector('adm-account-profile-panel')).toBeNull();
     await harness.navigateByUrl('/settings/account?section=security');
-    expect(fact(page(), 'method')).toContain(t.methodUnknown);
+    expect(fact(page(), 'method')).toContain(t.notReported);
+    expect(fact(page(), 'method')).toContain(t.methodDetail);
+    expect(text(page())).toContain(t.securitySessionNote);
     expect(text(page())).not.toContain(t.ownerSignIn);
     expect(page().querySelector('a[href="/settings/security"]')).not.toBeNull();
   });
@@ -204,6 +208,8 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
   it('an operator uses the same panels with no company or security-management action', async () => {
     const { page, harness } = await setup(operator);
     expect(fact(page(), 'display-name')).toBe(t.unavailable);
+    expect(text(page().querySelector('.account-summary__name'))).toBe(t.profileTab);
+    expect(page().querySelector('.account-summary__avatar nw-icon')).not.toBeNull();
     expect(fact(page(), 'email')).toBe(operator.email);
     await harness.navigateByUrl('/settings/account?section=access');
     expect(fact(page(), 'type')).toBe(en.shell.role.operator);
@@ -216,7 +222,8 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
     await harness.navigateByUrl('/settings/account?section=security');
     expect(page().querySelector('a[href="/settings/security"]')).toBeNull();
     expect(page().querySelector('button, input, form')).toBeNull();
-    expect(fact(page(), 'passkey')).toContain(t.enrollmentUnknown);
+    expect(fact(page(), 'passkey')).toContain(t.notReported);
+    expect(page().querySelectorAll('[data-security-status="not-reported"]')).toHaveLength(3);
   });
 
   it('a phone-only operator: the phone, left to right, and no email', async () => {

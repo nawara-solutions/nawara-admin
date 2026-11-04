@@ -31,3 +31,8 @@ p {
     gap: var(--nw-space-2);
   }
 }
+
+:host(.account-info-row--stacked) {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--nw-space-2);
+}

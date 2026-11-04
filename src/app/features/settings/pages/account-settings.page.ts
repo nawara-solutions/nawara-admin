@@ -7,6 +7,7 @@ import { ScopeContext } from '../../../core/context/scope-context';
 import { NwDataState } from '../../../shared/ui/data-state/data-state';
 import { NwIcon } from '../../../shared/ui/icon/icon';
 import { accountSettingsView } from '../application/account-settings-view';
+import { AccountIdentitySummary } from '../components/account-settings/account-identity-summary';
 import { AccountProfilePanel } from '../components/account-settings/account-profile-panel';
 import { AccountAccessPanel } from '../components/account-settings/account-access-panel';
 import { AccountSecurityPanel } from '../components/account-settings/account-security-panel';
@@ -43,6 +44,7 @@ const SECTIONS = [
     RouterLink,
     NwDataState,
     NwIcon,
+    AccountIdentitySummary,
     AccountProfilePanel,
     AccountAccessPanel,
     AccountSecurityPanel,

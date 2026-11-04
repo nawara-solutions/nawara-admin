@@ -1502,7 +1502,13 @@
       "passkey": "Clé d’accès",
       "methodUnknown": "La session actuelle ne précise pas la méthode de connexion utilisée.",
       "enrollmentUnknown": "La session actuelle ne fournit pas le statut d’inscription.",
-      "reviewSecurity": "Consulter les paramètres de sécurité"
+      "reviewSecurity": "Consulter les paramètres de sécurité",
+      "securitySummary": "Résumé de sécurité",
+      "notReported": "Non renseigné",
+      "securitySessionNote": "Votre session actuelle ne précise ni la méthode de connexion utilisée ni l’inscription des facteurs. Ces informations ne permettent pas de déterminer si une méthode est configurée.",
+      "methodDetail": "Méthode utilisée pour cette session.",
+      "factorDetail": "Inscription de l’application d’authentification.",
+      "passkeyDetail": "Inscription d’une clé d’accès."
     },
     "company": {
       "title": "Entreprise",
