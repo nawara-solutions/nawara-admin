@@ -22,7 +22,13 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
     >
       <div class="appearance-preview__dashboard" aria-hidden="true">
         <header class="appearance-preview__bar">
-          <nw-brand-mark wordmark label="" /><span class="appearance-preview__avatar">NA</span>
+          <nw-brand-mark wordmark label="" />
+          <span class="appearance-preview__tools"
+            ><nw-icon name="search" size="sm" /><nw-icon name="bell" size="sm" /><span
+              class="appearance-preview__avatar"
+              >NA</span
+            ></span
+          >
         </header>
         <aside class="appearance-preview__sidebar">
           <span class="appearance-preview__active"
@@ -41,19 +47,30 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
           <span><nw-icon name="settings" size="sm" />{{ 'settings.title' | transloco }}</span>
         </aside>
         <div class="appearance-preview__main">
-          <strong>{{ 'settings.appearance.preview.sample' | transloco }}</strong>
+          <strong class="appearance-preview__title">{{
+            'settings.appearance.preview.overview' | transloco
+          }}</strong>
+          <span class="appearance-preview__line"></span>
           <div class="appearance-preview__metrics">
-            @for (icon of icons; track icon) {
+            @for (metric of metrics; track metric.key) {
               <div>
-                <nw-icon [name]="icon" /><b>—</b><span class="appearance-preview__line"></span>
+                <nw-icon [name]="metric.icon" /><b>—</b><span>{{ metric.key | transloco }}</span>
               </div>
             }
           </div>
           <div class="appearance-preview__charts">
             <div class="appearance-preview__chart">
-              @for (height of bars; track $index) {
-                <span [style.block-size.%]="height"></span>
-              }
+              <svg viewBox="0 0 240 110" aria-hidden="true" focusable="false">
+                @for (height of bars; track $index) {
+                  <rect
+                    [attr.x]="$index * 30"
+                    [attr.y]="105 - height"
+                    width="22"
+                    [attr.height]="height"
+                    rx="4"
+                  />
+                }
+              </svg>
             </div>
             <div class="appearance-preview__secondary">
               <span class="appearance-preview__ring"></span
@@ -70,6 +87,10 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppearancePreview {
-  protected readonly icons = ['users', 'building-2', 'chart-line'] as const;
+  protected readonly metrics = [
+    { icon: 'users', key: 'shell.search.categories.members' },
+    { icon: 'building-2', key: 'shell.search.categories.organizations' },
+    { icon: 'user-round', key: 'shell.search.categories.operators' },
+  ] as const;
   protected readonly bars = [25, 40, 34, 58, 46, 72, 64, 90];
 }

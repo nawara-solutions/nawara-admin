@@ -19,8 +19,14 @@
           [checked]="theme.preference() === mode.value"
           (change)="theme.setPreference(mode.value)"
         />
-        <nw-icon [name]="mode.icon" size="sm" />
+        <nw-icon [name]="mode.icon" [size]="accentPresentation() === 'grid' ? 'lg' : 'sm'" />
         <span>{{ mode.labelKey | transloco }}</span>
+        @if (accentPresentation() === 'grid') {
+          <span class="appearance-panel__mode-description">{{ mode.hintKey | transloco }}</span>
+          @if (theme.preference() === mode.value) {
+            <nw-icon class="appearance-panel__mode-check" name="circle-check" size="sm" />
+          }
+        }
       </label>
     }
   </div>
@@ -56,7 +62,11 @@
     <nw-icon name="info" size="sm" />
     <div>
       <p class="appearance-panel__note">{{ 'preferences.appearance.note' | transloco }}</p>
-      <p class="appearance-panel__status" role="status">
+      <p
+        class="appearance-panel__status"
+        [class.appearance-panel__status--dirty]="theme.dirty()"
+        role="status"
+      >
         {{
           (theme.dirty() ? 'preferences.appearance.unsaved' : 'preferences.appearance.saved')
             | transloco

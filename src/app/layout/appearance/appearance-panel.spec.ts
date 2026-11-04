@@ -42,6 +42,8 @@ describe('AppearancePanel', () => {
 
   it('keeps Mode, Accent colour, the browser-only note and the reset, in that order', () => {
     const { host, modes, text } = render();
+    expect(host.querySelector('.appearance-panel__mode-description')).toBeNull();
+    expect(host.querySelector('.appearance-panel__mode-check')).toBeNull();
     const sections = Array.from(
       host.querySelectorAll(
         '.appearance-panel__legend, .appearance-panel__note, .appearance-panel__reset',

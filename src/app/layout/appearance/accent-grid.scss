@@ -6,7 +6,7 @@
 }
 .accent-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(4.75rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(4.25rem, 1fr));
   gap: var(--nw-space-2);
   min-inline-size: 0;
   margin: 0;
@@ -19,7 +19,7 @@
   justify-items: center;
   align-content: center;
   gap: var(--nw-space-2);
-  min-block-size: 5rem;
+  min-block-size: 4.75rem;
   padding: var(--nw-space-2) var(--nw-space-1);
   border: 1px solid var(--nw-border-subtle);
   border-radius: var(--nw-radius-md);
@@ -34,7 +34,7 @@
   }
   &:has(:checked) {
     border-color: var(--nw-color-primary);
-    background-color: var(--nw-color-primary-subtle);
+    background-color: color-mix(in srgb, var(--nw-color-primary) 5%, var(--nw-surface-raised));
   }
   &:has(:focus-visible) {
     @include nw.focus-ring;

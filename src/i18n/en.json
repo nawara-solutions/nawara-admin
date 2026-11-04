@@ -88,7 +88,12 @@
       "apply": "Apply changes",
       "unsaved": "Unapplied changes",
       "saved": "No unapplied changes",
-      "saveFailed": "Appearance could not be saved in this browser. Your draft is still available. Try again."
+      "saveFailed": "Appearance could not be saved in this browser. Your draft is still available. Try again.",
+      "modeCard": {
+        "system": "Follow your device.",
+        "light": "Always light.",
+        "dark": "Always dark."
+      }
     }
   },
   "foundation": {
@@ -1432,7 +1437,8 @@
         "title": "Live preview",
         "description": "See how your choices look in Nawara Admin.",
         "accessible": "Illustrative dashboard preview using your current theme and accent. No real account data or actions.",
-        "sample": "Illustrative preview — no live data"
+        "sample": "Illustrative preview — no live data",
+        "overview": "Dashboard overview"
       }
     },
     "hub": {

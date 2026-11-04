@@ -14,6 +14,12 @@ const MODES = {
   system: { icon: 'monitor', labelKey: 'preferences.theme.system' },
 } as const satisfies Record<ThemePreference, { icon: NwIconName; labelKey: string }>;
 
+const MODE_CARD_HINTS = {
+  system: 'preferences.appearance.modeCard.system',
+  light: 'preferences.appearance.modeCard.light',
+  dark: 'preferences.appearance.modeCard.dark',
+} as const satisfies Record<ThemePreference, string>;
+
 const MODE_HINTS = {
   system: 'preferences.appearance.modeHint.system',
   light: 'preferences.appearance.modeHint.light',
@@ -48,6 +54,10 @@ export class AppearancePanel {
   readonly accentPresentation = input<'picker' | 'grid'>('picker');
   protected readonly theme = inject(AppearanceDraft);
   protected readonly id = `appearance-${nextId++}`;
-  protected readonly modes = THEME_PREFERENCES.map((value) => ({ value, ...MODES[value] }));
+  protected readonly modes = THEME_PREFERENCES.map((value) => ({
+    value,
+    ...MODES[value],
+    hintKey: MODE_CARD_HINTS[value],
+  }));
   protected readonly modeHint = computed(() => MODE_HINTS[this.theme.preference()]);
 }

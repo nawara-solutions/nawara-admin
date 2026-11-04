@@ -88,7 +88,12 @@
       "apply": "Appliquer les modifications",
       "unsaved": "Modifications non appliquées",
       "saved": "Aucune modification en attente",
-      "saveFailed": "Impossible d’enregistrer l’apparence dans ce navigateur. Votre brouillon reste disponible. Réessayez."
+      "saveFailed": "Impossible d’enregistrer l’apparence dans ce navigateur. Votre brouillon reste disponible. Réessayez.",
+      "modeCard": {
+        "system": "Suivre votre appareil.",
+        "light": "Toujours clair.",
+        "dark": "Toujours sombre."
+      }
     }
   },
   "foundation": {
@@ -1432,7 +1437,8 @@
         "title": "Aperçu en direct",
         "description": "Découvrez vos choix dans Nawara Admin.",
         "accessible": "Aperçu illustratif du tableau de bord avec votre thème et votre couleur. Aucune donnée de compte ni action réelle.",
-        "sample": "Aperçu illustratif — aucune donnée réelle"
+        "sample": "Aperçu illustratif — aucune donnée réelle",
+        "overview": "Vue du tableau de bord"
       }
     },
     "hub": {

@@ -49,6 +49,17 @@ describe('Appearance customization workspace', () => {
       ).toBe(`var(--nw-swatch-${choice.value})`);
     }
     expect(host.querySelector('.accent-picker__trigger')).toBeNull();
+    expect(
+      Array.from(host.querySelectorAll('.appearance-panel__mode-description')).map((item) =>
+        item.textContent?.trim(),
+      ),
+    ).toEqual([
+      en.preferences.appearance.modeCard.system,
+      en.preferences.appearance.modeCard.light,
+      en.preferences.appearance.modeCard.dark,
+    ]);
+    expect(host.querySelectorAll('.appearance-panel__mode-check')).toHaveLength(1);
+    expect(host.querySelector('.appearance-panel__status--dirty')).toBeNull();
   });
 
   it('previews all accents and modes without changing committed appearance, while keeping the preview inert', async () => {
@@ -74,6 +85,12 @@ describe('Appearance customization workspace', () => {
         );
         expect(host.querySelectorAll('.accent-grid input:checked')).toHaveLength(1);
         expect(host.querySelectorAll('.accent-grid__check')).toHaveLength(1);
+        expect(
+          host
+            .querySelector('.appearance-panel__preview')
+            ?.querySelector('.appearance-preview__chart svg'),
+        ).not.toBeNull();
+        expect(host.querySelectorAll('.appearance-panel__mode-check')).toHaveLength(1);
         expect(host.querySelector('adm-appearance-preview')).toBe(preview);
       }
     }

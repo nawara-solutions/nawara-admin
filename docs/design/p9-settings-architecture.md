@@ -278,7 +278,7 @@ and persistence remain in the existing services. The workspace uses semantic sur
 
 The Appearance route uses the full Settings content width. `AppearancePanel` keeps its default compact picker presentation
 for authentication; its explicit `accentPresentation="grid"` presentation projects the Settings heading and preview into a
-45/55 grid above 54rem of available content width. Below that, the order is controls, preview, browser-local note, reset.
+40/60 grid above 54rem of available content width. Below that, the order is controls, preview, browser-local note, reset.
 The outer Settings navigation and other sections are unchanged.
 
 `AccentGrid` reads `ACCENT_PALETTES`, existing translated `ACCENT_KEYS`, and `--nw-swatch-*` tokens. Native radio controls
@@ -304,3 +304,13 @@ Apply preloads artwork when needed, persists the preference pair through Prefere
 Persistence failure retains the draft and committed appearance and reports a persistent error through the existing toast
 service. The store attempts to restore both prior keys if a later write fails; browser storage has no transaction API, so
 rollback itself may fail when storage becomes inaccessible. Such a failure is never reported as a successful save.
+
+
+### Final Appearance presentation refinement
+
+Settings uses equal theme cards with short localized descriptions and native radio semantics; the authentication panel
+retains its segmented mode control. The preview is top-aligned rather than stretched across the customization rows, with
+a wider column, larger illustrative navigation/metric text and responsive vector chart graphics. Its foreground and all
+surfaces resolve inside the existing draft data-theme/data-accent scope. No preview-device switch or operational data is
+introduced. The existing sticky action footer uses restrained spacing and a pending badge only when the draft is dirty.
+Draft selection, Apply, reset, persistence and error handling are unchanged.
