@@ -84,7 +84,7 @@
 }
 
 .preference-menus__auth-panel {
-  @include nw.auth-surface(var(--nw-surface-overlay));
+  @include nw.auth-surface;
 
   @media (forced-colors: active) {
     border-color: CanvasText;

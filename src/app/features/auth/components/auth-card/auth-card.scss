@@ -10,7 +10,7 @@
   padding: var(--nw-space-5);
   border: 1px solid var(--nw-border-subtle);
   border-radius: 1rem;
-  @include nw.auth-surface(var(--nw-surface-raised));
+  @include nw.auth-surface;
   box-shadow: var(--nw-shadow-auth-card);
 
   @include nw.from(tablet) {
