@@ -36,35 +36,32 @@
   display: inline;
 }
 
-// Soft authentication pills; the dashboard retains its bordered variant.
-:host(.preference-menus--framed) {
-  gap: var(--nw-space-2);
+// Keep the sign-in control compact as before; the application toolbar keeps its visible language code.
+:host(.preference-menus--framed) .preference-menus__value {
+  display: none;
 
+  @include nw.from(tablet) {
+    display: inline;
+  }
+}
+
+// Sign-in pages: outlined controls on the open workspace, the language named in itself.
+:host(.preference-menus--framed) {
   .preference-menus__trigger {
     justify-content: center;
-    min-inline-size: 2.75rem;
-    block-size: 2.75rem;
+    block-size: 2.5rem;
+    min-inline-size: 2.5rem;
     gap: var(--nw-space-2);
-    padding-inline: var(--nw-space-2);
-    border-color: transparent;
-    border-radius: var(--nw-radius-pill);
-    background-color: var(--nw-surface-sunken);
+    padding-inline: var(--nw-space-3);
+    border: 1px solid var(--nw-border-default);
+    background-color: var(--nw-surface-raised);
     color: var(--nw-text-label);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: var(--nw-font-weight-medium);
 
     &:hover,
     &[aria-expanded='true'] {
-      border-color: transparent;
-      background-color: var(--nw-surface-raised);
-    }
-  }
-
-  @include nw.from(tablet) {
-    gap: var(--nw-space-2);
-
-    .preference-menus__trigger {
-      padding-inline: var(--nw-space-3);
+      background-color: var(--nw-surface-sunken);
     }
   }
 }

@@ -28,26 +28,19 @@
   }
 }
 
-// Soft authentication pill; popup and dashboard styling remain shared.
+// Sign-in pages: outlined, like the language control beside it.
 :host(.appearance-menu--framed) .appearance-menu__trigger {
-  min-inline-size: 2.75rem;
-  block-size: 2.75rem;
+  block-size: 2.5rem;
   gap: var(--nw-space-2);
-  padding-inline: var(--nw-space-2);
-  font-size: 0.875rem;
-  border-color: transparent;
-  border-radius: var(--nw-radius-pill);
-  background-color: var(--nw-surface-sunken);
+  padding-inline: var(--nw-space-3);
+  font-size: 0.8125rem;
+  border: 1px solid var(--nw-border-default);
+  background-color: var(--nw-surface-raised);
   color: var(--nw-text-label);
 
   &:hover,
   &[aria-expanded='true'] {
-    border-color: transparent;
-    background-color: var(--nw-surface-raised);
-  }
-
-  @include nw.from(tablet) {
-    padding-inline: var(--nw-space-3);
+    background-color: var(--nw-surface-sunken);
   }
 }
 
