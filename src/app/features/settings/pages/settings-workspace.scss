@@ -3,7 +3,7 @@
   align-content: start;
   gap: var(--nw-space-5);
   min-inline-size: 0;
-  max-inline-size: 64rem;
+  // The shell bounds the workspace; child settings forms retain their own reading widths.
 }
 .settings-workspace__header {
   display: grid;
