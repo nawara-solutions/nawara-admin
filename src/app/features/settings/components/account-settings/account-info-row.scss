@@ -36,3 +36,16 @@ p {
   grid-template-columns: minmax(0, 1fr);
   gap: var(--nw-space-2);
 }
+
+dt {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-3);
+}
+:host(.account-info-row--badge) dd {
+  justify-self: start;
+  padding: var(--nw-space-1) var(--nw-space-3);
+  border-radius: var(--nw-radius-pill);
+  background: var(--nw-color-primary-subtle);
+  color: var(--nw-text-brand);
+}

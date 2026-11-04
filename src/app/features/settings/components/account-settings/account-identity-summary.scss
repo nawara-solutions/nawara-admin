@@ -33,6 +33,7 @@
   display: grid;
   gap: var(--nw-space-1);
   min-inline-size: 0;
+  max-inline-size: 100%;
   overflow-wrap: anywhere;
 }
 .account-summary__name {
@@ -64,26 +65,6 @@
     font-weight: var(--nw-font-weight-medium);
   }
 }
-@container account-workspace (min-width: 52rem) {
-  :host(.account-summary--stacked) {
-    flex-direction: column;
-    align-items: stretch;
-    padding: var(--nw-space-6);
-  }
-  :host(.account-summary--stacked) .account-summary__person {
-    flex: initial;
-    flex-direction: column;
-    align-items: start;
-    gap: var(--nw-space-5);
-  }
-  :host(.account-summary--stacked) .account-summary__role {
-    flex: initial;
-    border-inline-start: 0;
-    border-block-start: 1px solid var(--nw-border-subtle);
-    padding-inline-start: 0;
-    padding-block-start: var(--nw-space-5);
-  }
-}
 @container account-workspace (max-width: 40rem) {
   :host {
     padding: var(--nw-space-4);
@@ -95,5 +76,118 @@
     border-inline-start: 0;
     padding-block-start: var(--nw-space-3);
     border-block-start: 1px solid var(--nw-border-subtle);
+  }
+}
+
+.account-summary__portrait {
+  display: inline-flex;
+  position: relative;
+  flex-shrink: 0;
+}
+.account-summary__portrait-badge {
+  position: absolute;
+  inset-inline-start: 3.25rem;
+  inset-block-end: var(--nw-space-3);
+  display: inline-flex;
+  padding: var(--nw-space-2);
+  border: 2px solid var(--nw-surface-raised);
+  border-radius: var(--nw-radius-pill);
+  color: var(--nw-text-brand);
+  background: var(--nw-color-primary-subtle);
+}
+.account-summary__contacts {
+  display: grid;
+  gap: var(--nw-space-4);
+  inline-size: 100%;
+  min-inline-size: 0;
+  margin: 0;
+  padding-block: var(--nw-space-5);
+  border-block: 1px solid var(--nw-border-subtle);
+  font-size: var(--nw-text-size-sm);
+  dt {
+    display: flex;
+    align-items: center;
+    gap: var(--nw-space-2);
+    color: var(--nw-text-secondary);
+  }
+  dd {
+    margin: var(--nw-space-1) 0 0;
+    overflow-wrap: anywhere;
+  }
+}
+.account-summary__note {
+  padding: var(--nw-space-4);
+  border-radius: var(--nw-radius-md);
+  color: var(--nw-text-secondary);
+  background: var(--nw-color-primary-subtle);
+  font-size: var(--nw-text-size-sm);
+  p {
+    display: flex;
+    align-items: center;
+    gap: var(--nw-space-2);
+    margin-block-end: var(--nw-space-2);
+    color: var(--nw-text-brand);
+    font-weight: var(--nw-font-weight-semibold);
+  }
+}
+:host(.account-summary--stacked) .account-summary__role {
+  border: 0;
+  padding: 0;
+  flex: initial;
+}
+:host(.account-summary--stacked) .account-summary__role dd {
+  justify-self: start;
+  padding: var(--nw-space-1) var(--nw-space-3);
+  border-radius: var(--nw-radius-pill);
+  color: var(--nw-text-brand);
+  background: var(--nw-color-primary-subtle);
+  font-size: var(--nw-text-size-sm);
+}
+@container account-workspace (min-width: 52rem) {
+  :host(.account-summary--stacked) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--nw-space-4);
+    padding: var(--nw-space-3);
+  }
+  :host(.account-summary--stacked) .account-summary__person {
+    flex: initial;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--nw-space-5);
+  }
+  :host(.account-summary--stacked) .account-summary__portrait {
+    display: flex;
+    align-items: center;
+    inline-size: 100%;
+    min-block-size: 7rem;
+    padding: var(--nw-space-5);
+    border-radius: var(--nw-radius-md);
+    background: var(--nw-color-primary-subtle);
+  }
+  :host(.account-summary--stacked) .account-summary__avatar {
+    inline-size: 4.25rem;
+    block-size: 4.25rem;
+    background: var(--nw-surface-raised);
+  }
+  :host(.account-summary--stacked) .account-summary__identity,
+  :host(.account-summary--stacked) .account-summary__role,
+  :host(.account-summary--stacked) .account-summary__contacts,
+  :host(.account-summary--stacked) .account-summary__note {
+    margin-inline: var(--nw-space-3);
+  }
+  :host(.account-summary--stacked) .account-summary__contacts {
+    inline-size: auto;
+  }
+  :host(.account-summary--stacked) .account-summary__note {
+    margin-block-end: var(--nw-space-3);
+  }
+}
+@container account-workspace (max-width: 52rem) {
+  .account-summary__portrait-badge {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+    inset-block-end: 0;
+    padding: var(--nw-space-1);
   }
 }

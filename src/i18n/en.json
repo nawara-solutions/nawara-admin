@@ -1508,7 +1508,11 @@
       "securitySessionNote": "Your current session does not report the sign-in method used or factor enrollment. These entries do not indicate whether a method is configured.",
       "methodDetail": "Method used for this session.",
       "factorDetail": "Authenticator enrollment.",
-      "passkeyDetail": "Passkey enrollment."
+      "passkeyDetail": "Passkey enrollment.",
+      "readOnly": "Read only",
+      "readOnlyNote": "Account information is shown for reference. Changes are not available here.",
+      "accessOverview": "Access overview",
+      "accessOverviewNote": "Your current authorized access from this session."
     },
     "company": {
       "title": "Company",

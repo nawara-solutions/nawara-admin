@@ -9,28 +9,61 @@ import { AccountIdentitySummary as Identity } from '../../application/account-se
   imports: [TranslocoPipe, NwIcon],
   template: `
     <div class="account-summary__person">
-      <span class="account-summary__avatar" aria-hidden="true">
-        @if (identity().initials; as initials) {
-          {{ initials }}
-        } @else {
-          <nw-icon name="user-round" size="lg" />
+      <div class="account-summary__portrait">
+        <span class="account-summary__avatar" aria-hidden="true">
+          @if (identity().initials; as initials) {
+            {{ initials }}
+          } @else {
+            <nw-icon name="user-round" size="lg" />
+          }
+        </span>
+        @if (stacked()) {
+          <span class="account-summary__portrait-badge"><nw-icon name="id-card" size="sm" /></span>
         }
-      </span>
+      </div>
       <div class="account-summary__identity">
         <p class="account-summary__name">
           <bdi>{{ identity().displayName ?? ('settings.account.profileTab' | transloco) }}</bdi>
         </p>
-        @if (identity().email; as email) {
-          <bdi class="account-summary__contact" dir="ltr" translate="no">{{ email }}</bdi>
-        } @else if (identity().phone; as phone) {
-          <bdi class="account-summary__contact" dir="ltr" translate="no">{{ phone }}</bdi>
+        @if (!stacked()) {
+          @if (identity().email; as email) {
+            <bdi class="account-summary__contact" dir="ltr" translate="no">{{ email }}</bdi>
+          } @else if (identity().phone; as phone) {
+            <bdi class="account-summary__contact" dir="ltr" translate="no">{{ phone }}</bdi>
+          }
         }
       </div>
     </div>
     <dl class="account-summary__role">
-      <dt><nw-icon name="id-card" size="sm" />{{ 'settings.account.type' | transloco }}</dt>
+      <dt [class.nw-visually-hidden]="stacked()">
+        <nw-icon name="id-card" size="sm" />{{ 'settings.account.type' | transloco }}
+      </dt>
       <dd>{{ identity().roleKey | transloco }}</dd>
     </dl>
+    @if (stacked()) {
+      <dl class="account-summary__contacts">
+        <div>
+          <dt><nw-icon name="mail" size="sm" />{{ 'settings.account.email' | transloco }}</dt>
+          <dd>
+            <bdi dir="ltr" translate="no">{{
+              identity().email ?? ('settings.account.unavailable' | transloco)
+            }}</bdi>
+          </dd>
+        </div>
+        <div>
+          <dt><nw-icon name="id-card" size="sm" />{{ 'settings.account.phone' | transloco }}</dt>
+          <dd>
+            <bdi dir="ltr" translate="no">{{
+              identity().phone ?? ('settings.account.unavailable' | transloco)
+            }}</bdi>
+          </dd>
+        </div>
+      </dl>
+      <div class="account-summary__note">
+        <p><nw-icon name="info" size="sm" />{{ 'settings.account.readOnly' | transloco }}</p>
+        <span>{{ 'settings.account.readOnlyNote' | transloco }}</span>
+      </div>
+    }
   `,
   styleUrl: './account-identity-summary.scss',
   host: { class: 'account-summary', '[class.account-summary--stacked]': 'stacked()' },

@@ -54,3 +54,18 @@ describe('account access presentation states', () => {
     });
   }
 });
+
+it('shows overview cards only for actual authorized access records', async () => {
+  const { element } = await render({
+    status: 'success',
+    data: [{ id: 'a', name: 'Actual authorized context' }],
+  });
+  expect(element.querySelectorAll('[data-platform]')).toHaveLength(1);
+  expect(element.querySelectorAll('.account-panel__cards article')).toHaveLength(1);
+  expect(element.querySelector('.account-panel__cards')?.textContent).toContain(
+    'Actual authorized context',
+  );
+  expect(element.querySelector('.account-panel__cards')?.textContent).not.toMatch(
+    /Owner|Membership/,
+  );
+});
