@@ -37,6 +37,11 @@
   --nw-inline-alert-icon: var(--nw-alert-success-icon);
 }
 
+:host(.auth-success-surface.nw-inline-alert--success) {
+  --nw-inline-alert-bg: transparent;
+  --nw-inline-alert-border: color-mix(in srgb, var(--nw-alert-success-fg) 15%, transparent);
+}
+
 .nw-inline-alert__icon {
   inline-size: 1.125rem;
   block-size: 1.125rem;

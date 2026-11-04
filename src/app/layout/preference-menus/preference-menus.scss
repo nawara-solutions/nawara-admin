@@ -53,8 +53,8 @@
     min-inline-size: 2.5rem;
     gap: var(--nw-space-2);
     padding-inline: var(--nw-space-3);
-    border: 1px solid var(--nw-border-default);
-    background-color: var(--nw-surface-raised);
+    border: 1px solid transparent;
+    @include nw.auth-surface;
     color: var(--nw-text-label);
     font-size: 0.8125rem;
     font-weight: var(--nw-font-weight-medium);
@@ -80,13 +80,5 @@
   :host(:not(.preference-menus--framed)) .preference-menus__trigger {
     gap: 0.375rem;
     padding-inline: var(--nw-space-3);
-  }
-}
-
-.preference-menus__auth-panel {
-  @include nw.auth-surface;
-
-  @media (forced-colors: active) {
-    border-color: CanvasText;
   }
 }

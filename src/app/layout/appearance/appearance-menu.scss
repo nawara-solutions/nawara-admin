@@ -34,8 +34,8 @@
   gap: var(--nw-space-2);
   padding-inline: var(--nw-space-3);
   font-size: 0.8125rem;
-  border: 1px solid var(--nw-border-default);
-  background-color: var(--nw-surface-raised);
+  border: 1px solid transparent;
+  @include nw.auth-surface;
   color: var(--nw-text-label);
 
   &:hover,
@@ -93,13 +93,5 @@
 
   .appearance-menu__swatch {
     forced-color-adjust: none;
-  }
-}
-
-.appearance-menu__popover--auth {
-  @include nw.auth-surface;
-
-  @media (forced-colors: active) {
-    border-color: CanvasText;
   }
 }

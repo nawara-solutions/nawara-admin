@@ -73,6 +73,9 @@
 }
 
 .sign-in__working-code {
+  --nw-button-bg: transparent;
+  --nw-button-border: color-mix(in srgb, var(--nw-color-primary) 7%, transparent);
+
   min-block-size: 2.5rem;
   color: var(--nw-text-label);
   font-size: 0.8125rem;
