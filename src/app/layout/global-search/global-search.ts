@@ -1,5 +1,16 @@
-import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
-import { ChangeDetectionStrategy, Component, ElementRef, signal, viewChild } from '@angular/core';
+import { Dialog, DialogRef } from '@angular/cdk/dialog';
+import { DOCUMENT } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  TemplateRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { NwIcon } from '../../shared/ui/icon/icon';
 import type { NwIconName } from '../../shared/ui/icon/icon.registry';
@@ -19,23 +30,10 @@ const CATEGORIES: readonly {
   { id: 'platforms', key: 'shell.search.categories.platforms', icon: 'hexagon' },
 ];
 
-const POSITIONS: ConnectedPosition[] = [
-  { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: 8 },
-  { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 8 },
-];
-
 /** The category selector is ready for the future search contracts; no data source is currently available. */
 @Component({
   selector: 'adm-global-search',
-  imports: [
-    CdkConnectedOverlay,
-    CdkOverlayOrigin,
-    TranslocoPipe,
-    NwIcon,
-    NwMenu,
-    NwMenuItem,
-    NwMenuTrigger,
-  ],
+  imports: [TranslocoPipe, NwIcon, NwMenu, NwMenuItem, NwMenuTrigger],
   templateUrl: './global-search.html',
   styleUrl: './global-search.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,14 +42,20 @@ const POSITIONS: ConnectedPosition[] = [
 export class GlobalSearch {
   private static nextId = 0;
 
+  constructor() {
+    this.destroyRef.onDestroy(() => this.dialogRef?.close());
+  }
+
   protected readonly categories = CATEGORIES;
   protected readonly selected = signal<SearchCategory>('all');
   protected readonly open = signal(false);
-  protected readonly positions = POSITIONS;
-  private readonly compactTrigger = viewChild('compactTrigger', {
-    read: ElementRef<HTMLButtonElement>,
-  });
-  private readonly searchInput = viewChild('searchInput', { read: ElementRef<HTMLInputElement> });
+  private readonly dialog = inject(Dialog);
+  private readonly document = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly trigger = viewChild.required<ElementRef<HTMLButtonElement>>('searchTrigger');
+  private readonly modal = viewChild.required<TemplateRef<unknown>>('searchModal');
+  private dialogRef: DialogRef | undefined;
+
   private readonly unavailableId = `global-search-unavailable-${GlobalSearch.nextId++}`;
 
   protected categoryKey(category: SearchCategory): string {
@@ -67,20 +71,29 @@ export class GlobalSearch {
   }
 
   protected dismiss(): void {
-    this.open.set(false);
-    queueMicrotask(() => this.compactTrigger()?.nativeElement.focus());
-  }
-
-  protected focusSearch(): void {
-    this.searchInput()?.nativeElement.focus();
+    this.dialogRef?.close();
   }
 
   protected toggle(): void {
-    this.open.update((value) => !value);
-  }
-
-  protected onOverlayClick(): void {
-    this.open.set(false);
+    if (this.open()) {
+      this.dismiss();
+      return;
+    }
+    this.open.set(true);
+    this.dialogRef = this.dialog.open(this.modal(), {
+      ariaLabelledBy: this.unavailableId + '-title',
+      ariaDescribedBy: this.unavailableId,
+      ariaModal: true,
+      autoFocus: '.global-search__input',
+      restoreFocus: this.trigger().nativeElement,
+      direction: this.document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr',
+      backdropClass: 'nw-overlay-backdrop',
+      panelClass: 'nw-dialog-pane',
+    });
+    this.dialogRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.open.set(false);
+      this.dialogRef = undefined;
+    });
   }
 
   protected get unavailableDescriptionId(): string {

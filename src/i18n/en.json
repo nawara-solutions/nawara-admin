@@ -376,7 +376,12 @@
         "members": "Members",
         "operators": "Operators",
         "platforms": "Platforms"
-      }
+      },
+      "title": "Search across Nawara",
+      "description": "Quickly find what you need across all your data.",
+      "close": "Close search",
+      "searchIn": "Search in",
+      "toClose": "to close"
     },
     "notifications": {
       "unread": "Unread notifications: {{count}}",

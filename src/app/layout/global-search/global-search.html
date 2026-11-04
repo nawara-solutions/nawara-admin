@@ -1,86 +1,85 @@
-<div class="global-search__field" role="search">
-  <button
-    class="global-search__category"
-    type="button"
-    [nwMenuTriggerFor]="categoryMenu"
-    [attr.aria-label]="'shell.search.categoryLabel' | transloco"
-  >
-    <nw-icon [name]="categoryIcon(selected())" size="sm" aria-hidden="true" />
-    <span>{{ categoryKey(selected()) | transloco }}</span>
-    <nw-icon name="chevron-down" size="sm" />
-  </button>
-  <span class="global-search__divider" aria-hidden="true"></span>
-  <nw-icon class="global-search__icon" name="search" size="sm" aria-hidden="true" />
-  <input
-    class="global-search__input"
-    type="search"
-    readonly
-    [attr.aria-label]="'shell.search.label' | transloco"
-    [attr.aria-describedby]="unavailableDescriptionId"
-    [placeholder]="'shell.search.placeholder' | transloco"
-    [title]="'shell.notAvailableYet' | transloco"
-  />
-</div>
-<span class="nw-visually-hidden" [id]="unavailableDescriptionId">
-  {{ 'shell.search.unavailable' | transloco }}
-</span>
-
 <button
-  #compactTrigger
+  #searchTrigger
   class="global-search__compact"
   type="button"
-  cdkOverlayOrigin
-  #origin="cdkOverlayOrigin"
   aria-haspopup="dialog"
   [attr.aria-label]="'shell.search.open' | transloco"
   [attr.aria-expanded]="open()"
-  (click)="$event.stopPropagation(); toggle()"
+  (click)="toggle()"
 >
-  <nw-icon name="search" size="sm" />
+  <nw-icon name="search" />
 </button>
 
-<ng-template
-  cdkConnectedOverlay
-  [cdkConnectedOverlayOrigin]="origin"
-  [cdkConnectedOverlayOpen]="open()"
-  [cdkConnectedOverlayPositions]="positions"
-  [cdkConnectedOverlayViewportMargin]="12"
-  [cdkConnectedOverlayPush]="true"
-  (attach)="focusSearch()"
-  (overlayOutsideClick)="onOverlayClick()"
-  (overlayKeydown)="$event.key === 'Escape' && dismiss()"
->
-  <div
-    class="global-search__popover"
-    role="dialog"
-    aria-modal="false"
-    [attr.aria-label]="'shell.search.label' | transloco"
-  >
-    <div class="global-search__field global-search__field--popover">
-      <button
-        class="global-search__category"
-        type="button"
-        [nwMenuTriggerFor]="categoryMenu"
-        [attr.aria-label]="'shell.search.categoryLabel' | transloco"
-      >
-        <nw-icon [name]="categoryIcon(selected())" size="sm" aria-hidden="true" />
-        <span>{{ categoryKey(selected()) | transloco }}</span>
-        <nw-icon name="chevron-down" size="sm" />
-      </button>
-      <span class="global-search__divider" aria-hidden="true"></span>
-      <nw-icon class="global-search__icon" name="search" size="sm" aria-hidden="true" />
-      <input
-        #searchInput
-        class="global-search__input"
-        type="search"
-        readonly
-        [attr.aria-label]="'shell.search.label' | transloco"
-        [attr.aria-describedby]="unavailableDescriptionId"
-        [placeholder]="'shell.search.placeholder' | transloco"
-      />
+<ng-template #searchModal>
+  <section class="global-search__modal">
+    <aside class="global-search__intro">
+      <div class="global-search__illustration" aria-hidden="true">
+        <span class="global-search__document"></span>
+        <span class="global-search__document global-search__document--second"></span>
+        <nw-icon name="search" />
+      </div>
+      <h2 [id]="unavailableDescriptionId + '-title'">{{ 'shell.search.title' | transloco }}</h2>
+      <p>{{ 'shell.search.description' | transloco }}</p>
+    </aside>
+    <div class="global-search__content">
+      <div class="global-search__close-row">
+        <button
+          type="button"
+          class="global-search__close"
+          [attr.aria-label]="'shell.search.close' | transloco"
+          (click)="dismiss()"
+        >
+          <nw-icon name="x" />
+        </button>
+      </div>
+      <div class="global-search__field" role="search">
+        <button
+          class="global-search__category"
+          type="button"
+          [nwMenuTriggerFor]="categoryMenu"
+          [attr.aria-label]="'shell.search.categoryLabel' | transloco"
+        >
+          <nw-icon [name]="categoryIcon(selected())" size="sm" />
+          <span>{{ categoryKey(selected()) | transloco }}</span>
+          <nw-icon name="chevron-down" size="sm" />
+        </button>
+        <nw-icon name="search" size="sm" />
+        <input
+          class="global-search__input"
+          type="search"
+          readonly
+          [attr.aria-label]="'shell.search.label' | transloco"
+          [attr.aria-describedby]="unavailableDescriptionId"
+          [placeholder]="'shell.search.placeholder' | transloco"
+        />
+      </div>
+      <p class="global-search__unavailable" role="status" [id]="unavailableDescriptionId">
+        {{ 'shell.search.unavailable' | transloco }}
+      </p>
+      <fieldset class="global-search__categories">
+        <legend>{{ 'shell.search.searchIn' | transloco }}</legend>
+        <div class="global-search__tiles">
+          @for (category of categories; track category.id) {
+            <label
+              class="global-search__tile"
+              [class.global-search__tile--selected]="selected() === category.id"
+            >
+              <input
+                type="radio"
+                name="global-search-category"
+                [value]="category.id"
+                [checked]="selected() === category.id"
+                (change)="select(category.id)"
+              />
+              <nw-icon [name]="category.icon" />
+              <span>{{ category.key | transloco }}</span>
+            </label>
+          }
+        </div>
+      </fieldset>
+      <p class="global-search__hint"><kbd>Esc</kbd> {{ 'shell.search.toClose' | transloco }}</p>
     </div>
-    <p class="global-search__unavailable">{{ 'shell.search.unavailable' | transloco }}</p>
-  </div>
+  </section>
 </ng-template>
 
 <ng-template #categoryMenu>

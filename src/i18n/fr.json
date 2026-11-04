@@ -376,7 +376,12 @@
         "members": "Membres",
         "operators": "Opérateurs",
         "platforms": "Plateformes"
-      }
+      },
+      "title": "Rechercher dans Nawara",
+      "description": "Trouvez rapidement ce dont vous avez besoin dans vos données.",
+      "close": "Fermer la recherche",
+      "searchIn": "Rechercher dans",
+      "toClose": "pour fermer"
     },
     "notifications": {
       "unread": "Notifications non lues : {{count}}",
