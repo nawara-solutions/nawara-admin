@@ -21,9 +21,13 @@ Its expanded allocation is shrinkable from 18rem to 16rem, with 12px inline padd
 are 0.875rem and 0.75rem; symbol heights remain 1.875rem expanded and 1.25rem compact.
 
 The popup is capped at 22rem and the viewport width minus 1.5rem, with 8px panel padding and 12px row padding/gaps.
-Only the company row adds secondary text (the existing translated All platforms label); platform names remain domain data.
+The company row shows the existing All platforms label. Known School/Drive product types show the localized descriptions
+from the Owner’s platform-selector reference; unknown products receive no guessed description. Platform names remain domain data.
 
 Header outer padding was unchanged by the logo correction and remains 14px on mobile, space-6 from tablet and space-7
 from laptop. The regression was the non-shrinking 17rem selector allocation combined with narrow 6px/10px internal padding.
 Toolbar gaps now use space-3 (12px) from tablet, with space-4 (16px) between navigation and tools; the mobile tool gap is
 space-2 (8px). Header minimum height stays 4rem. Language and Appearance remain in Settings using existing state/services.
+
+The reference-aligned dropdown uses a 1rem bold title, theme-secondary 0.875rem description, 2.5rem product symbols,
+5rem minimum row height, thin row dividers and the existing restrained accent selection surface. The group heading is removed.

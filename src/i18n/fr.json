@@ -306,7 +306,11 @@
       "platforms": "Plateformes",
       "current": "actuel",
       "loading": "Chargement…",
-      "assigned": "Vos plateformes"
+      "assigned": "Vos plateformes",
+      "productDescription": {
+        "school": "Gestion de l’éducation",
+        "drive": "Flotte et transport"
+      }
     },
     "role": {
       "owner": "Propriétaire de l’entreprise",

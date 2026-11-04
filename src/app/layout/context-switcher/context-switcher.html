@@ -36,21 +36,18 @@
       >
         <nw-product-symbol />
         <span class="context-switcher__option">
-          <bdi>{{ companyName() ?? (titleKey() | transloco) }}</bdi>
+          <bdi class="context-switcher__option-title">{{
+            companyName() ?? (titleKey() | transloco)
+          }}</bdi>
           <span class="context-switcher__description">{{
             'shell.context.allPlatforms' | transloco
           }}</span>
         </span>
         @if (context.scope().kind === 'company') {
-          <nw-icon name="check" size="sm" />
+          <nw-icon class="context-switcher__selected" name="check" size="sm" />
           <span class="nw-visually-hidden">({{ 'shell.context.current' | transloco }})</span>
         }
       </button>
-    }
-    @if (platforms().length > 0) {
-      <p class="context-switcher__group" aria-hidden="true">
-        {{ 'shell.context.platforms' | transloco }}
-      </p>
     }
     @for (platform of platforms(); track platform.id) {
       <button
@@ -60,9 +57,16 @@
         (triggered)="selectPlatform(platform)"
       >
         <nw-product-symbol [product]="platform.product" />
-        <bdi class="context-switcher__option">{{ platform.name }}</bdi>
+        <span class="context-switcher__option">
+          <bdi class="context-switcher__option-title">{{ platform.name }}</bdi>
+          @if (platform.product; as product) {
+            <span class="context-switcher__description">{{
+              productDescriptionKeys[product] | transloco
+            }}</span>
+          }
+        </span>
         @if (currentPlatform()?.id === platform.id) {
-          <nw-icon name="check" size="sm" />
+          <nw-icon class="context-switcher__selected" name="check" size="sm" />
           <span class="nw-visually-hidden">({{ 'shell.context.current' | transloco }})</span>
         }
       </button>

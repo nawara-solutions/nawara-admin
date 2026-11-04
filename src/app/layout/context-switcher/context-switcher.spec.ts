@@ -60,6 +60,14 @@ describe('ContextSwitcher', () => {
         document.querySelectorAll<HTMLButtonElement>('.context-switcher__item'),
       );
       expect(rows).toHaveLength(3);
+      const catalog = { en, fr, ar }[lang as 'en' | 'fr' | 'ar'];
+      expect(rows[1]?.querySelector('.context-switcher__description')?.textContent?.trim()).toBe(
+        catalog.shell.context.productDescription.school,
+      );
+      expect(rows[2]?.querySelector('.context-switcher__description')?.textContent?.trim()).toBe(
+        catalog.shell.context.productDescription.drive,
+      );
+      expect(document.querySelector('.context-switcher__group')).toBeNull();
       expect(rows[0]?.getAttribute('aria-current')).toBe('true');
       expect(rows[1]?.querySelector('nw-product-symbol')?.getAttribute('style')).toContain(
         'school-mask',

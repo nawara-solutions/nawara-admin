@@ -306,7 +306,11 @@
       "platforms": "المنصات",
       "current": "الحالي",
       "loading": "جارٍ التحميل…",
-      "assigned": "منصّاتك"
+      "assigned": "منصّاتك",
+      "productDescription": {
+        "school": "إدارة التعليم",
+        "drive": "الأسطول والنقل"
+      }
     },
     "role": {
       "owner": "مالك الشركة",

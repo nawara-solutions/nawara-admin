@@ -306,7 +306,11 @@
       "platforms": "Platforms",
       "current": "current",
       "loading": "Loading…",
-      "assigned": "Your platforms"
+      "assigned": "Your platforms",
+      "productDescription": {
+        "school": "Education management",
+        "drive": "Fleet and transportation"
+      }
     },
     "role": {
       "owner": "Company owner",

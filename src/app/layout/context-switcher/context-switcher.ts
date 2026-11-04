@@ -4,7 +4,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { can } from '../../core/access/capability-policy';
 import { AuthSession } from '../../core/auth/auth-session';
 import { ScopeContext, platformPath } from '../../core/context/scope-context';
-import { PlatformRef } from '../../core/context/scope.model';
+import { PlatformProduct, PlatformRef } from '../../core/context/scope.model';
 import { ProductSymbol } from '../../shared/ui/product-symbol/product-symbol';
 import { NwIcon } from '../../shared/ui/icon/icon';
 import { NwMenu, NwMenuItem, NwMenuTrigger } from '../../shared/ui/menu/menu';
@@ -22,6 +22,10 @@ import { NwMenu, NwMenuItem, NwMenuTrigger } from '../../shared/ui/menu/menu';
   host: { class: 'context-switcher' },
 })
 export class ContextSwitcher {
+  protected readonly productDescriptionKeys = {
+    school: 'shell.context.productDescription.school',
+    drive: 'shell.context.productDescription.drive',
+  } as const satisfies Record<PlatformProduct, string>;
   private readonly router = inject(Router);
   protected readonly context = inject(ScopeContext);
 
