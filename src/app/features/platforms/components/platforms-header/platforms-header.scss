@@ -1,3 +1,5 @@
+@use 'abstracts' as nw;
+
 // The Platforms page header ("Platforms Screen"): titles, the demo disclosure and Create platform.
 // The page header: title, description and actions sit directly on the workspace background (owner review, 2026-10-04:
 // no banner card, border or artwork), aligned with the content grid below.
@@ -95,11 +97,8 @@
   gap: 0.375rem;
   block-size: 2.5rem;
   padding-inline: 0.875rem;
-  border: 0;
   border-radius: var(--nw-radius-md);
-  // The avatar circle's colours (owner request); still unavailable: aria-disabled, the tooltip and the cursor say so.
-  background-color: var(--nw-avatar-background);
-  color: var(--nw-avatar-text);
+  @include nw.accent-outline;
   font: inherit;
   font-size: 0.8125rem;
   font-weight: var(--nw-font-weight-semibold);
@@ -109,8 +108,12 @@
     cursor: pointer;
 
     &:hover {
-      filter: brightness(1.12);
+      background-color: var(--nw-color-neutral-hover);
     }
+  }
+
+  nw-icon {
+    color: var(--nw-color-primary);
   }
 
   &:focus-visible {

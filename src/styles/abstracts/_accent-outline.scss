@@ -1,0 +1,6 @@
+// Scoped dashboard outlines: palette primary is adjusted for light/dark contrast, including Pearl.
+@mixin accent-outline {
+  border: 1px solid var(--nw-color-primary);
+  background-color: transparent;
+  color: var(--nw-text-primary);
+}
