@@ -96,6 +96,39 @@ describe('role-neutral account settings adapter', () => {
     });
     expect(view?.access.entries).toMatchObject({ status: 'success', data: [{ id: 'p' }] });
     expect(view?.securityLink).toBe(false);
-    expect(view?.access.rows).toHaveLength(1);
+    expect(view?.access.rows).toHaveLength(2);
   });
+});
+
+it('maps company and platform scope separately from display labels', () => {
+  expect(accountSettingsView(owner, loading, loading)?.access.rows).toContainEqual(
+    expect.objectContaining({ id: 'scope', value: 'settings.account.ownerScope' }),
+  );
+  expect(accountSettingsView(operator, loading, loading)?.access.rows).toContainEqual(
+    expect.objectContaining({ id: 'scope', value: 'settings.account.operatorScope' }),
+  );
+});
+
+it('identifies Solutions only for the matching trusted company, never similar or unrelated names', () => {
+  for (const [id, name, expected] of [
+    ['company', 'Nawara Solutions', true],
+    ['company', 'Another Company', false],
+    ['company', 'Nawara Solutions International', false],
+    ['unrelated', 'Nawara Solutions', false],
+  ] as const) {
+    const view = accountSettingsView(
+      owner,
+      {
+        status: 'success',
+        data: { company: { id: companyId(id), name }, platforms: [] },
+      },
+      loading,
+    );
+    const entries = view?.access.entries;
+    expect(entries?.status).toBe('success');
+    if (entries?.status === 'success') {
+      expect(entries.data[0]?.brand).toBe(expected ? 'solutions' : undefined);
+      expect(entries.data[0]?.name).toBe(name);
+    }
+  }
 });

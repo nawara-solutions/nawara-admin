@@ -16,6 +16,8 @@ export interface AccountInfo {
 export interface AccountAccessEntry {
   readonly id: string;
   readonly name: string;
+  /** Presentation identity only, matched to the trusted current company. */
+  readonly brand?: 'solutions';
 }
 /** Identity presentation only; a role label never grants authorization. */
 export interface AccountIdentitySummary {
@@ -70,10 +72,27 @@ export function accountSettingsView(
       source.company.status === 'success'
         ? {
             status: 'success',
-            data: [{ id: 'company', name: source.company.data.name }],
+            data: [
+              {
+                id: 'company',
+                name: source.company.data.name,
+                ...(actor.kind === 'owner' &&
+                directory.status === 'success' &&
+                directory.data.company.id === actor.companyId &&
+                source.company.data.name.trim().toLocaleLowerCase() === 'nawara solutions'
+                  ? { brand: 'solutions' as const }
+                  : {}),
+              },
+            ],
           }
         : source.company;
   } else {
+    rows.push({
+      id: 'scope',
+      label: 'settings.account.scope',
+      value: 'settings.account.operatorScope',
+      translated: true,
+    });
     entries = source.platforms;
   }
   const displayName = actor.displayName?.trim() || null;

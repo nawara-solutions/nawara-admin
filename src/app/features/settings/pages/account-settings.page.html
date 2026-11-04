@@ -39,11 +39,8 @@
     class="account-settings__content"
     [class.account-settings__content--access]="selected().id === 'access'"
   >
-    @if (selected().id !== 'security') {
-      <adm-account-identity-summary
-        [identity]="account.identity"
-        [stacked]="selected().id === 'access'"
-      />
+    @if (selected().id === 'profile') {
+      <adm-account-identity-summary [identity]="account.identity" />
     }
     <section class="account-settings__panel" aria-labelledby="account-panel-title">
       <header class="account-settings__panel-header">

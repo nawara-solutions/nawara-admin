@@ -55,17 +55,38 @@ describe('account access presentation states', () => {
   }
 });
 
-it('shows overview cards only for actual authorized access records', async () => {
+it('displays each trusted access record once without an overview or editing controls', async () => {
   const { element } = await render({
     status: 'success',
     data: [{ id: 'a', name: 'Actual authorized context' }],
   });
   expect(element.querySelectorAll('[data-platform]')).toHaveLength(1);
-  expect(element.querySelectorAll('.account-panel__cards article')).toHaveLength(1);
-  expect(element.querySelector('.account-panel__cards')?.textContent).toContain(
-    'Actual authorized context',
-  );
-  expect(element.querySelector('.account-panel__cards')?.textContent).not.toMatch(
-    /Owner|Membership/,
-  );
+  expect(element.textContent?.split('Actual authorized context')).toHaveLength(2);
+  expect(element.querySelector('.account-panel__overview')).toBeNull();
+  expect(element.querySelectorAll('.account-panel__read-only')).toHaveLength(1);
+  expect(element.querySelector('input,form,button,a,[tabindex]')).toBeNull();
+  expect(element.querySelector('dl > div > dt')).not.toBeNull();
+  expect(element.querySelector('dl > div > dd')).not.toBeNull();
+});
+
+it('preserves multiple authorized platforms without inventing memberships or tenant branding', async () => {
+  const { element } = await render({
+    status: 'success',
+    data: [
+      { id: 'a', name: 'First platform' },
+      { id: 'b', name: 'Second platform' },
+    ],
+  });
+  expect(element.querySelectorAll('[data-platform]')).toHaveLength(2);
+  expect(element.querySelector('nw-product-symbol')).toBeNull();
+  expect(element.textContent).not.toContain('Membership');
+});
+
+it('uses the shared Solutions symbol only for an explicitly identified company', async () => {
+  const { element } = await render({
+    status: 'success',
+    data: [{ id: 'company', name: 'Nawara Solutions', brand: 'solutions' }],
+  });
+  expect(element.querySelectorAll('nw-product-symbol')).toHaveLength(1);
+  expect(element.textContent?.split('Nawara Solutions')).toHaveLength(2);
 });

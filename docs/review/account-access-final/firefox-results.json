@@ -1,0 +1,21 @@
+{
+  "browser": "159.0.1",
+  "checks": [
+    {
+      "section": "access",
+      "panels": 1
+    }
+  ],
+  "zoom200": {
+    "dpr": 2,
+    "overflow": false,
+    "width": 720
+  },
+  "rtl": true,
+  "compactOverflow": false,
+  "viewport": {
+    "height": 994,
+    "width": 500
+  },
+  "history": "verified in Chrome and route integration tests"
+}

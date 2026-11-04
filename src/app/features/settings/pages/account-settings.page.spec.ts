@@ -217,7 +217,7 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
       'Nawara School',
       'Nawara Drive',
     ]);
-    expect(fact(page(), 'scope')).toBe('');
+    expect(fact(page(), 'scope')).toBe(t.operatorScope);
     expect(text(page())).toContain(t.managedByOwner);
     await harness.navigateByUrl('/settings/account?section=security');
     expect(page().querySelector('a[href="/settings/security"]')).toBeNull();
@@ -348,6 +348,20 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
     ).toBeNull();
   });
 
+  it('uses one full-width access panel without the profile summary or duplicate facts', async () => {
+    const { page } = await setup(owner, { url: '/settings/account?section=access' });
+    expect(page().querySelector('adm-account-identity-summary')).toBeNull();
+    expect(page().querySelectorAll('[data-fact="type"]')).toHaveLength(1);
+    expect(page().querySelectorAll('[data-fact="scope"]')).toHaveLength(1);
+    expect(page().querySelectorAll('[data-platform]')).toHaveLength(1);
+    expect(page().querySelectorAll('nw-product-symbol')).toHaveLength(1);
+    expect(page().querySelector('.account-panel__overview')).toBeNull();
+    expect(page().querySelectorAll('.account-panel__read-only')).toHaveLength(1);
+    expect(page().querySelector('input,form,button')).toBeNull();
+    expect(text(page())).not.toContain(owner.email);
+    expect(text(page())).not.toContain(owner.displayName);
+  });
+
   it('restores the inner section through browser history without replacing account context', async () => {
     const { page, harness, settle, session } = await setup(operator);
     const epoch = session.epoch();
@@ -380,7 +394,7 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
   });
 
   it('in Arabic: translated and right to left, contacts kept left to right', async () => {
-    const { page, settle } = await setup(phoneOperator, { langs: { en, ar } });
+    const { page, settle, harness } = await setup(phoneOperator, { langs: { en, ar } });
     await TestBed.inject(LocaleService).use('ar');
     await settle();
     expect(document.documentElement.dir).toBe('rtl');
@@ -388,5 +402,11 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
     expect(page().querySelector('[data-fact="phone"] [dir="ltr"]')?.textContent).toBe(
       '+99900000001',
     );
+    await harness.navigateByUrl('/settings/account?section=access');
+    expect(text(page())).toContain(ar.settings.account.accessDescription);
+    expect(fact(page(), 'type')).toBe(ar.shell.role.operator);
+    expect(fact(page(), 'scope')).toBe(ar.settings.account.operatorScope);
+    expect(page().querySelector('adm-account-identity-summary')).toBeNull();
+    expect(document.documentElement.dir).toBe('rtl');
   });
 });
