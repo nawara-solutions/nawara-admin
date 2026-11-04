@@ -48,8 +48,10 @@
   inline-size: 2.125rem;
   block-size: 2.125rem;
   padding: 0;
+  border: 0;
   border-radius: var(--nw-radius-pill);
-  @include nw.accent-outline;
+  background-color: var(--nw-avatar-background);
+  color: var(--nw-avatar-text);
   font: inherit;
   font-size: 0.78125rem;
   font-weight: var(--nw-font-weight-bold);
