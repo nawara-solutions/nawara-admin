@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LOCALES, LOCALE_ENDONYMS, Locale, directionOf } from '../../../core/i18n/locale';
 import { LocaleService } from '../../../core/i18n/locale.service';
+import { NwIcon } from '../../../shared/ui/icon/icon';
 
 const DIRECTION_KEYS = {
   ltr: 'settings.language.ltr',
@@ -18,39 +19,60 @@ const DIRECTION_KEYS = {
  */
 @Component({
   selector: 'adm-language-settings-page',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, NwIcon],
   template: `
     <header class="language-settings__header">
-      <h2 class="language-settings__title">{{ 'settings.language.title' | transloco }}</h2>
-      <p class="language-settings__subtitle">{{ 'settings.language.subtitle' | transloco }}</p>
+      <nw-icon name="globe" size="lg" />
+      <div class="language-settings__titles">
+        <h2 id="language-settings-heading" class="language-settings__title">
+          {{ 'settings.language.title' | transloco }}
+        </h2>
+        <p class="language-settings__subtitle">{{ 'settings.language.subtitle' | transloco }}</p>
+      </div>
     </header>
-    <section class="language-settings__card" aria-labelledby="language-settings-heading">
-      <h3 id="language-settings-heading" class="nw-visually-hidden">
-        {{ 'settings.language.title' | transloco }}
-      </h3>
-      <fieldset class="language-settings__group">
-        <legend class="language-settings__legend">
+    <section class="language-settings__choices" aria-labelledby="language-settings-heading">
+      <fieldset class="language-settings__group" aria-describedby="language-settings-note">
+        <legend class="nw-visually-hidden">
           {{ 'preferences.language.label' | transloco }}
         </legend>
         @for (option of options; track option.value) {
           <label class="language-settings__option">
             <input
-              class="language-settings__input"
+              class="nw-visually-hidden"
               type="radio"
               name="language-settings"
               [value]="option.value"
+              [attr.aria-labelledby]="'language-settings-name-' + option.value"
+              [attr.aria-describedby]="'language-settings-direction-' + option.value"
               [checked]="locale.locale() === option.value"
               (change)="choose(option.value)"
             />
-            <span class="language-settings__name" [attr.lang]="option.value">{{
-              option.name
-            }}</span>
-            <span class="language-settings__direction">{{ option.directionKey | transloco }}</span>
+            <span class="language-settings__globe"><nw-icon name="globe" size="lg" /></span>
+            <span class="language-settings__identity">
+              <span
+                class="language-settings__name"
+                [id]="'language-settings-name-' + option.value"
+                [attr.lang]="option.value"
+                [attr.dir]="option.direction"
+                >{{ option.name }}</span
+              >
+              <span
+                class="language-settings__direction"
+                [id]="'language-settings-direction-' + option.value"
+                >{{ option.directionKey | transloco }}</span
+              >
+            </span>
+            @if (locale.locale() === option.value) {
+              <nw-icon class="language-settings__check" name="circle-check" size="sm" />
+            }
           </label>
         }
       </fieldset>
-      <p class="language-settings__note">{{ 'settings.language.note' | transloco }}</p>
     </section>
+    <p class="language-settings__note" id="language-settings-note">
+      <nw-icon name="info" size="sm" />
+      <span>{{ 'settings.language.note' | transloco }}</span>
+    </p>
   `,
   styleUrl: './language-settings.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,6 +83,7 @@ export class LanguageSettingsPage {
   protected readonly options = LOCALES.map((value) => ({
     value,
     name: LOCALE_ENDONYMS[value],
+    direction: directionOf(value),
     directionKey: DIRECTION_KEYS[directionOf(value)],
   }));
 

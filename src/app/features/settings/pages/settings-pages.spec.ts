@@ -264,6 +264,44 @@ describe('Settings pages (P9-S1)', () => {
       ['Français', 'fr'],
       ['العربية', 'ar'],
     ]);
+    expect(root().querySelectorAll('.language-settings__globe nw-icon[name="globe"]')).toHaveLength(
+      3,
+    );
+    expect(root().querySelectorAll('.language-settings__check')).toHaveLength(1);
+    expect(
+      root().querySelector('.language-settings__check')?.closest('label')?.querySelector('input')
+        ?.value,
+    ).toBe('en');
+    expect(
+      Array.from(root().querySelectorAll('.language-settings__name')).map((name) =>
+        name.getAttribute('dir'),
+      ),
+    ).toEqual(['ltr', 'ltr', 'rtl']);
+    for (const radio of radios) {
+      const name = root().querySelector('#' + radio.getAttribute('aria-labelledby'));
+      const direction = root().querySelector('#' + radio.getAttribute('aria-describedby'));
+      expect(name?.getAttribute('lang')).toBe(radio.value);
+      expect(text(direction)).toBe(
+        radio.value === 'ar' ? en.settings.language.rtl : en.settings.language.ltr,
+      );
+      expect(radio.closest('label')?.querySelectorAll('input, button, a')).toHaveLength(1);
+    }
+    expect(text(root().querySelector('.language-settings__note'))).toBe(en.settings.language.note);
+  });
+
+  it('restores the persisted language when opening the Language route directly', async () => {
+    localStorage.setItem(PREFERENCE_KEYS.locale, 'ar');
+    const { harness, root, locale } = await setup();
+    await locale.initialize();
+    await harness.navigateByUrl('/settings/language');
+    expect(languageRadios(root()).find((radio) => radio.checked)?.value).toBe('ar');
+    expect(text(root().querySelector('.language-settings__title'))).toBe(
+      ar.settings.language.title,
+    );
+    expect([document.documentElement.lang, document.documentElement.dir]).toEqual(['ar', 'rtl']);
+    expect(root().querySelector('[data-section="language"]')?.getAttribute('aria-current')).toBe(
+      'page',
+    );
   });
 
   it('switches the application at once: Arabic is right to left, French and English left to right', async () => {
@@ -283,6 +321,11 @@ describe('Settings pages (P9-S1)', () => {
       ar.settings.language.title,
     );
     expect(languageRadios(root()).find((r) => r.checked)?.value).toBe('ar');
+    expect(root().querySelectorAll('.language-settings__check')).toHaveLength(1);
+    expect(
+      root().querySelector('.language-settings__check')?.closest('label')?.querySelector('input')
+        ?.value,
+    ).toBe('ar');
 
     await choose('fr');
     expect([document.documentElement.lang, document.documentElement.dir]).toEqual(['fr', 'ltr']);
