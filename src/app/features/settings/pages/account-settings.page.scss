@@ -1,163 +1,118 @@
-// Settings → Account (P9-S2, docs/design/p9-settings-architecture.md §12), sized by its own width (container queries, §15).
 :host {
   display: grid;
   align-content: start;
   gap: var(--nw-space-4);
-  max-inline-size: 44rem;
   min-inline-size: 0;
   container-type: inline-size;
 }
-
 .account-settings__header {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--nw-space-3) var(--nw-space-5);
+  align-items: center;
+  gap: var(--nw-space-3);
   margin-block-end: var(--nw-space-1);
 }
-
 .account-settings__titles {
   display: grid;
   flex: 1 1 18rem;
   gap: var(--nw-space-2);
   min-inline-size: 0;
 }
-
-.account-settings__eyebrow {
-  color: var(--nw-text-brand);
-  font-size: var(--nw-text-size-sm);
-  font-weight: var(--nw-font-weight-semibold);
-}
-
 .account-settings__title {
-  font-size: 1.625rem;
+  font-size: var(--nw-text-size-2xl);
   font-weight: var(--nw-font-weight-bold);
-  letter-spacing: -0.025em;
-  line-height: 1.1;
-
-  &:lang(ar) {
-    letter-spacing: 0;
-  }
 }
-
 .account-settings__subtitle {
   color: var(--nw-text-label);
-  font-size: 0.90625rem;
+  font-size: var(--nw-text-size-sm);
 }
-
+.account-settings__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  border-radius: var(--nw-radius-lg);
+  background: var(--nw-color-primary-subtle);
+  color: var(--nw-text-brand);
+}
 .account-settings__demo {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: var(--nw-space-2);
   min-block-size: 2.25rem;
-  padding-inline: 0.75rem;
+  padding-inline: var(--nw-space-3);
   border-radius: var(--nw-radius-md);
-  background-color: var(--nw-accent-orange-bg);
+  background: var(--nw-accent-orange-bg);
   color: var(--nw-accent-orange-fg);
-  font-size: 0.8125rem;
-  font-weight: var(--nw-font-weight-semibold);
-}
-
-.account-settings__card {
-  display: grid;
-  gap: var(--nw-space-3);
-  min-inline-size: 0;
-  padding: var(--nw-space-4);
-  border: 1px solid var(--nw-border-subtle);
-  border-radius: 1.125rem;
-  background-color: var(--nw-surface-raised);
-  box-shadow: var(--nw-shadow-card);
   font-size: var(--nw-text-size-sm);
-}
-
-.account-settings__heading {
-  font-size: var(--nw-text-size-md);
   font-weight: var(--nw-font-weight-semibold);
 }
-
-.account-settings__facts {
-  display: grid;
-  gap: var(--nw-space-3);
-  margin: 0;
-}
-
-// One fact: label above value on a narrow card, side by side when there is room.
-.account-settings__fact {
-  display: grid;
+.account-settings__navigation {
+  display: flex;
   gap: var(--nw-space-1);
   min-inline-size: 0;
-
-  dt {
-    color: var(--nw-text-label);
+  padding: var(--nw-space-1);
+  overflow-x: auto;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-lg);
+  background: var(--nw-surface-raised);
+}
+.account-settings__link {
+  display: inline-flex;
+  flex: 1 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--nw-space-2);
+  min-block-size: 2.5rem;
+  padding-inline: var(--nw-space-4);
+  border-radius: var(--nw-radius-md);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  &:hover {
+    background: var(--nw-color-neutral-hover);
+  }
+  &[aria-current='page'] {
+    background: var(--nw-color-primary-subtle);
+    color: var(--nw-text-brand);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: -2px;
+  }
+}
+.account-settings__panel {
+  min-inline-size: 0;
+  padding: var(--nw-space-6);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-lg);
+  background: var(--nw-surface-raised);
+}
+.account-settings__panel-header {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-3);
+  margin-block-end: var(--nw-space-4);
+  h3 {
+    font-size: var(--nw-text-size-md);
     font-weight: var(--nw-font-weight-semibold);
   }
-
-  // Items keep their own direction (an LTR email in an RTL page) but sit at the reading start of the cell.
-  dd {
-    display: grid;
-    justify-items: start;
-    gap: 0.125rem;
-    min-inline-size: 0;
-    margin: 0;
-    color: var(--nw-text-primary);
-    overflow-wrap: anywhere;
+  p {
+    margin-block-start: var(--nw-space-1);
+    color: var(--nw-text-secondary);
+    font-size: var(--nw-text-size-sm);
   }
 }
-
-.account-settings__machine {
-  font-family: var(--nw-font-mono);
-  font-size: 0.8125rem;
-}
-
-.account-settings__label {
-  color: var(--nw-text-label);
-  font-weight: var(--nw-font-weight-semibold);
-}
-
-.account-settings__platforms {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--nw-space-2);
-}
-
-.account-settings__platform {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  min-block-size: 2rem;
-  padding-inline: var(--nw-space-3);
-  border: 1px solid var(--nw-border-subtle);
-  border-radius: var(--nw-radius-pill);
-  background-color: var(--nw-surface-sunken);
-  color: var(--nw-text-primary);
-  font-weight: var(--nw-font-weight-medium);
-}
-
-.account-settings__unavailable {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--nw-space-2) var(--nw-space-3);
-}
-
-.account-settings__loading {
-  display: block;
-  max-inline-size: 16rem;
-}
-
-.account-settings__muted,
-.account-settings__hint {
+.account-settings__source {
   color: var(--nw-text-secondary);
   font-size: var(--nw-text-size-sm);
 }
-
-@container (min-width: 32rem) {
-  .account-settings__card {
-    padding: var(--nw-space-5) var(--nw-space-6);
-  }
-
-  .account-settings__fact {
-    grid-template-columns: 11rem minmax(0, 1fr);
-    gap: var(--nw-space-4);
+@container (max-width: 32rem) {
+  .account-settings__panel {
+    padding: var(--nw-space-4);
   }
 }

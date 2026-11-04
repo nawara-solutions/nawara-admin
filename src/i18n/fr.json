@@ -1463,7 +1463,7 @@
     },
     "account": {
       "title": "Votre compte",
-      "subtitle": "Sous quelle identité vous êtes connecté, et sur quoi vous pouvez travailler. En lecture seule.",
+      "subtitle": "Gérez votre profil, consultez vos accès et vérifiez votre sécurité. Lecture seule par défaut.",
       "identity": "Identité",
       "type": "Type de compte",
       "email": "E-mail",
@@ -1487,7 +1487,22 @@
       "operatorSignIn": "Avec un code de travail à usage unique envoyé à votre contact. Votre session se termine à la fin de votre service.",
       "source": "D’après votre session actuelle. Cette page ne modifie rien.",
       "signedOutTitle": "Vous êtes déconnecté",
-      "signedOutDescription": "Connectez-vous pour voir votre compte."
+      "signedOutDescription": "Connectez-vous pour voir votre compte.",
+      "profileTab": "Profil",
+      "accessTab": "Accès et adhésions",
+      "securityTab": "Connexion et sécurité",
+      "profileTitle": "Informations du profil",
+      "profileDescription": "Vos informations personnelles dans Nawara Admin.",
+      "accessDescription": "Vos rôles et accès autorisés dans la session actuelle.",
+      "securityDescription": "Consultez les informations connues sur la sécurité de votre compte.",
+      "displayName": "Nom affiché",
+      "unavailable": "Non disponible",
+      "signInMethod": "Méthode de connexion",
+      "secondFactor": "Second facteur",
+      "passkey": "Clé d’accès",
+      "methodUnknown": "La session actuelle ne précise pas la méthode de connexion utilisée.",
+      "enrollmentUnknown": "La session actuelle ne fournit pas le statut d’inscription.",
+      "reviewSecurity": "Consulter les paramètres de sécurité"
     },
     "company": {
       "title": "Entreprise",

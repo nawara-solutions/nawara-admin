@@ -1463,7 +1463,7 @@
     },
     "account": {
       "title": "Your account",
-      "subtitle": "Who you are signed in as, and what you can work on. Read only.",
+      "subtitle": "Manage your profile, view your access, and review your security. Read only by default.",
       "identity": "Identity",
       "type": "Account type",
       "email": "Email",
@@ -1487,7 +1487,22 @@
       "operatorSignIn": "With a one-time working code sent to your contact. Your session ends at the end of your shift.",
       "source": "From your current session. This page changes nothing.",
       "signedOutTitle": "You are signed out",
-      "signedOutDescription": "Sign in to see your account."
+      "signedOutDescription": "Sign in to see your account.",
+      "profileTab": "Profile",
+      "accessTab": "Access & memberships",
+      "securityTab": "Sign-in & security",
+      "profileTitle": "Profile information",
+      "profileDescription": "Your personal details in Nawara Admin.",
+      "accessDescription": "Your roles and authorized access from the current session.",
+      "securityDescription": "Review what is known about your account security.",
+      "displayName": "Display name",
+      "unavailable": "Not available",
+      "signInMethod": "Sign-in method",
+      "secondFactor": "Second factor",
+      "passkey": "Passkey",
+      "methodUnknown": "The current session does not report the sign-in method used.",
+      "enrollmentUnknown": "Enrollment status is not provided by the current session.",
+      "reviewSecurity": "Review security settings"
     },
     "company": {
       "title": "Company",
