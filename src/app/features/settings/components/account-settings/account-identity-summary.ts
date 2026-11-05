@@ -23,14 +23,16 @@ import { AccountIdentitySummary as Identity } from '../../application/account-se
       </div>
       <div class="account-summary__identity">
         <p class="account-summary__name">
-          <bdi>{{ identity().displayName ?? ('settings.account.profileTab' | transloco) }}</bdi>
+          <bdi data-fact="display-name">{{
+            identity().displayName ?? ('settings.account.profileTab' | transloco)
+          }}</bdi>
         </p>
         @if (!stacked()) {
           <div class="account-summary__recognition">
             @if (identity().email; as email) {
-              <bdi class="account-summary__contact" dir="ltr" translate="no">{{ email }}</bdi>
-            } @else if (identity().phone; as phone) {
-              <bdi class="account-summary__contact" dir="ltr" translate="no">{{ phone }}</bdi>
+              <bdi class="account-summary__contact" data-fact="email" dir="ltr" translate="no">{{
+                email
+              }}</bdi>
             }
             <dl class="account-summary__inline-role">
               <dt class="nw-visually-hidden">{{ 'settings.account.type' | transloco }}</dt>

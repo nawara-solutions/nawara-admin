@@ -4,49 +4,22 @@
 }
 .account-profile__tiles {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--nw-space-4);
 }
 dl {
-  display: grid;
   min-inline-size: 0;
   margin: 0;
 }
 .account-profile__note {
   display: flex;
-  align-items: start;
+  align-items: center;
   gap: var(--nw-space-3);
-  min-inline-size: 0;
-  padding: var(--nw-space-4);
-  border: 1px solid var(--nw-border-subtle);
+  padding: var(--nw-space-3) var(--nw-space-4);
   border-radius: var(--nw-radius-md);
   background: var(--nw-surface-sunken);
+  color: var(--nw-text-secondary);
   font-size: var(--nw-text-size-sm);
   nw-icon {
-    flex: 0 0 auto;
-    inline-size: 2.5rem;
-    block-size: 2.5rem;
-    padding: var(--nw-space-2);
-    border-radius: var(--nw-radius-md);
-    color: var(--nw-text-brand);
-    background: var(--nw-color-primary-subtle);
-  }
-  div {
-    display: grid;
-    gap: var(--nw-space-1);
-    min-inline-size: 0;
-    overflow-wrap: anywhere;
-  }
-  p,
-  span {
-    color: var(--nw-text-secondary);
-  }
-  p {
-    font-weight: var(--nw-font-weight-medium);
-  }
-}
-@container account-workspace (max-width: 40rem) {
-  .account-profile__tiles {
-    grid-template-columns: minmax(0, 1fr);
+    flex-shrink: 0;
   }
 }

@@ -1477,6 +1477,10 @@
       "companyUnavailable": "Not available",
       "scope": "Access scope",
       "ownerScope": "Company-wide: every Platform of the Company.",
+      "ownerScopeTitle": "Company-wide",
+      "ownerScopeDescription": "Every Platform of the Company.",
+      "operatorScopeTitle": "Assigned Platforms",
+      "operatorScopeDescription": "Only your current assigned Platforms.",
       "operatorScope": "Platform-scoped: only your current assigned Platforms.",
       "platformCount": "{{count}} Platforms today",
       "platforms": "Platforms you can work on",
@@ -1513,7 +1517,17 @@
       "readOnly": "Read only",
       "readOnlyNote": "Account information is shown for reference. Changes are not available here.",
       "accessOverview": "Access overview",
-      "accessOverviewNote": "Your current authorized access from this session."
+      "accessOverviewNote": "Your current authorized access from this session.",
+      "securityPartialNote": "Only fields marked “Not reported” lack information from this session. This does not indicate whether those methods are configured.",
+      "securityStatus": {
+        "unknown": "Unknown",
+        "reported": "Reported",
+        "configured": "Configured",
+        "notConfigured": "Not configured",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "unsupported": "Unsupported"
+      }
     },
     "company": {
       "title": "Company",

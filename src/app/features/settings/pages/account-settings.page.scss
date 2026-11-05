@@ -50,49 +50,6 @@
   font-size: var(--nw-text-size-sm);
   font-weight: var(--nw-font-weight-semibold);
 }
-.account-settings__navigation {
-  display: flex;
-  gap: var(--nw-space-1);
-  min-inline-size: 0;
-  padding: var(--nw-space-1);
-  overflow-x: auto;
-  border: 1px solid var(--nw-border-subtle);
-  border-radius: var(--nw-radius-lg);
-  background: var(--nw-surface-raised);
-}
-.account-settings__link {
-  display: inline-flex;
-  flex: 1 0 auto;
-  align-items: center;
-  justify-content: center;
-  gap: var(--nw-space-2);
-  min-block-size: 2.5rem;
-  padding-inline: var(--nw-space-4);
-  border-radius: var(--nw-radius-md);
-  color: var(--nw-text-secondary);
-  font-size: var(--nw-text-size-sm);
-  font-weight: var(--nw-font-weight-medium);
-  text-decoration: none;
-  white-space: nowrap;
-  &:hover {
-    background: var(--nw-color-neutral-hover);
-  }
-  &[aria-current='page'] {
-    background: var(--nw-color-primary-subtle);
-    color: var(--nw-text-brand);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--nw-focus-ring);
-    outline-offset: -2px;
-  }
-}
-.account-settings__panel {
-  min-inline-size: 0;
-  padding: var(--nw-space-6);
-  border: 1px solid var(--nw-border-subtle);
-  border-radius: var(--nw-radius-lg);
-  background: var(--nw-surface-raised);
-}
 .account-settings__panel-header {
   display: flex;
   align-items: center;
@@ -108,16 +65,6 @@
     font-size: var(--nw-text-size-sm);
   }
 }
-.account-settings__source {
-  color: var(--nw-text-secondary);
-  font-size: var(--nw-text-size-sm);
-}
-@container (max-width: 32rem) {
-  .account-settings__panel {
-    padding: var(--nw-space-4);
-  }
-}
-
 .account-settings__content {
   display: grid;
   align-items: start;
@@ -125,8 +72,99 @@
   min-inline-size: 0;
 }
 
+.account-settings__workspace {
+  display: grid;
+  grid-template-columns: 14.5rem minmax(0, 1fr);
+  min-inline-size: 0;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-lg);
+  background: var(--nw-surface-raised);
+}
+.account-settings__navigation {
+  display: flex;
+  min-inline-size: 0;
+  flex-direction: column;
+  align-self: stretch;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-4);
+  border: 0;
+  border-inline-end: 1px solid var(--nw-border-subtle);
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+}
+.account-settings__link {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--nw-radius-md);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-medium);
+  text-decoration: none;
+  flex: 0 0 auto;
+  justify-content: start;
+  gap: var(--nw-space-3);
+  min-block-size: 2.75rem;
+  padding: var(--nw-space-3);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  nw-icon {
+    flex-shrink: 0;
+  }
+  &:hover {
+    background: var(--nw-color-neutral-hover);
+  }
+  &[aria-current='page'] {
+    background: var(--nw-color-primary-subtle);
+    color: var(--nw-text-brand);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: -2px;
+  }
+}
+.account-settings__panel {
+  display: grid;
+  align-content: start;
+  gap: var(--nw-space-5);
+  min-inline-size: 0;
+  padding: var(--nw-space-6);
+  border: 0;
+  background: transparent;
+}
+.account-settings__panel-header {
+  margin: 0;
+}
 .account-settings__content--access .account-settings__panel-header {
-  padding-block-end: var(--nw-space-5);
-  margin-block-end: 0;
-  border-block-end: 1px solid var(--nw-border-subtle);
+  padding: 0;
+  border: 0;
+}
+@container account-workspace (max-width: 64rem) {
+  .account-settings__workspace {
+    grid-template-columns: 13rem minmax(0, 1fr);
+  }
+  .account-settings__navigation {
+    padding: var(--nw-space-3);
+  }
+}
+@container account-workspace (max-width: 44rem) {
+  .account-settings__workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .account-settings__navigation {
+    flex-direction: row;
+    gap: var(--nw-space-1);
+    border-inline-end: 0;
+    border-block-end: 1px solid var(--nw-border-subtle);
+    overflow-x: auto;
+  }
+  .account-settings__link {
+    white-space: nowrap;
+  }
+}
+
+@container account-workspace (max-width: 32rem) {
+  .account-settings__panel {
+    padding: var(--nw-space-4);
+  }
 }

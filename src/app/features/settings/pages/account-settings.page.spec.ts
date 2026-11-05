@@ -190,11 +190,12 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
     expect(text(page().querySelector('.account-summary__name'))).toBe('Demo Owner');
     expect(text(page().querySelector('.account-summary__avatar'))).toBe('DO');
     expect(fact(page(), 'email')).toBe(owner.email);
-    expect(fact(page(), 'phone')).toBe(t.unavailable);
+    expect(page().querySelector('[data-fact="phone"]')).toBeNull();
     expect(page().querySelector('adm-account-access-panel')).toBeNull();
     await harness.navigateByUrl('/settings/account?section=access');
     expect(fact(page(), 'type')).toBe(en.shell.role.owner);
-    expect(fact(page(), 'scope')).toBe(t.ownerScope);
+    expect(fact(page(), 'scope')).toContain(t.ownerScopeTitle);
+    expect(fact(page(), 'scope')).toContain(t.ownerScopeDescription);
     expect(text(page().querySelector('[data-platform]'))).toBe('Nawara Solutions');
     expect(page().querySelector('adm-account-profile-panel')).toBeNull();
     await harness.navigateByUrl('/settings/account?section=security');
@@ -207,7 +208,7 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
 
   it('an operator uses the same panels with no company or security-management action', async () => {
     const { page, harness } = await setup(operator);
-    expect(fact(page(), 'display-name')).toBe(t.unavailable);
+    expect(fact(page(), 'display-name')).toBe(t.profileTab);
     expect(text(page().querySelector('.account-summary__name'))).toBe(t.profileTab);
     expect(page().querySelector('.account-summary__avatar nw-icon')).not.toBeNull();
     expect(fact(page(), 'email')).toBe(operator.email);
@@ -217,7 +218,8 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
       'Nawara School',
       'Nawara Drive',
     ]);
-    expect(fact(page(), 'scope')).toBe(t.operatorScope);
+    expect(fact(page(), 'scope')).toContain(t.operatorScopeTitle);
+    expect(fact(page(), 'scope')).toContain(t.operatorScopeDescription);
     expect(text(page())).toContain(t.managedByOwner);
     await harness.navigateByUrl('/settings/account?section=security');
     expect(page().querySelector('a[href="/settings/security"]')).toBeNull();
@@ -228,7 +230,7 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
 
   it('a phone-only operator: the phone, left to right, and no email', async () => {
     const { page, harness } = await setup(phoneOperator);
-    expect(fact(page(), 'email')).toBe(t.unavailable);
+    expect(page().querySelector('[data-fact="email"]')).toBeNull();
     expect(fact(page(), 'phone')).toBe('+99900000001');
     expect(page().querySelector('[data-fact="phone"] [dir="ltr"]')).not.toBeNull();
     await harness.navigateByUrl('/settings/account?section=access');
@@ -353,6 +355,7 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
     expect(page().querySelector('adm-account-identity-summary')).toBeNull();
     expect(page().querySelectorAll('[data-fact="type"]')).toHaveLength(1);
     expect(page().querySelectorAll('[data-fact="scope"]')).toHaveLength(1);
+    expect(page().querySelectorAll('.account-panel__cards > div')).toHaveLength(3);
     expect(page().querySelectorAll('[data-platform]')).toHaveLength(1);
     expect(page().querySelectorAll('nw-product-symbol')).toHaveLength(1);
     expect(page().querySelector('.account-panel__overview')).toBeNull();
@@ -360,6 +363,17 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
     expect(page().querySelector('input,form,button')).toBeNull();
     expect(text(page())).not.toContain(owner.email);
     expect(text(page())).not.toContain(owner.displayName);
+  });
+
+  it('shows each identity fact once and keeps only available additional details', async () => {
+    const { page } = await setup({ ...owner, phone: '+99900000001' });
+    for (const id of ['display-name', 'email', 'phone']) {
+      expect(page().querySelectorAll(`[data-fact="${id}"]`)).toHaveLength(1);
+    }
+    expect(page().querySelectorAll('.account-summary__inline-role')).toHaveLength(1);
+    expect(page().querySelectorAll('.account-profile__note')).toHaveLength(1);
+    expect(page().querySelector('.account-settings__source')).toBeNull();
+    expect(page().querySelector('.account-settings__workspace > nav')).not.toBeNull();
   });
 
   it('restores the inner section through browser history without replacing account context', async () => {
@@ -405,7 +419,7 @@ describe('Settings → Account (P9-S2)', { timeout: 15_000 }, () => {
     await harness.navigateByUrl('/settings/account?section=access');
     expect(text(page())).toContain(ar.settings.account.accessDescription);
     expect(fact(page(), 'type')).toBe(ar.shell.role.operator);
-    expect(fact(page(), 'scope')).toBe(ar.settings.account.operatorScope);
+    expect(fact(page(), 'scope')).toContain(ar.settings.account.operatorScopeTitle);
     expect(page().querySelector('adm-account-identity-summary')).toBeNull();
     expect(document.documentElement.dir).toBe('rtl');
   });

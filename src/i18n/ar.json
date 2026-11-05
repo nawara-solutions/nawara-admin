@@ -1477,6 +1477,10 @@
       "companyUnavailable": "غير متاح",
       "scope": "نطاق الوصول",
       "ownerScope": "على مستوى الشركة: كل منصات الشركة.",
+      "ownerScopeTitle": "على مستوى الشركة",
+      "ownerScopeDescription": "كل منصات الشركة.",
+      "operatorScopeTitle": "المنصات المعيّنة",
+      "operatorScopeDescription": "المنصات المعيّنة لك حاليًا فقط.",
       "operatorScope": "على مستوى المنصة: المنصات المسندة إليك حاليًا فقط.",
       "platformCount": "{{count}} منصات حاليًا",
       "platforms": "المنصات التي يمكنك العمل عليها",
@@ -1513,7 +1517,17 @@
       "readOnly": "للقراءة فقط",
       "readOnlyNote": "تُعرض معلومات الحساب للاطّلاع فقط. التغييرات غير متاحة هنا.",
       "accessOverview": "نظرة عامة على الصلاحيات",
-      "accessOverviewNote": "صلاحيات الوصول المعتمدة في هذه الجلسة."
+      "accessOverviewNote": "صلاحيات الوصول المعتمدة في هذه الجلسة.",
+      "securityPartialNote": "تفتقر الحقول المعلّمة «غير مُبلَّغ عنه» فقط إلى معلومات من هذه الجلسة. ولا يُحدّد ذلك ما إذا كانت تلك الطرق مُعدّة.",
+      "securityStatus": {
+        "unknown": "غير معروف",
+        "reported": "مُبلَّغ عنه",
+        "configured": "مُعدّ",
+        "notConfigured": "غير مُعدّ",
+        "enabled": "مُفعّل",
+        "disabled": "مُعطّل",
+        "unsupported": "غير مدعوم"
+      }
     },
     "company": {
       "title": "الشركة",

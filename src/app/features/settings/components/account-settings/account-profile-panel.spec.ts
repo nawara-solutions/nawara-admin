@@ -25,27 +25,29 @@ const view = accountSettingsView(
   { status: 'loading' },
 );
 
-describe('Profile Option 1 presentation', () => {
-  it('renders exactly the supplied fields as semantic static tiles, with a separate read-only note', async () => {
+describe('Compact Profile presentation', () => {
+  it('omits summary facts and missing details, preserving supplied phone and one read-only note', async () => {
     TestBed.configureTestingModule({ imports: [translations()] });
     const fixture = TestBed.createComponent(AccountProfilePanel);
     fixture.componentRef.setInput('rows', view?.profile);
     fixture.detectChanges();
     await fixture.whenStable();
     const element = fixture.nativeElement as HTMLElement;
-    expect(element.querySelectorAll('dl dt')).toHaveLength(3);
-    expect(element.querySelectorAll('.account-info-row--tile')).toHaveLength(3);
-    expect(element.querySelector('[data-fact="display-name"]')?.textContent).toContain(
-      'Actual supplied name',
-    );
-    expect(element.querySelector('[data-fact="email"] bdi')?.textContent).toBe(
-      view?.identity.email,
-    );
-    expect(element.querySelector('[data-fact="phone"]')?.textContent).toContain(
-      en.settings.account.unavailable,
-    );
+    expect(element.querySelectorAll('dl dt')).toHaveLength(0);
+    expect(
+      element.querySelector('[data-fact="display-name"], [data-fact="email"], [data-fact="phone"]'),
+    ).toBeNull();
     expect(element.querySelector('.account-profile__note')?.textContent).toContain(
-      en.settings.account.source,
+      en.settings.account.readOnly,
+    );
+    fixture.componentRef.setInput('rows', [
+      ...(view?.profile ?? []),
+      { id: 'phone', label: 'settings.account.phone', value: '+99900000001', machine: true },
+    ]);
+    fixture.detectChanges();
+    expect(element.querySelectorAll('dl dt')).toHaveLength(1);
+    expect(element.querySelector('[data-fact="phone"] [dir="ltr"]')?.textContent).toBe(
+      '+99900000001',
     );
     expect(element.querySelector('input,button,a,[tabindex]')).toBeNull();
   });

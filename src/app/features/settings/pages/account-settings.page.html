@@ -18,53 +18,59 @@
     [description]="'settings.account.signedOutDescription' | transloco"
   />
 } @else {
-  <nav
-    class="account-settings__navigation"
-    [attr.aria-label]="'settings.account.title' | transloco"
-  >
-    @for (section of sections; track section.id) {
-      <a
-        class="account-settings__link"
-        [routerLink]="[]"
-        [queryParams]="{ section: section.id }"
-        queryParamsHandling="merge"
-        [attr.aria-current]="selected().id === section.id ? 'page' : null"
-        [attr.data-account-section]="section.id"
-      >
-        <nw-icon [name]="section.icon" size="sm" /><span>{{ section.key | transloco }}</span>
-      </a>
-    }
-  </nav>
-  <div
-    class="account-settings__content"
-    [class.account-settings__content--access]="selected().id === 'access'"
-  >
-    @if (selected().id === 'profile') {
-      <adm-account-identity-summary [identity]="account.identity" />
-    }
-    <section class="account-settings__panel" aria-labelledby="account-panel-title">
-      <header class="account-settings__panel-header">
-        <span class="account-settings__icon"><nw-icon [name]="selected().icon" size="lg" /></span>
-        <div>
-          <h3 id="account-panel-title">{{ selected().title | transloco }}</h3>
-          <p>{{ selected().description | transloco }}</p>
-        </div>
-      </header>
-      @switch (selected().id) {
-        @case ('profile') {
-          <adm-account-profile-panel [rows]="account.profile" />
-        }
-        @case ('access') {
-          <adm-account-access-panel [access]="account.access" (retry)="context.reload()" />
-        }
-        @case ('security') {
-          <adm-account-security-panel
-            [rows]="account.security"
-            [securityLink]="account.securityLink"
-          />
-        }
+  <div class="account-settings__workspace">
+    <nav
+      class="account-settings__navigation"
+      [attr.aria-label]="'settings.account.title' | transloco"
+    >
+      @for (section of sections; track section.id) {
+        <a
+          class="account-settings__link"
+          [routerLink]="[]"
+          [queryParams]="{ section: section.id }"
+          queryParamsHandling="merge"
+          [attr.aria-current]="selected().id === section.id ? 'page' : null"
+          [attr.data-account-section]="section.id"
+        >
+          <nw-icon [name]="section.icon" size="sm" /><span>{{ section.key | transloco }}</span>
+        </a>
       }
-    </section>
+    </nav>
+    <div
+      class="account-settings__content"
+      [class.account-settings__content--access]="selected().id === 'access'"
+    >
+      <section class="account-settings__panel" aria-labelledby="account-panel-title">
+        @if (selected().id === 'access') {
+          <header class="account-settings__panel-header">
+            <span class="account-settings__icon"
+              ><nw-icon [name]="selected().icon" size="lg"
+            /></span>
+            <div>
+              <h3 id="account-panel-title">{{ selected().title | transloco }}</h3>
+              <p>{{ selected().description | transloco }}</p>
+            </div>
+          </header>
+        }
+        @switch (selected().id) {
+          @case ('profile') {
+            <h3 id="account-panel-title" class="nw-visually-hidden">
+              {{ 'settings.account.profileTab' | transloco }}
+            </h3>
+            <adm-account-identity-summary [identity]="account.identity" />
+            <adm-account-profile-panel [rows]="account.profile" />
+          }
+          @case ('access') {
+            <adm-account-access-panel [access]="account.access" (retry)="context.reload()" />
+          }
+          @case ('security') {
+            <adm-account-security-panel
+              [rows]="account.security"
+              [securityLink]="account.securityLink"
+            />
+          }
+        }
+      </section>
+    </div>
   </div>
-  <p class="account-settings__source">{{ 'settings.account.source' | transloco }}</p>
 }

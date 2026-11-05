@@ -102,10 +102,10 @@ describe('role-neutral account settings adapter', () => {
 
 it('maps company and platform scope separately from display labels', () => {
   expect(accountSettingsView(owner, loading, loading)?.access.rows).toContainEqual(
-    expect.objectContaining({ id: 'scope', value: 'settings.account.ownerScope' }),
+    expect.objectContaining({ id: 'scope', value: 'settings.account.ownerScopeTitle' }),
   );
   expect(accountSettingsView(operator, loading, loading)?.access.rows).toContainEqual(
-    expect.objectContaining({ id: 'scope', value: 'settings.account.operatorScope' }),
+    expect.objectContaining({ id: 'scope', value: 'settings.account.operatorScopeTitle' }),
   );
 });
 

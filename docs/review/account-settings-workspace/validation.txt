@@ -1,0 +1,188 @@
+CHECK: focused
+
+> nawara-admin@0.0.0 test
+> ng test --watch=false --include=src/app/features/settings/**/*account*.spec.ts
+
+[32m✔[0m [33mConsole Ninja[0m extension is connected to [33mAngular[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+❯ Building...
+✔ Building...
+Application bundle generation complete. [5.098 seconds] - 2026-11-05T12:06:01.378Z
+
+
+ RUN  v5.0.3 /home/anwar/Desktop/nawara-solutions/nawara-admin
+
+
+ Test Files  9 passed (9)
+      Tests  132 passed (132)
+   Start at  13:06:01
+   Duration  4.42s (environment 35%, tests 21%, setup 18%, transform 15%, import 11%)
+
+
+
+CHECK: full-tests
+
+> nawara-admin@0.0.0 test
+> ng test --watch=false
+
+[32m✔[0m [33mConsole Ninja[0m extension is connected to [33mAngular[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+❯ Building...
+✔ Building...
+Application bundle generation complete. [13.015 seconds] - 2026-11-05T11:59:44.631Z
+
+
+ RUN  v5.0.3 /home/anwar/Desktop/nawara-solutions/nawara-admin
+
+
+ Test Files  202 passed (202)
+      Tests  2606 passed (2606)
+   Start at  12:59:44
+   Duration  29.83s (environment 47%, tests 46%, transform 3%, import 2%, setup 1%)
+
+
+
+CHECK: lint
+
+> nawara-admin@0.0.0 lint
+> ng lint
+
+[32m✔[0m [33mConsole Ninja[0m extension is connected to [33mAngular[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+Linting "nawara-admin"...
+
+/home/anwar/Desktop/nawara-solutions/nawara-admin/src/main.ts
+  5:53  warning  Unused eslint-disable directive (no problems were reported)
+
+✖ 1 problem (0 errors, 1 warning)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+
+Lint warnings found in the listed files.
+
+
+
+CHECK: styles
+
+> nawara-admin@0.0.0 lint:styles
+> stylelint "src/**/*.scss"
+
+
+
+CHECK: i18n
+
+> nawara-admin@0.0.0 check:i18n
+> node tools/check-i18n.mjs
+
+✔ i18n: 2776 keys complete in en, fr, ar; 3585 static references resolve (14 Core machine values allowed in their registry)
+  note: 36 key(s) have no static reference: common.loading, preferences.appearance.modeCard.system, preferences.appearance.modeCard.light, preferences.appearance.modeCard.dark, shell.context.label, shell.context.platforms, settings.appearance.preview.sample, settings.hub.subtitle, settings.hub.personal, settings.hub.appearanceDescription, settings.hub.appearanceValue, settings.hub.languageDescription, settings.hub.note, settings.hub.account, settings.hub.accountDescription, settings.hub.company, settings.hub.companyDescription, settings.hub.securityDescription, settings.account.identity, settings.account.none, settings.account.contactState, settings.account.confirmed, settings.account.confirmedNote, settings.account.access, settings.account.ownerScope, settings.account.operatorScope, settings.account.platformCount, settings.account.signIn, settings.account.ownerSignIn, settings.account.operatorSignIn, settings.account.source, settings.account.methodUnknown, settings.account.enrollmentUnknown, settings.account.securitySummary, settings.account.accessOverview, settings.account.accessOverviewNote
+
+
+CHECK: tokens
+
+> nawara-admin@0.0.0 check:tokens
+> node tools/check-tokens.mjs
+
+✔ tokens: 973 custom-property declarations in 153 stylesheets redefine none of the 147 names of @nawara-solutions/design-tokens@0.1.0 (accent palettes override only its 11 accent-controlled tokens); pinned exactly; foundation stylesheet loads first
+
+
+CHECK: contrast
+
+> nawara-admin@0.0.0 check:contrast
+> node tools/check-contrast.mjs
+
+✔ contrast: 112 token pairs × 22 theme/palette combinations meet the WCAG 2.2 AA ratios (foundation @nawara-solutions/design-tokens@0.1.0 + Admin extension)
+
+
+CHECK: brand
+
+> nawara-admin@0.0.0 check:brand
+> node tools/check-brand.mjs
+
+✔ brand: logo layers, no decorative rules, logo proportions, 22 transparent master favicons coloured from the tokens, icon sizes
+
+
+CHECK: typecheck
+
+
+CHECK: build
+
+> nawara-admin@0.0.0 build
+> ng build
+
+❯ Building...
+✔ Building...
+Initial chunk files | Names                     |  Raw size | Estimated transfer size
+chunk-CrLc7X3U.js   | -                         | 159.50 kB |                47.16 kB
+main-7JP7CXRF.js    | main                      | 153.25 kB |                39.22 kB
+styles-URRIPAYJ.css | styles                    |  79.37 kB |                 7.16 kB
+chunk-DaQQOSwT.js   | -                         |   1.12 kB |               564 bytes
+
+                    | Initial total             | 393.24 kB |                94.11 kB
+
+Lazy chunk files    | Names                     |  Raw size | Estimated transfer size
+chunk-Bd1I3yhK.js   | ar-json                   | 199.81 kB |                36.87 kB
+chunk-4YDGsd42.js   | fr-json                   | 179.23 kB |                37.57 kB
+chunk-B-vOTX0F.js   | en-json                   | 149.28 kB |                32.84 kB
+chunk-4atmXNc0.js   | organizations-routes      | 132.47 kB |                21.05 kB
+chunk-BakJMFyX.js   | -                         |  89.53 kB |                20.80 kB
+chunk-iONB5QIX.js   | assistance-case-page      |  70.63 kB |                13.51 kB
+chunk-0A7p_xup.js   | shell                     |  68.84 kB |                13.22 kB
+chunk-D0Xnsg8Z.js   | company-overview-page     |  54.11 kB |                10.64 kB
+chunk-FuSSjO74.js   | platform-dashboard-page   |  43.57 kB |                 8.18 kB
+chunk-CfpaTgrU.js   | account-security-page     |  43.34 kB |                 9.25 kB
+chunk-CFg4D3ov.js   | organization-detail-page  |  42.95 kB |                 8.70 kB
+chunk-BkvbjsWL.js   | secret-key-page           |  40.36 kB |                 9.28 kB
+chunk-Bj8aQvaL.js   | operators-routes          |  39.98 kB |                 8.79 kB
+chunk-CVQd2ULG.js   | account-settings-page     |  38.88 kB |                 7.10 kB
+chunk-C5b0QmyA.js   | organization-members-page |  33.63 kB |                 7.52 kB
+...and 109 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [8.245 seconds] - 2026-11-05T12:06:01.330Z
+
+▲ [WARNING] src/app/layout/appearance/appearance-panel.scss exceeded maximum budget. Budget 4.00 kB was not met by 1.36 kB with a total of 5.36 kB.
+
+
+▲ [WARNING] src/app/layout/appearance/accent-picker.scss exceeded maximum budget. Budget 4.00 kB was not met by 908 bytes with a total of 4.91 kB.
+
+
+▲ [WARNING] src/app/layout/notification-center/notification-center.scss exceeded maximum budget. Budget 4.00 kB was not met by 3.96 kB with a total of 7.96 kB.
+
+
+▲ [WARNING] src/app/features/settings/components/account-settings/account-identity-summary.scss exceeded maximum budget. Budget 4.00 kB was not met by 1.42 kB with a total of 5.42 kB.
+
+
+▲ [WARNING] src/app/features/operators/pages/operator-detail.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 348 bytes with a total of 4.35 kB.
+
+
+▲ [WARNING] src/app/layout/global-search/global-search.scss exceeded maximum budget. Budget 4.00 kB was not met by 967 bytes with a total of 4.97 kB.
+
+
+▲ [WARNING] src/app/shared/ui/brand-mark/brand-mark.scss exceeded maximum budget. Budget 4.00 kB was not met by 376 bytes with a total of 4.38 kB.
+
+
+▲ [WARNING] src/app/features/notifications/pages/notifications.page.scss exceeded maximum budget. Budget 4.00 kB was not met by 3.97 kB with a total of 7.97 kB.
+
+
+Output location: /home/anwar/Desktop/nawara-solutions/nawara-admin/dist/nawara-admin
+
+
+
+CHECK: production
+
+> nawara-admin@0.0.0 check:production
+> node tools/check-production-bundle.mjs
+
+✔ production bundle: 128 files, no demo session, mock adapter, fixture or design-foundation gallery
+
+
+CHECK: format
+
+> nawara-admin@0.0.0 format:check
+> prettier --check .
+
+Checking formatting...
+[warn] docs/review/account-security-option-b/browser-results.json
+[warn] Code style issues found in the above file. Run Prettier with --write to fix.
+
+
+CHECK: changed-format
+Checking formatting...
+All matched files use Prettier code style!

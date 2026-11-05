@@ -27,9 +27,20 @@ export interface AccountIdentitySummary {
   readonly initials: string | null;
   readonly roleKey: string;
 }
-/** No enrollment or sign-in-method read exists in the current session contract. */
+/** Presentation states stay distinct. The current session adapter only establishes `not-reported`.
+ * Known states require an explicit trusted source; supporting their display never implies enrollment.
+ */
 export interface AccountSecurityInfo extends AccountInfo {
-  readonly status: 'not-reported';
+  readonly status:
+    | 'reported'
+    | 'configured'
+    | 'not-configured'
+    | 'enabled'
+    | 'disabled'
+    | 'not-reported'
+    | 'unsupported'
+    | 'unavailable'
+    | 'unknown';
   readonly icon: NwIconName;
 }
 /** LOCAL presentation contract. No role-specific panel, invented membership or authorization rule. */
@@ -65,7 +76,8 @@ export function accountSettingsView(
     rows.push({
       id: 'scope',
       label: 'settings.account.scope',
-      value: 'settings.account.ownerScope',
+      value: 'settings.account.ownerScopeTitle',
+      description: 'settings.account.ownerScopeDescription',
       translated: true,
     });
     entries =
@@ -90,7 +102,8 @@ export function accountSettingsView(
     rows.push({
       id: 'scope',
       label: 'settings.account.scope',
-      value: 'settings.account.operatorScope',
+      value: 'settings.account.operatorScopeTitle',
+      description: 'settings.account.operatorScopeDescription',
       translated: true,
     });
     entries = source.platforms;

@@ -1477,6 +1477,10 @@
       "companyUnavailable": "Non disponible",
       "scope": "Périmètre d’accès",
       "ownerScope": "Toute l’entreprise : chacune de ses plateformes.",
+      "ownerScopeTitle": "Toute l’entreprise",
+      "ownerScopeDescription": "Toutes les plateformes de l’entreprise.",
+      "operatorScopeTitle": "Plateformes attribuées",
+      "operatorScopeDescription": "Uniquement les plateformes qui vous sont actuellement attribuées.",
       "operatorScope": "Par plateforme : uniquement les plateformes qui vous sont actuellement attribuées.",
       "platformCount": "{{count}} plateformes aujourd’hui",
       "platforms": "Plateformes sur lesquelles vous pouvez travailler",
@@ -1513,7 +1517,17 @@
       "readOnly": "Lecture seule",
       "readOnlyNote": "Les informations du compte sont affichées à titre indicatif. Aucune modification n’est disponible ici.",
       "accessOverview": "Aperçu des accès",
-      "accessOverviewNote": "Vos accès autorisés dans cette session."
+      "accessOverviewNote": "Vos accès autorisés dans cette session.",
+      "securityPartialNote": "Seuls les champs marqués « Non renseigné » ne sont pas précisés par cette session. Cela ne permet pas de déterminer si ces méthodes sont configurées.",
+      "securityStatus": {
+        "unknown": "Inconnu",
+        "reported": "Renseigné",
+        "configured": "Configuré",
+        "notConfigured": "Non configuré",
+        "enabled": "Activé",
+        "disabled": "Désactivé",
+        "unsupported": "Non pris en charge"
+      }
     },
     "company": {
       "title": "Entreprise",

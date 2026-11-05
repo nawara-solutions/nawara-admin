@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
 import type { NwIconName } from '../../../../shared/ui/icon/icon.registry';
@@ -9,7 +9,7 @@ import { AccountInfoRow } from './account-info-row';
   selector: 'adm-account-profile-panel',
   imports: [AccountInfoRow, TranslocoPipe, NwIcon],
   template: `<div class="account-profile__tiles">
-    @for (row of rows(); track row.id) {
+    @for (row of details(); track row.id) {
       <dl>
         <div
           adm-account-info-row
@@ -26,7 +26,6 @@ import { AccountInfoRow } from './account-info-row';
       <nw-icon name="lock-keyhole" />
       <div>
         <p>{{ 'settings.account.readOnly' | transloco }}</p>
-        <span>{{ 'settings.account.source' | transloco }}</span>
       </div>
     </aside>
   </div>`,
@@ -35,6 +34,11 @@ import { AccountInfoRow } from './account-info-row';
 })
 export class AccountProfilePanel {
   readonly rows = input.required<readonly AccountInfo[]>();
+  protected readonly details = computed(() =>
+    this.rows().filter(
+      (row) => row.id !== 'display-name' && row.id !== 'email' && Boolean(row.value),
+    ),
+  );
   protected readonly icons: Readonly<Record<string, NwIconName>> = {
     'display-name': 'user-round',
     email: 'mail',
