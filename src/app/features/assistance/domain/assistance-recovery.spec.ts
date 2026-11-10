@@ -109,4 +109,13 @@ describe('Recovery and surplus (A9): obligation standing', () => {
     for (const { operation } of Object.values(RECOVERY_AUTHORITY))
       expect(purposeRule(RECEIPT_OPERATION_PURPOSE[operation]).transport).toBe('receipt');
   });
+
+  it('documents the S0-C14 restriction suspension and revocation, but A9 offers neither (WP-2.1)', () => {
+    // Core's receipt operations exist (8d89bed); the read-only recovery screens take no action on them.
+    expect(RECEIPT_OPERATION_PURPOSE.recovery_restriction_suspend).toBeDefined();
+    expect(RECEIPT_OPERATION_PURPOSE.recovery_restriction_revoke).toBeDefined();
+    const offered: readonly string[] = Object.values(RECOVERY_AUTHORITY).map((a) => a.operation);
+    expect(offered).not.toContain('recovery_restriction_suspend');
+    expect(offered).not.toContain('recovery_restriction_revoke');
+  });
 });

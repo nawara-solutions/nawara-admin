@@ -6,7 +6,8 @@ import { ReceiptStepUpProof } from './step-up-proof';
  * The authorization-receipt contract (F1-S3; docs/design/f1-financial-authorization.md §6.3), mirrored field for field from
  * nawara-core `0044b20` auth-service `src/receipts/receipt-binding.ts:1-173` (the binding types and their validation) and
  * `src/receipts/dto.ts:109-120` (`POST /auth/admin/authorization-receipts`). Types only: nothing here issues, stores or sends
- * a receipt.
+ * a receipt. The two `recovery_restriction_*` bindings (Core V2 S0-C14 WP A) are mirrored from nawara-core `8d89bed`
+ * (`receipt-binding.ts:144-177`, `:183-195`, `:207`, `:341-356`; `dto.ts:104-128`); the others from `0044b20`.
  *
  * Value formats Core enforces (`receipt-binding.ts:175-177`): ids are canonical lower-case UUIDs; `amount` is a positive safe
  * integer in minor units; `currency` is ISO 4217 upper case; `reason` is a bounded code `^[a-z][a-z0-9_]{0,63}$`. Every value
@@ -26,6 +27,8 @@ export const RECEIPT_AUDIENCE = {
   late_settlement_apply: 'billing-service',
   provider_fact_associate: 'payment-service',
   recovery_write_off: 'billing-service',
+  recovery_restriction_suspend: 'billing-service',
+  recovery_restriction_revoke: 'billing-service',
 } as const satisfies Readonly<Record<ReceiptOperation, 'payment-service' | 'billing-service'>>;
 
 /** `receipt-binding.ts:93` (`LATE_SETTLEMENT_REASONS`). */
@@ -36,6 +39,9 @@ export const LATE_SETTLEMENT_REASONS = [
 /** `receipt-binding.ts:110-111` (`FACT_ASSOCIATION_TARGETS`, `FACT_KINDS`). */
 export const FACT_ASSOCIATION_TARGETS = ['payment', 'refund_authorization'] as const;
 export const FACT_KINDS = ['capture', 'refund', 'chargeback'] as const;
+/** `8d89bed` `receipt-binding.ts:148-149`: each operation's CLOSED reason code (anything else is `receipt_binding_invalid`). */
+export const RECOVERY_RESTRICTION_SUSPEND_REASONS = ['refund_chargeback_overlap'] as const;
+export const RECOVERY_RESTRICTION_REVOKE_REASONS = ['owner_reinstated_restriction'] as const;
 
 /**
  * `RefundBinding` (`receipt-binding.ts:14-36`). On the wire `legalOverride` may be omitted (Core reads it as `false`) and
@@ -131,6 +137,32 @@ export interface RecoveryWriteOffReceiptBinding {
   readonly currency: string;
 }
 
+/**
+ * `RecoveryRestrictionSuspendBinding` (`8d89bed` `receipt-binding.ts:157-167`): an Owner's suspension of T3 for ONE recovery
+ * obligation in a refund and chargeback overlap. Every value comes from Billing's records (the obligation's overlap evidence),
+ * never from typing. It never clears, forgives or resolves the debt.
+ */
+export interface RecoveryRestrictionSuspendReceiptBinding {
+  readonly operation: 'recovery_restriction_suspend';
+  readonly audience: 'billing-service';
+  readonly companyId: string;
+  readonly suspensionId: string;
+  readonly obligationId: string;
+  readonly organizationId: string;
+  readonly disputeId: string;
+  readonly refundCaseId: string;
+  readonly reasonCode: (typeof RECOVERY_RESTRICTION_SUSPEND_REASONS)[number];
+}
+
+/** `RecoveryRestrictionRevokeBinding` (`8d89bed` `receipt-binding.ts:170-173`): the same fields, its own closed reason code. */
+export interface RecoveryRestrictionRevokeReceiptBinding extends Omit<
+  RecoveryRestrictionSuspendReceiptBinding,
+  'operation' | 'reasonCode'
+> {
+  readonly operation: 'recovery_restriction_revoke';
+  readonly reasonCode: (typeof RECOVERY_RESTRICTION_REVOKE_REASONS)[number];
+}
+
 export type ReceiptBinding =
   | RefundReceiptBinding
   | DisputeDecisionReceiptBinding
@@ -139,7 +171,9 @@ export type ReceiptBinding =
   | SurplusExternalReceiptBinding
   | LateSettlementApplyReceiptBinding
   | ProviderFactAssociateReceiptBinding
-  | RecoveryWriteOffReceiptBinding;
+  | RecoveryWriteOffReceiptBinding
+  | RecoveryRestrictionSuspendReceiptBinding
+  | RecoveryRestrictionRevokeReceiptBinding;
 
 /** The binding of exactly one operation. */
 export type ReceiptBindingFor<O extends ReceiptOperation> = Extract<
@@ -235,6 +269,35 @@ export const RECEIPT_BINDING_FIELDS = {
       'organizationId',
       'amount',
       'currency',
+    ],
+    optional: [],
+  },
+  // `8d89bed` `receipt-binding.ts:207` (`RESTRICTION_FIELDS`), both operations.
+  recovery_restriction_suspend: {
+    required: [
+      'operation',
+      'audience',
+      'companyId',
+      'suspensionId',
+      'obligationId',
+      'organizationId',
+      'disputeId',
+      'refundCaseId',
+      'reasonCode',
+    ],
+    optional: [],
+  },
+  recovery_restriction_revoke: {
+    required: [
+      'operation',
+      'audience',
+      'companyId',
+      'suspensionId',
+      'obligationId',
+      'organizationId',
+      'disputeId',
+      'refundCaseId',
+      'reasonCode',
     ],
     optional: [],
   },

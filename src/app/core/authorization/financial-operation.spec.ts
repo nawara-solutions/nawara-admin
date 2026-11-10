@@ -1,4 +1,5 @@
 import {
+  FINANCIAL_AUTHORITY_ADDITIONS_REVISION,
   FINANCIAL_AUTHORITY_BASELINE,
   FINANCIAL_OPERATIONS,
   FinancialAuthorization,
@@ -17,7 +18,10 @@ const entries: [string, FinancialOperationRule][] = Object.entries(FINANCIAL_OPE
 const ids = entries.map(([id]) => id);
 const sorted = (values: readonly string[]) => [...values].sort();
 
-/** The intended operation of each Core receipt purpose (nawara-core 0044b20 receipts/receipt-binding.ts:158-162). */
+/**
+ * The intended operation of each Core receipt purpose (nawara-core 0044b20 receipts/receipt-binding.ts:158-162; the two
+ * `recovery_restriction_*` at 8d89bed :190-195).
+ */
 const RECEIPT_PURPOSE_OPERATION: Readonly<Record<string, string>> = {
   [RECEIPT_OPERATION_PURPOSE.refund]: 'refund.authorize',
   [RECEIPT_OPERATION_PURPOSE.dispute_decision]: 'dispute.decide',
@@ -27,7 +31,12 @@ const RECEIPT_PURPOSE_OPERATION: Readonly<Record<string, string>> = {
   [RECEIPT_OPERATION_PURPOSE.late_settlement_apply]: 'lateSettlement.apply',
   [RECEIPT_OPERATION_PURPOSE.provider_fact_associate]: 'providerFact.associate',
   [RECEIPT_OPERATION_PURPOSE.recovery_write_off]: 'recovery.writeOff',
+  [RECEIPT_OPERATION_PURPOSE.recovery_restriction_suspend]: 'recoveryRestriction.suspend',
+  [RECEIPT_OPERATION_PURPOSE.recovery_restriction_revoke]: 'recoveryRestriction.revoke',
 };
+
+/** The only entries verified at the later Core revision (WP-2.1, Core V2 S0-C14); every other entry stays at the baseline. */
+const ADDED_AT_8D89BED = ['recoveryRestriction.suspend', 'recoveryRestriction.revoke'];
 
 const DEVELOPMENT_ONLY = [
   'platformBilling.read',
@@ -58,12 +67,18 @@ const UNAVAILABLE = [
 const authorizationOf = (rule: FinancialOperationRule): FinancialAuthorization =>
   rule.authorization;
 
-describe('FINANCIAL_OPERATIONS (Core 0044b20)', () => {
-  it('gives every operation a unique id, a register id or an explicit null, and Core evidence at the baseline', () => {
+describe('FINANCIAL_OPERATIONS (Core 0044b20; S0-C14 additions at 8d89bed)', () => {
+  it('gives every operation a unique id, a register id or an explicit null, and Core evidence at its revision', () => {
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids.length).toBeGreaterThanOrEqual(40);
+    expect(FINANCIAL_AUTHORITY_BASELINE.revision).toBe('0044b20');
+    expect(FINANCIAL_AUTHORITY_ADDITIONS_REVISION).toBe('8d89bed');
     for (const [id, rule] of entries) {
-      expect(rule.core.revision, id).toBe(FINANCIAL_AUTHORITY_BASELINE.revision);
+      expect(rule.core.revision, id).toBe(
+        ADDED_AT_8D89BED.includes(id)
+          ? FINANCIAL_AUTHORITY_ADDITIONS_REVISION
+          : FINANCIAL_AUTHORITY_BASELINE.revision,
+      );
       expect(rule.core.evidence.length, id).toBeGreaterThan(0);
       expect(rule.register === null || /^(BIL|PAY|R6H)-\d+$/.test(rule.register), id).toBe(true);
       if (rule.availability !== 'unavailable') {
@@ -159,6 +174,43 @@ describe('FINANCIAL_OPERATIONS (Core 0044b20)', () => {
       if (rule.authorization.kind !== 'none')
         expect(rule.pendingCoreChecks, id).toContain('authorizationProof');
     }
+  });
+
+  it('documents the two S0-C14 Owner commands from Core evidence, never as production-available (WP-2.1)', () => {
+    const suspend = FINANCIAL_OPERATIONS['recoveryRestriction.suspend'];
+    const revoke = FINANCIAL_OPERATIONS['recoveryRestriction.revoke'];
+    expect(suspend.core.route).toBe(
+      'POST /billing/admin/recovery-obligations/:id/restriction-suspensions',
+    );
+    expect(revoke.core.route).toBe(
+      'POST /billing/admin/recovery-obligations/:id/restriction-suspensions/:suspensionId/revocation',
+    );
+    for (const rule of [suspend, revoke]) {
+      // Core mounts nothing in production; Admin records that, never more.
+      expect(rule.availability).toBe('simulationOnly');
+      expect(rule).toMatchObject({
+        register: 'BIL-28',
+        actor: 'owner',
+        scope: 'company',
+        authority: 'companyOwner',
+      });
+      expect(rule.core.evidence).toContain('reconciliation.module.ts:21');
+      // No Idempotency-Key: the repeat semantics stay an open Core question.
+      expect(rule.blockedBy).toEqual(['CF-74']);
+    }
+    // Each its own receipt: the operations never share a purpose, nor reuse the write-off's.
+    expect(suspend.authorization).toEqual({
+      kind: 'receipt',
+      purpose: 'billing.recovery_restriction.suspend',
+    });
+    expect(revoke.authorization).toEqual({
+      kind: 'receipt',
+      purpose: 'billing.recovery_restriction.revoke',
+    });
+    expect(FINANCIAL_OPERATIONS['recovery.writeOff'].authorization).toEqual({
+      kind: 'receipt',
+      purpose: 'billing.recovery.write_off',
+    });
   });
 
   it('rejects incompatible purposes and a production state at compile time', () => {

@@ -2,9 +2,9 @@ import { OrganizationId, PlatformId, PlatformRef } from '../../../core/context/s
 
 /**
  * The Company owner's administrative activity browser (`/audit`, P8-S1). SIMULATED: the demo world's administrative
- * events, NOT Nawara Core's immutable audit evidence. Core's only human audit read is the owner's, for one Organization
- * at a time (docs/CORE-INTEGRATION.md §5 Audit); a Company-wide or Platform-wide read does not exist (CF-04), so no HTTP
- * adapter is implied by this model. An entry carries only what the demo record holds: no audit id, actor, outcome,
+ * events, NOT Nawara Core's immutable audit evidence. Core's deployed human audit read is the owner's, for one
+ * Organization at a time (docs/CORE-INTEGRATION.md §5 Audit); Company- and Platform-scoped reads exist in development only
+ * (AUD-03, AUD-04; CF-04), so no HTTP adapter is implied by this model. An entry carries only what the demo record holds: no audit id, actor, outcome,
  * request origin, signature or change payload.
  *
  * Scope comes from the record itself, never inferred from a parent: an Organization event names its Organization; a

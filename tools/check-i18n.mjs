@@ -46,7 +46,7 @@ const files = (dir) =>
   });
 
 // Core machine values that are never catalog keys but whose spelling falls in a catalog namespace: Core's step-up purposes
-// (nawara-core 0044b20, auth-service src/owner/step-up.service.ts:23-100) in Admin's `billing.` namespace. Each is exempt
+// (nawara-core 8d89bed, auth-service src/owner/step-up.service.ts:23-105) in Admin's `billing.` namespace. Each is exempt
 // ONLY in the one file that registers it, and only as these exact strings; every other literal there is checked as usual.
 const PURPOSE_REGISTRY = join('src', 'app', 'core', 'authorization', 'purpose-registry.ts');
 const MACHINE_VALUES = new Map([
@@ -60,6 +60,8 @@ const MACHINE_VALUES = new Map([
       'billing.recovery_surplus.record_external',
       'billing.late_settlement.apply',
       'billing.recovery.write_off',
+      'billing.recovery_restriction.suspend',
+      'billing.recovery_restriction.revoke',
     ]),
   ],
 ]);

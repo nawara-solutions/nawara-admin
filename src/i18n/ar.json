@@ -3633,7 +3633,9 @@
       "recovery_surplus_external": "تفويض تسجيل سداد خارجي لفائض",
       "late_settlement_apply": "تفويض تطبيق تسوية متأخرة",
       "provider_fact_associate": "تفويض ربط واقعة من مزوّد الدفع",
-      "recovery_write_off": "تفويض شطب دين مستحق"
+      "recovery_write_off": "تفويض شطب دين مستحق",
+      "recovery_restriction_suspend": "تفويض تعليق قيد استرداد الدين",
+      "recovery_restriction_revoke": "تفويض إلغاء تعليق قيد استرداد الدين"
     },
     "purposes": {
       "refund": "تفويض استرداد",
@@ -3643,7 +3645,9 @@
       "recovery_surplus_external": "تفويض سداد خارجي لفائض",
       "late_settlement_apply": "تفويض تسوية متأخرة",
       "provider_fact_associate": "تفويض ربط واقعة من مزوّد الدفع",
-      "recovery_write_off": "تفويض شطب دين مستحق"
+      "recovery_write_off": "تفويض شطب دين مستحق",
+      "recovery_restriction_suspend": "تفويض تعليق قيد الاسترداد",
+      "recovery_restriction_revoke": "تفويض إلغاء تعليق قيد الاسترداد"
     },
     "summary": {
       "title": "ما يرتبط به هذا التفويض",
@@ -3666,6 +3670,7 @@
       "fact": "واقعة المزوّد",
       "target": "الهدف",
       "obligation": "الدين المستحق",
+      "suspension": "التعليق",
       "reason": "رمز السبب",
       "reasonCode": "رمز السبب",
       "decision": "القرار",

@@ -5,6 +5,8 @@ import {
   DisputeDecisionReceiptBinding,
   RECEIPT_AUDIENCE,
   RECEIPT_BINDING_FIELDS,
+  RECOVERY_RESTRICTION_REVOKE_REASONS,
+  RECOVERY_RESTRICTION_SUSPEND_REASONS,
   ReceiptBinding,
   ReceiptBindingFor,
   ReceiptIssueRequest,
@@ -88,6 +90,28 @@ const EXAMPLES: { readonly [O in ReceiptOperation]: ReceiptBindingFor<O> } = {
     amount: 700,
     currency: 'TND',
   },
+  recovery_restriction_suspend: {
+    operation: 'recovery_restriction_suspend',
+    audience: 'billing-service',
+    companyId: UUID,
+    suspensionId: UUID,
+    obligationId: UUID,
+    organizationId: UUID,
+    disputeId: UUID,
+    refundCaseId: UUID,
+    reasonCode: 'refund_chargeback_overlap',
+  },
+  recovery_restriction_revoke: {
+    operation: 'recovery_restriction_revoke',
+    audience: 'billing-service',
+    companyId: UUID,
+    suspensionId: UUID,
+    obligationId: UUID,
+    organizationId: UUID,
+    disputeId: UUID,
+    refundCaseId: UUID,
+    reasonCode: 'owner_reinstated_restriction',
+  },
 };
 
 const operations = Object.keys(RECEIPT_OPERATION_PURPOSE).filter(
@@ -95,7 +119,7 @@ const operations = Object.keys(RECEIPT_OPERATION_PURPOSE).filter(
 );
 
 describe('receipt contract (F1-S3, Core 0044b20)', () => {
-  it('covers exactly the eight Core receipt operations, each with a receipt-transport purpose', () => {
+  it('covers exactly the ten Core receipt operations, each with a receipt-transport purpose', () => {
     expect([...operations].sort()).toEqual(
       [
         'dispute_decision',
@@ -105,6 +129,8 @@ describe('receipt contract (F1-S3, Core 0044b20)', () => {
         'provider_fact_associate',
         'recovery_surplus_external',
         'recovery_write_off',
+        'recovery_restriction_suspend',
+        'recovery_restriction_revoke',
         'refund',
       ].sort(),
     );
@@ -191,3 +217,62 @@ function compileTimeChecks(): void {
   request({ binding: decision, stepUp: refundProof, idempotencyKey: key });
   request({ binding: base, stepUp: refundProof, idempotencyKey: key });
 }
+
+describe('S0-C14 recovery-restriction receipts (Core 8d89bed, WP-2.1)', () => {
+  /** nawara-core 8d89bed auth-service src/receipts/receipt-binding.ts:207 (`RESTRICTION_FIELDS`), verbatim. */
+  const CORE_RESTRICTION_FIELDS = [
+    'operation',
+    'audience',
+    'companyId',
+    'suspensionId',
+    'obligationId',
+    'organizationId',
+    'disputeId',
+    'refundCaseId',
+    'reasonCode',
+  ];
+
+  it('binds exactly Core fields, for Billing only, with one closed reason code each', () => {
+    for (const operation of [
+      'recovery_restriction_suspend',
+      'recovery_restriction_revoke',
+    ] as const) {
+      expect(RECEIPT_BINDING_FIELDS[operation].required, operation).toEqual(
+        CORE_RESTRICTION_FIELDS,
+      );
+      expect(RECEIPT_BINDING_FIELDS[operation].optional, operation).toEqual([]);
+      expect(RECEIPT_AUDIENCE[operation], operation).toBe('billing-service');
+    }
+    expect(RECOVERY_RESTRICTION_SUSPEND_REASONS).toEqual(['refund_chargeback_overlap']);
+    expect(RECOVERY_RESTRICTION_REVOKE_REASONS).toEqual(['owner_reinstated_restriction']);
+  });
+
+  it('keeps each receipt operation-specific: its own purpose, never another operation', () => {
+    expect(RECEIPT_OPERATION_PURPOSE.recovery_restriction_suspend).toBe(
+      'billing.recovery_restriction.suspend',
+    );
+    expect(RECEIPT_OPERATION_PURPOSE.recovery_restriction_revoke).toBe(
+      'billing.recovery_restriction.revoke',
+    );
+    const purposes = Object.values(RECEIPT_OPERATION_PURPOSE);
+    expect(new Set(purposes).size).toBe(purposes.length);
+  });
+
+  it('refuses a binding with the other operation reason code (types only)', () => {
+    const suspend = (value: ReceiptBindingFor<'recovery_restriction_suspend'>) => value;
+    const revoke = (value: ReceiptBindingFor<'recovery_restriction_revoke'>) => value;
+    const base = EXAMPLES.recovery_restriction_suspend;
+    // @ts-expect-error a suspension never carries the revocation reason code
+    suspend({ ...base, reasonCode: 'owner_reinstated_restriction' });
+    // @ts-expect-error a revocation never carries the suspension reason code
+    revoke({ ...EXAMPLES.recovery_restriction_revoke, reasonCode: 'refund_chargeback_overlap' });
+    // @ts-expect-error a free-text reason is never a reason code
+    suspend({ ...EXAMPLES.recovery_restriction_suspend, reasonCode: 'because' });
+    expect(suspend(EXAMPLES.recovery_restriction_suspend).operation).toBe(
+      'recovery_restriction_suspend',
+    );
+    expect(revoke(EXAMPLES.recovery_restriction_revoke).operation).toBe(
+      'recovery_restriction_revoke',
+    );
+  });
+});

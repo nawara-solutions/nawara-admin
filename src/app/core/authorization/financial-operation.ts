@@ -14,11 +14,17 @@ import {
  * describes what Core will ask for, never what it has granted.
  */
 
-/** The Core revision every entry was verified against. */
+/** The Core revision the entries were verified against (each entry's `core.revision` says which one it is). */
 export const FINANCIAL_AUTHORITY_BASELINE = {
   repository: 'nawara-solutions/nawara-core',
   revision: '0044b20',
 } as const;
+
+/**
+ * Entries added from a later Core revision (WP-2.1), each verified there and only there: the Core V2 S0-C14 Owner commands
+ * (`158891d`, development and simulation only). Never a re-verification of the other entries.
+ */
+export const FINANCIAL_AUTHORITY_ADDITIONS_REVISION = '8d89bed';
 
 /**
  * Where an operation can run. There is deliberately NO production state: no financial operation was verified as operational.
@@ -79,7 +85,8 @@ export type AuthorityBasis =
   | 'assignedOperatorWithDelegation';
 
 export interface CoreEvidence {
-  readonly revision: typeof FINANCIAL_AUTHORITY_BASELINE.revision;
+  readonly revision:
+    typeof FINANCIAL_AUTHORITY_BASELINE.revision | typeof FINANCIAL_AUTHORITY_ADDITIONS_REVISION;
   /** The Core route, or `null` when none exists. */
   readonly route: string | null;
   readonly evidence: string;
@@ -117,6 +124,13 @@ export type FinancialOperationRule = AttemptableFinancialOperation | Unavailable
 
 const core = (route: string | null, evidence: string): CoreEvidence => ({
   revision: FINANCIAL_AUTHORITY_BASELINE.revision,
+  route,
+  evidence,
+});
+
+/** Evidence of an entry added at `8d89bed` (WP-2.1). */
+const coreAddition = (route: string, evidence: string): CoreEvidence => ({
+  revision: FINANCIAL_AUTHORITY_ADDITIONS_REVISION,
   route,
   evidence,
 });
@@ -583,6 +597,37 @@ export const FINANCIAL_OPERATIONS = {
     core: core(
       'POST /billing/admin/recovery-obligations/:id/write-off',
       'billing-service/src/reconciliation/reconciliation.controller.ts:89',
+    ),
+  },
+  // Core V2 S0-C14 items 10, 11 (BIL-28 H), at `8d89bed`: the Owner suspends T3 for ONE recovery obligation in a refund and
+  // chargeback overlap, or revokes that suspension. Each needs its own receipt; neither clears, forgives or resolves the debt.
+  // The module mounts nothing in production and the service refuses there too. Documented only: Admin offers neither.
+  'recoveryRestriction.suspend': {
+    availability: REFUSED_IN_PRODUCTION,
+    register: 'BIL-28',
+    actor: 'owner',
+    scope: 'company',
+    authority: 'companyOwner',
+    authorization: receipt(RECEIPT_OPERATION_PURPOSE.recovery_restriction_suspend),
+    pendingCoreChecks: OWNER_AUTHORIZED,
+    blockedBy: ['CF-74'],
+    core: coreAddition(
+      'POST /billing/admin/recovery-obligations/:id/restriction-suspensions',
+      'billing-service/src/reconciliation/reconciliation.controller.ts:112; reconciliation.module.ts:21; recovery-suspension.service.ts:82-84',
+    ),
+  },
+  'recoveryRestriction.revoke': {
+    availability: REFUSED_IN_PRODUCTION,
+    register: 'BIL-28',
+    actor: 'owner',
+    scope: 'company',
+    authority: 'companyOwner',
+    authorization: receipt(RECEIPT_OPERATION_PURPOSE.recovery_restriction_revoke),
+    pendingCoreChecks: OWNER_AUTHORIZED,
+    blockedBy: ['CF-74'],
+    core: coreAddition(
+      'POST /billing/admin/recovery-obligations/:id/restriction-suspensions/:suspensionId/revocation',
+      'billing-service/src/reconciliation/reconciliation.controller.ts:136; reconciliation.module.ts:21; recovery-suspension.service.ts:128-130',
     ),
   },
 

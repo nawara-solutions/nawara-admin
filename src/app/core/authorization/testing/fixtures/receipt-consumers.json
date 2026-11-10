@@ -652,6 +652,154 @@
       ],
       "source": "apps/billing-service/src/reconciliation/reconciliation.controller.ts:89-104",
       "idempotencyKeyNote": "none: the same obligation and receipt answer the stored write-off (reconciliation.controller.ts:98; reconciliation.service.ts:393-396)"
+    },
+    {
+      "operation": "recovery_restriction_suspend",
+      "register": "BIL-28",
+      "method": "POST",
+      "route": "/billing/admin/recovery-obligations/:id/restriction-suspensions",
+      "service": "billing-service",
+      "idempotencyKey": false,
+      "body": ["suspensionId", "receiptSecret"],
+      "bodySource": "apps/billing-service/src/reconciliation/recovery-suspension.service.ts:84-86",
+      "receiptField": "receiptSecret",
+      "production": "notMounted",
+      "productionSource": "apps/billing-service/src/reconciliation/reconciliation.module.ts:21; reconciliation/recovery-suspension.service.ts:83",
+      "success": [
+        {
+          "status": 201
+        },
+        {
+          "status": 200,
+          "meaning": "the same request again: answered, nothing consumed again"
+        }
+      ],
+      "answers": [
+        {
+          "status": 400,
+          "code": "invalid_recovery_request",
+          "coreSays": null
+        },
+        {
+          "status": 401,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 403,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 404,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "recovery_restriction_not_suspendable",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "recovery_authorization_refused",
+          "coreSays": null
+        },
+        {
+          "status": 503,
+          "code": "recovery_authorization_unresolved",
+          "coreSays": "repeat the same request"
+        },
+        {
+          "status": 503,
+          "code": "recovery_authorization_unavailable",
+          "coreSays": "nothing changed",
+          "basis": "apps/billing-service/src/reconciliation/recovery-suspension.service.ts:177-178 (the receipt consumption could not be called; nothing written); the same consume pattern as the write-off"
+        },
+        {
+          "status": 503,
+          "code": "auth_unavailable",
+          "coreSays": "nothing changed",
+          "basis": "apps/billing-service/src/reconciliation/recovery-suspension.service.ts:68 (Auth confirms the Owner at :87, before the receipt is consumed at :100; nothing written)"
+        }
+      ],
+      "source": "apps/billing-service/src/reconciliation/reconciliation.controller.ts:112-134",
+      "idempotencyKeyNote": "none: the same suspension id and receipt answer the stored suspension (recovery-suspension.service.ts:88-90)",
+      "revision": "8d89bed"
+    },
+    {
+      "operation": "recovery_restriction_revoke",
+      "register": "BIL-28",
+      "method": "POST",
+      "route": "/billing/admin/recovery-obligations/:id/restriction-suspensions/:suspensionId/revocation",
+      "service": "billing-service",
+      "idempotencyKey": false,
+      "body": ["receiptSecret"],
+      "bodySource": "apps/billing-service/src/reconciliation/recovery-suspension.service.ts:130",
+      "receiptField": "receiptSecret",
+      "production": "notMounted",
+      "productionSource": "apps/billing-service/src/reconciliation/reconciliation.module.ts:21; reconciliation/recovery-suspension.service.ts:129",
+      "success": [
+        {
+          "status": 201
+        },
+        {
+          "status": 200,
+          "meaning": "the same request again: answered, nothing consumed again"
+        }
+      ],
+      "answers": [
+        {
+          "status": 400,
+          "code": "invalid_recovery_request",
+          "coreSays": null
+        },
+        {
+          "status": 401,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 403,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 404,
+          "code": null,
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "recovery_suspension_not_active",
+          "coreSays": null
+        },
+        {
+          "status": 409,
+          "code": "recovery_authorization_refused",
+          "coreSays": null
+        },
+        {
+          "status": 503,
+          "code": "recovery_authorization_unresolved",
+          "coreSays": "repeat the same request"
+        },
+        {
+          "status": 503,
+          "code": "recovery_authorization_unavailable",
+          "coreSays": "nothing changed",
+          "basis": "apps/billing-service/src/reconciliation/recovery-suspension.service.ts:177-178 (the receipt consumption could not be called; nothing written); the same consume pattern as the write-off"
+        },
+        {
+          "status": 503,
+          "code": "auth_unavailable",
+          "coreSays": "nothing changed",
+          "basis": "apps/billing-service/src/reconciliation/recovery-suspension.service.ts:68 (Auth confirms the Owner at :132, before the receipt is consumed at :144; nothing written)"
+        }
+      ],
+      "source": "apps/billing-service/src/reconciliation/reconciliation.controller.ts:136-157",
+      "idempotencyKeyNote": "none: the same suspension and receipt answer the stored revocation (reconciliation.controller.ts:146)",
+      "revision": "8d89bed"
     }
   ]
 }
