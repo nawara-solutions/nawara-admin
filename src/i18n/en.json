@@ -3419,10 +3419,6 @@
   },
   "coreServices": {
     "liveHealth": {
-      "demoLabel": "Simulated health · Demo data",
-      "demoDescription": "Preview of service health using simulated statuses.",
-      "demoOperational": "Operational",
-      "demoDegraded": "Degraded",
       "unavailable": "Live health unavailable"
     },
     "services": {

@@ -155,7 +155,7 @@
         [label]="'companyOverview.health.viewServices' | transloco"
       />
       @if (health.status === 'success') {
-        <adm-service-health-strip [inventory]="health.data" [demo]="isDemo()" />
+        <adm-service-health-strip [inventory]="health.data" />
       } @else if (health.status === 'idle' || health.status === 'loading') {
         <nw-data-state state="loading" [title]="'companyOverview.states.loading' | transloco" />
       } @else {

@@ -6,9 +6,9 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
 import { NwIconName } from '../../../../shared/ui/icon/icon.registry';
 
 /**
- * Documented Core services with illustrative health only when demo mode is explicitly enabled.
- * The inventory remains unchanged: non-demo views show health as unavailable because no authorized
- * aggregated health read exists (CF-06). Mock statuses never enter the Core service model.
+ * The documented Core services, with live health shown as unavailable, as on `/services`: no authorized aggregated
+ * health read exists (CF-06), so no service is ever shown as operational or degraded, in demo builds included
+ * (A42-01 / X01, WP-1.3).
  */
 @Component({
   selector: 'adm-service-health-strip',
@@ -19,18 +19,7 @@ import { NwIconName } from '../../../../shared/ui/icon/icon.registry';
   host: { class: 'service-health-strip' },
 })
 export class ServiceHealthStrip {
-  readonly demo = input(false);
   readonly inventory = input.required<ServiceInventory>();
-  protected readonly mockHealth = {
-    auth: 'operational',
-    organization: 'operational',
-    release: 'operational',
-    billing: 'operational',
-    payment: 'operational',
-    file: 'operational',
-    notification: 'degraded',
-    audit: 'operational',
-  } as const satisfies Record<CoreService, 'operational' | 'degraded'>;
   protected readonly nameKeys = CORE_SERVICE_NAME_KEYS;
   protected readonly icons = {
     auth: 'shield-check',

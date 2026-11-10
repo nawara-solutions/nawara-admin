@@ -5,26 +5,10 @@
         <span class="service-health-strip__symbol"><nw-icon [name]="icons[service]" /></span>
         <span class="service-health-strip__name">{{ nameKeys[service] | transloco }}</span>
       </span>
-      @if (demo()) {
-        <span
-          class="service-health-strip__status"
-          [class.service-health-strip__status--degraded]="mockHealth[service] === 'degraded'"
-        >
-          <span class="service-health-strip__indicator" aria-hidden="true"></span>
-          {{
-            (mockHealth[service] === 'degraded'
-              ? 'coreServices.liveHealth.demoDegraded'
-              : 'coreServices.liveHealth.demoOperational'
-            ) | transloco
-          }}
-        </span>
-      }
     </li>
   }
 </ul>
-@if (!demo()) {
-  <p class="service-health-strip__live" data-live-health>
-    <nw-icon name="info" size="sm" />
-    <span>{{ 'coreServices.liveHealth.unavailable' | transloco }}</span>
-  </p>
-}
+<p class="service-health-strip__live" data-live-health>
+  <nw-icon name="info" size="sm" />
+  <span>{{ 'coreServices.liveHealth.unavailable' | transloco }}</span>
+</p>

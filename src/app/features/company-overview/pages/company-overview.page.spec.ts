@@ -5,7 +5,9 @@ import { ServiceHealthStrip } from '../components/service-health-strip/service-h
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import ar from '../../../../i18n/ar.json';
 import en from '../../../../i18n/en.json';
+import fr from '../../../../i18n/fr.json';
 import { Actor } from '../../../core/auth/actor';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { APP_ENVIRONMENT, DemoBindings } from '../../../core/config/app-environment';
@@ -25,11 +27,14 @@ import {
 import { DemoAuthState } from '../../../core/auth/auth.mock-state';
 import { ServiceInventoryGateway } from '../../../core/core-services/service-inventory.gateway';
 import {
+  DOCUMENTED_SERVICE_INVENTORY,
   MockServiceInventoryGateway,
   SERVICES_DEMO_SCENARIO,
 } from '../../../core/core-services/service-inventory.mock';
 import { CORE_SERVICES } from '../../../core/core-services/core-service.model';
 import { DEMO_OWNER_ID } from '../../../demo/world/seed';
+import { ServicesFacade } from '../../services/application/services.facade';
+import { ServicesPage } from '../../services/pages/services.page';
 import { CompanyOverviewPage } from './company-overview.page';
 
 const owner: Actor = {
@@ -114,6 +119,8 @@ async function render(actor: Actor, scenario: CompanyOverviewDemoScenario = 'nor
       ScopeContext,
       { provide: ScopeDirectoryGateway, useClass: MockScopeDirectoryGateway },
       CompanyOverviewFacade,
+      // Only for comparing the Overview with the Services page (WP-1.3).
+      ServicesFacade,
     ],
   });
   TestBed.inject(AuthSession).establish(actor);
@@ -267,39 +274,87 @@ describe('CompanyOverviewPage', () => {
     );
   });
 
-  it('shows explicitly simulated health for all services in the demo overview', async () => {
+  it('shows the service inventory with live health unavailable, never a simulated status (WP-1.3)', async () => {
     const { page } = await render(owner);
     expect(page.querySelector('.overview-card__subtitle')).toBeNull();
     const card = page.querySelector('#overview-health')?.closest('adm-overview-card');
     const services = Array.from(card?.querySelectorAll('.service-health-strip__name') ?? []).map(
       text,
     );
+    // The inventory stays; health is what is unavailable, in a demo build too.
     expect(services).toEqual(CORE_SERVICES.map((s) => en.coreServices.services[s].name));
-    expect(card?.querySelector('[data-live-health]')).toBeNull();
-    const statuses = Array.from(card?.querySelectorAll('.service-health-strip__status') ?? []).map(
-      text,
-    );
-    expect(statuses).toHaveLength(8);
-    expect(statuses.filter((s) => s === en.coreServices.liveHealth.demoOperational)).toHaveLength(
-      7,
-    );
-    expect(statuses.filter((s) => s === en.coreServices.liveHealth.demoDegraded)).toHaveLength(1);
-    expect(card?.querySelector('a[href="/services"]')).not.toBeNull();
-  });
-
-  it('keeps mock health hidden unless demo mode is explicitly enabled', async () => {
-    await render(owner);
-    const fixture = TestBed.createComponent(ServiceHealthStrip);
-    fixture.componentRef.setInput('inventory', {
-      services: CORE_SERVICES,
-      liveHealth: 'unavailable',
-    });
-    fixture.detectChanges();
-    const element = fixture.nativeElement as HTMLElement;
-    expect(element.querySelector('.service-health-strip__status')).toBeNull();
-    expect(text(element.querySelector('[data-live-health]'))).toBe(
+    expect(text(card?.querySelector('[data-live-health]'))).toBe(
       en.coreServices.liveHealth.unavailable,
     );
+    expect(
+      card?.querySelectorAll('.service-health-strip__status, [class*="indicator"]'),
+    ).toHaveLength(0);
+    expect(text(card)).not.toMatch(/operational|degraded|healthy|outage|uptime|latency|incident/i);
+    expect(card?.querySelector('a[href="/services"]')).not.toBeNull();
+    // Read only: nothing to restart, deploy or recover.
+    expect(card?.querySelectorAll('button:not(.card-link__button), form, input')).toHaveLength(0);
+  });
+
+  it('says the same about live health as the Services page, from one inventory read', async () => {
+    const { page } = await render(owner);
+    const overview = text(
+      page
+        .querySelector('#overview-health')
+        ?.closest('adm-overview-card')
+        ?.querySelector('[data-live-health]'),
+    );
+    const inventory = vi.spyOn(TestBed.inject(ServiceInventoryGateway), 'inventory');
+    const services = TestBed.createComponent(ServicesPage);
+    await services.whenStable();
+    for (let i = 0; i < 50 && !services.nativeElement.querySelector('[data-live-health] h2'); i++) {
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      await services.whenStable();
+    }
+    const servicesPage = text(
+      (services.nativeElement as HTMLElement).querySelector('[data-live-health] h2'),
+    );
+    expect(overview).toBe(en.coreServices.liveHealth.unavailable);
+    expect(servicesPage).toBe(overview);
+    // Only the documented inventory is read: no health polling or monitoring request.
+    expect(inventory).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders live health unavailable, with no simulated status, in English, French and Arabic', () => {
+    const SIMULATED: Record<'en' | 'fr' | 'ar', readonly string[]> = {
+      en: ['Operational', 'Degraded'],
+      fr: ['Opérationnel', 'Dégradé'],
+      ar: ['تعمل بشكل طبيعي', 'أداء متراجع'],
+    };
+    for (const [lang, copy] of [
+      ['en', en],
+      ['fr', fr],
+      ['ar', ar],
+    ] as const) {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [
+          ServiceHealthStrip,
+          TranslocoTestingModule.forRoot({
+            langs: { [lang]: copy },
+            translocoConfig: { availableLangs: [lang], defaultLang: lang },
+            preloadLangs: true,
+          }),
+        ],
+      });
+      const fixture = TestBed.createComponent(ServiceHealthStrip);
+      fixture.componentRef.setInput('inventory', DOCUMENTED_SERVICE_INVENTORY);
+      fixture.detectChanges();
+      const element = fixture.nativeElement as HTMLElement;
+      expect(text(element.querySelector('[data-live-health]')), lang).toBe(
+        copy.coreServices.liveHealth.unavailable,
+      );
+      expect(
+        Array.from(element.querySelectorAll('.service-health-strip__name')).map(text),
+        lang,
+      ).toEqual(CORE_SERVICES.map((s) => copy.coreServices.services[s].name));
+      expect(element.querySelector('.service-health-strip__status'), lang).toBeNull();
+      for (const status of SIMULATED[lang]) expect(text(element), lang).not.toContain(status);
+    }
   });
 
   it('opens platforms into the platform scope', async () => {
