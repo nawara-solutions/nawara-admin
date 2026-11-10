@@ -128,7 +128,10 @@ export class OperatorCreateAction {
   close(): void {
     if (this.busy()) return;
     this.panelOpen.set(false);
-    this.run.close();
+    // Idempotent: an action that is already closed is not closed again. `ActionRun.close()` always writes a new
+    // `closed` state, and the dialog closes the action whenever it reads `closed`, so closing twice would wake the
+    // dialog again without end (WP-0.4).
+    if (this.run.state().phase !== 'closed') this.run.close();
     if (this.run.state().phase === 'closed') this.clearReconciliation();
   }
 

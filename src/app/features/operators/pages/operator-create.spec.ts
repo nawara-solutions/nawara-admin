@@ -7,7 +7,10 @@ import { createOperator, createdOperatorId } from '../../../demo/world/commands/
 import { DemoWorld } from '../../../demo/world/demo-world';
 import { DEMO_OPERATOR_IDS, DEMO_OWNER_ID, demoWorldSeed } from '../../../demo/world/seed';
 import { NwToastService } from '../../../shared/ui/toast/toast.service';
-import { CREATED_OPERATOR_STATE } from '../application/operator-create.action';
+import {
+  CREATED_OPERATOR_STATE,
+  OperatorCreateAction,
+} from '../application/operator-create.action';
 import { OperatorAccountDemoScenario } from '../data-access/operator.mock';
 import {
   RenderOptions,
@@ -100,6 +103,28 @@ describe('Create an operator (P6-S4)', { timeout: 20_000 }, () => {
       '/operators',
     );
     expect(asOperator.element.querySelector('[data-create-operator]')).toBeNull();
+  });
+
+  it('closing an action that is already closed changes nothing (WP-0.4)', async () => {
+    const s = await setUp();
+    const action = TestBed.inject(OperatorCreateAction);
+    await s.open();
+    expect(action.run.state().phase).toBe('editing');
+    action.close();
+    await s.settle();
+    const closed = action.run.state();
+    expect(closed.phase).toBe('closed');
+    expect(action.panelOpen()).toBe(false);
+    expect(s.dialog()).toBeNull();
+    // Each repeated close leaves the very same state: no new transition for the dialog to react to.
+    action.close();
+    action.close();
+    await s.settle();
+    expect(action.run.state()).toBe(closed);
+    // The panel still opens again afterwards.
+    await s.open();
+    expect(action.run.state().phase).toBe('editing');
+    expect(s.dialog()).not.toBeNull();
   });
 
   it('checks the one contact before anything is sent, and switching kind clears the value', async () => {
