@@ -59,20 +59,6 @@
               <option [value]="platform.id">{{ platform.name }}</option>
             }
           </select>
-          @if (selectedPlatform(); as platform) {
-            <label class="accordion-settings__policy">
-              <input
-                type="checkbox"
-                [checked]="policy.policies().get(platform.id) ?? false"
-                [disabled]="!policy.policies().has(platform.id)"
-                (change)="setPolicy($event)"
-              />
-              {{ 'platformDashboard.policies.assistedPayments' | transloco }}
-            </label>
-          }
-          <p class="accordion-settings__description">
-            {{ 'settings.accordions.demoPolicy' | transloco }}
-          </p>
         </fieldset>
       } @else {
         <p class="accordion-settings__description">
