@@ -82,6 +82,13 @@ const run = (guard: typeof sessionGuard, url = '/') =>
   );
 const path = (result: unknown) => (result instanceof UrlTree ? result.toString() : result);
 
+// The demo session is restored from sessionStorage (PR #89): every test starts and ends
+// signed out. Only the demo session keys are removed, never other storage.
+const DEMO_SESSION_KEYS = ['nw.demo.actor', 'nw.demo.mockSession'];
+const clearDemoSession = () => DEMO_SESSION_KEYS.forEach((key) => sessionStorage.removeItem(key));
+beforeEach(clearDemoSession);
+afterEach(clearDemoSession);
+
 describe('access guards (navigation controls, not security)', () => {
   it('sends a visitor without a session to sign in, keeping the requested page', () => {
     setUp(null);

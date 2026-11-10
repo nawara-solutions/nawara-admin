@@ -159,6 +159,21 @@ async function render(
 const text = (element: Element | null | undefined) =>
   element?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
 
+/** The directory shows 10 rows per page (PR #89): choose "All" with its own control to see every row. */
+async function showAllRows(page: HTMLElement, settle: (ms?: number) => Promise<void>) {
+  page.querySelector<HTMLButtonElement>('.organization-directory__page-size-trigger')?.click();
+  await settle();
+  const all = [
+    // The menu is a CDK overlay, attached to the document rather than inside the page.
+    ...document.querySelectorAll<HTMLButtonElement>(
+      '.organization-directory__page-size-menu button',
+    ),
+  ].find((b) => text(b) === en.operators.pagination.all);
+  if (!all) throw new Error('no "All" rows-per-page option');
+  all.click();
+  await settle();
+}
+
 describe('Create organization (owner, demo build)', () => {
   afterEach(() => TestBed.inject(Dialog).closeAll());
 
@@ -167,6 +182,7 @@ describe('Create organization (owner, demo build)', () => {
       await render(owner);
     for (let i = 0; i < 20 && page.querySelectorAll('.organization-table__link').length === 0; i++)
       await settle(10);
+    await showAllRows(page, settle);
     expect(page.querySelectorAll('.organization-table__link')).toHaveLength(16);
     await open();
     expect(text(dialog()?.querySelector('h2'))).toBe(en.organizations.create.title);
@@ -234,6 +250,7 @@ describe('Create organization (owner, demo build)', () => {
     for (let i = 0; i < 20 && page.querySelectorAll('.organization-table__link').length !== 1; i++)
       await settle(10);
     expect(text(page.querySelector('.organization-table__link'))).toBe('École Al Fajr');
+    await showAllRows(page, settle);
     await router.navigateByUrl(DIRECTORY);
     for (let i = 0; i < 20 && page.querySelectorAll('.organization-table__link').length !== 17; i++)
       await settle(10);

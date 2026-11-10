@@ -210,6 +210,13 @@ function setUp() {
   };
 }
 
+// The demo session is restored from sessionStorage (PR #89): every test starts and ends
+// signed out. Only the demo session keys are removed, never other storage.
+const DEMO_SESSION_KEYS = ['nw.demo.actor', 'nw.demo.mockSession'];
+const clearDemoSession = () => DEMO_SESSION_KEYS.forEach((key) => sessionStorage.removeItem(key));
+beforeEach(clearDemoSession);
+afterEach(clearDemoSession);
+
 describe('AuthFlowFacade', () => {
   it('moves to the second step with the methods in Core’s order, without a session yet', async () => {
     const { flow, session, navigations } = setUp();

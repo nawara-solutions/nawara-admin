@@ -95,9 +95,16 @@ async function render(
   return fixture.nativeElement as HTMLElement;
 }
 
+/** An item's text as read out: the `aria-hidden` separator (PR #89) is decoration, not part of the name. */
+const spokenText = (element: Element) => {
+  const copy = element.cloneNode(true) as Element;
+  copy.querySelectorAll('[aria-hidden="true"]').forEach((hidden) => hidden.remove());
+  return copy.textContent?.replace(/\s+/g, ' ').trim();
+};
+
 const crumbs = (nav: HTMLElement) =>
   [...nav.querySelectorAll('.breadcrumbs__item:not(:first-child)')].map((li) => ({
-    text: li.textContent?.replace(/\s+/g, ' ').trim(),
+    text: spokenText(li),
     href: li.querySelector('a')?.getAttribute('href') ?? null,
   }));
 

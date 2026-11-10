@@ -137,12 +137,21 @@ async function render(actor: Actor, latency = 0) {
 const text = (element: Element | null | undefined) =>
   element?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
 
+/** The header's "Create platform" button, found by its name (PR #89 removed its class hooks). */
+const createButtons = (root: ParentNode) =>
+  [...root.querySelectorAll<HTMLButtonElement>('button')].filter(
+    (b) => text(b) === en.companyOverview.create,
+  );
+/** The live one: offered and not `aria-disabled`. */
+const liveCreateButton = (root: ParentNode) =>
+  createButtons(root).find((b) => b.getAttribute('aria-disabled') !== 'true');
+
 describe('Create platform (owner, demo build)', () => {
   afterEach(() => TestBed.inject(Dialog).closeAll());
 
   it('validates, verifies, creates once, refreshes the directory and says so', async () => {
     const { page, settle, dialog, type, press, toasts, world } = await render(owner);
-    page.querySelector<HTMLButtonElement>('.platforms-header__create-button--live')?.click();
+    liveCreateButton(page)?.click();
     await settle();
     expect(text(dialog()?.querySelector('h2'))).toBe(en.platforms.create.title);
 
@@ -187,7 +196,7 @@ describe('Create platform (owner, demo build)', () => {
 
   it('cannot be dismissed while the command runs, and reports its result after the dialog is gone', async () => {
     const { page, settle, dialog, type, press, toasts, world } = await render(owner, 60);
-    page.querySelector<HTMLButtonElement>('.platforms-header__create-button--live')?.click();
+    liveCreateButton(page)?.click();
     await settle();
     type('input[name="platform-name"]', 'Nawara Academy');
     press(en.platforms.create.submit);
@@ -212,7 +221,7 @@ describe('Create platform (owner, demo build)', () => {
 
   it('shows nothing of a late result to the next person after a sign-out', async () => {
     const { page, settle, type, press, toasts, world } = await render(owner, 60);
-    page.querySelector<HTMLButtonElement>('.platforms-header__create-button--live')?.click();
+    liveCreateButton(page)?.click();
     await settle();
     type('input[name="platform-name"]', 'Nawara Academy');
     press(en.platforms.create.submit);
@@ -230,7 +239,7 @@ describe('Create platform (owner, demo build)', () => {
 
   it('is never offered to an operator', async () => {
     const { page } = await render(operator);
-    expect(page.querySelector('.platforms-header__create-button')).toBeNull();
+    expect(createButtons(page)).toEqual([]);
   });
 });
 
@@ -239,9 +248,7 @@ describe('Create platform: the shared step-up entry (F1-S6a)', () => {
 
   async function verifying() {
     const rendered = await render(owner);
-    rendered.page
-      .querySelector<HTMLButtonElement>('.platforms-header__create-button--live')
-      ?.click();
+    liveCreateButton(rendered.page)?.click();
     await rendered.settle();
     rendered.type('input[name="platform-name"]', 'Nawara Academy');
     rendered.press(en.platforms.create.submit);

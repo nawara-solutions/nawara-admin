@@ -94,6 +94,13 @@ function setUp() {
   };
 }
 
+// The demo session is restored from sessionStorage (PR #89): every test starts and ends
+// signed out. Only the demo session keys are removed, never other storage.
+const DEMO_SESSION_KEYS = ['nw.demo.actor', 'nw.demo.mockSession'];
+const clearDemoSession = () => DEMO_SESSION_KEYS.forEach((key) => sessionStorage.removeItem(key));
+beforeEach(clearDemoSession);
+afterEach(clearDemoSession);
+
 describe('SignOut', () => {
   it('tells Core, ends the session, then shows "You have signed out" on the sign-in page', async () => {
     const { signOut, gateway, session, events } = setUp();

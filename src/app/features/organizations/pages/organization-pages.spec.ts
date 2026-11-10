@@ -33,6 +33,12 @@ import {
 import { organizationActionTestProviders } from '../testing/organization-actions-testing';
 import { OrganizationDetailPage } from './organization-detail.page';
 import { OrganizationDirectoryPage } from './organization-directory.page';
+import { MembershipActionLock } from '../application/membership-action-support';
+import { MembershipDecisionAction } from '../application/membership-decision.action';
+import { MembershipRevokeAction } from '../application/membership-revoke.action';
+import { OrganizationAdminRoleAction } from '../application/organization-admin-role.action';
+import { OrganizationMembersFacade } from '../application/organization-members.facade';
+import { MembershipGateway, UnavailableMembershipGateway } from '../data-access/membership.gateway';
 
 async function render<T>(page: Type<T>, actor: Actor, url: string) {
   TestBed.configureTestingModule({
@@ -63,6 +69,14 @@ async function render<T>(page: Type<T>, actor: Actor, url: string) {
       OrganizationDirectoryFacade,
       OrganizationDetailFacade,
       ...organizationActionTestProviders(false),
+      // The detail page embeds the members page (PR #89): the detail route's members providers, with
+      // the Membership gateway unavailable (the members list is not under test here).
+      { provide: MembershipGateway, useClass: UnavailableMembershipGateway },
+      OrganizationMembersFacade,
+      MembershipActionLock,
+      MembershipDecisionAction,
+      MembershipRevokeAction,
+      OrganizationAdminRoleAction,
     ],
   });
   TestBed.inject(AuthSession).establish(actor);

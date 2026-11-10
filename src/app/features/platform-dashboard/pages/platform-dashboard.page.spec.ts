@@ -28,6 +28,16 @@ import {
   owner,
 } from '../testing/platform-dashboard-testing';
 import { PlatformDashboardPage } from './platform-dashboard.page';
+import {
+  OrganizationGateway,
+  UnavailableOrganizationGateway,
+} from '../../organizations/data-access/organization.gateway';
+import {
+  OrganizationCommercialGateway,
+  UnavailableOrganizationCommercialGateway,
+} from '../../organizations/data-access/organization-commercial.gateway';
+import { OrganizationDirectoryFacade } from '../../organizations/application/organization-directory.facade';
+import { organizationActionTestProviders } from '../../organizations/testing/organization-actions-testing';
 
 const withOrganizations = (dashboard: PlatformDashboard): PlatformDashboard => ({
   ...dashboard,
@@ -73,6 +83,15 @@ async function render(actor: Actor, url = '/platforms/school') {
       { provide: PlatformCommercialGateway, useClass: ScriptedCommercial },
       ScopeContext,
       PlatformDashboardFacade,
+      // The page embeds the Organization directory and "Create organization" (PR #89): the route's
+      // Organization providers, with the gateways unavailable as in a build without them.
+      { provide: OrganizationGateway, useClass: UnavailableOrganizationGateway },
+      {
+        provide: OrganizationCommercialGateway,
+        useClass: UnavailableOrganizationCommercialGateway,
+      },
+      OrganizationDirectoryFacade,
+      ...organizationActionTestProviders(false),
     ],
   });
   TestBed.inject(AuthSession).establish(actor);

@@ -152,7 +152,10 @@ describe('PlatformsPage', () => {
 
   it('keeps Create platform focusable but disabled, with its reason, where this build cannot send it', async () => {
     const { page } = await render(owner);
-    const button = page.querySelector<HTMLButtonElement>('.platforms-header__create-button');
+    // Found by its name: PR #89 removed the button's class hooks.
+    const button = [...page.querySelectorAll<HTMLButtonElement>('button')].find(
+      (b) => text(b) === en.companyOverview.create,
+    );
     expect(button?.disabled).toBe(false);
     expect(button?.getAttribute('aria-disabled')).toBe('true');
     const note = page.querySelector(`#${button?.getAttribute('aria-describedby')}`);

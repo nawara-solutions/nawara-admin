@@ -40,6 +40,12 @@ import { OrganizationDetailPage } from '../pages/organization-detail.page';
 import { organizationActionTestProviders } from '../testing/organization-actions-testing';
 import { Blank, DEMO } from '../testing/organizations-testing';
 import { OrganizationDetailFacade } from './organization-detail.facade';
+import { MembershipActionLock } from './membership-action-support';
+import { MembershipDecisionAction } from './membership-decision.action';
+import { MembershipRevokeAction } from './membership-revoke.action';
+import { OrganizationAdminRoleAction } from './organization-admin-role.action';
+import { OrganizationMembersFacade } from './organization-members.facade';
+import { MembershipGateway, UnavailableMembershipGateway } from '../data-access/membership.gateway';
 
 const SCHOOL = DEMO_SCHOOL_PLATFORM_ID;
 const HORIZON = organizationId('3f6d2b10-8c4e-4a71-9b2c-5e0f1a2b3c01');
@@ -92,6 +98,14 @@ async function render(
       EntityLabel,
       OrganizationDetailFacade,
       ...organizationActionTestProviders(true),
+      // The detail page embeds the members page (PR #89): the detail route's members providers, with
+      // the Membership gateway unavailable (the members list is not under test here).
+      { provide: MembershipGateway, useClass: UnavailableMembershipGateway },
+      OrganizationMembersFacade,
+      MembershipActionLock,
+      MembershipDecisionAction,
+      MembershipRevokeAction,
+      OrganizationAdminRoleAction,
     ],
   });
   TestBed.inject(AuthSession).establish(actor);

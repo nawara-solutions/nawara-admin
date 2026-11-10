@@ -48,6 +48,13 @@ async function error(answer: Observable<unknown>): Promise<AppError> {
   throw new Error('expected an error');
 }
 
+// The demo session is restored from sessionStorage (PR #89): every test starts and ends
+// signed out. Only the demo session keys are removed, never other storage.
+const DEMO_SESSION_KEYS = ['nw.demo.actor', 'nw.demo.mockSession'];
+const clearDemoSession = () => DEMO_SESSION_KEYS.forEach((key) => sessionStorage.removeItem(key));
+beforeEach(clearDemoSession);
+afterEach(clearDemoSession);
+
 describe('MockAuthGateway: working code (demo only)', () => {
   it('answers every well-formed request alike, known or not', async () => {
     const mock = gateway();
