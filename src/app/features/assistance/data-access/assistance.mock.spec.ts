@@ -237,8 +237,37 @@ describe('MockAssistanceGateway (A3): the case directory', () => {
   });
 });
 
+describe('MockAssistanceGateway: eligibility is never read from legacy flags (WP-2.3)', () => {
+  it('reads the same cases whatever the demo world’s old assisted-payments flags say', async () => {
+    const { gateway, world } = setUp();
+    const read = async () => {
+      const list = await allPages(gateway, SCHOOL, 200);
+      const detail = await firstValueFrom(gateway.caseDetail(SCHOOL, caseOf(1).request.id));
+      return { list, detail };
+    };
+    const before = await read();
+    // Test-only world change: every legacy flag inverted. No assistance read may move.
+    world.commit((current) => ({
+      ok: true,
+      world: {
+        ...current,
+        platformCommercial: current.platformCommercial.map((p) => ({
+          ...p,
+          assistedPayments: p.assistedPayments === 'enabled' ? 'disabled' : 'enabled',
+        })),
+        organizations: current.organizations.map((o) => ({
+          ...o,
+          assistedPayments: o.assistedPayments === 'inherit' ? 'disabled' : 'inherit',
+        })),
+      },
+      result: null,
+    }));
+    expect(await read()).toEqual(before);
+  });
+});
+
 describe('MockAssistanceGateway (A3): scope isolation and the collapsed not found', () => {
-  it('a Platform scope sees only its Platform; Drive has no assistance (disabled there)', async () => {
+  it('a Platform scope sees only its Platform; Drive has no demo assistance cases', async () => {
     const { gateway } = setUp();
     const school = await firstValueFrom(gateway.cases(SCHOOL, {}, FIRST_ASSISTANCE_PAGE));
     expect(school.items).toHaveLength(OWN.length);

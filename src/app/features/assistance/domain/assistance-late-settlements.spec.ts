@@ -172,7 +172,47 @@ describe('Late settlements (A8): where each stands on the owner’s L-4 decision
       late({ refundCases: [{ id: 'rc', status: 'cancelled' }] }),
       eligible(),
     );
-    expect(result).toEqual({ standing: { kind: 'attested' }, undetermined: ['refund_exists'] });
+    expect(result).toEqual({
+      standing: { kind: 'attested' },
+      undetermined: [
+        'chargeback_recorded',
+        'refund_exists',
+        'payment_dispute_open',
+        'capture_contested',
+        'capture_unverified',
+      ],
+    });
+  });
+
+  it('never claims Core would accept: the Payment-dependent refusals stay Core’s to decide (WP-2.3)', () => {
+    const PAYMENT = ['payment_dispute_open', 'capture_contested', 'capture_unverified'];
+    for (const attestation of ['cash_not_returned', null] as const) {
+      const result = lateStanding(late({ attestation }), eligible());
+      expect(['attested', 'needsBasis']).toContain(result.standing.kind);
+      // A chargeback, Payment's dispute exposure and the capture evidence are not in Admin's records.
+      expect(result.undetermined).toEqual(['chargeback_recorded', ...PAYMENT]);
+    }
+  });
+
+  it('a refusal Core checks after the chargeback may be preceded by it; an earlier one is certain (WP-2.3)', () => {
+    const contradicted = lateStanding(late({ attestation: 'cash_returned' }), eligible());
+    expect(contradicted).toEqual({
+      standing: { kind: 'refused', reason: 'evidence_contradictory' },
+      undetermined: ['chargeback_recorded'],
+    });
+    const refunded = lateStanding(
+      late({ refundCases: [{ id: 'rc', status: 'open' }] }),
+      eligible(),
+    );
+    expect(refunded).toEqual({
+      standing: { kind: 'refused', reason: 'refund_exists' },
+      undetermined: ['chargeback_recorded'],
+    });
+    const settled = lateStanding(late(), { ...eligible(), request: { state: 'settled' } });
+    expect(settled).toEqual({
+      standing: { kind: 'refused', reason: 'purchase_exists' },
+      undetermined: [],
+    });
   });
 
   it('only an open, deadline-origin obligation would be superseded', () => {

@@ -8,6 +8,9 @@ import { AssistanceRestriction, AssistanceRestrictionRow } from './assistance.mo
  * - ONE model, `billing_assistance_restrictions(organization, at)`, read at the database's current clock (`0032:1-21`, replaced by
  *   `0039:425-440`): T1 a request still `cash_collected` past its `settleBy`; T2 a cash-return obligation still `open` or
  *   `return_reported`; T3 an open recovery obligation;
+ * - at `8d89bed` (S0-C14, development only; `0050:186`), an open obligation whose T3 the owner suspended yields no T3 row: BIL-26
+ *   lists it under `suspended` (never a restriction, never a sign the debt ended; `assistance-restriction.service.ts`). Admin's
+ *   read model does not carry `suspended`, and the demo records hold no suspension (WP-2.3, reported gap);
  * - each blocks NEW assistance requests of the Organization only: no discharge, read or collection path checks them (`0032:14-17`;
  *   BIL-26 description, `assistance.controller.ts:474`);
  * - each lasts exactly while its source qualifies: there is no timer, no repeat-violation state and no other clearance (FC-9);

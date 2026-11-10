@@ -2694,7 +2694,7 @@
     "state": {
       "pending": "قيد الانتظار",
       "declined": "مرفوض",
-      "cashCollected": "تم تحصيل النقد",
+      "cashCollected": "أُبلغ عن تحصيل النقد",
       "settled": "تمت التسوية",
       "returned": "تمت إعادة النقد"
     },
@@ -3004,7 +3004,7 @@
       "clears": {
         "settledOrReturned": "يُرفع عند تسوية الطلب أو إعادة نقده.",
         "returnConfirmedOrSuperseded": "يُرفع عند تأكيد المستفيد للإعادة، أو عندما تحلّ محلّها تسوية متأخرة مطبّقة.",
-        "principalRecovered": "يُرفع عندما تبلغ الاستردادات المُتحقَّق منها السعر."
+        "principalRecovered": "يُرفع عندما تبلغ الاستردادات المُتحقَّق منها السعر. في بيئة التطوير فقط، تتيح Nawara Core للمالك أيضًا تعليقه لدين واحد في حالة تداخل بين استرداد ونزاع على الدفعة؛ ويبقى الدين مستحقًا. لا يتيح Admin أي تعليق."
       }
     },
     "exception": {
@@ -3084,7 +3084,11 @@
         "evidenceInsufficient": "الأساس غير كافٍ.",
         "evidenceContradictory": "أفاد المستفيد بأن النقد أُعيد.",
         "settlementTimeUnavailable": "لا يستطيع Nawara Core تحديد وقت التسوية الأصلي.",
-        "alreadyApplied": "سبق تطبيقه."
+        "alreadyApplied": "سبق تطبيقه.",
+        "chargebackRecorded": "سُجِّل استرجاع مبلغ (chargeback) لهذه الدفعة.",
+        "paymentDisputeOpen": "تفيد Payment بوجود نزاع مفتوح على الدفعة.",
+        "captureContested": "تفيد Payment بأن التحصيل الذي يستند إليه هذا محل نزاع.",
+        "captureUnverified": "لا تستطيع Payment التحقق من التحصيل الذي يستند إليه هذا."
       },
       "undetermined": "يقرّر Nawara Core ما إذا كان هذا يرفضه أيضًا: {{reason}}",
       "wouldSupersede": "سيحلّ التطبيق محلّ إعادة النقد المستحقة على المؤسسة لهذا الطلب.",

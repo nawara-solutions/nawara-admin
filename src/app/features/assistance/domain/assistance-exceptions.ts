@@ -14,7 +14,8 @@ import { AssistanceInformationSource, AssistanceRestriction } from './assistance
  * - `openDispute`: the beneficiary disputes the cash evidence;
  * - `cashReturn`: a cash return is owed: open, or reported and not yet confirmed (the source of T2);
  * - `lateSettlementReview`: a verified success arrived after finality and awaits the owner's L-4 decision;
- * - `recoveryRestriction`: a recovery obligation is open (the source of T3).
+ * - `recoveryRestriction`: a recovery obligation is open (the source of T3, unless the owner suspended T3 for it: S0-C14 at
+ *   `8d89bed`, development only; the demo records hold no suspension, so an open obligation is shown as T3's source).
  */
 export const ASSISTANCE_EXCEPTIONS = [
   'collectionReportedNotSettled',

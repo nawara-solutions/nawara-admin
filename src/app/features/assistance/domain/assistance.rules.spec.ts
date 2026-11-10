@@ -52,15 +52,17 @@ const COLLECTION: CashCollectionReport = {
   settleBy: '2026-10-23T09:00:00.000Z',
 };
 const CONSENT = '2026-10-20T08:00:00.000Z';
-const both = { purchaseExists: true, cashReturnConfirmed: true };
+const both = { purchaseExists: true, cashReturnConfirmed: true, refundReturnConfirmed: true };
 const reasonOf = (verdict: Verdict) => (verdict.allowed ? null : verdict.reason);
 
-describe('assistance request lifecycle (Core 0031:36-75)', () => {
+describe('assistance request lifecycle (Core 0036:114-175, unchanged at 8d89bed)', () => {
   const allowed: [AssistanceRequestState, AssistanceRequestState][] = [
     ['pending', 'declined'],
     ['pending', 'cash_collected'],
     ['cash_collected', 'settled'],
     ['cash_collected', 'returned'],
+    // S6d R6D-2: a settled request whose purchase a completed refund reversed (WP-2.3).
+    ['settled', 'returned'],
   ];
   const pairs = ASSISTANCE_REQUEST_STATES.flatMap((from) =>
     ASSISTANCE_REQUEST_STATES.map(
@@ -89,12 +91,27 @@ describe('assistance request lifecycle (Core 0031:36-75)', () => {
     );
   });
 
-  it('treats declined, settled and returned as final', () => {
-    expect(ASSISTANCE_REQUEST_STATES.filter(isFinalRequestState)).toEqual([
-      'declined',
-      'settled',
-      'returned',
-    ]);
+  it('returns a settled request only by the confirmation of its refund-origin cash return (WP-2.3)', () => {
+    // Another confirmed return (deadline origin) is not enough; absent evidence fails closed.
+    const deadlineOnly = { purchaseExists: true, cashReturnConfirmed: true };
+    expect(reasonOf(requestTransition('settled', 'returned', deadlineOnly))).toBe(
+      'assistance_request_returned_by_confirmation',
+    );
+    expect(
+      reasonOf(
+        requestTransition('settled', 'returned', { ...deadlineOnly, refundReturnConfirmed: false }),
+      ),
+    ).toBe('assistance_request_returned_by_confirmation');
+    expect(requestTransition('settled', 'returned', both)).toEqual({ allowed: true });
+    // Settled never goes anywhere else.
+    for (const to of ['pending', 'declined', 'cash_collected', 'settled'] as const)
+      expect(reasonOf(requestTransition('settled', to, both))).toBe(
+        'assistance_request_not_pending',
+      );
+  });
+
+  it('treats declined and returned as final; settled is not (a refund can return it)', () => {
+    expect(ASSISTANCE_REQUEST_STATES.filter(isFinalRequestState)).toEqual(['declined', 'returned']);
     expect(Object.keys(REQUEST_TRANSITIONS).sort()).toEqual([...ASSISTANCE_REQUEST_STATES].sort());
   });
 });
@@ -429,7 +446,24 @@ describe('disputes and owner corrections (Core 0031:76-200)', () => {
 
 describe('late settlement, recovery and surplus', () => {
   it("records Billing's closed L-4 refusals and never applies a late settlement by itself", () => {
-    expect(LATE_SETTLEMENT_REFUSALS).toHaveLength(11);
+    // nawara-core 8d89bed late-settlement.service.ts:31-40, verbatim and in order (WP-2.3).
+    expect(LATE_SETTLEMENT_REFUSALS).toEqual([
+      'purchase_exists',
+      'cash_return_confirmed',
+      'cash_return_reported',
+      'request_not_settleable',
+      'dispute_open',
+      'settlement_in_progress',
+      'refund_exists',
+      'evidence_insufficient',
+      'evidence_contradictory',
+      'settlement_time_unavailable',
+      'already_applied',
+      'chargeback_recorded',
+      'payment_dispute_open',
+      'capture_contested',
+      'capture_unverified',
+    ]);
     const recorded: LateSettlement = {
       id: 'ls-1',
       assistanceRequestId: 'req-1',
