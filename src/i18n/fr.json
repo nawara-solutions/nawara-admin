@@ -2694,7 +2694,7 @@
     "state": {
       "pending": "En attente",
       "declined": "Refusée",
-      "cashCollected": "Espèces collectées",
+      "cashCollected": "Collecte d’espèces déclarée",
       "settled": "Réglée",
       "returned": "Espèces restituées"
     },
@@ -3004,7 +3004,7 @@
       "clears": {
         "settledOrReturned": "Levée quand la demande est réglée ou ses espèces restituées.",
         "returnConfirmedOrSuperseded": "Levée quand le bénéficiaire confirme la restitution, ou qu’un règlement tardif appliqué la remplace.",
-        "principalRecovered": "Levée quand les recouvrements vérifiés atteignent le prix."
+        "principalRecovered": "Levée quand les recouvrements vérifiés atteignent le prix. En développement uniquement, Nawara Core permet aussi au propriétaire de la suspendre pour une créance prise dans un chevauchement entre remboursement et contestation bancaire ; la dette reste due. Admin ne propose aucune suspension."
       }
     },
     "exception": {
@@ -3084,7 +3084,11 @@
         "evidenceInsufficient": "le fondement est insuffisant.",
         "evidenceContradictory": "le bénéficiaire a attesté que les espèces ont été restituées.",
         "settlementTimeUnavailable": "Nawara Core ne peut pas indiquer l’heure de règlement d’origine.",
-        "alreadyApplied": "il a déjà été appliqué."
+        "alreadyApplied": "il a déjà été appliqué.",
+        "chargebackRecorded": "une contestation bancaire (chargeback) du paiement est enregistrée.",
+        "paymentDisputeOpen": "Payment indique un litige ouvert sur le paiement.",
+        "captureContested": "Payment indique que la capture sur laquelle cela repose est contestée.",
+        "captureUnverified": "Payment ne peut pas vérifier la capture sur laquelle cela repose."
       },
       "undetermined": "Nawara Core décide si ceci le refuse aussi : {{reason}}",
       "wouldSupersede": "Une application remplacerait la restitution d’espèces que l’organisation doit pour cette demande.",

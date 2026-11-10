@@ -9,7 +9,8 @@ import {
 
 /**
  * Late assisted settlements and cash returns (Assistance A8): where a late settlement stands on the owner's L-4 decision, its
- * decision history, and what a cash return awaits. A pure reading of Core's records at nawara-core `0044b20` (billing-service
+ * decision history, and what a cash return awaits. A pure reading of Core's records at nawara-core `0044b20`, with the L-4
+ * refusals re-verified at `8d89bed` (WP-2.3) (billing-service
  * `src/late-settlements/late-settlement.service.ts`, `db/migrations/0040_late_settlement_application.sql`, `src/assistance/`);
  * business references: docs/design/assistance-a8-late-settlements.md.
  *
@@ -19,7 +20,7 @@ import {
 
 /**
  * Where a late settlement stands on the owner's L-4 decision, read in Core's own refusal order (`precheck`,
- * `late-settlement.service.ts:243-272`; the database re-checks every one):
+ * `late-settlement.service.ts:257-284` at `8d89bed`; the database re-checks every one):
  * - `applied`: the owner applied it, on the basis `reasonCode` (a decision);
  * - `refused`: Core would refuse an application now, for `reason` (one of its closed refusals);
  * - `attested`: no refusal Admin can see, and the beneficiary attested `cash_not_returned` (Path A's basis exists);
@@ -44,11 +45,22 @@ export type LateStandingCase = Pick<
 export interface LateStandingResult {
   readonly standing: LateStanding;
   /**
-   * Refusals Admin cannot decide from what it reads: a CANCELLED refund case refuses (`refund_exists`) only when its authorization
-   * was relayed, which Core checks and Admin does not see. Shown as "Nawara Core decides", never guessed.
+   * Refusals Admin cannot decide from what it reads, shown as "Nawara Core decides", never guessed:
+   * - `refund_exists` for a CANCELLED refund case: it refuses only when its authorization was relayed, which Admin does not see;
+   * - `chargeback_recorded`: a verified chargeback of the payment (Billing's `payment_dispute_loss`), checked after the channel;
+   * - `payment_dispute_open`, `capture_contested`, `capture_unverified`: Payment's dispute exposure and capture evidence, read
+   *   after every other check (`late-settlement.service.ts:323`, `:399`, `:433-457` at `8d89bed`).
+   * None is in the demo records, so a standing that is not `applied` or `refused` never means Core would accept an application.
    */
   readonly undetermined: readonly LateSettlementRefusal[];
 }
+
+/** Read from Payment after every other check (`8d89bed`): never in Admin's records. */
+const PAYMENT_EVIDENCE_REFUSALS: readonly LateSettlementRefusal[] = [
+  'payment_dispute_open',
+  'capture_contested',
+  'capture_unverified',
+];
 
 export function lateStanding(
   late: Pick<
@@ -57,7 +69,10 @@ export function lateStanding(
   >,
   kase: LateStandingCase,
 ): LateStandingResult {
-  const result = (standing: LateStanding, undetermined: LateSettlementRefusal[] = []) => ({
+  const result = (
+    standing: LateStanding,
+    undetermined: readonly LateSettlementRefusal[] = [],
+  ): LateStandingResult => ({
     standing,
     undetermined,
   });
@@ -76,14 +91,23 @@ export function lateStanding(
   // A late success is recorded on a channel that is final; a channel still open or uncertain is another settlement in progress.
   if (kase.channel?.state === 'open' || kase.channel?.state === 'uncertain')
     return refused('settlement_in_progress');
-  if (late.refundCases.some((r) => r.status !== 'cancelled')) return refused('refund_exists');
-  const undetermined: LateSettlementRefusal[] =
-    late.refundCases.length > 0 ? ['refund_exists'] : [];
-  if (late.attestation === 'cash_returned') return refused('evidence_contradictory');
-  if (late.settledAt === null) return refused('settlement_time_unavailable');
+  // From here on, Core checks a recorded chargeback first, which Admin cannot see: any later refusal may be preceded by it.
+  const beforeRefund: LateSettlementRefusal[] = ['chargeback_recorded'];
+  const refusedAfterChargeback = (reason: LateSettlementRefusal) =>
+    result({ kind: 'refused', reason }, beforeRefund);
+  if (late.refundCases.some((r) => r.status !== 'cancelled'))
+    return refusedAfterChargeback('refund_exists');
+  const undetermined: LateSettlementRefusal[] = [
+    ...beforeRefund,
+    ...(late.refundCases.length > 0 ? (['refund_exists'] as const) : []),
+  ];
+  if (late.attestation === 'cash_returned')
+    return result({ kind: 'refused', reason: 'evidence_contradictory' }, undetermined);
+  if (late.settledAt === null)
+    return result({ kind: 'refused', reason: 'settlement_time_unavailable' }, undetermined);
   return result(
     late.attestation === 'cash_not_returned' ? { kind: 'attested' } : { kind: 'needsBasis' },
-    undetermined,
+    [...undetermined, ...PAYMENT_EVIDENCE_REFUSALS],
   );
 }
 

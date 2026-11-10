@@ -92,7 +92,12 @@ export type LateApplicationReason = (typeof LATE_APPLICATION_REASONS)[number];
 /** The beneficiary's attestation (`0040:79`). */
 export type LateSettlementAttestation = 'cash_not_returned' | 'cash_returned';
 
-/** Billing's closed refusals of an L-4 application (`src/late-settlements/late-settlement.service.ts:28-31`). */
+/**
+ * Billing's closed refusals of an L-4 application, in Core's order (nawara-core `8d89bed`,
+ * `src/late-settlements/late-settlement.service.ts:31-40`; the first eleven unchanged since `0044b20`). The last four (WP-2.3) depend
+ * on Payment facts Admin does not hold: a recorded chargeback (S0-C8 LS-7), Payment's open dispute or exposure (S0-C9 CB-3), and the
+ * capture evidence (S0-C11 BIL-32 I).
+ */
 export const LATE_SETTLEMENT_REFUSALS = [
   'purchase_exists',
   'cash_return_confirmed',
@@ -105,6 +110,10 @@ export const LATE_SETTLEMENT_REFUSALS = [
   'evidence_contradictory',
   'settlement_time_unavailable',
   'already_applied',
+  'chargeback_recorded',
+  'payment_dispute_open',
+  'capture_contested',
+  'capture_unverified',
 ] as const;
 export type LateSettlementRefusal = (typeof LATE_SETTLEMENT_REFUSALS)[number];
 

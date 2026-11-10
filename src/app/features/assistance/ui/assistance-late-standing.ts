@@ -41,6 +41,10 @@ export const REFUSAL_KEYS = {
   evidence_contradictory: 'assistanceCases.late.refusal.evidenceContradictory',
   settlement_time_unavailable: 'assistanceCases.late.refusal.settlementTimeUnavailable',
   already_applied: 'assistanceCases.late.refusal.alreadyApplied',
+  chargeback_recorded: 'assistanceCases.late.refusal.chargebackRecorded',
+  payment_dispute_open: 'assistanceCases.late.refusal.paymentDisputeOpen',
+  capture_contested: 'assistanceCases.late.refusal.captureContested',
+  capture_unverified: 'assistanceCases.late.refusal.captureUnverified',
 } as const satisfies Record<LateSettlementRefusal, string>;
 
 const HISTORY_KEYS = {

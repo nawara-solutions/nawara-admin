@@ -691,10 +691,24 @@ describe('Assistance case late settlements and cash returns (A8)', { timeout: 60
     expect(late.querySelector('[data-decision="pending"]')).not.toBeNull();
     expect(late.querySelector('[data-would-supersede]')).not.toBeNull();
     expect(text(late.querySelector('[data-receipt]'))).toContain('late_settlement_apply');
+    // WP-2.3: the Payment-dependent refusals Admin cannot see are left to Core, never read as acceptance.
+    const undetermined = () =>
+      [...late.querySelectorAll<HTMLElement>('[data-undetermined]')].map(
+        (p) => p.dataset['undetermined'],
+      );
+    expect(undetermined()).toEqual([
+      'chargeback_recorded',
+      'payment_dispute_open',
+      'capture_contested',
+      'capture_unverified',
+    ]);
+    expect(text(late)).toContain(l.refusal.captureUnverified);
     TestBed.resetTestingModule();
     r = await render(caseOf(8).request.id);
     late = section(r.element, 'late')!;
     expect(late.querySelector('[data-refusal]')?.getAttribute('data-refusal')).toBe('dispute_open');
+    // Refused before Core reads any Payment fact: nothing left undetermined.
+    expect(undetermined()).toEqual([]);
     expect(text(late)).toContain(c.late.attestation.cashNotReturned);
     TestBed.resetTestingModule();
     r = await render(caseOf(12).request.id);

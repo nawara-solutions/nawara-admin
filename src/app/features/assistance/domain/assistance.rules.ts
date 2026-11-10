@@ -54,16 +54,21 @@ export const CORE_CONSTRAINTS: ReadonlySet<string> = new Set([
 const allow: Verdict = { allowed: true };
 const refuse = (reason: string): Verdict => ({ allowed: false, reason });
 
-// ── Assistance request lifecycle (0031_assistance_resolution.sql:36-75) ──────────────────────────────────────────────
+// ── Assistance request lifecycle (0031_assistance_resolution.sql:36-75; replaced by 0036_refund_commercial_effects.sql:114-175) ─
 
-/** The request transitions Core allows: pending → declined | cash_collected; cash_collected → settled | returned. */
+/**
+ * The request transitions Core allows (`billing_assistance_request_transition_guard`, last replaced by `0036:114-175`, unchanged at
+ * nawara-core `8d89bed`): pending → declined | cash_collected; cash_collected → settled | returned; and settled → returned, when a
+ * completed refund reversed the purchase and the beneficiary confirmed its refund-origin cash return (S6d R6D-2, WP-2.3). None is an
+ * Admin action. `cash_collected` is the Organization's REPORT of a physical collection, never a verified payment.
+ */
 export const REQUEST_TRANSITIONS: Readonly<
   Record<AssistanceRequestState, readonly AssistanceRequestState[]>
 > = {
   pending: ['declined', 'cash_collected'],
   cash_collected: ['settled', 'returned'],
   declined: [],
-  settled: [],
+  settled: ['returned'],
   returned: [],
 };
 
@@ -73,6 +78,11 @@ export interface RequestTransitionEvidence {
   readonly purchaseExists: boolean;
   /** Its cash-return obligation is `confirmed_returned`: only the beneficiary's confirmation returns it (J-6). */
   readonly cashReturnConfirmed: boolean;
+  /**
+   * For a SETTLED request: its `refund_completion`-origin cash-return obligation is `confirmed_returned` (`0036:119-122`). Any other
+   * confirmed return does not return a settled request. Absent: not confirmed (fails closed).
+   */
+  readonly refundReturnConfirmed?: boolean;
 }
 
 export function requestTransition(
@@ -81,6 +91,10 @@ export function requestTransition(
   evidence: RequestTransitionEvidence,
 ): Verdict {
   if (!REQUEST_TRANSITIONS[from].includes(to)) return refuse('assistance_request_not_pending');
+  if (from === 'settled')
+    return evidence.refundReturnConfirmed === true
+      ? allow
+      : refuse('assistance_request_returned_by_confirmation');
   if (to === 'settled' && !evidence.purchaseExists)
     return refuse('assistance_request_settled_by_purchase');
   if (to === 'returned' && !evidence.cashReturnConfirmed)

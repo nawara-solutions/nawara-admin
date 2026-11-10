@@ -195,7 +195,12 @@ export function oversightInputOfCase(
   };
 }
 
-/** How a restriction clears, per Core's `billing_assistance_restrictions` (`0039_recovery.sql:425-440`). */
+/**
+ * How a restriction clears, per Core's `billing_assistance_restrictions` (`0039_recovery.sql:425-440`; replaced at nawara-core
+ * `8d89bed` by `0050_s0c14_refund_chargeback_overlap.sql:186`). T3 also stops applying while the owner has suspended it for one
+ * obligation in a refund and chargeback overlap (S0-C14, development and simulation only; the debt stays owed): the
+ * `principalRecovered` copy says so. Admin offers no suspension, and its demo records hold none.
+ */
 export const RESTRICTION_CLEARS = {
   T1: 'settledOrReturned',
   T2: 'returnConfirmedOrSuperseded',

@@ -153,7 +153,9 @@ export function recoveryHistory(o: RecoveryObligationDetail): readonly RecoveryH
 
 /**
  * The actions on recovery and surplus, who Core lets take them, and none of them in Admin (A9 is read only):
- * - the Organization's administrator starts a settlement (BIL-29) and confirms an external surplus repayment (BIL-31);
+ * - the Organization's administrator starts a settlement (BIL-29), refused while a refund and chargeback overlap freezes the
+ *   obligation's collection (`409 recovery_collection_frozen`, S0-C14 at `8d89bed`), and confirms an external surplus repayment
+ *   (BIL-31);
  * - the owner records an external surplus repayment (BIL-30, T3 receipt `recovery_surplus_external` + File evidence: CF-71),
  *   refunds an entirely-surplus payment (Path A, T3 receipt `refund`), or writes the obligation off (BIL-34, T3 receipt
  *   `recovery_write_off`: accounting only, the obligation and T3 stay).
