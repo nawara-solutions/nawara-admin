@@ -2605,7 +2605,7 @@
       "entitled": "Entitled now",
       "noMatch": "No follow-up matches this filter.",
       "clear": "Show all follow-ups",
-      "separate": "A payment issue is not a charge or a balance, and it never changes a subscription: an Organization can have a failed payment and still be actively subscribed and entitled."
+      "separate": "A payment issue is not a charge or a balance, and it never changes a subscription: an Organization can have a failed payment request and still be actively subscribed and entitled."
     },
     "kind": {
       "failed": "Failed",
@@ -2623,8 +2623,8 @@
     },
     "meaning": {
       "title": "What these issues mean",
-      "failed": "A payment attempt for this Organization failed. Its amount, reason and date are not available here.",
-      "awaitingAction": "A payment for this Organization awaits action by its payer. Nothing has been collected or settled."
+      "failed": "A payment request for this Organization is marked as failed. This does not show whether any money was collected; its amount, reason, date and outcome are not available here.",
+      "awaitingAction": "A payment request for this Organization is marked as awaiting action. This does not show whether any money was collected or settled."
     },
     "unavailable": {
       "title": "Not available yet",
@@ -2639,7 +2639,7 @@
     "states": {
       "loading": "Loading payment follow-ups…",
       "emptyTitle": "No payment follow-ups",
-      "emptyDescription": "No payment of your Organizations failed or awaits action.",
+      "emptyDescription": "No payment request of your Organizations is marked as failed or awaiting action.",
       "notInBuildTitle": "Not available in this build",
       "notInBuildDescription": "Nawara Core’s Payment and Billing services do not offer an owner read yet, so there is nothing to show.",
       "errorTitle": "Payment follow-ups could not be loaded",

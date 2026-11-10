@@ -3,7 +3,9 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { vi } from 'vitest';
+import ar from '../../../../i18n/ar.json';
 import en from '../../../../i18n/en.json';
+import fr from '../../../../i18n/fr.json';
 import { Actor } from '../../../core/auth/actor';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { DemoAuthState } from '../../../core/auth/auth.mock-state';
@@ -195,6 +197,32 @@ describe('Billing & payments page (P7-S3)', { timeout: 15_000 }, () => {
     expect(element.querySelectorAll('select')).toHaveLength(1);
     const table = text(element.querySelector('table'));
     expect(table).not.toMatch(/[€$£]|\bTND\b|\bDZD\b|\d[.,]\d{2}\b|invoice|INV-|payment-issue-/i);
+  });
+
+  it('claims neither collection nor non-collection for a follow-up (A31-02 / X10, WP-1.2)', async () => {
+    const { element } = await render();
+    const meaning = [...element.querySelectorAll('.billing__meaning dt, .billing__meaning dd')].map(
+      (e) => text(e),
+    );
+    expect(meaning).toEqual([
+      t.kind.failed,
+      t.meaning.failed,
+      t.kind.awaitingAction,
+      t.meaning.awaitingAction,
+    ]);
+    // A follow-up is a payment request's marking, never a settlement result.
+    expect(t.meaning.failed).toContain('payment request');
+    expect(t.meaning.failed).toContain('does not show whether any money was collected');
+    expect(t.meaning.awaitingAction).toContain('does not show whether any money was collected');
+    const page = text(element);
+    expect(page).not.toMatch(/nothing has been collected|no money was collected|not collected/i);
+    // The same claims are gone from every locale's Billing copy.
+    for (const [lang, copy, claim] of [
+      ['en', en.billing, /nothing has been collected|no money was collected/i],
+      ['fr', fr.billing, /rien n’a été encaissé|aucun argent n’a été encaissé/i],
+      ['ar', ar.billing, /لم يُحصَّل أو يُسوَّ أي شيء/],
+    ] as const)
+      expect(JSON.stringify(copy), lang).not.toMatch(claim);
   });
 
   it('never asks an operator’s gateway, whatever their Platform assignments', async () => {

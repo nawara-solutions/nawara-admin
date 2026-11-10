@@ -5,13 +5,17 @@ import { OrganizationId, PlatformRef } from '../../../core/context/scope.model';
  * settlement; Billing owns invoices and subscriptions (docs/CORE-INTEGRATION.md §5).
  *
  * Core status 🟡: payment facts are readable only by their payer before Core V2 A11 (proposed CF-40). PROVISIONAL
- * frontend model, served only by a mock in demo builds. A follow-up says only THAT an Organization has a payment that
- * failed or awaits action: no amount, currency, invoice, provider reference, method, date, balance or settlement is
- * known, and none is shown. It never changes, or follows from, the Organization's subscription or entitlement, which
- * are listed beside it as separate facts.
+ * frontend model, served only by a mock in demo builds. A follow-up says only THAT an Organization has a payment request
+ * marked as failed or awaiting action: no amount, currency, invoice, provider reference, method, date, balance or
+ * settlement is known, and none is shown. It never changes, or follows from, the Organization's subscription or
+ * entitlement, which are listed beside it as separate facts.
  */
 
-/** A frontend view value, not a Core enum. */
+/**
+ * A frontend view value, not a Core enum: how the follow-up is classified, NOT a payment or settlement result. Neither
+ * value establishes whether money was captured, collected, settled or reversed (a request marked failed may still have
+ * a late provider success), so the copy never claims collection or non-collection (A31-02 / X10, WP-1.2).
+ */
 export type PaymentIssueKind = 'failed' | 'awaiting_action';
 
 export type FollowUpSubscriptionState = 'active' | 'grace' | 'none';
