@@ -9,6 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { SecurityGuidance } from '../components/security-guidance/security-guidance';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { can } from '../../../core/access/capability-policy';
 import { AuthSession } from '../../../core/auth/auth-session';
@@ -30,7 +31,7 @@ import { NwDialogService } from '../../../shared/ui/dialog/dialog.service';
 import { SecurityFactor } from '../data-access/account-security.gateway';
 
 const FACTOR_TYPES = {
-  totp: { icon: 'key-round', labelKey: 'settings.security.factors.totp' },
+  totp: { icon: 'smartphone', labelKey: 'settings.security.factors.totp' },
   webauthn: { icon: 'fingerprint', labelKey: 'settings.security.factors.webauthn' },
 } as const satisfies Record<SecurityFactor['type'], { icon: NwIconName; labelKey: string }>;
 
@@ -49,6 +50,7 @@ const FACTOR_TYPES = {
   selector: 'adm-account-security-page',
   imports: [
     RouterLink,
+    SecurityGuidance,
     TranslocoPipe,
     NwButton,
     NwDataState,
@@ -69,6 +71,17 @@ export class AccountSecurityPage {
   private readonly session = inject(AuthSession);
   protected readonly isDemo = this.session.isDemo;
   protected readonly types = FACTOR_TYPES;
+  protected readonly confirmedTypes = computed(() => {
+    const view = this.facade.view();
+    return view.status === 'ready'
+      ? [
+          ...new Set(
+            view.factors.filter((factor) => factor.confirmed).map((factor) => factor.type),
+          ),
+        ].map((type) => FACTOR_TYPES[type])
+      : [];
+  });
+
   protected readonly canAdd = computed(() => can(this.session.actor(), 'account.factor.add'));
   protected readonly canCreateKey = computed(() =>
     can(this.session.actor(), 'account.secret_key.rotate'),
@@ -79,6 +92,11 @@ export class AccountSecurityPage {
   );
   protected readonly removal = inject(RemoveFactorFacade);
   protected readonly removalBlocks = REMOVAL_BLOCKS;
+  protected readonly protectionTitles = {
+    lastFactor: 'settings.security.overview.keepLastFactor',
+    noAuthenticator: 'settings.security.overview.authenticatorNeeded',
+    lastAuthenticator: 'settings.security.overview.keepAuthenticator',
+  } as const;
   private readonly dialogs = inject(NwDialogService);
   private readonly injector = inject(Injector);
   private readonly removalOutcome = viewChild('removalOutcome', { read: ElementRef<HTMLElement> });

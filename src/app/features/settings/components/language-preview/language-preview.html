@@ -1,0 +1,75 @@
+<section class="language-preview" aria-labelledby="language-preview-heading">
+  @for (previewLocale of [locale()]; track previewLocale) {
+    <div class="language-preview__app" [attr.lang]="locale()" [attr.dir]="direction()">
+      <div class="language-preview__topbar">
+        <nw-brand-mark wordmark symbolFirst label="Nawara Admin" />
+        <span class="language-preview__live-label" id="language-preview-heading">
+          <span aria-hidden="true"></span>{{ 'settings.language.preview' | transloco }}
+        </span>
+      </div>
+      <aside class="language-preview__sidebar">
+        @for (item of navigation; track item.key) {
+          <span [class.language-preview__active]="$first"
+            ><nw-icon [name]="item.icon" size="sm" />{{
+              item.key | transloco: {} : previewLocale + '|static'
+            }}</span
+          >
+        }
+      </aside>
+      <div class="language-preview__main">
+        <div class="language-preview__overview">
+          <div>
+            <h3>
+              {{ 'settings.language.sample.overview' | transloco: {} : previewLocale + '|static' }}
+            </h3>
+            <p>
+              {{
+                'settings.language.sample.updated'
+                  | transloco: { date: date() } : previewLocale + '|static'
+              }}
+            </p>
+          </div>
+          <span class="language-preview__new"
+            ><nw-icon name="plus" size="sm" />{{
+              'settings.language.sample.newOrganization' | transloco: {} : previewLocale + '|static'
+            }}</span
+          >
+        </div>
+        <div class="language-preview__metrics">
+          @for (metric of metrics; track metric) {
+            <div>
+              <nw-icon name="user-round" size="sm" /><i></i
+              ><span>{{ metric | transloco: {} : previewLocale + '|static' }}</span>
+            </div>
+          }
+        </div>
+        <div class="language-preview__members">
+          <div class="language-preview__table-heading">
+            <strong>{{
+              'settings.language.sample.recentMembers' | transloco: {} : previewLocale + '|static'
+            }}</strong
+            ><span>{{
+              'settings.language.sample.viewAll' | transloco: {} : previewLocale + '|static'
+            }}</span>
+          </div>
+          @for (row of [0, 1, 2, 3, 4, 5]; track row) {
+            <div class="language-preview__row">
+              <span class="language-preview__person"></span
+              ><i [style.inline-size]="(row === 1 ? 30 : 36) + '%'"></i
+              ><span
+                class="language-preview__state"
+                [class.language-preview__state--invited]="row === 1"
+                >{{
+                  (row === 1
+                    ? 'settings.language.sample.invited'
+                    : 'settings.language.sample.active'
+                  ) | transloco: {} : previewLocale + '|static'
+                }}</span
+              >
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</section>

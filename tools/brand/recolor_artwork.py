@@ -225,7 +225,7 @@ def write_floral_r_symbols(palettes):
 
 # Appended to the favicon URLs ThemeService applies (B1 finishing pass): the files keep stable names, so a version
 # makes browsers fetch the corrected icons instead of a cached earlier treatment. Bump it when the icons change.
-FAVICON_VERSION = '?v=b1'
+FAVICON_VERSION = '?v=b11'
 
 
 def favicon_file(palette: str, theme: str = 'dark') -> str:

@@ -23,12 +23,16 @@ import { NW_DIALOG_TITLE_ID } from './dialog.service';
   templateUrl: './dialog.html',
   styleUrl: './dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'nw-dialog', '[class.nw-dialog--wide]': "size() === 'wide'" },
+  host: {
+    class: 'nw-dialog',
+    '[class.nw-dialog--wide]': "size() === 'wide'",
+    '[class.nw-dialog--side]': "size() === 'side'",
+  },
 })
 export class NwDialog {
   readonly title = input.required<string>();
   readonly closeLabel = input.required<string>();
-  readonly size = input<'default' | 'wide'>('default');
+  readonly size = input<'default' | 'wide' | 'side'>('default');
   readonly busy = input(false);
   readonly guarded = input(false);
   /** A guarded dialog was asked to close (Escape, the backdrop or the close button). */

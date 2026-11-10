@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { AppEnvironment, adapterProviders } from '../../core/config/app-environment';
-import { createPlatformProviders } from '../platforms/create-platform.providers';
 import { CompanyOverviewFacade } from './application/company-overview.facade';
 import {
   CommercialSummaryGateway,
@@ -20,7 +19,7 @@ import {
  * (docs/ARCHITECTURE.md §3): mock adapters in a demo build, `unavailable` adapters otherwise.
  */
 export async function loadCompanyOverviewRoutes(environment: AppEnvironment): Promise<Routes> {
-  const [overview, commercial, health, createPlatform] = await Promise.all([
+  const [overview, commercial, health] = await Promise.all([
     adapterProviders(environment, 'companyOverview', [
       { provide: CompanyOverviewGateway, useClass: UnavailableCompanyOverviewGateway },
     ]),
@@ -30,12 +29,11 @@ export async function loadCompanyOverviewRoutes(environment: AppEnvironment): Pr
     adapterProviders(environment, 'services', [
       { provide: ServiceInventoryGateway, useClass: UnavailableServiceInventoryGateway },
     ]),
-    createPlatformProviders(environment),
   ]);
   return [
     {
       path: '',
-      providers: [...overview, ...commercial, ...health, ...createPlatform, CompanyOverviewFacade],
+      providers: [...overview, ...commercial, ...health, CompanyOverviewFacade],
       loadComponent: () =>
         import('./pages/company-overview.page').then((m) => m.CompanyOverviewPage),
     },

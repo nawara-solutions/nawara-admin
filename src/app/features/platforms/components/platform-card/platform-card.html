@@ -1,16 +1,6 @@
 <div class="platform-card__identity">
   <span class="platform-card__tile" aria-hidden="true">
-    @if (entry().platform.product === 'drive') {
-      <nw-icon name="car" size="lg" />
-    } @else {
-      <img
-        class="platform-card__mark"
-        src="brand/nawara-bloom-coral.svg"
-        alt=""
-        width="480"
-        height="580"
-      />
-    }
+    <nw-product-symbol [product]="entry().platform.product" />
   </span>
   <div class="platform-card__names">
     <h3 class="platform-card__name">

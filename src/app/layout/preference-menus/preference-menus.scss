@@ -10,24 +10,34 @@
 .preference-menus__trigger {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  block-size: 2.25rem;
-  padding-inline: var(--nw-space-2);
-  border: 0;
+  gap: var(--nw-space-1);
+  block-size: 2.5rem;
+  padding-inline: var(--nw-space-1);
+  border: 1px solid var(--nw-border-subtle);
   border-radius: var(--nw-radius-md);
-  background: transparent;
+  background-color: var(--nw-surface-raised);
   color: var(--nw-text-primary);
-  font-size: calc(0.8125rem * var(--nw-admin-text-scale, 1));
+  font-size: 0.8125rem;
   cursor: pointer;
 
   &:hover,
   &[aria-expanded='true'] {
-    background-color: var(--nw-color-neutral-hover);
+    border-color: var(--nw-border-default);
+    background-color: var(--nw-surface-sunken);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--nw-focus-ring);
+    outline-offset: 2px;
   }
 }
 
-// The code is redundant with the globe on phones (the accessible name carries the language).
 .preference-menus__value {
+  display: inline;
+}
+
+// Keep the sign-in control compact as before; the application toolbar keeps its visible language code.
+:host(.preference-menus--framed) .preference-menus__value {
   display: none;
 
   @include nw.from(tablet) {
@@ -39,13 +49,14 @@
 :host(.preference-menus--framed) {
   .preference-menus__trigger {
     justify-content: center;
-    block-size: 2.0625rem;
-    min-inline-size: 2.0625rem;
-    padding-inline: 0.625rem;
-    border: 1px solid var(--nw-border-default);
-    background-color: var(--nw-surface-raised);
+    block-size: 2.5rem;
+    min-inline-size: 2.5rem;
+    gap: var(--nw-space-2);
+    padding-inline: var(--nw-space-3);
+    border: 1px solid transparent;
+    @include nw.auth-trigger-surface;
     color: var(--nw-text-label);
-    font-size: calc(0.75rem * var(--nw-admin-text-scale, 1));
+    font-size: 0.8125rem;
     font-weight: var(--nw-font-weight-medium);
 
     &:hover,
@@ -58,8 +69,83 @@
 .preference-menus__chevron {
   inline-size: 0.875rem;
   block-size: 0.875rem;
+  color: var(--nw-text-secondary);
 }
 
 .preference-menus__option {
   flex: 1;
+}
+
+@include nw.from(tablet) {
+  :host(:not(.preference-menus--framed)) .preference-menus__trigger {
+    gap: 0.375rem;
+    padding-inline: var(--nw-space-3);
+  }
+}
+
+.preference-menus__language-menu {
+  inline-size: 14.5rem;
+  max-inline-size: calc(100vw - 1.5rem);
+  min-inline-size: 0;
+  gap: 0.125rem;
+  padding: 0.375rem;
+  border-radius: var(--nw-radius-md);
+  box-shadow: var(--nw-shadow-lg);
+}
+
+.preference-menus__language-item {
+  gap: 0.625rem;
+  min-block-size: 2.75rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: var(--nw-radius-md);
+  font: inherit;
+  font-size: 0.8125rem;
+
+  &:focus {
+    background: transparent;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--nw-color-neutral-hover);
+  }
+
+  &[aria-current='true'] {
+    background: var(--nw-surface-brand-subtle);
+    color: var(--nw-text-brand);
+    font-weight: var(--nw-font-weight-medium);
+
+    .preference-menus__language-code {
+      border-color: color-mix(in srgb, var(--nw-color-primary) 20%, transparent);
+      color: var(--nw-text-brand);
+    }
+  }
+}
+
+.preference-menus__language-code {
+  display: grid;
+  flex: 0 0 1.75rem;
+  place-items: center;
+  block-size: 1.75rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-sm);
+  background: var(--nw-surface-raised);
+  color: var(--nw-text-secondary);
+  font-size: 0.625rem;
+  font-weight: var(--nw-font-weight-medium);
+  direction: ltr;
+}
+
+.preference-menus__selected {
+  flex-shrink: 0;
+  color: var(--nw-text-brand);
+}
+
+// Endonyms retain their own text direction while sharing the menu's label alignment.
+.preference-menus__language-item:dir(ltr) .preference-menus__option {
+  text-align: left;
+}
+
+.preference-menus__language-item:dir(rtl) .preference-menus__option {
+  text-align: right;
 }

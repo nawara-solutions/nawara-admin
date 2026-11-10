@@ -2,7 +2,7 @@
 .growth-chart__frame {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  grid-template-rows: 8.5rem auto;
+  grid-template-rows: 11.5rem auto;
   column-gap: var(--nw-space-3);
 }
 
@@ -35,28 +35,29 @@
 }
 
 .growth-chart__grid {
-  stroke: var(--nw-chart-grid);
+  stroke: var(--nw-border-subtle);
+  stroke-dasharray: 3 5;
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
 
 .growth-chart__fill-top {
-  stop-color: var(--nw-chart-line);
-  stop-opacity: 0.22;
+  stop-color: var(--nw-color-primary);
+  stop-opacity: 0.14;
 }
 
 .growth-chart__fill-bottom {
-  stop-color: var(--nw-chart-line);
+  stop-color: var(--nw-color-primary);
   stop-opacity: 0;
 }
 
-// Brand gradient along the line, orange to pink (owner design).
+// The selected palette drives the line, points and the translucent area.
 .growth-chart__stroke-start {
-  stop-color: var(--nw-accent-orange-fg);
+  stop-color: var(--nw-text-brand);
 }
 
 .growth-chart__stroke-end {
-  stop-color: var(--nw-chart-line);
+  stop-color: var(--nw-color-primary);
 }
 
 .growth-chart__line {
@@ -71,36 +72,37 @@
 // Hollow points; the latest is filled, with a soft halo.
 .growth-chart__point {
   position: absolute;
-  inline-size: 0.5rem;
-  block-size: 0.5rem;
+  inline-size: 0.375rem;
+  block-size: 0.375rem;
   box-sizing: content-box;
-  border: 2px solid var(--nw-chart-line);
+  border: 2px solid var(--nw-color-primary);
   border-radius: var(--nw-radius-pill);
   background-color: var(--nw-surface-raised);
   transform: translate(-50%, 50%);
 
   &--latest {
     border-color: transparent;
-    background-color: var(--nw-chart-line);
-    box-shadow: 0 0 0 5px var(--nw-accent-pink-bg);
+    background-color: var(--nw-color-primary);
+    box-shadow: 0 0 0 5px var(--nw-surface-brand-subtle);
   }
 }
 
-// Value label above each point; the latest sits in a dark marker.
+// Quiet sample labels; the latest value uses a small accent callout.
 .growth-chart__value {
   position: absolute;
   margin-block-end: 0.625rem;
-  color: var(--nw-text-label);
+  color: var(--nw-text-secondary);
   font-size: 0.6875rem;
-  font-weight: var(--nw-font-weight-bold);
+  font-weight: var(--nw-font-weight-medium);
   transform: translateX(-50%);
 
   &--latest {
     margin-block-end: 1rem;
-    padding: 2px var(--nw-space-2);
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--nw-border-brand);
     border-radius: var(--nw-radius-sm);
-    background-color: var(--nw-surface-inverse);
-    color: var(--nw-text-inverse);
+    background-color: var(--nw-surface-raised);
+    color: var(--nw-text-brand);
   }
 }
 
@@ -124,5 +126,11 @@
 
   .growth-chart__point--latest {
     background-color: CanvasText;
+  }
+}
+
+@media (max-width: 40rem) {
+  .growth-chart__frame {
+    grid-template-rows: 10rem auto;
   }
 }

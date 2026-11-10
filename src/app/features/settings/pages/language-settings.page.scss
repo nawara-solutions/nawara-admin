@@ -1,121 +1,202 @@
-// Settings → Language (P9-S1, docs/design/p9-settings-architecture.md), sized by its own width (container queries, §15).
 @use 'abstracts' as nw;
 
 :host {
   display: grid;
-  align-content: start;
   gap: var(--nw-space-5);
-  max-inline-size: 40rem;
   min-inline-size: 0;
   container-type: inline-size;
 }
-
-.language-settings__header {
+.language-settings__columns {
   display: grid;
-  gap: var(--nw-space-2);
+  align-items: stretch;
+  gap: var(--nw-space-5);
+}
+.language-settings__card,
+.language-settings__footer {
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-xl);
+  background: var(--nw-surface-raised);
+  box-shadow: var(--nw-shadow-sm);
+}
+.language-settings__group,
+.language-settings__changes {
+  padding: var(--nw-space-5);
 }
 
-.language-settings__eyebrow {
-  color: var(--nw-text-brand);
+p {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+.language-settings__group {
+  min-inline-size: 0;
+  margin: 0;
+  border: 0;
+}
+.language-settings__group strong,
+h3 {
   font-size: var(--nw-text-size-sm);
   font-weight: var(--nw-font-weight-semibold);
 }
-
-.language-settings__title {
-  font-size: 1.625rem;
-  font-weight: var(--nw-font-weight-bold);
-  letter-spacing: -0.025em;
-  line-height: 1.1;
-
-  &:lang(ar) {
-    letter-spacing: 0;
-  }
-}
-
-.language-settings__subtitle {
-  color: var(--nw-text-label);
-  font-size: 0.90625rem;
-}
-
-.language-settings__card {
-  display: grid;
-  gap: var(--nw-space-4);
-  min-inline-size: 0;
-  padding: var(--nw-space-4);
-  border: 1px solid var(--nw-border-subtle);
-  border-radius: 1.125rem;
-  background-color: var(--nw-surface-raised);
-  box-shadow: var(--nw-shadow-card);
-}
-
-.language-settings__group {
+.language-settings__choices {
   display: grid;
   gap: var(--nw-space-2);
-  min-inline-size: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
+  margin-block-start: var(--nw-space-3);
 }
-
-.language-settings__legend {
-  margin-block-end: var(--nw-space-2);
-  padding: 0;
-  color: var(--nw-text-label);
-  font-size: var(--nw-text-size-xs);
-  font-weight: var(--nw-font-weight-semibold);
-}
-
-// The native radio stays in the accessibility tree and takes the keyboard; the label is the visible control.
-.language-settings__input {
-  @include nw.visually-hidden;
-}
-
 .language-settings__option {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: var(--nw-space-1) var(--nw-space-3);
-  min-block-size: 3rem;
-  padding: var(--nw-space-2) var(--nw-space-4);
+  gap: var(--nw-space-3);
+  min-block-size: 4.5rem;
+  padding: var(--nw-space-3);
   border: 1px solid var(--nw-border-subtle);
-  border-radius: var(--nw-radius-md);
-  background-color: var(--nw-surface-raised);
-  color: var(--nw-text-primary);
+  border-radius: var(--nw-radius-lg);
   cursor: pointer;
-
   &:hover {
     border-color: var(--nw-border-default);
   }
-
   &:has(:checked) {
-    border-color: var(--nw-border-brand);
-    background-color: var(--nw-surface-brand-subtle);
+    border-color: var(--nw-color-primary);
+    background: var(--nw-surface-brand-subtle);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--nw-color-primary) 12%, transparent);
   }
-
   &:has(:focus-visible) {
     @include nw.focus-ring;
   }
 }
-
-.language-settings__name {
-  flex: 1 1 auto;
-  font-size: var(--nw-text-size-md);
-  font-weight: var(--nw-font-weight-medium);
-}
-
-.language-settings__option:has(:checked) .language-settings__name {
-  color: var(--nw-text-brand);
+.language-settings__sample {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  inline-size: 3rem;
+  block-size: 3rem;
+  border-radius: var(--nw-radius-md);
+  background: var(--nw-surface-inset);
   font-weight: var(--nw-font-weight-semibold);
+  font-size: var(--nw-text-size-lg);
 }
-
-.language-settings__direction,
-.language-settings__note {
+.language-settings__option:has(:checked) .language-settings__sample {
+  background: var(--nw-color-primary);
+  color: var(--nw-text-on-primary);
+}
+.language-settings__identity {
+  display: grid;
+  justify-items: start;
+  flex: 1;
+  min-inline-size: 0;
   color: var(--nw-text-secondary);
   font-size: var(--nw-text-size-sm);
 }
-
-@container (min-width: 30rem) {
-  .language-settings__card {
-    padding: var(--nw-space-6);
+.language-settings__name {
+  color: var(--nw-text-primary);
+  font-weight: var(--nw-font-weight-semibold);
+  font-size: var(--nw-text-size-md);
+}
+.language-settings__direction {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-1);
+  padding: var(--nw-space-1) var(--nw-space-2);
+  border-radius: var(--nw-radius-pill);
+  background: var(--nw-surface-inset);
+  font-size: var(--nw-text-size-xs);
+  white-space: nowrap;
+}
+.language-settings__radio {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+  flex-shrink: 0;
+  border: 1px solid var(--nw-border-default);
+  border-radius: 50%;
+}
+.language-settings__check {
+  border: 0.375rem solid var(--nw-color-primary);
+  background: var(--nw-surface-raised);
+}
+.language-settings__changes {
+  border-block-start: 1px solid var(--nw-border-subtle);
+}
+.language-settings__context {
+  display: grid;
+  min-inline-size: 0;
+}
+dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--nw-space-2);
+  margin-block-start: var(--nw-space-3);
+}
+dl div {
+  padding: var(--nw-space-3);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background: var(--nw-surface-inset);
+}
+dt {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+}
+dd {
+  margin: var(--nw-space-1) 0 0;
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-medium);
+}
+.language-settings__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-3);
+  padding: var(--nw-space-3) var(--nw-space-4);
+}
+.language-settings__status {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-semibold);
+  &::before {
+    content: '';
+    inline-size: 0.5rem;
+    block-size: 0.5rem;
+    border-radius: 50%;
+    background: var(--nw-status-success-fg);
+  }
+}
+.language-settings__status--dirty::before {
+  background: var(--nw-status-warning-fg);
+}
+.language-settings__note {
+  display: flex;
+  gap: var(--nw-space-2);
+  flex: 1 1 15rem;
+  align-items: center;
+  font-size: var(--nw-text-size-xs);
+}
+.language-settings__actions {
+  margin-inline-start: auto;
+  display: flex;
+  gap: var(--nw-space-2);
+}
+.language-settings__error {
+  flex-basis: 100%;
+  color: var(--nw-status-danger-fg);
+}
+@container (min-width: 60rem) {
+  .language-settings__columns {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.07fr);
+  }
+}
+@container (max-width: 28rem) {
+  .language-settings__direction {
+    display: none;
+  }
+  dl {
+    grid-template-columns: 1fr;
+  }
+  .language-settings__actions {
+    inline-size: 100%;
+    button {
+      flex: 1;
+    }
   }
 }

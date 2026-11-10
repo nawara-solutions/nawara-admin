@@ -18,6 +18,39 @@
   inline-size: min(48rem, 100vw - 2 * var(--nw-space-4));
 }
 
+:host(.nw-dialog--side) {
+  inline-size: min(46rem, 100vw);
+  block-size: 100dvh;
+  max-block-size: 100dvh;
+  border-radius: 0;
+  animation: nw-side-panel-enter var(--nw-duration-base) var(--nw-ease-emphasized);
+
+  .nw-dialog__header {
+    min-block-size: 4.375rem;
+    padding: var(--nw-space-3) var(--nw-space-5);
+    border-block-end: 1px solid var(--nw-border-subtle);
+  }
+  .nw-dialog__body {
+    padding: var(--nw-space-6) clamp(1rem, 7vw, 3.25rem);
+  }
+  .nw-dialog__actions {
+    padding: var(--nw-space-3) var(--nw-space-5);
+    border-block-start: 1px solid var(--nw-border-subtle);
+  }
+}
+
+@keyframes nw-side-panel-enter {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host(.nw-dialog--side) {
+    animation: none;
+  }
+}
+
 .nw-dialog__header {
   display: flex;
   align-items: center;

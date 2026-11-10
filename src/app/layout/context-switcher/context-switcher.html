@@ -3,15 +3,19 @@
   type="button"
   [nwMenuTriggerFor]="scopes"
   [attr.aria-label]="
-    ('shell.context.label' | transloco) +
-    ': ' +
-    (companyName() ?? (titleKey() | transloco)) +
-    ', ' +
-    (currentPlatform()?.name ?? ('shell.context.allPlatforms' | transloco))
+    'shell.context.scopeTrigger'
+      | transloco: { scope: currentPlatform()?.name ?? ('shell.context.allPlatforms' | transloco) }
   "
 >
   <!-- The company's logo symbol, in the palette's colours; decorative (the button's label names the scope). -->
-  <nw-brand-mark class="context-switcher__symbol" label="" aria-hidden="true" />
+  @if (sidebar() && !currentPlatform()) {
+    <span class="context-switcher__initials" aria-hidden="true">{{ companyInitials() }}</span>
+  } @else {
+    <nw-product-symbol
+      class="context-switcher__symbol"
+      [product]="currentPlatform()?.product ?? null"
+    />
+  }
   <span class="context-switcher__text">
     <bdi class="context-switcher__company">{{ companyName() ?? (titleKey() | transloco) }}</bdi>
     <span class="context-switcher__scope">
@@ -22,32 +26,55 @@
       }
     </span>
   </span>
-  <nw-icon class="context-switcher__chevron" name="chevron-down" size="sm" />
+  <span class="context-switcher__chevron" aria-hidden="true">
+    <nw-icon [name]="sidebar() ? 'chevrons-up-down' : 'chevron-down'" size="sm" />
+  </span>
 </button>
 
 <ng-template #scopes>
-  <nw-menu class="context-switcher__menu">
+  <nw-menu class="context-switcher__menu" [attr.aria-label]="'shell.context.label' | transloco">
     @if (hasCompanyScope()) {
-      <button nw-menu-item (triggered)="selectCompany()">
-        <nw-icon name="building-2" size="sm" />
-        <span class="context-switcher__option">{{ 'shell.context.allPlatforms' | transloco }}</span>
+      <button
+        nw-menu-item
+        class="context-switcher__item"
+        [attr.aria-current]="context.scope().kind === 'company' ? 'true' : null"
+        (triggered)="selectCompany()"
+      >
+        <span class="context-switcher__option-symbol"><nw-product-symbol /></span>
+        <span class="context-switcher__option">
+          <bdi class="context-switcher__option-title">{{
+            companyName() ?? (titleKey() | transloco)
+          }}</bdi>
+          <span class="context-switcher__description">{{
+            'shell.context.allPlatforms' | transloco
+          }}</span>
+        </span>
         @if (context.scope().kind === 'company') {
-          <nw-icon name="check" size="sm" />
+          <nw-icon class="context-switcher__selected" name="check" size="sm" />
           <span class="nw-visually-hidden">({{ 'shell.context.current' | transloco }})</span>
         }
       </button>
     }
-    @if (platforms().length > 0) {
-      <p class="context-switcher__group" aria-hidden="true">
-        {{ 'shell.context.platforms' | transloco }}
-      </p>
-    }
     @for (platform of platforms(); track platform.id) {
-      <button nw-menu-item (triggered)="selectPlatform(platform)">
-        <nw-icon [name]="platform.product === 'drive' ? 'car' : 'hexagon'" size="sm" />
-        <bdi class="context-switcher__option">{{ platform.name }}</bdi>
+      <button
+        nw-menu-item
+        class="context-switcher__item"
+        [attr.aria-current]="currentPlatform()?.id === platform.id ? 'true' : null"
+        (triggered)="selectPlatform(platform)"
+      >
+        <span class="context-switcher__option-symbol">
+          <nw-product-symbol [product]="platform.product" />
+        </span>
+        <span class="context-switcher__option">
+          <bdi class="context-switcher__option-title">{{ platform.name }}</bdi>
+          @if (platform.product; as product) {
+            <span class="context-switcher__description">{{
+              productDescriptionKeys[product] | transloco
+            }}</span>
+          }
+        </span>
         @if (currentPlatform()?.id === platform.id) {
-          <nw-icon name="check" size="sm" />
+          <nw-icon class="context-switcher__selected" name="check" size="sm" />
           <span class="nw-visually-hidden">({{ 'shell.context.current' | transloco }})</span>
         }
       </button>

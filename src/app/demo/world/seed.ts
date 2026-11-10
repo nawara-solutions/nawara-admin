@@ -207,7 +207,7 @@ const ORGANIZATIONS: readonly OrganizationSeed[] = [
     createdHoursAgo: 75 * DAY,
     memberships: 72,
     pendingRequests: 0,
-    subscriptionEndsInHours: 40 * DAY,
+    subscriptionEndsInHours: 2 * DAY,
   },
   {
     n: 6,
@@ -225,7 +225,7 @@ const ORGANIZATIONS: readonly OrganizationSeed[] = [
     createdHoursAgo: 160 * DAY,
     memberships: 48,
     pendingRequests: 0,
-    subscriptionEndsInHours: 90 * DAY,
+    subscriptionEndsInHours: 7 * DAY,
   },
   {
     n: 8,
@@ -333,7 +333,7 @@ const ORGANIZATIONS: readonly OrganizationSeed[] = [
     createdHoursAgo: 95 * DAY,
     memberships: 61,
     pendingRequests: 2,
-    subscriptionEndsInHours: 60 * DAY,
+    subscriptionEndsInHours: 11 * DAY,
   },
   {
     n: 20,
@@ -359,7 +359,7 @@ const ORGANIZATIONS: readonly OrganizationSeed[] = [
     createdHoursAgo: 280 * DAY,
     memberships: 57,
     pendingRequests: 0,
-    subscriptionEndsInHours: 25 * DAY,
+    subscriptionEndsInHours: 13 * DAY,
   },
   {
     n: 23,
@@ -660,7 +660,6 @@ export function demoWorldSeed(now: number): DemoWorldTables {
       { platformId: D, personalPremium: 9, assistedPayments: 'disabled' },
     ],
     activity: ACTIVITY.map(({ hoursAgo, ...event }) => ({ ...event, occurredAt: at(-hoursAgo) })),
-    inboxes: [{ identityId: DEMO_OWNER_ID, unread: 4 }],
     sequence: 0,
     idempotency: [],
   };

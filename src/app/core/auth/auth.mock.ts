@@ -306,7 +306,7 @@ export class MockAuthGateway extends AuthGateway {
     const world = this.world.snapshot();
     const id = signedIn.businessIdentityId;
     if (id !== null && operatorProfileOf(world, id)?.blocked === true) {
-      this.state.signedIn.set(null);
+      this.state.setSession(null);
       return this.fail({ kind: 'unauthenticated', status: 401 });
     }
     return this.answer(grantsOf(world, id));
@@ -323,13 +323,13 @@ export class MockAuthGateway extends AuthGateway {
   /** Ends the simulated Core session only: Core records (enrolled factors, confirmed contacts) are kept. */
   logout(): Observable<void> {
     this.state.endSession(this.state.signedIn());
-    this.state.signedIn.set(null);
+    this.state.setSession(null);
     return this.answer(undefined);
   }
 
   /** Opens the simulated Core session as the account's business identity (its grants stay in the world). */
   private signIn(account: DemoAccount | DemoOperator): void {
-    this.state.signedIn.set(this.state.openSession(account.identity, account.businessIdentityId));
+    this.state.setSession(this.state.openSession(account.identity, account.businessIdentityId));
   }
 
   /**
@@ -339,7 +339,7 @@ export class MockAuthGateway extends AuthGateway {
   private liveSession(): DemoSignedIn | null {
     const signedIn = this.state.signedIn();
     if (signedIn !== null && this.state.sessionRevoked(signedIn)) {
-      this.state.signedIn.set(null);
+      this.state.setSession(null);
       return null;
     }
     return signedIn;

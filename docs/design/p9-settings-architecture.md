@@ -260,3 +260,57 @@ authorization; the rest wait for their slices.
   operator refused with no gateway call, production not available with no demo name, Try again, Arabic RTL); the hub,
   routes and capability specs updated. The demo-binding fixtures gained the one `companySettings: []` line their type
   requires.
+
+## Horizontal Settings workspace (Owner visual refinement, 2026-11-04)
+
+Settings now uses one presentation parent (`SettingsWorkspace`) and route navigation links rather than a card directory.
+`/settings` displays Appearance by default without redirecting; existing section and security-action URLs are unchanged.
+The original child route metadata, capability guards, lazy adapter providers and can-deactivate checks stay authoritative.
+The active link follows Router navigation, including deep links, browser history and nested security routes. Security and
+Company links remain owner-only, as before; hiding a link never replaces its route guard.
+
+The workspace owns the sole Settings h1 and a horizontally scrollable navigation region. Child pages retain their existing
+controllers, forms and state; section headings are h2 and their subsections h3. No additional content card is introduced.
+AppearancePanel, LocaleService, account views, security workflows and company settings are reused. All preference state
+and persistence remain in the existing services. The workspace uses semantic surface, text, accent and focus tokens.
+
+## Appearance customization and preview (Option D)
+
+The Appearance route uses the full Settings content width. `AppearancePanel` keeps its default compact picker presentation
+for authentication; its explicit `accentPresentation="grid"` presentation projects the Settings heading and preview into a
+40/60 grid above 54rem of available content width. Below that, the order is controls, preview, browser-local note, reset.
+The outer Settings navigation and other sections are unchanged.
+
+`AccentGrid` reads `ACCENT_PALETTES`, existing translated `ACCENT_KEYS`, and `--nw-swatch-*` tokens. Native radio controls
+stage choices through the panel-scoped `AppearanceDraft`; Apply commits through `ThemeService.applyAppearance`. Reset stages
+the authoritative defaults. No color registry or persistence mechanism is duplicated.
+
+`AppearancePreview` inherits resolved semantic theme/accent tokens and uses `NwBrandMark`. It has no injected services,
+links, inputs, buttons, routes, backend calls or account data. Placeholder metrics and chart shapes are explicitly labeled
+illustrative; they do not represent operational data. It updates through the same root tokens as the application.
+
+
+## Appearance preview and apply (Option B)
+
+Each AppearancePanel owns a disposable AppearanceDraft; both the Settings grid and authentication searchable picker use
+that same workflow. Drafts initialize from committed ThemeService values and are discarded with their editor. Committed
+changes synchronize mounted editors. Mode/accent selection and Reset never write storage or recolor the app root.
+
+Only the Settings preview subtree receives data-theme/data-accent, reusing the existing foundation and Admin token selectors.
+Staged System uses ThemeService's live OS resolver. The sticky action footer spans both Settings columns and wraps actions
+on narrow screens; the authentication popover keeps its existing positioning and searchable palette library.
+
+Apply preloads artwork when needed, persists the preference pair through PreferenceStore, then updates committed signals.
+Persistence failure retains the draft and committed appearance and reports a persistent error through the existing toast
+service. The store attempts to restore both prior keys if a later write fails; browser storage has no transaction API, so
+rollback itself may fail when storage becomes inaccessible. Such a failure is never reported as a successful save.
+
+
+### Final Appearance presentation refinement
+
+Settings uses equal theme cards with short localized descriptions and native radio semantics; the authentication panel
+retains its segmented mode control. The preview is top-aligned rather than stretched across the customization rows, with
+a wider column, larger illustrative navigation/metric text and responsive vector chart graphics. Its foreground and all
+surfaces resolve inside the existing draft data-theme/data-accent scope. No preview-device switch or operational data is
+introduced. The existing sticky action footer uses restrained spacing and a pending badge only when the draft is dirty.
+Draft selection, Apply, reset, persistence and error handling are unchanged.

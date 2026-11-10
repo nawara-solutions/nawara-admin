@@ -19,8 +19,9 @@ import {
  * The artwork is the `--nw-logo-admin-*` layers (lettering per theme, the symbol painted with `--nw-logo-accent`, its white
  * details), drawn inside the earlier logo boxes so callers keep their layout. The size follows `--nw-brand-mark-size`;
  * `--nw-brand-mark-word-size` optionally sizes the word and its "SOLUTIONS" line alone. The logo never mirrors in RTL. The
- * kit owns no copy, so the accessible name is an input; the artwork is hidden from assistive technology, so the name is
- * announced once.
+ * Admin wordmarks place their original botanical symbol after "nawara admin"; the separate Solutions mark retains its
+ * existing artwork. The kit owns no copy, so the accessible name is an input; artwork is hidden from assistive
+ * technology, so the name is announced once.
  */
 @Component({
   selector: 'nw-brand-mark',
@@ -32,6 +33,7 @@ import {
     role: 'img',
     '[attr.aria-label]': 'label()',
     '[class.nw-brand-mark--symbol]': '!lettered()',
+    '[class.nw-brand-mark--symbol-first]': 'symbolFirst()',
     '[class.nw-brand-mark--full]': 'full()',
     '[class.nw-brand-mark--inline]': 'inline()',
   },
@@ -41,6 +43,9 @@ export class NwBrandMark {
   readonly label = input.required<string>();
   /** Shows the logo; without it (and without `lockup`, `full` or `inline`) only the symbol is rendered. */
   readonly wordmark = input(false, { transform: booleanAttribute });
+  /** Live typographic hierarchy for the workspace wordmark. The symbol keeps its artwork. */
+  readonly typeset = input(false, { transform: booleanAttribute });
+  readonly symbolFirst = input(false, { transform: booleanAttribute });
   /** Same as `wordmark` (kept for the existing call sites). */
   readonly lockup = input(false, { transform: booleanAttribute });
   /** The wordmark with the "SOLUTIONS" line beneath it. */

@@ -4,6 +4,7 @@
 >
   @if (banner(); as b) {
     <nw-inline-alert
+      class="auth-success-surface"
       [tone]="b.tone"
       [icon]="b.icon"
       [actionLabel]="b.retry ? ('auth.banner.retry' | transloco) : undefined"
@@ -89,7 +90,7 @@
   </div>
   <a
     nw-button
-    variant="secondary"
+    variant="outline"
     class="sign-in__working-code"
     [routerLink]="workingCodePath"
     [queryParams]="flow.returnQueryParams()"

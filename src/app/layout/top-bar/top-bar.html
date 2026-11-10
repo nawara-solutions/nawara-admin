@@ -1,71 +1,43 @@
-@if (showMenuButton()) {
-  <button
-    #menuButton
-    nw-icon-button
-    type="button"
-    icon="menu"
-    class="top-bar__menu"
-    aria-controls="shell-navigation"
-    [attr.aria-expanded]="menuExpanded()"
-    [label]="'shell.openNavigation' | transloco"
-    (click)="menuRequested.emit()"
-  ></button>
-}
-<adm-breadcrumbs class="top-bar__breadcrumbs" />
-
-<!-- Search is not built yet: the field is shown, disabled, and says so. -->
-<label class="top-bar__search" [title]="'shell.notAvailableYet' | transloco">
-  <nw-icon name="search" size="sm" />
-  <span class="nw-visually-hidden">{{ 'shell.search.label' | transloco }}</span>
-  <input
-    class="top-bar__search-input"
-    type="search"
-    disabled
-    aria-describedby="top-bar-search-note"
-    [placeholder]="'shell.search.placeholder' | transloco"
-  />
-  <span id="top-bar-search-note" class="nw-visually-hidden">{{
-    'shell.notAvailableYet' | transloco
-  }}</span>
-</label>
-
-<adm-context-switcher class="top-bar__context" />
-<adm-preference-menus />
-
-<!-- The bell opens the signed-in person's Notifications (P8-S3); its dot and label follow the shell's one count. -->
-<a
-  class="top-bar__bell"
-  routerLink="/notifications"
-  routerLinkActive="top-bar__bell--active"
-  ariaCurrentWhenActive="page"
-  [attr.aria-label]="
-    unread()
-      ? ('shell.notifications.bellUnread' | transloco: { count: unread() })
-      : ('shell.notifications.bell' | transloco)
-  "
->
-  <nw-icon name="bell" />
-  @if (unread()) {
-    <span class="top-bar__dot"></span>
+<div class="top-bar__navigation">
+  @if (showMenuButton()) {
+    <button
+      #menuButton
+      nw-icon-button
+      type="button"
+      icon="menu"
+      class="top-bar__menu"
+      aria-controls="shell-navigation"
+      [attr.aria-expanded]="menuExpanded()"
+      [label]="'shell.openNavigation' | transloco"
+      (click)="menuRequested.emit()"
+    ></button>
   }
-</a>
-@if (profile(); as person) {
-  <!-- The account menu's second trigger (the sidebar profile card is the first); shown from the tablet breakpoint. -->
-  <button
-    type="button"
-    class="top-bar__avatar"
-    [nwMenuTriggerFor]="accountMenu"
-    [attr.aria-label]="
-      'shell.account.trigger' | transloco: { name: person.name, role: (person.roleKey | transloco) }
-    "
-    [attr.aria-busy]="signingOut() || null"
-    [attr.aria-disabled]="signingOut() || null"
-  >
-    <span aria-hidden="true">{{ person.initials }}</span>
-  </button>
-}
+  <adm-breadcrumbs class="top-bar__breadcrumbs" />
+</div>
+
+<div class="top-bar__tools">
+  <adm-notification-center />
+  <span class="top-bar__separator" aria-hidden="true"></span>
+  <adm-context-switcher />
+  @if (profile(); as person) {
+    <span class="top-bar__separator" aria-hidden="true"></span>
+    <button
+      type="button"
+      class="top-bar__avatar"
+      [nwMenuTriggerFor]="accountMenu"
+      [attr.aria-label]="
+        'shell.account.trigger'
+          | transloco: { name: person.name, role: (person.roleKey | transloco) }
+      "
+      [attr.aria-busy]="signingOut() || null"
+      [attr.aria-disabled]="signingOut() || null"
+    >
+      <span aria-hidden="true">{{ person.initials }}</span>
+    </button>
+  }
+</div>
+
 <ng-template #accountMenu><adm-account-menu /></ng-template>
-<!-- Always present, so the change is announced: the sidebar may be a closed (hidden) drawer. -->
-<span class="nw-visually-hidden" role="status">{{
-  signingOut() ? ('shell.account.signingOut' | transloco) : ''
-}}</span>
+<span class="nw-visually-hidden" role="status">
+  {{ signingOut() ? ('shell.account.signingOut' | transloco) : '' }}
+</span>

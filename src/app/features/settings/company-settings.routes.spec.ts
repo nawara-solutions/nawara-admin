@@ -41,7 +41,7 @@ const operator: Actor = {
 };
 
 function companyRoute(): Route {
-  const route = SETTINGS_ROUTES.find((r) => r.path === 'company');
+  const route = SETTINGS_ROUTES[0]?.children?.find((r) => r.path === 'company');
   if (!route) throw new Error('no company settings route');
   return route;
 }
@@ -75,10 +75,9 @@ describe('company settings routes (P9-S3)', () => {
       link: '/settings',
     });
     // only the owner's sections are guarded (Security, P9-S4a; Company): personal settings stay open to operators
-    expect(SETTINGS_ROUTES.filter((r) => r.canActivate !== undefined).map((r) => r.path)).toEqual([
-      'security',
-      'company',
-    ]);
+    expect(
+      SETTINGS_ROUTES[0]?.children?.filter((r) => r.canActivate !== undefined).map((r) => r.path),
+    ).toEqual(['security', 'company']);
   });
 
   it('binds only the unavailable adapter in a production build: no demo Company, no request', async () => {

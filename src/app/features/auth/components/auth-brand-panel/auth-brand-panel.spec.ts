@@ -6,7 +6,7 @@ import fr from '../../../../../i18n/fr.json';
 import { settle } from '../../testing/auth-testing';
 import { AuthBrandPanel } from './auth-brand-panel';
 
-/** The sign-in brand panel: the Nawara Admin logo (B1), the headline and the copyright (owner layout 2026-11-02). */
+/** The sign-in brand panel: the Owner-approved Nawara | Admin pilot, headline and copyright. */
 describe('AuthBrandPanel logos', () => {
   async function render(lang: 'en' | 'fr' | 'ar') {
     TestBed.configureTestingModule({
@@ -32,10 +32,11 @@ describe('AuthBrandPanel logos', () => {
   ] as const) {
     it(`${lang}: the Nawara Admin logo at the top, named once`, async () => {
       const panel = await render(lang);
-      const logo = panel.querySelector('nw-brand-mark.auth-brand-panel__logo');
+      const logo = panel.querySelector('nw-admin-brand-lockup.auth-brand-panel__logo');
       expect(logo?.getAttribute('role')).toBe('img');
       expect(logo?.getAttribute('aria-label')).toBe(catalog.brand.adminLogoLabel);
-      expect(logo?.querySelector('.nw-brand-mark__word')?.getAttribute('aria-hidden')).toBe('true');
+      expect(logo?.querySelector('.nw-brand-mark__type')).not.toBeNull();
+      expect(logo?.querySelector('.nw-brand-mark__word-symbol')).not.toBeNull();
       expect(logo?.querySelector('.nw-brand-mark__solutions')).toBeNull();
     });
 

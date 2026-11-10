@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Injector, inject } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { Observable, defer, throwError } from 'rxjs';
 import { ActionFailure, failureKey } from '../../../core/actions/action-failure';
@@ -48,6 +48,7 @@ export function invitationFailureKey(failure: ActionFailure, action: 'create' | 
 
 /** Shared by both actions: the owner, in their Company, acting on an Organization of one of their Platforms. */
 abstract class InvitationAction {
+  protected readonly injector = inject(Injector);
   protected readonly session = inject(AuthSession);
   protected readonly scope = inject(ScopeContext);
   protected readonly gateway = inject(AdminInvitationGateway);
@@ -148,6 +149,8 @@ export class CreateAdminInvitationAction extends InvitationAction {
     }
     const ref = this.dialogs.open(CreateAdminInvitationDialog, {
       data: this,
+      injector: this.injector,
+      sidePanel: true,
       autoFocus: 'input[name="invitation-type"], button[aria-disabled="true"]',
     });
     ref.closed.subscribe(() => this.run.close());

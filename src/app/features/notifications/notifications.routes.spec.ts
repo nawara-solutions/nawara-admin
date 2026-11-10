@@ -1,6 +1,5 @@
 import { loadShellRoutes } from '../../layout/shell.routes';
 import { sessionGuard } from '../../core/access/access.guards';
-import { NotificationsFacade } from './application/notifications.facade';
 import { NOTIFICATIONS_ROUTES } from './notifications.routes';
 
 describe('notifications routes (P8-S3)', () => {
@@ -14,7 +13,7 @@ describe('notifications routes (P8-S3)', () => {
     expect(route?.title).toBe('titles.notifications');
   });
 
-  it('binds no gateway of its own: the count is the shell’s one NotificationIndicator', () => {
-    expect(NOTIFICATIONS_ROUTES[0]?.providers).toEqual([NotificationsFacade]);
+  it('binds no route-local state; inbox state is owned by the shell', () => {
+    expect(NOTIFICATIONS_ROUTES[0]?.providers).toBeUndefined();
   });
 });

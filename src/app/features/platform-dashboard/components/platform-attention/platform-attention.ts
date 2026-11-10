@@ -8,7 +8,7 @@ import {
   PlatformAttentionKind,
 } from '../../application/platform-dashboard.facade';
 
-const KINDS = {
+export const PLATFORM_ATTENTION_KINDS = {
   membership_requests: { icon: 'user-plus', key: 'platformDashboard.attention.membershipRequests' },
   admin_invitations: { icon: 'send', key: 'platformDashboard.attention.adminInvitations' },
   subscription_grace: { icon: 'hourglass', key: 'platformDashboard.attention.subscriptionGrace' },
@@ -29,5 +29,5 @@ const KINDS = {
 })
 export class PlatformAttention {
   readonly items = input.required<readonly PlatformAttentionItem[]>();
-  protected readonly kinds = KINDS;
+  protected readonly kinds = PLATFORM_ATTENTION_KINDS;
 }

@@ -1,0 +1,75 @@
+@use 'abstracts' as nw;
+
+:host {
+  display: block;
+  min-inline-size: 0;
+}
+.accent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(4.25rem, 1fr));
+  gap: var(--nw-space-2);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.accent-grid__tile {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: var(--nw-space-2);
+  min-block-size: 4.75rem;
+  padding: var(--nw-space-2) var(--nw-space-1);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  color: var(--nw-text-primary);
+  font-size: var(--nw-text-size-xs);
+  cursor: pointer;
+  input {
+    @include nw.visually-hidden;
+  }
+  &:hover {
+    background-color: var(--nw-color-neutral-hover);
+  }
+  &:has(:checked) {
+    border-color: var(--nw-color-primary);
+    background-color: color-mix(in srgb, var(--nw-color-primary) 5%, var(--nw-surface-raised));
+  }
+  &:has(:focus-visible) {
+    @include nw.focus-ring;
+  }
+}
+.accent-grid__swatch {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  border: 1px solid var(--nw-border-default);
+  border-radius: var(--nw-radius-pill);
+}
+.accent-grid__check {
+  position: absolute;
+  inset-block-start: 0.25rem;
+  inset-inline-end: 0.25rem;
+  color: var(--nw-text-brand);
+}
+@media (forced-colors: active) {
+  .accent-grid__tile:has(:checked) {
+    border-color: Highlight;
+  }
+  .accent-grid__swatch {
+    forced-color-adjust: none;
+  }
+}
+
+.accent-grid { display: flex; flex-wrap: wrap; gap: var(--nw-space-2); }
+.accent-grid__tile {
+  display: grid; place-items: center; flex: 0 0 2.25rem;
+  inline-size: 2.25rem; min-block-size: 2.25rem; padding: 0;
+  border: 0; border-radius: 50%;
+  &:has(:checked) { background: transparent; outline: 2px solid var(--nw-color-primary); outline-offset: 2px; }
+}
+.accent-grid__swatch { inline-size: 100%; block-size: 100%; border: 0; }
+.accent-grid__label { @include nw.visually-hidden; }
+.accent-grid__check { inset: auto; color: white; pointer-events: none; }
+.accent-grid__tile { block-size: 2.25rem; }
+.accent-grid__swatch { inline-size: 2rem; block-size: 2rem; }

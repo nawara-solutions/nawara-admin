@@ -8,44 +8,47 @@
       {{ 'organizations.invitations.subtitle' | transloco }}
     </p>
   </div>
-  @if (createAction.available) {
-    <button nw-button type="button" (click)="create()">
-      <nw-icon name="plus" size="sm" />{{ 'organizations.invitations.create.open' | transloco }}
-    </button>
-  } @else {
-    <span class="admin-invitations__blocked">
-      <button
-        nw-button
-        type="button"
-        aria-disabled="true"
-        aria-describedby="admin-invitations-unavailable"
-      >
+  @if (showCreate()) {
+    @if (createAction.available) {
+      <button nw-button type="button" (click)="create()">
         <nw-icon name="plus" size="sm" />{{ 'organizations.invitations.create.open' | transloco }}
       </button>
-      <span id="admin-invitations-unavailable" class="nw-visually-hidden">{{
-        'organizations.invitations.notInBuild' | transloco
-      }}</span>
-    </span>
+    } @else {
+      <span class="admin-invitations__blocked">
+        <button
+          nw-button
+          type="button"
+          aria-disabled="true"
+          aria-describedby="admin-invitations-unavailable"
+        >
+          <nw-icon name="plus" size="sm" />{{ 'organizations.invitations.create.open' | transloco }}
+        </button>
+        <span id="admin-invitations-unavailable" class="nw-visually-hidden">{{
+          'organizations.invitations.notInBuild' | transloco
+        }}</span>
+      </span>
+    }
   }
 </header>
 
 @switch (view.status) {
   @case ('ready') {
     @let possible = facade.possibleFromAttempt();
+    @let invitations = activeOnly() ? activeInvitations(view.invitations) : view.invitations;
     @if (possible.size > 0) {
       <p class="admin-invitations__possible-note" role="note">
         <nw-icon name="circle-alert" size="sm" />
         {{ 'organizations.invitations.possibleNote' | transloco }}
       </p>
     }
-    @if (view.invitations.length === 0) {
+    @if (invitations.length === 0) {
       <p class="admin-invitations__empty">{{ 'organizations.invitations.empty' | transloco }}</p>
     } @else {
       <p class="admin-invitations__count">
-        {{ 'organizations.invitations.count' | transloco: { count: view.invitations.length } }}
+        {{ 'organizations.invitations.count' | transloco: { count: invitations.length } }}
       </p>
       <ul class="admin-invitations__list" role="list">
-        @for (invitation of view.invitations; track invitation.id) {
+        @for (invitation of invitations; track invitation.id) {
           @let state = status[invitation.status];
           <li class="admin-invitations__item">
             <div class="admin-invitations__main">

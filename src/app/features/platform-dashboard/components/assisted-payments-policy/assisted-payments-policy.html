@@ -1,36 +1,33 @@
 @let setting = policy();
 <div class="assisted-payments-policy__row">
-  <h3 class="assisted-payments-policy__title">
-    {{ 'platformDashboard.policies.assistedPayments' | transloco }}
-  </h3>
-  @if (setting.platform === 'enabled') {
-    <nw-status-badge tone="success">{{
-      'platformDashboard.policies.enabled' | transloco
-    }}</nw-status-badge>
-  } @else {
-    <nw-status-badge tone="info">{{
-      'platformDashboard.policies.disabled' | transloco
-    }}</nw-status-badge>
-  }
+  <div class="assisted-payments-policy__content">
+    <h3 id="assisted-payments-label" class="assisted-payments-policy__title">
+      {{ 'platformDashboard.policies.assistedPayments' | transloco }}
+    </h3>
+    <p id="assisted-payments-detail" class="nw-visually-hidden">
+      @if (setting.platform === 'enabled') {
+        {{
+          'platformDashboard.policies.enabledDetail'
+            | transloco: { disabled: setting.organizationsDisabled, total: setting.organizations }
+        }}
+      } @else {
+        {{ 'platformDashboard.policies.disabledDetail' | transloco }}
+      }
+    </p>
+    <span class="nw-visually-hidden" id="assisted-payments-change-note">{{
+      'shell.notAvailableYet' | transloco
+    }}</span>
+  </div>
+  <button
+    type="button"
+    role="switch"
+    class="assisted-payments-policy__switch"
+    [attr.aria-checked]="setting.platform === 'enabled'"
+    aria-disabled="true"
+    [attr.title]="'shell.notAvailableYet' | transloco"
+    aria-labelledby="assisted-payments-label"
+    aria-describedby="assisted-payments-detail assisted-payments-change-note"
+  >
+    <span></span>
+  </button>
 </div>
-<p class="assisted-payments-policy__text">
-  @if (setting.platform === 'enabled') {
-    {{
-      'platformDashboard.policies.enabledDetail'
-        | transloco: { disabled: setting.organizationsDisabled, total: setting.organizations }
-    }}
-  } @else {
-    {{ 'platformDashboard.policies.disabledDetail' | transloco }}
-  }
-</p>
-<button
-  type="button"
-  class="assisted-payments-policy__change"
-  aria-disabled="true"
-  aria-describedby="assisted-payments-change-note"
->
-  {{ 'platformDashboard.policies.change' | transloco }}
-</button>
-<span id="assisted-payments-change-note" class="nw-visually-hidden">{{
-  'shell.notAvailableYet' | transloco
-}}</span>

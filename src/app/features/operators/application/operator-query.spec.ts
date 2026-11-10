@@ -109,4 +109,12 @@ describe('operator query: search, filters and sort', () => {
     run({ sort: 'newest' }, 'x');
     expect(ids(ROWS)).toEqual(before);
   });
+
+  it('sorts the reverse directions and account states with stable contact tie-breaks', () => {
+    expect(run({ sort: 'contact-desc' })).toEqual(['a', 'e', 'd', 'b', 'c']);
+    expect(run({ sort: 'platforms-asc' })).toEqual(['d', 'c', 'e', 'a', 'b']);
+    expect(run({ sort: 'oldest' })).toEqual(['b', 'c', 'a', 'd', 'e']);
+    expect(run({ sort: 'state' })).toEqual(['c', 'b', 'a', 'e', 'd']);
+    expect(run({ sort: 'state-desc' })).toEqual(['d', 'e', 'c', 'b', 'a']);
+  });
 });

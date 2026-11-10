@@ -35,9 +35,20 @@
     cdkTrapFocus
     [cdkTrapFocusAutoCapture]="true"
   >
-    <p class="appearance-menu__title" aria-hidden="true">
-      {{ 'preferences.appearance.title' | transloco }}
-    </p>
+    <div class="appearance-menu__header">
+      <p class="appearance-menu__title" aria-hidden="true">
+        <nw-icon name="palette" size="sm" />
+        {{ 'preferences.appearance.title' | transloco }}
+      </p>
+      <button
+        class="appearance-menu__close"
+        type="button"
+        [attr.aria-label]="'common.close' | transloco"
+        (click)="close()"
+      >
+        <nw-icon name="x" size="sm" />
+      </button>
+    </div>
     <adm-appearance-panel />
   </div>
 </ng-template>

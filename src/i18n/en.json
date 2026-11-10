@@ -62,6 +62,14 @@
       "burgundy": "Burgundy"
     },
     "appearance": {
+      "localPending": "Apply to save your changes.",
+      "localNote": "Saved in this browser only.",
+      "resetShort": "Reset defaults",
+      "accentDescription": "Used for buttons, links, highlights and charts.",
+      "defaultAccent": "Nawara default",
+      "density": "Density",
+      "densityHint": "Adjust spacing in table rows. 1 is compact; 5 is spacious.",
+      "discard": "Discard",
       "title": "Appearance",
       "mode": "Mode",
       "modeHint": {
@@ -84,7 +92,16 @@
       "noAccent": "No accent matches “{{query}}”.",
       "accentResults": "Matching accents: {{count}}",
       "note": "Saved in this browser only. It is not part of your account and is not shared with other devices.",
-      "reset": "Reset to Nawara default"
+      "reset": "Reset to Nawara default",
+      "apply": "Apply changes",
+      "unsaved": "Unapplied changes",
+      "saved": "No unapplied changes",
+      "saveFailed": "Appearance could not be saved in this browser. Your draft is still available. Try again.",
+      "modeCard": {
+        "system": "Follow your device.",
+        "light": "Always light.",
+        "dark": "Always dark."
+      }
     }
   },
   "foundation": {
@@ -261,10 +278,13 @@
     "skipToContent": "Skip to content",
     "openNavigation": "Open navigation",
     "closeNavigation": "Close navigation",
+    "expandNavigation": "Expand navigation",
+    "collapseNavigation": "Collapse navigation",
     "mainNavigation": "Main navigation",
     "notAvailableYet": "Not available yet",
     "breadcrumb": {
       "label": "Breadcrumb",
+      "showHidden": "Show hidden breadcrumb pages",
       "home": "Company overview",
       "company": "Company",
       "overview": "Overview",
@@ -296,15 +316,21 @@
       "releases": "Releases",
       "assistanceDisputes": "Disputes and exceptions",
       "assistanceSettlements": "Late settlements and returns",
-      "assistanceRecovery": "Recovery and surplus"
+      "assistanceRecovery": "Recovery and surplus",
+      "changeOrganization": "Current organization: {{name}}. Change organization."
     },
     "context": {
       "label": "Administration scope",
+      "scopeTrigger": "Current scope: {{scope}}. Change scope.",
       "allPlatforms": "All platforms",
       "platforms": "Platforms",
       "current": "current",
       "loading": "Loading…",
-      "assigned": "Your platforms"
+      "assigned": "Your platforms",
+      "productDescription": {
+        "school": "Education management",
+        "drive": "Fleet and transportation"
+      }
     },
     "role": {
       "owner": "Company owner",
@@ -358,9 +384,65 @@
       }
     },
     "sidebarLabel": "Sidebar",
+    "appVersion": "Version {{version}}",
     "search": {
       "label": "Search",
-      "placeholder": "Search organizations, users…"
+      "open": "Open global search",
+      "categoryLabel": "Search category",
+      "placeholder": "Search organizations, members, operators, platforms…",
+      "unavailable": "Global search is not available yet. No categories are connected to a search source.",
+      "categories": {
+        "all": "All",
+        "organizations": "Organizations",
+        "members": "Members",
+        "operators": "Operators",
+        "platforms": "Platforms"
+      },
+      "title": "Search across Nawara",
+      "description": "Quickly find what you need across all your data.",
+      "close": "Close search",
+      "searchIn": "Search in",
+      "toClose": "to close",
+      "command": {
+        "placeholder": "Search Nawara…",
+        "organizationsPlaceholder": "Search organizations…",
+        "membersPlaceholder": "Search members…",
+        "operatorsPlaceholder": "Search operators…",
+        "platformsPlaceholder": "Search platforms…",
+        "clear": "Clear search",
+        "pages": "Pages",
+        "results": "Search results",
+        "quickLinks": "Quick links",
+        "try": "Try",
+        "pagesOnlyHint": "Find a page or jump to a setting.",
+        "connectedHint": "Find pages, people and organizations in one place.",
+        "notConnectedTitle": "Searching {{category}} isn’t available yet",
+        "notConnectedBody": "No search source is connected for this category.",
+        "openDestination": "Open {{page}}",
+        "view": "View",
+        "goTo": "Go to",
+        "loading": "Searching…",
+        "errorTitle": "Records could not be searched",
+        "errorBody": "Please try another query in a moment.",
+        "recordError": "Record search unavailable",
+        "noMatches": "Nothing matches “{{query}}”",
+        "noMatchesPages": "Only pages can be found right now — members, organizations and other records aren’t searchable yet.",
+        "noMatchesConnected": "Try a different name, spelling or category.",
+        "move": "move",
+        "open": "open",
+        "close": "close",
+        "resultCount": "{{count}} results"
+      },
+      "pages": {
+        "releases": "Core release information",
+        "services": "Services and infrastructure health",
+        "notifications": "Your notifications and recent updates",
+        "appearance": "Theme, accent colour, density",
+        "language": "Interface language and reading direction",
+        "account": "Profile and access",
+        "security": "Authenticator apps, passkeys, password and secret key",
+        "company": "Company identity and management"
+      }
     },
     "notifications": {
       "unread": "Unread notifications: {{count}}",
@@ -374,9 +456,11 @@
     }
   },
   "companyOverview": {
-    "title": "Company overview",
+    "title": "Overview",
     "subtitle": "Your platforms, organizations and access — in one place.",
     "period": "Last {{days}} days",
+    "periodLabel": "Reporting period",
+    "today": "Today",
     "create": "Create platform",
     "unavailable": "Not available",
     "summary": {
@@ -498,6 +582,7 @@
     "periodUnavailable": "Other periods are not available yet."
   },
   "platformDashboard": {
+    "updates": "Updates",
     "header": {
       "eyebrow": "Platform",
       "accessOwner": "Your access: Company owner",
@@ -535,6 +620,11 @@
       "create": "Create organization"
     },
     "attention": {
+      "search": "Search attention items",
+      "filterType": "Type",
+      "sortPriority": "Warnings first",
+      "sortCount": "Highest count first",
+      "noMatches": "No items match your search or filter.",
       "title": "Needs attention",
       "open": "{{count}} open",
       "none": "Nothing needs attention.",
@@ -574,6 +664,10 @@
     "activity": {
       "title": "Recent activity",
       "empty": "No recent administrative activity.",
+      "showing": "Showing {{shown}} of {{total}} activities",
+      "noMatches": "No activity matches this filter.",
+      "search": "Search activity",
+      "filterAction": "Action type",
       "organizationCreated": "Organization created",
       "organizationUpdated": "Organization details updated",
       "adminInvitationCreated": "Admin invitation created",
@@ -641,6 +735,8 @@
     "unavailableTitle": "Not available in this build",
     "unavailableDescription": "No Nawara Core contract lists your platforms yet.",
     "create": {
+      "stepDetails": "Organization details",
+      "stepDetailsDescription": "Enter the organization’s name and optional details.",
       "title": "Create platform",
       "description": "A platform hosts one product’s organizations. It is created in your Company.",
       "nameLabel": "Platform name",
@@ -735,17 +831,17 @@
       "notInBuildReason": "Editing details is not available in this build."
     },
     "invitations": {
-      "title": "Organization admin invitations",
-      "subtitle": "A person joins as an admin of this organization by entering an invitation code in the product app. Nawara never sends codes: you share them yourself.",
+      "title": "Admin invitations",
+      "subtitle": "Invite someone to administer this organization using a code in the product app.",
       "notInBuild": "Admin invitations are not available in this build.",
       "possibleNote": "The result of your last attempt is unknown. An invitation marked below may have been created by it: its code can’t be shown. Revoke it if you didn’t receive a code, then create a new one.",
       "empty": "No invitations yet.",
-      "count": "{{count}} invitations, newest first. Codes are shown only once, when created.",
+      "count": "{{count}} invitations · Newest first",
       "possible": "Possibly created by your previous attempt",
-      "footnote": "An invitation shows whether it is bound to one person, never the email or phone itself.",
+      "footnote": "Recipient contact details are hidden. Codes cannot be viewed again.",
       "error": "The invitations could not be loaded. This is not a change to your access.",
       "loading": "Loading invitations…",
-      "simulated": "Demo: the invitation and its code are simulated; no Nawara Core service is called.",
+      "simulated": "Demo invitation · No real code is created.",
       "createdUnseen": "An admin invitation was created after you left, so its code can’t be shown. Revoke it and create a new one if you need a code.",
       "notCreated": "The admin invitation for “{{name}}” was not created.",
       "revoked": "Invitation revoked. Its code no longer works.",
@@ -758,8 +854,8 @@
       },
       "list": {
         "type": "Type",
-        "binding": "Who can use it",
-        "boundPerson": "Only a specific person",
+        "binding": "Recipient",
+        "boundPerson": "Specific person",
         "boundAnyone": "Anyone with the code",
         "created": "Created",
         "createdBy": "{{date}} · {{creator}}",
@@ -777,8 +873,8 @@
         "creating": "Creating the invitation…",
         "creatingShort": "Creating…",
         "forOrganization": "For organization",
-        "stepUpNext": "Next, you’ll confirm it’s you.",
-        "shownOnce": "The code is shown once. Nawara doesn’t send it: you share it with the person.",
+        "stepUpNext": "Confirm your identity to create the code.",
+        "shownOnce": "Copy the code when it appears, then share it yourself. It is shown only once.",
         "recorded": "This action is recorded in the activity log.",
         "verifyAndCreate": "Verify and create",
         "checkInvitations": "Check invitations",
@@ -786,18 +882,18 @@
       },
       "form": {
         "typeLabel": "Invitation type",
-        "typeHint": "The audience label the product app expects, for example org_admin. Lowercase letters, digits, _ and -, up to {{max}} characters; “admin” is reserved. It is not a role chosen here.",
+        "typeHint": "Use the audience expected by the product app, e.g. org_admin. Start with a lowercase letter; use a–z, 0–9, _ or -. Maximum {{max}} characters. “admin” is reserved.",
         "typeRequired": "Enter the invitation type.",
         "typeReserved": "“admin” is reserved. Use the label the product app expects instead.",
         "typeInvalid": "Start with a lowercase letter; use only a–z, 0–9, _ and -, up to {{max}} characters.",
-        "expiryLabel": "Valid for",
-        "expiryHint": "After this the code can no longer be used.",
-        "bindingLegend": "Who can use the code",
-        "bindingAnyone": "Anyone who has the code",
-        "bindingPerson": "Only this person",
-        "bindingPersonHint": "They must use this email or phone when they accept.",
+        "expiryLabel": "Code expires after",
+        "expiryHint": "Unused codes stop working after this time.",
+        "bindingLegend": "Who can accept",
+        "bindingAnyone": "Anyone with the code",
+        "bindingPerson": "A specific person",
+        "bindingPersonHint": "Only their email or phone can be used to accept.",
         "contactLabel": "Email or phone",
-        "contactHint": "Kept only as a secure fingerprint: it is never shown again.",
+        "contactHint": "This contact will not be displayed again.",
         "contactInvalidPhone": "Enter an email, or a phone number of 8 to 15 digits (optionally starting with +).",
         "contactTooLong": "Use {{max}} characters or fewer.",
         "contactRequired": "Enter the person’s email or phone, or choose “Anyone who has the code”."
@@ -847,7 +943,9 @@
         "collision": "The invitation couldn’t be created this time. Nothing was created. Try again.",
         "rateLimited": "Too many invitation changes for now. Try again later. Nothing was changed.",
         "validation": "The details were refused. Check them (the type, and that the duration is allowed) and try again. Nothing was created."
-      }
+      },
+      "view": "Invitations",
+      "manageTab": "Manage"
     },
     "members": {
       "title": "Members",
@@ -886,6 +984,7 @@
       "table": {
         "label": "Members of this organization",
         "member": "Member",
+        "verification": "Contact verification",
         "role": "Role in this organization",
         "audience": "Audience",
         "requested": "Requested",
@@ -1051,6 +1150,7 @@
       "organizationsWithRequests": "Organizations with requests"
     },
     "toolbar": {
+      "requestsOnly": "With requests",
       "searchLabel": "Search organizations",
       "searchPlaceholder": "Search by name",
       "clear": "Clear the search",
@@ -1131,6 +1231,7 @@
       "sectionUnavailable": "Not available right now. The other sections are unaffected."
     },
     "detail": {
+      "overview": "Details & activity",
       "figuresLabel": "Organization figures",
       "memberships": "Memberships",
       "membershipsCaption": "Active memberships in this organization",
@@ -1177,7 +1278,9 @@
       "taxCode": "Tax code",
       "phone": "Phone",
       "address": "Address",
-      "viewMembers": "View members"
+      "viewMembers": "View members",
+      "detailsPanel": "Organization profile",
+      "subscriptionPayments": "Subscription & payments"
     },
     "activity": {
       "organizationCreated": "Organization created",
@@ -1399,10 +1502,45 @@
     }
   },
   "settings": {
+    "accordions": {
+      "searchPages": "Search pages",
+      "noPages": "No pages found.",
+      "platformDashboard": "Platform dashboard",
+      "showFigures": "Show figures",
+      "showSubscriptions": "Show subscription summary",
+      "choosePage": "Choose a page",
+      "showOverview": "Show assignment overview",
+      "previewDescription": "Selected platform policy",
+      "previewScope": "Organizations inherit this setting and may have their own restrictions.",
+      "platformSettings": "Platform settings",
+      "platform": "Platform",
+      "demoPolicy": "Demo setting; changes last until the page is reloaded.",
+      "platformUnavailable": "Platform settings are unavailable.",
+      "licensesOverview": "Subscription overview",
+      "licensesDescription": "Controls the summary at the top of Licenses & entitlements.",
+      "title": "Page settings",
+      "description": "Choose how individual sections appear on each page. Your choices are saved in this browser.",
+      "operatorTotals": "Platform access overview",
+      "operatorDescription": "Controls the summary at the top of Operators & access.",
+      "accordion": "Collapsible",
+      "accordionDescription": "Expand or collapse this section; its last state is remembered.",
+      "visible": "Always visible",
+      "visibleDescription": "Keep this section open without a toggle.",
+      "hidden": "Hidden",
+      "hiddenDescription": "Do not show this section on its page.",
+      "pageLabel": "Page"
+    },
     "title": "Settings",
     "appearance": {
       "title": "Appearance",
-      "subtitle": "Choose how Nawara Admin looks in this browser."
+      "subtitle": "Choose how Nawara Admin looks in this browser.",
+      "preview": {
+        "title": "Live preview",
+        "description": "See how your choices look in Nawara Admin.",
+        "accessible": "Illustrative dashboard preview using your current theme and accent. No real account data or actions.",
+        "sample": "Illustrative preview — no live data",
+        "overview": "Dashboard overview"
+      }
     },
     "hub": {
       "subtitle": "Your personal preferences for Nawara Admin.",
@@ -1422,11 +1560,40 @@
       "subtitle": "Choose the language of Nawara Admin in this browser. It is the same choice as the language menu in the top bar.",
       "ltr": "Left to right",
       "rtl": "Right to left",
-      "note": "Saved in this browser only. It is not part of your account and is not shared with other devices."
+      "note": "Saved in this browser only. It is not part of your account and is not shared with other devices.",
+      "interface": "Interface language",
+      "interfaceHint": "Menus, labels, emails from this browser and help links.",
+      "names": {
+        "en": "English",
+        "fr": "French",
+        "ar": "Arabic"
+      },
+      "changes": "What changes",
+      "changesHint": "Dates, numbers and layout follow the language you pick.",
+      "date": "Date",
+      "number": "Number",
+      "layout": "Layout",
+      "standard": "Standard (LTR)",
+      "mirrored": "Mirrored (RTL)",
+      "preview": "Live preview",
+      "previewHint": "How Nawara Admin reads in {{language}}.",
+      "saved": "All changes saved",
+      "unsaved": "Unsaved changes",
+      "error": "The language could not be loaded. Please try again.",
+      "sample": {
+        "search": "Search…",
+        "overview": "Dashboard overview",
+        "updated": "Updated {{date}}",
+        "newOrganization": "New organization",
+        "recentMembers": "Recent members",
+        "viewAll": "View all",
+        "active": "Active",
+        "invited": "Invited"
+      }
     },
     "account": {
       "title": "Your account",
-      "subtitle": "Who you are signed in as, and what you can work on. Read only.",
+      "subtitle": "Manage your profile, view your access, and review your security. Read only by default.",
       "identity": "Identity",
       "type": "Account type",
       "email": "Email",
@@ -1438,8 +1605,13 @@
       "access": "Access",
       "company": "Company",
       "companyUnavailable": "Not available",
-      "scope": "Scope",
+      "scope": "Access scope",
       "ownerScope": "Company-wide: every Platform of the Company.",
+      "ownerScopeTitle": "Company-wide",
+      "ownerScopeDescription": "Every Platform of the Company.",
+      "operatorScopeTitle": "Assigned Platforms",
+      "operatorScopeDescription": "Only your current assigned Platforms.",
+      "operatorScope": "Platform-scoped: only your current assigned Platforms.",
       "platformCount": "{{count}} Platforms today",
       "platforms": "Platforms you can work on",
       "noPlatforms": "No Platform is assigned to you. The Company owner gives Platform access.",
@@ -1450,7 +1622,48 @@
       "operatorSignIn": "With a one-time working code sent to your contact. Your session ends at the end of your shift.",
       "source": "From your current session. This page changes nothing.",
       "signedOutTitle": "You are signed out",
-      "signedOutDescription": "Sign in to see your account."
+      "signedOutDescription": "Sign in to see your account.",
+      "profileTab": "Profile",
+      "accessTab": "Access & memberships",
+      "securityTab": "Sign-in & security",
+      "profileTitle": "Profile information",
+      "profileDescription": "How you appear to other people in Nawara Admin.",
+      "accessDescription": "Your role and what you can reach, from the current session.",
+      "securityDescription": "What your current session reports about how you sign in.",
+      "displayName": "Display name",
+      "unavailable": "Not available",
+      "signInMethod": "Sign-in method",
+      "secondFactor": "Second factor",
+      "passkey": "Passkey",
+      "methodUnknown": "The current session does not report the sign-in method used.",
+      "enrollmentUnknown": "Enrollment status is not provided by the current session.",
+      "reviewSecurity": "Review security settings",
+      "securitySummary": "Security summary",
+      "notReported": "Not reported",
+      "securitySessionNote": "“Not reported” means your session doesn’t share this detail — it doesn’t mean the method is off.",
+      "methodDetail": "How you signed in to this session.",
+      "factorDetail": "Authenticator app enrollment.",
+      "passkeyDetail": "Sign in with your device instead of a password.",
+      "readOnly": "Read only",
+      "readOnlyNote": "Account information is shown for reference. Changes are not available here.",
+      "accessOverview": "Access overview",
+      "accessOverviewNote": "Your current authorized access from this session.",
+      "securityPartialNote": "Only fields marked “Not reported” lack information from this session. This does not indicate whether those methods are configured.",
+      "securityStatus": {
+        "unknown": "Unknown",
+        "reported": "Reported",
+        "configured": "Configured",
+        "notConfigured": "Not configured",
+        "enabled": "Enabled",
+        "disabled": "Disabled",
+        "unsupported": "Unsupported"
+      },
+      "readOnlyBanner": "Read only — changes are not available here",
+      "copy": "Copy",
+      "copyEmail": "Copy email address",
+      "copied": "Copied",
+      "emailCopied": "Email address copied.",
+      "copyFailed": "Couldn’t copy. Select the email address and copy it manually."
     },
     "company": {
       "title": "Company",
@@ -1501,6 +1714,20 @@
         "errorDescription": "Try again in a moment.",
         "retry": "Try again",
         "forbiddenDescription": "Company settings are for the Company owner."
+      },
+      "layout": {
+        "ownership": "You own this Company",
+        "role": "Your role",
+        "structure": "Structure & people",
+        "records": "Records",
+        "unavailableTitle": "Not editable in this version",
+        "identityTitle": "Name & identity",
+        "brandingTitle": "Branding",
+        "businessTitle": "Business configuration",
+        "structureHint": "Manage your Company’s platforms, organizations and people.",
+        "recordsHint": "Subscriptions, payment follow-ups and administrative activity.",
+        "detailsTitle": "Company details",
+        "detailsHint": "Your Company’s identity, branding and business configuration."
       }
     },
     "security": {
@@ -1841,8 +2068,8 @@
       },
       "actions": {
         "title": "Confirming sensitive actions",
-        "signIn": "Every sign-in to your owner account asks for a confirmed factor after your password.",
-        "stepUp": "Sensitive actions, such as creating a Platform or giving an operator access, ask you to confirm again with a factor. A confirmation serves one action and expires within minutes.",
+        "signIn": "Your owner account asks for a confirmed factor after your password.",
+        "stepUp": "Like creating a Platform or giving an operator access. Each confirmation covers one action and expires within minutes.",
         "lastFactor": "Under Nawara Core’s current rules, your last confirmed factor can’t be removed."
       },
       "recovery": {
@@ -1866,10 +2093,48 @@
         "errorDescription": "Try again in a moment.",
         "retry": "Try again",
         "forbiddenDescription": "Account security is for the Company owner."
+      },
+      "overview": {
+        "summaryTitle": "{{count}} confirmed factors",
+        "summaryHint": "Your factors, and what protects sensitive actions.",
+        "keySummary": "Secret key · can’t be checked",
+        "confirmedCount": "{{count}} confirmed",
+        "factorsHint": "Used after your password at sign-in, and to confirm sensitive actions.",
+        "passkeyUnavailable": "Adding a passkey isn’t available on this page.",
+        "credentialsTitle": "Password & secret key",
+        "credentialsHint": "What you sign in with, and what gets you back in if you lose access.",
+        "passwordBody": "You’ll confirm it’s you with an authenticator app — your current password isn’t asked for.",
+        "cannotCheck": "Can’t be checked",
+        "keyBody": "Recovery asks for it together with your password. Admin can’t tell whether you have one.",
+        "keyReplaces": "Creating a new key replaces any key you already have.",
+        "guidanceTitle": "When you’re asked to confirm",
+        "signInTitle": "Every sign-in",
+        "sensitiveTitle": "Sensitive actions",
+        "lastFactorTitle": "Your last factor stays",
+        "recoveryTitle": "If you lose access",
+        "recoveryLead": "Recovery needs your secret key — a confirmed factor alone doesn’t guarantee you can get back in.",
+        "start": "Start at sign-in with your",
+        "passwordAndKey": "password and secret key",
+        "wait": "Wait out a",
+        "waitingPeriod": "waiting period",
+        "setup": "Set up a",
+        "newFactor": "new factor",
+        "recoveryEnds": "Recovery ends every factor and session you had.",
+        "recoveryUnavailable": "Starting or cancelling a recovery isn’t available on this page.",
+        "protected": "Protected",
+        "keepLastFactor": "Keep your last sign-in factor",
+        "authenticatorNeeded": "An authenticator app is needed",
+        "keepAuthenticator": "Keep an authenticator app for confirmations"
       }
-    }
+    },
+    "workspaceDescription": "Your personal preferences for Nawara Admin."
   },
   "operators": {
+    "filters": {
+      "title": "Filters",
+      "reset": "Reset",
+      "apply": "Apply changes"
+    },
     "demoExplanation": "Demo data: fictional operators and Platform access. Nawara Core does not list operators yet.",
     "header": {
       "eyebrow": "Company",
@@ -1878,21 +2143,32 @@
     },
     "provisional": "Provisional view: Nawara Core does not list a company’s operators or show their account state yet. This list is demo data.",
     "totals": {
-      "label": "Operator totals",
+      "label": "Platform access overview",
       "operators": "Operators",
       "assignments": "Active Platform assignments",
-      "withoutAccess": "Without Platform access"
+      "withoutAccess": "Without Platform access",
+      "showWithoutAccess": "Show in the list"
     },
     "list": {
       "label": "Operators",
       "operator": "Operator",
+      "openDetails": "Open operator {{contact}}",
       "platforms": "Active Platforms",
       "state": "Account (demo)",
       "added": "Added",
       "unknownPlatform": "Platform",
       "noPlatform": "No Platform access"
     },
+    "pagination": {
+      "label": "Operator pagination",
+      "perPage": "Rows per page",
+      "all": "All",
+      "range": "{{first}}–{{last}} of {{total}}",
+      "previous": "Previous page",
+      "next": "Next page"
+    },
     "toolbar": {
+      "resetAll": "Reset all",
       "searchLabel": "Search operators by email or phone",
       "searchPlaceholder": "Search by email or phone",
       "clear": "Clear the search",
@@ -1914,6 +2190,11 @@
       "blocked": "Blocked"
     },
     "sort": {
+      "contactDesc": "Email or phone (Z–A)",
+      "platformsAsc": "Fewest Platforms",
+      "oldest": "Oldest first",
+      "state": "Account state (can sign in first)",
+      "stateDesc": "Account state (blocked first)",
       "contact": "Email or phone (A–Z)",
       "platforms": "Most Platforms",
       "newest": "Newest first"
@@ -2098,18 +2379,25 @@
       "keptHint": "Recorded assignments. They grant nothing while the account is blocked, and apply again once it is unblocked and the operator signs in."
     },
     "create": {
-      "open": "Create operator…",
+      "open": "Create operator",
       "title": "Create an operator",
       "lead": "Give one contact: an email address or a phone number. Nawara Core sends it a one-time code to confirm it.",
       "kindLegend": "Contact method",
       "kindEmail": "Email address",
       "kindPhone": "Phone number",
       "emailHint": "The operator signs in with this address. It is saved in lower case.",
-      "phoneHint": "With the country code, for example +33 6 12 34 56 78. Spaces, brackets and dashes are removed.",
+      "phoneHint": "Enter the 8 digits of the Tunisian phone number.",
       "emailRequired": "Enter an email address.",
       "emailInvalid": "Enter a valid email address, like name@example.com.",
       "phoneRequired": "Enter a phone number.",
-      "phoneInvalid": "Enter a valid phone number: 8 to 15 digits, optionally starting with +.",
+      "phoneInvalid": "Enter exactly 8 digits.",
+      "stepVerify": "Verify your identity",
+      "stepContact": "Operator contact",
+      "stepNext": "Next",
+      "stepContactDescription": "Choose a contact method and enter the details.",
+      "stepConfirm": "Confirm contact",
+      "stepAccess": "Set platform access",
+      "stepRecord": "Activity log",
       "stepUpNext": "Next, you’ll confirm it’s you.",
       "confirmNext": "They confirm their contact with the code before they can sign in.",
       "noPlatform": "They start with no Platform access: give it after creating them.",
@@ -2157,18 +2445,24 @@
       "label": "Subscription figures",
       "organizations": "Organizations",
       "organizationsCaption": "On your Platforms",
-      "active": "Active subscriptions",
+      "active": "Active",
       "activeCaption": "Not ended",
       "grace": "In grace",
       "graceCaption": "Ended, entitled for {{hours}} more hours at most",
-      "none": "No subscription",
+      "none": "None",
       "noneCaption": "Not entitled",
       "endingSoon": "Ending soon",
       "endingSoonCaption": "Active, ending within {{days}} days"
     },
     "entitledNow": "Entitled now: {{entitled}} of {{total}} Organizations ({{active}} active, {{grace}} in grace).",
+    "distribution": {
+      "title": "Subscription status distribution"
+    },
     "platforms": {
       "title": "By Platform",
+      "actions": "Actions",
+      "view": "View",
+      "viewPlatform": "View subscriptions for {{platform}}",
       "caption": "Organization subscriptions by Platform, and each Platform’s Personal Premium count",
       "platform": "Platform",
       "organizations": "Organizations",
@@ -2181,6 +2475,22 @@
       "premiumNote": "Personal Premium is a person’s own subscription in a product: a separate demo count, never added to Organization subscriptions and unrelated to memberships."
     },
     "attention": {
+      "pagination": "Attention pagination",
+      "within7": "Ending within 7 days",
+      "within14": "Ending within 14 days",
+      "actionsFor": "Actions for {{organization}}",
+      "viewOrganization": "View organization",
+      "viewExpiry": "View expiry details",
+      "copyId": "Copy organization ID",
+      "expiresAt": "Expiration date",
+      "copied": "Organization ID copied.",
+      "copyFailed": "Could not copy the organization ID.",
+      "search": "Search organizations or platforms",
+      "all": "All",
+      "earliest": "Ending soonest",
+      "latest": "Ending latest",
+      "name": "Organization (A–Z)",
+      "noMatches": "No matching organizations.",
       "title": "Needs attention",
       "graceEnds": "Grace ends {{at}}",
       "ends": "Ends {{when}}",
@@ -2188,7 +2498,7 @@
       "none": "No subscription is in grace or ending within {{days}} days."
     },
     "meaning": {
-      "title": "What these states mean",
+      "title": "Subscription statuses",
       "activeTerm": "Active",
       "active": "The Organization’s one subscription has not ended. It is entitled.",
       "graceTerm": "In grace",
@@ -2196,6 +2506,11 @@
       "noneTerm": "No subscription",
       "none": "No subscription, or its grace has ended. It is not entitled.",
       "membership": "Membership is not paid access: members stay members whatever the entitlement says, and no figure here counts people or customers."
+    },
+    "quick": {
+      "title": "Quick actions",
+      "subscriptions": "{{platform}} subscriptions",
+      "billing": "Billing & payments"
     },
     "unavailable": {
       "title": "Not available yet",
@@ -3104,6 +3419,10 @@
   },
   "coreServices": {
     "liveHealth": {
+      "demoLabel": "Simulated health · Demo data",
+      "demoDescription": "Preview of service health using simulated statuses.",
+      "demoOperational": "Operational",
+      "demoDegraded": "Degraded",
       "unavailable": "Live health unavailable"
     },
     "services": {
@@ -3178,19 +3497,7 @@
     "header": {
       "eyebrow": "Personal",
       "title": "Notifications",
-      "subtitle": "Your own notification summary. Only you see it."
-    },
-    "count": {
-      "label": "Unread notifications (demo count)",
-      "note": "A demo count from this build’s records, not from Nawara Core. The messages behind it are not available.",
-      "zero": "No unread notifications are counted for you in this demo. That does not mean you have never received one: message history is not available."
-    },
-    "inbox": {
-      "title": "Your inbox is not available yet",
-      "body": "Nawara Core delivers notifications but offers no read of a person’s messages yet, so Admin shows a count only.",
-      "contents": "No message, sender or time is shown.",
-      "actions": "Marking as read, dismissing and preferences are not available.",
-      "codes": "Sign-in, verification and confirmation codes are never shown here."
+      "inboxSubtitle": "Your personal notification inbox. Live notifications are not available yet; demo records are illustrative."
     },
     "separate": "Notifications are not audit records or administrative activity: nothing here comes from the activity log.",
     "states": {
@@ -3200,7 +3507,70 @@
       "errorTitle": "Your notifications could not be loaded",
       "errorDescription": "Try again in a moment.",
       "retry": "Try again",
-      "forbiddenDescription": "Your notification summary could not be read for this session."
+      "actionError": "That notification could not be updated. Please try again."
+    },
+    "newCount": "{{count}} new",
+    "demoOnly": "Demo only",
+    "filters": {
+      "label": "Filter notifications",
+      "all": "All",
+      "invitations": "Invitations",
+      "approvals": "Approvals",
+      "licenses": "Licenses",
+      "access": "Access",
+      "updates": "Updates"
+    },
+    "recent": "Recent",
+    "markAllRead": "Mark all as read",
+    "emptyFiltered": "No notifications in this category.",
+    "unreadItem": "Unread",
+    "markRead": "Mark as read",
+    "keepUnread": "Keep unread",
+    "viewAll": "View all notifications",
+    "priority": {
+      "urgent": "Urgent"
+    },
+    "records": {
+      "invitation": {
+        "title": "Invitation awaiting acceptance",
+        "description": "An invitation to join École Horizon is still pending."
+      },
+      "license": {
+        "title": "License nearing expiration",
+        "description": "A Nawara School license is approaching its renewal date."
+      },
+      "organization": {
+        "title": "Organization created",
+        "description": "A new organization was added to Nawara School."
+      },
+      "approval": {
+        "title": "Membership approved",
+        "description": "A membership request for École Horizon was approved."
+      },
+      "access": {
+        "title": "Operator access request",
+        "description": "An operator access request is ready for review."
+      }
+    },
+    "preferences": {
+      "title": "Notification settings",
+      "unavailable": "Notification preferences are not available yet."
+    },
+    "list": {
+      "title": "Your notifications",
+      "count": "{{count}} notifications"
+    },
+    "readFilter": {
+      "label": "Read status",
+      "all": "All",
+      "unread": "Unread",
+      "read": "Read"
+    },
+    "empty": {
+      "noNotifications": "No notifications yet",
+      "allCaughtUp": "You’re all caught up",
+      "allCaughtUpDescription": "There are no unread notifications.",
+      "noMatches": "No notifications match these filters."
     }
   },
   "releases": {

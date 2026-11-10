@@ -1,0 +1,13 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  inline-size: var(--nw-brand-lockup-width, auto);
+  direction: ltr;
+  font-size: calc(var(--nw-brand-mark-size, 2rem) * 0.68);
+  line-height: 1;
+}
+
+nw-brand-mark {
+  inline-size: var(--nw-brand-lockup-width, auto);
+  font-size: inherit;
+}

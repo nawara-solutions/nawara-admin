@@ -1,54 +1,18 @@
 <div class="platforms-header__titles">
-  <h1 class="platforms-header__title">{{ 'platforms.title' | transloco }}</h1>
-  <p class="platforms-header__subtitle">{{ 'platforms.subtitle' | transloco }}</p>
+  <h1 class="nw-page-title platforms-header__title">{{ 'platforms.title' | transloco }}</h1>
 </div>
 <div class="platforms-header__actions">
-  @if (isDemo()) {
-    <div class="platforms-header__demo">
-      <button
-        type="button"
-        class="platforms-header__chip"
-        aria-controls="platforms-demo-information"
-        [attr.aria-expanded]="demoInfoOpen()"
-        (click)="demoInfoOpen.set(!demoInfoOpen())"
-      >
-        <nw-icon name="flask-conical" size="sm" />
-        {{ 'shell.demo.badge' | transloco }}
-        <span class="nw-visually-hidden">{{ 'shell.demo.about' | transloco }}</span>
-      </button>
-      <div
-        id="platforms-demo-information"
-        class="platforms-header__panel"
-        role="region"
-        [attr.aria-label]="'shell.demo.about' | transloco"
-        [hidden]="!demoInfoOpen()"
-      >
-        <p>{{ 'shell.demo.explanation' | transloco }}</p>
-        @if (canCreate()) {
-          <p>
-            {{
-              (createAvailable() ? 'platforms.create.simulated' : 'platforms.create.unavailable')
-                | transloco
-            }}
-          </p>
-        }
-      </div>
-    </div>
-  }
   @if (canCreate() && createAvailable()) {
-    <button
-      type="button"
-      class="platforms-header__create-button platforms-header__create-button--live"
-      (click)="create.emit()"
-    >
+    <button nw-button variant="primary" type="button" (click)="create.emit()">
       <nw-icon name="plus" size="sm" />
       {{ 'companyOverview.create' | transloco }}
     </button>
   } @else if (canCreate()) {
     <span class="platforms-header__create">
       <button
+        nw-button
+        variant="primary"
         type="button"
-        class="platforms-header__create-button"
         aria-disabled="true"
         aria-describedby="platforms-create-note"
       >

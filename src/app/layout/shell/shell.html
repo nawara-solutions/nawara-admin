@@ -4,6 +4,8 @@
   id="shell-navigation"
   class="shell__sidebar"
   [drawer]="drawerMode()"
+  [collapsed]="!drawerMode() && sidebarCollapsed()"
+  (toggleRequested)="toggleSidebar()"
   [attr.aria-hidden]="drawerMode() && !drawerOpen() ? 'true' : null"
   [attr.inert]="drawerMode() && !drawerOpen() ? '' : null"
   (closeRequested)="closeDrawer()"

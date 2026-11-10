@@ -105,7 +105,6 @@ describe('decideMembership (P5-S2, Core’s decide)', () => {
       'adminInvitations',
       'paymentIssues',
       'platformCommercial',
-      'inboxes',
       'idempotency',
     ] as const)
       expect(world[table]).toBe(seed[table]);
@@ -295,7 +294,6 @@ describe('revokeMembership (P5-S3a, Core’s revoke)', () => {
       'adminInvitations',
       'paymentIssues',
       'platformCommercial',
-      'inboxes',
       'idempotency',
     ] as const)
       expect(world[table]).toBe(seed[table]);
@@ -398,7 +396,6 @@ describe('setOrganizationAdmin (P5-S3b, Core’s setAdmin)', () => {
     'adminInvitations',
     'paymentIssues',
     'platformCommercial',
-    'inboxes',
     'idempotency',
     'members',
   ] as const;

@@ -8,9 +8,7 @@ import { can } from '../../../core/access/capability-policy';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { StepUpGateway } from '../../../core/auth/step-up.gateway';
 import { ScopeContext } from '../../../core/context/scope-context';
-import { NwDialogService } from '../../../shared/ui/dialog/dialog.service';
 import { NwToastService } from '../../../shared/ui/toast/toast.service';
-import { OperatorCreateDialog } from '../components/operator-create-dialog/operator-create-dialog';
 import { CreatedOperator, OperatorAccountGateway } from '../data-access/operator-account.gateway';
 import { OperatorDirectoryGateway } from '../data-access/operator-directory.gateway';
 import { sameContact } from '../domain/create-operator.model';
@@ -74,7 +72,7 @@ export class OperatorCreateAction {
   private readonly gateway = inject(OperatorAccountGateway);
   private readonly directory = inject(OperatorDirectoryGateway);
   private readonly stepUp = inject(StepUpGateway);
-  private readonly dialogs = inject(NwDialogService);
+  readonly panelOpen = signal(false);
   private readonly toasts = inject(NwToastService);
   private readonly transloco = inject(TranslocoService);
   private lookup: Subscription | null = null;
@@ -124,14 +122,14 @@ export class OperatorCreateAction {
       if (!this.run.open()) return;
       this.clearReconciliation();
     }
-    const ref = this.dialogs.open(OperatorCreateDialog, {
-      data: this,
-      autoFocus: 'input[name="operator-contact"], button[aria-disabled="true"]',
-    });
-    ref.closed.subscribe(() => {
-      this.run.close();
-      if (this.run.state().phase === 'closed') this.clearReconciliation();
-    });
+    this.panelOpen.set(true);
+  }
+
+  close(): void {
+    if (this.busy()) return;
+    this.panelOpen.set(false);
+    this.run.close();
+    if (this.run.state().phase === 'closed') this.clearReconciliation();
   }
 
   /** A new, explicit attempt after a failure (never automatic): it verifies again before anything is sent. */

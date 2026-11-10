@@ -24,7 +24,7 @@ import {
 } from '../../../demo/world/selectors';
 import { NW_CLOCK } from '../../../shared/format/clock';
 import { CommercialSummary } from '../domain/commercial-summary.model';
-import { CompanyOverview } from '../domain/company-overview.model';
+import { CompanyOverview, OverviewPeriod } from '../domain/company-overview.model';
 import { CommercialSummaryGateway } from './commercial-summary.gateway';
 import { CompanyOverviewGateway } from './company-overview.gateway';
 
@@ -52,18 +52,44 @@ const count = (value: number) => ({ status: 'available', value }) as const;
  * Platform directory and the Platform dashboards by construction. Unique identities stay unavailable: there are no
  * person records before P5, and memberships are not identities.
  */
-export function demoCompanyOverview(world: DemoWorldTables, now: number): CompanyOverview {
+export function demoCompanyOverview(
+  world: DemoWorldTables,
+  now: number,
+  periodDays: OverviewPeriod = COMPANY_PERIOD_DAYS,
+): CompanyOverview {
+  const offsets =
+    periodDays === 1
+      ? [1, 0]
+      : periodDays === 30
+        ? GROWTH_DAY_OFFSETS
+        : [
+            periodDays,
+            Math.round(periodDays * 0.75),
+            Math.round(periodDays * 0.5),
+            Math.round(periodDays * 0.25),
+            0,
+          ];
+  // Today starts at UTC midnight, matching the calendar days used by growthSeries.
+  const since =
+    periodDays === 1 ? new Date(now).setUTCHours(0, 0, 0, 0) : now - periodDays * 86400000;
   const platforms = platformRefs(world);
   const organizations = organizationsOfCompany(world);
-  const invitations = activeAdminInvitationsOf(world, organizations, now).length;
+  const pendingInvitations = activeAdminInvitationsOf(world, organizations, now);
+  const invitations = pendingInvitations.length;
   return {
     company: { id: world.company.id, name: world.company.name },
-    periodDays: COMPANY_PERIOD_DAYS,
+    periodDays,
     summary: {
       platforms: count(platforms.length),
       organizations: count(organizations.length),
       uniqueIdentities: { status: 'unavailable' },
       pendingAdminInvitations: count(invitations),
+      newPendingAdminInvitations: count(
+        pendingInvitations.filter((invitation) => {
+          const created = Date.parse(invitation.createdAt);
+          return created >= since && created <= now;
+        }).length,
+      ),
     },
     platforms: platforms.map((platform) => ({
       platform,
@@ -86,16 +112,19 @@ export function demoCompanyOverview(world: DemoWorldTables, now: number): Compan
     growth: {
       status: 'available',
       data: {
-        points: growthSeries(organizations, now, GROWTH_DAY_OFFSETS),
+        points: growthSeries(organizations, now, offsets),
         platforms: platforms.map((platform) => ({
           platformId: platform.id,
-          points: growthSeries(organizationsOf(world, platform.id), now, GROWTH_DAY_OFFSETS),
+          points: growthSeries(organizationsOf(world, platform.id), now, offsets),
         })),
       },
     },
     activity: {
       status: 'available',
       data: companyActivity(world)
+        .filter(
+          (event) => Date.parse(event.occurredAt) >= since && Date.parse(event.occurredAt) <= now,
+        )
         .slice(0, RECENT_ACTIVITY)
         .map((e) => ({
           id: e.id,
@@ -132,13 +161,16 @@ export class MockCompanyOverviewGateway extends CompanyOverviewGateway {
   private readonly now = inject(NW_CLOCK);
   private readonly world = inject(DemoWorld);
 
-  load(company: CompanyId): Observable<CompanyOverview> {
+  load(
+    company: CompanyId,
+    periodDays: OverviewPeriod = COMPANY_PERIOD_DAYS,
+  ): Observable<CompanyOverview> {
     const fail = (error: AppError) => throwError(() => error).pipe(delay(this.latency));
     const world = this.world.snapshot();
     if (company !== world.company.id) {
       return fail({ kind: 'not_found', status: 404 });
     }
-    const overview = demoCompanyOverview(world, this.now());
+    const overview = demoCompanyOverview(world, this.now(), periodDays);
     switch (this.scenario) {
       case 'error':
         return fail({ kind: 'unavailable', code: 'hierarchy_unavailable', status: 503 });

@@ -27,21 +27,20 @@
   }
   @default {
     @let platform = view.platform;
-    <header
-      adm-organizations-header
-      [eyebrow]="platform.name"
-      [heading]="'organizations.header.directoryTitle' | transloco"
-    >
-      <p headerMeta class="organization-directory__subtitle">
-        {{ 'organizations.header.directorySubtitle' | transloco }}
-      </p>
-      <a headerActions nw-button variant="secondary" [routerLink]="platformPath(platform.id)">
-        <nw-icon name="arrow-left" size="sm" />{{
-          'organizations.header.backToDashboard' | transloco
-        }}
-      </a>
-      <adm-create-organization-button headerActions />
-    </header>
+    @if (!embedded()) {
+      <header
+        adm-organizations-header
+        [eyebrow]="platform.name"
+        [heading]="'organizations.header.directoryTitle' | transloco"
+      >
+        <a headerActions nw-button variant="secondary" [routerLink]="platformPath(platform.id)">
+          <nw-icon name="arrow-left" size="sm" />{{
+            'organizations.header.backToDashboard' | transloco
+          }}
+        </a>
+        <adm-create-organization-button headerActions />
+      </header>
+    }
 
     @switch (view.status) {
       @case ('ready') {
@@ -57,7 +56,7 @@
             </div>
           </nw-data-state>
         } @else {
-          @if (totals) {
+          @if (totals && !embedded()) {
             <dl
               class="organization-directory__totals"
               [attr.aria-label]="'organizations.totals.label' | transloco"
@@ -81,6 +80,81 @@
             </dl>
           }
 
+          @let query = facade.query();
+          <div class="organization-directory__toolbar" role="search">
+            <label class="organization-directory__search">
+              <nw-icon name="search" size="sm" />
+              <span class="nw-visually-hidden">{{
+                'organizations.toolbar.searchLabel' | transloco
+              }}</span>
+              <input
+                class="organization-directory__search-input"
+                type="search"
+                aria-controls="organization-directory-list"
+                [placeholder]="'organizations.toolbar.searchPlaceholder' | transloco"
+                [value]="search()"
+                (input)="onSearch($event)"
+              />
+              @if (search()) {
+                <button
+                  type="button"
+                  class="organization-directory__clear"
+                  [attr.aria-label]="'organizations.toolbar.clear' | transloco"
+                  (click)="clearSearch()"
+                >
+                  <nw-icon name="x" size="sm" />
+                </button>
+              }
+            </label>
+            <button
+              nw-button
+              variant="outline"
+              type="button"
+              cdkOverlayOrigin
+              #filterOrigin="cdkOverlayOrigin"
+              (click)="openFilters('filters', filterOrigin)"
+              [attr.aria-expanded]="popup()?.mode === 'filters'"
+              aria-haspopup="dialog"
+            >
+              <nw-icon name="sliders-horizontal" size="sm" />{{
+                'operators.filters.title' | transloco
+              }}
+              @if (query.requests || query.subscription !== 'any') {
+                <span class="organization-directory__filter-dot" aria-hidden="true"></span>
+              }
+            </button>
+            <button
+              nw-button
+              variant="outline"
+              type="button"
+              cdkOverlayOrigin
+              #sortOrigin="cdkOverlayOrigin"
+              (click)="openFilters('sort', sortOrigin)"
+              [attr.aria-expanded]="popup()?.mode === 'sort'"
+              aria-haspopup="dialog"
+            >
+              <nw-icon name="chevrons-up-down" size="sm" />{{
+                'organizations.toolbar.sort' | transloco
+              }}
+              @if (query.sort !== 'newest') {
+                <span class="organization-directory__filter-dot" aria-hidden="true"></span>
+              }
+            </button>
+            <button
+              nw-button
+              variant="outline"
+              type="button"
+              class="organization-directory__reset"
+              [disabled]="!filtered() && !search() && query.sort === 'newest'"
+              (click)="clearAll()"
+            >
+              <nw-icon name="rotate-ccw" size="sm" />{{ 'operators.toolbar.resetAll' | transloco }}
+            </button>
+            <div class="organization-directory__policy">
+              <ng-content select="[directoryActions]" />
+            </div>
+          </div>
+
           <section
             class="organization-directory__card"
             aria-labelledby="organization-directory-label"
@@ -88,105 +162,11 @@
             <h2 id="organization-directory-label" class="nw-visually-hidden">
               {{ 'organizations.table.label' | transloco }}
             </h2>
-            @let query = facade.query();
-            <div class="organization-directory__toolbar" role="search">
-              <label class="organization-directory__search">
-                <nw-icon name="search" size="sm" />
-                <span class="nw-visually-hidden">{{
-                  'organizations.toolbar.searchLabel' | transloco
-                }}</span>
-                <input
-                  class="organization-directory__search-input"
-                  type="search"
-                  aria-controls="organization-directory-list"
-                  [placeholder]="'organizations.toolbar.searchPlaceholder' | transloco"
-                  [value]="search()"
-                  (input)="onSearch($event)"
-                />
-                @if (search()) {
-                  <button
-                    type="button"
-                    class="organization-directory__clear"
-                    [attr.aria-label]="'organizations.toolbar.clear' | transloco"
-                    (click)="clearSearch()"
-                  >
-                    <nw-icon name="x" size="sm" />
-                  </button>
-                }
-              </label>
-              <div
-                class="organization-directory__segments"
-                role="group"
-                [attr.aria-label]="'organizations.toolbar.show' | transloco"
-              >
-                <button
-                  type="button"
-                  class="organization-directory__segment"
-                  [attr.aria-pressed]="!query.requests"
-                  (click)="facade.setQuery({ requests: false })"
-                >
-                  {{ 'organizations.toolbar.all' | transloco }}
-                </button>
-                <button
-                  type="button"
-                  class="organization-directory__segment"
-                  [attr.aria-pressed]="query.requests"
-                  (click)="facade.setQuery({ requests: true })"
-                >
-                  {{
-                    'organizations.toolbar.withRequests'
-                      | transloco: { count: totals?.organizationsWithRequests ?? 0 }
-                  }}
-                </button>
-              </div>
-              @if (facade.showsCommercial()) {
-                <nw-form-field
-                  class="organization-directory__select"
-                  [label]="'organizations.toolbar.subscription' | transloco"
-                  [hint]="
-                    facade.subscriptionFilterAvailable()
-                      ? undefined
-                      : ('organizations.toolbar.subscriptionUnavailable' | transloco)
-                  "
-                >
-                  <select
-                    nwControl
-                    [disabled]="!facade.subscriptionFilterAvailable()"
-                    (change)="onSubscription($event)"
-                  >
-                    @for (filter of subscriptionFilters; track filter) {
-                      <option [value]="filter" [selected]="filter === query.subscription">
-                        {{ filterKeys[filter] | transloco: { days: expiringDays } }}
-                      </option>
-                    }
-                  </select>
-                </nw-form-field>
-              }
-              <nw-form-field
-                class="organization-directory__select"
-                [label]="'organizations.toolbar.sort' | transloco"
-              >
-                <select nwControl (change)="onSort($event)">
-                  @for (sort of sorts; track sort) {
-                    <option [value]="sort" [selected]="sort === query.sort">
-                      {{ sortKeys[sort] | transloco }}
-                    </option>
-                  }
-                </select>
-              </nw-form-field>
-              <p class="organization-directory__count" role="status" aria-live="polite">
-                {{
-                  'organizations.toolbar.count'
-                    | transloco
-                      : { shown: facade.rows().length, total: view.directory.organizations.length }
-                }}
-              </p>
-            </div>
 
             @if (facade.rows().length > 0) {
               <adm-organization-table
                 listId="organization-directory-list"
-                [rows]="facade.rows()"
+                [rows]="pageRows()"
                 [commercial]="facade.showsCommercial()"
               />
               @if (facade.showsCommercial() && facade.commercial().status === 'error') {
@@ -221,11 +201,89 @@
                 </nw-data-state>
               </div>
             }
-            <p class="organization-directory__footnote">
-              <nw-icon name="info" size="sm" />
-              {{ 'organizations.footnote' | transloco }}
-            </p>
           </section>
+          <nav
+            class="organization-directory__pagination"
+            [attr.aria-label]="'operators.pagination.label' | transloco"
+          >
+            <p class="organization-directory__count" role="status" aria-live="polite">
+              {{
+                'organizations.toolbar.count'
+                  | transloco: { shown: pageRows().length, total: facade.rows().length }
+              }}
+            </p>
+            <div class="organization-directory__page-size">
+              <span id="organization-page-size-label">{{
+                'operators.pagination.perPage' | transloco
+              }}</span>
+              <button
+                type="button"
+                cdkOverlayOrigin
+                #pageSizeOrigin="cdkOverlayOrigin"
+                class="organization-directory__page-size-trigger"
+                [attr.aria-expanded]="pageSizeOpen()"
+                aria-haspopup="true"
+                aria-labelledby="organization-page-size-label organization-page-size-value"
+                aria-controls="organization-directory-list"
+                (click)="pageSizeOpen.set(!pageSizeOpen())"
+              >
+                <span id="organization-page-size-value">{{
+                  pageSize() === 'all' ? ('operators.pagination.all' | transloco) : pageSize()
+                }}</span>
+                <nw-icon name="chevron-down" size="sm" />
+              </button>
+              <ng-template
+                cdkConnectedOverlay
+                [cdkConnectedOverlayOrigin]="pageSizeOrigin"
+                [cdkConnectedOverlayOpen]="pageSizeOpen()"
+                [cdkConnectedOverlayPositions]="popupPositions"
+                [cdkConnectedOverlayHasBackdrop]="true"
+                cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                [cdkConnectedOverlayPush]="true"
+                [cdkConnectedOverlayViewportMargin]="16"
+                (backdropClick)="pageSizeOpen.set(false)"
+                (detach)="pageSizeOpen.set(false)"
+                (overlayKeydown)="$event.key === 'Escape' && pageSizeOpen.set(false)"
+              >
+                <div
+                  class="organization-directory__page-size-menu"
+                  role="group"
+                  [attr.aria-label]="'operators.pagination.perPage' | transloco"
+                >
+                  @for (size of pageSizes; track size) {
+                    <button
+                      type="button"
+                      [class.is-selected]="pageSize() === size"
+                      [attr.aria-pressed]="pageSize() === size"
+                      (click)="setPageSize(size)"
+                    >
+                      {{ size === 'all' ? ('operators.pagination.all' | transloco) : size }}
+                    </button>
+                  }
+                </div>
+              </ng-template>
+            </div>
+            <div class="organization-directory__page-actions">
+              <button
+                type="button"
+                [disabled]="pageIndex() === 0"
+                (click)="requestedPage.set(pageIndex() - 1)"
+                [attr.aria-label]="'operators.pagination.previous' | transloco"
+                [title]="'operators.pagination.previous' | transloco"
+              >
+                <nw-icon name="chevron-left" size="sm" />
+              </button>
+              <button
+                type="button"
+                [disabled]="pageIndex() + 1 >= pageCount()"
+                (click)="requestedPage.set(pageIndex() + 1)"
+                [attr.aria-label]="'operators.pagination.next' | transloco"
+                [title]="'operators.pagination.next' | transloco"
+              >
+                <nw-icon name="chevron-right" size="sm" />
+              </button>
+            </div>
+          </nav>
         }
       }
       @case ('notInBuild') {
@@ -277,4 +335,22 @@
       }
     </div>
   </nw-data-state>
+</ng-template>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="popupOrigin()!"
+  [cdkConnectedOverlayOpen]="popup() !== null"
+  [cdkConnectedOverlayPositions]="popupPositions"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+  [cdkConnectedOverlayPush]="true"
+  [cdkConnectedOverlayViewportMargin]="16"
+  (backdropClick)="closePopup()"
+  (detach)="closePopup()"
+  (overlayKeydown)="$event.key === 'Escape' && closePopup()"
+>
+  @if (popup(); as data) {
+    <adm-organization-filter-dialog [data]="data" (closed)="closePopup($event)" />
+  }
 </ng-template>

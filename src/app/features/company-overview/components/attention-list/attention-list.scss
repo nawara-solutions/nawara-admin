@@ -14,7 +14,6 @@
   // Severity, not brand: fixed colours that the accent palettes do not change.
   &--urgent {
     border-color: var(--nw-urgent-border);
-    background-color: var(--nw-urgent-bg);
   }
 }
 
@@ -24,27 +23,20 @@
   place-items: center;
   inline-size: 2.375rem;
   block-size: 2.375rem;
-  border-radius: var(--nw-radius-md);
-
   &--orange {
-    background-color: var(--nw-accent-orange-bg);
     color: var(--nw-accent-orange-fg);
   }
 
   &--purple {
-    background-color: var(--nw-accent-purple-bg);
     color: var(--nw-accent-purple-fg);
   }
 
   &--pink {
-    background-color: var(--nw-accent-pink-bg);
     color: var(--nw-accent-pink-fg);
   }
 }
 
-// The urgent row's tile sits on the pale pink row: a raised tile keeps it distinct.
 .attention-list__item--urgent .attention-list__tile--pink {
-  background-color: var(--nw-surface-raised);
   color: var(--nw-urgent-fg);
 }
 

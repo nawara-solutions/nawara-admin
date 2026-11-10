@@ -11,18 +11,15 @@ export type SessionState =
  * The session boundary (docs/ARCHITECTURE.md §11). The sign-in flow (features/auth) establishes it once Core's
  * `/auth/me` and `/auth/grants` have been resolved into an `Actor`, never from the authentication answer alone.
  *
- * A4 first slice: the only `AuthGateway` is the demo mock, so the only session is a DEMO session of a development build.
- * It lives in this signal and in the mock, so a reload ends it. That is a property of the demo only, not Admin's session
- * strategy and not Core's contract: how a real session survives a reload is the open decision D-A4 (CF-01; memory-only
- * is an unapproved proposal, ARCHITECTURE §11). The `core` origin, its tokens and `restore()` / `refresh()` arrive with
- * the HTTP adapter once D-A4 is decided. A production build is always signed out.
+ * Demo sessions are restored from session storage in this tab. Production authentication remains unavailable until
+ * the Core adapter and its session strategy are implemented. No tokens or credentials are stored here.
  *
  * This is UX state. It is not security: Core authorizes every request from the bearer it receives.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthSession {
   private readonly environment = inject(APP_ENVIRONMENT);
-  private readonly current = signal<SessionState>({ status: 'signed-out' });
+  private readonly current = signal<SessionState>(this.restoreDemo());
 
   readonly state = this.current.asReadonly();
   readonly actor = computed<Actor | null>(() => {
@@ -47,6 +44,7 @@ export class AuthSession {
       throw new Error('Sign-in is not available in this build.');
     }
     this.current.set({ status: 'signed-in', actor, origin: 'demo' });
+    this.persistDemo(actor);
     this.epochs.update((n) => n + 1);
   }
 
@@ -72,13 +70,53 @@ export class AuthSession {
       next.length === actor.platformAssignments.length &&
       next.every((id) => actor.platformAssignments.includes(id));
     if (same) return false;
-    this.current.set({ ...state, actor: { ...actor, platformAssignments: next } });
+    const updated = { ...actor, platformAssignments: next };
+    this.current.set({ ...state, actor: updated });
+    this.persistDemo(updated);
     return true;
+  }
+
+  private restoreDemo(): SessionState {
+    if (!isDemo(this.environment)) return { status: 'signed-out' };
+    try {
+      const value: unknown = JSON.parse(
+        globalThis.sessionStorage.getItem('nw.demo.actor') ?? 'null',
+      );
+      if (value && typeof value === 'object') {
+        const actor = value as Record<string, unknown>;
+        if (
+          typeof actor['userId'] === 'string' &&
+          (typeof actor['email'] === 'string' || actor['email'] === null) &&
+          ((actor['kind'] === 'owner' && typeof actor['companyId'] === 'string') ||
+            (actor['kind'] === 'operator' &&
+              Array.isArray(actor['platformAssignments']) &&
+              actor['platformAssignments'].every((id: unknown) => typeof id === 'string')))
+        ) {
+          return { status: 'signed-in', actor: value as Actor, origin: 'demo' };
+        }
+      }
+    } catch {
+      /* Invalid or unavailable storage starts signed out. */
+    }
+    return { status: 'signed-out' };
+  }
+
+  private persistDemo(actor: Actor): void {
+    try {
+      globalThis.sessionStorage.setItem('nw.demo.actor', JSON.stringify(actor));
+    } catch {
+      /* Keep the session in memory. */
+    }
   }
 
   /** Forgets the session locally. Telling Core (`POST /auth/logout`) is the sign-in flow's job. */
   signOut(): void {
     this.current.set({ status: 'signed-out' });
+    try {
+      globalThis.sessionStorage.removeItem('nw.demo.actor');
+    } catch {
+      /* Storage may be unavailable. */
+    }
     this.epochs.update((n) => n + 1);
   }
 }

@@ -17,7 +17,7 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
     </span>
     <div class="operators-header__titles">
       <p class="operators-header__eyebrow">{{ eyebrow() }}</p>
-      <h1 class="operators-header__title">
+      <h1 class="nw-page-title operators-header__title">
         @if (contact()) {
           <bdi dir="ltr" translate="no">{{ heading() }}</bdi>
         } @else {

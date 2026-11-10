@@ -1,16 +1,19 @@
 @let view = facade.view();
+@if (create.panelOpen()) {
+  <div class="operator-directory__panel-backdrop" (click)="create.close()"></div>
+  <adm-operator-create-dialog />
+}
 <header
   adm-operators-header
   [eyebrow]="'operators.header.eyebrow' | transloco"
   [heading]="'operators.header.title' | transloco"
 >
-  <p headerMeta class="operator-directory__subtitle">
-    {{ 'operators.header.subtitle' | transloco }}
-  </p>
   @if (create.offered()) {
     <button
       headerActions
       nw-button
+      variant="primary"
+      class="operator-directory__create"
       type="button"
       data-create-operator
       [attr.aria-disabled]="create.busy() || null"
@@ -24,35 +27,109 @@
 @switch (view.status) {
   @case ('ready') {
     @let totals = facade.totals();
-    <p class="operator-directory__provisional" role="note">
-      <nw-icon name="info" size="sm" />
-      <span>{{ 'operators.provisional' | transloco }}</span>
-    </p>
-    @if (totals) {
-      <dl
-        class="operator-directory__totals"
+    @if (totals && preferences.operatorTotalsMode() !== 'hidden') {
+      <section
+        class="operator-directory__totals-card"
         [attr.aria-label]="'operators.totals.label' | transloco"
       >
-        <div class="operator-directory__total">
-          <dt>{{ 'operators.totals.operators' | transloco }}</dt>
-          <dd>{{ totals.operators }}</dd>
+        <div class="operator-directory__totals-content">
+          <dl class="operator-directory__totals">
+            <div class="operator-directory__total">
+              <dt id="operators-assignments-label">
+                {{ 'operators.totals.assignments' | transloco }}
+              </dt>
+              <dd>
+                <button
+                  type="button"
+                  class="operator-directory__total-action"
+                  aria-describedby="operators-assignments-label"
+                  [attr.aria-pressed]="facade.query().platform === 'assigned'"
+                  (click)="
+                    facade.setQuery({
+                      platform: facade.query().platform === 'assigned' ? 'any' : 'assigned',
+                    })
+                  "
+                >
+                  {{ totals.assignments }}
+                </button>
+              </dd>
+            </div>
+            <div class="operator-directory__total">
+              <dt id="operators-without-access-label">
+                {{ 'operators.totals.withoutAccess' | transloco }}
+              </dt>
+              <dd>
+                <button
+                  type="button"
+                  class="operator-directory__total-action"
+                  [attr.aria-label]="'operators.totals.showWithoutAccess' | transloco"
+                  aria-describedby="operators-without-access-label"
+                  [attr.aria-pressed]="facade.query().platform === 'none'"
+                  (click)="
+                    facade.setQuery({
+                      platform: facade.query().platform === 'none' ? 'any' : 'none',
+                    })
+                  "
+                >
+                  {{ totals.withoutAccess }}
+                </button>
+              </dd>
+            </div>
+          </dl>
+          @if (facade.assignmentBreakdown(); as breakdown) {
+            @if (breakdown.length > 0 || totals.withoutAccess > 0) {
+              <div class="operator-directory__breakdown">
+                <div class="operator-directory__bar" aria-hidden="true">
+                  @for (platform of breakdown; track platform.id) {
+                    <span
+                      class="operator-directory__segment"
+                      [style.flex-grow]="platform.count"
+                    ></span>
+                  }
+                  @if (totals.withoutAccess > 0) {
+                    <span
+                      class="operator-directory__segment operator-directory__segment--none"
+                      [style.flex-grow]="totals.withoutAccess"
+                    ></span>
+                  }
+                </div>
+                <ul
+                  class="operator-directory__legend"
+                  role="list"
+                  [attr.aria-label]="'operators.totals.assignments' | transloco"
+                >
+                  @for (platform of breakdown; track platform.id) {
+                    <li>
+                      <bdi>{{
+                        platform.name ?? ('operators.list.unknownPlatform' | transloco)
+                      }}</bdi>
+                      {{ platform.count }}
+                    </li>
+                  }
+                  @if (totals.withoutAccess > 0) {
+                    <li class="operator-directory__legend-none">
+                      <span
+                        >{{ 'operators.list.noPlatform' | transloco }}
+                        {{ totals.withoutAccess }}</span
+                      >
+                    </li>
+                  }
+                  <li class="operator-directory__legend-total">
+                    {{ totals.operators }} {{ 'operators.totals.operators' | transloco }}
+                  </li>
+                </ul>
+              </div>
+            }
+          }
         </div>
-        <div class="operator-directory__total">
-          <dt>{{ 'operators.totals.assignments' | transloco }}</dt>
-          <dd>{{ totals.assignments }}</dd>
-        </div>
-        <div class="operator-directory__total">
-          <dt>{{ 'operators.totals.withoutAccess' | transloco }}</dt>
-          <dd>{{ totals.withoutAccess }}</dd>
-        </div>
-      </dl>
+      </section>
     }
 
+    @let query = facade.query();
     <section class="operator-directory__card" aria-labelledby="operator-directory-label">
       <h2 id="operator-directory-label" class="nw-visually-hidden">
         {{ 'operators.list.label' | transloco }}
       </h2>
-      @let query = facade.query();
       <div class="operator-directory__toolbar" role="search">
         <label class="operator-directory__search">
           <nw-icon name="search" size="sm" />
@@ -77,60 +154,66 @@
             </button>
           }
         </label>
-        <nw-form-field
-          class="operator-directory__select"
-          [label]="'operators.toolbar.platform' | transloco"
+        <button
+          nw-button
+          variant="secondary"
+          type="button"
+          class="operator-directory__filter-button"
+          cdkOverlayOrigin
+          #filterOrigin="cdkOverlayOrigin"
+          (click)="openFilters('filters', filterOrigin)"
+          [attr.aria-expanded]="popup()?.mode === 'filters'"
+          aria-haspopup="dialog"
         >
-          <select nwControl data-filter="platform" (change)="onPlatform($event)">
-            <option value="any" [selected]="query.platform === 'any'">
-              {{ 'operators.platformFilter.any' | transloco }}
-            </option>
-            @for (platform of facade.platforms(); track platform.id) {
-              <option [value]="platform.id" [selected]="query.platform === platform.id">
-                {{ platform.name }}
-              </option>
-            }
-            <option value="none" [selected]="query.platform === 'none'">
-              {{ 'operators.platformFilter.none' | transloco }}
-            </option>
-          </select>
-        </nw-form-field>
-        <nw-form-field
-          class="operator-directory__select"
-          [label]="'operators.toolbar.state' | transloco"
+          <nw-icon name="sliders-horizontal" size="sm" />
+          {{ 'operators.filters.title' | transloco }}
+          @if (query.platform !== 'any' || query.state !== 'any') {
+            <span class="operator-directory__filter-dot" aria-hidden="true"></span>
+          }
+        </button>
+        <button
+          nw-button
+          variant="secondary"
+          type="button"
+          class="operator-directory__sort-button"
+          cdkOverlayOrigin
+          #sortOrigin="cdkOverlayOrigin"
+          (click)="openFilters('sort', sortOrigin)"
+          [attr.aria-expanded]="popup()?.mode === 'sort'"
+          aria-haspopup="dialog"
         >
-          <select nwControl data-filter="state" (change)="onState($event)">
-            @for (filter of stateFilters; track filter) {
-              <option [value]="filter" [selected]="filter === query.state">
-                {{ stateFilterKeys[filter] | transloco }}
-              </option>
-            }
-          </select>
-        </nw-form-field>
-        <nw-form-field
-          class="operator-directory__select"
-          [label]="'operators.toolbar.sort' | transloco"
+          <nw-icon name="chevrons-up-down" size="sm" />{{ 'operators.toolbar.sort' | transloco }}
+          @if (query.sort !== 'contact') {
+            <span class="operator-directory__filter-dot" aria-hidden="true"></span>
+          }
+        </button>
+        <button
+          nw-button
+          variant="ghost"
+          type="button"
+          class="operator-directory__reset"
+          [attr.aria-label]="'operators.toolbar.resetAll' | transloco"
+          [attr.title]="'operators.toolbar.resetAll' | transloco"
+          [disabled]="!facade.filtered() && query.sort === 'contact'"
+          (click)="resetAll()"
         >
-          <select nwControl data-filter="sort" (change)="onSort($event)">
-            @for (sort of sorts; track sort) {
-              <option [value]="sort" [selected]="sort === query.sort">
-                {{ sortKeys[sort] | transloco }}
-              </option>
-            }
-          </select>
-        </nw-form-field>
-        <p class="operator-directory__count" role="status" aria-live="polite">
-          {{
-            'operators.toolbar.count'
-              | transloco: { shown: facade.rows().length, total: view.operators.length }
-          }}
-        </p>
+          <nw-icon name="rotate-ccw" size="sm" />{{ 'operators.toolbar.resetAll' | transloco }}
+        </button>
       </div>
 
       @if (facade.rows().length > 0) {
         <adm-operator-list
           listId="operator-directory-list"
-          [rows]="facade.rows()"
+          [rows]="pageRows()"
+          (openOperator)="openOperator($event)"
+          [canGrant]="canGrant()"
+          [canBlock]="canBlock()"
+          [actionBusy]="rowActionBusy()"
+          [canGrantRow]="canGrantRow"
+          (grantAccess)="openRowAction($event, 'grant')"
+          (changeAccount)="openRowAction($event, 'block')"
+          [sort]="query.sort"
+          (sortChange)="facade.setQuery({ sort: $event })"
           [platformName]="platformName"
         />
       } @else {
@@ -139,26 +222,92 @@
             state="empty"
             [title]="'operators.states.noResultsTitle' | transloco"
             [description]="'operators.states.noResultsDescription' | transloco"
-          >
-            @if (facade.filtered()) {
-              <div nwDataStateActions>
-                <button nw-button variant="secondary" type="button" (click)="facade.clearFilters()">
-                  {{ 'operators.states.clearFilters' | transloco }}
-                </button>
-              </div>
-            }
-          </nw-data-state>
+          />
         </div>
       }
-      <p class="operator-directory__footnote">
-        <nw-icon name="info" size="sm" />
-        <span>{{ 'operators.footnote' | transloco }}</span>
-      </p>
+      <nav
+        class="operator-directory__pagination"
+        [attr.aria-label]="'operators.pagination.label' | transloco"
+      >
+        <p class="operator-directory__count" role="status" aria-live="polite">
+          {{
+            'operators.toolbar.count'
+              | transloco: { shown: pageRows().length, total: view.operators.length }
+          }}
+        </p>
+        <div class="operator-directory__page-size">
+          <span id="operator-page-size-label">{{
+            'operators.pagination.perPage' | transloco
+          }}</span>
+          <button
+            type="button"
+            cdkOverlayOrigin
+            #pageSizeOrigin="cdkOverlayOrigin"
+            class="operator-directory__page-size-trigger"
+            [attr.aria-expanded]="pageSizeOpen()"
+            aria-haspopup="true"
+            aria-labelledby="operator-page-size-label operator-page-size-value"
+            aria-controls="operator-directory-list"
+            (click)="pageSizeOpen.set(!pageSizeOpen())"
+          >
+            <span id="operator-page-size-value">{{
+              pageSize() === 'all' ? ('operators.pagination.all' | transloco) : pageSize()
+            }}</span>
+            <nw-icon name="chevron-down" size="sm" />
+          </button>
+          <ng-template
+            cdkConnectedOverlay
+            [cdkConnectedOverlayOrigin]="pageSizeOrigin"
+            [cdkConnectedOverlayOpen]="pageSizeOpen()"
+            [cdkConnectedOverlayPositions]="popupPositions"
+            [cdkConnectedOverlayHasBackdrop]="true"
+            cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+            [cdkConnectedOverlayPush]="true"
+            [cdkConnectedOverlayViewportMargin]="16"
+            (backdropClick)="pageSizeOpen.set(false)"
+            (detach)="pageSizeOpen.set(false)"
+            (overlayKeydown)="$event.key === 'Escape' && pageSizeOpen.set(false)"
+          >
+            <div
+              class="operator-directory__page-size-menu"
+              role="group"
+              [attr.aria-label]="'operators.pagination.perPage' | transloco"
+            >
+              @for (size of pageSizes; track size) {
+                <button
+                  type="button"
+                  [class.is-selected]="pageSize() === size"
+                  [attr.aria-pressed]="pageSize() === size"
+                  (click)="setPageSize(size)"
+                >
+                  {{ size === 'all' ? ('operators.pagination.all' | transloco) : size }}
+                </button>
+              }
+            </div>
+          </ng-template>
+        </div>
+        <div class="operator-directory__page-actions">
+          <button
+            type="button"
+            [disabled]="pageIndex() === 0"
+            (click)="requestedPage.set(pageIndex() - 1)"
+            [attr.aria-label]="'operators.pagination.previous' | transloco"
+            [title]="'operators.pagination.previous' | transloco"
+          >
+            <nw-icon name="chevron-left" size="sm" />
+          </button>
+          <button
+            type="button"
+            [disabled]="pageIndex() + 1 >= pageCount()"
+            (click)="requestedPage.set(pageIndex() + 1)"
+            [attr.aria-label]="'operators.pagination.next' | transloco"
+            [title]="'operators.pagination.next' | transloco"
+          >
+            <nw-icon name="chevron-right" size="sm" />
+          </button>
+        </div>
+      </nav>
     </section>
-    <p class="operator-directory__later" role="note">
-      <nw-icon name="circle-alert" size="sm" />
-      <span>{{ 'operators.later.directory' | transloco }}</span>
-    </p>
   }
   @case ('empty') {
     <nw-data-state
@@ -198,3 +347,21 @@
     <nw-data-state state="loading" [title]="'operators.states.loading' | transloco" />
   }
 }
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="popupOrigin()!"
+  [cdkConnectedOverlayOpen]="popup() !== null"
+  [cdkConnectedOverlayPositions]="popupPositions"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+  [cdkConnectedOverlayPush]="true"
+  [cdkConnectedOverlayViewportMargin]="16"
+  (backdropClick)="closePopup()"
+  (detach)="closePopup()"
+  (overlayKeydown)="$event.key === 'Escape' && closePopup()"
+>
+  @if (popup(); as data) {
+    <adm-operator-filter-dialog [data]="data" (closed)="closePopup($event)" />
+  }
+</ng-template>

@@ -141,7 +141,7 @@ describe('Platform subscriptions page (P7-S2)', { timeout: 15_000 }, () => {
       [en.licenses.figures.active, '13'],
       [en.licenses.figures.grace, '1'],
       [en.licenses.figures.none, '2'],
-      ['Ending ≤ 14 days', '3'],
+      ['Ending ≤ 14 days', '5'],
     ]);
     expect(text(element.querySelector('[data-entitled]'))).toBe(
       'Entitled now: 14 of 16 Organizations (13 active, 1 in grace).',
@@ -177,7 +177,7 @@ describe('Platform subscriptions page (P7-S2)', { timeout: 15_000 }, () => {
       t.noEnd,
       t.entitlement.notEntitled,
     ]);
-    expect(element.querySelectorAll('[data-ending-soon]')).toHaveLength(3);
+    expect(element.querySelectorAll('[data-ending-soon]')).toHaveLength(5);
     const link = [...element.querySelectorAll('tbody th a')].find(
       (a) => text(a) === 'Collège Riad',
     );
@@ -197,7 +197,7 @@ describe('Platform subscriptions page (P7-S2)', { timeout: 15_000 }, () => {
     expect([...select.options].map((o) => text(o))).toEqual([
       'All (16)',
       'Active (13)',
-      'Ending within 14 days (3)',
+      'Ending within 14 days (5)',
       'In grace (1)',
       'No subscription (2)',
     ]);
@@ -209,7 +209,7 @@ describe('Platform subscriptions page (P7-S2)', { timeout: 15_000 }, () => {
     select.value = 'endingSoon';
     select.dispatchEvent(new Event('change'));
     await settle();
-    expect(names(element)).toEqual(['Collège Riad', 'École Ibn Sina', 'Lycée Ibn Khaldoun']);
+    expect(names(element)).toEqual(['Collège Riad', 'École Ibn Sina', 'École Les Oliviers', 'Lycée Averroès', 'Lycée Ibn Khaldoun']);
     select.value = 'all';
     select.dispatchEvent(new Event('change'));
     await settle();

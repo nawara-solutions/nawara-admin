@@ -1,0 +1,22 @@
+{
+  "browser": "159.0.1",
+  "checks": [
+    {
+      "section": "profile",
+      "panels": 1
+    },
+    {
+      "section": "access",
+      "panels": 1
+    },
+    {
+      "section": "security",
+      "panels": 1
+    }
+  ],
+  "rtl": true,
+  "mobileOverflow": false,
+  "history": true,
+  "compactScreenshotWidth": 500,
+  "note": "Firefox enforces a minimum window width here. Exact 390px verification is covered by Chrome."
+}

@@ -1,11 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  booleanAttribute,
+  computed,
+  inject,
+  input,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { can } from '../../core/access/capability-policy';
 import { AuthSession } from '../../core/auth/auth-session';
 import { ScopeContext, platformPath } from '../../core/context/scope-context';
-import { PlatformRef } from '../../core/context/scope.model';
-import { NwBrandMark } from '../../shared/ui/brand-mark/brand-mark';
+import { PlatformProduct, PlatformRef } from '../../core/context/scope.model';
+import { ProductSymbol } from '../../shared/ui/product-symbol/product-symbol';
 import { NwIcon } from '../../shared/ui/icon/icon';
 import { NwMenu, NwMenuItem, NwMenuTrigger } from '../../shared/ui/menu/menu';
 
@@ -15,13 +22,23 @@ import { NwMenu, NwMenuItem, NwMenuTrigger } from '../../shared/ui/menu/menu';
  */
 @Component({
   selector: 'adm-context-switcher',
-  imports: [TranslocoPipe, NwBrandMark, NwIcon, NwMenu, NwMenuItem, NwMenuTrigger],
+  imports: [TranslocoPipe, ProductSymbol, NwIcon, NwMenu, NwMenuItem, NwMenuTrigger],
   templateUrl: './context-switcher.html',
   styleUrl: './context-switcher.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'context-switcher' },
+  host: {
+    class: 'context-switcher',
+    '[class.context-switcher--sidebar]': 'sidebar()',
+    '[class.context-switcher--compact]': 'compact()',
+  },
 })
 export class ContextSwitcher {
+  readonly sidebar = input(false, { transform: booleanAttribute });
+  readonly compact = input(false, { transform: booleanAttribute });
+  protected readonly productDescriptionKeys = {
+    school: 'shell.context.productDescription.school',
+    drive: 'shell.context.productDescription.drive',
+  } as const satisfies Record<PlatformProduct, string>;
   private readonly router = inject(Router);
   protected readonly context = inject(ScopeContext);
 
@@ -36,6 +53,16 @@ export class ContextSwitcher {
     const directory = this.context.directory();
     return directory.status === 'success' ? directory.data.company.name : null;
   });
+
+  protected readonly companyInitials = computed(() =>
+    (this.companyName() ?? 'Nawara Solutions')
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => Array.from(word)[0])
+      .join('')
+      .toLocaleUpperCase(),
+  );
 
   /** The switcher's title: the Company's name, "Your platforms" for an operator, else "Loading…". */
   protected readonly titleKey = computed(() =>

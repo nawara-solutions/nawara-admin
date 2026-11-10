@@ -4,7 +4,7 @@
   [nwMenuTriggerFor]="languages"
   [attr.aria-label]="('preferences.language.label' | transloco) + ': ' + currentLanguage()"
 >
-  <nw-icon name="globe" />
+  <nw-icon name="globe" size="sm" />
   @if (framed()) {
     <span class="preference-menus__value" aria-hidden="true">{{ currentLanguage() }}</span>
     <nw-icon class="preference-menus__chevron" name="chevron-down" size="sm" />
@@ -12,15 +12,27 @@
     <span class="preference-menus__value" aria-hidden="true">{{
       locale.locale() | uppercase
     }}</span>
+    <nw-icon class="preference-menus__chevron" name="chevron-down" size="sm" />
   }
 </button>
 <ng-template #languages>
-  <nw-menu>
+  <nw-menu
+    class="preference-menus__language-menu"
+    [attr.aria-label]="'preferences.language.label' | transloco"
+  >
     @for (option of locales; track option.value) {
-      <button nw-menu-item [attr.lang]="option.value" (triggered)="setLocale(option.value)">
-        <span class="preference-menus__option">{{ option.name }}</span>
+      <button
+        nw-menu-item
+        class="preference-menus__language-item"
+        [attr.aria-current]="locale.locale() === option.value ? 'true' : null"
+        (triggered)="setLocale(option.value)"
+      >
+        <span class="preference-menus__language-code" aria-hidden="true">{{
+          option.value | uppercase
+        }}</span>
+        <bdi class="preference-menus__option" [attr.lang]="option.value">{{ option.name }}</bdi>
         @if (locale.locale() === option.value) {
-          <nw-icon name="check" size="sm" />
+          <nw-icon class="preference-menus__selected" name="check" size="sm" />
         }
       </button>
     }

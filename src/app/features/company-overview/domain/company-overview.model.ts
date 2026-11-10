@@ -10,6 +10,9 @@ import { Metric, Section } from '../../../shared/dashboard/metric';
  * are separate domains with their own gateways (commercial-summary.model.ts; the shared Core service inventory, core/core-services/).
  */
 
+export const OVERVIEW_PERIODS = [1, 7, 30, 90] as const;
+export type OverviewPeriod = (typeof OVERVIEW_PERIODS)[number];
+
 /** Shared with the platform dashboard (shared/dashboard): a count or section that may be unavailable. */
 export type { Metric, Section };
 
@@ -27,6 +30,8 @@ export interface CompanySummary {
    * company-wide aggregate exists (CF-11). Shown as "awaiting acceptance", never as a trend.
    */
   readonly pendingAdminInvitations: Metric;
+  /** Currently pending invitations created within the reporting period; not a net balance change. */
+  readonly newPendingAdminInvitations?: Metric;
 }
 
 export interface PlatformSummary {

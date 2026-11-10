@@ -104,6 +104,8 @@ describe('SignInPage', () => {
     const { page } = await render({ returnUrl: '/platforms' });
     const link = page.querySelector<HTMLAnchorElement>('a.sign-in__working-code');
     expect(text(link)).toBe(en.auth.signIn.workingCode);
+    expect(link?.classList).toContain('nw-button--outline');
+    expect(link?.classList).not.toContain('nw-button--secondary');
     expect(link?.getAttribute('href')).toBe('/login/code?returnUrl=%2Fplatforms');
     expect(link?.hasAttribute('aria-disabled')).toBe(false);
     expect(link?.closest('form')).toBeNull();

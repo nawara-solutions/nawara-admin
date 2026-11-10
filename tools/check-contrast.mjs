@@ -70,8 +70,8 @@ const PAIRS = [
     `--nw-accent-${a}-bg`,
     3,
   ]),
-  ['--nw-accent-purple-bg', '--nw-accent-purple-fg', 4.5], // top-bar avatar: initials on the solid accent
-  ['--nw-avatar-text', '--nw-avatar-background', 4.5], // avatars and the Create platform buttons
+  ['--nw-accent-purple-bg', '--nw-accent-purple-fg', 4.5], // the purple accent tile's readable foreground
+  ['--nw-avatar-text', '--nw-avatar-background', 4.5], // accent-colored avatars and their initials
   ['--nw-chart-line', '--nw-surface-raised', 3],
   // Owner design (2026-10-02): figure labels, muted control icons, the ink action and the sidebar wash
   ...['--nw-surface-raised', '--nw-surface-inset', '--nw-surface-page', '--nw-surface-sidebar'].map(

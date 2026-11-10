@@ -29,11 +29,6 @@
   }
 }
 
-.platforms-header__subtitle {
-  color: var(--nw-text-label);
-  font-size: 0.90625rem;
-}
-
 .platforms-header__actions {
   display: flex;
   flex-wrap: wrap;
@@ -85,37 +80,6 @@
 
   &[hidden] {
     display: none;
-  }
-}
-
-// Disabled but focusable (aria-disabled), so keyboard users reach the explanation.
-.platforms-header__create-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  block-size: 2.5rem;
-  padding-inline: 0.875rem;
-  border: 0;
-  border-radius: var(--nw-radius-md);
-  // The avatar circle's colours (owner request); still unavailable: aria-disabled, the tooltip and the cursor say so.
-  background-color: var(--nw-avatar-background);
-  color: var(--nw-avatar-text);
-  font: inherit;
-  font-size: 0.8125rem;
-  font-weight: var(--nw-font-weight-semibold);
-  cursor: not-allowed;
-
-  &--live {
-    cursor: pointer;
-
-    &:hover {
-      filter: brightness(1.12);
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--nw-focus-ring);
-    outline-offset: 2px;
   }
 }
 

@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -15,13 +14,13 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { retryOf } from '../../../../core/actions/action-failure';
 import { APP_ENVIRONMENT } from '../../../../core/config/app-environment';
 import { NwButton } from '../../../../shared/ui/button/button';
-import { NwDialog } from '../../../../shared/ui/dialog/dialog';
+import { NwIconButton } from '../../../../shared/ui/icon-button/icon-button';
 import { NwControl, NwFormField } from '../../../../shared/ui/form-field/form-field';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
 import { NwInlineAlert } from '../../../../shared/ui/inline-alert/inline-alert';
 import { NwSpinner } from '../../../../shared/ui/spinner/spinner';
 import {
-  type OperatorCreateAction,
+  OperatorCreateAction,
   createFailureKey,
   isDuplicateContact,
 } from '../../application/operator-create.action';
@@ -70,7 +69,7 @@ const INPUTS = {
     TranslocoPipe,
     NwButton,
     NwControl,
-    NwDialog,
+    NwIconButton,
     NwFormField,
     NwIcon,
     NwInlineAlert,
@@ -79,10 +78,10 @@ const INPUTS = {
   templateUrl: './operator-create-dialog.html',
   styleUrl: './operator-create-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { role: 'complementary', 'aria-labelledby': 'operator-create-title' },
 })
 export class OperatorCreateDialog {
-  protected readonly action = inject<OperatorCreateAction>(DIALOG_DATA);
-  private readonly ref = inject(DialogRef);
+  protected readonly action = inject(OperatorCreateAction);
   private readonly injector = inject(Injector);
 
   protected readonly state = this.action.run.state;
@@ -173,7 +172,7 @@ export class OperatorCreateDialog {
     effect(() => {
       const state = this.state();
       if (state.phase === 'succeeded' || state.phase === 'closed') {
-        this.ref.close();
+        this.action.close();
         return;
       }
       const step =
@@ -195,7 +194,11 @@ export class OperatorCreateDialog {
   }
 
   protected onValue(event: Event): void {
-    this.value.set((event.target as HTMLInputElement).value);
+    const input = event.target as HTMLInputElement;
+    const value =
+      this.kind() === 'phone' ? input.value.replace(/[^0-9]/g, '').slice(0, 8) : input.value;
+    input.value = value;
+    this.value.set(value);
   }
 
   protected onCode(event: Event): void {
@@ -212,7 +215,9 @@ export class OperatorCreateDialog {
       return;
     }
     // The normalized value is what is sent, and what the field now shows.
-    this.value.set(contactText(parsed.contact));
+    this.value.set(
+      parsed.contact.kind === 'phone' ? parsed.contact.phone.slice(4) : contactText(parsed.contact),
+    );
     this.sent.set(parsed.contact);
     this.code.set('');
     this.action.run.submit(parsed.contact);
@@ -224,6 +229,7 @@ export class OperatorCreateDialog {
   }
 
   protected back(): void {
+    if (this.busy()) return;
     this.action.run.back();
   }
 
@@ -243,7 +249,7 @@ export class OperatorCreateDialog {
 
   protected cancel(): void {
     if (this.busy()) return;
-    this.ref.close();
+    this.action.close();
   }
 
   private focusFor(phase: string): void {

@@ -148,7 +148,33 @@ export class DemoAuthState {
     ALL_DEMO_OPERATORS.filter((o) => !o.confirmed).map((o) => [o.identity.userId, CODE_ATTEMPTS]),
   );
   /** The simulated Core session; other demo mocks read whose data to answer with from it. */
-  readonly signedIn = signal<DemoSignedIn | null>(null);
+  readonly signedIn = signal<DemoSignedIn | null>(this.restoreSession());
+  setSession(session: DemoSignedIn | null): void {
+    this.signedIn.set(session);
+    try {
+      if (session)
+        globalThis.sessionStorage.setItem('nw.demo.mockSession', JSON.stringify(session));
+      else globalThis.sessionStorage.removeItem('nw.demo.mockSession');
+    } catch {
+      /* Demo authentication still works in memory. */
+    }
+  }
+
+  private restoreSession(): DemoSignedIn | null {
+    try {
+      const value = JSON.parse(globalThis.sessionStorage.getItem('nw.demo.mockSession') ?? 'null');
+      if (
+        value &&
+        typeof value.identity?.userId === 'string' &&
+        (value.businessIdentityId === null || typeof value.businessIdentityId === 'string')
+      ) {
+        return { identity: value.identity, businessIdentityId: value.businessIdentityId };
+      }
+    } catch {
+      /* Invalid or unavailable storage starts signed out. */
+    }
+    return null;
+  }
 
   /**
    * What Core's block does outside the account row (`operator-admin.service.ts`, P6-S3), for one operator: every unused
@@ -168,7 +194,7 @@ export class DemoAuthState {
       this.workingCodes.delete(userId);
       this.confirmationCodes.delete(userId);
     }
-    if (this.signedIn()?.businessIdentityId === operator) this.signedIn.set(null);
+    if (this.signedIn()?.businessIdentityId === operator) this.setSession(null);
   }
 
   /**

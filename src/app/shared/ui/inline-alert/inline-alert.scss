@@ -12,7 +12,7 @@
   border-radius: var(--nw-radius-md);
   background-color: var(--nw-inline-alert-bg);
   color: var(--nw-inline-alert-fg);
-  font-size: calc(var(--nw-text-size-sm) * var(--nw-admin-text-scale, 1));
+  font-size: var(--nw-text-size-sm);
   line-height: 1.45;
 }
 
@@ -35,6 +35,11 @@
   --nw-inline-alert-fg: var(--nw-alert-success-fg);
   --nw-inline-alert-border: var(--nw-alert-success-border);
   --nw-inline-alert-icon: var(--nw-alert-success-icon);
+}
+
+:host(.auth-success-surface.nw-inline-alert--success) {
+  --nw-inline-alert-bg: transparent;
+  --nw-inline-alert-border: color-mix(in srgb, var(--nw-alert-success-fg) 15%, transparent);
 }
 
 .nw-inline-alert__icon {
@@ -67,7 +72,7 @@
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: calc(0.8125rem * var(--nw-admin-text-scale, 1));
+  font-size: 0.8125rem;
   font-weight: var(--nw-font-weight-semibold);
   cursor: pointer;
 

@@ -28,6 +28,7 @@ import {
   UnavailableNotificationSummaryGateway,
 } from '../../core/notifications/notification-summary.gateway';
 import { MockNotificationSummaryGateway } from '../../core/notifications/notification-summary.mock';
+import { DemoNotificationInbox } from '../../core/notifications/notification-inbox.mock';
 import { loadShellRoutes } from '../shell.routes';
 import { NAVIGATION, NOTIFICATIONS_ITEM, SETTINGS_ITEM } from './navigation';
 import { Sidebar } from './sidebar';
@@ -145,6 +146,7 @@ async function render(
             ? MockNotificationSummaryGateway
             : UnavailableNotificationSummaryGateway,
       },
+      DemoNotificationInbox,
       { provide: ScopeDirectoryGateway, useClass: ScriptedDirectory },
       { provide: AuthGateway, useClass: UnavailableAuthGateway },
       NotificationIndicator,
@@ -185,6 +187,38 @@ const text = (element: Element | null | undefined) =>
   element?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
 
 describe('Sidebar', () => {
+  it('offers a desktop toggle and keeps collapsed navigation links named', async () => {
+    const { sidebar, fixture } = await render(owner);
+    const toggle = sidebar.querySelector<HTMLButtonElement>('.sidebar__toggle');
+    const requested = vi.fn();
+    fixture.componentInstance.toggleRequested.subscribe(requested);
+    expect(toggle?.getAttribute('aria-label')).toBe(en.shell.collapseNavigation);
+    toggle?.click();
+    expect(requested).toHaveBeenCalledOnce();
+
+    fixture.componentRef.setInput('collapsed', true);
+    await settle(fixture);
+    expect(toggle?.getAttribute('aria-label')).toBe(en.shell.expandNavigation);
+    expect(toggle?.getAttribute('aria-expanded')).toBe('false');
+    expect(sidebar.querySelector('.nw-brand-mark__word')).toBeNull();
+    expect(sidebar.querySelector('.nw-brand-mark__symbol')).not.toBeNull();
+    expect(sidebar.querySelector('nav a[href="/overview"]')?.getAttribute('title')).toBe(
+      en.shell.nav.overview,
+    );
+
+    fixture.componentRef.setInput('drawer', true);
+    await settle(fixture);
+    expect(sidebar.querySelector('.sidebar__toggle')).toBeNull();
+    expect(sidebar.querySelector('.sidebar__close')).not.toBeNull();
+  });
+
+  it('shows navigation links without section titles or group toggle buttons', async () => {
+    const { sidebar } = await render(owner);
+    expect(sidebar.querySelector('nav .sidebar__group-label')).toBeNull();
+    expect(sidebar.querySelector('nav button')).toBeNull();
+    expect(sidebar.querySelector('adm-context-switcher')).toBeNull();
+  });
+
   it('lists only working pages: every entry is a link, none is inert (G0-P0-3)', async () => {
     const { sidebar } = await render(owner);
     const links = Array.from(sidebar.querySelectorAll<HTMLAnchorElement>('nav a'));
@@ -201,7 +235,7 @@ describe('Sidebar', () => {
       ['/notifications', en.shell.nav.notifications],
       ['/services', en.shell.nav.services],
     ]);
-    expect(sidebar.querySelector('.sidebar__footer a')?.getAttribute('href')).toBe('/settings');
+    expect(sidebar.querySelector('.sidebar__secondary a')?.getAttribute('href')).toBe('/settings');
     // No inert, "not available yet" entry: Users & identity, Files and Monitoring are not listed until they exist (G0-D5).
     expect(
       sidebar.querySelectorAll('.sidebar__item--unavailable, nav span.sidebar__item'),
@@ -255,21 +289,34 @@ describe('Sidebar', () => {
     }
   });
 
-  it('shows the owner profile with their role', async () => {
+  it('anchors search and copyright in the footer without a duplicate account card', async () => {
     const { sidebar } = await render(owner);
-    expect(sidebar.querySelector('.sidebar__name')?.textContent).toBe('Demo Owner');
-    expect(sidebar.querySelector('.sidebar__role')?.textContent).toBe(en.shell.role.owner);
+    expect(sidebar.querySelector('.sidebar__footer adm-global-search')).not.toBeNull();
+    expect(sidebar.querySelector('.sidebar__profile')).toBeNull();
+    expect(sidebar.querySelector('.sidebar__secondary a[href="/settings"]')).not.toBeNull();
+  });
+
+  it('links the logo to the dashboard in expanded and collapsed layouts', async () => {
+    const { sidebar, fixture } = await render(owner, { url: '/settings' });
+    const link = sidebar.querySelector<HTMLAnchorElement>('.sidebar__home');
+    expect(link?.getAttribute('href')).toBe('/overview');
+    fixture.componentRef.setInput('collapsed', true);
+    await settle(fixture);
+    link?.click();
+    await settle(fixture);
+    expect(TestBed.inject(Router).url).toBe('/overview');
+    expect(link?.querySelector('.nw-brand-mark__symbol')).not.toBeNull();
   });
 
   it('renders the Nawara Admin logo alone, named "Nawara Admin", without a SOLUTIONS line', async () => {
     const { sidebar } = await render(owner);
-    const mark = sidebar.querySelector('nw-brand-mark');
+    const mark = sidebar.querySelector('nw-admin-brand-lockup');
     expect(mark?.getAttribute('aria-label')).toBe(en.brand.adminLogoLabel);
     expect(en.brand.adminLogoLabel).toBe('Nawara Admin');
-    expect(mark?.querySelector('.nw-brand-mark__word')).not.toBeNull();
-    expect(mark?.classList).not.toContain('nw-brand-mark--full');
-    expect(mark?.querySelector('.nw-brand-mark__solutions-text')).toBeNull();
-    expect(mark?.querySelector('.nw-brand-mark__rule')).toBeNull();
+    expect(mark?.querySelector('.nw-brand-mark__type')).not.toBeNull();
+    expect(mark?.querySelector('.nw-brand-mark__word-symbol')).not.toBeNull();
+    expect(mark?.querySelector('.admin-brand-lockup__tile')).toBeNull();
+    expect(mark?.querySelector('.admin-brand-lockup__name')).toBeNull();
   });
 
   it('badges Notifications with the owner’s unread count, and shows no badge without a count', async () => {
@@ -310,10 +357,8 @@ describe('Sidebar', () => {
       ]);
       // Personal Notifications (P8-S3) and settings are open to operators too: they grant no capability.
       expect(
-        [...sidebar.querySelectorAll('.sidebar__footer a')].map((a) => a.getAttribute('href')),
+        [...sidebar.querySelectorAll('.sidebar__secondary a')].map((a) => a.getAttribute('href')),
       ).toEqual(['/notifications', '/settings']);
-      expect(sidebar.querySelector('.sidebar__name')?.textContent).toBe('operator@x.invalid');
-      expect(sidebar.querySelector('.sidebar__role')?.textContent).toBe(en.shell.role.operator);
     });
 
     it('shows a loading placeholder while the Platforms load', async () => {
@@ -342,32 +387,6 @@ describe('Sidebar', () => {
     it('never badges an operator with the owner’s notifications', async () => {
       const { sidebar } = await render(operator);
       expect(sidebar.querySelector('.sidebar__badge')).toBeNull();
-    });
-  });
-
-  describe('account menu trigger (A3-S3)', () => {
-    it('is a working menu button named by the person and their role', async () => {
-      const { sidebar } = await render(owner);
-      const card = sidebar.querySelector<HTMLButtonElement>('.sidebar__profile');
-      expect(card?.disabled).toBe(false);
-      expect(card?.getAttribute('aria-haspopup')).toBe('menu');
-      expect(card?.getAttribute('aria-label')).toBe('Account: Demo Owner, Company owner');
-      expect(card?.getAttribute('aria-busy')).toBeNull();
-    });
-
-    it('says it is signing out, busy and unavailable, while a sign-out runs', async () => {
-      const { sidebar, fixture } = await render(owner);
-      const gateway = TestBed.inject(AuthGateway);
-      gateway.logout = () => NEVER;
-      void TestBed.inject(SignOut).run();
-      await settle(fixture);
-      const card = sidebar.querySelector<HTMLButtonElement>('.sidebar__profile');
-      expect(card?.getAttribute('aria-busy')).toBe('true');
-      expect(card?.getAttribute('aria-disabled')).toBe('true');
-      expect(sidebar.querySelector('.sidebar__role')?.textContent).toBe(
-        en.shell.account.signingOut,
-      );
-      expect(sidebar.querySelector('.sidebar__profile nw-spinner')).not.toBeNull();
     });
   });
 });

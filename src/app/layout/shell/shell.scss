@@ -172,3 +172,7 @@
 :host(.shell--drawer-open) .shell__sidebar:dir(rtl) {
   transform: none;
 }
+
+:host(.shell--collapsed) {
+  --nw-shell-sidebar-width: 4.75rem;
+}

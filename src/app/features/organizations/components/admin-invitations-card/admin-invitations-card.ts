@@ -68,6 +68,8 @@ export class AdminInvitationsCard {
 
   /** The Organization shown by the detail page. */
   readonly target = input.required<InvitationTarget>();
+  readonly showCreate = input(true);
+  readonly activeOnly = input(false);
 
   protected readonly status = STATUS;
   protected readonly creatorKeys = CREATOR_KEYS;
@@ -81,6 +83,10 @@ export class AdminInvitationsCard {
       handled = requests;
       afterNextRender(() => this.heading()?.nativeElement.focus(), { injector: this.injector });
     });
+  }
+
+  protected activeInvitations(invitations: readonly AdminInvitation[]): readonly AdminInvitation[] {
+    return invitations.filter((invitation) => invitation.status === 'active');
   }
 
   protected creator(invitation: AdminInvitation) {

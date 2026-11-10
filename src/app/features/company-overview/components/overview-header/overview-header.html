@@ -1,6 +1,5 @@
 <div class="overview-header__titles">
-  <h1 class="overview-header__title">{{ 'companyOverview.title' | transloco }}</h1>
-  <p class="overview-header__subtitle">{{ 'companyOverview.subtitle' | transloco }}</p>
+  <h1 class="nw-page-title overview-header__title">{{ 'companyOverview.title' | transloco }}</h1>
 </div>
 <div class="overview-header__actions">
   @if (isDemo()) {
@@ -24,53 +23,54 @@
         [hidden]="!demoInfoOpen()"
       >
         <p>{{ 'shell.demo.explanation' | transloco }}</p>
-        @if (canCreate()) {
-          <p>
-            {{
-              (createAvailable() ? 'platforms.create.simulated' : 'platforms.create.unavailable')
-                | transloco
-            }}
-          </p>
-        }
       </div>
     </div>
   }
-  @if (periodDays(); as days) {
-    <!-- One period exists (Core offers no period selection): the selector is shown, disabled, and says so. -->
-    <button
-      type="button"
-      class="overview-header__chip overview-header__chip--period"
-      disabled
-      aria-describedby="period-note"
-      [title]="'shell.notAvailableYet' | transloco"
+  <button
+    type="button"
+    class="overview-header__chip overview-header__chip--period"
+    [nwMenuTriggerFor]="periodMenu"
+    [attr.aria-label]="
+      ('companyOverview.periodLabel' | transloco) +
+      ': ' +
+      ((periodDays() === 1 ? 'companyOverview.today' : 'companyOverview.period')
+        | transloco: { days: periodDays() })
+    "
+  >
+    <span class="overview-header__period-icon"><nw-icon name="calendar" size="sm" /></span>
+    <span class="overview-header__period-label">{{
+      (periodDays() === 1 ? 'companyOverview.today' : 'companyOverview.period')
+        | transloco: { days: periodDays() }
+    }}</span>
+    <span class="overview-header__period-chevron"><nw-icon name="chevron-down" size="sm" /></span>
+  </button>
+  <ng-template #periodMenu>
+    <nw-menu
+      class="overview-header__period-menu"
+      [attr.aria-label]="'companyOverview.periodLabel' | transloco"
     >
-      <nw-icon name="calendar" size="sm" />
-      {{ 'companyOverview.period' | transloco: { days: days } }}
-      <nw-icon name="chevron-down" size="sm" />
-    </button>
-    <span id="period-note" class="nw-visually-hidden">{{
-      'companyOverview.periodUnavailable' | transloco
-    }}</span>
-  }
-  @if (canCreate() && createAvailable()) {
-    <button type="button" class="overview-header__create-button" (click)="create.emit()">
-      <nw-icon name="plus" size="sm" />
-      {{ 'companyOverview.create' | transloco }}
-    </button>
-  } @else if (canCreate()) {
-    <span class="overview-header__create" [title]="'platforms.create.unavailable' | transloco">
-      <button
-        type="button"
-        class="overview-header__create-button"
-        disabled
-        aria-describedby="create-platform-note"
-      >
-        <nw-icon name="plus" size="sm" />
-        {{ 'companyOverview.create' | transloco }}
-      </button>
-    </span>
-    <span id="create-platform-note" class="nw-visually-hidden">{{
-      'platforms.create.unavailable' | transloco
-    }}</span>
-  }
+      <span class="overview-header__period-heading" aria-hidden="true">{{
+        'companyOverview.periodLabel' | transloco
+      }}</span>
+      @for (days of periods; track days) {
+        <button
+          type="button"
+          cdkMenuItemRadio
+          class="overview-header__period-option"
+          [attr.data-period]="days"
+          [cdkMenuItemChecked]="days === periodDays()"
+          (cdkMenuItemTriggered)="periodChange.emit(days)"
+        >
+          <span class="overview-header__option-icon"><nw-icon name="calendar" size="sm" /></span>
+          <span>{{
+            (days === 1 ? 'companyOverview.today' : 'companyOverview.period')
+              | transloco: { days: days }
+          }}</span>
+          @if (days === periodDays()) {
+            <nw-icon class="overview-header__period-check" name="check" size="sm" />
+          }
+        </button>
+      }
+    </nw-menu>
+  </ng-template>
 </div>

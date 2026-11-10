@@ -1,22 +1,9 @@
-// Exports the Nawara Admin favicon family from its vector master (B2; docs/BRAND.md §B1).
-//
-// Master: docs/brand/nawara-admin-favicon.svg (Option A, owner selection 2026-11-01): hand-drawn on a 64-unit grid, the
-// botanical colour `currentColor`, the users glyph (class "detail") painted with the palette's pictogram colour.
-//
-// Outputs (the existing paths; ThemeService applies them with a version suffix, tools/brand/recolor_artwork.py FAVICON_VERSION):
-// - public/favicon.svg and public/icons/favicon-<palette>[-light].svg: real vector SVGs (no embedded raster), one per
-//   palette and appearance file name, each in that appearance's leaf and pictogram colours: the APP's resolved
-//   appearance, which the file name encodes (B1 finishing pass; no browser-scheme switching, so the dark-mode tab icon
-//   always carries the dark treatment). Colours are read from the token files, never approximated: tokens/_accents.scss (`--nw-color-primary`
-//   per palette and appearance), the foundation's coral-600 / coral-400 for Coral, and the reference blue #046efa for
-//   Sapphire (owner decision B1, `--nw-logo-accent`).
-// - public/favicon.ico (16, 32, 48), public/icons/icon-{16,32,48,192,512}.png (transparent), public/apple-touch-icon.png
-//   (180, opaque white, 12 % margin) and public/icons/icon-maskable-512.png (opaque white, symbol inside the 80 % safe
-//   zone): rasterized by Chromium from the master in the default palette (Coral, light value), since a raster cannot
-//   follow a palette.
-//
-// Deterministic for a given Chromium (the environment's Playwright; not a project dependency, like the Python tools).
-// Usage, from the repository root:  node tools/brand/export_favicon.mjs
+// Export the tab-sized Nawara leaf-and-people emblem from docs/brand/nawara-admin-favicon.svg.
+// Paint the enlarged emblem with the selected accent and resolved appearance tokens.
+// Write all existing palette filenames so stored preferences and ThemeService retain their current URL contract.
+// Raster exports include transparent PNG/ICO, Apple touch icons and maskable app icons.
+// Usage: node tools/brand/export_favicon.mjs [--svg-only]
+// Raster export needs an environment-provided Playwright installation; --svg-only has no browser dependency.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
@@ -47,7 +34,6 @@ function logoColours() {
   );
   const ref = (name) => foundation.match(new RegExp(`${name}: (#[0-9a-f]{6});`))[1];
   const value = (v) => (v.startsWith('var(') ? ref(v.slice(4, -1)) : v);
-  // The pictogram colour per appearance (theme defaults), then each palette's override (tokens/_accents.scss).
   const detail = {};
   for (const theme of ['light', 'dark']) {
     const source = readFileSync(resolve(ROOT, `src/styles/tokens/_theme-${theme}.scss`), 'utf8');
@@ -69,14 +55,15 @@ function logoColours() {
     light: { leaf: ref('--nw-ref-coral-600'), detail: detail.light },
     dark: { leaf: ref('--nw-ref-coral-400'), detail: detail.dark },
   };
-  for (const p of PALETTES)
-    if (!table[p]?.light || !table[p]?.dark) throw new Error(`no colour for ${p}`);
+  for (const palette of PALETTES)
+    if (!table[palette]?.light || !table[palette]?.dark)
+      throw new Error(`no colour for ${palette}`);
   if (table.sapphire.light.leaf !== REFERENCE_BLUE || table.sapphire.dark.leaf !== REFERENCE_BLUE)
     throw new Error('sapphire must keep the reference blue');
   return table;
 }
 
-/** The master in one appearance's colours: its leaf and its pictogram. */
+/** The same enlarged emblem in the palette's leaf and pictogram colours. */
 function themed(colours) {
   const style = `<style>svg{color:${colours.leaf}}.detail{fill:${colours.detail}}</style>`;
   return MASTER.replace(/<!--[\s\S]*?-->\s*/, '')
@@ -122,6 +109,11 @@ console.log(
   'public/favicon.svg and public/icons/favicon-<palette>[-light].svg written (22 vector files)',
 );
 
+if (process.argv.includes('--svg-only')) {
+  console.log('Raster icon export skipped (--svg-only).');
+  process.exit(0);
+}
+
 const { chromium } = createRequire(import.meta.url)('playwright');
 const browser = await chromium.launch();
 const page = await (await browser.newContext({ deviceScaleFactor: 1 })).newPage();
@@ -156,5 +148,5 @@ writeFileSync(
 );
 await browser.close();
 console.log(
-  `favicon.ico, icons/icon-{16,32,48,192,512}.png, apple-touch-icon.png, icons/icon-maskable-512.png written (Coral ${colours.coral.light.leaf})`,
+  `favicon.ico, icons/icon-{16,32,48,192,512}.png, apple-touch-icon.png, icons/icon-maskable-512.png written (default coral ${colours.coral.light.leaf})`,
 );

@@ -42,7 +42,7 @@ const operator: Actor = {
 };
 
 function securityRoute(): Route {
-  const route = SETTINGS_ROUTES.find((r) => r.path === 'security');
+  const route = SETTINGS_ROUTES[0]?.children?.find((r) => r.path === 'security');
   if (!route) throw new Error('no security route');
   return route;
 }

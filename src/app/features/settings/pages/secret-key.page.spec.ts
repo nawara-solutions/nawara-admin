@@ -214,7 +214,7 @@ describe('Create a new secret key page (P9-S4c)', { timeout: 20_000 }, () => {
 
   it('end to end in the demo: warning, acknowledgement, confirm it’s you, the key masked, revealed, checked, saved, Done', async () => {
     const r = await render();
-    expect(text(r.element.querySelector('h1'))).toBe(t.title);
+    expect(text(r.element.querySelector('h2'))).toBe(t.title);
     expect(r.element.querySelector('[aria-current="step"]')?.textContent).toContain(t.steps.before);
     expect(text(r.element.querySelector('[data-warning]'))).toContain(t.intro.replaceTitle);
     expect(text(r.element.querySelector('[data-recovery]'))).toContain(t.intro.recoveryBody);
@@ -222,7 +222,7 @@ describe('Create a new secret key page (P9-S4c)', { timeout: 20_000 }, () => {
 
     await r.tick('[data-acknowledge]');
     await r.submit();
-    expect(text(r.element.querySelector('h2'))).toBe(t.verifyTitle);
+    expect(text(r.element.querySelector('#secret-key-verify'))).toBe(t.verifyTitle);
     expect(document.activeElement?.id).toBe('secret-key-verify');
     expect(text(r.element.querySelector('[data-demo-note]'))).toContain(DEMO_TOTP_CODE);
     await r.type('step-up-code', DEMO_TOTP_CODE);
@@ -527,7 +527,7 @@ describe('Create a new secret key page (P9-S4c)', { timeout: 20_000 }, () => {
     await TestBed.inject(LocaleService).use('ar');
     await r.settle();
     expect(document.documentElement.dir).toBe('rtl');
-    expect(text(r.element.querySelector('h1'))).toBe(ar.settings.security.secretKey.title);
+    expect(text(r.element.querySelector('h2'))).toBe(ar.settings.security.secretKey.title);
     await r.toKey();
     await r.click('[data-reveal]');
     expect(r.element.querySelector('[data-key]')?.getAttribute('dir')).toBe('ltr');

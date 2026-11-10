@@ -10,6 +10,11 @@
 @use 'sass:meta';
 @use 'base';
 
+// Keep the page scrollbar behind the operator drawer from showing through its edge.
+html:has(adm-operator-create-dialog) {
+  overflow: hidden;
+}
+
 :root {
   @include primitives.tokens;
   @include scales.tokens;
@@ -47,4 +52,9 @@
       @include meta.apply(meta.get-mixin('#{$name}-dark', 'accents'));
     }
   }
+}
+
+/* Density applies to data rows throughout the application. */
+tbody > tr > th, tbody > tr > td {
+  padding-block: var(--nw-density-row-padding, 0.6875rem) !important;
 }

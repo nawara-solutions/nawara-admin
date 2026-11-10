@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { NwBrandMark } from '../../../../shared/ui/brand-mark/brand-mark';
+import { AdminBrandLockup } from '../../../../shared/ui/admin-brand-lockup/admin-brand-lockup';
 
 /**
  * The brand panel of the sign-in pages (A4 design), on the inline-start side from `desktop` up and hidden below it:
@@ -9,7 +9,7 @@ import { NwBrandMark } from '../../../../shared/ui/brand-mark/brand-mark';
  */
 @Component({
   selector: 'adm-auth-brand-panel',
-  imports: [TranslocoPipe, NwBrandMark],
+  imports: [TranslocoPipe, AdminBrandLockup],
   templateUrl: './auth-brand-panel.html',
   styleUrl: './auth-brand-panel.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

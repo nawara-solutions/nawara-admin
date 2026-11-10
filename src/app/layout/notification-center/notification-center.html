@@ -1,0 +1,189 @@
+<button
+  #trigger
+  class="top-bar__bell"
+  type="button"
+  cdkOverlayOrigin
+  #origin="cdkOverlayOrigin"
+  aria-haspopup="dialog"
+  [attr.aria-expanded]="open()"
+  [attr.aria-label]="
+    unread()
+      ? ('shell.notifications.bellUnread' | transloco: { count: unread() })
+      : ('shell.notifications.bell' | transloco)
+  "
+  (click)="toggle()"
+>
+  <nw-icon name="bell" />
+  @if (unread()) {
+    <span class="top-bar__dot" aria-hidden="true"></span>
+    <span class="nw-visually-hidden" aria-live="polite">
+      {{ 'shell.notifications.unread' | transloco: { count: unread() } }}
+    </span>
+  }
+</button>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="origin"
+  [cdkConnectedOverlayOpen]="open()"
+  [cdkConnectedOverlayPositions]="positions"
+  [cdkConnectedOverlayViewportMargin]="12"
+  [cdkConnectedOverlayPush]="true"
+  (attach)="panel()?.nativeElement.focus()"
+  (overlayOutsideClick)="outsideClick($event)"
+  (overlayKeydown)="keydown($event)"
+>
+  <section
+    #panel
+    class="notification-center__panel"
+    role="dialog"
+    tabindex="-1"
+    [attr.aria-label]="'notifications.header.title' | transloco"
+    (keydown)="keydown($event)"
+  >
+    @if (state.state().status === 'success') {
+      <nav
+        class="notification-center__filters"
+        [attr.aria-label]="'notifications.filters.label' | transloco"
+      >
+        @for (item of filters; track item.id) {
+          <button
+            type="button"
+            class="notification-center__filter"
+            [class.notification-center__filter--active]="filter() === item.id"
+            [attr.aria-pressed]="filter() === item.id"
+            (click)="filter.set(item.id)"
+          >
+            {{ item.key | transloco }}
+          </button>
+        }
+      </nav>
+
+      <div class="notification-center__recent-heading">
+        <div class="notification-center__recent-title">
+          <h3>{{ 'notifications.recent' | transloco }}</h3>
+          @if (unread(); as count) {
+            <span class="notification-center__count">{{
+              'notifications.newCount' | transloco: { count: count | nwNumber }
+            }}</span>
+          }
+        </div>
+        @if (unread(); as count) {
+          @if (count > 0) {
+            <button type="button" [disabled]="state.actionPending()" (click)="state.markAllRead()">
+              <nw-icon name="check" size="sm" />{{ 'notifications.markAllRead' | transloco }}
+            </button>
+          }
+        }
+      </div>
+
+      <div class="notification-center__list" role="list">
+        @for (record of visibleRecords(); track record.id) {
+          <article
+            class="notification-center__item"
+            role="listitem"
+            [class.notification-center__item--unread]="record.unread"
+          >
+            <span
+              class="notification-center__item-icon"
+              [class.notification-center__item-icon--urgent]="record.priority === 'urgent'"
+              aria-hidden="true"
+            >
+              <nw-icon [name]="categoryIcon(record)" size="sm" />
+            </span>
+            <div class="notification-center__body">
+              @if (record.destination) {
+                <a
+                  class="notification-center__item-title"
+                  [routerLink]="record.destination"
+                  (click)="activateRecord(record)"
+                >
+                  {{ record.titleKey | transloco }}
+                </a>
+              } @else {
+                <h4 class="notification-center__item-title">{{ record.titleKey | transloco }}</h4>
+              }
+              <p>{{ record.descriptionKey | transloco }}</p>
+              <span class="notification-center__context"
+                ><bdi>{{ record.context }}</bdi> · {{ record.createdAt | nwDate: 'relative' }}</span
+              >
+            </div>
+            <div class="notification-center__trailing">
+              @if (record.priority === 'urgent') {
+                <span class="notification-center__priority">{{
+                  'notifications.priority.urgent' | transloco
+                }}</span>
+              }
+              @if (record.unread) {
+                <span class="notification-center__unread-dot"
+                  ><span class="nw-visually-hidden">{{
+                    'notifications.unreadItem' | transloco
+                  }}</span></span
+                >
+              }
+              <button
+                type="button"
+                class="notification-center__read-action"
+                [disabled]="state.actionPending()"
+                [attr.aria-label]="
+                  (record.unread ? 'notifications.markRead' : 'notifications.keepUnread')
+                    | transloco
+                "
+                [title]="
+                  (record.unread ? 'notifications.markRead' : 'notifications.keepUnread')
+                    | transloco
+                "
+                (click)="record.unread ? state.markRead(record.id) : state.keepUnread(record.id)"
+              >
+                <nw-icon [name]="record.unread ? 'check' : 'bell'" size="sm" />
+              </button>
+            </div>
+          </article>
+        } @empty {
+          <div class="notification-center__empty">
+            <nw-icon name="bell" size="lg" />
+            <p>{{ 'notifications.emptyFiltered' | transloco }}</p>
+          </div>
+        }
+      </div>
+    } @else if (state.unavailable()) {
+      <div class="notification-center__unavailable" role="status">
+        <nw-icon name="info" size="lg" />
+        <p>{{ 'notifications.states.notInBuildDescription' | transloco }}</p>
+      </div>
+    } @else {
+      <div class="notification-center__unavailable" role="status">
+        <nw-icon name="hourglass" size="lg" />
+        <p>{{ 'notifications.states.loading' | transloco }}</p>
+      </div>
+    }
+
+    @if (state.actionError()) {
+      <p class="notification-center__error" role="alert">
+        {{ 'notifications.states.actionError' | transloco }}
+      </p>
+    }
+    <footer class="notification-center__footer">
+      <div class="notification-center__settings-wrap">
+        <button
+          type="button"
+          class="notification-center__settings"
+          [attr.aria-expanded]="preferencesOpen()"
+          (click)="togglePreferences()"
+        >
+          <nw-icon name="settings" size="sm" /><span>{{
+            'notifications.preferences.title' | transloco
+          }}</span>
+        </button>
+        @if (preferencesOpen()) {
+          <p class="notification-center__preferences-note" role="status">
+            {{ 'notifications.preferences.unavailable' | transloco }}
+          </p>
+        }
+      </div>
+      <button type="button" class="notification-center__view-all" (click)="viewAll()">
+        {{ 'notifications.viewAll' | transloco }}<nw-icon name="arrow-right" size="sm" />
+      </button>
+    </footer>
+  </section>
+</ng-template>

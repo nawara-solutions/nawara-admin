@@ -1,6 +1,7 @@
 import { Dialog, DialogRef } from '@angular/cdk/dialog';
 import { ComponentType } from '@angular/cdk/portal';
-import { Injectable, InjectionToken, inject } from '@angular/core';
+import { Overlay } from '@angular/cdk/overlay';
+import { Injectable, InjectionToken, Injector, inject } from '@angular/core';
 
 /** The id the `nw-dialog` title must carry so the dialog is labelled by it. */
 export const NW_DIALOG_TITLE_ID = new InjectionToken<string>('NW_DIALOG_TITLE_ID');
@@ -14,6 +15,10 @@ export interface NwDialogOptions<D> {
    * Default: the first tabbable element, which is the close button of the frame.
    */
   readonly autoFocus?: string;
+  /** Display the dialog as a full-height panel on the right. */
+  readonly sidePanel?: boolean;
+  /** Injector providing feature-scoped dependencies to the dialog. */
+  readonly injector?: Injector;
 }
 
 let nextId = 0;
@@ -26,6 +31,7 @@ let nextId = 0;
 @Injectable({ providedIn: 'root' })
 export class NwDialogService {
   private readonly dialog = inject(Dialog);
+  private readonly overlay = inject(Overlay);
 
   open<R = unknown, D = unknown, C = unknown>(
     component: ComponentType<C>,
@@ -35,6 +41,10 @@ export class NwDialogService {
     return this.dialog.open<R, D, C>(component, {
       ...(options.data === undefined ? {} : { data: options.data }),
       role: options.role ?? 'dialog',
+      ...(options.injector ? { injector: options.injector } : {}),
+      ...(options.sidePanel
+        ? { positionStrategy: this.overlay.position().global().top('0').right('0') }
+        : {}),
       ariaModal: true,
       ariaLabelledBy: titleId,
       autoFocus: options.autoFocus ?? 'first-tabbable',

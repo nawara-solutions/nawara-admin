@@ -19,6 +19,60 @@ const value = (metric: Metric): number => {
 describe('Company Overview of the demo world (derived from its records)', () => {
   const { summary, platforms, access } = overview;
 
+  it.each([1, 7, 30, 90] as const)(
+    'derives a %i-day history with matching per-platform samples',
+    (days) => {
+      const result = demoCompanyOverview(world, NOW, days);
+      expect(result.periodDays).toBe(days);
+      if (result.growth.status !== 'available') throw new Error('expected growth');
+      const points = result.growth.data.points;
+      const start = new Date(NOW - days * 86400000).toISOString().slice(0, 10);
+      expect(points[0]?.day).toBe(start);
+      expect(points.at(-1)?.day).toBe('2026-10-23');
+      expect(points.at(-1)?.organizations).toBe(24);
+      points.forEach((point, index) => {
+        expect(
+          result.growth.status === 'available' &&
+            result.growth.data.platforms.reduce(
+              (sum, platform) => sum + (platform.points[index]?.organizations ?? 0),
+              0,
+            ),
+        ).toBe(point.organizations);
+      });
+    },
+  );
+
+  it('Today includes only events since UTC midnight, rather than the last 24 hours', () => {
+    const dated = {
+      ...world,
+      activity: world.activity
+        .slice(0, 2)
+        .map((event, index) => ({
+          ...event,
+          occurredAt: new Date(NOW - (index === 0 ? 6 : 18) * 3600000).toISOString(),
+        })),
+    };
+    const result = demoCompanyOverview(dated, NOW, 1);
+    if (result.activity.status !== 'available' || result.growth.status !== 'available')
+      throw new Error('expected data');
+    expect(result.activity.data.map((event) => event.id)).toEqual([dated.activity[0]?.id]);
+    expect(result.growth.data.points).toHaveLength(2);
+  });
+
+  it('filters activity by the selected period before limiting the feed', () => {
+    const dated = {
+      ...world,
+      activity: world.activity.map((event) => ({
+        ...event,
+        occurredAt: new Date(NOW - 20 * 86400000).toISOString(),
+      })),
+    };
+    const short = demoCompanyOverview(dated, NOW, 7);
+    const long = demoCompanyOverview(dated, NOW, 30);
+    expect(short.activity).toEqual({ status: 'available', data: [] });
+    expect(long.activity.status === 'available' && long.activity.data.length).toBe(RECENT_ACTIVITY);
+  });
+
   it('counts the world’s Platforms and adds up their Organizations', () => {
     expect(value(summary.platforms)).toBe(world.platforms.length);
     expect(platforms.map((p) => p.platform.id)).toEqual(world.platforms.map((p) => p.id));
@@ -104,11 +158,11 @@ describe('Company Overview of the demo world (derived from its records)', () => 
   it('derives the commercial summary from subscription end dates and payment records', () => {
     const commercial = demoCommercialSummary(world, NOW);
     expect(value(commercial.activeSubscriptions)).toBe(20);
-    expect(value(commercial.expiringSoon)).toBe(4);
+    expect(value(commercial.expiringSoon)).toBe(8);
     expect(commercial.expiringWithinDays).toBe(14);
     expect(value(commercial.paymentIssues)).toBe(2);
     // Twenty days on, the subscriptions that were expiring have ended.
     const later = demoCommercialSummary(world, NOW + 20 * 86_400_000);
-    expect(value(later.activeSubscriptions)).toBe(15);
+    expect(value(later.activeSubscriptions)).toBe(11);
   });
 });

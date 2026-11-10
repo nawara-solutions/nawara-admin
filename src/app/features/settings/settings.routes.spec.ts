@@ -3,6 +3,8 @@ import { BREADCRUMB_DATA, BREADCRUMB_PARENT_DATA } from '../../layout/breadcrumb
 import { loadShellRoutes } from '../../layout/shell.routes';
 import { SETTINGS_ROUTES } from './settings.routes';
 
+const SECTIONS = SETTINGS_ROUTES[0]?.children ?? [];
+
 describe('settings routes (P9-S1)', () => {
   it('is open to every signed-in person, owner or operator: no capability guard, under the shell’s session guard', async () => {
     const [shell] = await loadShellRoutes({ production: true, demo: null });
@@ -11,14 +13,12 @@ describe('settings routes (P9-S1)', () => {
     expect(route).toBeDefined();
     expect(route?.canActivate).toBeUndefined();
     // Personal settings have no capability guard; only Security (P9-S4a) and Company (P9-S3) are the owner's.
-    for (const child of SETTINGS_ROUTES.filter(
-      (r) => r.path !== 'company' && r.path !== 'security',
-    ))
+    for (const child of SECTIONS.filter((r) => r.path !== 'company' && r.path !== 'security'))
       expect(child.canActivate).toBeUndefined();
   });
 
-  it('makes /settings a page (the hub), not a redirect, with Appearance, Language, Account, Security and Company below it', () => {
-    expect(SETTINGS_ROUTES.map((r) => [r.path, r.title, r.redirectTo])).toEqual([
+  it('makes /settings a default Appearance page within one shared workspace, not a redirect, with Appearance, Language, Account, Security and Company below it', () => {
+    expect(SECTIONS.map((r) => [r.path, r.title, r.redirectTo])).toEqual([
       ['', 'titles.settings', undefined],
       ['appearance', 'titles.settingsAppearance', undefined],
       ['language', 'titles.settingsLanguage', undefined],
@@ -27,8 +27,8 @@ describe('settings routes (P9-S1)', () => {
       ['company', 'titles.settingsCompany', undefined],
     ]);
     // P9-S2: the own account only; no route takes an identity parameter
-    for (const route of SETTINGS_ROUTES) expect(route.path).not.toContain(':');
-    const [hub, ...sections] = SETTINGS_ROUTES;
+    for (const route of SECTIONS) expect(route.path).not.toContain(':');
+    const [hub, ...sections] = SECTIONS;
     expect(hub?.pathMatch).toBe('full');
     expect(hub?.data?.[BREADCRUMB_DATA]).toBe('shell.breadcrumb.settings');
     for (const section of sections) {
@@ -40,6 +40,6 @@ describe('settings routes (P9-S1)', () => {
   });
 
   it('binds no gateway or facade: browser-local preferences need none', () => {
-    for (const route of SETTINGS_ROUTES) expect(route.providers).toBeUndefined();
+    for (const route of SECTIONS) expect(route.providers).toBeUndefined();
   });
 });

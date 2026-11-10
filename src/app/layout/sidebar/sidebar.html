@@ -1,5 +1,13 @@
 <div class="sidebar__brand">
-  <nw-brand-mark class="sidebar__logo" [label]="'brand.adminLogoLabel' | transloco" wordmark />
+  <a class="sidebar__home" [routerLink]="home()">
+    <nw-admin-brand-lockup
+      class="sidebar__logo"
+      symbolFirst
+      typeset
+      [compact]="collapsed()"
+      [label]="'brand.adminLogoLabel' | transloco"
+    />
+  </a>
   @if (drawer()) {
     <button
       nw-icon-button
@@ -9,10 +17,25 @@
       [label]="'shell.closeNavigation' | transloco"
       (click)="closeRequested.emit()"
     ></button>
+  } @else {
+    <button
+      nw-icon-button
+      type="button"
+      class="sidebar__toggle"
+      icon="panel-left"
+      [label]="(collapsed() ? 'shell.expandNavigation' : 'shell.collapseNavigation') | transloco"
+      [attr.aria-expanded]="!collapsed()"
+      aria-controls="sidebar-navigation"
+      (click)="toggleRequested.emit()"
+    ></button>
   }
 </div>
 
-<nav class="sidebar__nav" [attr.aria-label]="'shell.mainNavigation' | transloco">
+<nav
+  id="sidebar-navigation"
+  class="sidebar__nav"
+  [attr.aria-label]="'shell.mainNavigation' | transloco"
+>
   @if (isOperator()) {
     <!-- An operator's own Platforms (their assignments, named through the scope directory). -->
     @let assigned = assignedPlatforms();
@@ -30,13 +53,13 @@
                 <a
                   class="sidebar__item"
                   [routerLink]="platformLink(platform)"
+                  [attr.title]="collapsed() ? platform.name : null"
                   routerLinkActive="sidebar__item--active"
                   ariaCurrentWhenActive="page"
                 >
                   <nw-icon
                     class="sidebar__icon"
                     [name]="platform.product === 'drive' ? 'car' : 'hexagon'"
-                    size="lg"
                   />
                   <bdi class="sidebar__label">{{ platform.name }}</bdi>
                 </a>
@@ -59,9 +82,8 @@
       }
     }
   }
-  @for (group of groups(); track group.labelKey; let g = $index) {
-    <p class="sidebar__group-label" [id]="'sidebar-group-' + g">{{ group.labelKey | transloco }}</p>
-    <ul class="sidebar__list" role="list" [attr.aria-labelledby]="'sidebar-group-' + g">
+  @for (group of groups(); track group.labelKey) {
+    <ul class="sidebar__list" role="list">
       @for (item of group.items; track item.labelKey) {
         <li>
           <ng-container
@@ -74,7 +96,7 @@
   }
 </nav>
 
-<div class="sidebar__footer">
+<div class="sidebar__secondary">
   <ul class="sidebar__list" role="list">
     @if (isOperator()) {
       <li>
@@ -91,45 +113,32 @@
       />
     </li>
   </ul>
-  @if (profile(); as person) {
-    <!-- The account menu's first trigger (the top-bar avatar is the other). -->
-    <button
-      type="button"
-      class="sidebar__profile"
-      [class.sidebar__profile--busy]="signingOut()"
-      [nwMenuTriggerFor]="accountMenu"
-      [attr.aria-label]="
-        'shell.account.trigger'
-          | transloco: { name: person.name, role: (person.roleKey | transloco) }
-      "
-      [attr.aria-busy]="signingOut() || null"
-      [attr.aria-disabled]="signingOut() || null"
+</div>
+
+<div class="sidebar__footer">
+  <adm-global-search class="sidebar__search" [compact]="collapsed()" />
+  <p class="sidebar__copyright" dir="ltr">
+    <span class="sidebar__build">
+      <span class="sidebar__copyright-year">© {{ copyrightYear }}</span>
+      <span class="sidebar__company">{{ 'brand.logoLabel' | transloco }}</span>
+    </span>
+    <span
+      class="sidebar__version"
+      [attr.title]="'shell.appVersion' | transloco: { version: appVersion }"
+      >v{{ appVersion }}</span
     >
-      <span class="sidebar__avatar" aria-hidden="true">{{ person.initials }}</span>
-      <span class="sidebar__person" aria-hidden="true">
-        <bdi class="sidebar__name">{{ person.name }}</bdi>
-        <span class="sidebar__role">{{
-          (signingOut() ? 'shell.account.signingOut' : person.roleKey) | transloco
-        }}</span>
-      </span>
-      @if (signingOut()) {
-        <nw-spinner class="sidebar__profile-icon" />
-      } @else {
-        <nw-icon class="sidebar__profile-icon" name="chevrons-up-down" size="sm" />
-      }
-    </button>
-  }
-  <ng-template #accountMenu><adm-account-menu /></ng-template>
+  </p>
 </div>
 
 <ng-template #entry let-item>
   <a
     class="sidebar__item"
     [routerLink]="item.path"
+    [attr.title]="collapsed() ? (item.labelKey | transloco) : null"
     routerLinkActive="sidebar__item--active"
     ariaCurrentWhenActive="page"
   >
-    <nw-icon class="sidebar__icon" [name]="item.icon" size="lg" />
+    <nw-icon class="sidebar__icon" [name]="item.icon" />
     <span class="sidebar__label">{{ item.labelKey | transloco }}</span>
     <ng-container [ngTemplateOutlet]="badge" [ngTemplateOutletContext]="{ $implicit: item }" />
   </a>

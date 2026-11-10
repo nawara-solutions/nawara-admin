@@ -1,4 +1,10 @@
-<div [id]="listId()">
+<div
+  class="organization-table__scroll"
+  [id]="listId()"
+  tabindex="0"
+  role="region"
+  [attr.aria-label]="'organizations.table.label' | transloco"
+>
   <table class="organization-table__table">
     <caption class="nw-visually-hidden">
       {{
@@ -24,6 +30,9 @@
       @for (row of rows(); track row.organization.id) {
         <tr>
           <th scope="row">
+            <span class="organization-table__avatar" aria-hidden="true">{{
+              row.organization.name.slice(0, 1)
+            }}</span>
             <a class="organization-table__link" [routerLink]="pathOf(row)">
               <bdi>{{ row.organization.name }}</bdi>
             </a>
@@ -41,24 +50,26 @@
           @if (commercial()) {
             @if (row.commercial; as facts) {
               <td>
-                <nw-status-badge [tone]="badges[facts.subscription.state].tone">{{
-                  badges[facts.subscription.state].key | transloco
-                }}</nw-status-badge>
-                @if (noteOf(row); as note) {
-                  <span class="organization-table__note">
-                    @if (note.kind === 'ends') {
-                      {{
-                        'organizations.subscription.ends'
-                          | transloco: { when: note.at | nwDate: 'until' }
-                      }}
-                    } @else {
-                      {{
-                        'organizations.subscription.graceEnds'
-                          | transloco: { when: note.at | nwDate: 'date-time' }
-                      }}
-                    }
-                  </span>
-                }
+                <span class="organization-table__subscription">
+                  <nw-status-badge [tone]="badges[facts.subscription.state].tone">{{
+                    badges[facts.subscription.state].key | transloco
+                  }}</nw-status-badge>
+                  @if (noteOf(row); as note) {
+                    <span class="organization-table__note">
+                      @if (note.kind === 'ends') {
+                        {{
+                          'organizations.subscription.ends'
+                            | transloco: { when: note.at | nwDate: 'until' }
+                        }}
+                      } @else {
+                        {{
+                          'organizations.subscription.graceEnds'
+                            | transloco: { when: note.at | nwDate: 'date-time' }
+                        }}
+                      }
+                    </span>
+                  }
+                </span>
               </td>
               <td>
                 @let policy = policyKeys(facts.assistedPayments);
@@ -102,24 +113,26 @@
           </span>
           <span class="organization-table__facts">
             @if (commercial() && row.commercial; as facts) {
-              <nw-status-badge [tone]="badges[facts.subscription.state].tone">{{
-                badges[facts.subscription.state].key | transloco
-              }}</nw-status-badge>
-              @if (noteOf(row); as note) {
-                <span class="organization-table__note">
-                  @if (note.kind === 'ends') {
-                    {{
-                      'organizations.subscription.ends'
-                        | transloco: { when: note.at | nwDate: 'until' }
-                    }}
-                  } @else {
-                    {{
-                      'organizations.subscription.graceEnds'
-                        | transloco: { when: note.at | nwDate: 'date-time' }
-                    }}
-                  }
-                </span>
-              }
+              <span class="organization-table__subscription">
+                <nw-status-badge [tone]="badges[facts.subscription.state].tone">{{
+                  badges[facts.subscription.state].key | transloco
+                }}</nw-status-badge>
+                @if (noteOf(row); as note) {
+                  <span class="organization-table__note">
+                    @if (note.kind === 'ends') {
+                      {{
+                        'organizations.subscription.ends'
+                          | transloco: { when: note.at | nwDate: 'until' }
+                      }}
+                    } @else {
+                      {{
+                        'organizations.subscription.graceEnds'
+                          | transloco: { when: note.at | nwDate: 'date-time' }
+                      }}
+                    }
+                  </span>
+                }
+              </span>
             }
             <span>{{
               'organizations.header.created'

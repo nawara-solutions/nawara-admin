@@ -3,8 +3,9 @@
 <header class="add-authenticator__header">
   <div class="add-authenticator__titles">
     <p class="add-authenticator__eyebrow">{{ 'settings.security.title' | transloco }}</p>
-    <h1 class="add-authenticator__title">{{ 'settings.security.add.title' | transloco }}</h1>
-    <p class="add-authenticator__subtitle">{{ 'settings.security.add.subtitle' | transloco }}</p>
+    <h2 class="nw-page-title add-authenticator__title">
+      {{ 'settings.security.add.title' | transloco }}
+    </h2>
   </div>
   @if (isDemo()) {
     <span class="add-authenticator__demo">
@@ -72,10 +73,10 @@
     }
 
     <section class="add-authenticator__card" aria-labelledby="add-authenticator-scan">
-      <h2 id="add-authenticator-scan" class="add-authenticator__heading" tabindex="-1" #heading>
+      <h3 id="add-authenticator-scan" class="add-authenticator__heading" tabindex="-1" #heading>
         <span class="add-authenticator__step-number">1</span>
         <span>{{ 'settings.security.add.scanTitle' | transloco }}</span>
-      </h2>
+      </h3>
       <nw-totp-setup
         [setup]="flow.setup()"
         [labels]="{
@@ -93,10 +94,10 @@
     </section>
 
     <section class="add-authenticator__card" aria-labelledby="add-authenticator-code">
-      <h2 id="add-authenticator-code" class="add-authenticator__heading">
+      <h3 id="add-authenticator-code" class="add-authenticator__heading">
         <span class="add-authenticator__step-number">2</span>
         <span>{{ 'settings.security.add.codeTitle' | transloco }}</span>
-      </h2>
+      </h3>
       <form
         class="add-authenticator__form"
         novalidate
@@ -188,10 +189,10 @@
     }
 
     <section class="add-authenticator__card" aria-labelledby="add-authenticator-verify">
-      <h2 id="add-authenticator-verify" class="add-authenticator__heading" tabindex="-1" #heading>
+      <h3 id="add-authenticator-verify" class="add-authenticator__heading" tabindex="-1" #heading>
         <span class="add-authenticator__step-number">3</span>
         <span>{{ 'settings.security.add.verifyTitle' | transloco }}</span>
-      </h2>
+      </h3>
       <p class="add-authenticator__intro" id="add-authenticator-purpose">
         {{ 'settings.security.add.verifyIntro' | transloco }}
       </p>
@@ -284,17 +285,17 @@
 
   @case ('reconciling') {
     <section class="add-authenticator__card add-authenticator__card--message" role="status">
-      <h2 class="add-authenticator__heading" tabindex="-1" #heading>
+      <h3 class="add-authenticator__heading" tabindex="-1" #heading>
         <nw-spinner />
         <span>{{ 'settings.security.add.reconcilingTitle' | transloco }}</span>
-      </h2>
+      </h3>
       <p>{{ 'settings.security.add.reconciling' | transloco }}</p>
     </section>
   }
 
   @case ('preparing') {
     <section class="add-authenticator__card" aria-labelledby="add-authenticator-preparing">
-      <h2
+      <h3
         id="add-authenticator-preparing"
         class="add-authenticator__heading"
         tabindex="-1"
@@ -302,7 +303,7 @@
       >
         <span class="add-authenticator__step-number">1</span>
         <span>{{ 'settings.security.add.scanTitle' | transloco }}</span>
-      </h2>
+      </h3>
       <nw-totp-setup
         [setup]="null"
         [labels]="{
@@ -331,7 +332,7 @@
         aria-labelledby="add-authenticator-message"
         [attr.data-message]="m.id"
       >
-        <h2
+        <h3
           id="add-authenticator-message"
           class="add-authenticator__heading"
           tabindex="-1"
@@ -339,7 +340,7 @@
         >
           <nw-icon [name]="m.icon" />
           <span>{{ m.title | transloco }}</span>
-        </h2>
+        </h3>
         <p>{{ m.description | transloco }}</p>
         <div class="add-authenticator__actions">
           @switch (m.id) {

@@ -2,6 +2,10 @@
   display: contents;
 }
 
+adm-auth-card {
+  max-inline-size: 26rem;
+}
+
 .mfa__form {
   display: grid;
   gap: var(--nw-space-4);
@@ -11,7 +15,7 @@
 .mfa__code {
   min-block-size: 3rem;
   font-family: var(--nw-font-mono);
-  font-size: calc(1.125rem * var(--nw-admin-text-scale, 1));
+  font-size: 1.125rem;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.3em;
 }
@@ -22,7 +26,7 @@
 
 .mfa__text {
   color: var(--nw-text-label);
-  font-size: calc(0.8125rem * var(--nw-admin-text-scale, 1));
+  font-size: 0.8125rem;
   line-height: 1.55;
 }
 
@@ -40,13 +44,13 @@
 
 .mfa__waiting-title {
   color: var(--nw-text-primary);
-  font-size: calc(0.9375rem * var(--nw-admin-text-scale, 1));
+  font-size: 0.8125rem;
   font-weight: var(--nw-font-weight-semibold);
 }
 
 .mfa__waiting-note {
   color: var(--nw-text-secondary);
-  font-size: calc(0.8125rem * var(--nw-admin-text-scale, 1));
+  font-size: 0.8125rem;
 }
 
 .mfa__links {
@@ -54,7 +58,7 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: var(--nw-space-2);
-  font-size: calc(0.75rem * var(--nw-admin-text-scale, 1));
+  font-size: 0.8125rem;
 }
 
 // Actions in this step, styled as the design's text links.

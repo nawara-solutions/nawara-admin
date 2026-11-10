@@ -1,11 +1,11 @@
 @let view = facade.view();
-<header class="account-security__header">
+<header class="account-security__header" [class.nw-visually-hidden]="view.status === 'ready'">
   <div class="account-security__titles">
-    <p class="account-security__eyebrow">{{ 'settings.title' | transloco }}</p>
-    <h1 class="account-security__title">{{ 'settings.security.title' | transloco }}</h1>
-    <p class="account-security__subtitle">{{ 'settings.security.subtitle' | transloco }}</p>
+    <h2 class="nw-page-title account-security__title">
+      {{ 'settings.security.title' | transloco }}
+    </h2>
   </div>
-  @if (isDemo()) {
+  @if (isDemo() && view.status !== 'ready') {
     <span class="account-security__demo">
       <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
     </span>
@@ -73,259 +73,289 @@
 
 @switch (view.status) {
   @case ('ready') {
-    <section class="account-security__card" aria-labelledby="security-factors" data-factors>
-      <div class="account-security__intro">
-        <h2 id="security-factors" class="account-security__heading">
-          {{ 'settings.security.factors.title' | transloco }}
-        </h2>
-        <p class="account-security__muted" data-confirmed-count>
-          {{
-            'settings.security.factors.confirmedCount'
-              | transloco: { count: (view.confirmedCount | nwNumber) }
-          }}
-        </p>
+    <section
+      class="account-security__summary"
+      [class.account-security__summary--unconfirmed]="view.confirmedCount === 0"
+      aria-labelledby="security-summary-heading"
+    >
+      <span class="account-security__summary-icon"><nw-icon name="shield-check" size="lg" /></span>
+      <div class="account-security__summary-copy">
+        <div class="account-security__summary-title">
+          <h3 id="security-summary-heading">
+            {{
+              'settings.security.overview.summaryTitle'
+                | transloco: { count: (view.confirmedCount | nwNumber) }
+            }}
+          </h3>
+          @if (isDemo()) {
+            <span class="account-security__demo"
+              ><nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}</span
+            >
+          }
+        </div>
+        <p>{{ 'settings.security.overview.summaryHint' | transloco }}</p>
       </div>
-      <ul class="account-security__factors" role="list">
-        @for (factor of view.factors; track factor.id) {
-          <li
-            class="account-security__factor"
-            [attr.data-factor]="factor.type"
-            [attr.data-confirmed]="factor.confirmed"
-          >
-            <span class="account-security__mark" aria-hidden="true"
-              ><nw-icon [name]="types[factor.type].icon"
-            /></span>
-            <div class="account-security__factor-body">
-              <div class="account-security__factor-head">
-                @let label = labelOf(factor);
-                <h3 class="account-security__factor-name">
-                  {{ label.key | transloco: label.params }}
-                </h3>
-                @if (factor.confirmed) {
-                  <nw-status-badge tone="success">{{
-                    'settings.security.factors.confirmed' | transloco
-                  }}</nw-status-badge>
-                } @else {
-                  <nw-status-badge tone="warning">{{
-                    'settings.security.factors.unfinished' | transloco
-                  }}</nw-status-badge>
-                }
-              </div>
-              @if (!factor.confirmed) {
-                <p class="account-security__muted" data-unfinished-note>
-                  {{ 'settings.security.factors.unfinishedNote' | transloco }}
-                </p>
-              }
-              <dl class="account-security__facts" [id]="'security-factor-' + factor.id">
-                @if (factor.createdAt; as added) {
-                  <div class="account-security__fact" data-added>
-                    <dt>{{ 'settings.security.factors.added' | transloco }}</dt>
-                    <dd>{{ added | nwDate: 'date-time' }}</dd>
-                  </div>
-                }
-                <div class="account-security__fact" data-last-used>
-                  <dt>{{ 'settings.security.factors.lastUsed' | transloco }}</dt>
-                  <dd>
-                    @if (factor.lastUsedAt; as used) {
-                      {{ used | nwDate: 'date-time' }}
+      <div class="account-security__summary-chips">
+        @for (type of confirmedTypes(); track type.labelKey) {
+          <span><nw-icon name="circle-check" size="sm" />{{ type.labelKey | transloco }}</span>
+        }
+        <span class="account-security__unknown"
+          ><nw-icon name="circle-help" size="sm" />{{
+            'settings.security.overview.keySummary' | transloco
+          }}</span
+        >
+      </div>
+    </section>
+    <div class="account-security__layout">
+      <div class="account-security__main">
+        <section class="account-security__card" aria-labelledby="security-factors" data-factors>
+          <div class="account-security__intro">
+            <h3 id="security-factors" class="account-security__heading">
+              {{ 'settings.security.factors.title' | transloco }}
+            </h3>
+            <p class="account-security__muted">
+              {{ 'settings.security.overview.factorsHint' | transloco }}
+            </p>
+            <p class="account-security__count" data-confirmed-count>
+              {{
+                'settings.security.overview.confirmedCount'
+                  | transloco: { count: (view.confirmedCount | nwNumber) }
+              }}
+            </p>
+          </div>
+          <ul class="account-security__factors" role="list">
+            @for (factor of view.factors; track factor.id) {
+              <li
+                class="account-security__factor"
+                [attr.data-factor]="factor.type"
+                [attr.data-confirmed]="factor.confirmed"
+              >
+                <span class="account-security__mark" aria-hidden="true"
+                  ><nw-icon [name]="types[factor.type].icon"
+                /></span>
+                <div class="account-security__factor-body">
+                  <div class="account-security__factor-head">
+                    @let label = labelOf(factor);
+                    <h3 class="account-security__factor-name">
+                      {{ label.key | transloco: label.params }}
+                    </h3>
+                    @if (factor.confirmed) {
+                      <nw-status-badge tone="success">{{
+                        'settings.security.factors.confirmed' | transloco
+                      }}</nw-status-badge>
                     } @else {
-                      <span class="account-security__muted">{{
-                        'settings.security.factors.noUse' | transloco
-                      }}</span>
+                      <nw-status-badge tone="warning">{{
+                        'settings.security.factors.unfinished' | transloco
+                      }}</nw-status-badge>
                     }
-                  </dd>
-                </div>
-              </dl>
-              @if (canRemove() && factor.confirmed) {
-                @let block = blocks().get(factor.id) ?? null;
-                <div class="account-security__remove" data-remove-row>
-                  <button
-                    nw-button
-                    variant="secondary"
-                    size="sm"
-                    type="button"
-                    data-remove
-                    [disabled]="block !== null"
-                    [attr.aria-label]="
-                      'settings.security.remove.action'
-                        | transloco: { factor: (label.key | transloco: label.params) }
-                    "
-                    [attr.aria-describedby]="
-                      block === null
-                        ? 'security-factor-' + factor.id
-                        : 'security-remove-reason-' + factor.id
-                    "
-                    (click)="remove(factor.id)"
-                  >
-                    <nw-icon name="trash" size="sm" />{{
-                      'settings.security.remove.button' | transloco
-                    }}
-                  </button>
-                  @if (block !== null) {
-                    <p
-                      class="account-security__muted"
-                      data-remove-reason
-                      [attr.data-reason]="block"
-                      [id]="'security-remove-reason-' + factor.id"
-                    >
-                      {{ removalBlocks[block] | transloco }}
+                  </div>
+                  @if (!factor.confirmed) {
+                    <p class="account-security__muted" data-unfinished-note>
+                      {{ 'settings.security.factors.unfinishedNote' | transloco }}
                     </p>
                   }
+                  <dl class="account-security__facts" [id]="'security-factor-' + factor.id">
+                    @if (factor.createdAt; as added) {
+                      <div class="account-security__fact" data-added>
+                        <dt>{{ 'settings.security.factors.added' | transloco }}</dt>
+                        <dd>{{ added | nwDate: 'date-time' }}</dd>
+                      </div>
+                    }
+                    <div class="account-security__fact" data-last-used>
+                      <dt [class.nw-visually-hidden]="!factor.lastUsedAt">
+                        {{ 'settings.security.factors.lastUsed' | transloco }}
+                      </dt>
+                      <dd>
+                        @if (factor.lastUsedAt; as used) {
+                          {{ used | nwDate: 'date-time' }}
+                        } @else {
+                          <span class="account-security__muted">{{
+                            'settings.security.factors.noUse' | transloco
+                          }}</span>
+                        }
+                      </dd>
+                    </div>
+                  </dl>
+                  @if (canRemove() && factor.confirmed) {
+                    @let block = blocks().get(factor.id) ?? null;
+                    <div class="account-security__remove" data-remove-row>
+                      <button
+                        nw-button
+                        variant="ghost"
+                        size="sm"
+                        type="button"
+                        data-remove
+                        [disabled]="block !== null"
+                        [attr.aria-label]="
+                          'settings.security.remove.action'
+                            | transloco: { factor: (label.key | transloco: label.params) }
+                        "
+                        [attr.aria-describedby]="
+                          block === null
+                            ? 'security-factor-' + factor.id
+                            : 'security-remove-reason-' + factor.id
+                        "
+                        (click)="remove(factor.id)"
+                      >
+                        <nw-icon [name]="block === null ? 'trash' : 'lock-keyhole'" size="sm" />{{
+                          (block === null
+                            ? 'settings.security.remove.button'
+                            : 'settings.security.overview.protected'
+                          ) | transloco
+                        }}
+                      </button>
+                      @if (block !== null) {
+                        <div class="account-security__protection">
+                          <nw-icon name="shield-check" size="sm" />
+                          <div>
+                            <strong>{{ protectionTitles[block] | transloco }}</strong>
+                            <p
+                              data-remove-reason
+                              [attr.data-reason]="block"
+                              [id]="'security-remove-reason-' + factor.id"
+                            >
+                              {{ removalBlocks[block] | transloco }}
+                            </p>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
                 </div>
+              </li>
+            }
+          </ul>
+          @if (canAdd()) {
+            <div class="account-security__add" data-add>
+              @if (view.hasAuthenticator) {
+                <a nw-button routerLink="/settings/security/add-authenticator">
+                  <nw-icon name="plus" size="sm" />{{ 'settings.security.add.action' | transloco }}
+                </a>
+              } @else {
+                <button
+                  nw-button
+                  type="button"
+                  disabled
+                  aria-describedby="security-add-unavailable"
+                >
+                  <nw-icon name="plus" size="sm" />{{ 'settings.security.add.action' | transloco }}
+                </button>
+                <p
+                  id="security-add-unavailable"
+                  class="account-security__muted"
+                  data-add-unavailable
+                >
+                  {{ 'settings.security.add.needsAuthenticator' | transloco }}
+                </p>
               }
+              <p class="account-security__muted" data-unavailable>
+                {{ 'settings.security.overview.passkeyUnavailable' | transloco }}
+              </p>
             </div>
-          </li>
+          }
+        </section>
+
+        @if (canChangePassword() || canCreateKey()) {
+          <section class="account-security__card" aria-labelledby="security-credentials">
+            <header class="account-security__intro">
+              <h3 id="security-credentials" class="account-security__heading">
+                {{ 'settings.security.overview.credentialsTitle' | transloco }}
+              </h3>
+              <p class="account-security__muted">
+                {{ 'settings.security.overview.credentialsHint' | transloco }}
+              </p>
+            </header>
+            @if (canChangePassword()) {
+              <div class="account-security__credential" data-password-card>
+                <span class="account-security__mark account-security__mark--neutral"
+                  ><nw-icon name="rectangle-ellipsis"
+                /></span>
+                <div class="account-security__credential-copy">
+                  <h4>{{ 'settings.security.password.cardTitle' | transloco }}</h4>
+                  <p>{{ 'settings.security.overview.passwordBody' | transloco }}</p>
+                </div>
+                <div class="account-security__credential-action" data-password-action>
+                  @if (view.hasAuthenticator) {
+                    <a nw-button variant="outline" routerLink="/settings/security/password">{{
+                      'settings.security.password.action' | transloco
+                    }}</a>
+                  } @else {
+                    <button
+                      nw-button
+                      variant="outline"
+                      type="button"
+                      disabled
+                      aria-describedby="security-password-unavailable"
+                    >
+                      {{ 'settings.security.password.action' | transloco }}
+                    </button>
+                  }
+                </div>
+                @if (!view.hasAuthenticator) {
+                  <p
+                    id="security-password-unavailable"
+                    class="account-security__credential-note"
+                    data-password-unavailable
+                  >
+                    {{ 'settings.security.password.needsAuthenticator' | transloco }}
+                  </p>
+                }
+              </div>
+            }
+            @if (canCreateKey()) {
+              <div class="account-security__credential" data-secret-key-card>
+                <span class="account-security__mark account-security__mark--neutral"
+                  ><nw-icon name="key-round"
+                /></span>
+                <div class="account-security__credential-copy">
+                  <div class="account-security__factor-head">
+                    <h4>{{ 'settings.security.secretKey.cardTitle' | transloco }}</h4>
+                    <span class="account-security__unknown">{{
+                      'settings.security.overview.cannotCheck' | transloco
+                    }}</span>
+                  </div>
+                  <p>{{ 'settings.security.overview.keyBody' | transloco }}</p>
+                </div>
+                <div class="account-security__credential-action" data-secret-key-action>
+                  @if (view.hasAuthenticator) {
+                    <a nw-button variant="outline" routerLink="/settings/security/secret-key">{{
+                      'settings.security.secretKey.action' | transloco
+                    }}</a>
+                  } @else {
+                    <button
+                      nw-button
+                      variant="outline"
+                      type="button"
+                      disabled
+                      aria-describedby="security-secret-key-unavailable"
+                    >
+                      {{ 'settings.security.secretKey.action' | transloco }}
+                    </button>
+                  }
+                </div>
+                <p class="account-security__credential-note">
+                  {{ 'settings.security.overview.keyReplaces' | transloco }}
+                </p>
+                @if (!view.hasAuthenticator) {
+                  <p
+                    id="security-secret-key-unavailable"
+                    class="account-security__credential-note"
+                    data-secret-key-unavailable
+                  >
+                    {{ 'settings.security.secretKey.needsAuthenticator' | transloco }}
+                  </p>
+                }
+              </div>
+            }
+          </section>
         }
-      </ul>
-      @if (canAdd()) {
-        <div class="account-security__add" data-add>
-          @if (view.hasAuthenticator) {
-            <a nw-button variant="secondary" routerLink="/settings/security/add-authenticator">
-              <nw-icon name="plus" size="sm" />{{ 'settings.security.add.action' | transloco }}
-            </a>
-          } @else {
-            <button
-              nw-button
-              variant="secondary"
-              type="button"
-              disabled
-              aria-describedby="security-add-unavailable"
-            >
-              <nw-icon name="plus" size="sm" />{{ 'settings.security.add.action' | transloco }}
-            </button>
-            <p id="security-add-unavailable" class="account-security__muted" data-add-unavailable>
-              {{ 'settings.security.add.needsAuthenticator' | transloco }}
-            </p>
-          }
-        </div>
-      }
-    </section>
-
-    @if (canCreateKey()) {
-      <section
-        class="account-security__card"
-        aria-labelledby="security-secret-key"
-        data-secret-key-card
-      >
-        <div class="account-security__intro">
-          <h2 id="security-secret-key" class="account-security__heading">
-            {{ 'settings.security.secretKey.cardTitle' | transloco }}
-          </h2>
-          <p class="account-security__muted">
-            {{ 'settings.security.secretKey.cardBody' | transloco }}
-          </p>
-        </div>
-        <div class="account-security__add" data-secret-key-action>
-          @if (view.hasAuthenticator) {
-            <a nw-button variant="secondary" routerLink="/settings/security/secret-key">
-              <nw-icon name="key-round" size="sm" />{{
-                'settings.security.secretKey.action' | transloco
-              }}
-            </a>
-          } @else {
-            <button
-              nw-button
-              variant="secondary"
-              type="button"
-              disabled
-              aria-describedby="security-secret-key-unavailable"
-            >
-              <nw-icon name="key-round" size="sm" />{{
-                'settings.security.secretKey.action' | transloco
-              }}
-            </button>
-            <p
-              id="security-secret-key-unavailable"
-              class="account-security__muted"
-              data-secret-key-unavailable
-            >
-              {{ 'settings.security.secretKey.needsAuthenticator' | transloco }}
-            </p>
-          }
-        </div>
-      </section>
-    }
-
-    @if (canChangePassword()) {
-      <section
-        class="account-security__card"
-        aria-labelledby="security-password"
-        data-password-card
-      >
-        <div class="account-security__intro">
-          <h2 id="security-password" class="account-security__heading">
-            {{ 'settings.security.password.cardTitle' | transloco }}
-          </h2>
-          <p class="account-security__muted">
-            {{ 'settings.security.password.cardBody' | transloco }}
-          </p>
-        </div>
-        <div class="account-security__add" data-password-action>
-          @if (view.hasAuthenticator) {
-            <a nw-button variant="secondary" routerLink="/settings/security/password">
-              <nw-icon name="key-round" size="sm" />{{
-                'settings.security.password.action' | transloco
-              }}
-            </a>
-          } @else {
-            <button
-              nw-button
-              variant="secondary"
-              type="button"
-              disabled
-              aria-describedby="security-password-unavailable"
-            >
-              <nw-icon name="key-round" size="sm" />{{
-                'settings.security.password.action' | transloco
-              }}
-            </button>
-            <p
-              id="security-password-unavailable"
-              class="account-security__muted"
-              data-password-unavailable
-            >
-              {{ 'settings.security.password.needsAuthenticator' | transloco }}
-            </p>
-          }
-        </div>
-      </section>
-    }
-
-    <section class="account-security__card" aria-labelledby="security-actions" data-guidance>
-      <h2 id="security-actions" class="account-security__heading">
-        {{ 'settings.security.actions.title' | transloco }}
-      </h2>
-      <ul class="account-security__list" role="list">
-        <li>{{ 'settings.security.actions.signIn' | transloco }}</li>
-        <li>{{ 'settings.security.actions.stepUp' | transloco }}</li>
-        <li>{{ 'settings.security.actions.lastFactor' | transloco }}</li>
-      </ul>
-    </section>
-
-    <section class="account-security__card" aria-labelledby="security-recovery" data-recovery>
-      <h2 id="security-recovery" class="account-security__heading">
-        {{ 'settings.security.recovery.title' | transloco }}
-      </h2>
-      <ul class="account-security__list" role="list">
-        <li>{{ 'settings.security.recovery.notGuaranteed' | transloco }}</li>
-        <li data-secret-key>{{ 'settings.security.recovery.secretKey' | transloco }}</li>
-        <li>{{ 'settings.security.recovery.process' | transloco }}</li>
-      </ul>
-    </section>
-
-    <section
-      class="account-security__card account-security__card--quiet"
-      aria-labelledby="security-unavailable"
-      data-unavailable
-    >
-      <h2 id="security-unavailable" class="account-security__heading">
-        {{ 'settings.security.unavailable.title' | transloco }}
-      </h2>
-      <ul class="account-security__list" role="list">
-        <li>{{ 'settings.security.unavailable.factors' | transloco }}</li>
-        <li>{{ 'settings.security.unavailable.recovery' | transloco }}</li>
-      </ul>
-    </section>
+      </div>
+      <aside
+        adm-security-guidance
+        class="account-security__aside"
+        [attr.aria-label]="'settings.security.overview.guidanceTitle' | transloco"
+      ></aside>
+    </div>
   }
   @case ('empty') {
     <nw-data-state

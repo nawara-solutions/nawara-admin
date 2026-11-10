@@ -5,7 +5,7 @@ import { MOCK_STEP_UP_PROVIDERS } from '../core/auth/step-up.mock';
 import { MOCK_AUTHORIZATION_RECEIPT_PROVIDERS } from '../core/authorization/authorization-receipt.mock';
 import { MOCK_SCOPE_DIRECTORY_PROVIDERS } from '../core/context/scope-directory.mock';
 import { MOCK_SERVICE_INVENTORY_PROVIDERS } from '../core/core-services/service-inventory.mock';
-import { MOCK_NOTIFICATION_SUMMARY_PROVIDERS } from '../core/notifications/notification-summary.mock';
+import { MOCK_NOTIFICATION_PROVIDERS } from '../core/notifications/notification-inbox.mock';
 import {
   MOCK_COMMERCIAL_SUMMARY_PROVIDERS,
   MOCK_COMPANY_OVERVIEW_PROVIDERS,
@@ -24,6 +24,7 @@ import { MOCK_ORGANIZATION_COMMAND_PROVIDERS } from '../features/organizations/d
 import { MOCK_ACTIVITY_PROVIDERS } from '../features/activity/data-access/activity.mock';
 import { MOCK_ASSISTANCE_PROVIDERS } from '../features/assistance/data-access/assistance.mock';
 import { MOCK_RELEASE_INFORMATION_PROVIDERS } from '../features/releases/data-access/release-information.mock';
+import { MOCK_PLATFORM_SETTINGS_PROVIDERS } from '../features/settings/data-access/platform-settings.mock';
 import { MOCK_COMPANY_SETTINGS_PROVIDERS } from '../features/settings/data-access/company-settings.mock';
 import { MOCK_ACCOUNT_SECURITY_PROVIDERS } from '../features/settings/data-access/account-security.mock';
 import { MOCK_BILLING_PROVIDERS } from '../features/billing/data-access/billing.mock';
@@ -41,7 +42,7 @@ export const DEMO_BINDINGS: DemoBindings = {
   providers: {
     auth: MOCK_AUTH_PROVIDERS,
     scopeDirectory: MOCK_SCOPE_DIRECTORY_PROVIDERS,
-    notificationSummary: MOCK_NOTIFICATION_SUMMARY_PROVIDERS,
+    notificationSummary: MOCK_NOTIFICATION_PROVIDERS,
     companyOverview: MOCK_COMPANY_OVERVIEW_PROVIDERS,
     platformDirectory: MOCK_PLATFORM_DIRECTORY_PROVIDERS,
     commercialSummary: MOCK_COMMERCIAL_SUMMARY_PROVIDERS,
@@ -51,6 +52,7 @@ export const DEMO_BINDINGS: DemoBindings = {
     services: MOCK_SERVICE_INVENTORY_PROVIDERS,
     releases: MOCK_RELEASE_INFORMATION_PROVIDERS,
     companySettings: MOCK_COMPANY_SETTINGS_PROVIDERS,
+    platformSettings: MOCK_PLATFORM_SETTINGS_PROVIDERS,
     accountSecurity: MOCK_ACCOUNT_SECURITY_PROVIDERS,
     platformDashboard: MOCK_PLATFORM_DASHBOARD_PROVIDERS,
     platformCommercial: MOCK_PLATFORM_COMMERCIAL_PROVIDERS,

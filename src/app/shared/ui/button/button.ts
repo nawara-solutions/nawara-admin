@@ -8,7 +8,7 @@ import {
   input,
 } from '@angular/core';
 
-export type NwButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+export type NwButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 export type NwButtonSize = 'sm' | 'md' | 'lg';
 
 /**
@@ -31,6 +31,7 @@ export type NwButtonSize = 'sm' | 'md' | 'lg';
     class: 'nw-button',
     '[class.nw-button--primary]': "variant() === 'primary'",
     '[class.nw-button--secondary]': "variant() === 'secondary'",
+    '[class.nw-button--outline]': "variant() === 'outline'",
     '[class.nw-button--ghost]': "variant() === 'ghost'",
     '[class.nw-button--danger]': "variant() === 'danger'",
     '[class.nw-button--sm]': "size() === 'sm'",

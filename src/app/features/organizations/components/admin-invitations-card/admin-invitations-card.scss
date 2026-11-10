@@ -2,9 +2,7 @@
 :host {
   display: grid;
   gap: var(--nw-space-3);
-  padding: var(--nw-space-4) var(--nw-space-5);
-  border: 1px solid var(--nw-border-default);
-  border-radius: var(--nw-radius-lg);
+  padding: 0;
   background-color: var(--nw-surface-raised);
   container-type: inline-size;
 }
@@ -58,17 +56,15 @@
 
 .admin-invitations__list {
   display: grid;
+  gap: var(--nw-space-3);
 }
 
 .admin-invitations__item {
   display: grid;
-  gap: var(--nw-space-2);
-  padding-block: var(--nw-space-3);
-  border-block-start: 1px solid var(--nw-border-subtle);
-
-  &:first-child {
-    border-block-start: 0;
-  }
+  gap: var(--nw-space-3);
+  padding: var(--nw-space-4);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
 }
 
 .admin-invitations__main {
@@ -81,6 +77,8 @@
 .admin-invitations__type {
   font-family: var(--nw-font-mono);
   font-size: var(--nw-text-size-sm);
+  font-weight: var(--nw-font-weight-semibold);
+  color: var(--nw-text-primary);
   overflow-wrap: anywhere;
 }
 
@@ -99,13 +97,20 @@
   font-size: var(--nw-text-size-sm);
 
   div {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0 var(--nw-space-2);
+    display: grid;
+    align-content: start;
+    gap: var(--nw-space-1);
+    min-inline-size: 0;
+  }
+
+  dd {
+    color: var(--nw-text-primary);
+    overflow-wrap: anywhere;
   }
 
   dt {
     color: var(--nw-text-secondary);
+    font-size: var(--nw-text-size-xs);
   }
 }
 

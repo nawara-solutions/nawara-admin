@@ -1,27 +1,28 @@
 import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import { capabilityGuard } from '../../core/access/access.guards';
-import { APP_ENVIRONMENT } from '../../core/config/app-environment';
+import { APP_ENVIRONMENT, adapterProviders } from '../../core/config/app-environment';
 import { BREADCRUMB_DATA, BREADCRUMB_PARENT_DATA } from '../../layout/breadcrumbs/breadcrumbs';
 
-/** The Settings hub, the parent crumb of every section ("Company › Settings › Language"). */
+/** Settings, the parent crumb of every section ("Company › Settings › Language"). */
 const SETTINGS_PARENT = { key: 'shell.breadcrumb.settings', link: '/settings' } as const;
 
 /**
- * Settings (`/settings`, P9-S1 to P9-S3; docs/design/p9-settings-architecture.md): the hub, Appearance and Language
+ * Settings (`/settings`, P9-S1 to P9-S3; docs/design/p9-settings-architecture.md): the default Appearance section, Appearance and Language
  * (browser-local preferences) and the signed-in person's own Account (read only, from the session), open to every
  * signed-in actor (owner or operator) and granting no administrative capability; and Company settings (read only), the
  * owner's only; and the owner's own Account security (P9-S4a overview; P9-S4b adding an authenticator app and P9-S4c
  * creating a new secret key, below it).
  * Platform settings are a later, separately authorized slice.
  */
-export const SETTINGS_ROUTES: Routes = [
+const sections: Routes = [
   {
     path: '',
     pathMatch: 'full',
     title: 'titles.settings',
     data: { [BREADCRUMB_DATA]: 'shell.breadcrumb.settings' },
-    loadComponent: () => import('./pages/settings-hub.page').then((m) => m.SettingsHubPage),
+    loadComponent: () =>
+      import('./pages/appearance-settings.page').then((m) => m.AppearanceSettingsPage),
   },
   {
     path: 'appearance',
@@ -32,6 +33,30 @@ export const SETTINGS_ROUTES: Routes = [
     },
     loadComponent: () =>
       import('./pages/appearance-settings.page').then((m) => m.AppearanceSettingsPage),
+  },
+  {
+    path: 'page-sections',
+    title: 'settings.accordions.title',
+    data: {
+      [BREADCRUMB_DATA]: 'settings.accordions.title',
+      [BREADCRUMB_PARENT_DATA]: SETTINGS_PARENT,
+    },
+    loadChildren: () => {
+      const environment = inject(APP_ENVIRONMENT);
+      return import('./data-access/platform-settings.gateway').then(async (gateway) => [
+        {
+          path: '',
+          providers: await adapterProviders(environment, 'platformSettings', [
+            {
+              provide: gateway.PlatformSettingsGateway,
+              useClass: gateway.UnavailablePlatformSettingsGateway,
+            },
+          ]),
+          loadComponent: () =>
+            import('./pages/accordion-settings.page').then((m) => m.AccordionSettingsPage),
+        },
+      ]);
+    },
   },
   {
     path: 'language',
@@ -87,5 +112,14 @@ export const SETTINGS_ROUTES: Routes = [
         m.loadCompanySettingsRoutes(environment),
       );
     },
+  },
+];
+
+/** One shared workspace; original section paths, lazy providers and guards remain unchanged. */
+export const SETTINGS_ROUTES: Routes = [
+  {
+    path: '',
+    loadComponent: () => import('./pages/settings-workspace').then((m) => m.SettingsWorkspace),
+    children: sections,
   },
 ];

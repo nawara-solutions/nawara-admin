@@ -120,6 +120,17 @@ export class OperatorDirectoryFacade {
     };
   });
 
+  /** Active assignment counts by platform, before directory filters are applied. */
+  readonly assignmentBreakdown = computed(() => {
+    const view = this.view();
+    if (view.status !== 'ready') return [];
+    const counts = new Map<PlatformId, number>();
+    for (const operator of view.operators) {
+      for (const id of operator.activePlatformIds) counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    return [...counts].map(([id, count]) => ({ id, count, name: this.platformName(id) }));
+  });
+
   readonly rows = computed<readonly OperatorSummary[]>(() => {
     const view = this.view();
     if (view.status !== 'ready') return [];

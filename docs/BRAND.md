@@ -38,20 +38,14 @@ light and dark; the lettering and the white details inside the leaf never change
 - **Regression checks.** `npm run check:brand` (in `validate`) guards the layer wiring, the removed rules, the box
   proportions, the 22 favicon colours and the icon sizes. Evidence is in `docs/review/b1-polish/`.
 
-**Symbol-first lockup (owner sign-in polish, 2026-11-03):**
+**Trailing-symbol composition (owner correction, 2026-11-03):**
 
-- **Composition.** The Admin logo now reads **`[symbol] nawara admin`**. `symbol_first_lockup` in
-  `tools/brand/extract_blue_leaf.py` composes it from the same pixels, nothing redrawn:
-  - the approved symbol, with its enlarged pictogram, at 0.82 (about 1.9× the wordmark's ascender-to-baseline height),
-    centred on the wordmark's optical centre;
-  - a 22 px gap;
-  - "nawara" and "admin" cut from the lettering layer at their own size and baseline, separated by a 26 px word space,
-    with stray specks removed.
-- **Files.** `public/brand/nawara-admin-lockup-{lettering,lettering-on-dark,symbol-mask,symbol-details}.webp` (906 ×
-  133), drawn by `nw-brand-mark` (all Admin wordmark placements). The Solutions and ERP logos, the scope-switcher symbol
-  and the favicons are unchanged.
-- **Box.** The logo box keeps the earlier height (1.028em), so no row moves. It is wider (5.352em) so the letters keep
-  their approved size: sign-in logo 189 → 216 px wide.
+- **Composition.** The Admin logo reads **`nawara admin [symbol]`** in the sidebar and sign-in screen. `symbol_first_lockup`
+  in `tools/brand/extract_blue_leaf.py` still extracts the same source layers; `nw-brand-mark` recomposes those unchanged
+  pixels with the botanical symbol after the complete wordmark. Nothing is redrawn or distorted.
+- **Proportions.** The lettering, symbol and 22 px source gap keep their original sizes and geometry. Together they retain
+  the 906 × 133 source artwork's 5.352em × 1.028em box, so placement and scale do not change.
+- **Scope.** The separate scope-switcher symbol, Nawara Solutions and ERP assets, and favicons are unchanged.
 - **RTL.** The Latin lockup keeps its order and is never mirrored.
 
 **Final correction (owner, 2026-11-01):**
@@ -74,8 +68,8 @@ light and dark; the lettering and the white details inside the leaf never change
   `tools/brand/repair_botanical_patch.py`; outside the block the files are unchanged.
 - **Favicon appearance:** each favicon now follows the **app's** appearance named in its file (dark files: dark leaf value,
   navy pictogram), no longer the browser's own scheme. `ThemeService` applies the links with a version suffix
-  (`FAVICON_VERSION`) so browsers fetch the corrected icons. Trade-off: a dark-mode favicon on a light browser tab uses the
-  pale dark leaf, faint for Pearl.
+  (`FAVICON_VERSION`) so browsers fetch the corrected icons. The tab artwork is transparent and uses the complete 64-unit
+  master without an enclosing circle or a reduced-size wrapper.
 
 | Item | Current (B1) | Provenance |
 |---|---|---|
@@ -86,8 +80,8 @@ light and dark; the lettering and the white details inside the leaf never change
 | Admin symbol | `nawara-admin-mark-mask.webp` and `nawara-admin-mark-details.webp` (200 × 163): the symbol alone, the neighbouring letters removed by colour | scope switcher (`nw-brand-mark` without options) and the favicon family |
 | Solutions logo | `nawara-solutions-lettering{,-on-dark}.webp`, `-symbol-mask.webp`, `-symbol-details.webp` (891 × 174) | the copyright line of the sign-in pages: "© 2026" stays text at its existing size, followed by the mark |
 | Sizing | each logo is drawn inside the box of the logo it replaces, every layer scaled with `contain` (never stretched): no element moves (`docs/review/b1/rendered-checks.txt`). The copyright mark is set in em of the copyright's own text, its lettering's baseline on the text baseline, and does not grow the line | — |
-| Favicons | **B2 (2026-11-01, owner selection "Option A, faithful simplification")**: a hand-drawn **vector master**, `docs/brand/nawara-admin-favicon.svg` (64-unit grid = 16 px x 4), a favicon-specific optical redraw of the Admin symbol from its measured layout (circuit strokes thickened, users glyph simplified to three heads over one line). It is **not** the official vector master of the logo and not a trace. `tools/brand/export_favicon.mjs` writes the tab icons at the existing file names (`favicon.svg`, `icons/favicon-<palette>[-light].svg`, so the existing switching needs no change) as **real vector SVGs**: the symbol in the palette's logo colour read from the token files (`_accents.scss`; Coral from the foundation's `coral-600` / `coral-400`; Sapphire the reference blue), and, inside each SVG, `prefers-color-scheme` switches to the palette's dark value when the browser itself is dark (a dark tab strip). Static icons, rasterized deterministically by Chromium from the master in the default palette (Coral, light value `#c42427`): `favicon.ico` (16/32/48), `icons/icon-{16,32,48,192,512}.png`, and opaque white squares for `apple-touch-icon.png` (180) and `icons/icon-maskable-512.png` (80 % safe zone). Checks: `docs/review/b2/` | owner selection B2
-| Fidelity and contrast limits | the logo symbol is about 200 px wide in the reference (raster logos). The favicon is vector since B2, so it is sharp at every size, but Option A keeps the rings and the three-person glyph: at **16 px** they are still soft (cleaner edges and solid stems than before; Options B and C were sharper at 16 px and remain available). With the exact tokens, the white glyph has little contrast where the primary is pale (**Pearl dark** `#f4f1f6`, **Midnight dark** `#c8c2dc`), and **Sapphire** keeps `#046efa` on dark tabs too (about 2.6:1 on Chrome's `#35363a`; owner decision B1). No variant was invented | inspected in the browser, `docs/review/b1/`, `docs/review/b2/` |
+| Favicons | **B2 (2026-11-01, owner selection "Option A, faithful simplification")**, with final sizing correction (2026-11-03): a hand-drawn **vector master**, `docs/brand/nawara-admin-favicon.svg` (64-unit grid = 16 px × 4), a favicon-specific optical redraw of the Admin symbol from its measured layout (circuit strokes thickened, users glyph simplified to three heads over one line). It is **not** the official vector master of the logo and not a trace. `tools/brand/export_favicon.mjs` writes the tab icons at the existing file names (`favicon.svg`, `icons/favicon-<palette>[-light].svg`) as real vector SVGs, using the master at its native scale and full 64-unit viewBox: no circle, tile or shrink wrapper. The artwork occupies approximately x=1.9–61.6 and y=7.6–57.2 units of the 64 × 64 canvas (about 59.7 × 49.6 units). Each light/dark file carries the resolved app theme's token color; `ThemeService` and the pre-paint script swap the URL as the accent or theme changes. SVGs can be regenerated without the optional rasterizer using `node tools/brand/export_favicon.mjs --svg-only`. Static icons remain rasterized from the same master: `favicon.ico` (16/32/48), `icons/icon-{16,32,48,192,512}.png`, `apple-touch-icon.png` (180), and `icons/icon-maskable-512.png` | owner selection B2; final size/background correction owner approved 2026-11-03 |
+| Fidelity and contrast limits | the full mark fills most of the 64-unit canvas width while preserving the original aspect ratio and visible safety margin. At **16 px**, the strokes and three-person glyph remain small but are rendered directly from vector paths; no simplified or alternate logo is introduced. Exact palette colors remain token-derived; pale dark accents can still be less distinct on a dark browser tab | inspected in Chrome and Firefox, 2026-11-03 |
 | Not used | the floral-R wordmark, symbol and favicon files of §0 stay in `public/brand/` for history and are no longer referenced by any logo placement | — |
 
 ### Logo asset manifest (three identities)

@@ -1,3 +1,7 @@
+import { ScopeContext } from '../../../core/context/scope-context';
+import { ScopeDirectoryGateway } from '../../../core/context/scope-directory.gateway';
+import { MockScopeDirectoryGateway } from '../../../core/context/scope-directory.mock';
+import { ServiceHealthStrip } from '../components/service-health-strip/service-health-strip';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
@@ -26,7 +30,6 @@ import {
 } from '../../../core/core-services/service-inventory.mock';
 import { CORE_SERVICES } from '../../../core/core-services/core-service.model';
 import { DEMO_OWNER_ID } from '../../../demo/world/seed';
-import { createPlatformTestProviders } from '../../platforms/testing/create-platform-testing';
 import { CompanyOverviewPage } from './company-overview.page';
 
 const owner: Actor = {
@@ -107,8 +110,9 @@ async function render(actor: Actor, scenario: CompanyOverviewDemoScenario = 'nor
         useValue: scenario === 'sections-unavailable' ? 'error' : 'normal',
       },
       { provide: ServiceInventoryGateway, useClass: MockServiceInventoryGateway },
+      ScopeContext,
+      { provide: ScopeDirectoryGateway, useClass: MockScopeDirectoryGateway },
       CompanyOverviewFacade,
-      ...createPlatformTestProviders(false),
     ],
   });
   TestBed.inject(AuthSession).establish(actor);
@@ -173,9 +177,9 @@ describe('CompanyOverviewPage', () => {
     const cards = page.querySelectorAll('adm-summary-card');
     expect(text(cards[2])).toBe(
       // No person records before P5, and memberships are not identities: the figure stays unavailable.
-      `${en.companyOverview.summary.uniqueIdentities}—${en.companyOverview.unavailable}${en.companyOverview.summary.distinctAccounts}`,
+      `${en.companyOverview.summary.uniqueIdentities}—${en.companyOverview.unavailable}`,
     );
-    expect(text(cards[3])).toContain(en.companyOverview.summary.awaitingAcceptance);
+    expect(text(cards[3])).toContain(en.companyOverview.summary.pendingInvitations);
     for (const card of [cards[2], cards[3]]) {
       expect(card?.querySelector('.summary-card__trend, .summary-card__sparkline')).toBeNull();
     }
@@ -184,10 +188,46 @@ describe('CompanyOverviewPage', () => {
   it('derives the organizations trend from the growth history (24 − 21)', async () => {
     const { page } = await render(owner);
     const organizations = page.querySelectorAll('adm-summary-card')[1];
-    expect(text(organizations?.querySelector('.summary-card__trend'))).toBe('3+3');
-    expect(text(organizations?.querySelector('.summary-card__caption'))).toBe(
-      `${en.companyOverview.summary.acrossPlatforms} · +3 this period`,
-    );
+    expect(text(organizations?.querySelector('.summary-card__trend'))).toBe('+3 this period');
+    expect(organizations?.querySelector('.summary-card__footer')).toBeNull();
+  });
+
+  it('changes the reporting period and reloads the chart while retaining current totals', async () => {
+    const { page, fixture } = await render(owner);
+    const trigger = page.querySelector<HTMLButtonElement>('.overview-header__chip--period');
+    expect(trigger?.disabled).toBe(false);
+    expect(text(trigger)).toBe('Last 30 days');
+    for (const days of [1, 7, 90, 30]) {
+      trigger?.click();
+      await fixture.whenStable();
+      const options = Array.from(
+        document.querySelectorAll<HTMLButtonElement>('.overview-header__period-option'),
+      );
+      expect(options.map((option) => option.dataset['period'])).toEqual(['1', '7', '30', '90']);
+      const option = options.find((item) => item.dataset['period'] === String(days));
+      if (!option) throw new Error('expected period option');
+      option.click();
+      await fixture.whenStable();
+      for (
+        let index = 0;
+        index < 50 && TestBed.inject(CompanyOverviewFacade).state().status !== 'success';
+        index++
+      ) {
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        await fixture.whenStable();
+      }
+      const state = TestBed.inject(CompanyOverviewFacade).state();
+      expect(state.status).toBe('success');
+      if (state.status !== 'success' || state.data.growth.status !== 'available')
+        throw new Error('expected growth');
+      expect(state.data.periodDays).toBe(days);
+      expect(state.data.growth.data.points[0]?.day).toBe(
+        new Date(Date.parse('2026-10-23T12:00:00Z') - days * 86400000).toISOString().slice(0, 10),
+      );
+      expect(text(page.querySelector('.growth-panel__value'))).toBe('24');
+      expect(text(trigger)).toBe(days === 1 ? 'Today' : `Last ${days} days`);
+      expect(document.querySelector('.overview-header__period-menu')).toBeNull();
+    }
   });
 
   it('filters the growth chart by platform without a new request', async () => {
@@ -213,14 +253,9 @@ describe('CompanyOverviewPage', () => {
     expect(page.querySelector('.attention-list__item a, .attention-list__item button')).toBeNull();
   });
 
-  it('shows Create platform to the owner, disabled with its reason where this build cannot send it', async () => {
+  it('omits Create platform from the owner overview', async () => {
     const { page } = await render(owner);
-    const button = Array.from(page.querySelectorAll('button')).find(
-      (b) => text(b) === en.companyOverview.create,
-    );
-    expect(button?.disabled).toBe(true);
-    const note = page.querySelector(`#${button?.getAttribute('aria-describedby')}`);
-    expect(text(note)).toBe(en.platforms.create.unavailable);
+    expect(page.textContent).not.toContain(en.companyOverview.create);
   });
 
   it('separates operator assignments from unique operators', async () => {
@@ -231,23 +266,39 @@ describe('CompanyOverviewPage', () => {
     );
   });
 
-  it('lists the documented services and says live health is unavailable, with no status of any kind (P8-S2)', async () => {
+  it('shows explicitly simulated health for all services in the demo overview', async () => {
     const { page } = await render(owner);
-    expect(page.textContent).toContain(en.companyOverview.health.subtitle);
+    expect(page.querySelector('.overview-card__subtitle')).toBeNull();
     const card = page.querySelector('#overview-health')?.closest('adm-overview-card');
-    const services = Array.from(card?.querySelectorAll('.service-health-strip__item') ?? []).map(
+    const services = Array.from(card?.querySelectorAll('.service-health-strip__name') ?? []).map(
       text,
     );
     expect(services).toEqual(CORE_SERVICES.map((s) => en.coreServices.services[s].name));
-    expect(text(card?.querySelector('[data-live-health]'))).toBe(
+    expect(card?.querySelector('[data-live-health]')).toBeNull();
+    const statuses = Array.from(card?.querySelectorAll('.service-health-strip__status') ?? []).map(
+      text,
+    );
+    expect(statuses).toHaveLength(8);
+    expect(statuses.filter((s) => s === en.coreServices.liveHealth.demoOperational)).toHaveLength(
+      7,
+    );
+    expect(statuses.filter((s) => s === en.coreServices.liveHealth.demoDegraded)).toHaveLength(1);
+    expect(card?.querySelector('a[href="/services"]')).not.toBeNull();
+  });
+
+  it('keeps mock health hidden unless demo mode is explicitly enabled', async () => {
+    await render(owner);
+    const fixture = TestBed.createComponent(ServiceHealthStrip);
+    fixture.componentRef.setInput('inventory', {
+      services: CORE_SERVICES,
+      liveHealth: 'unavailable',
+    });
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('.service-health-strip__status')).toBeNull();
+    expect(text(element.querySelector('[data-live-health]'))).toBe(
       en.coreServices.liveHealth.unavailable,
     );
-    // No illustrative status, count or colour: nothing is observed.
-    expect(text(card)).not.toMatch(
-      /operational|delayed|degraded|outage|down|uptime|latency|\d+ of \d+/i,
-    );
-    expect(card?.querySelector('[class*="dot"], [class*="pill"]')).toBeNull();
-    expect(card?.querySelector('a[href="/services"]')).not.toBeNull();
   });
 
   it('opens platforms into the platform scope', async () => {

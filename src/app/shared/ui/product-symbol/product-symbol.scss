@@ -1,0 +1,16 @@
+@use 'abstracts' as nw;
+
+:host {
+  display: inline-block;
+  flex: 0 0 auto;
+  block-size: var(--nw-product-symbol-size, 1.75rem);
+  direction: ltr;
+  @include nw.accent-logo(none, var(--nw-product-mask), var(--nw-product-details));
+
+  // Matched vector viewBoxes keep leaf and pictogram sharp without a raster crop.
+  &::before,
+  &::after {
+    mask-position: center;
+    mask-size: var(--nw-product-mask-size);
+  }
+}

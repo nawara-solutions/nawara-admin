@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { platformPath } from '../../../../core/context/scope-context';
 import { NwNumberPipe } from '../../../../shared/format/format.pipes';
+import { ProductSymbol } from '../../../../shared/ui/product-symbol/product-symbol';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
 import { DirectoryMetric, PlatformDirectoryEntry } from '../../domain/platform-directory.model';
 
@@ -18,13 +19,12 @@ const PRODUCT_KEYS = {
  */
 @Component({
   selector: 'adm-platform-card',
-  imports: [RouterLink, TranslocoPipe, NwNumberPipe, NwIcon],
+  imports: [RouterLink, TranslocoPipe, NwNumberPipe, NwIcon, ProductSymbol],
   templateUrl: './platform-card.html',
   styleUrl: './platform-card.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'platform-card',
-    '[class.platform-card--drive]': "entry().platform.product === 'drive'",
   },
 })
 export class PlatformCard {

@@ -20,6 +20,7 @@ import {
   AccentPalette,
   ThemeService,
 } from '../../core/theme/theme.service';
+import { AppearanceDraft } from './appearance-draft';
 import { NwIcon } from '../../shared/ui/icon/icon';
 
 /** The display name of each palette (full keys, so the i18n check sees them). Typed against the registry: a new palette must add its name. */
@@ -81,7 +82,8 @@ export class AccentPicker {
   /** The id of the visible "Accent colour" label, which names the selector. */
   readonly labelledBy = input.required<string>();
 
-  protected readonly theme = inject(ThemeService);
+  protected readonly editor = inject(AppearanceDraft, { optional: true });
+  protected readonly theme = this.editor ?? inject(ThemeService);
   private readonly injector = inject(Injector);
   protected readonly id = `accent-picker-${nextId++}`;
   protected readonly open = signal(false);

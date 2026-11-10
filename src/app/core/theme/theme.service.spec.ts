@@ -149,23 +149,23 @@ describe('ThemeService', () => {
     };
     const service = TestBed.inject(ThemeService);
     TestBed.tick();
-    expect(icon()).toBe('icons/favicon-coral-light.svg?v=b1'); // system mode, OS light
+    expect(icon()).toBe('icons/favicon-coral-light.svg?v=b11'); // system mode, OS light
     expect(document.getElementById('nw-favicon')).not.toBe(initial); // replaced, so the tab repaints
     os.change(true);
     TestBed.tick();
-    expect(icon()).toBe('favicon.svg?v=b1'); // the OS turned dark
+    expect(icon()).toBe('favicon.svg?v=b11'); // the OS turned dark
     await service.setAccent('teal');
     TestBed.tick();
-    expect(icon()).toBe('icons/favicon-teal.svg?v=b1');
+    expect(icon()).toBe('icons/favicon-teal.svg?v=b11');
     service.setPreference('light');
     TestBed.tick();
-    expect(icon()).toBe('icons/favicon-teal-light.svg?v=b1');
+    expect(icon()).toBe('icons/favicon-teal-light.svg?v=b11');
     service.setPreference('dark');
     TestBed.tick();
-    expect(icon()).toBe('icons/favicon-teal.svg?v=b1');
+    expect(icon()).toBe('icons/favicon-teal.svg?v=b11');
     service.reset(); // system mode again, OS still dark
     TestBed.tick();
-    expect(icon()).toBe('favicon.svg?v=b1');
+    expect(icon()).toBe('favicon.svg?v=b11');
     document.getElementById('nw-favicon')?.remove();
   });
 
@@ -200,7 +200,7 @@ describe('ThemeService', () => {
             ? `icons/favicon-${accent}-light.svg`
             : accent === 'coral'
               ? 'favicon.svg'
-              : `icons/favicon-${accent}.svg`) + '?v=b1';
+              : `icons/favicon-${accent}.svg`) + '?v=b11';
         expect(document.getElementById('nw-favicon')?.getAttribute('href')).toBe(expected);
         document.getElementById('nw-favicon')?.remove();
         localStorage.clear();

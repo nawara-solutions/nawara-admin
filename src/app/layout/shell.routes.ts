@@ -15,6 +15,11 @@ import {
 } from '../core/context/scope-directory.gateway';
 import { NotificationIndicator } from '../core/notifications/notification-indicator';
 import {
+  NotificationInboxGateway,
+  UnavailableNotificationInboxGateway,
+} from '../core/notifications/notification-inbox.gateway';
+import { NotificationCenter } from '../core/notifications/notification-center';
+import {
   NotificationSummaryGateway,
   UnavailableNotificationSummaryGateway,
 } from '../core/notifications/notification-summary.gateway';
@@ -48,6 +53,7 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
   ]);
   const notifications = await adapterProviders(environment, 'notificationSummary', [
     { provide: NotificationSummaryGateway, useClass: UnavailableNotificationSummaryGateway },
+    { provide: NotificationInboxGateway, useClass: UnavailableNotificationInboxGateway },
   ]);
   return [
     {
@@ -61,6 +67,7 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
         ScopeContext,
         EntityLabel,
         NotificationIndicator,
+        NotificationCenter,
         SignOut,
       ],
       loadComponent: () => import('./shell/shell').then((m) => m.Shell),

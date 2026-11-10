@@ -5,6 +5,15 @@
   gap: var(--nw-space-3) var(--nw-space-5);
 }
 
+:host-context(adm-operator-directory-page) {
+  align-items: center;
+
+  .operators-header__mark,
+  .operators-header__eyebrow {
+    display: none;
+  }
+}
+
 .operators-header__mark {
   display: inline-grid;
   flex: none;

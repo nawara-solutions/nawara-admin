@@ -1,0 +1,88 @@
+@use 'abstracts' as nw;
+
+:host {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-3);
+  inline-size: 100%;
+  min-block-size: 3.25rem;
+  padding: var(--nw-space-2) var(--nw-space-3);
+  border: 0;
+  border-radius: var(--nw-radius-lg);
+  background: transparent;
+  color: var(--nw-text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  &[aria-selected='true'],
+  &:hover {
+    background: var(--nw-surface-brand-subtle);
+  }
+  &:focus-visible {
+    @include nw.focus-ring;
+  }
+}
+.global-search__result-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border-radius: var(--nw-radius-md);
+  background: var(--nw-surface-inset);
+  color: var(--nw-text-secondary);
+  font-size: 0.75rem;
+  font-weight: var(--nw-font-weight-semibold);
+}
+.global-search__result-icon--avatar {
+  border-radius: 50%;
+  background: var(--nw-surface-brand-subtle);
+  color: var(--nw-text-brand);
+}
+:host([aria-selected='true']) .global-search__result-icon:not(.global-search__result-icon--avatar) {
+  background: var(--nw-color-primary);
+  color: var(--nw-text-on-primary);
+}
+.global-search__result-copy {
+  display: grid;
+  flex: 1;
+  gap: 0.125rem;
+  min-inline-size: 0;
+}
+.global-search__result-title {
+  font-size: 0.875rem;
+  font-weight: var(--nw-font-weight-medium);
+  overflow-wrap: anywhere;
+}
+.global-search__match {
+  color: var(--nw-text-brand);
+  font-weight: var(--nw-font-weight-semibold);
+}
+.global-search__description {
+  color: var(--nw-text-secondary);
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.global-search__open-label {
+  color: var(--nw-text-brand);
+  font-size: 0.6875rem;
+}
+.global-search__enter {
+  flex-shrink: 0;
+  padding: 0.125rem var(--nw-space-1);
+  border: 1px solid var(--nw-border-brand);
+  border-radius: var(--nw-radius-sm);
+  color: var(--nw-text-brand);
+  font-size: 0.6875rem;
+}
+
+@media (width <= 600px) {
+  .global-search__open-label {
+    display: none;
+  }
+}
+@media (forced-colors: active) {
+  :host([aria-selected='true']) {
+    outline: 1px solid Highlight;
+  }
+}

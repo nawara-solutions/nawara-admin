@@ -8,12 +8,17 @@ import ar from '../../../../i18n/ar.json';
 import en from '../../../../i18n/en.json';
 import fr from '../../../../i18n/fr.json';
 import { Actor } from '../../../core/auth/actor';
+import { ScopeContext } from '../../../core/context/scope-context';
+import {
+  ScopeDirectoryGateway,
+  UnavailableScopeDirectoryGateway,
+} from '../../../core/context/scope-directory.gateway';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { APP_ENVIRONMENT } from '../../../core/config/app-environment';
 import { companyId, platformId } from '../../../core/context/scope.model';
 import { LocaleService } from '../../../core/i18n/locale.service';
 import { PREFERENCE_KEYS } from '../../../core/preferences/preference-store';
-import { ThemeService } from '../../../core/theme/theme.service';
+import { ACCENT_PALETTES, ThemeService } from '../../../core/theme/theme.service';
 import { PreferenceMenus } from '../../../layout/preference-menus/preference-menus';
 import { SETTINGS_ROUTES } from '../settings.routes';
 
@@ -67,6 +72,8 @@ async function setup(actor: Actor = owner) {
       }),
     ],
     providers: [
+      ScopeContext,
+      { provide: ScopeDirectoryGateway, useClass: UnavailableScopeDirectoryGateway },
       provideRouter([
         { path: 'settings', children: SETTINGS_ROUTES },
         {
@@ -113,7 +120,7 @@ async function setup(actor: Actor = owner) {
 const text = (element: Element | null | undefined) =>
   element?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
 const links = (root: HTMLElement) =>
-  Array.from(root.querySelectorAll<HTMLAnchorElement>('a.settings-hub__link'));
+  Array.from(root.querySelectorAll<HTMLAnchorElement>('a.settings-workspace__link'));
 const languageRadios = (root: HTMLElement) =>
   Array.from(
     root.querySelectorAll<HTMLInputElement>('input[type=radio][name="language-settings"]'),
@@ -135,7 +142,7 @@ describe('Settings pages (P9-S1)', () => {
     ['assigned operator', operator],
     ['operator without an assignment', unassigned],
   ] as const) {
-    it(`the hub is a page of its own for the ${name}: Appearance, Language, their own Account and, for the owner only, Security and Company`, async () => {
+    it(`the workspace selects Appearance for the ${name}, with authorized section links`, async () => {
       const { harness, root } = await setup(actor);
       await harness.navigateByUrl('/settings');
       expect(TestBed.inject(Router).url).toBe('/settings');
@@ -153,26 +160,24 @@ describe('Settings pages (P9-S1)', () => {
             ]
           : []),
       ]);
-      // P9-S2: the Account link names the actor's own account type
-      expect(text(root().querySelector('[data-section="account"] [data-value]'))).toBe(
-        actor.kind === 'owner' ? en.shell.role.owner : en.shell.role.operator,
-      );
-      // No account security or Platform setting is offered.
-      expect(root().querySelectorAll('a, button')).toHaveLength(actor.kind === 'owner' ? 5 : 3);
+      expect(root().querySelectorAll('[aria-current="page"]')).toHaveLength(1);
+      expect(
+        root().querySelector('[data-section="appearance"]')?.getAttribute('aria-current'),
+      ).toBe('page');
+      expect(root().querySelector('.appearance-panel__reset')).not.toBeNull();
+      expect(root().querySelectorAll('h1')).toHaveLength(1);
     });
   }
 
-  it('shows the current appearance and language from the one ThemeService and LocaleService state', async () => {
+  it('reuses the one theme state in the default Appearance section', async () => {
     const { harness, root, theme } = await setup();
     await harness.navigateByUrl('/settings');
-    const value = (section: string) =>
-      root().querySelector(`[data-section="${section}"] [data-value]`);
-    expect(text(value('appearance'))).toBe('System · Coral');
-    expect(text(value('language'))).toBe('English');
-    expect(value('language')?.getAttribute('lang')).toBe('en');
     theme.setPreference('dark');
     harness.fixture.detectChanges();
-    expect(text(value('appearance'))).toBe('Dark · Coral');
+    expect(root().querySelector<HTMLInputElement>('input[type=radio][value="dark"]')?.checked).toBe(
+      true,
+    );
+    expect(root().querySelectorAll('adm-appearance-panel')).toHaveLength(1);
   });
 
   it('navigates to Language and Appearance, and back and forward through the browser history', async () => {
@@ -181,7 +186,9 @@ describe('Settings pages (P9-S1)', () => {
     links(root())[1]?.click();
     await settle();
     expect(router.url).toBe('/settings/language');
-    expect(text(root().querySelector('h1'))).toBe(en.settings.language.title);
+    expect(text(root().querySelector('.language-settings__title'))).toBe(
+      en.settings.language.title,
+    );
 
     location.back();
     await until(() => router.url === '/settings');
@@ -189,7 +196,9 @@ describe('Settings pages (P9-S1)', () => {
 
     location.forward();
     await until(() => router.url === '/settings/language');
-    expect(text(root().querySelector('h1'))).toBe(en.settings.language.title);
+    expect(text(root().querySelector('.language-settings__title'))).toBe(
+      en.settings.language.title,
+    );
 
     location.back();
     await until(() => router.url === '/settings');
@@ -198,8 +207,44 @@ describe('Settings pages (P9-S1)', () => {
     expect(router.url).toBe('/settings/appearance');
     // The Appearance panel: three modes, the compact accent selector (its list holds the palettes), the reset.
     expect(root().querySelectorAll('input[type=radio][name$="-mode"]')).toHaveLength(3);
-    expect(root().querySelectorAll('.accent-picker__trigger')).toHaveLength(1);
+    expect(root().querySelectorAll('.accent-grid__tile')).toHaveLength(ACCENT_PALETTES.length);
     expect(root().querySelector('.appearance-panel__reset')).not.toBeNull();
+  });
+
+  it('keeps one route-selected section on every owner deep link', async () => {
+    const { harness, root, router } = await setup();
+    // Present unavailable production adapters instead of loading demo security/company bindings.
+    Object.assign(TestBed.inject(APP_ENVIRONMENT), { production: true, demo: null });
+    for (const section of ['appearance', 'language', 'account', 'security', 'company']) {
+      await harness.navigateByUrl('/settings/' + section);
+      expect(router.url).toBe('/settings/' + section);
+      const selected = root().querySelectorAll('.settings-workspace__link[aria-current="page"]');
+      expect(selected).toHaveLength(1);
+      expect(selected[0]?.getAttribute('data-section')).toBe(section);
+      expect(root().querySelectorAll('h1')).toHaveLength(1);
+      expect(root().querySelectorAll('.settings-hub__link')).toHaveLength(0);
+    }
+  });
+
+  it('discards Appearance drafts when navigating away and initializes from committed preferences on return', async () => {
+    const { harness, root, theme, settle } = await setup();
+    await harness.navigateByUrl('/settings/appearance');
+    root().querySelector<HTMLInputElement>('input[name$="-mode"][value="dark"]')?.click();
+    root().querySelector<HTMLInputElement>('.accent-grid input[value="rose"]')?.click();
+    await settle();
+    expect(theme.preference()).toBe('system');
+    expect(theme.accent()).toBe('coral');
+    await harness.navigateByUrl('/settings/language');
+    await harness.navigateByUrl('/settings/appearance');
+    expect(
+      root().querySelector<HTMLInputElement>('input[name$="-mode"][value="system"]')?.checked,
+    ).toBe(true);
+    expect(
+      root().querySelector<HTMLInputElement>('.accent-grid input[value="coral"]')?.checked,
+    ).toBe(true);
+    expect(root().querySelector<HTMLButtonElement>('.appearance-panel__apply')?.disabled).toBe(
+      true,
+    );
   });
 
   it('Language offers English, French and Arabic, each named in itself, as one native radio group', async () => {
@@ -219,33 +264,126 @@ describe('Settings pages (P9-S1)', () => {
       ['Français', 'fr'],
       ['العربية', 'ar'],
     ]);
+    expect(root().querySelectorAll('.language-settings__sample')).toHaveLength(3);
+    expect(root().querySelectorAll('.language-settings__check')).toHaveLength(1);
+    expect(
+      root().querySelector('.language-settings__check')?.closest('label')?.querySelector('input')
+        ?.value,
+    ).toBe('en');
+    expect(
+      Array.from(root().querySelectorAll('.language-settings__name')).map((name) =>
+        name.getAttribute('dir'),
+      ),
+    ).toEqual(['ltr', 'ltr', 'rtl']);
+    for (const radio of radios) {
+      const name = root().querySelector('#' + radio.getAttribute('aria-labelledby'));
+      const direction = root().querySelector('#' + radio.getAttribute('aria-describedby'));
+      expect(name?.getAttribute('lang')).toBe(radio.value);
+      expect(text(direction).replace(/^[←→]\s*/, '')).toBe(
+        radio.value === 'ar' ? en.settings.language.rtl : en.settings.language.ltr,
+      );
+      expect(radio.closest('label')?.querySelectorAll('input, button, a')).toHaveLength(1);
+    }
+    expect(text(root().querySelector('.language-settings__note'))).toBe(en.settings.language.note);
   });
 
-  it('switches the application at once: Arabic is right to left, French and English left to right', async () => {
-    const { harness, root, locale, until } = await setup();
+  it('previews Arabic without committing, and discards the draft', async () => {
+    const { harness, root, locale, settle } = await setup();
+    await harness.navigateByUrl('/settings/language');
+    languageRadios(root())
+      .find((radio) => radio.value === 'ar')
+      ?.click();
+    await settle();
+    await settle();
+    expect(locale.locale()).toBe('en');
+    expect(document.documentElement.dir).toBe('ltr');
+    expect(localStorage.getItem(PREFERENCE_KEYS.locale)).toBeNull();
+    expect(root().querySelector('.language-preview__app')?.getAttribute('dir')).toBe('rtl');
+    expect(text(root().querySelector('.language-preview__overview h3'))).toBe(
+      ar.settings.language.sample.overview,
+    );
+    expect(root().querySelector<HTMLButtonElement>('.language-settings__apply')?.disabled).toBe(
+      false,
+    );
+    root().querySelector<HTMLButtonElement>('.language-settings__actions button')?.click();
+    await settle();
+    expect(languageRadios(root()).find((radio) => radio.checked)?.value).toBe('en');
+    expect(root().querySelector('.language-preview__app')?.getAttribute('dir')).toBe('ltr');
+    expect(root().querySelector<HTMLButtonElement>('.language-settings__apply')?.disabled).toBe(
+      true,
+    );
+  });
+
+  it('keeps the draft available for retry when loading a language fails', async () => {
+    const { harness, root, locale, settle } = await setup();
+    await harness.navigateByUrl('/settings/language');
+    vi.spyOn(locale, 'use').mockRejectedValueOnce(new Error('Catalog unavailable'));
+    languageRadios(root())
+      .find((radio) => radio.value === 'fr')
+      ?.click();
+    await settle();
+    root().querySelector<HTMLButtonElement>('.language-settings__apply')?.click();
+    await settle();
+    expect(locale.locale()).toBe('en');
+    expect(text(root().querySelector('[role="alert"]'))).toBe(en.settings.language.error);
+    expect(languageRadios(root()).find((radio) => radio.checked)?.value).toBe('fr');
+    expect(root().querySelector<HTMLButtonElement>('.language-settings__apply')?.disabled).toBe(
+      false,
+    );
+  });
+
+  it('restores the persisted language when opening the Language route directly', async () => {
+    localStorage.setItem(PREFERENCE_KEYS.locale, 'ar');
+    const { harness, root, locale } = await setup();
+    await locale.initialize();
+    await harness.navigateByUrl('/settings/language');
+    expect(languageRadios(root()).find((radio) => radio.checked)?.value).toBe('ar');
+    expect(text(root().querySelector('.language-settings__title'))).toBe(
+      ar.settings.language.title,
+    );
+    expect([document.documentElement.lang, document.documentElement.dir]).toEqual(['ar', 'rtl']);
+    expect(root().querySelector('[data-section="language"]')?.getAttribute('aria-current')).toBe(
+      'page',
+    );
+  });
+
+  it('applies the draft language: Arabic is right to left, French and English left to right', async () => {
+    const { harness, root, locale, until, settle } = await setup();
     await harness.navigateByUrl('/settings/language');
     const choose = async (value: string) => {
       languageRadios(root())
         .find((r) => r.value === value)
         ?.click();
+      await settle();
+      root().querySelector<HTMLButtonElement>('.language-settings__apply')?.click();
       await until(() => locale.locale() === value);
     };
     await choose('ar');
     expect(locale.locale()).toBe('ar');
+    expect(TestBed.inject(Router).url).toBe('/settings/language');
     expect([document.documentElement.lang, document.documentElement.dir]).toEqual(['ar', 'rtl']);
-    expect(text(root().querySelector('h1'))).toBe(ar.settings.language.title);
+    expect(text(root().querySelector('.language-settings__title'))).toBe(
+      ar.settings.language.title,
+    );
     expect(languageRadios(root()).find((r) => r.checked)?.value).toBe('ar');
+    expect(root().querySelectorAll('.language-settings__check')).toHaveLength(1);
+    expect(
+      root().querySelector('.language-settings__check')?.closest('label')?.querySelector('input')
+        ?.value,
+    ).toBe('ar');
 
     await choose('fr');
     expect([document.documentElement.lang, document.documentElement.dir]).toEqual(['fr', 'ltr']);
-    expect(text(root().querySelector('h1'))).toBe(fr.settings.language.title);
+    expect(text(root().querySelector('.language-settings__title'))).toBe(
+      fr.settings.language.title,
+    );
 
     await choose('en');
     expect([document.documentElement.lang, document.documentElement.dir]).toEqual(['en', 'ltr']);
   });
 
   it('stays in step with the top-bar language menu, both ways', async () => {
-    const { harness, root, locale, until } = await setup();
+    const { harness, root, locale, until, settle } = await setup();
     await harness.navigateByUrl('/with-top-bar/settings/language');
     const shell = harness.fixture.nativeElement as HTMLElement;
     const trigger = shell.querySelector<HTMLButtonElement>('.preference-menus__trigger');
@@ -254,9 +392,17 @@ describe('Settings pages (P9-S1)', () => {
     languageRadios(root())
       .find((r) => r.value === 'fr')
       ?.click();
+    await settle();
+    root().querySelector<HTMLButtonElement>('.language-settings__apply')?.click();
     await until(() => locale.locale() === 'fr');
     expect(trigger?.getAttribute('aria-label')).toBe(`${fr.preferences.language.label}: Français`);
 
+    // An external top-bar change supersedes an uncommitted page selection.
+    languageRadios(root())
+      .find((r) => r.value === 'en')
+      ?.click();
+    await settle();
+    expect(locale.locale()).toBe('fr');
     // Top bar → Settings
     trigger?.click();
     await harness.fixture.whenStable();
@@ -272,7 +418,7 @@ describe('Settings pages (P9-S1)', () => {
   });
 
   it('persists through the existing preference key only, and changes no session, business or security state', async () => {
-    const { harness, root, session, locale, until } = await setup(operator);
+    const { harness, root, session, locale, until, settle } = await setup(operator);
     const actorBefore = session.actor();
     const writes: string[] = [];
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (this: Storage, key, value) {
@@ -283,6 +429,8 @@ describe('Settings pages (P9-S1)', () => {
       languageRadios(root())
         .find((r) => r.value === value)
         ?.click();
+      await settle();
+      root().querySelector<HTMLButtonElement>('.language-settings__apply')?.click();
       await until(() => locale.locale() === value);
     }
     await harness.navigateByUrl('/settings');

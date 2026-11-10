@@ -1,7 +1,7 @@
 // The admin-invitation dialogs' content (P3b-S3 design): the form, the verification, and the one-time code.
 .admin-invitation__body {
   display: grid;
-  gap: var(--nw-space-4);
+  gap: var(--nw-space-5);
 }
 
 .admin-invitation__parent,
@@ -45,7 +45,16 @@
   align-items: flex-start;
   gap: var(--nw-space-3);
   min-block-size: 2.75rem;
+  padding: var(--nw-space-3);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  color: var(--nw-text-primary);
   cursor: pointer;
+
+  &:has(input:checked) {
+    border-color: var(--nw-text-brand);
+    background: var(--nw-surface-brand-subtle);
+  }
 
   input {
     flex: none;
@@ -71,8 +80,9 @@
   gap: var(--nw-space-2);
   padding: var(--nw-space-3) var(--nw-space-4);
   border-radius: var(--nw-radius-md);
-  background-color: var(--nw-surface-sunken);
-  font-size: var(--nw-text-size-sm);
+  border-block-start: 1px solid var(--nw-border-subtle);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
 
   li {
     display: flex;
@@ -161,4 +171,35 @@
   display: flex;
   align-items: center;
   gap: var(--nw-space-2);
+}
+
+.admin-invitation__tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0;
+  margin-block-end: var(--nw-space-5);
+  border-block-end: 1px solid var(--nw-border-subtle);
+
+  button {
+    flex: 1;
+    min-block-size: 2.75rem;
+    padding: 0.5rem;
+    border: 0;
+    border-block-end: 2px solid transparent;
+    background: transparent;
+    color: var(--nw-text-secondary);
+    font: inherit;
+    cursor: pointer;
+
+    &[aria-selected='true'] {
+      border-block-end-color: var(--nw-text-brand);
+      color: var(--nw-text-brand);
+      font-weight: var(--nw-font-weight-semibold);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--nw-focus-ring);
+      outline-offset: 2px;
+    }
+  }
 }

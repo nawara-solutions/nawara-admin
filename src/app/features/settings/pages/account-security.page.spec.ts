@@ -153,7 +153,7 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
   it('lists the owner’s own factors from the simulated records: type and confirmation, no invented time', async () => {
     const { element, spy } = await render();
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(text(element.querySelector('h1'))).toBe(t.title);
+    expect(text(element.querySelector('h2'))).toBe(t.title);
     const factors = [...element.querySelectorAll<HTMLElement>('[data-factor]')];
     expect(factors.map((f) => [f.dataset['factor'], f.dataset['confirmed']])).toEqual([
       ['totp', 'true'],
@@ -163,11 +163,24 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
       t.factors.totp,
       t.factors.webauthn,
     ]);
-    expect(text(element.querySelector('[data-confirmed-count]'))).toBe('Confirmed factors: 2');
+    expect(text(element.querySelector('[data-confirmed-count]'))).toBe('2 confirmed');
     // the fixtures' factors predate the demo: no "Added" date is shown, and no use is claimed
     expect(element.querySelector('[data-added]')).toBeNull();
     for (const f of factors)
       expect(text(f.querySelector('[data-last-used] dd'))).toBe(t.factors.noUse);
+  });
+
+  it('groups the overview into a factor summary, two main cards and two guidance cards', async () => {
+    const { element } = await render();
+    expect(text(element.querySelector('#security-summary-heading'))).toBe('2 confirmed factors');
+    expect(
+      [...element.querySelectorAll('.account-security__summary-chips > span')].map(text),
+    ).toEqual([t.factors.totp, t.factors.webauthn, t.overview.keySummary]);
+    expect(element.querySelectorAll('.account-security__main > section')).toHaveLength(2);
+    expect(element.querySelectorAll('.account-security__aside > section')).toHaveLength(2);
+    expect(element.querySelectorAll('.account-security__steps li')).toHaveLength(3);
+    expect(element.querySelector('[data-password-card]')).not.toBeNull();
+    expect(element.querySelector('[data-secret-key-card]')).not.toBeNull();
   });
 
   it('distinguishes an unfinished authenticator setup, after the confirmed factors', async () => {
@@ -199,7 +212,7 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
     expect(text(factors[1]?.querySelector('[data-unfinished-note]'))).toBe(
       t.factors.unfinishedNote,
     );
-    expect(text(element.querySelector('[data-confirmed-count]'))).toBe('Confirmed factors: 1');
+    expect(text(element.querySelector('[data-confirmed-count]'))).toBe('1 confirmed');
   });
 
   it('states the rules and limits without promising recovery or claiming a secret key exists', async () => {
@@ -207,14 +220,18 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
     const page = text(element);
     expect(page).toContain(t.actions.lastFactor);
     expect(page).toContain(t.actions.stepUp);
-    expect(page).toContain(t.recovery.notGuaranteed);
-    expect(text(element.querySelector('[data-secret-key]'))).toBe(t.recovery.secretKey);
-    expect(page).toContain(t.recovery.process);
+    expect(page).toContain(t.overview.recoveryLead);
+    expect(text(element.querySelector('[data-secret-key]'))).toBe(t.overview.recoveryLead);
+    expect(page).toContain(t.overview.passwordAndKey);
+    expect(page).toContain(t.overview.waitingPeriod);
+    expect(page).toContain(t.overview.newFactor);
+    expect(page).toContain(t.overview.recoveryEnds);
     // a promise would be an un-negated guarantee, or a claim about the key's existence
     expect(page).not.toMatch(
       /(?<!not )guarantees? that you can recover|you will be able to recover|your secret key (is|was) (set|issued|generated)/i,
     );
-    for (const item of Object.values(t.unavailable)) expect(page).toContain(item);
+    expect(page).toContain(t.overview.passkeyUnavailable);
+    expect(page).toContain(t.overview.recoveryUnavailable);
   });
 
   it('offers three actions as links, a Remove per confirmed factor, and no form (P9-S4b to P9-S4e)', async () => {
@@ -229,20 +246,21 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
         text(c),
       ]),
     ).toEqual([
-      ['BUTTON', `Remove ${t.factors.totp}`, t.remove.button],
+      ['BUTTON', `Remove ${t.factors.totp}`, t.overview.protected],
       ['BUTTON', `Remove ${t.factors.webauthn}`, t.remove.button],
       ['A', '/settings/security/add-authenticator', t.add.action],
-      ['A', '/settings/security/secret-key', t.secretKey.action],
       ['A', '/settings/security/password', t.password.action],
+      ['A', '/settings/security/secret-key', t.secretKey.action],
     ]);
   });
 
   it('the secret-key card claims nothing about an existing key and promises no recovery (P9-S4c)', async () => {
     const { element } = await render();
     const card = element.querySelector('[data-secret-key-card]');
-    expect(text(card?.querySelector('h2'))).toBe(t.secretKey.cardTitle);
-    expect(text(card)).toContain(t.secretKey.cardBody);
-    expect(t.secretKey.cardBody).toContain('Admin can’t check whether you have one');
+    expect(text(card?.querySelector('h4'))).toBe(t.secretKey.cardTitle);
+    expect(text(card)).toContain(t.overview.keyBody);
+    expect(text(card)).toContain(t.overview.keyReplaces);
+    expect(t.overview.keyBody).toContain('Admin can’t tell whether you have one');
     expect(text(card)).not.toMatch(
       /you (have|don’t have|do not have) a (secret )?key\b|last (created|rotated)/i,
     );
@@ -308,7 +326,7 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
   it('the password card: a link for an owner with an authenticator, disabled with the reason otherwise (P9-S4e)', async () => {
     const { element } = await render();
     const card = element.querySelector('[data-password-card]');
-    expect(text(card?.querySelector('h2'))).toBe(t.password.cardTitle);
+    expect(text(card?.querySelector('h4'))).toBe(t.password.cardTitle);
     expect(card?.querySelector('a')?.getAttribute('href')).toBe('/settings/security/password');
     expect(t.unavailable).not.toHaveProperty('password');
     TestBed.resetTestingModule();
@@ -396,7 +414,7 @@ describe('Settings → Security (P9-S4a)', { timeout: 15_000 }, () => {
     await TestBed.inject(LocaleService).use('ar');
     await settle();
     expect(document.documentElement.dir).toBe('rtl');
-    expect(text(element.querySelector('h1'))).toBe(ar.settings.security.title);
+    expect(text(element.querySelector('h2'))).toBe(ar.settings.security.title);
     expect(text(element.querySelector('[data-factor] h3'))).toBe(ar.settings.security.factors.totp);
   });
 });

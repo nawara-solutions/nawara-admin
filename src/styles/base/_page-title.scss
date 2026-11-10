@@ -1,0 +1,27 @@
+// Shared workspace page titles. The root and heading selectors give this explicit
+// opt-in style precedence over component-local typography, including narrow layouts.
+:root :is(h1, h2).nw-page-title {
+  color: var(--nw-text-primary);
+  font-size: 1.375rem;
+  font-weight: var(--nw-font-weight-regular);
+  letter-spacing: -0.04em;
+  line-height: 1.3;
+  text-wrap: balance;
+
+  &:lang(ar) {
+    letter-spacing: 0;
+    line-height: 1.5;
+  }
+}
+
+@media (min-width: 48rem) {
+  :root :is(h1, h2).nw-page-title {
+    font-size: 1.625rem;
+  }
+}
+
+@media (forced-colors: active) {
+  :root :is(h1, h2).nw-page-title {
+    color: CanvasText;
+  }
+}

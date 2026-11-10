@@ -130,6 +130,7 @@ export class CreateOrganizationAction {
     // Focus starts in the name field (P3b design), never on the close button.
     const ref = this.dialogs.open(CreateOrganizationDialog, {
       data: this,
+      sidePanel: true,
       autoFocus: 'input[name="organization-name"], button[aria-disabled="true"]',
     });
     ref.closed.subscribe(() => this.run.close());

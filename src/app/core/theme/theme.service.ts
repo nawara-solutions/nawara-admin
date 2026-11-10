@@ -73,6 +73,7 @@ export class ThemeService {
 
   private readonly storedAccent = this.store.read('accent');
 
+  readonly density = signal<number>([1, 2, 3, 4, 5].includes(Number(this.store.read('density'))) ? Number(this.store.read('density')) : 3);
   readonly preference = signal<ThemePreference>(
     isThemePreference(this.stored) ? this.stored : DEFAULT_THEME,
   );
@@ -83,11 +84,32 @@ export class ThemeService {
   readonly customized = computed(
     () => this.preference() !== DEFAULT_THEME || this.accent() !== DEFAULT_ACCENT,
   );
-  readonly resolved = computed<ResolvedTheme>(() => {
-    const preference = this.preference();
-    if (preference !== 'system') return preference;
-    return this.systemPrefersDark() ? 'dark' : 'light';
-  });
+  readonly resolved = computed<ResolvedTheme>(() => this.resolvePreference(this.preference()));
+
+  /** The same live OS resolution for committed appearance and isolated previews. */
+  resolvePreference(preference: ThemePreference): ResolvedTheme {
+    return preference === 'system' ? (this.systemPrefersDark() ? 'dark' : 'light') : preference;
+  }
+
+  private commitRevision = 0;
+
+  /** Commit the complete draft only after persistence succeeds. Existing immediate APIs remain compatible. */
+  async applyAppearance(preference: ThemePreference, accent: AccentPalette, density = this.density()): Promise<boolean> {
+    const revision = ++this.commitRevision;
+    if (accent !== this.accent()) await this.preload(accent);
+    if (revision !== this.commitRevision) return false;
+    const saved = this.store.commitAppearance({
+      theme: preference === DEFAULT_THEME ? null : preference,
+      accent: accent === DEFAULT_ACCENT ? null : accent,
+      density: density === 3 ? null : String(density),
+    });
+    if (!saved) return false;
+    this.pendingAccent = accent;
+    this.preference.set(preference);
+    this.accent.set(accent);
+    this.density.set(density);
+    return true;
+  }
 
   constructor() {
     const query = this.document.defaultView?.matchMedia?.('(prefers-color-scheme: dark)');
@@ -98,6 +120,7 @@ export class ThemeService {
       inject(DestroyRef).onDestroy(() => query.removeEventListener('change', onChange));
     }
 
+    effect(() => { this.document.documentElement.style.setProperty('--nw-density-row-padding', `${0.375 + (this.density() - 1) * 0.15625}rem`); });
     effect(() => {
       this.document.documentElement.dataset['theme'] = this.resolved();
     });

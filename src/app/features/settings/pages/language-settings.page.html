@@ -1,0 +1,114 @@
+<div class="language-settings__columns">
+  <section class="language-settings__card" aria-labelledby="language-settings-heading">
+    <h2 id="language-settings-heading" class="nw-visually-hidden language-settings__title">
+      {{ 'settings.language.title' | transloco }}
+    </h2>
+    <fieldset class="language-settings__group" [disabled]="applying()">
+      <legend class="nw-visually-hidden">{{ 'preferences.language.label' | transloco }}</legend>
+      <strong>{{ 'settings.language.interface' | transloco }}</strong>
+      <div class="language-settings__choices">
+        @for (option of options; track option.value) {
+          <label class="language-settings__option">
+            <input
+              class="nw-visually-hidden"
+              type="radio"
+              name="language-settings"
+              [value]="option.value"
+              [attr.aria-labelledby]="'language-settings-name-' + option.value"
+              [attr.aria-describedby]="'language-settings-direction-' + option.value"
+              [checked]="selected() === option.value"
+              (change)="choose(option.value)"
+            />
+            <span class="language-settings__sample" [attr.lang]="option.value" aria-hidden="true">{{
+              option.sample
+            }}</span>
+            <span class="language-settings__identity">
+              <span
+                class="language-settings__name"
+                [id]="'language-settings-name-' + option.value"
+                [attr.lang]="option.value"
+                [attr.dir]="option.direction"
+                >{{ option.name }}</span
+              >
+              <span>{{ option.labelKey | transloco }}</span>
+            </span>
+            <span
+              class="language-settings__direction"
+              [id]="'language-settings-direction-' + option.value"
+              ><span aria-hidden="true">{{ option.direction === 'rtl' ? '←' : '→' }}</span
+              >{{ option.directionKey | transloco }}</span
+            >
+            <span
+              class="language-settings__radio"
+              [class.language-settings__check]="selected() === option.value"
+              aria-hidden="true"
+            ></span>
+          </label>
+        }
+      </div>
+    </fieldset>
+
+    <section class="language-settings__changes" aria-labelledby="language-changes-heading">
+      <h3 id="language-changes-heading">{{ 'settings.language.changes' | transloco }}</h3>
+      <dl>
+        <div>
+          <dt>{{ 'settings.language.date' | transloco }}</dt>
+          <dd>{{ date() }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'settings.language.number' | transloco }}</dt>
+          <dd>{{ number() }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'settings.language.layout' | transloco }}</dt>
+          <dd>
+            {{
+              (direction() === 'rtl' ? 'settings.language.mirrored' : 'settings.language.standard')
+                | transloco
+            }}
+          </dd>
+        </div>
+      </dl>
+    </section>
+  </section>
+  <div class="language-settings__context">
+    <adm-language-preview [locale]="selected()" [date]="date()" />
+  </div>
+</div>
+<footer class="language-settings__footer">
+  <span
+    class="language-settings__status"
+    [class.language-settings__status--dirty]="dirty()"
+    role="status"
+    >{{ (dirty() ? 'settings.language.unsaved' : 'settings.language.saved') | transloco }}</span
+  >
+  <p class="language-settings__note" id="language-settings-note">
+    <nw-icon name="info" size="sm" />{{ 'settings.language.note' | transloco }}
+  </p>
+  <div class="language-settings__actions">
+    <button
+      nw-button
+      variant="outline"
+      type="button"
+      [disabled]="!dirty() || applying()"
+      (click)="discard()"
+    >
+      {{ 'preferences.appearance.discard' | transloco }}
+    </button>
+    <button
+      nw-button
+      type="button"
+      class="language-settings__apply"
+      [disabled]="!dirty() || applying()"
+      [attr.aria-busy]="applying() || null"
+      (click)="apply()"
+    >
+      <nw-icon name="check" size="sm" />{{ 'preferences.appearance.apply' | transloco }}
+    </button>
+  </div>
+  @if (failed()) {
+    <p class="language-settings__error" role="alert">
+      {{ 'settings.language.error' | transloco }}
+    </p>
+  }
+</footer>

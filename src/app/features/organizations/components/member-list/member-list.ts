@@ -1,11 +1,9 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { NwDatePipe } from '../../../../shared/format/format.pipes';
 import { NwButton } from '../../../../shared/ui/button/button';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
-import { NwMenu, NwMenuItem, NwMenuTrigger } from '../../../../shared/ui/menu/menu';
 import { NwSpinner } from '../../../../shared/ui/spinner/spinner';
 import { MembershipDecision } from '../../domain/membership-decision.model';
 import {
@@ -48,18 +46,7 @@ export interface DecisionRequest {
  */
 @Component({
   selector: 'adm-member-list',
-  imports: [
-    NgTemplateOutlet,
-    RouterLink,
-    TranslocoPipe,
-    NwButton,
-    NwDatePipe,
-    NwIcon,
-    NwMenu,
-    NwMenuItem,
-    NwMenuTrigger,
-    NwSpinner,
-  ],
+  imports: [NgTemplateOutlet, TranslocoPipe, NwButton, NwDatePipe, NwIcon, NwSpinner],
   templateUrl: './member-list.html',
   styleUrl: './member-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,14 +56,13 @@ export class MemberList {
   readonly rows = input.required<readonly Membership[]>();
   readonly status = input.required<ListableMembershipStatus>();
   readonly listId = input.required<string>();
-  /** The detail link of a membership. */
-  readonly pathOf = input.required<(membership: Membership) => string>();
   /** Whether the actor may be offered a decision on a row (P5-S2); none by default. */
   readonly offers = input<(membership: Membership) => boolean>(() => false);
   /** The membership whose decision is being sent, if any. */
   readonly sendingId = input<string | null>(null);
   /** Whether any decision is being sent (every decision control waits). */
   readonly sending = input(false);
+  readonly openMember = output<Membership>();
   readonly decide = output<DecisionRequest>();
   /** Whether the actor may be offered to revoke a row (P5-S3a); none by default. */
   readonly revokeOffers = input<(membership: Membership) => boolean>(() => false);

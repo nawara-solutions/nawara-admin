@@ -2,6 +2,12 @@
 :host {
   position: relative;
   display: inline-flex;
+  max-inline-size: 100%;
+}
+
+:host button[nw-button] {
+  max-inline-size: 100%;
+  white-space: normal;
 }
 
 .create-organization-button__reason {

@@ -9,7 +9,7 @@ import {
   OrganizationActivityEntry,
 } from '../../domain/organization.model';
 
-const ACTIONS = {
+export const ORGANIZATION_ACTIVITY_ACTIONS = {
   'organization.created': { icon: 'building-2', key: 'organizations.activity.organizationCreated' },
   'organization.updated': { icon: 'pencil', key: 'organizations.activity.organizationUpdated' },
   'admin_invitation.created': {
@@ -121,6 +121,6 @@ const ACTIONS = {
 })
 export class OrganizationActivity {
   readonly entries = input.required<readonly OrganizationActivityEntry[]>();
-  protected readonly actions = ACTIONS;
+  protected readonly actions = ORGANIZATION_ACTIVITY_ACTIONS;
   protected readonly isDemo = inject(AuthSession).isDemo;
 }

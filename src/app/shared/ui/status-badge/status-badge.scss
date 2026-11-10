@@ -13,17 +13,17 @@
 }
 
 :host(.nw-status-badge--success) {
-  --nw-status-badge-bg: var(--nw-status-success-bg);
+  --nw-status-badge-bg: transparent;
   --nw-status-badge-fg: var(--nw-status-success-fg);
 }
 
 :host(.nw-status-badge--warning) {
-  --nw-status-badge-bg: var(--nw-status-warning-bg);
+  --nw-status-badge-bg: transparent;
   --nw-status-badge-fg: var(--nw-status-warning-fg);
 }
 
 :host(.nw-status-badge--danger) {
-  --nw-status-badge-bg: var(--nw-status-danger-bg);
+  --nw-status-badge-bg: transparent;
   --nw-status-badge-fg: var(--nw-status-danger-fg);
 }
 
