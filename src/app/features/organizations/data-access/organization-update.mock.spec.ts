@@ -123,7 +123,16 @@ describe('MockOrganizationCommandGateway.update (demo world)', () => {
       before.organizations.filter((o) => o.id !== HORIZON),
     );
     expect(after.subscriptions).toEqual(before.subscriptions);
-    expect(after.paymentIssues).toEqual(before.paymentIssues);
+    for (const table of [
+      'invoices',
+      'paymentRequests',
+      'payments',
+      'paymentAttempts',
+      'providerObservations',
+      'providerFacts',
+      'refundCases',
+    ] as const)
+      expect(after[table]).toBe(before[table]);
     expect(after.adminInvitations).toEqual(before.adminInvitations);
     expect(after.platformCommercial).toEqual(before.platformCommercial);
     expect(after.idempotency).toEqual(before.idempotency);

@@ -42,7 +42,16 @@ describe('demo world: canonical seed invariants', () => {
     expect(unique(world.organizations.map((o) => o.id))).toBe(true);
     expect(unique(world.identities.map((i) => i.id))).toBe(true);
     expect(unique(world.adminInvitations.map((i) => i.id))).toBe(true);
-    expect(unique(world.paymentIssues.map((i) => i.id))).toBe(true);
+    for (const records of [
+      world.invoices,
+      world.paymentRequests,
+      world.payments,
+      world.paymentAttempts,
+      world.providerObservations,
+      world.providerFacts,
+      world.refundCases,
+    ])
+      expect(unique(records.map((r) => r.id))).toBe(true);
     expect(unique(world.activity.map((e) => e.id))).toBe(true);
     expect(world.organizations.every((o) => /^[0-9a-f-]{36}$/.test(o.id))).toBe(true);
     // The same clock gives the same world.
@@ -54,7 +63,7 @@ describe('demo world: canonical seed invariants', () => {
     const organizations = new Set(world.organizations.map((o) => o.id));
     expect(world.platforms.every((p) => p.companyId === world.company.id)).toBe(true);
     expect(world.organizations.every((o) => platforms.has(o.platformId))).toBe(true);
-    for (const records of [world.subscriptions, world.adminInvitations, world.paymentIssues])
+    for (const records of [world.subscriptions, world.adminInvitations, world.invoices])
       expect(records.every((r) => organizations.has(r.organizationId))).toBe(true);
     // Every event is a Company Platform's, or Company-level (`platformId: null`, P6-S3: none in the seed).
     expect(world.activity.every((e) => e.platformId === null || platforms.has(e.platformId))).toBe(
