@@ -23,6 +23,7 @@ import {
   organizationsOf,
   pendingRequestTotal,
   platformsWithOperators,
+  subscriptionFactOf,
   subscriptionStateOf,
   subscriptionsEndingWithin,
   uniqueAssignedOperators,
@@ -194,12 +195,18 @@ describe('demo world: derived figures', () => {
       state: 'grace',
       graceEndsAt: '2026-10-24T06:00:00.000Z',
     });
-    expect(subscriptionsEndingWithin(world, organizationsOf(world, S), NOW, 14)).toBe(3);
-    expect(subscriptionsEndingWithin(world, organizationsOf(world, D), NOW, 14)).toBe(1);
-    // A day later, the grace has run out: the Organization has no subscription any more.
+    // A day later, the grace has run out: the view state is `none` (not entitled), but the record is kept with its
+    // last period: an ended subscription is never the absence of one (Core keeps the row, WP-3.1).
     expect(alAmal && subscriptionStateOf(world, alAmal.id, NOW + 25 * 3_600_000).state).toBe(
       'none',
     );
+    expect(alAmal && subscriptionFactOf(world, alAmal.id)?.currentPeriodEnd).toBe(
+      '2026-10-23T06:00:00.000Z',
+    );
+    // Pre-existing (fails identically on main 376e310): the seed gives 5 and 3 here, not 3 and 1. Left for a
+    // dedicated test-recovery package; subscription-facts.spec pins the actual values.
+    expect(subscriptionsEndingWithin(world, organizationsOf(world, S), NOW, 14)).toBe(3);
+    expect(subscriptionsEndingWithin(world, organizationsOf(world, D), NOW, 14)).toBe(1);
   });
 
   it('derives growth from creation dates at explicit UTC day boundaries', () => {

@@ -219,44 +219,127 @@ export function platformViewerOf(
 
 export type SubscriptionState = 'active' | 'grace' | 'none';
 
-const subscriptionOf = (
+/** The Organization's one subscription fact as recorded, or `null` when it never had one. Read only. */
+export const subscriptionFactOf = (
   world: DemoWorldTables,
   organization: OrganizationId,
-): OrganizationSubscriptionRecord | undefined =>
-  world.subscriptions.find((s) => s.organizationId === organization);
+): OrganizationSubscriptionRecord | null =>
+  world.subscriptions.find((s) => s.organizationId === organization) ?? null;
 
-/** When the Organization's one subscription ends (UTC instant), or `null` when it has none. */
-export const subscriptionEndOf = (
+/**
+ * Billing's effective entitlement of one subscription at `now`: `{ valid, expiresAt }`, the shape of Core's
+ * `EffectiveEntitlement` (expiresAt as an ISO 8601 UTC instant).
+ */
+export interface EntitlementWindow {
+  readonly valid: boolean;
+  /** The exclusive end of access while valid (the grace end, or an earlier termination); `null` when not valid. */
+  readonly expiresAt: string | null;
+}
+
+const NOT_ENTITLED: EntitlementWindow = { valid: false, expiresAt: null };
+
+const instant = (value: string, field: string): number => {
+  const ms = Date.parse(value);
+  if (Number.isNaN(ms)) throw new Error(`subscription ${field} is not a valid instant`);
+  return ms;
+};
+
+/**
+ * Port of Core's pure `deriveEntitlement` (nawara-core `f62b96b`, identical at `8d89bed`: billing-service
+ * `src/domain/entitlement.ts`), over the record's timestamps only, never its stored status:
+ * - no record, or `pending`: not valid (no period ever existed);
+ * - the boundary is `graceUntil` (else `currentPeriodEnd`), shortened by `effectiveTerminationAt` when set;
+ * - valid while `currentPeriodStart <= now < boundary` (start inclusive, boundary exclusive);
+ * - `cancelAtPeriodEnd` is not an input: it never shortens access already paid for.
+ * A record that breaks Core's database invariants throws, as Core's does: it can only be a fixture bug.
+ *
+ * This answers access at `now` from the record as it stands. It models NO renewal, period extension or anchor (Core
+ * moves a period only with a verified settlement; known Core risk CFU-1 concerns early renewal and is not reproduced).
+ */
+export function entitlementWindowOf(
+  subscription: OrganizationSubscriptionRecord | null,
+  now: number,
+): EntitlementWindow {
+  if (subscription === null || subscription.status === 'pending') return NOT_ENTITLED;
+  const { currentPeriodStart, currentPeriodEnd, graceUntil, effectiveTerminationAt } = subscription;
+  if (currentPeriodStart === null || currentPeriodEnd === null)
+    throw new Error(`a '${subscription.status}' subscription must have a period`);
+  const start = instant(currentPeriodStart, 'currentPeriodStart');
+  const end = instant(currentPeriodEnd, 'currentPeriodEnd');
+  if (end <= start) throw new Error('currentPeriodEnd must be after currentPeriodStart');
+  let boundary = end;
+  if (graceUntil !== null) {
+    const grace = instant(graceUntil, 'graceUntil');
+    if (grace <= end) throw new Error('graceUntil must be after currentPeriodEnd');
+    boundary = grace;
+  }
+  if (effectiveTerminationAt !== null) {
+    const termination = instant(effectiveTerminationAt, 'effectiveTerminationAt');
+    if (termination > boundary)
+      throw new Error('effectiveTerminationAt cannot extend access past the period/grace boundary');
+    boundary = termination;
+  }
+  if (now < start || now >= boundary) return NOT_ENTITLED;
+  return { valid: true, expiresAt: new Date(boundary).toISOString() };
+}
+
+/**
+ * When the Organization's paid access ends: its period end, or an earlier effective termination (UTC instant); `null`
+ * when it never had a subscription or it is `pending`. An expired record keeps its last period, so this stays a past
+ * instant rather than becoming `null`; consumers read it only for an `active` or `grace` view state.
+ */
+export function subscriptionEndOf(
   world: DemoWorldTables,
   organization: OrganizationId,
-): string | null => subscriptionOf(world, organization)?.endsAt ?? null;
+): string | null {
+  const subscription = subscriptionFactOf(world, organization);
+  if (subscription === null || subscription.currentPeriodEnd === null) return null;
+  const { currentPeriodEnd, effectiveTerminationAt } = subscription;
+  return effectiveTerminationAt !== null &&
+    Date.parse(effectiveTerminationAt) < Date.parse(currentPeriodEnd)
+    ? effectiveTerminationAt
+    : currentPeriodEnd;
+}
 
-/** Active until it ends, then in grace for 24 hours, then no subscription. No record: no subscription. */
+/**
+ * Admin's VIEW state (never Core's stored status), from the entitlement window: `active` while entitled before the period
+ * ends, `grace` while entitled after it (with when that access ends), otherwise `none`. `none` is a view value only: a
+ * pending, not-yet-started, expired or terminated record is still a record (`subscriptionFactOf`).
+ */
 export function subscriptionStateOf(
   world: DemoWorldTables,
   organization: OrganizationId,
   now: number,
 ): { readonly state: SubscriptionState; readonly graceEndsAt?: string } {
-  const subscription = subscriptionOf(world, organization);
-  if (!subscription) return { state: 'none' };
-  const ends = Date.parse(subscription.endsAt);
-  if (ends > now) return { state: 'active' };
-  const graceEnds = ends + SUBSCRIPTION_GRACE_HOURS * HOUR_MS;
-  return graceEnds > now
-    ? { state: 'grace', graceEndsAt: new Date(graceEnds).toISOString() }
-    : { state: 'none' };
+  const subscription = subscriptionFactOf(world, organization);
+  const window = entitlementWindowOf(subscription, now);
+  if (
+    !window.valid ||
+    window.expiresAt === null ||
+    subscription === null ||
+    subscription.currentPeriodEnd === null
+  )
+    return { state: 'none' };
+  return now < Date.parse(subscription.currentPeriodEnd)
+    ? { state: 'active' }
+    : { state: 'grace', graceEndsAt: window.expiresAt };
 }
 
-/** Whether the Organization's subscription is active and ends within `days` days after `now`. */
+/**
+ * Whether the Organization's subscription is active and its period ends within `days` days after `now`. A terminated
+ * record (its end is a termination, not a period running out) and an expired one are never "ending soon".
+ */
 export function subscriptionEndsWithin(
   world: DemoWorldTables,
   organization: OrganizationId,
   now: number,
   days: number,
 ): boolean {
-  const subscription = subscriptionOf(world, organization);
-  if (!subscription) return false;
-  const ends = Date.parse(subscription.endsAt);
+  const subscription = subscriptionFactOf(world, organization);
+  if (subscription === null || subscription.currentPeriodEnd === null) return false;
+  if (subscription.effectiveTerminationAt !== null) return false;
+  if (subscriptionStateOf(world, organization, now).state !== 'active') return false;
+  const ends = Date.parse(subscription.currentPeriodEnd);
   return ends > now && ends <= now + days * DAY_MS;
 }
 
