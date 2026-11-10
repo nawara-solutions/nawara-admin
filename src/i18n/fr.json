@@ -3419,10 +3419,6 @@
   },
   "coreServices": {
     "liveHealth": {
-      "demoLabel": "État simulé · Données de démonstration",
-      "demoDescription": "Aperçu de la santé des services avec des états simulés.",
-      "demoOperational": "Opérationnel",
-      "demoDegraded": "Dégradé",
       "unavailable": "État en direct indisponible"
     },
     "services": {

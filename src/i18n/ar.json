@@ -3419,10 +3419,6 @@
   },
   "coreServices": {
     "liveHealth": {
-      "demoLabel": "حالة محاكاة · بيانات تجريبية",
-      "demoDescription": "معاينة صحة الخدمات باستخدام حالات محاكاة.",
-      "demoOperational": "تعمل بشكل طبيعي",
-      "demoDegraded": "أداء متراجع",
       "unavailable": "الحالة المباشرة غير متاحة"
     },
     "services": {
