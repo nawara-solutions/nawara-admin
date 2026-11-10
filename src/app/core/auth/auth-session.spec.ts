@@ -26,6 +26,7 @@ const DEMO_BINDINGS_STUB: DemoBindings = {
     activity: [],
     services: [],
     releases: [],
+    platformSettings: [],
     companySettings: [],
     accountSecurity: [],
     platformDashboard: [],
