@@ -27,6 +27,8 @@ export const RECEIPT_FINANCIAL_OPERATION = {
   late_settlement_apply: 'lateSettlement.apply',
   provider_fact_associate: 'providerFact.associate',
   recovery_write_off: 'recovery.writeOff',
+  recovery_restriction_suspend: 'recoveryRestriction.suspend',
+  recovery_restriction_revoke: 'recoveryRestriction.revoke',
 } as const satisfies Readonly<Record<ReceiptOperation, FinancialOperation>>;
 
 /** The dialog title of each operation. */
@@ -39,6 +41,8 @@ export const OPERATION_TITLE_KEYS = {
   late_settlement_apply: 'financialAuthorization.operations.late_settlement_apply',
   provider_fact_associate: 'financialAuthorization.operations.provider_fact_associate',
   recovery_write_off: 'financialAuthorization.operations.recovery_write_off',
+  recovery_restriction_suspend: 'financialAuthorization.operations.recovery_restriction_suspend',
+  recovery_restriction_revoke: 'financialAuthorization.operations.recovery_restriction_revoke',
 } as const satisfies Readonly<Record<ReceiptOperation, string>>;
 
 /** What the step-up is for, shown above the code (`nw-step-up-code` purpose). */
@@ -51,6 +55,8 @@ export const OPERATION_PURPOSE_KEYS = {
   late_settlement_apply: 'financialAuthorization.purposes.late_settlement_apply',
   provider_fact_associate: 'financialAuthorization.purposes.provider_fact_associate',
   recovery_write_off: 'financialAuthorization.purposes.recovery_write_off',
+  recovery_restriction_suspend: 'financialAuthorization.purposes.recovery_restriction_suspend',
+  recovery_restriction_revoke: 'financialAuthorization.purposes.recovery_restriction_revoke',
 } as const satisfies Readonly<Record<ReceiptOperation, string>>;
 
 /** Whether this person may ask for this receipt here (UX only; never proof), and why not. */
@@ -120,6 +126,7 @@ const FIELD_LABEL = {
   factId: 'financialAuthorization.fields.fact',
   targetId: 'financialAuthorization.fields.target',
   obligationId: 'financialAuthorization.fields.obligation',
+  suspensionId: 'financialAuthorization.fields.suspension',
   reason: 'financialAuthorization.fields.reason',
   reasonCode: 'financialAuthorization.fields.reasonCode',
   decision: 'financialAuthorization.fields.decision',

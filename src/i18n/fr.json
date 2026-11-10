@@ -3633,7 +3633,9 @@
       "recovery_surplus_external": "Autoriser l’enregistrement d’un remboursement externe d’excédent",
       "late_settlement_apply": "Autoriser l’application d’un règlement tardif",
       "provider_fact_associate": "Autoriser l’association d’un fait du prestataire",
-      "recovery_write_off": "Autoriser la passation en perte d’une créance"
+      "recovery_write_off": "Autoriser la passation en perte d’une créance",
+      "recovery_restriction_suspend": "Autoriser la suspension d’une restriction de recouvrement",
+      "recovery_restriction_revoke": "Autoriser la révocation d’une suspension de restriction de recouvrement"
     },
     "purposes": {
       "refund": "Autoriser un remboursement",
@@ -3643,7 +3645,9 @@
       "recovery_surplus_external": "Autoriser un remboursement externe d’excédent",
       "late_settlement_apply": "Autoriser un règlement tardif",
       "provider_fact_associate": "Autoriser l’association d’un fait du prestataire",
-      "recovery_write_off": "Autoriser une passation en perte"
+      "recovery_write_off": "Autoriser une passation en perte",
+      "recovery_restriction_suspend": "Autoriser une suspension de restriction de recouvrement",
+      "recovery_restriction_revoke": "Autoriser la révocation d’une suspension de restriction"
     },
     "summary": {
       "title": "Ce à quoi cette autorisation est liée",
@@ -3666,6 +3670,7 @@
       "fact": "Fait du prestataire",
       "target": "Cible",
       "obligation": "Créance",
+      "suspension": "Suspension",
       "reason": "Code de motif",
       "reasonCode": "Code de motif",
       "decision": "Décision",

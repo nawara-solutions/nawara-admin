@@ -5,8 +5,9 @@
  *
  * - Core lets the owner of the operating Company withdraw a release and change a minimum supported version, each with a
  *   factor step-up; neither is in production, and neither is offered by Admin.
- * - Core offers no human read of products, components, releases or policies (CF-05), so Admin cannot show what could
- *   be withdrawn and never guesses a target.
+ * - Core's owner reads of products, components, releases and policy history exist in development only (REL-01 to
+ *   REL-03, CF-05; Release is not in production), and Admin does not integrate them, so it cannot show what could be
+ *   withdrawn and never guesses a target.
  * - Register and publish are CI-only (service token).
  */
 export type ReleaseCapability = 'catalog' | 'publish' | 'withdraw' | 'minimumVersion';

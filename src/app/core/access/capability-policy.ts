@@ -78,7 +78,8 @@ export type Capability =
   | 'company.services.view'
   /**
    * Releases (`/releases`, P8-S4): information about Core's Release service. Core's withdraw and minimum-version
-   * commands are the owner's (with step-up) and no catalog read exists (CF-05); the page offers neither.
+   * commands are the owner's (with step-up) and its catalog reads (REL-01 to REL-03, CF-05) exist in development only:
+   * Release is not in production. The page offers neither.
    */
   | 'company.releases.view'
   /**

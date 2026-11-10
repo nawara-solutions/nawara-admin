@@ -2,9 +2,10 @@
   "$comment": "F1-S7 fixture: Core facts only, at nawara-core 0044b20 (paths relative to the repository root). Never a Core response; never sent anywhere.",
   "core": {
     "repository": "nawara-solutions/nawara-core",
-    "revision": "0044b20",
-    "source": "apps/auth-service/src/owner/step-up.service.ts:23-100",
-    "purposeCount": 32
+    "revision": "8d89bed",
+    "source": "apps/auth-service/src/owner/step-up.service.ts:23-105",
+    "purposeCount": 34,
+    "routesRevision": "0044b20"
   },
   "headerName": {
     "value": "x-step-up-token",
@@ -319,6 +320,26 @@
       "recipient": "auth",
       "source": "apps/auth-service/src/owner/step-up.service.ts:98",
       "consumer": "apps/auth-service/src/receipts/receipt-binding.ts:158-162 (recovery_write_off)"
+    },
+    {
+      "purpose": "billing.recovery_restriction.suspend",
+      "factors": ["totp", "webauthn"],
+      "transport": "receipt",
+      "delivery": "body",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:103",
+      "consumer": "apps/auth-service/src/receipts/receipt-binding.ts:190-195 (recovery_restriction_suspend)",
+      "revision": "8d89bed"
+    },
+    {
+      "purpose": "billing.recovery_restriction.revoke",
+      "factors": ["totp", "webauthn"],
+      "transport": "receipt",
+      "delivery": "body",
+      "recipient": "auth",
+      "source": "apps/auth-service/src/owner/step-up.service.ts:104",
+      "consumer": "apps/auth-service/src/receipts/receipt-binding.ts:190-195 (recovery_restriction_revoke)",
+      "revision": "8d89bed"
     }
   ]
 }

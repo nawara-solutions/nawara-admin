@@ -44,6 +44,8 @@ import {
   IssuedReceipt,
   RECEIPT_AUDIENCE,
   RECEIPT_BINDING_FIELDS,
+  RECOVERY_RESTRICTION_REVOKE_REASONS,
+  RECOVERY_RESTRICTION_SUSPEND_REASONS,
   ReceiptBinding,
   ReceiptBindingFor,
   ReceiptIssueRequest,
@@ -58,12 +60,23 @@ import stepUpFixture from './fixtures/step-up-transports.json';
 
 /**
  * F1-S7: Admin's financial authorization tables and coordinator, checked against Core's recorded contracts
- * (docs/design/f1-s7-contract-fixtures.md). The fixtures hold Core facts only, each citing nawara-core `0044b20`; this spec
+ * (docs/design/f1-s7-contract-fixtures.md). The fixtures hold Core facts only, each citing nawara-core `0044b20` unless an
+ * entry carries its own `revision` (`8d89bed`: the Core V2 S0-C14 additions of WP-2.1, and the purpose list); this spec
  * never manufactures a Core response beyond a status and code Core documents, sends nothing and calls no HTTP adapter (none
  * exists).
  */
 
 const REVISION = '0044b20';
+/** WP-2.1: the purpose list, and the S0-C14 entries, verified at this later revision only. */
+const ADDITIONS_REVISION = '8d89bed';
+const S0_C14_OPERATIONS: readonly string[] = [
+  'recovery_restriction_suspend',
+  'recovery_restriction_revoke',
+];
+const S0_C14_PURPOSES: readonly string[] = [
+  'billing.recovery_restriction.suspend',
+  'billing.recovery_restriction.revoke',
+];
 const OPERATIONS = Object.keys(RECEIPT_OPERATION_PURPOSE) as ReceiptOperation[];
 
 type ConsumerFixture = (typeof consumersFixture.consumers)[number];
@@ -241,6 +254,28 @@ const BINDINGS: { readonly [O in ReceiptOperation]: ReceiptBindingFor<O> } = {
     amount: 900,
     currency: 'TND',
   },
+  recovery_restriction_suspend: {
+    operation: 'recovery_restriction_suspend',
+    audience: 'billing-service',
+    companyId: uuid(1),
+    suspensionId: uuid(14),
+    obligationId: uuid(13),
+    organizationId: uuid(9),
+    disputeId: uuid(15),
+    refundCaseId: uuid(16),
+    reasonCode: 'refund_chargeback_overlap',
+  },
+  recovery_restriction_revoke: {
+    operation: 'recovery_restriction_revoke',
+    audience: 'billing-service',
+    companyId: uuid(1),
+    suspensionId: uuid(14),
+    obligationId: uuid(13),
+    organizationId: uuid(9),
+    disputeId: uuid(15),
+    refundCaseId: uuid(16),
+    reasonCode: 'owner_reinstated_restriction',
+  },
 };
 
 interface SetUpOptions {
@@ -306,14 +341,51 @@ const sent = (t: Harness, n: number) => t.env.consumer.calls[n] as Sent;
 
 // ── 1. The fixtures themselves ──────────────────────────────────────────────────────────────────────────────────────
 
-describe('F1-S7 fixtures are Core evidence at 0044b20', () => {
-  it('pins every fixture to the same Core revision as Admin’s registries', () => {
-    for (const fixture of [stepUpFixture, issuanceFixture, consumersFixture]) {
+describe('F1-S7 fixtures are Core evidence at 0044b20 (S0-C14 additions at 8d89bed)', () => {
+  it('pins every fixture to the same Core revisions as Admin’s registries', () => {
+    for (const fixture of [stepUpFixture, issuanceFixture, consumersFixture])
       expect(fixture.core.repository).toBe('nawara-solutions/nawara-core');
-      expect(fixture.core.revision).toBe(REVISION);
-    }
-    expect(PURPOSE_REGISTRY_BASELINE.revision).toBe(REVISION);
+    expect(issuanceFixture.core.revision).toBe(REVISION);
+    expect(consumersFixture.core.revision).toBe(REVISION);
+    // The purpose list was re-verified whole at 8d89bed; the earlier purposes' routes stay at 0044b20.
+    expect(stepUpFixture.core.revision).toBe(ADDITIONS_REVISION);
+    expect(stepUpFixture.core.routesRevision).toBe(REVISION);
+    expect(PURPOSE_REGISTRY_BASELINE.revision).toBe(ADDITIONS_REVISION);
+    expect(PURPOSE_REGISTRY_BASELINE.routesRevision).toBe(REVISION);
     expect(stepUpFixture.core.source.endsWith(PURPOSE_REGISTRY_BASELINE.source)).toBe(true);
+  });
+
+  it('marks exactly the S0-C14 entries as verified at 8d89bed, and no other', () => {
+    const later = <T extends object>(entries: readonly T[], name: (entry: T) => string) =>
+      entries
+        .filter((entry) => 'revision' in entry && entry.revision === ADDITIONS_REVISION)
+        .map(name);
+    expect(later(stepUpFixture.purposes, (p) => p.purpose)).toEqual(S0_C14_PURPOSES);
+    expect(later(consumersFixture.consumers, (c) => c.operation)).toEqual(S0_C14_OPERATIONS);
+    expect(
+      later(
+        Object.entries(issuanceFixture.operations).map(([operation, entry]) => ({
+          operation,
+          ...entry,
+        })),
+        (o) => o.operation,
+      ),
+    ).toEqual(S0_C14_OPERATIONS);
+    for (const entry of [
+      ...stepUpFixture.purposes,
+      ...consumersFixture.consumers,
+      ...Object.values(issuanceFixture.operations),
+    ])
+      if ('revision' in entry) expect(entry.revision).toBe(ADDITIONS_REVISION);
+  });
+
+  it('carries each S0-C14 receipt’s closed reason code, exactly as Core declares it', () => {
+    expect(issuanceFixture.operations.recovery_restriction_suspend.reasonCodes).toEqual([
+      ...RECOVERY_RESTRICTION_SUSPEND_REASONS,
+    ]);
+    expect(issuanceFixture.operations.recovery_restriction_revoke.reasonCodes).toEqual([
+      ...RECOVERY_RESTRICTION_REVOKE_REASONS,
+    ]);
   });
 
   it('cites a Core source line for every fact', () => {
@@ -342,12 +414,12 @@ describe('F1-S7 fixtures are Core evidence at 0044b20', () => {
     }
   });
 
-  it('accounts for all 32 Core purposes: 31 represented, 1 excluded with its reason', () => {
+  it('accounts for all 34 Core purposes: 33 represented, 1 excluded with its reason', () => {
     expect(stepUpFixture.purposes.length + stepUpFixture.excluded.length).toBe(
       stepUpFixture.core.purposeCount,
     );
     expect(stepUpFixture.core.purposeCount).toBe(PURPOSE_REGISTRY_BASELINE.corePurposeCount);
-    expect(new Set(stepUpFixture.purposes.map((p) => p.purpose)).size).toBe(31);
+    expect(new Set(stepUpFixture.purposes.map((p) => p.purpose)).size).toBe(33);
   });
 });
 
@@ -570,7 +642,7 @@ function expectedPolicy(answer: ConsumerFixture['answers'][number]): Resubmissio
 }
 
 describe('F1-S7 receipt consumers (one per receipt operation)', () => {
-  it('covers exactly the eight receipt operations', () => {
+  it('covers exactly the ten receipt operations', () => {
     expect(consumersFixture.consumers.map((c) => c.operation).sort()).toEqual(
       [...OPERATIONS].sort(),
     );

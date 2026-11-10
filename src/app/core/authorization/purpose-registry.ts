@@ -1,10 +1,16 @@
 /**
  * Core's owner step-up purposes and how each one is authorized (F1-S1; docs/design/f1-financial-authorization.md §3, §6.1).
  *
- * Source, verbatim: nawara-core `0044b20`, auth-service `src/owner/step-up.service.ts:23-100` (`STEP_UP_METHODS`): 32
+ * Source, verbatim: nawara-core `8d89bed`, auth-service `src/owner/step-up.service.ts:23-105` (`STEP_UP_METHODS`): 34
  * purposes. One is deliberately left out, with its reason in `EXCLUDED_CORE_PURPOSES`. Each entry's transport, delivery and
  * recipient come from the route that consumes it (cited per entry; paths relative to `nawara-core/apps/`). Machine values:
  * never translated.
+ *
+ * Revisions (WP-2.1): the purpose list and every purpose's factors were re-verified at `8d89bed`; lines 1-98 of
+ * `step-up.service.ts` are unchanged since `0044b20`, so the `:NN` factor citations hold at both. Each pre-existing entry's
+ * consuming route was verified at `0044b20`; the two S0-C14 entries (`billing.recovery_restriction.*`) are cited at `8d89bed`.
+ * A purpose in this table says what Core accepts for that one operation; it never makes a step-up a requirement of anything
+ * else, and it enables nothing in Admin.
  *
  * Headless and typed only: nothing here obtains, stores or sends a proof, and no current caller reads it yet.
  */
@@ -120,6 +126,10 @@ export const PURPOSE_RULES = {
   'billing.late_settlement.apply': { ...RECEIPT, factors: FACTOR_ONLY }, // :91; `late_settlement_apply`
   'payment.provider_fact.associate': { ...RECEIPT, factors: FACTOR_ONLY }, // :97; `provider_fact_associate`
   'billing.recovery.write_off': { ...RECEIPT, factors: FACTOR_ONLY }, // :98; `recovery_write_off`
+  // Core V2 S0-C14 WP A, at `8d89bed` (step-up.service.ts:103-104): the Owner's T3 suspension for ONE recovery obligation in a
+  // refund and chargeback overlap, and its revocation. Each consumed only by the issuance of its own receipt.
+  'billing.recovery_restriction.suspend': { ...RECEIPT, factors: FACTOR_ONLY }, // :103; `recovery_restriction_suspend`
+  'billing.recovery_restriction.revoke': { ...RECEIPT, factors: FACTOR_ONLY }, // :104; `recovery_restriction_revoke`
 } as const satisfies Readonly<Record<string, PurposeRule>>;
 
 /**
@@ -132,12 +142,16 @@ export const EXCLUDED_CORE_PURPOSES = {
     'ADR-0061 hierarchy reference repair: activation is MOVE V3 (Core roadmap); no Admin capability',
 } as const;
 
-/** The Core revision this registry was verified against, and how many purposes Core declares there. */
+/**
+ * The Core revision the purpose LIST and factors were verified against, and how many purposes Core declares there.
+ * `routesRevision`: where the pre-existing entries' consuming routes were verified (the S0-C14 additions: `revision`).
+ */
 export const PURPOSE_REGISTRY_BASELINE = {
   repository: 'nawara-solutions/nawara-core',
-  revision: '0044b20',
-  source: 'apps/auth-service/src/owner/step-up.service.ts:23-100',
-  corePurposeCount: 32,
+  revision: '8d89bed',
+  source: 'apps/auth-service/src/owner/step-up.service.ts:23-105',
+  corePurposeCount: 34,
+  routesRevision: '0044b20',
 } as const;
 
 export type CorePurpose = keyof typeof PURPOSE_RULES;
@@ -181,7 +195,8 @@ export const allowsFactor = (purpose: CorePurpose, factor: StepUpFactor): boolea
 
 /**
  * Core's receipt operations and the one step-up purpose each issuance consumes (auth-service
- * `src/receipts/receipt-binding.ts:158-162`, `RECEIPT_PURPOSES`, at `0044b20`). Machine values.
+ * `src/receipts/receipt-binding.ts:158-162`, `RECEIPT_PURPOSES`, at `0044b20`; the two `recovery_restriction_*` operations at
+ * `8d89bed`, `receipt-binding.ts:190-195`). Machine values. A receipt is required only by the operation it names.
  */
 export const RECEIPT_OPERATION_PURPOSE = {
   refund: 'refund.authorize',
@@ -192,6 +207,8 @@ export const RECEIPT_OPERATION_PURPOSE = {
   late_settlement_apply: 'billing.late_settlement.apply',
   provider_fact_associate: 'payment.provider_fact.associate',
   recovery_write_off: 'billing.recovery.write_off',
+  recovery_restriction_suspend: 'billing.recovery_restriction.suspend',
+  recovery_restriction_revoke: 'billing.recovery_restriction.revoke',
 } as const satisfies Readonly<Record<string, ReceiptPurpose>>;
 
 export type ReceiptOperation = keyof typeof RECEIPT_OPERATION_PURPOSE;

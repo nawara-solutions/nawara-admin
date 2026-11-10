@@ -18,8 +18,9 @@ import {
 } from './purpose-registry';
 
 /**
- * Core's `STEP_UP_METHODS`, copied verbatim from nawara-core `0044b20`
- * (`apps/auth-service/src/owner/step-up.service.ts:23-100`), in source order: the evidence the registry is checked against.
+ * Core's `STEP_UP_METHODS`, copied verbatim from nawara-core `8d89bed`
+ * (`apps/auth-service/src/owner/step-up.service.ts:23-105`), in source order: the evidence the registry is checked against.
+ * The first 32 are unchanged since `0044b20`; the last two were added by Core V2 S0-C14 WP A.
  */
 const CORE_STEP_UP_METHODS: readonly (readonly [string, readonly StepUpFactor[]])[] = [
   ['platform_assignment.grant', ['totp', 'webauthn', 'secret_key']],
@@ -54,6 +55,8 @@ const CORE_STEP_UP_METHODS: readonly (readonly [string, readonly StepUpFactor[]]
   ['billing.late_settlement.apply', ['totp', 'webauthn']],
   ['payment.provider_fact.associate', ['totp', 'webauthn']],
   ['billing.recovery.write_off', ['totp', 'webauthn']],
+  ['billing.recovery_restriction.suspend', ['totp', 'webauthn']],
+  ['billing.recovery_restriction.revoke', ['totp', 'webauthn']],
 ];
 
 /** Transport of each purpose, from the route that consumes it (see the citations in purpose-registry.ts). */
@@ -93,16 +96,44 @@ const RECEIPT = [
   'billing.late_settlement.apply',
   'payment.provider_fact.associate',
   'billing.recovery.write_off',
+  'billing.recovery_restriction.suspend',
+  'billing.recovery_restriction.revoke',
 ];
 
 const registered = Object.keys(PURPOSE_RULES);
 const sorted = (values: readonly string[]) => [...values].sort();
 
-describe('PURPOSE_RULES (Core step-up purposes at 0044b20)', () => {
-  it('records the verified baseline: 32 Core purposes', () => {
-    expect(CORE_STEP_UP_METHODS).toHaveLength(32);
+describe('PURPOSE_RULES (Core step-up purposes at 8d89bed)', () => {
+  it('records the verified baseline: 34 Core purposes, the routes of the earlier ones at 0044b20', () => {
+    expect(CORE_STEP_UP_METHODS).toHaveLength(34);
     expect(PURPOSE_REGISTRY_BASELINE.corePurposeCount).toBe(CORE_STEP_UP_METHODS.length);
-    expect(PURPOSE_REGISTRY_BASELINE.revision).toBe('0044b20');
+    expect(PURPOSE_REGISTRY_BASELINE.revision).toBe('8d89bed');
+    expect(PURPOSE_REGISTRY_BASELINE.routesRevision).toBe('0044b20');
+  });
+
+  it('adds the two S0-C14 purposes as distinct, factor-only, receipt-bound purposes (WP-2.1)', () => {
+    const suspend = purposeRule('billing.recovery_restriction.suspend');
+    const revoke = purposeRule('billing.recovery_restriction.revoke');
+    for (const rule of [suspend, revoke])
+      expect(rule).toEqual({
+        transport: 'receipt',
+        delivery: 'body',
+        recipient: 'auth',
+        factors: ['totp', 'webauthn'],
+      });
+    // Distinct purposes: a suspension proof never revokes, nor writes off, nor the reverse.
+    const recovery = registered.filter((purpose) => purpose.startsWith('billing.recovery'));
+    expect(new Set(recovery).size).toBe(recovery.length);
+    expect(recovery).toEqual([
+      'billing.recovery_surplus.record_external',
+      'billing.recovery.write_off',
+      'billing.recovery_restriction.suspend',
+      'billing.recovery_restriction.revoke',
+    ]);
+    // Declaring them makes no other purpose receipt-bound: every Auth-local and service-verified purpose is unchanged.
+    expect(
+      registered.filter((p) => isCorePurpose(p) && purposeRule(p).transport === 'receipt'),
+    ).toEqual(RECEIPT);
   });
 
   it('represents every included Core purpose exactly once, and nothing else', () => {
@@ -111,7 +142,7 @@ describe('PURPOSE_RULES (Core step-up purposes at 0044b20)', () => {
     );
     expect(new Set(registered).size).toBe(registered.length);
     expect(sorted(registered)).toEqual(sorted(included));
-    expect(registered).toHaveLength(31);
+    expect(registered).toHaveLength(33);
   });
 
   it('excludes only the V3-deferred hierarchy repair, with its reason', () => {

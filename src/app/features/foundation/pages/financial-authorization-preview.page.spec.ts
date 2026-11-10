@@ -50,4 +50,11 @@ describe('Financial authorization preview: the simulated service (F1-S6b)', () =
       for (const answer of PREVIEW_ANSWERS)
         expect(await policyOf(operation, answer)).toBe(expected[operation][answer]);
   });
+
+  it('never previews the S0-C14 recovery-restriction receipts: documented, not executable (WP-2.1)', () => {
+    const previewed: readonly string[] = PREVIEW_OPERATIONS;
+    expect(previewed).toEqual(['refund', 'recovery_write_off', 'fraud_hold_place']);
+    expect(previewed).not.toContain('recovery_restriction_suspend');
+    expect(previewed).not.toContain('recovery_restriction_revoke');
+  });
 });

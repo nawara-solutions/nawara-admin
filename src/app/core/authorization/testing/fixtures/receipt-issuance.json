@@ -146,6 +146,46 @@
         "currency"
       ],
       "optional": []
+    },
+    "recovery_restriction_suspend": {
+      "purpose": "billing.recovery_restriction.suspend",
+      "audience": "billing-service",
+      "fields": [
+        "operation",
+        "audience",
+        "companyId",
+        "suspensionId",
+        "obligationId",
+        "organizationId",
+        "disputeId",
+        "refundCaseId",
+        "reasonCode"
+      ],
+      "optional": [],
+      "reasonCodes": ["refund_chargeback_overlap"],
+      "source": "apps/auth-service/src/receipts/receipt-binding.ts:207",
+      "reasonCodesSource": "apps/auth-service/src/receipts/receipt-binding.ts:148",
+      "revision": "8d89bed"
+    },
+    "recovery_restriction_revoke": {
+      "purpose": "billing.recovery_restriction.revoke",
+      "audience": "billing-service",
+      "fields": [
+        "operation",
+        "audience",
+        "companyId",
+        "suspensionId",
+        "obligationId",
+        "organizationId",
+        "disputeId",
+        "refundCaseId",
+        "reasonCode"
+      ],
+      "optional": [],
+      "reasonCodes": ["owner_reinstated_restriction"],
+      "source": "apps/auth-service/src/receipts/receipt-binding.ts:207",
+      "reasonCodesSource": "apps/auth-service/src/receipts/receipt-binding.ts:149",
+      "revision": "8d89bed"
     }
   },
   "operationsSource": "apps/auth-service/src/receipts/receipt-binding.ts:152-173",

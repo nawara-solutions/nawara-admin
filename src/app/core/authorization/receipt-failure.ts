@@ -115,8 +115,10 @@ const IDEMPOTENCY_CONFLICTS = [
 ];
 
 /**
- * The documented answers of each receipt consumer at nawara-core `0044b20` (paths relative to `apps/`). Codes not listed here are
- * definitive when they are 4xx, and unknown when they are 5xx.
+ * The documented answers of each receipt consumer at nawara-core `0044b20` (paths relative to `apps/`); the two
+ * `recovery_restriction_*` consumers (Core V2 S0-C14 WP C) at `8d89bed`, where Core also documents `503 auth_unavailable`: Auth
+ * could not confirm the Owner before the receipt was consumed (`recovery-suspension.service.ts:68`, `:87`, `:132`), so nothing
+ * changed. Codes not listed here are definitive when they are 4xx, and unknown when they are 5xx.
  */
 export const RECEIPT_CONSUMERS = {
   refund: {
@@ -201,6 +203,30 @@ export const RECEIPT_CONSUMERS = {
     recorded: ['recovery_authorization_unresolved'],
     noMutation: ['recovery_authorization_unavailable'],
     evidence: 'billing-service/src/reconciliation/reconciliation.controller.ts:103-104',
+  },
+  // `8d89bed`: no Idempotency-Key; the same suspension id and receipt answer the stored suspension (200).
+  recovery_restriction_suspend: {
+    register: 'BIL-28',
+    route: 'POST /billing/admin/recovery-obligations/:id/restriction-suspensions',
+    idempotencyKey: false,
+    expired: [],
+    refused: ['recovery_authorization_refused'],
+    recorded: ['recovery_authorization_unresolved'],
+    noMutation: ['recovery_authorization_unavailable', 'auth_unavailable'],
+    evidence:
+      'billing-service/src/reconciliation/reconciliation.controller.ts:128-129 (8d89bed); recovery-suspension.service.ts:87, :100, :168-183',
+  },
+  recovery_restriction_revoke: {
+    register: 'BIL-28',
+    route:
+      'POST /billing/admin/recovery-obligations/:id/restriction-suspensions/:suspensionId/revocation',
+    idempotencyKey: false,
+    expired: [],
+    refused: ['recovery_authorization_refused'],
+    recorded: ['recovery_authorization_unresolved'],
+    noMutation: ['recovery_authorization_unavailable', 'auth_unavailable'],
+    evidence:
+      'billing-service/src/reconciliation/reconciliation.controller.ts:151-152 (8d89bed); recovery-suspension.service.ts:132, :144, :168-183',
   },
 } as const satisfies Readonly<Record<ReceiptOperation, ConsumerContract>>;
 

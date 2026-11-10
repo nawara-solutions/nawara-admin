@@ -3633,7 +3633,9 @@
       "recovery_surplus_external": "Authorize recording an external surplus repayment",
       "late_settlement_apply": "Authorize applying a late settlement",
       "provider_fact_associate": "Authorize associating a provider fact",
-      "recovery_write_off": "Authorize writing off a recovery obligation"
+      "recovery_write_off": "Authorize writing off a recovery obligation",
+      "recovery_restriction_suspend": "Authorize suspending a recovery restriction",
+      "recovery_restriction_revoke": "Authorize revoking a recovery restriction suspension"
     },
     "purposes": {
       "refund": "Authorizing a refund",
@@ -3643,7 +3645,9 @@
       "recovery_surplus_external": "Authorizing an external surplus repayment",
       "late_settlement_apply": "Authorizing a late settlement",
       "provider_fact_associate": "Authorizing a provider fact association",
-      "recovery_write_off": "Authorizing a recovery write-off"
+      "recovery_write_off": "Authorizing a recovery write-off",
+      "recovery_restriction_suspend": "Authorizing a recovery restriction suspension",
+      "recovery_restriction_revoke": "Authorizing the revocation of a recovery restriction suspension"
     },
     "summary": {
       "title": "What this authorization is bound to",
@@ -3666,6 +3670,7 @@
       "fact": "Provider fact",
       "target": "Target",
       "obligation": "Obligation",
+      "suspension": "Suspension",
       "reason": "Reason code",
       "reasonCode": "Reason code",
       "decision": "Decision",

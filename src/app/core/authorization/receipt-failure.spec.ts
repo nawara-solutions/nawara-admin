@@ -25,6 +25,9 @@ const WITHOUT_KEY: ReceiptOperation[] = [
   'fraud_hold_release',
   'recovery_surplus_external',
   'recovery_write_off',
+  // 8d89bed (WP-2.1): the same suspension id and receipt answer the stored suspension or revocation.
+  'recovery_restriction_suspend',
+  'recovery_restriction_revoke',
 ];
 
 describe('receiptIssueFailureOf (auth-service receipt-http.ts at 0044b20)', () => {

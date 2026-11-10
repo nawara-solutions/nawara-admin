@@ -120,6 +120,28 @@ const BINDINGS: { readonly [O in ReceiptOperation]: Extract<ReceiptBinding, { op
     amount: 12500,
     currency: 'TND',
   },
+  recovery_restriction_suspend: {
+    operation: 'recovery_restriction_suspend',
+    audience: 'billing-service',
+    companyId: id(1),
+    suspensionId: id(16),
+    obligationId: id(15),
+    organizationId: id(10),
+    disputeId: id(17),
+    refundCaseId: id(18),
+    reasonCode: 'refund_chargeback_overlap',
+  },
+  recovery_restriction_revoke: {
+    operation: 'recovery_restriction_revoke',
+    audience: 'billing-service',
+    companyId: id(1),
+    suspensionId: id(16),
+    obligationId: id(15),
+    organizationId: id(10),
+    disputeId: id(17),
+    refundCaseId: id(18),
+    reasonCode: 'owner_reinstated_restriction',
+  },
 };
 
 const NOT_SUBMITTED: FinancialOutcomeState<string> = { status: 'notSubmitted', lastFailure: null };
