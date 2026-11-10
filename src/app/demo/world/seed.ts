@@ -11,6 +11,7 @@ import {
   AdminIdentityId,
   DemoWorldTables,
   OrganizationRecord,
+  OrganizationSubscriptionRecord,
   adminIdentityId,
 } from './records';
 import { seedMemberships } from './seed-memberships';
@@ -555,6 +556,40 @@ const ACTIVITY: readonly (Omit<PlatformActivityRecord, 'occurredAt'> & {
   },
 ];
 
+/**
+ * The ILLUSTRATIVE length of every seeded subscription period: a mock fixture value chosen only so each period starts
+ * before it ends and no later than the seed's `now` (the longest seeded period ends 365 days ahead), keeping every
+ * entitlement projection as it was. It is not a plan, a price interval or a Core fact, and a period start is not
+ * an Organization's creation time.
+ */
+const ILLUSTRATIVE_PERIOD_HOURS = 365 * DAY;
+
+/** Core V2's fixed Organization grace (nawara-core migration 0024): exactly 24 hours after the period ends. */
+const ORGANIZATION_GRACE_HOURS = 24;
+
+/**
+ * One seeded subscription, as Core's row facts (`OrganizationSubscriptionRecord`): an established period ending
+ * `endsInHours` from the seed's `now`, its fixed grace, not cancelling and not terminated. The start is illustrative
+ * mock history (`ILLUSTRATIVE_PERIOD_HOURS`), never authoritative Core history: no settlement, invoice or payment is
+ * implied. The stored status is what Core would have recorded at the seed's `now` (`active` before the period ends,
+ * `grace` after); nothing derives entitlement from it.
+ */
+function subscriptionFact(
+  organizationId: OrganizationId,
+  endsInHours: number,
+  at: (hoursFromNow: number) => string,
+): OrganizationSubscriptionRecord {
+  return {
+    organizationId,
+    status: endsInHours > 0 ? 'active' : 'grace',
+    currentPeriodStart: at(endsInHours - ILLUSTRATIVE_PERIOD_HOURS),
+    currentPeriodEnd: at(endsInHours),
+    graceUntil: at(endsInHours + ORGANIZATION_GRACE_HOURS),
+    cancelAtPeriodEnd: false,
+    effectiveTerminationAt: null,
+  };
+}
+
 /** The canonical demo world at `now` (milliseconds since the epoch). */
 export function demoWorldSeed(now: number): DemoWorldTables {
   const at = (hoursFromNow: number) => new Date(now + hoursFromNow * HOUR_MS).toISOString();
@@ -635,7 +670,7 @@ export function demoWorldSeed(now: number): DemoWorldTables {
     subscriptions: ORGANIZATIONS.flatMap((o) =>
       o.subscriptionEndsInHours === undefined
         ? []
-        : [{ organizationId: org(o.n), endsAt: at(o.subscriptionEndsInHours) }],
+        : [subscriptionFact(org(o.n), o.subscriptionEndsInHours, at)],
     ),
     adminInvitations: ADMIN_INVITATIONS.map((i) => ({
       id: i.id,

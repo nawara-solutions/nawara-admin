@@ -131,13 +131,43 @@ export interface PlatformAssignmentRecord {
 }
 
 /**
- * The one subscription of an Organization (Billing), by when it ends. Its state follows from the clock: active until
- * `endsAt`, then 24 hours of grace, then ended. An Organization without a record has no subscription.
+ * Billing's STORED subscription status (nawara-core `f62b96b`, identical at `8d89bed`: billing-service
+ * `src/domain/state-machines.ts` `SUBSCRIPTION_STATUSES`; migration 0013 `subscription_status_valid`). There is no
+ * `cancelled` or `terminated` status: cancellation is the `cancelAtPeriodEnd` field and an administrative termination is
+ * `expired` with `effectiveTerminationAt`. The stored status may lag the clock (Core has no status sweeper), so no
+ * entitlement or Admin view state is ever derived from it, except that `pending` has no period. Not an Admin view state.
+ */
+export type SubscriptionStatusFact = 'pending' | 'active' | 'grace' | 'expired';
+
+/**
+ * The one subscription of an Organization (Billing), as the facts Core keeps on its `subscription` row (nawara-core
+ * `f62b96b` billing-service `src/subscriptions/subscription.types.ts`, migrations 0013 and 0024), with Core's own field
+ * names. At most one per Organization (`subscription_organization_unique`). An Organization without a record has never
+ * had a subscription; an `expired` record keeps its LAST period and is never the absence of a record.
+ *
+ * Invariants (Core's database checks; asserted by `subscription-facts.spec.ts`):
+ * - `pending`: no period, no grace, no termination, not cancelling (`subscription_pending_shape`);
+ * - otherwise `currentPeriodStart < currentPeriodEnd` (`subscription_active_has_period`, `subscription_period_order`);
+ * - `graceUntil` is exactly `currentPeriodEnd` + 24 hours (0024, the fixed Organization grace);
+ * - `effectiveTerminationAt`, when set, is no later than `graceUntil`: it only shortens access
+ *   (`subscription_termination_shape`).
+ *
+ * PROVISIONAL mock facts: Core has no human read of a subscription (CF-36, CF-37), and these records never imply a Core
+ * settlement, invoice or payment. Deliberately absent (no Admin read contract carries them): Core's `id`, `productId`,
+ * `priceId`, `billingAnchorAt` and `revision`. Read only: no demo command creates, renews, extends or ends one.
  */
 export interface OrganizationSubscriptionRecord {
   readonly organizationId: OrganizationId;
-  /** UTC instant, ISO 8601 with `Z`. */
-  readonly endsAt: string;
+  readonly status: SubscriptionStatusFact;
+  /** UTC instants, ISO 8601 with `Z`; `null` exactly while `pending`. The period is half-open: `[start, end)`. */
+  readonly currentPeriodStart: string | null;
+  readonly currentPeriodEnd: string | null;
+  /** UTC instant: `currentPeriodEnd` + 24 hours; `null` exactly while `pending`. */
+  readonly graceUntil: string | null;
+  /** What happens at the next boundary; it never shortens access already paid for (Core `domain/entitlement.ts`). */
+  readonly cancelAtPeriodEnd: boolean;
+  /** UTC instant of an administrative termination, no later than `graceUntil`; otherwise `null`. */
+  readonly effectiveTerminationAt: string | null;
 }
 
 /** An organization-admin invitation awaiting acceptance (Auth). */

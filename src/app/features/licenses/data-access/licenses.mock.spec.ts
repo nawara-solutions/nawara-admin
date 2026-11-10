@@ -135,7 +135,7 @@ describe('Licenses overview of the demo world (P7-S1)', () => {
     expect(grace.name).toBe('Lycée Al Amal');
     expect(entitlementOf(world, grace.id, NOW)).toBe('entitledInGrace');
     const ended = Date.parse(
-      world.subscriptions.find((s) => s.organizationId === grace.id)!.endsAt,
+      world.subscriptions.find((s) => s.organizationId === grace.id)!.currentPeriodEnd!,
     );
     expect(entitlementOf(world, grace.id, ended + 24 * HOUR - 1)).toBe('entitledInGrace');
     expect(entitlementOf(world, grace.id, ended + 24 * HOUR)).toBe('notEntitled');
