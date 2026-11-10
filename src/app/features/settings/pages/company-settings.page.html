@@ -1,10 +1,11 @@
 @let view = facade.view();
-<header class="company-settings__header">
+<header class="company-settings__header" [class.nw-visually-hidden]="view.status === 'ready'">
   <div class="company-settings__titles">
-    <h2 class="company-settings__title">{{ 'settings.company.title' | transloco }}</h2>
-    <p class="company-settings__subtitle">{{ 'settings.company.subtitle' | transloco }}</p>
+    <h2 class="nw-page-title company-settings__title">
+      {{ 'settings.company.title' | transloco }}
+    </h2>
   </div>
-  @if (isDemo()) {
+  @if (isDemo() && view.status !== 'ready') {
     <span class="company-settings__demo">
       <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
     </span>
@@ -13,64 +14,129 @@
 
 @switch (view.status) {
   @case ('ready') {
-    <section class="company-settings__card" aria-labelledby="company-profile" data-profile>
-      <h3 id="company-profile" class="company-settings__heading">
-        {{ 'settings.company.profile' | transloco }}
-      </h3>
+    <section class="company-settings__summary" aria-labelledby="company-profile" data-profile>
+      <span class="company-settings__logo" aria-hidden="true">
+        @if (isSolutions()) {
+          <nw-product-symbol />
+        } @else {
+          <nw-icon name="building-2" size="lg" />
+        }
+      </span>
+      <div class="company-settings__identity">
+        <h3 id="company-profile" data-name>
+          <bdi>{{ view.settings.company.name }}</bdi>
+        </h3>
+        <div class="company-settings__badges">
+          <span class="company-settings__owner"
+            ><nw-icon name="crown" size="sm" />{{
+              'settings.company.layout.ownership' | transloco
+            }}</span
+          >
+          @if (isDemo()) {
+            <span class="company-settings__demo"
+              ><nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}</span
+            >
+          }
+          <span class="company-settings__read-only"
+            ><nw-icon name="lock-keyhole" size="sm" />{{
+              'settings.account.readOnly' | transloco
+            }}</span
+          >
+        </div>
+      </div>
       <dl class="company-settings__facts">
-        <div class="company-settings__fact">
-          <dt>{{ 'settings.company.name' | transloco }}</dt>
-          <dd data-name>
-            <bdi>{{ view.settings.company.name }}</bdi>
+        <div>
+          <dt>{{ 'settings.company.platforms' | transloco }}</dt>
+          <dd class="company-settings__count" data-platform-count>
+            {{ view.settings.platformCount | nwNumber }}
           </dd>
         </div>
-        <div class="company-settings__fact">
-          <dt>{{ 'settings.company.platforms' | transloco }}</dt>
-          <dd data-platform-count>{{ view.settings.platformCount | nwNumber }}</dd>
+        <div>
+          <dt>{{ 'settings.company.layout.role' | transloco }}</dt>
+          <dd>{{ 'shell.role.owner' | transloco }}</dd>
         </div>
       </dl>
     </section>
-
-    <section class="company-settings__card" aria-labelledby="company-management" data-management>
-      <div class="company-settings__intro">
-        <h3 id="company-management" class="company-settings__heading">
-          {{ 'settings.company.management' | transloco }}
-        </h3>
-        <p class="company-settings__muted">{{ 'settings.company.managementNote' | transloco }}</p>
-      </div>
-      <ul class="company-settings__links" role="list">
-        @for (link of links(); track link.id) {
-          <li>
-            <a class="company-settings__link" [routerLink]="link.path" [attr.data-link]="link.id">
-              <span class="company-settings__mark" aria-hidden="true"
-                ><nw-icon [name]="link.icon"
-              /></span>
-              <span class="company-settings__text">
-                <span class="company-settings__name">{{ link.titleKey | transloco }}</span>
-                <span class="company-settings__muted">{{ link.descriptionKey | transloco }}</span>
-              </span>
-              <nw-icon class="company-settings__chevron" name="chevron-right" size="sm" />
-            </a>
-          </li>
+    <div class="company-settings__workspace">
+      <nav
+        class="company-settings__navigation"
+        [attr.aria-label]="'settings.company.title' | transloco"
+      >
+        @for (section of sections; track section.id) {
+          <a
+            class="company-settings__tab"
+            [routerLink]="[]"
+            [queryParams]="{ section: section.id }"
+            queryParamsHandling="merge"
+            [attr.data-company-section]="section.id"
+            [attr.aria-current]="selected().id === section.id ? 'page' : null"
+            ><nw-icon [name]="section.icon" size="sm" /><span>{{
+              section.key | transloco
+            }}</span></a
+          >
         }
-      </ul>
-    </section>
-
-    <section
-      class="company-settings__card company-settings__card--quiet"
-      aria-labelledby="company-unavailable"
-      data-unavailable
-    >
-      <h3 id="company-unavailable" class="company-settings__heading">
-        {{ 'settings.company.unavailable.title' | transloco }}
-      </h3>
-      <p>{{ 'settings.company.unavailable.body' | transloco }}</p>
-      <ul class="company-settings__list" role="list">
-        <li>{{ 'settings.company.unavailable.identity' | transloco }}</li>
-        <li>{{ 'settings.company.unavailable.branding' | transloco }}</li>
-        <li>{{ 'settings.company.unavailable.business' | transloco }}</li>
-      </ul>
-    </section>
+      </nav>
+      <section class="company-settings__panel" aria-labelledby="company-panel-heading">
+        <h3 id="company-panel-heading" class="nw-visually-hidden">
+          {{ selected().key | transloco }}
+        </h3>
+        @if (selected().id !== 'profile') {
+          <ul class="company-settings__links" role="list" data-management>
+            @for (link of activeLinks(); track link.id) {
+              <li>
+                <a
+                  class="company-settings__link"
+                  [routerLink]="link.path"
+                  [attr.data-link]="link.id"
+                >
+                  <span class="company-settings__mark" aria-hidden="true"
+                    ><nw-icon [name]="link.icon"
+                  /></span>
+                  <span class="company-settings__text"
+                    ><span class="company-settings__name">{{ link.titleKey | transloco }}</span
+                    ><span class="company-settings__muted">{{
+                      link.descriptionKey | transloco
+                    }}</span></span
+                  >
+                  @if (link.readOnly) {
+                    <span class="company-settings__link-badge">{{
+                      'settings.account.readOnly' | transloco
+                    }}</span>
+                  }
+                  <nw-icon class="company-settings__arrow" name="arrow-right" size="sm" />
+                </a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="company-settings__unavailable" data-unavailable>
+            <div class="company-settings__notice">
+              <nw-icon name="lock-keyhole" size="sm" />
+              <div>
+                <strong>{{ 'settings.company.layout.unavailableTitle' | transloco }}</strong>
+                <p>{{ 'settings.company.unavailable.body' | transloco }}</p>
+              </div>
+            </div>
+            <ul class="company-settings__limitations" role="list">
+              @for (item of unavailable; track item.title) {
+                <li>
+                  <span class="company-settings__mark company-settings__mark--neutral"
+                    ><nw-icon [name]="item.icon"
+                  /></span>
+                  <div>
+                    <h4>{{ item.title | transloco }}</h4>
+                    <p>{{ item.description | transloco }}</p>
+                  </div>
+                  <span class="company-settings__link-badge">{{
+                    'settings.account.readOnly' | transloco
+                  }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </section>
+    </div>
   }
   @case ('notInBuild') {
     <nw-data-state

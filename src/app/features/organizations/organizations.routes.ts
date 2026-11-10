@@ -60,7 +60,15 @@ export async function loadOrganizationsRoutes(environment: AppEnvironment): Prom
         {
           path: ':organizationId',
           title: 'titles.organization',
-          providers: [OrganizationDetailFacade, ...ADMIN_INVITATION_PROVIDERS],
+          providers: [
+            OrganizationDetailFacade,
+            OrganizationMembersFacade,
+            MembershipActionLock,
+            MembershipDecisionAction,
+            MembershipRevokeAction,
+            OrganizationAdminRoleAction,
+            ...ADMIN_INVITATION_PROVIDERS,
+          ],
           loadComponent: () =>
             import('./pages/organization-detail.page').then((m) => m.OrganizationDetailPage),
         },

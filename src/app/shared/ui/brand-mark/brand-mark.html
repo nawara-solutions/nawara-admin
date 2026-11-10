@@ -4,7 +4,14 @@
 -->
 @if (lettered()) {
   <span class="nw-brand-mark__lockup">
-    <span class="nw-brand-mark__word" aria-hidden="true"></span>
+    @if (typeset()) {
+      <span class="nw-brand-mark__type" aria-hidden="true">
+        <span class="nw-brand-mark__name">nawara</span>
+        <span class="nw-brand-mark__product">admin</span>
+      </span>
+    } @else {
+      <span class="nw-brand-mark__word" aria-hidden="true"></span>
+    }
     <span class="nw-brand-mark__word-symbol" aria-hidden="true"></span>
   </span>
   @if (full()) {

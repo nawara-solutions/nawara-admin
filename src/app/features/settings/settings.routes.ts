@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import { capabilityGuard } from '../../core/access/access.guards';
-import { APP_ENVIRONMENT } from '../../core/config/app-environment';
+import { APP_ENVIRONMENT, adapterProviders } from '../../core/config/app-environment';
 import { BREADCRUMB_DATA, BREADCRUMB_PARENT_DATA } from '../../layout/breadcrumbs/breadcrumbs';
 
 /** Settings, the parent crumb of every section ("Company › Settings › Language"). */
@@ -33,6 +33,30 @@ const sections: Routes = [
     },
     loadComponent: () =>
       import('./pages/appearance-settings.page').then((m) => m.AppearanceSettingsPage),
+  },
+  {
+    path: 'page-sections',
+    title: 'settings.accordions.title',
+    data: {
+      [BREADCRUMB_DATA]: 'settings.accordions.title',
+      [BREADCRUMB_PARENT_DATA]: SETTINGS_PARENT,
+    },
+    loadChildren: () => {
+      const environment = inject(APP_ENVIRONMENT);
+      return import('./data-access/platform-settings.gateway').then(async (gateway) => [
+        {
+          path: '',
+          providers: await adapterProviders(environment, 'platformSettings', [
+            {
+              provide: gateway.PlatformSettingsGateway,
+              useClass: gateway.UnavailablePlatformSettingsGateway,
+            },
+          ]),
+          loadComponent: () =>
+            import('./pages/accordion-settings.page').then((m) => m.AccordionSettingsPage),
+        },
+      ]);
+    },
   },
   {
     path: 'language',

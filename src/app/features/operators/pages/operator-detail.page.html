@@ -3,21 +3,23 @@
   @case ('ready') {
     @let operator = view.operator;
     @let history = facade.historyView();
-    <header
-      adm-operators-header
-      [eyebrow]="'operators.detail.eyebrow' | transloco"
-      [heading]="contact(operator.contact)"
-      [contact]="true"
-    >
-      <p headerMeta class="operator-detail__badges">
-        <nw-status-badge [tone]="state[operator.accountState].tone">{{
-          state[operator.accountState].key | transloco
-        }}</nw-status-badge>
-      </p>
-      <a headerActions nw-button variant="secondary" [routerLink]="directoryPath">
-        <nw-icon name="arrow-left" size="sm" />{{ 'operators.detail.back' | transloco }}
-      </a>
-    </header>
+    @if (!embedded()) {
+      <header
+        adm-operators-header
+        [eyebrow]="'operators.detail.eyebrow' | transloco"
+        [heading]="contact(operator.contact)"
+        [contact]="true"
+      >
+        <p headerMeta class="operator-detail__badges">
+          <nw-status-badge [tone]="state[operator.accountState].tone">{{
+            state[operator.accountState].key | transloco
+          }}</nw-status-badge>
+        </p>
+        <a headerActions nw-button variant="secondary" [routerLink]="directoryPath">
+          <nw-icon name="arrow-left" size="sm" />{{ 'operators.detail.back' | transloco }}
+        </a>
+      </header>
+    }
     @if (justCreated()) {
       <section adm-operator-created-panel data-created-next-steps></section>
     }
@@ -273,27 +275,33 @@
                 'operators.account.waiting' | transloco
               }}</span>
             }
-            <button
-              nw-button
-              type="button"
-              class="operator-detail__account-action"
-              [class.operator-detail__account-action--danger]="operator.accountState !== 'blocked'"
-              [attr.data-account-action]="operator.accountState === 'blocked' ? 'unblock' : 'block'"
-              variant="secondary"
-              [attr.aria-disabled]="block.busy() || null"
-              [attr.aria-describedby]="block.busy() ? 'operator-block-waiting' : null"
-              (click)="openBlock(operator)"
-            >
-              <nw-icon
-                [name]="operator.accountState === 'blocked' ? 'shield-check' : 'lock-keyhole'"
-                size="sm"
-              />{{
-                (operator.accountState === 'blocked'
-                  ? 'operators.account.unblockOpen'
-                  : 'operators.account.blockOpen'
-                ) | transloco
-              }}
-            </button>
+            @if (!embedded()) {
+              <button
+                nw-button
+                type="button"
+                class="operator-detail__account-action"
+                [class.operator-detail__account-action--danger]="
+                  operator.accountState !== 'blocked'
+                "
+                [attr.data-account-action]="
+                  operator.accountState === 'blocked' ? 'unblock' : 'block'
+                "
+                variant="secondary"
+                [attr.aria-disabled]="block.busy() || null"
+                [attr.aria-describedby]="block.busy() ? 'operator-block-waiting' : null"
+                (click)="openBlock(operator)"
+              >
+                <nw-icon
+                  [name]="operator.accountState === 'blocked' ? 'shield-check' : 'lock-keyhole'"
+                  size="sm"
+                />{{
+                  (operator.accountState === 'blocked'
+                    ? 'operators.account.unblockOpen'
+                    : 'operators.account.blockOpen'
+                  ) | transloco
+                }}
+              </button>
+            }
           }
           <p class="operator-detail__notice" role="note">
             <nw-icon name="flask-conical" size="sm" />

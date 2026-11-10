@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { Translation, TranslocoTestingModule } from '@jsverse/transloco';
 import { vi } from 'vitest';
 import ar from '../../../../i18n/ar.json';
@@ -128,13 +128,16 @@ describe('Settings → Company (P9-S3)', { timeout: 15_000 }, () => {
   });
 
   it('links to the existing administration, never rebuilt here', async () => {
-    const { element } = await render();
-    expect(
+    const { element, settle } = await render();
+    const destinations = () =>
       [...element.querySelectorAll<HTMLAnchorElement>('[data-management] a')].map((a) => [
         a.dataset['link'],
         a.getAttribute('href'),
-      ]),
-    ).toEqual([
+      ]);
+    const structure = destinations();
+    await TestBed.inject(Router).navigateByUrl('/?section=records');
+    await settle();
+    expect([...structure, ...destinations()]).toEqual([
       ['overview', '/overview'],
       ['platforms', '/platforms'],
       ['operators', '/operators'],
@@ -144,16 +147,45 @@ describe('Settings → Company (P9-S3)', { timeout: 15_000 }, () => {
     ]);
   });
 
+  it('switches one content card through company tabs while keeping the summary', async () => {
+    const { element, settle } = await render();
+    expect(element.querySelectorAll('[data-company-section]')).toHaveLength(3);
+    expect(element.querySelectorAll('.company-settings__panel')).toHaveLength(1);
+    expect(element.querySelectorAll('[data-management] a')).toHaveLength(3);
+    expect(element.querySelectorAll('.company-settings__logo nw-product-symbol')).toHaveLength(1);
+    expect(text(element.querySelector('.company-settings__owner'))).toBe(t.layout.ownership);
+    await TestBed.inject(Router).navigateByUrl('/?section=records&context=kept');
+    await settle();
+    expect(
+      element.querySelector('[data-company-section="records"]')?.getAttribute('aria-current'),
+    ).toBe('page');
+    expect(element.querySelectorAll('.company-settings__link-badge')).toHaveLength(2);
+    element.querySelector<HTMLAnchorElement>('[data-company-section="profile"]')?.click();
+    await settle();
+    expect(TestBed.inject(Router).url).toContain('context=kept');
+    expect(element.querySelector('[data-management]')).toBeNull();
+    expect(element.querySelectorAll('.company-settings__limitations li')).toHaveLength(3);
+    expect(element.querySelectorAll('.company-settings__summary')).toHaveLength(1);
+    expect(element.querySelectorAll('.company-settings__panel')).toHaveLength(1);
+    await TestBed.inject(Router).navigateByUrl('/?section=unexpected');
+    await settle();
+    expect(
+      element.querySelector('[data-company-section="structure"]')?.getAttribute('aria-current'),
+    ).toBe('page');
+  });
+
   it('offers no edit, save or upload control, and no field Core does not define', async () => {
-    const { element } = await render();
+    const { element, settle } = await render();
+    await TestBed.inject(Router).navigateByUrl('/?section=profile');
+    await settle();
     expect(
       element.querySelectorAll('button, input, textarea, select, form, [contenteditable]'),
     ).toHaveLength(0);
     expect(text(element.querySelector('[data-unavailable]'))).toContain(t.unavailable.body);
-    // only the name and the Platform count are facts here
+    // Company facts stay limited to the name/count; the role comes from the signed-in session.
     expect([...element.querySelectorAll('[data-profile] dt')].map(text)).toEqual([
-      t.name,
       t.platforms,
+      t.layout.role,
     ]);
     expect(text(element)).not.toMatch(/@|\+\d|IBAN|VAT|address/i);
   });

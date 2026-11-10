@@ -1,5 +1,6 @@
 @if (expired()) {
   <adm-auth-card
+    inlineHeading
     icon="timer-off"
     [step]="step()"
     [title]="'auth.mfa.expiredTitle' | transloco"
@@ -12,6 +13,7 @@
 } @else {
   @let passkey = flow.method() === 'passkey';
   <adm-auth-card
+    inlineHeading
     [icon]="passkey ? 'fingerprint' : 'shield-check'"
     [tone]="passkey ? 'purple' : 'brand'"
     [step]="step()"

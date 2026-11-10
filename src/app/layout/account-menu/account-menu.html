@@ -11,7 +11,9 @@
           <bdi class="account-menu__name">{{ person.name }}</bdi>
         }
         @if (identifier(); as id) {
-          <span class="account-menu__identifier" dir="ltr">{{ id }}</span>
+          <span class="account-menu__identifier"
+            ><bdi dir="ltr">{{ id }}</bdi></span
+          >
         }
         <span class="account-menu__role">{{ person.roleKey | transloco }}</span>
       </span>

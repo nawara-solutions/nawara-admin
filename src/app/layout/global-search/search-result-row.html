@@ -1,0 +1,23 @@
+<span
+  class="global-search__result-icon"
+  [class.global-search__result-icon--avatar]="result().initials"
+>
+  @if (result().initials) {
+    <span>{{ result().initials }}</span>
+  } @else {
+    <nw-icon [name]="result().icon" size="sm" />
+  }
+</span>
+<span class="global-search__result-copy"
+  ><span class="global-search__result-title">
+    @for (part of highlight(result().title, query()); track $index) {
+      <span [class.global-search__match]="part.match">{{ part.text }}</span>
+    }</span
+  ><span class="global-search__description">{{ result().description }}</span></span
+>
+@if (active()) {
+  <span class="global-search__open-label">{{
+    (result().record ? 'shell.search.command.view' : 'shell.search.command.goTo') | transloco
+  }}</span
+  ><kbd class="global-search__enter" aria-hidden="true">↵</kbd>
+}

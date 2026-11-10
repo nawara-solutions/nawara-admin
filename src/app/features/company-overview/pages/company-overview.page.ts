@@ -9,7 +9,6 @@ import { NwNumberPipe } from '../../../shared/format/format.pipes';
 import { NwButton } from '../../../shared/ui/button/button';
 import { NwDataState } from '../../../shared/ui/data-state/data-state';
 import { NwIcon } from '../../../shared/ui/icon/icon';
-import { CreatePlatformAction } from '../../platforms/application/create-platform.action';
 import { CompanyOverviewFacade } from '../application/company-overview.facade';
 import { AccessSummaryList } from '../components/access-summary/access-summary';
 import { ActivityList } from '../components/activity-list/activity-list';
@@ -57,8 +56,6 @@ import { SummaryCard } from '../../../shared/dashboard/summary-card/summary-card
 })
 export class CompanyOverviewPage {
   protected readonly facade = inject(CompanyOverviewFacade);
-  /** The one "Create platform" flow (the Platforms feature's public action). */
-  protected readonly createPlatform = inject(CreatePlatformAction);
   private readonly session = inject(AuthSession);
   protected readonly isDemo = this.session.isDemo;
   protected readonly adapterUnavailable = ADAPTER_UNAVAILABLE;

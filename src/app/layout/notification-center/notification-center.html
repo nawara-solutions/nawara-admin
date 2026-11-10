@@ -41,23 +41,6 @@
     [attr.aria-label]="'notifications.header.title' | transloco"
     (keydown)="keydown($event)"
   >
-    <header class="notification-center__header">
-      <div class="notification-center__title-group">
-        <span class="notification-center__mark" aria-hidden="true"><nw-icon name="bell" /></span>
-        <h2>{{ 'notifications.header.title' | transloco }}</h2>
-      </div>
-      @if (isDemo()) {
-        <span class="notification-center__count">{{ 'notifications.demoOnly' | transloco }}</span>
-      }
-      @if (unread(); as count) {
-        @if (count > 0) {
-          <span class="notification-center__count">{{
-            'notifications.newCount' | transloco: { count: count | nwNumber }
-          }}</span>
-        }
-      }
-    </header>
-
     @if (state.state().status === 'success') {
       <nav
         class="notification-center__filters"
@@ -77,7 +60,14 @@
       </nav>
 
       <div class="notification-center__recent-heading">
-        <h3>{{ 'notifications.recent' | transloco }}</h3>
+        <div class="notification-center__recent-title">
+          <h3>{{ 'notifications.recent' | transloco }}</h3>
+          @if (unread(); as count) {
+            <span class="notification-center__count">{{
+              'notifications.newCount' | transloco: { count: count | nwNumber }
+            }}</span>
+          }
+        </div>
         @if (unread(); as count) {
           @if (count > 0) {
             <button type="button" [disabled]="state.actionPending()" (click)="state.markAllRead()">

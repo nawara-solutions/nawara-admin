@@ -33,6 +33,7 @@ import {
     role: 'img',
     '[attr.aria-label]': 'label()',
     '[class.nw-brand-mark--symbol]': '!lettered()',
+    '[class.nw-brand-mark--symbol-first]': 'symbolFirst()',
     '[class.nw-brand-mark--full]': 'full()',
     '[class.nw-brand-mark--inline]': 'inline()',
   },
@@ -42,6 +43,9 @@ export class NwBrandMark {
   readonly label = input.required<string>();
   /** Shows the logo; without it (and without `lockup`, `full` or `inline`) only the symbol is rendered. */
   readonly wordmark = input(false, { transform: booleanAttribute });
+  /** Live typographic hierarchy for the workspace wordmark. The symbol keeps its artwork. */
+  readonly typeset = input(false, { transform: booleanAttribute });
+  readonly symbolFirst = input(false, { transform: booleanAttribute });
   /** Same as `wordmark` (kept for the existing call sites). */
   readonly lockup = input(false, { transform: booleanAttribute });
   /** The wordmark with the "SOLUTIONS" line beneath it. */

@@ -4,6 +4,16 @@
   container-type: inline-size;
 }
 
+.organization-table__scroll {
+  max-block-size: 55vh;
+  overflow: auto;
+}
+
+:host-context(.organization-directory--embedded) .organization-table__scroll {
+  block-size: 100%;
+  max-block-size: none;
+}
+
 .organization-table__table {
   display: none;
   inline-size: 100%;
@@ -12,16 +22,17 @@
 
   th,
   td {
-    padding-block: 0.6875rem;
-    padding-inline-end: var(--nw-space-4);
-    border-block-start: 1px solid var(--nw-border-hairline);
+    padding: 1rem 1.25rem;
+    border-block-end: 1px solid var(--nw-border-subtle);
     text-align: start;
     vertical-align: middle;
   }
 
   thead th {
-    padding-block-start: 0;
-    border-block-start: 0;
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+    background: var(--nw-surface-sunken);
     color: var(--nw-text-secondary);
     font-size: var(--nw-text-size-xs);
     font-weight: var(--nw-font-weight-semibold);
@@ -29,8 +40,33 @@
   }
 
   tbody th {
+    position: relative;
+    padding-inline-start: 4.5rem;
+    min-inline-size: 15rem;
     font-weight: var(--nw-font-weight-regular);
   }
+  tbody tr:hover {
+    background: var(--nw-surface-brand-subtle);
+  }
+  tbody tr:last-child > * {
+    border-block-end: 0;
+  }
+}
+
+.organization-table__avatar {
+  position: absolute;
+  inset-inline-start: 1.25rem;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background: var(--nw-surface-brand-subtle);
+  color: var(--nw-text-brand);
+  font-weight: var(--nw-font-weight-semibold);
 }
 
 .organization-table__number {
@@ -68,16 +104,27 @@
   font-size: var(--nw-text-size-xs);
 }
 
+.organization-table__subscription {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--nw-space-1);
+
+  nw-status-badge {
+    background: color-mix(in srgb, currentColor 9%, transparent);
+  }
+}
+
 .organization-table__note {
   display: block;
-  margin-block-start: 2px;
-  color: var(--nw-status-warning-fg);
+  color: var(--nw-text-secondary);
   font-size: var(--nw-text-size-xs);
-  font-weight: var(--nw-font-weight-semibold);
+  font-weight: var(--nw-font-weight-medium);
 }
 
 .organization-table__policy {
   display: block;
+  font-weight: var(--nw-font-weight-medium);
 }
 
 .organization-table__list {

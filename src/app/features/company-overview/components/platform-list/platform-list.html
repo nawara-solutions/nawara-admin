@@ -1,20 +1,9 @@
 <ul class="platform-list__items" role="list">
   @for (item of platforms(); track item.platform.id) {
-    @let drive = item.platform.product === 'drive';
-    <li class="platform-list__item" [class.platform-list__item--drive]="drive">
+    <li class="platform-list__item">
       <div class="platform-list__identity">
-        <span class="platform-list__tile" [class.platform-list__tile--drive]="drive">
-          @if (drive) {
-            <nw-icon name="car" size="lg" />
-          } @else {
-            <img
-              class="platform-list__symbol"
-              src="brand/nawara-bloom-coral.svg"
-              alt=""
-              width="480"
-              height="580"
-            />
-          }
+        <span class="platform-list__tile">
+          <nw-product-symbol [product]="item.platform.product" />
         </span>
         <div class="platform-list__names">
           <h3 class="platform-list__name">
@@ -60,7 +49,3 @@
     </li>
   }
 </ul>
-<p class="platform-list__footnote">
-  <nw-icon name="info" size="sm" />
-  {{ 'companyOverview.platforms.footnote' | transloco }}
-</p>

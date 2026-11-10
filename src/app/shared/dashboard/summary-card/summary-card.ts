@@ -16,6 +16,7 @@ export type SummaryAccent = 'pink' | 'orange' | 'purple';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'summary-card',
+    '[class.summary-card--unavailable]': "metric().status === 'unavailable'",
     '[class.summary-card--orange]': "accent() === 'orange'",
     '[class.summary-card--purple]': "accent() === 'purple'",
   },
@@ -28,5 +29,6 @@ export class SummaryCard {
   /** A neutral qualification under the value ("Distinct accounts", "Awaiting acceptance"); already translated. */
   readonly caption = input<string>();
   /** Change over the period, shown beside the value; `null` (or 0) shows none. */
+  readonly trendLabel = input<string>();
   readonly trend = input<number | null>(null);
 }

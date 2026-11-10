@@ -1,5 +1,6 @@
 <ul class="commercial-summary__figures" role="list">
-  <li class="commercial-summary__figure">
+  <li class="commercial-summary__figure commercial-summary__figure--active">
+    <span class="commercial-summary__icon"><nw-icon name="credit-card" /></span>
     <span class="commercial-summary__label">{{
       'companyOverview.commercial.activeSubscriptions' | transloco
     }}</span>
@@ -8,6 +9,7 @@
     /></span>
   </li>
   <li class="commercial-summary__figure commercial-summary__figure--warning">
+    <span class="commercial-summary__icon"><nw-icon name="clock" /></span>
     <span class="commercial-summary__label">{{
       'companyOverview.commercial.expiringSoon' | transloco
     }}</span>
@@ -19,6 +21,7 @@
     }}</span>
   </li>
   <li class="commercial-summary__figure commercial-summary__figure--danger">
+    <span class="commercial-summary__icon"><nw-icon name="circle-alert" /></span>
     <span class="commercial-summary__label">{{
       'companyOverview.commercial.paymentIssues' | transloco
     }}</span>

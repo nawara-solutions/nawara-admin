@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  booleanAttribute,
+  computed,
+  inject,
+  input,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { can } from '../../core/access/capability-policy';
@@ -19,9 +26,15 @@ import { NwMenu, NwMenuItem, NwMenuTrigger } from '../../shared/ui/menu/menu';
   templateUrl: './context-switcher.html',
   styleUrl: './context-switcher.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'context-switcher' },
+  host: {
+    class: 'context-switcher',
+    '[class.context-switcher--sidebar]': 'sidebar()',
+    '[class.context-switcher--compact]': 'compact()',
+  },
 })
 export class ContextSwitcher {
+  readonly sidebar = input(false, { transform: booleanAttribute });
+  readonly compact = input(false, { transform: booleanAttribute });
   protected readonly productDescriptionKeys = {
     school: 'shell.context.productDescription.school',
     drive: 'shell.context.productDescription.drive',
@@ -40,6 +53,16 @@ export class ContextSwitcher {
     const directory = this.context.directory();
     return directory.status === 'success' ? directory.data.company.name : null;
   });
+
+  protected readonly companyInitials = computed(() =>
+    (this.companyName() ?? 'Nawara Solutions')
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => Array.from(word)[0])
+      .join('')
+      .toLocaleUpperCase(),
+  );
 
   /** The switcher's title: the Company's name, "Your platforms" for an operator, else "Loading…". */
   protected readonly titleKey = computed(() =>

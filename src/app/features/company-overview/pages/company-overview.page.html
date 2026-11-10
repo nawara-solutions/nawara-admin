@@ -1,10 +1,8 @@
 @let state = facade.state();
 <adm-overview-header
   [isDemo]="isDemo()"
-  [canCreate]="facade.canSeeCreatePlatform()"
-  [createAvailable]="createPlatform.available"
-  (create)="createPlatform.open()"
-  [periodDays]="state.status === 'success' ? state.data.periodDays : null"
+  [periodDays]="facade.periodDays()"
+  (periodChange)="facade.setPeriod($event)"
 />
 
 @switch (state.status) {
@@ -28,13 +26,12 @@
         icon="users"
         accent="orange"
         [label]="'companyOverview.summary.organizations' | transloco"
-        [caption]="
+        [caption]="'companyOverview.summary.acrossPlatforms' | transloco"
+        [trendLabel]="
           trend === null
-            ? ('companyOverview.summary.acrossPlatforms' | transloco)
-            : ('companyOverview.summary.acrossPlatforms' | transloco) +
-              ' · ' +
-              ('companyOverview.summary.thisPeriod'
-                | transloco: { change: trend | nwNumber: 'signed' })
+            ? ''
+            : ('companyOverview.summary.thisPeriod'
+              | transloco: { change: trend | nwNumber: 'signed' })
         "
         [metric]="overview.summary.organizations"
         [trend]="trend"
@@ -52,7 +49,15 @@
         [label]="'companyOverview.summary.pendingInvitations' | transloco"
         [caption]="'companyOverview.summary.awaitingAcceptance' | transloco"
         [metric]="overview.summary.pendingAdminInvitations"
-      />
+      >
+        @let newInvitations = overview.summary.newPendingAdminInvitations;
+        @if (newInvitations?.status === 'available') {
+          <span summaryBadge class="company-overview__pending-badge">{{
+            'companyOverview.summary.thisPeriod'
+              | transloco: { change: '+' + (newInvitations!.value | nwNumber) }
+          }}</span>
+        }
+      </adm-summary-card>
     </section>
 
     <div class="company-overview__row">
@@ -89,7 +94,6 @@
       <adm-overview-card
         headingId="overview-growth"
         [heading]="'companyOverview.growth.title' | transloco"
-        [subtitle]="'companyOverview.growth.subtitle' | transloco: { days: overview.periodDays }"
       >
         @if (overview.growth.status === 'available') {
           <adm-growth-panel [growth]="overview.growth.data" [platforms]="platformRefs()" />
@@ -144,7 +148,6 @@
     <adm-overview-card
       headingId="overview-health"
       [heading]="'companyOverview.health.title' | transloco"
-      [subtitle]="'companyOverview.health.subtitle' | transloco"
     >
       <adm-card-link
         cardActions
@@ -152,7 +155,7 @@
         [label]="'companyOverview.health.viewServices' | transloco"
       />
       @if (health.status === 'success') {
-        <adm-service-health-strip [inventory]="health.data" />
+        <adm-service-health-strip [inventory]="health.data" [demo]="isDemo()" />
       } @else if (health.status === 'idle' || health.status === 'loading') {
         <nw-data-state state="loading" [title]="'companyOverview.states.loading' | transloco" />
       } @else {

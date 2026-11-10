@@ -3,8 +3,9 @@
 <header class="add-authenticator__header">
   <div class="add-authenticator__titles">
     <p class="add-authenticator__eyebrow">{{ 'settings.security.title' | transloco }}</p>
-    <h2 class="add-authenticator__title">{{ 'settings.security.add.title' | transloco }}</h2>
-    <p class="add-authenticator__subtitle">{{ 'settings.security.add.subtitle' | transloco }}</p>
+    <h2 class="nw-page-title add-authenticator__title">
+      {{ 'settings.security.add.title' | transloco }}
+    </h2>
   </div>
   @if (isDemo()) {
     <span class="add-authenticator__demo">

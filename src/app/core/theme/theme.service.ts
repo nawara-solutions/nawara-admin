@@ -73,6 +73,7 @@ export class ThemeService {
 
   private readonly storedAccent = this.store.read('accent');
 
+  readonly density = signal<number>([1, 2, 3, 4, 5].includes(Number(this.store.read('density'))) ? Number(this.store.read('density')) : 3);
   readonly preference = signal<ThemePreference>(
     isThemePreference(this.stored) ? this.stored : DEFAULT_THEME,
   );
@@ -93,18 +94,20 @@ export class ThemeService {
   private commitRevision = 0;
 
   /** Commit the complete draft only after persistence succeeds. Existing immediate APIs remain compatible. */
-  async applyAppearance(preference: ThemePreference, accent: AccentPalette): Promise<boolean> {
+  async applyAppearance(preference: ThemePreference, accent: AccentPalette, density = this.density()): Promise<boolean> {
     const revision = ++this.commitRevision;
     if (accent !== this.accent()) await this.preload(accent);
     if (revision !== this.commitRevision) return false;
     const saved = this.store.commitAppearance({
       theme: preference === DEFAULT_THEME ? null : preference,
       accent: accent === DEFAULT_ACCENT ? null : accent,
+      density: density === 3 ? null : String(density),
     });
     if (!saved) return false;
     this.pendingAccent = accent;
     this.preference.set(preference);
     this.accent.set(accent);
+    this.density.set(density);
     return true;
   }
 
@@ -117,6 +120,7 @@ export class ThemeService {
       inject(DestroyRef).onDestroy(() => query.removeEventListener('change', onChange));
     }
 
+    effect(() => { this.document.documentElement.style.setProperty('--nw-density-row-padding', `${0.375 + (this.density() - 1) * 0.15625}rem`); });
     effect(() => {
       this.document.documentElement.dataset['theme'] = this.resolved();
     });

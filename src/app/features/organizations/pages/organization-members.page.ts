@@ -1,3 +1,4 @@
+import { CdkConnectedOverlay, CdkOverlayOrigin, ConnectedPosition } from '@angular/cdk/overlay';
 import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -8,6 +9,8 @@ import {
   computed,
   effect,
   inject,
+  input,
+  signal,
   untracked,
   viewChild,
   viewChildren,
@@ -15,11 +18,11 @@ import {
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthSession } from '../../../core/auth/auth-session';
-import { membershipPath, organizationPath } from '../../../core/context/scope-context';
+import { organizationPath } from '../../../core/context/scope-context';
 import { OrganizationId, PlatformId } from '../../../core/context/scope.model';
 import { NwButton } from '../../../shared/ui/button/button';
 import { NwDataState } from '../../../shared/ui/data-state/data-state';
-import { NwControl, NwFormField } from '../../../shared/ui/form-field/form-field';
+import { NwDialogService } from '../../../shared/ui/dialog/dialog.service';
 import { NwIcon } from '../../../shared/ui/icon/icon';
 import { isolated } from '../../platforms/domain/create-platform.model';
 import { MembershipDecisionAction } from '../application/membership-decision.action';
@@ -28,6 +31,8 @@ import { OrganizationAdminRoleAction } from '../application/organization-admin-r
 import { publishOrganizationLabel } from '../application/organization-label';
 import { OrganizationMembersFacade } from '../application/organization-members.facade';
 import { DecisionRequest, MemberList, RoleRequest } from '../components/member-list/member-list';
+import { MemberDetailPanel, MemberDetailPanelData } from '../components/member-detail-panel';
+import { MemberFilterData, MemberFilterDialog } from '../components/member-filter-dialog';
 import { OrganizationStates } from '../components/organization-states/organization-states';
 import { OrganizationsHeader } from '../components/organizations-header/organizations-header';
 import {
@@ -36,6 +41,7 @@ import {
   MEMBER_SORTS,
   MemberSort,
   Membership,
+  MembersQuery,
 } from '../domain/membership.model';
 
 /** Catalog keys, listed in full (never built at runtime). */
@@ -75,10 +81,11 @@ const SORT_KEYS = {
     RouterLink,
     TranslocoPipe,
     MemberList,
+    MemberFilterDialog,
+    CdkConnectedOverlay,
+    CdkOverlayOrigin,
     NwButton,
-    NwControl,
     NwDataState,
-    NwFormField,
     NwIcon,
     OrganizationStates,
     OrganizationsHeader,
@@ -86,10 +93,107 @@ const SORT_KEYS = {
   templateUrl: './organization-members.page.html',
   styleUrl: './organization-members.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'organization-members' },
+  host: { class: 'organization-members', '[class.organization-members--embedded]': 'embedded()' },
 })
 export class OrganizationMembersPage {
+  readonly embedded = input(false);
   protected readonly facade = inject(OrganizationMembersFacade);
+  private readonly dialogs = inject(NwDialogService);
+  protected openMember(member: Membership): void {
+    const view = this.facade.view();
+    if (view.status !== 'ready') return;
+    const data: MemberDetailPanelData = {
+      member: () => {
+        const current = this.facade.view();
+        return current.status === 'ready'
+          ? Object.values(current.lists)
+              .flat()
+              .find((row) => row.id === member.id)
+          : member;
+      },
+      role: (row) => this.roles.offers(row),
+      canRevoke: (row) => this.revocations.offers(row),
+      changeRole: (row, admin) =>
+        this.changeRole(
+          { membership: row, admin },
+          view.platform.id,
+          view.organization.id,
+          view.organization.name,
+        ),
+      revoke: (row) =>
+        this.revoke(row, view.platform.id, view.organization.id, view.organization.name),
+    };
+    this.dialogs.open(MemberDetailPanel, { data, sidePanel: true });
+  }
+
+  protected readonly popup = signal<MemberFilterData | null>(null);
+  protected readonly popupOrigin = signal<CdkOverlayOrigin | undefined>(undefined);
+  protected readonly popupPositions: ConnectedPosition[] = [
+    { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 8 },
+    { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom', offsetY: -8 },
+  ];
+  protected readonly pageSizes = [10, 50, 'all'] as const;
+  protected readonly pageSizeOpen = signal(false);
+  protected readonly pageSize = signal<number | 'all'>(10);
+  protected readonly requestedPage = signal(0);
+  protected readonly pageCount = computed(() => {
+    const size = this.pageSize();
+    return size === 'all' ? 1 : Math.max(1, Math.ceil(this.facade.rows().length / size));
+  });
+  protected readonly pageIndex = computed(() =>
+    Math.min(this.requestedPage(), this.pageCount() - 1),
+  );
+  protected readonly pageRows = computed(() => {
+    const rows = this.facade.rows();
+    const size = this.pageSize();
+    return size === 'all'
+      ? rows
+      : rows.slice(this.pageIndex() * size, (this.pageIndex() + 1) * size);
+  });
+  protected setPageSize(value: number | 'all'): void {
+    this.pageSize.set(value);
+    this.requestedPage.set(0);
+    this.pageSizeOpen.set(false);
+  }
+  protected openFilters(mode: 'filters' | 'sort', origin: CdkOverlayOrigin): void {
+    if (this.popup()?.mode === mode) {
+      this.closePopup();
+      return;
+    }
+    this.popupOrigin.set(origin);
+    const groups: MemberFilterData['groups'] =
+      mode === 'sort'
+        ? [
+            {
+              field: 'sort',
+              label: 'organizations.members.sortLabel',
+              options: MEMBER_SORTS.map((value) => ({ value, key: SORT_KEYS[value] })),
+            },
+          ]
+        : [
+            {
+              field: 'admins',
+              label: 'organizations.toolbar.show',
+              options: [
+                { value: 'false', key: 'organizations.toolbar.all' },
+                { value: 'true', key: 'organizations.members.adminsOnly' },
+              ],
+            },
+          ];
+    this.popup.set({ mode, query: this.facade.query(), groups });
+  }
+  protected closePopup(query?: MembersQuery): void {
+    this.popup.set(null);
+    if (query) {
+      this.requestedPage.set(0);
+      this.facade.setQuery(query);
+    }
+  }
+  protected clearAll(): void {
+    this.requestedPage.set(0);
+    this.facade.search.set('');
+    this.facade.setQuery({ admins: false, sort: 'newest' });
+  }
   protected readonly decisions = inject(MembershipDecisionAction);
   protected readonly revocations = inject(MembershipRevokeAction);
   protected readonly roles = inject(OrganizationAdminRoleAction);
@@ -130,14 +234,6 @@ export class OrganizationMembersPage {
   protected readonly filtered = computed(
     () => this.facade.search().trim() !== '' || this.facade.query().admins,
   );
-
-  protected readonly pathOf = computed(() => {
-    const view = this.facade.view();
-    return (membership: Membership) =>
-      view.status === 'ready'
-        ? membershipPath(view.platform.id, view.organization.id, membership.id)
-        : '';
-  });
 
   constructor() {
     publishOrganizationLabel(
@@ -190,7 +286,7 @@ export class OrganizationMembersPage {
     organizationId: OrganizationId,
     organizationName: string,
   ): void {
-    this.decidedIndex = this.facade.rows().findIndex((m) => m.id === membership.id);
+    this.decidedIndex = this.pageRows().findIndex((m) => m.id === membership.id);
     // The owner's rows carry an "Actions" menu (the role and Revoke); an operator's a direct "Revoke…".
     this.decidedControl =
       this.roles.offers(membership) !== null ? '[data-actions]' : '[data-revoke]';
@@ -204,7 +300,7 @@ export class OrganizationMembersPage {
     organizationId: OrganizationId,
     organizationName: string,
   ): void {
-    this.decidedIndex = this.facade.rows().findIndex((m) => m.id === request.membership.id);
+    this.decidedIndex = this.pageRows().findIndex((m) => m.id === request.membership.id);
     this.decidedControl = '[data-decide="approve"]';
     this.decisions.succeeded.set(null);
     this.decisions.open({
@@ -256,6 +352,7 @@ export class OrganizationMembersPage {
   }
 
   protected select(status: ListableMembershipStatus): void {
+    this.requestedPage.set(0);
     this.facade.setQuery({ status, admins: status === 'active' && this.facade.query().admins });
   }
 
@@ -280,17 +377,22 @@ export class OrganizationMembersPage {
   }
 
   protected onSearch(event: Event): void {
+    this.requestedPage.set(0);
     this.facade.search.set((event.target as HTMLInputElement).value);
   }
 
   protected onAdmins(event: Event): void {
+    this.requestedPage.set(0);
     this.facade.setQuery({ admins: (event.target as HTMLInputElement).checked });
   }
 
   protected onSort(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
     const sort = MEMBER_SORTS.find((s) => s === value);
-    if (sort) this.facade.setQuery({ sort });
+    if (sort) {
+      this.requestedPage.set(0);
+      this.facade.setQuery({ sort });
+    }
   }
 
   protected clear(): void {

@@ -1,8 +1,13 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { CreateAdminInvitationAction } from '../application/admin-invitation.actions';
+import {
+  OrganizationDetailsPanel,
+  OrganizationDetailsPanelData,
+} from '../components/organization-details-panel';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  Injector,
   computed,
   effect,
   inject,
@@ -14,67 +19,21 @@ import { can } from '../../../core/access/capability-policy';
 import { homePath } from '../../../core/access/home-path';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { EntityLabel } from '../../../core/context/entity-label';
-import {
-  ScopeContext,
-  membersPath,
-  organizationsPath,
-  platformPath,
-  platformSubscriptionsPath,
-} from '../../../core/context/scope-context';
-import { OverviewCard } from '../../../shared/dashboard/overview-card/overview-card';
-import { SummaryCard } from '../../../shared/dashboard/summary-card/summary-card';
-import { MetricValue } from '../../../shared/dashboard/metric-value/metric-value';
+import { ScopeContext, organizationsPath } from '../../../core/context/scope-context';
 import { Metric, Section } from '../../../shared/dashboard/metric';
-import { NW_CLOCK } from '../../../shared/format/clock';
-import { NwDatePipe } from '../../../shared/format/format.pipes';
 import { NwButton } from '../../../shared/ui/button/button';
 import { NwDataState } from '../../../shared/ui/data-state/data-state';
+import { NwDialogService } from '../../../shared/ui/dialog/dialog.service';
 import { NwIcon } from '../../../shared/ui/icon/icon';
-import { NwStatusBadge } from '../../../shared/ui/status-badge/status-badge';
 import { EditOrganizationAction } from '../application/edit-organization.action';
 import { OrganizationDetailFacade } from '../application/organization-detail.facade';
-import {
-  SUBSCRIPTION_BADGES,
-  policyKeys,
-  subscriptionNote,
-} from '../components/commercial-display';
-import { AdminInvitationsCard } from '../components/admin-invitations-card/admin-invitations-card';
-import { OrganizationActivity } from '../components/organization-activity/organization-activity';
-import { OrganizationsHeader } from '../components/organizations-header/organizations-header';
-import {
-  OrganizationEntitlement,
-  OrganizationSubscription,
-  OrganizationSubscriptionState,
-} from '../domain/organization-commercial.model';
-import { OrganizationMetadata } from '../domain/organization.model';
+import { OrganizationGateway } from '../data-access/organization.gateway';
+import { OrganizationMembersFacade } from '../application/organization-members.facade';
+import { ListableMembershipStatus } from '../domain/membership.model';
+import { AdminInvitationsPanel } from '../components/admin-invitations-panel';
+import { OrganizationMembersPage } from './organization-members.page';
 
 const UNAVAILABLE: Metric = { status: 'unavailable' };
-
-/** The optional fields About lists when given; a tax code and a phone number read left to right in every language. */
-const METADATA_FIELDS = [
-  { key: 'type', label: 'organizations.detail.type', ltr: false },
-  { key: 'taxCode', label: 'organizations.detail.taxCode', ltr: true },
-  { key: 'phone', label: 'organizations.detail.phone', ltr: true },
-  { key: 'address', label: 'organizations.detail.address', ltr: false },
-] as const satisfies readonly {
-  readonly key: keyof OrganizationMetadata;
-  readonly label: string;
-  readonly ltr: boolean;
-}[];
-
-/** Catalog keys of the entitlement (P7-S2), listed in full. */
-const ENTITLEMENT_KEYS = {
-  entitled: 'organizations.entitlement.entitled',
-  entitledInGrace: 'organizations.entitlement.entitledInGrace',
-  notEntitled: 'organizations.entitlement.notEntitled',
-} as const satisfies Record<OrganizationEntitlement, string>;
-
-/** What each subscription state means for the Organization, under the section's rows. */
-const SUBSCRIPTION_NOTE_KEYS = {
-  active: 'organizations.detail.activeNote',
-  grace: 'organizations.detail.graceNote',
-  none: 'organizations.detail.noSubscriptionNote',
-} as const satisfies Record<OrganizationSubscriptionState, string>;
 
 /**
  * One Organization (`/platforms/:platformId/organizations/:organizationId`; P3a design, artboards 2, 4, 7, 8, 9), read
@@ -86,20 +45,12 @@ const SUBSCRIPTION_NOTE_KEYS = {
   selector: 'adm-organization-detail-page',
   imports: [
     GrantsRefreshNotice,
-    NgTemplateOutlet,
     RouterLink,
-    AdminInvitationsCard,
     TranslocoPipe,
-    MetricValue,
     NwButton,
     NwDataState,
-    NwDatePipe,
     NwIcon,
-    NwStatusBadge,
-    OrganizationActivity,
-    OrganizationsHeader,
-    OverviewCard,
-    SummaryCard,
+    OrganizationMembersPage,
   ],
   templateUrl: './organization-detail.page.html',
   styleUrl: './organization-detail.page.scss',
@@ -108,21 +59,65 @@ const SUBSCRIPTION_NOTE_KEYS = {
 })
 export class OrganizationDetailPage {
   protected readonly facade = inject(OrganizationDetailFacade);
+  protected readonly invitationCreate = inject(CreateAdminInvitationAction);
+  protected readonly members = inject(OrganizationMembersFacade);
+  protected showMembers(status: ListableMembershipStatus): void {
+    this.members.search.set('');
+    this.members.setQuery({ status, admins: false });
+  }
+  private readonly dialogs = inject(NwDialogService);
+  private readonly injector = inject(Injector);
+  protected openInvitations(activeOnly = false): void {
+    const view = this.facade.view();
+    if (view.status !== 'ready' || !this.facade.showsAccess()) return;
+    this.dialogs.open(AdminInvitationsPanel, {
+      sidePanel: true,
+      injector: this.injector,
+      data: {
+        activeOnly,
+        target: {
+          organizationId: view.detail.id,
+          organizationName: view.detail.name,
+          platformId: view.platform.id,
+        },
+      },
+    });
+  }
+  protected openDetails(): void {
+    const view = this.facade.view();
+    if (view.status !== 'ready') return;
+    const data: OrganizationDetailsPanelData = {
+      activity: this.facade.showsActivity() ? {
+        entries: view.detail.activity.status === 'available' ? view.detail.activity.data : null,
+        platformId: view.platform.id,
+        organizationId: view.detail.id,
+        canBrowse: this.canBrowseActivity(),
+      } : null,
+      detail: () => {
+        const current = this.facade.view();
+        return current.status === 'ready' ? current.detail : view.detail;
+      },
+      platform: view.platform,
+      mayEdit: this.edit.mayEdit(view.platform.id),
+      editAvailable: this.edit.available,
+      showCommercial: this.facade.showsCommercial(),
+      canViewSubscriptions: this.canViewSubscriptions(),
+      commercial: () => this.facade.commercial(),
+      retryCommercial: () => this.facade.reloadCommercial(),
+      edit: () => {
+        const current = this.facade.view();
+        if (current.status === 'ready') this.edit.open(current.detail);
+      },
+    };
+    this.dialogs.open(OrganizationDetailsPanel, { data, sidePanel: true });
+  }
   /** "Edit details" (P3b-S2): the owner and an operator assigned to the Platform; no step-up. */
   protected readonly edit = inject(EditOrganizationAction);
   private readonly session = inject(AuthSession);
   private readonly context = inject(ScopeContext);
   private readonly label = inject(EntityLabel);
-  private readonly now = inject(NW_CLOCK);
-  protected readonly badges = SUBSCRIPTION_BADGES;
-  protected readonly policyKeys = policyKeys;
-  protected readonly entitlementKeys = ENTITLEMENT_KEYS;
-  protected readonly subscriptionNoteKeys = SUBSCRIPTION_NOTE_KEYS;
-  protected readonly platformSubscriptionsPath = platformSubscriptionsPath;
-  protected readonly platformPath = platformPath;
-  protected readonly metadataFields = METADATA_FIELDS;
+  private readonly organizationGateway = inject(OrganizationGateway);
   protected readonly organizationsPath = organizationsPath;
-  protected readonly membersPath = membersPath;
 
   protected readonly home = computed(() => homePath(this.session.actor()));
   protected readonly canOpenPlatforms = computed(() =>
@@ -146,6 +141,27 @@ export class OrganizationDetailPage {
   private readonly path = computed(() => this.context.url().split(/[?#]/)[0] ?? '');
 
   constructor() {
+    effect((onCleanup) => {
+      const view = this.facade.view();
+      if (view.status !== 'ready') return;
+      const platformId = view.platform.id;
+      const subscription = this.organizationGateway.list(platformId).subscribe({
+        next: (directory) => {
+          if (directory.platformId === platformId)
+            this.label.setOrganizations(
+              platformId,
+              directory.organizations
+                .filter((item) => item.platformId === platformId)
+                .map(({ id, name }) => ({ id, name })),
+            );
+        },
+        error: () => this.label.clearOrganizations(platformId),
+      });
+      onCleanup(() => {
+        subscription.unsubscribe();
+        this.label.clearOrganizations(platformId);
+      });
+    });
     // The breadcrumbs show the Organization's name once it is shown here, and never after (EntityLabel).
     let published: string | null = null;
     effect(() => {
@@ -167,9 +183,5 @@ export class OrganizationDetailPage {
 
   protected metricOf(section: Section<Metric>): Metric {
     return section.status === 'available' ? section.data : UNAVAILABLE;
-  }
-
-  protected noteOf(subscription: OrganizationSubscription) {
-    return subscriptionNote(subscription, this.now());
   }
 }

@@ -7,10 +7,7 @@
   display: grid;
   gap: var(--nw-space-5);
   min-inline-size: 0;
-  padding: var(--nw-space-4);
-  border: 1px solid var(--nw-border-subtle);
-  border-radius: var(--nw-radius-lg);
-  background-color: var(--nw-surface-raised);
+  padding: 0;
 }
 .appearance-settings__header {
   display: flex;
@@ -31,6 +28,6 @@
 }
 @container (min-width: 40rem) {
   .appearance-settings__surface {
-    padding: var(--nw-space-6);
+    padding: 0;
   }
 }

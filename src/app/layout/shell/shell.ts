@@ -42,6 +42,7 @@ export function pageOf(serializer: UrlSerializer, url: string): string {
   host: {
     class: 'shell',
     '[class.shell--drawer]': 'drawerMode()',
+    '[class.shell--collapsed]': '!drawerMode() && sidebarCollapsed()',
     '[class.shell--drawer-open]': 'drawerMode() && drawerOpen()',
     '(document:keydown.escape)': 'onEscape($event)',
   },
@@ -61,6 +62,11 @@ export class Shell {
     { initialValue: false },
   );
   protected readonly drawerOpen = signal(false);
+  protected readonly sidebarCollapsed = signal(false);
+
+  protected toggleSidebar(): void {
+    this.sidebarCollapsed.update((collapsed) => !collapsed);
+  }
 
   constructor() {
     let path: string | null = null;

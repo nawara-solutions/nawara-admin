@@ -32,6 +32,13 @@
   min-inline-size: 0;
 }
 
+.top-bar__separator {
+  flex: 0 0 1px;
+  inline-size: 1px;
+  block-size: 1.5rem;
+  background-color: var(--nw-border-default);
+}
+
 .top-bar__menu {
   flex: 0 0 auto;
 }

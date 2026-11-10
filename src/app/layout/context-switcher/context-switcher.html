@@ -8,10 +8,14 @@
   "
 >
   <!-- The company's logo symbol, in the palette's colours; decorative (the button's label names the scope). -->
-  <nw-product-symbol
-    class="context-switcher__symbol"
-    [product]="currentPlatform()?.product ?? null"
-  />
+  @if (sidebar() && !currentPlatform()) {
+    <span class="context-switcher__initials" aria-hidden="true">{{ companyInitials() }}</span>
+  } @else {
+    <nw-product-symbol
+      class="context-switcher__symbol"
+      [product]="currentPlatform()?.product ?? null"
+    />
+  }
   <span class="context-switcher__text">
     <bdi class="context-switcher__company">{{ companyName() ?? (titleKey() | transloco) }}</bdi>
     <span class="context-switcher__scope">
@@ -23,12 +27,12 @@
     </span>
   </span>
   <span class="context-switcher__chevron" aria-hidden="true">
-    <nw-icon name="chevron-down" size="sm" />
+    <nw-icon [name]="sidebar() ? 'chevrons-up-down' : 'chevron-down'" size="sm" />
   </span>
 </button>
 
 <ng-template #scopes>
-  <nw-menu class="context-switcher__menu">
+  <nw-menu class="context-switcher__menu" [attr.aria-label]="'shell.context.label' | transloco">
     @if (hasCompanyScope()) {
       <button
         nw-menu-item
@@ -36,7 +40,7 @@
         [attr.aria-current]="context.scope().kind === 'company' ? 'true' : null"
         (triggered)="selectCompany()"
       >
-        <nw-product-symbol />
+        <span class="context-switcher__option-symbol"><nw-product-symbol /></span>
         <span class="context-switcher__option">
           <bdi class="context-switcher__option-title">{{
             companyName() ?? (titleKey() | transloco)
@@ -58,7 +62,9 @@
         [attr.aria-current]="currentPlatform()?.id === platform.id ? 'true' : null"
         (triggered)="selectPlatform(platform)"
       >
-        <nw-product-symbol [product]="platform.product" />
+        <span class="context-switcher__option-symbol">
+          <nw-product-symbol [product]="platform.product" />
+        </span>
         <span class="context-switcher__option">
           <bdi class="context-switcher__option-title">{{ platform.name }}</bdi>
           @if (platform.product; as product) {

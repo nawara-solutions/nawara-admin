@@ -8,13 +8,6 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
   selector: 'adm-appearance-preview',
   imports: [TranslocoPipe, NwBrandMark, NwIcon],
   template: `
-    <header class="appearance-preview__heading">
-      <nw-icon name="eye" />
-      <div>
-        <h3>{{ 'settings.appearance.preview.title' | transloco }}</h3>
-        <p>{{ 'settings.appearance.preview.description' | transloco }}</p>
-      </div>
-    </header>
     <figure
       class="appearance-preview__figure"
       role="img"
@@ -22,13 +15,11 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
     >
       <div class="appearance-preview__dashboard" aria-hidden="true">
         <header class="appearance-preview__bar">
-          <nw-brand-mark wordmark label="" />
-          <span class="appearance-preview__tools"
-            ><nw-icon name="search" size="sm" /><nw-icon name="bell" size="sm" /><span
-              class="appearance-preview__avatar"
-              >NA</span
-            ></span
-          >
+          <nw-brand-mark wordmark symbolFirst label="" />
+          <span class="appearance-preview__live-label">
+            <span aria-hidden="true"></span>
+            {{ 'settings.appearance.preview.title' | transloco }}
+          </span>
         </header>
         <aside class="appearance-preview__sidebar">
           <span class="appearance-preview__active"
@@ -80,7 +71,6 @@ import { NwIcon } from '../../../../shared/ui/icon/icon';
           </div>
         </div>
       </div>
-      <figcaption>{{ 'settings.appearance.preview.sample' | transloco }}</figcaption>
     </figure>
   `,
   styleUrl: './appearance-preview.scss',

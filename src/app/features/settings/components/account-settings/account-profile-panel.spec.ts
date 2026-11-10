@@ -26,31 +26,60 @@ const view = accountSettingsView(
 );
 
 describe('Compact Profile presentation', () => {
-  it('omits summary facts and missing details, preserving supplied phone and one read-only note', async () => {
+  it('shows profile rows with missing values and a copy action for available email', async () => {
     TestBed.configureTestingModule({ imports: [translations()] });
     const fixture = TestBed.createComponent(AccountProfilePanel);
     fixture.componentRef.setInput('rows', view?.profile);
     fixture.detectChanges();
     await fixture.whenStable();
     const element = fixture.nativeElement as HTMLElement;
-    expect(element.querySelectorAll('dl dt')).toHaveLength(0);
-    expect(
-      element.querySelector('[data-fact="display-name"], [data-fact="email"], [data-fact="phone"]'),
-    ).toBeNull();
-    expect(element.querySelector('.account-profile__note')?.textContent).toContain(
-      en.settings.account.readOnly,
+    expect(element.querySelectorAll('dl dt')).toHaveLength(3);
+    expect(element.querySelector('[data-fact="display-name"]')).not.toBeNull();
+    expect(element.querySelector('[data-fact="phone"]')?.textContent).toContain(
+      en.settings.account.unavailable,
     );
+    expect(element.querySelectorAll('.account-profile__copy')).toHaveLength(1);
     fixture.componentRef.setInput('rows', [
-      ...(view?.profile ?? []),
+      ...(view?.profile ?? []).filter((row) => row.id !== 'phone'),
       { id: 'phone', label: 'settings.account.phone', value: '+99900000001', machine: true },
     ]);
     fixture.detectChanges();
-    expect(element.querySelectorAll('dl dt')).toHaveLength(1);
+    expect(element.querySelectorAll('dl dt')).toHaveLength(3);
     expect(element.querySelector('[data-fact="phone"] [dir="ltr"]')?.textContent).toBe(
       '+99900000001',
     );
-    expect(element.querySelector('input,button,a,[tabindex]')).toBeNull();
+    expect(element.querySelector('input,a,[tabindex]')).toBeNull();
   });
+  it('copies the supplied email only on click and reports clipboard failure', async () => {
+    TestBed.configureTestingModule({ imports: [translations()] });
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    try {
+      const fixture = TestBed.createComponent(AccountProfilePanel);
+      fixture.componentRef.setInput('rows', view?.profile);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const element = fixture.nativeElement as HTMLElement;
+      expect(writeText).not.toHaveBeenCalled();
+      element.querySelector<HTMLButtonElement>('.account-profile__copy')?.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(writeText).toHaveBeenCalledWith(view?.identity.email);
+      expect(element.querySelector('[role="status"]')?.textContent).toContain(
+        en.settings.account.emailCopied,
+      );
+      writeText.mockRejectedValueOnce(new Error('Permission denied'));
+      element.querySelector<HTMLButtonElement>('.account-profile__copy')?.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(element.querySelector('[role="status"]')?.textContent).toContain(
+        en.settings.account.copyFailed,
+      );
+    } finally {
+      Reflect.deleteProperty(navigator, 'clipboard');
+    }
+  });
+
   for (const stacked of [false, true]) {
     it(`keeps the badge near Profile identity without changing stacked Access=${stacked}`, async () => {
       TestBed.configureTestingModule({ imports: [translations()] });
@@ -66,7 +95,7 @@ describe('Compact Profile presentation', () => {
       expect(Boolean(element.querySelector('.account-summary__role'))).toBe(stacked);
       expect(Boolean(element.querySelector('.account-summary__contacts'))).toBe(stacked);
       expect(element.textContent).toContain(en.shell.role.owner);
-      expect(element.querySelector('input,button,a,[tabindex]')).toBeNull();
+      expect(element.querySelector('input,a,[tabindex]')).toBeNull();
     });
   }
 });

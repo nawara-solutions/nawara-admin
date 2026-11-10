@@ -1,0 +1,63 @@
+<section
+  class="account-security__card account-security__guidance"
+  aria-labelledby="security-actions"
+  data-guidance
+>
+  <h3 id="security-actions" class="account-security__heading">
+    {{ 'settings.security.overview.guidanceTitle' | transloco }}
+  </h3>
+  <ul class="account-security__rules" role="list">
+    @for (rule of rules; track rule.title) {
+      <li>
+        <span class="account-security__rule-icon"><nw-icon [name]="rule.icon" size="sm" /></span>
+        <div>
+          <h4>{{ rule.title | transloco }}</h4>
+          <p>{{ rule.body | transloco }}</p>
+        </div>
+      </li>
+    }
+  </ul>
+</section>
+<section
+  class="account-security__card account-security__recovery"
+  aria-labelledby="security-recovery"
+  data-recovery
+>
+  <h3 id="security-recovery" class="account-security__heading">
+    {{ 'settings.security.overview.recoveryTitle' | transloco }}
+  </h3>
+  <p class="account-security__muted" data-secret-key>
+    {{ 'settings.security.overview.recoveryLead' | transloco }}
+  </p>
+  <ol class="account-security__steps">
+    <li>
+      <span
+        >{{ 'settings.security.overview.start' | transloco }}
+        <strong>{{ 'settings.security.overview.passwordAndKey' | transloco }}</strong
+        >.</span
+      >
+    </li>
+    <li>
+      <span
+        >{{ 'settings.security.overview.wait' | transloco }}
+        <strong>{{ 'settings.security.overview.waitingPeriod' | transloco }}</strong
+        >.</span
+      >
+    </li>
+    <li>
+      <span
+        >{{ 'settings.security.overview.setup' | transloco }}
+        <strong>{{ 'settings.security.overview.newFactor' | transloco }}</strong
+        >.</span
+      >
+    </li>
+  </ol>
+  <p class="account-security__warning account-security__warning--danger">
+    <nw-icon name="triangle-alert" size="sm" />{{
+      'settings.security.overview.recoveryEnds' | transloco
+    }}
+  </p>
+  <p class="account-security__muted" data-unavailable>
+    {{ 'settings.security.overview.recoveryUnavailable' | transloco }}
+  </p>
+</section>

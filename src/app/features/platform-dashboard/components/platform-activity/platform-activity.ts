@@ -8,7 +8,7 @@ import {
   PlatformActivityEntry,
 } from '../../domain/platform-dashboard.model';
 
-const ACTIONS = {
+export const PLATFORM_ACTIVITY_ACTIONS = {
   'platform.created': { icon: 'hexagon', key: 'platformDashboard.activity.platformCreated' },
   'organization.created': {
     icon: 'building-2',
@@ -67,5 +67,5 @@ const ACTIONS = {
 })
 export class PlatformActivity {
   readonly entries = input.required<readonly PlatformActivityEntry[]>();
-  protected readonly actions = ACTIONS;
+  protected readonly actions = PLATFORM_ACTIVITY_ACTIONS;
 }

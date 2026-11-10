@@ -1,4 +1,4 @@
-import { Injectable, Signal, computed, inject } from '@angular/core';
+import { Injectable, Signal, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Observable, Subject, combineLatest, of, startWith, switchMap } from 'rxjs';
 import { can } from '../../../core/access/capability-policy';
@@ -11,7 +11,13 @@ import { ServiceInventoryGateway } from '../../../core/core-services/service-inv
 import { CommercialSummaryGateway } from '../data-access/commercial-summary.gateway';
 import { CompanyOverviewGateway } from '../data-access/company-overview.gateway';
 import { CommercialSummary } from '../domain/commercial-summary.model';
-import { AttentionKind, CompanyOverview, Section } from '../domain/company-overview.model';
+import {
+  AttentionKind,
+  CompanyOverview,
+  Section,
+  OverviewPeriod,
+  OVERVIEW_PERIODS,
+} from '../domain/company-overview.model';
 
 /** An attention item as shown: the overview's own kinds plus the commercial "licenses expiring soon". */
 export type AttentionView = AttentionKind | 'licenses_expiring';
@@ -65,7 +71,22 @@ export class CompanyOverviewFacade {
     );
   }
 
-  readonly state = this.load<CompanyOverview>((id) => this.overviewGateway.load(id));
+  private readonly selectedPeriod = signal<OverviewPeriod>(30);
+  readonly periodDays = this.selectedPeriod.asReadonly();
+  readonly state = toSignal(
+    combineLatest([this.scoped$, toObservable(this.periodDays)]).pipe(
+      switchMap(([[id], days]) =>
+        id === null
+          ? of<ViewState<CompanyOverview>>({ status: 'forbidden' })
+          : toViewState(this.overviewGateway.load(id, days)),
+      ),
+    ),
+    { initialValue: IDLE as ViewState<CompanyOverview> },
+  );
+
+  setPeriod(days: OverviewPeriod): void {
+    if (OVERVIEW_PERIODS.includes(days)) this.selectedPeriod.set(days);
+  }
   readonly commercial = this.load<CommercialSummary>((id) => this.commercialGateway.load(id));
   /** The documented Core services (P8-S2's shared inventory, as on `/services`); live health is never observed. */
   readonly health = this.load<ServiceInventory>((id) => this.servicesGateway.inventory(id));

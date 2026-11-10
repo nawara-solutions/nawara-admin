@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { AuthSession } from '../auth/auth-session';
+import { OrganizationId, PlatformId } from './scope.model';
 
 interface Entry {
   /** The URL path (no query or fragment) of the page that set it. */
@@ -20,6 +21,31 @@ interface Entry {
 export class EntityLabel {
   private readonly session = inject(AuthSession);
   private readonly current = signal<Entry | null>(null);
+  private readonly organizations = signal<{
+    platformId: PlatformId;
+    userId: string | null;
+    options: readonly { id: OrganizationId; name: string }[];
+  } | null>(null);
+
+  organizationsFor(platformId: PlatformId): readonly { id: OrganizationId; name: string }[] {
+    const entry = this.organizations();
+    return entry &&
+      entry.platformId === platformId &&
+      entry.userId === (this.session.actor()?.userId ?? null)
+      ? entry.options
+      : [];
+  }
+
+  setOrganizations(
+    platformId: PlatformId,
+    options: readonly { id: OrganizationId; name: string }[],
+  ): void {
+    this.organizations.set({ platformId, options, userId: this.session.actor()?.userId ?? null });
+  }
+
+  clearOrganizations(platformId: PlatformId): void {
+    if (this.organizations()?.platformId === platformId) this.organizations.set(null);
+  }
 
   /** The label for `path`, or `null`. */
   readonly entry = computed(() => {

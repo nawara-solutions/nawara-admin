@@ -23,25 +23,38 @@ import { AccountIdentitySummary as Identity } from '../../application/account-se
       </div>
       <div class="account-summary__identity">
         <p class="account-summary__name">
-          <bdi data-fact="display-name">{{
-            identity().displayName ?? ('settings.account.profileTab' | transloco)
-          }}</bdi>
+          <bdi>{{ identity().displayName ?? ('settings.account.profileTab' | transloco) }}</bdi>
         </p>
         @if (!stacked()) {
           <div class="account-summary__recognition">
             @if (identity().email; as email) {
-              <bdi class="account-summary__contact" data-fact="email" dir="ltr" translate="no">{{
-                email
-              }}</bdi>
+              <bdi class="account-summary__contact" dir="ltr" translate="no">{{ email }}</bdi>
             }
             <dl class="account-summary__inline-role">
               <dt class="nw-visually-hidden">{{ 'settings.account.type' | transloco }}</dt>
-              <dd><nw-icon name="id-card" size="sm" />{{ identity().roleKey | transloco }}</dd>
+              <dd>
+                <nw-icon
+                  [name]="identity().roleKey === 'shell.role.owner' ? 'crown' : 'id-card'"
+                  size="sm"
+                />{{ identity().roleKey | transloco }}
+              </dd>
             </dl>
+            @if (demo()) {
+              <span class="account-summary__demo"
+                ><nw-icon name="flask-conical" size="sm" />{{
+                  'shell.demo.badge' | transloco
+                }}</span
+              >
+            }
           </div>
         }
       </div>
     </div>
+    @if (!stacked()) {
+      <p class="account-summary__read-only">
+        <nw-icon name="lock-keyhole" size="sm" />{{ 'settings.account.readOnlyBanner' | transloco }}
+      </p>
+    }
     @if (stacked()) {
       <dl class="account-summary__role">
         <dt class="nw-visually-hidden">
@@ -79,5 +92,6 @@ import { AccountIdentitySummary as Identity } from '../../application/account-se
 })
 export class AccountIdentitySummary {
   readonly identity = input.required<Identity>();
+  readonly demo = input(false);
   readonly stacked = input(false);
 }

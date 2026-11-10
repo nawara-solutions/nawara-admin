@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
 import { AccessSummary } from '../../domain/company-overview.model';
@@ -26,4 +26,12 @@ export class AccessSummaryList {
   readonly access = input.required<AccessSummary | null>();
   /** The signed-in owner's name (user data). */
   readonly ownerName = input<string | null>(null);
+  protected readonly initials = computed(() => {
+    const words = this.ownerName()?.trim().split(/\s+/).filter(Boolean) ?? [];
+    const parts = words.slice(0, 1).concat(words.length > 1 ? words.slice(-1) : []);
+    return parts
+      .map((word) => Array.from(word)[0])
+      .join('')
+      .toLocaleUpperCase();
+  });
 }

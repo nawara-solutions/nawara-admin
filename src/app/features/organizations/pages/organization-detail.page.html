@@ -91,423 +91,122 @@
   @case ('ready') {
     @let detail = view.detail;
     @let platform = view.platform;
-    <header
-      adm-organizations-header
-      [eyebrow]="'organizations.header.eyebrow' | transloco"
-      [heading]="detail.name"
-    >
-      <p headerMeta class="organization-detail__meta">
-        <a class="organization-detail__platform" [routerLink]="platformPath(platform.id)">
-          <nw-icon [name]="platform.product === 'drive' ? 'car' : 'hexagon'" size="sm" />
-          <bdi>{{ platform.name }}</bdi>
-        </a>
-        <span>{{
-          'organizations.header.created' | transloco: { date: detail.createdAt | nwDate: 'date' }
-        }}</span>
-        <span class="organization-detail__access">{{ accessKey() | transloco }}</span>
-      </p>
-      <a headerActions nw-button variant="secondary" [routerLink]="organizationsPath(platform.id)">
-        <nw-icon name="arrow-left" size="sm" />{{
-          'organizations.header.backToDirectory' | transloco
-        }}
-      </a>
+    <header class="organization-detail__header">
+      <h1 class="nw-page-title">
+        <bdi>{{ detail.name }}</bdi>
+      </h1>
+      <div class="organization-detail__header-actions">
+        <button nw-button variant="secondary" type="button" (click)="openDetails()">
+          <nw-icon name="info" size="sm" />{{ 'organizations.detail.overview' | transloco }}
+        </button>
+      @if (facade.showsAccess()) {
+        <div>
+          @if (invitationCreate.available) {
+            <button
+              nw-button
+              type="button"
+              (click)="
+                invitationCreate.open({
+                  organizationId: detail.id,
+                  organizationName: detail.name,
+                  platformId: platform.id,
+                })
+              "
+            >
+              <nw-icon name="mail" size="sm" />{{ 'organizations.invitations.view' | transloco }}
+            </button>
+          } @else {
+            <button nw-button type="button" (click)="openInvitations()">
+              <nw-icon name="mail" size="sm" />{{ 'organizations.invitations.view' | transloco }}
+            </button>
+          }
+        </div>
+      }
+      </div>
     </header>
 
     <section
-      class="organization-detail__figures"
+      class="organization-detail__summary"
       [attr.aria-label]="'organizations.detail.figuresLabel' | transloco"
     >
-      <adm-summary-card
-        icon="users"
-        accent="orange"
-        [label]="'organizations.detail.memberships' | transloco"
-        [metric]="detail.memberships"
-        [caption]="'organizations.detail.membershipsCaption' | transloco"
-      />
-      <adm-summary-card
-        icon="user-plus"
-        accent="purple"
-        [label]="'organizations.detail.requests' | transloco"
-        [metric]="detail.pendingRequests"
-        [caption]="'organizations.detail.requestsCaption' | transloco"
-      />
-      @if (facade.showsAccess()) {
-        <adm-summary-card
-          icon="mail"
-          [label]="'organizations.detail.invitations' | transloco"
-          [metric]="metricOf(detail.adminInvitationsAwaiting)"
-          [caption]="'organizations.detail.invitationsCaption' | transloco"
-        />
+      <h2>{{ 'organizations.detail.figuresLabel' | transloco }}</h2>
+      <dl class="organization-detail__summary-totals">
+        <div>
+          <dt id="summary-memberships">{{ 'organizations.detail.memberships' | transloco }}</dt>
+          <dd>
+            @if (detail.memberships.status === 'available') {
+              <button
+                type="button"
+                aria-describedby="summary-memberships"
+                [attr.aria-pressed]="members.query().status === 'active'"
+                (click)="showMembers('active')"
+              >
+                {{ detail.memberships.value }}
+              </button>
+            } @else {
+              —
+            }
+          </dd>
+        </div>
+        <div>
+          <dt id="summary-requests">{{ 'organizations.detail.requests' | transloco }}</dt>
+          <dd>
+            @if (detail.pendingRequests.status === 'available') {
+              <button
+                type="button"
+                aria-describedby="summary-requests"
+                [attr.aria-pressed]="members.query().status === 'pending'"
+                (click)="showMembers('pending')"
+              >
+                {{ detail.pendingRequests.value }}
+              </button>
+            } @else {
+              —
+            }
+          </dd>
+        </div>
+        @if (facade.showsAccess()) {
+          @let invitations = metricOf(detail.adminInvitationsAwaiting);
+          <div>
+            <dt id="summary-invitations">{{ 'organizations.detail.invitations' | transloco }}</dt>
+            <dd>
+              @if (invitations.status === 'available') {
+                <button
+                  type="button"
+                  aria-describedby="summary-invitations"
+                  aria-haspopup="dialog"
+                  (click)="openInvitations(true)"
+                >
+                  {{ invitations.value }}
+                </button>
+              } @else {
+                —
+              }
+            </dd>
+          </div>
+        }
+      </dl>
+      @if (
+        detail.memberships.status === 'available' &&
+        detail.pendingRequests.status === 'available' &&
+        detail.memberships.value + detail.pendingRequests.value > 0
+      ) {
+        <div class="organization-detail__summary-bar" aria-hidden="true">
+          <span [style.flex-grow]="detail.memberships.value"></span
+          ><span [style.flex-grow]="detail.pendingRequests.value"></span>
+        </div>
+        <div class="organization-detail__summary-legend">
+          <span
+            >{{ 'organizations.detail.memberships' | transloco }}
+            {{ detail.memberships.value }}</span
+          ><span
+            >{{ 'organizations.detail.requests' | transloco }}
+            {{ detail.pendingRequests.value }}</span
+          >
+        </div>
       }
     </section>
 
-    <div
-      class="organization-detail__grid"
-      [class.organization-detail__grid--owner]="facade.showsCommercial()"
-    >
-      <div class="organization-detail__column">
-        <adm-overview-card
-          headingId="organization-membership"
-          [heading]="'organizations.detail.membership' | transloco"
-        >
-          <dl class="organization-detail__rows">
-            <div class="organization-detail__row">
-              <dt>{{ 'organizations.detail.activeMemberships' | transloco }}</dt>
-              <dd><adm-metric-value [metric]="detail.memberships" /></dd>
-            </div>
-            <div class="organization-detail__row">
-              <dt>{{ 'organizations.detail.pendingRequests' | transloco }}</dt>
-              <dd><adm-metric-value [metric]="detail.pendingRequests" /></dd>
-            </div>
-            @if (facade.showsAccess()) {
-              <div class="organization-detail__row">
-                <dt>{{ 'organizations.detail.invitationsAwaiting' | transloco }}</dt>
-                <dd><adm-metric-value [metric]="metricOf(detail.adminInvitationsAwaiting)" /></dd>
-              </div>
-            }
-          </dl>
-          <a
-            nw-button
-            variant="secondary"
-            class="organization-detail__members-link"
-            [routerLink]="membersPath(platform.id, detail.id)"
-          >
-            <nw-icon name="users" size="sm" />{{ 'organizations.detail.viewMembers' | transloco }}
-          </a>
-          <p class="organization-detail__note" id="organization-membership-note">
-            <nw-icon name="info" size="sm" />{{ 'organizations.detail.membershipNote' | transloco }}
-          </p>
-          <ng-container
-            [ngTemplateOutlet]="unavailableAction"
-            [ngTemplateOutletContext]="{
-              label: 'organizations.detail.reviewRequests' | transloco,
-              id: 'review',
-            }"
-          />
-        </adm-overview-card>
-
-        @if (facade.showsAccess()) {
-          <!-- Owner only: operators get no card, no records and no request (Core refuses them). -->
-          <adm-admin-invitations-card
-            [target]="{
-              organizationId: detail.id,
-              organizationName: detail.name,
-              platformId: platform.id,
-            }"
-          />
-        }
-
-        @if (facade.showsActivity()) {
-          <adm-overview-card
-            headingId="organization-activity"
-            [heading]="'organizations.detail.activity' | transloco"
-          >
-            @if (canBrowseActivity()) {
-              <!-- P8-S1: the one activity browser, with this Organization preselected (ids only in the URL). -->
-              <a
-                cardActions
-                class="organization-detail__link"
-                routerLink="/audit"
-                [queryParams]="{ platform: platform.id, organization: detail.id }"
-                data-activity-browser
-                >{{ 'organizations.detail.openActivity' | transloco }}</a
-              >
-            }
-            @if (detail.activity.status === 'available') {
-              <adm-organization-activity [entries]="detail.activity.data" />
-            } @else {
-              <ng-container [ngTemplateOutlet]="sectionUnavailable" />
-            }
-          </adm-overview-card>
-        }
-
-        <adm-overview-card
-          headingId="organization-about"
-          [heading]="'organizations.detail.about' | transloco"
-        >
-          @if (edit.mayEdit(platform.id)) {
-            <!-- One root element, so the whole entry is projected into the card header. -->
-            <div cardActions>
-              @if (edit.available) {
-                <button nw-button variant="secondary" type="button" (click)="edit.open(detail)">
-                  <nw-icon name="pencil" size="sm" />{{ 'organizations.edit.open' | transloco }}
-                </button>
-              } @else {
-                <button
-                  nw-button
-                  variant="secondary"
-                  type="button"
-                  aria-disabled="true"
-                  aria-describedby="organization-edit-unavailable"
-                >
-                  <nw-icon name="pencil" size="sm" />{{ 'organizations.edit.open' | transloco }}
-                </button>
-                <span id="organization-edit-unavailable" class="nw-visually-hidden">{{
-                  'organizations.edit.notInBuildReason' | transloco
-                }}</span>
-              }
-            </div>
-          }
-          <dl class="organization-detail__rows">
-            <div class="organization-detail__row">
-              <dt>{{ 'organizations.detail.platform' | transloco }}</dt>
-              <dd>
-                <a class="organization-detail__link" [routerLink]="platformPath(platform.id)">
-                  <bdi>{{ platform.name }}</bdi>
-                </a>
-              </dd>
-            </div>
-            <div class="organization-detail__row organization-detail__row--id">
-              <dt>{{ 'organizations.detail.organizationId' | transloco }}</dt>
-              <dd>
-                <code class="organization-detail__id" dir="ltr" translate="no">{{
-                  detail.id
-                }}</code>
-              </dd>
-            </div>
-            <div class="organization-detail__row">
-              <dt>{{ 'organizations.detail.createdAt' | transloco }}</dt>
-              <dd>{{ detail.createdAt | nwDate: 'date' }}</dd>
-            </div>
-            @for (field of metadataFields; track field.key) {
-              @let value = detail.metadata[field.key];
-              @if (value !== null) {
-                <div class="organization-detail__row">
-                  <dt>{{ field.label | transloco }}</dt>
-                  <dd>
-                    <bdi [attr.dir]="field.ltr ? 'ltr' : null">{{ value }}</bdi>
-                  </dd>
-                </div>
-              }
-            }
-          </dl>
-        </adm-overview-card>
-      </div>
-
-      @if (facade.showsCommercial()) {
-        @let commercial = facade.commercial();
-        <div class="organization-detail__column">
-          <adm-overview-card
-            headingId="organization-subscription"
-            [heading]="'organizations.detail.subscription' | transloco"
-          >
-            @switch (commercial.status) {
-              @case ('success') {
-                @let subscription = commercial.data.subscription;
-                @let entitlement = commercial.data.entitlement;
-                @if (subscription.status === 'available') {
-                  @let current = subscription.data;
-                  <!-- P7-S2: the state, its timeline and the entitlement, each its own row. -->
-                  <dl class="organization-detail__rows" data-subscription>
-                    <div class="organization-detail__row">
-                      <dt>{{ 'organizations.detail.subscriptionState' | transloco }}</dt>
-                      <dd>
-                        <nw-status-badge [tone]="badges[current.state].tone">{{
-                          badges[current.state].key | transloco
-                        }}</nw-status-badge>
-                      </dd>
-                    </div>
-                    @if (current.state === 'active' && current.endsAt) {
-                      <div class="organization-detail__row">
-                        <dt>{{ 'organizations.detail.endsAt' | transloco }}</dt>
-                        <dd>
-                          {{ current.endsAt | nwDate: 'date' }}
-                          @if (noteOf(current); as note) {
-                            <nw-status-badge tone="warning">{{
-                              'organizations.subscription.ends'
-                                | transloco: { when: note.at | nwDate: 'until' }
-                            }}</nw-status-badge>
-                          }
-                        </dd>
-                      </div>
-                    }
-                    @if (current.state === 'grace') {
-                      @if (current.endsAt) {
-                        <div class="organization-detail__row">
-                          <dt>{{ 'organizations.detail.endedAt' | transloco }}</dt>
-                          <dd>{{ current.endsAt | nwDate: 'date' }}</dd>
-                        </div>
-                      }
-                      @if (current.graceEndsAt) {
-                        <div class="organization-detail__row">
-                          <dt>{{ 'organizations.detail.graceEndsAt' | transloco }}</dt>
-                          <dd>{{ current.graceEndsAt | nwDate: 'date-time' }}</dd>
-                        </div>
-                      }
-                    }
-                    <div class="organization-detail__row" data-entitlement>
-                      <dt>{{ 'organizations.detail.entitledNow' | transloco }}</dt>
-                      <dd>
-                        @if (entitlement.status === 'available') {
-                          {{ entitlementKeys[entitlement.data] | transloco }}
-                        } @else {
-                          {{ 'organizations.table.unavailable' | transloco }}
-                        }
-                      </dd>
-                    </div>
-                  </dl>
-                  <p class="organization-detail__note" data-subscription-note>
-                    {{ subscriptionNoteKeys[current.state] | transloco }}
-                  </p>
-                  @if (canViewSubscriptions()) {
-                    <a
-                      class="organization-detail__link"
-                      [routerLink]="platformSubscriptionsPath(platform.id)"
-                      >{{ 'organizations.detail.platformSubscriptions' | transloco }}</a
-                    >
-                  }
-                } @else {
-                  <ng-container
-                    [ngTemplateOutlet]="sectionUnavailable"
-                    [ngTemplateOutletContext]="{ retry: true }"
-                  />
-                }
-              }
-              @case ('error') {
-                <ng-container
-                  [ngTemplateOutlet]="sectionUnavailable"
-                  [ngTemplateOutletContext]="{ retry: true }"
-                />
-              }
-              @case ('forbidden') {
-                <ng-container [ngTemplateOutlet]="sectionUnavailable" />
-              }
-              @default {
-                <nw-data-state
-                  state="loading"
-                  [title]="'organizations.states.loadingSection' | transloco"
-                />
-              }
-            }
-          </adm-overview-card>
-
-          <adm-overview-card
-            headingId="organization-payments"
-            [heading]="'organizations.detail.payments' | transloco"
-          >
-            @if (commercial.status === 'success') {
-              @let issues = commercial.data.paymentIssues;
-              @if (issues.status === 'available') {
-                @if (issues.data.status === 'available' && issues.data.value > 0) {
-                  <p class="organization-detail__alert" role="note">
-                    <nw-icon name="circle-alert" size="sm" />
-                    <span>
-                      <span class="organization-detail__alert-title"
-                        >{{ 'organizations.detail.paymentIssues' | transloco }}:
-                        <adm-metric-value [metric]="issues.data"
-                      /></span>
-                      <span class="organization-detail__alert-text">{{
-                        'organizations.detail.paymentIssuesNote' | transloco
-                      }}</span>
-                    </span>
-                  </p>
-                } @else {
-                  <p class="organization-detail__note">
-                    {{ 'organizations.detail.noPaymentIssues' | transloco }}
-                  </p>
-                }
-              } @else {
-                <ng-container [ngTemplateOutlet]="sectionUnavailable" />
-              }
-            } @else if (commercial.status === 'error' || commercial.status === 'forbidden') {
-              <ng-container [ngTemplateOutlet]="sectionUnavailable" />
-            } @else {
-              <nw-data-state
-                state="loading"
-                [title]="'organizations.states.loadingSection' | transloco"
-              />
-            }
-          </adm-overview-card>
-
-          <adm-overview-card
-            headingId="organization-assisted-payments"
-            [heading]="'organizations.detail.assistedPayments' | transloco"
-          >
-            @if (commercial.status === 'success') {
-              @let policy = commercial.data.assistedPayments;
-              @if (policy.status === 'available') {
-                @let keys = policyKeys(policy.data);
-                <dl class="organization-detail__rows">
-                  <div class="organization-detail__row">
-                    <dt>{{ 'organizations.detail.effective' | transloco }}</dt>
-                    <dd>
-                      <nw-status-badge
-                        [tone]="policy.data.effective === 'enabled' ? 'success' : 'info'"
-                        >{{ keys.value | transloco }}</nw-status-badge
-                      >
-                    </dd>
-                  </div>
-                  <div class="organization-detail__row">
-                    <dt>{{ 'organizations.detail.platformSetting' | transloco }}</dt>
-                    <dd>
-                      {{
-                        (policy.data.platform === 'enabled'
-                          ? 'organizations.policy.enabled'
-                          : 'organizations.policy.disabled'
-                        ) | transloco
-                      }}
-                    </dd>
-                  </div>
-                  <div class="organization-detail__row">
-                    <dt>{{ 'organizations.detail.organizationSetting' | transloco }}</dt>
-                    <dd>
-                      {{
-                        (policy.data.organization === 'inherit'
-                          ? 'organizations.detail.inherits'
-                          : 'organizations.detail.override'
-                        ) | transloco
-                      }}
-                    </dd>
-                  </div>
-                </dl>
-                <ng-container
-                  [ngTemplateOutlet]="unavailableAction"
-                  [ngTemplateOutletContext]="{
-                    label: 'organizations.detail.changePolicy' | transloco,
-                    id: 'policy',
-                  }"
-                />
-              } @else {
-                <ng-container [ngTemplateOutlet]="sectionUnavailable" />
-              }
-            } @else if (commercial.status === 'error' || commercial.status === 'forbidden') {
-              <ng-container [ngTemplateOutlet]="sectionUnavailable" />
-            } @else {
-              <nw-data-state
-                state="loading"
-                [title]="'organizations.states.loadingSection' | transloco"
-              />
-            }
-          </adm-overview-card>
-        </div>
-      }
-    </div>
+    <adm-organization-members-page [embedded]="true" />
   }
 }
-
-<ng-template #sectionUnavailable let-retry="retry">
-  <p class="organization-detail__unavailable">
-    <nw-icon name="circle-alert" size="sm" />
-    <span>{{ 'organizations.states.sectionUnavailable' | transloco }}</span>
-    @if (retry) {
-      <button nw-button variant="ghost" size="sm" type="button" (click)="facade.reloadCommercial()">
-        {{ 'organizations.states.retry' | transloco }}
-      </button>
-    }
-  </p>
-</ng-template>
-
-<!-- Read only: focusable (so its "not available yet" description is reachable), never actionable. -->
-<ng-template #unavailableAction let-label="label" let-id="id">
-  <button
-    type="button"
-    class="organization-detail__unavailable-action"
-    aria-disabled="true"
-    [attr.aria-describedby]="'organization-action-' + id"
-  >
-    {{ label }}
-  </button>
-  <span [id]="'organization-action-' + id" class="nw-visually-hidden">{{
-    'shell.notAvailableYet' | transloco
-  }}</span>
-</ng-template>

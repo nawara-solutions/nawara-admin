@@ -33,7 +33,11 @@ for (const authorized of [true, false]) {
     expect(element.querySelectorAll('[data-security-status="not-reported"]')).toHaveLength(3);
     expect(element.querySelectorAll('.account-security__card')).toHaveLength(3);
     expect(element.querySelector('.account-security__summary, .account-security__row')).toBeNull();
-    expect(element.textContent?.match(/Not reported/g)).toHaveLength(3);
+    expect(
+      [...element.querySelectorAll('.account-security__status')].map((status) =>
+        status.textContent?.trim(),
+      ),
+    ).toEqual(Array(3).fill(en.settings.account.notReported));
     expect(Boolean(element.querySelector('.account-security__header a'))).toBe(authorized);
     expect(element.querySelectorAll('.account-security__explanation')).toHaveLength(1);
     expect(element.textContent).toContain(en.settings.account.securitySessionNote);
@@ -41,7 +45,7 @@ for (const authorized of [true, false]) {
     expect(element.querySelector('form,input,button')).toBeNull();
     expect(Boolean(element.querySelector('a[href="/settings/security"]'))).toBe(authorized);
     expect(
-      element.querySelector('a')?.classList.contains('nw-button--outline') ?? !authorized,
+      element.querySelector('a')?.classList.contains('nw-button--primary') ?? !authorized,
     ).toBe(true);
   });
 }

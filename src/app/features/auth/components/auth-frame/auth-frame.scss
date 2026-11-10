@@ -62,9 +62,14 @@
 
 .auth-frame__header-logo {
   // Keep the compact tablet/phone wordmark size independent from authentication text sizing.
-  --nw-brand-mark-size: 1.275rem;
+  --nw-brand-mark-size: 2rem;
+  --nw-brand-symbol-scale: 1.55;
 
   min-inline-size: 0;
+
+  @media (max-width: 24rem) {
+    --nw-brand-mark-size: 1.05rem;
+  }
 
   @include nw.from(desktop) {
     display: none;

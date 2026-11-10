@@ -12,10 +12,18 @@ import {
  * survives a refresh). The SEARCH is not: it matches contacts (emails and phones), which never go into a URL; it lives
  * in the page only. Machine values, never translated; anything unknown falls back to the default.
  */
-export type OperatorSort = 'contact' | 'platforms' | 'newest';
+export type OperatorSort =
+  | 'contact'
+  | 'contact-desc'
+  | 'platforms'
+  | 'platforms-asc'
+  | 'newest'
+  | 'oldest'
+  | 'state'
+  | 'state-desc';
 
 /** `any`: every operator; `none`: operators with no active assignment; else one Platform's operators. */
-export type PlatformFilter = 'any' | 'none' | PlatformId;
+export type PlatformFilter = 'any' | 'none' | 'assigned' | PlatformId;
 export type AccountStateFilter = 'any' | OperatorAccountState;
 
 export interface OperatorQuery {
@@ -30,7 +38,16 @@ export const DEFAULT_OPERATOR_QUERY: OperatorQuery = {
   sort: 'contact',
 };
 
-export const OPERATOR_SORTS: readonly OperatorSort[] = ['contact', 'platforms', 'newest'];
+export const OPERATOR_SORTS: readonly OperatorSort[] = [
+  'contact',
+  'contact-desc',
+  'platforms',
+  'platforms-asc',
+  'newest',
+  'oldest',
+  'state',
+  'state-desc',
+];
 export const STATE_FILTERS: readonly AccountStateFilter[] = ['any', ...ACCOUNT_STATES];
 
 /** A Platform id is UUID-shaped; anything else in the URL is ignored. */
@@ -46,8 +63,8 @@ export function parseOperatorQuery(params: Params): OperatorQuery {
   const platform: unknown = params['platform'];
   return {
     platform:
-      platform === 'none'
-        ? 'none'
+      platform === 'none' || platform === 'assigned'
+        ? platform
         : typeof platform === 'string' && UUID.test(platform)
           ? platformId(platform.toLowerCase())
           : 'any',
@@ -83,6 +100,7 @@ function matchesSearch(operator: OperatorSummary, search: string): boolean {
 function matchesPlatform(operator: OperatorSummary, filter: PlatformFilter): boolean {
   if (filter === 'any') return true;
   if (filter === 'none') return operator.activePlatformIds.length === 0;
+  if (filter === 'assigned') return operator.activePlatformIds.length > 0;
   return operator.activePlatformIds.includes(filter);
 }
 
@@ -100,6 +118,16 @@ export function applyOperatorQuery(
     collator.compare(contactText(a.contact), contactText(b.contact)) || a.id.localeCompare(b.id);
   const compare: Record<OperatorSort, (a: OperatorSummary, b: OperatorSummary) => number> = {
     contact: byContact,
+    'contact-desc': (a, b) => byContact(b, a),
+    'platforms-asc': (a, b) =>
+      a.activePlatformIds.length - b.activePlatformIds.length || byContact(a, b),
+    oldest: (a, b) => a.createdAt.localeCompare(b.createdAt) || byContact(a, b),
+    state: (a, b) =>
+      ACCOUNT_STATES.indexOf(a.accountState) - ACCOUNT_STATES.indexOf(b.accountState) ||
+      byContact(a, b),
+    'state-desc': (a, b) =>
+      ACCOUNT_STATES.indexOf(b.accountState) - ACCOUNT_STATES.indexOf(a.accountState) ||
+      byContact(a, b),
     platforms: (a, b) => b.activePlatformIds.length - a.activePlatformIds.length || byContact(a, b),
     newest: (a, b) => b.createdAt.localeCompare(a.createdAt) || byContact(a, b),
   };

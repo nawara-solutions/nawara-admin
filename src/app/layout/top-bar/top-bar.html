@@ -16,11 +16,11 @@
 </div>
 
 <div class="top-bar__tools">
-  <adm-global-search />
-  <adm-context-switcher />
-
   <adm-notification-center />
+  <span class="top-bar__separator" aria-hidden="true"></span>
+  <adm-context-switcher />
   @if (profile(); as person) {
+    <span class="top-bar__separator" aria-hidden="true"></span>
     <button
       type="button"
       class="top-bar__avatar"

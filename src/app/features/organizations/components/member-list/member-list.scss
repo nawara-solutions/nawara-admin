@@ -4,6 +4,16 @@
   container-type: inline-size;
 }
 
+.member-list__scroll {
+  max-block-size: 55vh;
+  overflow: auto;
+}
+
+:host-context(.organization-members--embedded) .member-list__scroll {
+  block-size: 100%;
+  max-block-size: none;
+}
+
 .member-list__table {
   display: none;
   inline-size: 100%;
@@ -12,15 +22,21 @@
 
   th,
   td {
-    padding: var(--nw-space-3) var(--nw-space-2);
+    padding: 0.875rem 1.125rem;
     border-block-end: 1px solid var(--nw-border-subtle);
     text-align: start;
-    vertical-align: top;
+    vertical-align: middle;
   }
 
   thead th {
-    color: var(--nw-text-secondary);
-    font-weight: var(--nw-font-weight-medium);
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+    background: var(--nw-surface-raised);
+    color: var(--nw-text-brand);
+    font-size: var(--nw-text-size-xs);
+    font-weight: var(--nw-font-weight-semibold);
+    white-space: nowrap;
   }
 
   tbody th {
@@ -37,21 +53,39 @@
   display: grid;
   gap: var(--nw-space-1);
   padding: var(--nw-space-3);
-  border: 1px solid var(--nw-border-default);
   border-radius: var(--nw-radius-md);
-  background-color: var(--nw-surface-raised);
+  background-color: var(--nw-surface-sunken);
 }
 
 .member-list__link {
   display: inline-block;
-  color: var(--nw-text-link);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--nw-text-primary);
+  font: inherit;
   font-weight: var(--nw-font-weight-semibold);
+  text-align: start;
+  cursor: pointer;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--nw-text-link);
+    text-decoration: underline;
+  }
   overflow-wrap: anywhere;
 
   &:focus-visible {
     outline: 2px solid var(--nw-focus-ring);
     outline-offset: 2px;
   }
+}
+
+.member-list__identity {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  min-inline-size: 0;
 }
 
 .member-list__verified {
@@ -83,8 +117,8 @@
 }
 
 .member-list__audience {
-  font-family: var(--nw-font-mono);
-  font-size: var(--nw-text-size-xs);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
 }
 
 // Decisions (P5-S2): full-width 44 px buttons on cards, a compact pair at the end of a table row.
@@ -132,5 +166,59 @@
 
   .member-list__cards {
     display: none;
+  }
+}
+
+.member-list__table tbody tr:hover {
+  background-color: var(--nw-surface-sunken);
+}
+
+.member-list__cards {
+  padding: var(--nw-space-3);
+}
+
+.member-list__actions-trigger {
+  inline-size: 2.75rem;
+  min-inline-size: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--nw-radius-md);
+  --nw-button-fg: var(--nw-text-brand);
+  --nw-button-hover-bg: transparent;
+  color: var(--nw-text-brand);
+
+  &:hover {
+    background: transparent;
+    color: var(--nw-text-brand);
+  }
+}
+
+.member-list__action--danger {
+  --nw-button-fg: var(--nw-status-danger-fg);
+  color: var(--nw-status-danger-fg);
+
+  &:hover {
+    background: transparent;
+    color: var(--nw-status-danger-fg);
+  }
+}
+
+.member-list__actions-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--nw-space-2);
+}
+.member-list__info-action {
+  order: 1;
+  margin: 0;
+
+  .member-list__actions-trigger {
+    --nw-button-fg: var(--nw-text-secondary);
+    color: var(--nw-text-secondary);
+
+    &:hover {
+      color: var(--nw-text-secondary);
+    }
   }
 }

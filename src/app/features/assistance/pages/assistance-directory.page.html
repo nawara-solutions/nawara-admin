@@ -4,8 +4,9 @@
   <span class="assistance__mark" aria-hidden="true"><nw-icon name="credit-card" size="lg" /></span>
   <div class="assistance__titles">
     <p class="assistance__eyebrow">{{ 'assistanceCases.header.eyebrow' | transloco }}</p>
-    <h1 class="assistance__title">{{ 'assistanceCases.header.title' | transloco }}</h1>
-    <p class="assistance__muted">{{ 'assistanceCases.header.subtitle' | transloco }}</p>
+    <h1 class="nw-page-title assistance__title">
+      {{ 'assistanceCases.header.title' | transloco }}
+    </h1>
   </div>
   @if (isDemo()) {
     <span class="assistance__demo" data-demo>

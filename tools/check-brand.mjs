@@ -97,7 +97,7 @@ expect(
   /\.nw-brand-mark__word \{[\s\S]*?inline-size: 4\.247em;\s*block-size: 1\.028em;[\s\S]*?background-size: 5\.352em auto;/.test(
     mark,
   ) &&
-    /\.nw-brand-mark__word-symbol \{[\s\S]*?inline-size: 0\.969em;\s*block-size: 0\.786em;[\s\S]*?mask-size: 5\.352em auto;/.test(
+    /\.nw-brand-mark__word-symbol \{[\s\S]*?inline-size: calc\(0\.969em \* var\(--nw-brand-symbol-scale, 1\)\);\s*block-size: calc\(0\.786em \* var\(--nw-brand-symbol-scale, 1\)\);[\s\S]*?mask-size: calc\(5\.352em \* var\(--nw-brand-symbol-scale, 1\)\) auto;/.test(
       mark,
     ),
   'brand-mark.scss: the trailing-symbol lockup must preserve the original lettering and symbol scales',
@@ -107,20 +107,13 @@ expect(
   'brand-mark.scss: the symbol box must be 1.227em x 1em (200 / 163)',
 );
 
-// 3a. The limited Owner-approved Nawara | Admin pilot uses a separate vector layer, scoped to sign-in and sidebar.
-const flowerMask = read('public/brand/nawara-admin-flower-mask.svg');
-const adminLockup = read('src/app/shared/ui/admin-brand-lockup/admin-brand-lockup.scss');
+// Admin placements delegate to the original shared accent-aware artwork.
 expect(
-  flowerMask.includes('viewBox="0 0 200 163"'),
-  'the Admin flower mark must retain the approved symbol aspect ratio',
-);
-expect(
-  adminLockup.includes("url('/brand/nawara-admin-flower-mask.svg')") &&
-    adminLockup.includes("url('/brand/nawara-admin-mark-details.webp')") &&
-    adminLockup.includes('--nw-logo-detail: var(--nw-text-primary)') &&
-    adminLockup.includes('font-weight: 700') &&
-    adminLockup.includes('--nw-font-weight-regular'),
-  'admin-brand-lockup.scss: the pilot must use accent-aware vector layers, contrasting glyph, and the requested word hierarchy',
+  read('src/app/shared/ui/admin-brand-lockup/admin-brand-lockup.html').includes(
+    '[wordmark]="!compact()"',
+  ) &&
+    !read('src/app/shared/ui/admin-brand-lockup/admin-brand-lockup.scss').includes('flower-mask'),
+  'Admin placements must reuse the original shared logo, without experimental flower artwork',
 );
 for (const file of [
   'src/app/features/auth/components/auth-brand-panel/auth-brand-panel.html',
@@ -180,12 +173,12 @@ expect(
   'export_favicon.mjs: tab icons must use the approved vector master',
 );
 expect(
-  artworkGenerator.includes("FAVICON_VERSION = '?v=b3'"),
+  artworkGenerator.includes("FAVICON_VERSION = '?v=b11'"),
   'recolor_artwork.py: generated favicon URLs must use the current asset version',
 );
 for (const palette of PALETTES) {
   for (const theme of ['light', 'dark']) {
-    // Each file follows the app appearance its name encodes, never the browser scheme.
+    // Each file follows the selected accent and resolved app appearance.
     const [leaf, detail] = expected[palette][theme];
     const style = `<style>svg{color:${leaf}}.detail{fill:${detail}}</style>`;
     const file =
@@ -226,7 +219,7 @@ for (const palette of PALETTES) {
       `${path}: must be vector (no embedded raster)`,
     );
     expect(
-      artwork.includes(`'${file}?v=b3'`),
+      artwork.includes(`'${file}?v=b11'`),
       `palette-artwork.ts: no current versioned entry for ${file}`,
     );
   }
@@ -234,7 +227,7 @@ for (const palette of PALETTES) {
 expect(
   index.includes("'icons/favicon-' + accent + '-light.svg'") &&
     index.includes('link id="nw-favicon"') &&
-    index.includes("+ '?v=b3'"),
+    index.includes("+ '?v=b11'"),
   'index.html: the pre-paint favicon selection must stay',
 );
 

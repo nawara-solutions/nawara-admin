@@ -5,8 +5,6 @@ export interface BreadcrumbLayout {
   readonly showHome: boolean;
   /** Width reserved for the current page label; the current page is never collapsed. */
   readonly currentMaxWidth: number;
-  /** Wrap the current label instead of reducing it to a meaningless ellipsis. */
-  readonly wrapCurrent: boolean;
 }
 
 export interface BreadcrumbPartition<T> {
@@ -70,7 +68,6 @@ export function calculateBreadcrumbLayout(
         hiddenAncestorCount: hidden,
         showHome: true,
         currentMaxWidth: currentCap,
-        wrapCurrent: currentWidth > currentCap,
       };
     }
   }
@@ -81,13 +78,12 @@ export function calculateBreadcrumbLayout(
   const widthWithoutHome = requiredWidth(allAncestorsHidden, 0, false);
   const remainingWithoutHome = availableWidth - widthWithoutHome;
   // Home is available in the overflow menu when it no longer fits beside the current label. Keep the page name
-  // at its natural width before accepting a two-line/wrapped fallback.
+  // at its natural width before applying the final visual ellipsis fallback.
   if (remainingWithoutHome >= currentCap && remainingWithoutHome >= remainingWithHome) {
     return {
       hiddenAncestorCount: allAncestorsHidden,
       showHome: false,
       currentMaxWidth: currentCap,
-      wrapCurrent: false,
     };
   }
 
@@ -96,7 +92,6 @@ export function calculateBreadcrumbLayout(
       hiddenAncestorCount: allAncestorsHidden,
       showHome: true,
       currentMaxWidth: currentCap,
-      wrapCurrent: false,
     };
   }
 
@@ -108,14 +103,12 @@ export function calculateBreadcrumbLayout(
       hiddenAncestorCount: allAncestorsHidden,
       showHome: useHome,
       currentMaxWidth: Math.min(currentCap, remaining),
-      wrapCurrent: remaining < currentCap,
     };
   }
 
   return {
     hiddenAncestorCount: allAncestorsHidden,
     showHome: false,
-    currentMaxWidth: Math.min(currentWidth, remainingWithoutHome),
-    wrapCurrent: currentWidth > Math.min(currentWidth, remainingWithoutHome),
+    currentMaxWidth: Math.max(0, Math.min(currentWidth, remainingWithoutHome)),
   };
 }

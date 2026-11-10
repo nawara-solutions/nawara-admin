@@ -7,10 +7,32 @@
     </caption>
     <thead>
       <tr>
-        <th scope="col">{{ 'operators.list.operator' | transloco }}</th>
-        <th scope="col">{{ 'operators.list.platforms' | transloco }}</th>
-        <th scope="col">{{ 'operators.list.state' | transloco }}</th>
-        <th scope="col">{{ 'operators.list.added' | transloco }}</th>
+        @for (column of columns; track column.key) {
+          <th scope="col" [attr.aria-sort]="direction(column)">
+            <button
+              type="button"
+              class="operator-list__sort"
+              (click)="sortChange.emit(sort() === column.first ? column.second : column.first)"
+            >
+              {{ column.key | transloco }}
+              <nw-icon
+                [name]="
+                  direction(column) === 'none'
+                    ? 'chevrons-up-down'
+                    : direction(column) === 'ascending'
+                      ? 'arrow-up'
+                      : 'arrow-down'
+                "
+                size="sm"
+              />
+            </button>
+          </th>
+        }
+        <th scope="col">
+          <span class="nw-visually-hidden">{{
+            'operators.list.openDetails' | transloco: { contact: '' }
+          }}</span>
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -26,6 +48,9 @@
             }}</nw-status-badge>
           </td>
           <td>{{ row.createdAt | nwDate: 'date' }}</td>
+          <td class="operator-list__action-cell">
+            <ng-container *ngTemplateOutlet="action; context: { $implicit: row }" />
+          </td>
         </tr>
       }
     </tbody>
@@ -40,6 +65,7 @@
             state[row.accountState].key | transloco
           }}</nw-status-badge>
           <span>{{ 'operators.list.added' | transloco }} {{ row.createdAt | nwDate: 'date' }}</span>
+          <ng-container *ngTemplateOutlet="action; context: { $implicit: row }" />
         </span>
       </li>
     }
@@ -47,9 +73,68 @@
 </div>
 
 <ng-template #link let-row>
-  <a class="operator-list__link" [routerLink]="path(row.id)">
-    <bdi dir="ltr" translate="no">{{ contact(row.contact) }}</bdi>
-  </a>
+  <span class="operator-list__identity">
+    <span class="operator-list__avatar" aria-hidden="true">
+      @if (row.contact.kind === 'phone') {
+        <nw-icon name="smartphone" size="sm" />
+      } @else {
+        {{ initials(row.contact.email) }}
+      }
+    </span>
+    <button type="button" class="operator-list__link" (click)="openOperator.emit(row)">
+      <bdi dir="ltr" translate="no">{{ contact(row.contact) }}</bdi>
+    </button>
+  </span>
+</ng-template>
+
+<ng-template #action let-row>
+  <span class="operator-list__actions">
+    @if (canGrant()) {
+      <button
+        type="button"
+        class="operator-list__action operator-list__action--grant"
+        [disabled]="actionBusy() || !canGrantRow()(row)"
+        [attr.aria-label]="('operators.access.give' | transloco) + ' ' + contact(row.contact)"
+        [attr.title]="'operators.access.give' | transloco"
+        (click)="grantAccess.emit(row)"
+      >
+        <nw-icon name="user-plus" size="sm" />
+      </button>
+    }
+    @if (canBlock()) {
+      @let blockLabel =
+        (row.accountState === 'blocked'
+          ? 'operators.account.unblockOpen'
+          : 'operators.account.blockOpen'
+        ) | transloco;
+      <button
+        type="button"
+        class="operator-list__action"
+        [class.operator-list__action--danger]="row.accountState !== 'blocked'"
+        [class.operator-list__action--grant]="row.accountState === 'blocked'"
+        [disabled]="actionBusy()"
+        [attr.aria-label]="blockLabel + ' ' + contact(row.contact)"
+        [attr.title]="blockLabel"
+        (click)="changeAccount.emit(row)"
+      >
+        <nw-icon
+          [name]="row.accountState === 'blocked' ? 'shield-check' : 'lock-keyhole'"
+          size="sm"
+        />
+      </button>
+    }
+    <button
+      type="button"
+      class="operator-list__action"
+      (click)="openOperator.emit(row)"
+      [attr.aria-label]="
+        'operators.list.openDetails' | transloco: { contact: contact(row.contact) }
+      "
+      [attr.title]="'operators.list.openDetails' | transloco: { contact: contact(row.contact) }"
+    >
+      <nw-icon name="info" size="sm" />
+    </button>
+  </span>
 </ng-template>
 
 <ng-template #platforms let-row>

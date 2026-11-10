@@ -20,6 +20,11 @@ export function parseNewOperatorContact(
   text: string,
 ): { readonly contact: OperatorContact } | { readonly problem: ContactProblem } {
   if (text.trim() === '') return { problem: 'required' };
+  if (kind === 'phone') {
+    return /^[0-9]{8}$/.test(text)
+      ? { contact: { kind: 'phone', phone: `+216${text}` } }
+      : { problem: 'invalid' };
+  }
   const parsed = parseOperatorIdentifier(text);
   // An email typed in the phone field (or a number in the email field) is not the contact asked for.
   if (parsed === null || parsed.kind !== kind) return { problem: 'invalid' };

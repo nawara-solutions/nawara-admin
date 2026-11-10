@@ -26,6 +26,7 @@ import {
   platformPath,
 } from '../../core/context/scope-context';
 import { NwIcon } from '../../shared/ui/icon/icon';
+import { ProductSymbol } from '../../shared/ui/product-symbol/product-symbol';
 import { NwMenu, NwMenuItem, NwMenuTrigger } from '../../shared/ui/menu/menu';
 import { calculateBreadcrumbLayout, splitBreadcrumbs } from './breadcrumb-layout';
 
@@ -80,16 +81,58 @@ interface Crumb {
  */
 @Component({
   selector: 'adm-breadcrumbs',
-  imports: [RouterLink, TranslocoPipe, NwIcon, NwMenu, NwMenuItem, NwMenuTrigger],
+  imports: [RouterLink, TranslocoPipe, NwIcon, NwMenu, NwMenuItem, NwMenuTrigger, ProductSymbol],
   templateUrl: './breadcrumbs.html',
   styleUrl: './breadcrumbs.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'breadcrumbs' },
 })
 export class Breadcrumbs implements AfterViewInit {
+  protected readonly productDescriptions = {
+    school: 'shell.context.productDescription.school',
+    drive: 'shell.context.productDescription.drive',
+  } as const;
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly context = inject(ScopeContext);
+  protected readonly switchPlatforms = computed(() => {
+    const scope = this.context.scope();
+    const platforms = this.context.platforms();
+    if (scope.kind !== 'platform' || platforms.status !== 'success' || platforms.data.length < 2)
+      return [];
+    const page = this.context.platformPage();
+    return page.kind === 'dashboard' || page.kind === 'other' ? platforms.data : [];
+  });
+  protected readonly switchOrganizations = computed(() => {
+    const scope = this.context.scope();
+    const page = this.context.platformPage();
+    if (scope.kind !== 'platform' || page.kind !== 'organization') return [];
+    return this.entity?.organizationsFor(scope.platformId) ?? [];
+  });
+  protected readonly organizationSearch = signal('');
+  protected readonly filteredOrganizations = computed(() => {
+    const query = this.organizationSearch().trim().toLocaleLowerCase();
+    return this.switchOrganizations().filter((organization) =>
+      organization.name.toLocaleLowerCase().includes(query),
+    );
+  });
+  protected onOrganizationSearchKey(event: KeyboardEvent): void {
+    if (event.key !== 'Escape' && event.key !== 'ArrowDown' && event.key !== 'ArrowUp')
+      event.stopPropagation();
+  }
+  protected readonly selectedOrganizationId = computed(() => {
+    const page = this.context.platformPage();
+    return page.kind === 'organization' ? page.organizationId : null;
+  });
+  protected organizationLink(id: import('../../core/context/scope.model').OrganizationId): string {
+    const scope = this.context.scope();
+    return scope.kind === 'platform' ? organizationPath(scope.platformId, id) : '/';
+  }
+  protected readonly selectedPlatformId = computed(() => {
+    const scope = this.context.scope();
+    return scope.kind === 'platform' ? scope.platformId : null;
+  });
+  protected readonly platformLink = platformPath;
   private readonly session = inject(AuthSession);
   private readonly entity = inject(EntityLabel, { optional: true });
   private readonly locale = inject(LocaleService);
@@ -99,7 +142,6 @@ export class Breadcrumbs implements AfterViewInit {
     hiddenAncestorCount: 0,
     showHome: true,
     currentMaxWidth: 320,
-    wrapCurrent: false,
   });
 
   private readonly pageKey = toSignal(
@@ -242,7 +284,7 @@ export class Breadcrumbs implements AfterViewInit {
     if (!list) return;
     const gap = parseFloat(getComputedStyle(list).columnGap) || 8;
     const rootFontSize = parseFloat(getComputedStyle(nav.ownerDocument.documentElement).fontSize);
-    const overflowWidth = rootFontSize * 1.75;
+    const overflowWidth = rootFontSize * 2;
     const currentWidth = widths.at(-1) ?? 0;
     this.layout.set(
       calculateBreadcrumbLayout(

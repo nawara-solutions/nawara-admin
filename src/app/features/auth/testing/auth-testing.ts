@@ -50,6 +50,7 @@ const DEMO: DemoBindings = {
     services: [],
     releases: [],
     companySettings: [],
+    platformSettings: [],
     accountSecurity: [],
     platformDashboard: [],
     platformCommercial: [],

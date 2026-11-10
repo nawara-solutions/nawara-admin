@@ -1,3 +1,262 @@
+@if (attentionOpen() || historyOpen()) {
+  @let panelAttention = facade.attention();
+  <div class="platform-dashboard__history-backdrop" (click)="attentionOpen.set(false); historyOpen.set(false)"></div>
+  <aside class="platform-dashboard__history-panel" role="dialog" aria-modal="true"
+    aria-labelledby="platform-updates-title" cdkTrapFocus [cdkTrapFocusAutoCapture]="true"
+    (keydown.escape)="attentionOpen.set(false); historyOpen.set(false)">
+    <header class="platform-dashboard__history-header">
+      <h2 id="platform-updates-title">{{ 'platformDashboard.updates' | transloco }}</h2>
+      <button nw-icon-button icon="x" type="button" [label]="'common.close' | transloco"
+        (click)="attentionOpen.set(false); historyOpen.set(false)"></button>
+    </header>
+    <div class="platform-dashboard__history-content">
+      @if (facade.showsActivity()) {
+        <nav class="platform-dashboard__panel-tabs" [attr.aria-label]="'platformDashboard.updates' | transloco">
+          <button type="button" [attr.aria-current]="attentionOpen() ? 'page' : null"
+            (click)="attentionOpen.set(true); historyOpen.set(false)">{{ 'platformDashboard.attention.title' | transloco }}</button>
+          <button type="button" [attr.aria-current]="historyOpen() ? 'page' : null"
+            (click)="historyOpen.set(true); attentionOpen.set(false)">{{ 'platformDashboard.activity.title' | transloco }}</button>
+        </nav>
+      }
+      <div [hidden]="!attentionOpen()">
+      @if (panelAttention.status === 'available') {
+        <div class="platform-dashboard__history-toolbar">
+          <label class="platform-dashboard__history-search">
+            <nw-icon name="search" size="sm" />
+            <span class="nw-visually-hidden">{{
+              'platformDashboard.attention.search' | transloco
+            }}</span>
+            <input
+              type="search"
+              [placeholder]="'platformDashboard.attention.search' | transloco"
+              [value]="attentionSearch()"
+              (input)="onAttentionSearch($event)"
+            />
+          </label>
+          <button
+            nw-button
+            variant="secondary"
+            type="button"
+            [attr.aria-expanded]="attentionMenu() === 'filter'"
+            [class.platform-dashboard__history-button--active]="
+              attentionMenu() === 'filter' || attentionFilter() !== 'all'
+            "
+            (click)="attentionMenu.set(attentionMenu() === 'filter' ? null : 'filter')"
+          >
+            <nw-icon name="sliders-horizontal" size="sm" />{{
+              'operators.filters.title' | transloco
+            }}
+          </button>
+          <button
+            nw-button
+            variant="secondary"
+            type="button"
+            [attr.aria-expanded]="attentionMenu() === 'sort'"
+            [class.platform-dashboard__history-button--active]="
+              attentionMenu() === 'sort' || attentionSort() !== 'priority'
+            "
+            (click)="attentionMenu.set(attentionMenu() === 'sort' ? null : 'sort')"
+          >
+            <nw-icon name="chevrons-up-down" size="sm" />{{
+              'organizations.toolbar.sort' | transloco
+            }}
+          </button>
+          <button
+            nw-button
+            variant="ghost"
+            type="button"
+            class="platform-dashboard__reset"
+            [attr.aria-label]="'operators.toolbar.resetAll' | transloco"
+            [attr.title]="'operators.toolbar.resetAll' | transloco"
+            [disabled]="
+              !attentionSearch() && attentionFilter() === 'all' && attentionSort() === 'priority'
+            "
+            (click)="
+              attentionSearch.set('');
+              attentionFilter.set('all');
+              attentionSort.set('priority');
+              attentionMenu.set(null)
+            "
+          >
+            <nw-icon name="rotate-ccw" size="sm" />{{ 'operators.toolbar.resetAll' | transloco }}
+          </button>
+        </div>
+        @if (attentionMenu() === 'filter') {
+          <fieldset class="platform-dashboard__history-options">
+            <legend>{{ 'platformDashboard.attention.filterType' | transloco }}</legend>
+            <label
+              ><input
+                type="radio"
+                name="attention-filter"
+                [checked]="attentionFilter() === 'all'"
+                (change)="attentionFilter.set('all'); attentionMenu.set(null)"
+              />{{ 'organizations.toolbar.all' | transloco }}</label
+            >
+            @for (item of attentionItems(); track item.kind) {
+              <label
+                ><input
+                  type="radio"
+                  name="attention-filter"
+                  [checked]="attentionFilter() === item.kind"
+                  (change)="attentionFilter.set(item.kind); attentionMenu.set(null)"
+                />{{ attentionLabels[item.kind].key | transloco: { count: item.count } }}</label
+              >
+            }
+          </fieldset>
+        }
+        @if (attentionMenu() === 'sort') {
+          <fieldset class="platform-dashboard__history-options">
+            <legend>{{ 'organizations.toolbar.sort' | transloco }}</legend>
+            <label
+              ><input
+                type="radio"
+                name="attention-sort"
+                [checked]="attentionSort() === 'priority'"
+                (change)="attentionSort.set('priority'); attentionMenu.set(null)"
+              />{{ 'platformDashboard.attention.sortPriority' | transloco }}</label
+            >
+            <label
+              ><input
+                type="radio"
+                name="attention-sort"
+                [checked]="attentionSort() === 'count'"
+                (change)="attentionSort.set('count'); attentionMenu.set(null)"
+              />{{ 'platformDashboard.attention.sortCount' | transloco }}</label
+            >
+          </fieldset>
+        }
+        @if (filteredAttention().length === 0 && attentionItems().length > 0) {
+          <p class="platform-dashboard__history-empty">
+            {{ 'platformDashboard.attention.noMatches' | transloco }}
+          </p>
+        } @else {
+          <adm-platform-attention [items]="filteredAttention()" />
+        }
+      } @else {
+        <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+      }
+      </div>
+      <div [hidden]="!historyOpen()">
+      @let historyState = facade.state();
+      @if (historyState.status === 'success' && historyState.data.activity.status === 'available') {
+        <div class="platform-dashboard__history-toolbar">
+          <label class="platform-dashboard__history-search">
+            <nw-icon name="search" size="sm" />
+            <span class="nw-visually-hidden">{{
+              'platformDashboard.activity.search' | transloco
+            }}</span>
+            <input
+              type="search"
+              [placeholder]="'platformDashboard.activity.search' | transloco"
+              [value]="historySearch()"
+              (input)="onHistorySearch($event)"
+            />
+          </label>
+          <button
+            nw-button
+            variant="secondary"
+            type="button"
+            class="platform-dashboard__header-action"
+            [attr.aria-expanded]="historyMenu() === 'filter'"
+            [class.platform-dashboard__history-button--active]="
+              historyMenu() === 'filter' || historyFilter() !== 'all'
+            "
+            (click)="historyMenu.set(historyMenu() === 'filter' ? null : 'filter')"
+          >
+            <nw-icon name="sliders-horizontal" size="sm" />{{
+              'operators.filters.title' | transloco
+            }}
+          </button>
+          <button
+            nw-button
+            variant="secondary"
+            type="button"
+            [attr.aria-expanded]="historyMenu() === 'sort'"
+            [class.platform-dashboard__history-button--active]="
+              historyMenu() === 'sort' || historySort() !== 'newest'
+            "
+            (click)="historyMenu.set(historyMenu() === 'sort' ? null : 'sort')"
+          >
+            <nw-icon name="chevrons-up-down" size="sm" />{{
+              'organizations.toolbar.sort' | transloco
+            }}
+          </button>
+          <button
+            nw-button
+            variant="ghost"
+            type="button"
+            class="platform-dashboard__reset"
+            [attr.aria-label]="'operators.toolbar.resetAll' | transloco"
+            [attr.title]="'operators.toolbar.resetAll' | transloco"
+            [disabled]="!historySearch() && historyFilter() === 'all' && historySort() === 'newest'"
+            (click)="
+              historySearch.set('');
+              historyFilter.set('all');
+              historySort.set('newest');
+              historyMenu.set(null)
+            "
+          >
+            <nw-icon name="rotate-ccw" size="sm" />{{ 'operators.toolbar.resetAll' | transloco }}
+          </button>
+        </div>
+        @if (historyMenu() === 'filter') {
+          <fieldset class="platform-dashboard__history-options">
+            <legend>{{ 'platformDashboard.activity.filterAction' | transloco }}</legend>
+            <label
+              ><input
+                type="radio"
+                name="history-filter"
+                [checked]="historyFilter() === 'all'"
+                (change)="historyFilter.set('all'); historyMenu.set(null)"
+              />{{ 'organizations.toolbar.all' | transloco }}</label
+            >
+            @for (action of historyActions(); track action) {
+              <label
+                ><input
+                  type="radio"
+                  name="history-filter"
+                  [checked]="historyFilter() === action"
+                  (change)="historyFilter.set(action); historyMenu.set(null)"
+                />{{ historyActionLabels[action].key | transloco }}</label
+              >
+            }
+          </fieldset>
+        }
+        @if (historyMenu() === 'sort') {
+          <fieldset class="platform-dashboard__history-options">
+            <legend>{{ 'organizations.toolbar.sort' | transloco }}</legend>
+            <label
+              ><input
+                type="radio"
+                name="history-sort"
+                [checked]="historySort() === 'newest'"
+                (change)="historySort.set('newest'); historyMenu.set(null)"
+              />{{ 'organizations.sort.newest' | transloco }}</label
+            >
+            <label
+              ><input
+                type="radio"
+                name="history-sort"
+                [checked]="historySort() === 'oldest'"
+                (change)="historySort.set('oldest'); historyMenu.set(null)"
+              />{{ 'organizations.sort.oldest' | transloco }}</label
+            >
+          </fieldset>
+        }
+        @if (filteredHistory().length === 0 && historyEntries().length > 0) {
+          <p class="platform-dashboard__history-empty">
+            {{ 'platformDashboard.activity.noMatches' | transloco }}
+          </p>
+        } @else {
+          <adm-platform-activity [entries]="filteredHistory()" />
+        }
+      } @else {
+        <p>{{ 'platformDashboard.states.sectionUnavailable' | transloco }}</p>
+      }
+      </div>
+    </div>
+  </aside>
+}
 @let access = facade.access();
 @switch (access.status) {
   @case ('checking') {
@@ -29,47 +288,39 @@
       <ng-container [ngTemplateOutlet]="notAccessible" />
     } @else {
       <header class="platform-dashboard__header">
-        <span class="platform-dashboard__mark" aria-hidden="true">
-          <nw-icon [name]="platform.product === 'drive' ? 'car' : 'hexagon'" size="lg" />
-        </span>
         <div class="platform-dashboard__titles">
-          <p class="platform-dashboard__eyebrow">
-            {{ 'platformDashboard.header.eyebrow' | transloco }}
-          </p>
-          <h1 class="platform-dashboard__title">
+          <h1 class="nw-page-title platform-dashboard__title">
             <bdi>{{ platform.name }}</bdi>
           </h1>
-          <p class="platform-dashboard__meta">
-            @if (platform.product; as product) {
-              <span>{{ productKeys[product] | transloco }}</span>
-            }
-            @if (platform.key; as key) {
-              <code class="platform-dashboard__key" dir="ltr" translate="no">{{ key }}</code>
-            }
-            <span class="platform-dashboard__access">{{ accessKey() | transloco }}</span>
-          </p>
         </div>
-        <div class="platform-dashboard__actions">
-          @if (isDemo()) {
-            <span class="platform-dashboard__demo">
-              <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
-              <span class="nw-visually-hidden">: {{ 'shell.demo.explanation' | transloco }}</span>
-            </span>
-          }
-          @if (facade.canOpenPlatforms()) {
-            <a nw-button variant="secondary" routerLink="/platforms">
-              <nw-icon name="arrow-left" size="sm" />{{
-                'platformDashboard.header.backToPlatforms' | transloco
-              }}
-            </a>
-          }
-        </div>
+        @if (state.status === 'success') {
+          @let attention = facade.attention();
+          <button
+            nw-button
+            variant="secondary"
+            type="button"
+            [class.platform-dashboard__attention-button--warning]="
+              attention.status === 'available' && attention.data.length > 0
+            "
+            [attr.aria-expanded]="attentionOpen() || historyOpen()"
+            (click)="attentionOpen.set(!attentionOpen() && !historyOpen()); historyOpen.set(false)"
+          >
+            <nw-icon name="circle-alert" size="sm" />
+            <span>{{ 'platformDashboard.updates' | transloco }}</span>
+            @if (attention.status === 'available' && attention.data.length > 0) {
+              <span class="platform-dashboard__history-count platform-dashboard__attention-count">{{
+                attention.data.length
+              }}</span>
+            }
+          </button>
+        }
+        <adm-create-organization-button />
       </header>
 
       @switch (state.status) {
         @case ('success') {
           @let dashboard = state.data;
-          @if (dashboard.figures.status === 'available') {
+          @if (preferences.platformFiguresVisible() && dashboard.figures.status === 'available') {
             @let figures = dashboard.figures.data;
             <section
               class="platform-dashboard__figures"
@@ -113,168 +364,46 @@
                 />
               }
             </section>
-          } @else {
+          } @else if (preferences.platformFiguresVisible()) {
             <ng-container [ngTemplateOutlet]="sectionUnavailable" />
           }
 
-          <div class="platform-dashboard__row platform-dashboard__row--main">
-            <adm-overview-card
-              headingId="platform-organizations"
-              [heading]="'platformDashboard.organizations.title' | transloco"
+          @if (facade.showsCommercial() && preferences.platformSubscriptionsVisible()) {
+            @let commercial = facade.commercial();
+            <section
+              class="platform-dashboard__subscription-card"
+              [attr.aria-label]="'platformDashboard.commercial.title' | transloco"
             >
-              <adm-card-link
-                cardActions
-                [label]="'platformDashboard.organizations.all' | transloco"
-                [link]="organizationsPath(platform.id)"
-              />
-              @let recent = dashboard.recentOrganizations;
-              @if (
-                dashboard.figures.status === 'available' &&
-                dashboard.figures.data.organizations.status === 'available' &&
-                dashboard.figures.data.organizations.value === 0
-              ) {
-                <div class="platform-dashboard__empty">
-                  <p class="platform-dashboard__empty-title">
-                    {{ 'platformDashboard.organizations.emptyTitle' | transloco }}
-                  </p>
-                  <p class="platform-dashboard__empty-text">
-                    {{ 'platformDashboard.organizations.emptyDescription' | transloco }}
-                  </p>
-                  <button
-                    type="button"
-                    class="platform-dashboard__unavailable-action"
-                    aria-disabled="true"
-                    aria-describedby="platform-create-organization-note"
-                  >
-                    {{ 'platformDashboard.organizations.create' | transloco }}
-                  </button>
-                  <span id="platform-create-organization-note" class="nw-visually-hidden">{{
-                    'shell.notAvailableYet' | transloco
-                  }}</span>
-                </div>
-              } @else if (recent.status === 'available') {
-                <adm-recent-organizations
-                  [platformId]="platform.id"
-                  [organizations]="recent.data"
-                  [subscriptions]="facade.showsCommercial() ? facade.subscriptionOf() : null"
-                />
-                @if (
-                  dashboard.figures.status === 'available' &&
-                  dashboard.figures.data.organizations.status === 'available'
-                ) {
-                  <p class="platform-dashboard__footnote">
-                    {{
-                      'platformDashboard.organizations.footnote'
-                        | transloco
-                          : {
-                              shown: recent.data.length,
-                              total: dashboard.figures.data.organizations.value,
-                            }
-                    }}
-                  </p>
-                }
-              } @else {
-                <ng-container [ngTemplateOutlet]="sectionUnavailable" />
-              }
-            </adm-overview-card>
-
-            <adm-overview-card
-              headingId="platform-attention"
-              [heading]="'platformDashboard.attention.title' | transloco"
-            >
-              @let attention = facade.attention();
-              <!-- One element per block, so the pill is projected into the card header's action slot. -->
-              @if (attention.status === 'available' && attention.data.length > 0) {
-                <span cardActions class="platform-dashboard__pill">{{
-                  'platformDashboard.attention.open' | transloco: { count: attention.data.length }
-                }}</span>
-              }
-              @if (attention.status === 'available') {
-                <adm-platform-attention [items]="attention.data" />
-              } @else {
-                <ng-container [ngTemplateOutlet]="sectionUnavailable" />
-              }
-            </adm-overview-card>
-          </div>
-
-          @if (facade.showsCommercial() || facade.showsActivity()) {
-            <div class="platform-dashboard__row">
-              @if (facade.showsCommercial()) {
-                @let commercial = facade.commercial();
-                <adm-overview-card
-                  headingId="platform-subscriptions"
-                  [heading]="'platformDashboard.commercial.title' | transloco"
-                >
-                  @switch (commercial.status) {
-                    @case ('success') {
-                      <adm-subscription-summary
-                        [subscriptions]="facade.subscriptions()"
-                        [personalPremium]="commercial.data.personalPremium"
-                        [paymentIssues]="commercial.data.paymentIssues"
-                      />
-                    }
-                    @case ('error') {
-                      <ng-container
-                        [ngTemplateOutlet]="sectionUnavailable"
-                        [ngTemplateOutletContext]="{ retry: true }"
-                      />
-                    }
-                    @case ('forbidden') {
-                      <ng-container [ngTemplateOutlet]="sectionUnavailable" />
-                    }
-                    @default {
-                      <nw-data-state
-                        state="loading"
-                        [title]="'platformDashboard.states.loadingSection' | transloco"
-                      />
-                    }
+              <div class="platform-dashboard__subscription-content">
+                @switch (commercial.status) {
+                  @case ('success') {
+                    <adm-subscription-summary
+                      [subscriptions]="facade.subscriptions()"
+                      [personalPremium]="commercial.data.personalPremium"
+                      [paymentIssues]="commercial.data.paymentIssues"
+                    />
                   }
-                </adm-overview-card>
-
-                <adm-overview-card
-                  headingId="platform-policies"
-                  [heading]="'platformDashboard.policies.title' | transloco"
-                >
-                  @switch (commercial.status) {
-                    @case ('success') {
-                      @if (commercial.data.assistedPayments.status === 'available') {
-                        <adm-assisted-payments-policy
-                          [policy]="commercial.data.assistedPayments.data"
-                        />
-                      } @else {
-                        <ng-container [ngTemplateOutlet]="sectionUnavailable" />
-                      }
-                    }
-                    @case ('error') {
-                      <ng-container [ngTemplateOutlet]="sectionUnavailable" />
-                    }
-                    @case ('forbidden') {
-                      <ng-container [ngTemplateOutlet]="sectionUnavailable" />
-                    }
-                    @default {
-                      <nw-data-state
-                        state="loading"
-                        [title]="'platformDashboard.states.loadingSection' | transloco"
-                      />
-                    }
+                  @case ('error') {
+                    <ng-container
+                      [ngTemplateOutlet]="sectionUnavailable"
+                      [ngTemplateOutletContext]="{ retry: true }"
+                    />
                   }
-                </adm-overview-card>
-              }
-
-              @if (facade.showsActivity()) {
-                <adm-overview-card
-                  headingId="platform-activity"
-                  [heading]="'platformDashboard.activity.title' | transloco"
-                >
-                  @if (dashboard.activity.status === 'available') {
-                    <adm-platform-activity [entries]="dashboard.activity.data" />
-                  } @else {
+                  @case ('forbidden') {
                     <ng-container [ngTemplateOutlet]="sectionUnavailable" />
                   }
-                </adm-overview-card>
-              }
-            </div>
+                  @default {
+                    <nw-data-state
+                      state="loading"
+                      [title]="'platformDashboard.states.loadingSection' | transloco"
+                    />
+                  }
+                }
+              </div>
+            </section>
           }
+
+          <adm-organization-directory-page [embedded]="true" />
         }
         @case ('error') {
           @if (state.error.kind === 'unavailable' && state.error.code === adapterUnavailable) {

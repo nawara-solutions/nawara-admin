@@ -1,3 +1,5 @@
+Visual follow-up: [reference-aligned layout correction](../account-settings-reference-refinement/README.md). The screenshots below document the initial implementation.
+
 Account Settings workspace — Owner review, 2026-11-05
 
 Implemented the approved compact workspace using the existing account adapter, three panels, session/scope services and Angular Router. No PR, push, merge or deployment was performed.

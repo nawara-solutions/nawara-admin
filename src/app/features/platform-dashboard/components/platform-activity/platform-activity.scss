@@ -6,17 +6,12 @@
 .platform-activity__item {
   display: grid;
   grid-template-columns: 2rem minmax(0, 1fr) auto;
-  align-items: start;
-  gap: var(--nw-space-3);
-  padding-block: 0.625rem;
+  align-items: center;
+  gap: var(--nw-space-2);
+  padding-block: 0.875rem;
   border-block-end: 1px solid var(--nw-border-hairline);
 
-  &:first-child {
-    padding-block-start: 0;
-  }
-
   &:last-child {
-    padding-block-end: 0;
     border-block-end: 0;
   }
 }
@@ -27,8 +22,8 @@
   inline-size: 2rem;
   block-size: 2rem;
   border-radius: var(--nw-radius-pill);
-  background-color: var(--nw-accent-pink-bg);
-  color: var(--nw-accent-pink-fg);
+  background-color: var(--nw-surface-brand-subtle);
+  color: var(--nw-text-brand);
 }
 
 .platform-activity__text {

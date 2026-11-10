@@ -1,19 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { AuthSession } from '../../../core/auth/auth-session';
-import { organizationPath, platformSubscriptionsPath } from '../../../core/context/scope-context';
-import { Metric } from '../../../shared/dashboard/metric';
+import { platformSubscriptionsPath } from '../../../core/context/scope-context';
 import { MetricValue } from '../../../shared/dashboard/metric-value/metric-value';
-import { SummaryCard } from '../../../shared/dashboard/summary-card/summary-card';
-import { NwDatePipe, NwNumberPipe } from '../../../shared/format/format.pipes';
+import { NwNumberPipe } from '../../../shared/format/format.pipes';
 import { NwButton } from '../../../shared/ui/button/button';
 import { NwDataState } from '../../../shared/ui/data-state/data-state';
 import { NwIcon } from '../../../shared/ui/icon/icon';
-import { NwStatusBadge } from '../../../shared/ui/status-badge/status-badge';
+import { NwDialogService } from '../../../shared/ui/dialog/dialog.service';
 import { LicensesFacade } from '../application/licenses.facade';
-
-const count = (value: number): Metric => ({ status: 'available', value });
+import { LicensesOverview } from '../domain/licenses.model';
+import { LicensesAttentionData, LicensesAttentionDialog } from './licenses-attention-dialog';
+import { LicensesStatusDialog } from './licenses-status-dialog';
 
 /**
  * Licenses & entitlements (`/licenses`; P7 design, artboards Main, MobileEn): the Company owner's read-only overview of
@@ -26,18 +24,7 @@ const count = (value: number): Metric => ({ status: 'available', value });
  */
 @Component({
   selector: 'adm-licenses-page',
-  imports: [
-    RouterLink,
-    TranslocoPipe,
-    MetricValue,
-    NwButton,
-    NwDataState,
-    NwDatePipe,
-    NwIcon,
-    NwNumberPipe,
-    NwStatusBadge,
-    SummaryCard,
-  ],
+  imports: [RouterLink, TranslocoPipe, MetricValue, NwButton, NwDataState, NwIcon, NwNumberPipe],
   templateUrl: './licenses.page.html',
   styleUrl: './licenses.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,22 +32,22 @@ const count = (value: number): Metric => ({ status: 'available', value });
 })
 export class LicensesPage {
   protected readonly facade = inject(LicensesFacade);
-  protected readonly isDemo = inject(AuthSession).isDemo;
   protected readonly platformSubscriptionsPath = platformSubscriptionsPath;
-  protected readonly organizationPath = organizationPath;
-  protected readonly count = count;
+  private readonly dialogs = inject(NwDialogService);
 
-  /** The Company's figures as summary metrics (the cards' input). */
-  protected readonly figures = computed(() => {
-    const view = this.facade.view();
-    if (view.status !== 'ready') return null;
-    const c = view.overview.company;
-    return {
-      organizations: count(c.organizations),
-      active: count(c.active),
-      grace: count(c.grace),
-      none: count(c.none),
-      endingSoon: count(c.endingSoon),
+  protected openStatuses(graceHours: number): void {
+    this.dialogs.open(LicensesStatusDialog, { data: { graceHours }, sidePanel: true });
+  }
+
+  protected openAttention(overview: LicensesOverview, filter: 'graceEnds' | 'ends'): void {
+    const data: LicensesAttentionData = {
+      items: overview.attention.map((attention) => ({
+        attention,
+        platformName: this.facade.platformName(attention.platformId),
+      })),
+      endingWithinDays: overview.endingWithinDays,
+      initialFilter: filter,
     };
-  });
+    this.dialogs.open(LicensesAttentionDialog, { data });
+  }
 }

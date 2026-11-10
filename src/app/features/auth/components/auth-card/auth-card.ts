@@ -51,6 +51,7 @@ let nextId = 0;
     '[attr.aria-labelledby]': 'titleId',
     '[class.auth-card--wide]': 'wide()',
     '[class.auth-card--centered]': 'centered()',
+    '[class.auth-card--inline-heading]': 'inlineHeading()',
   },
 })
 export class AuthCard {
@@ -62,6 +63,7 @@ export class AuthCard {
   readonly wide = input(false, { transform: booleanAttribute });
   /** Centres the heading and the content (a step with nothing to act on). */
   readonly centered = input(false, { transform: booleanAttribute });
+  readonly inlineHeading = input(false, { transform: booleanAttribute });
   /** A change of value is a step change: focus returns to the heading. */
   readonly step = input<string>('');
 

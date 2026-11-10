@@ -1,4 +1,4 @@
-import { Injectable, Signal, computed, inject, signal } from '@angular/core';
+import { Injectable, InjectionToken, Signal, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Observable, Subject, combineLatest, map, of, skip, startWith, switchMap, tap } from 'rxjs';
 import { can } from '../../../core/access/capability-policy';
@@ -34,6 +34,8 @@ export type AssignmentHistoryView =
       readonly removed: readonly PlatformAssignment[];
     };
 
+export const OPERATOR_DETAIL_ID = new InjectionToken<string>('OPERATOR_DETAIL_ID');
+
 interface Key {
   readonly company: CompanyId;
   readonly operator: string;
@@ -60,6 +62,7 @@ const isUnavailable = (error: AppError) =>
  */
 @Injectable()
 export class OperatorDetailFacade {
+  private readonly selectedOperatorId = inject(OPERATOR_DETAIL_ID, { optional: true });
   private readonly directory = inject(OperatorDirectoryGateway);
   private readonly assignments = inject(OperatorAssignmentGateway);
   private readonly session = inject(AuthSession);
@@ -68,7 +71,7 @@ export class OperatorDetailFacade {
 
   private readonly key = computed<Key | null>(() => {
     const actor = this.session.actor();
-    const operator = operatorIdFromUrl(this.context.url());
+    const operator = this.selectedOperatorId ?? operatorIdFromUrl(this.context.url());
     if (actor?.kind !== 'owner' || !can(actor, 'company.operators.view') || operator === null)
       return null;
     return { company: actor.companyId, operator };

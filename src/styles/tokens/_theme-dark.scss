@@ -101,9 +101,9 @@
   --nw-accent-purple-bg: var(--nw-ref-ink-700);
   --nw-accent-purple-fg: var(--nw-ref-ink-200);
 
-  // The signed-in person's avatar circle (top bar, sidebar); the Create platform buttons use the same colours (owner).
-  --nw-avatar-background: var(--nw-accent-purple-fg);
-  --nw-avatar-text: var(--nw-accent-purple-bg);
+  // Signed-in initials use the active accent, with the palette's validated foreground (top bar and sidebar).
+  --nw-avatar-background: var(--nw-color-primary);
+  --nw-avatar-text: var(--nw-text-on-primary);
 
   // Accent palette swatches (Appearance settings): each preset's sample colour, with an ink-white check mark on it.
   --nw-swatch-coral: var(--nw-ref-swatch-coral);

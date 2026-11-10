@@ -16,12 +16,11 @@ import { NwMenuTrigger } from '../../shared/ui/menu/menu';
 import { AccountMenu } from '../account-menu/account-menu';
 import { Breadcrumbs } from '../breadcrumbs/breadcrumbs';
 import { ContextSwitcher } from '../context-switcher/context-switcher';
-import { GlobalSearch } from '../global-search/global-search';
 import { NotificationCenter } from '../notification-center/notification-center';
 import { profileOf } from '../sidebar/profile';
 
 /**
- * Top bar of the owner design: navigation toggle (drawer mode), breadcrumbs, search (not built: disabled), scope
+ * Top bar of the owner design: navigation toggle (drawer mode), breadcrumbs, scope
  * switcher, the unread-notification bell and the signed-in avatar, which opens the account menu.
  * Sticky, over a translucent wash.
  */
@@ -32,10 +31,9 @@ import { profileOf } from '../sidebar/profile';
     NwIconButton,
     NwMenuTrigger,
     Breadcrumbs,
-    GlobalSearch,
-    NotificationCenter,
     ContextSwitcher,
     AccountMenu,
+    NotificationCenter,
   ],
   templateUrl: './top-bar.html',
   styleUrl: './top-bar.scss',

@@ -82,3 +82,70 @@
     padding-inline: var(--nw-space-3);
   }
 }
+
+.preference-menus__language-menu {
+  inline-size: 14.5rem;
+  max-inline-size: calc(100vw - 1.5rem);
+  min-inline-size: 0;
+  gap: 0.125rem;
+  padding: 0.375rem;
+  border-radius: var(--nw-radius-md);
+  box-shadow: var(--nw-shadow-lg);
+}
+
+.preference-menus__language-item {
+  gap: 0.625rem;
+  min-block-size: 2.75rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: var(--nw-radius-md);
+  font: inherit;
+  font-size: 0.8125rem;
+
+  &:focus {
+    background: transparent;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--nw-color-neutral-hover);
+  }
+
+  &[aria-current='true'] {
+    background: var(--nw-surface-brand-subtle);
+    color: var(--nw-text-brand);
+    font-weight: var(--nw-font-weight-medium);
+
+    .preference-menus__language-code {
+      border-color: color-mix(in srgb, var(--nw-color-primary) 20%, transparent);
+      color: var(--nw-text-brand);
+    }
+  }
+}
+
+.preference-menus__language-code {
+  display: grid;
+  flex: 0 0 1.75rem;
+  place-items: center;
+  block-size: 1.75rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-sm);
+  background: var(--nw-surface-raised);
+  color: var(--nw-text-secondary);
+  font-size: 0.625rem;
+  font-weight: var(--nw-font-weight-medium);
+  direction: ltr;
+}
+
+.preference-menus__selected {
+  flex-shrink: 0;
+  color: var(--nw-text-brand);
+}
+
+// Endonyms retain their own text direction while sharing the menu's label alignment.
+.preference-menus__language-item:dir(ltr) .preference-menus__option {
+  text-align: left;
+}
+
+.preference-menus__language-item:dir(rtl) .preference-menus__option {
+  text-align: right;
+}

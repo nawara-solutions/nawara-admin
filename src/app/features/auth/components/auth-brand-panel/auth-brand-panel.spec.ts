@@ -35,11 +35,8 @@ describe('AuthBrandPanel logos', () => {
       const logo = panel.querySelector('nw-admin-brand-lockup.auth-brand-panel__logo');
       expect(logo?.getAttribute('role')).toBe('img');
       expect(logo?.getAttribute('aria-label')).toBe(catalog.brand.adminLogoLabel);
-      expect(logo?.querySelector('.admin-brand-lockup__nawara')?.textContent).toBe('Nawara');
-      expect(logo?.querySelector('.admin-brand-lockup__admin')?.textContent).toBe('Admin');
-      expect(logo?.querySelector('.admin-brand-lockup__content')?.getAttribute('aria-hidden')).toBe(
-        'true',
-      );
+      expect(logo?.querySelector('.nw-brand-mark__type')).not.toBeNull();
+      expect(logo?.querySelector('.nw-brand-mark__word-symbol')).not.toBeNull();
       expect(logo?.querySelector('.nw-brand-mark__solutions')).toBeNull();
     });
 

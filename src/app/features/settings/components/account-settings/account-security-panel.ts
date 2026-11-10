@@ -1,7 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { NwButton } from '../../../../shared/ui/button/button';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
 import { AccountSecurityInfo } from '../../application/account-settings-view';
 
@@ -20,46 +18,32 @@ const STATUS_KEYS: Readonly<Record<AccountSecurityInfo['status'], string>> = {
 /** Presentation only: no security query, enrollment inference or authorization policy. */
 @Component({
   selector: 'adm-account-security-panel',
-  imports: [TranslocoPipe, RouterLink, NwButton, NwIcon],
+  imports: [TranslocoPipe, NwIcon],
   template: `
-    <header class="account-security__header">
-      <span class="account-security__heading-icon"><nw-icon name="shield-check" size="lg" /></span>
-      <div class="account-security__titles">
-        <h3 id="account-panel-title">{{ 'settings.account.securityTab' | transloco }}</h3>
-        <p>{{ 'settings.account.securityDescription' | transloco }}</p>
-      </div>
-      @if (securityLink()) {
-        <a
-          class="account-security__link"
-          nw-button
-          variant="outline"
-          routerLink="/settings/security"
-          ><nw-icon name="shield-check" size="sm" /><span>{{
-            'settings.account.reviewSecurity' | transloco
-          }}</span
-          ><nw-icon name="arrow-right" size="sm"
-        /></a>
-      }
-    </header>
+    <h3 id="account-security-heading" class="nw-visually-hidden">
+      {{ 'settings.account.securityTab' | transloco }}
+    </h3>
     <div class="account-security__cards">
       @for (row of rows(); track row.id) {
         <article class="account-security__card" [attr.aria-labelledby]="'security-card-' + row.id">
           <span class="account-security__icon"><nw-icon [name]="row.icon" /></span>
           <div class="account-security__body">
             <h4 [id]="'security-card-' + row.id">{{ row.label | transloco }}</h4>
+            @if (row.description; as description) {
+              <p>{{ description | transloco }}</p>
+            }
             <dl>
               <dt class="nw-visually-hidden">{{ row.label | transloco }}</dt>
               <dd [attr.data-fact]="row.id" [attr.data-security-status]="row.status">
                 <span class="account-security__status"
-                  ><nw-icon name="info" size="sm" />{{ statusKey(row.status) | transloco }}</span
+                  ><nw-icon name="circle-help" size="sm" />{{
+                    statusKey(row.status) | transloco
+                  }}</span
                 >
                 @if (row.value; as value) {
                   <bdi [attr.dir]="row.machine ? 'ltr' : null">{{
                     row.translated ? (value | transloco) : value
                   }}</bdi>
-                }
-                @if (row.description; as description) {
-                  <p>{{ description | transloco }}</p>
                 }
               </dd>
             </dl>

@@ -86,7 +86,7 @@ describe('Licenses overview of the demo world (P7-S1)', () => {
       active: 20,
       grace: 1,
       none: 3,
-      endingSoon: 4,
+      endingSoon: 8,
       entitled: 21,
     });
     expect(overview.endingWithinDays).toBe(14);
@@ -99,7 +99,7 @@ describe('Licenses overview of the demo world (P7-S1)', () => {
       active: 13,
       grace: 1,
       none: 2,
-      endingSoon: 3,
+      endingSoon: 5,
       entitled: 14,
     });
     expect(platform(overview, DEMO_DRIVE_PLATFORM_ID).distribution).toEqual({
@@ -107,7 +107,7 @@ describe('Licenses overview of the demo world (P7-S1)', () => {
       active: 7,
       grace: 0,
       none: 1,
-      endingSoon: 1,
+      endingSoon: 3,
       entitled: 7,
     });
     for (const key of [
@@ -148,10 +148,14 @@ describe('Licenses overview of the demo world (P7-S1)', () => {
   it('lists grace first, then subscriptions ending within 14 days, each by when it ends', () => {
     expect(overview.attention.map((a) => [a.organizationName, a.reason])).toEqual([
       ['Lycée Al Amal', 'graceEnds'],
+      ['École Les Oliviers', 'ends'],
       ['Lycée Ibn Khaldoun', 'ends'],
       ['Collège Riad', 'ends'],
+      ['Lycée Averroès', 'ends'],
       ['Permis Express', 'ends'],
+      ['Auto-École Sahara', 'ends'],
       ['École Ibn Sina', 'ends'],
+      ['Auto-École Médina', 'ends'],
     ]);
     expect(overview.attention[0]?.at).toBe(new Date(NOW + 18 * HOUR).toISOString());
   });
@@ -259,7 +263,7 @@ describe('Platform subscriptions of the demo world (P7-S2)', () => {
       active: 13,
       grace: 1,
       none: 2,
-      endingSoon: 3,
+      endingSoon: 5,
       entitled: 14,
     });
     expect(tally(drive)).toEqual({
@@ -267,7 +271,7 @@ describe('Platform subscriptions of the demo world (P7-S2)', () => {
       active: 7,
       grace: 0,
       none: 1,
-      endingSoon: 1,
+      endingSoon: 3,
       entitled: 7,
     });
     for (const s of [school, drive]) {
@@ -355,7 +359,7 @@ describe('Platform subscriptions of the demo world (P7-S2)', () => {
       active: 13,
       grace: 1,
       none: 3,
-      endingSoon: 3,
+      endingSoon: 5,
       entitled: 14,
     });
     expect(demoLicensesOverview(outcome.world, NOW).company).toMatchObject({

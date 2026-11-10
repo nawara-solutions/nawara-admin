@@ -2,62 +2,33 @@
 @if ('organization' in view) {
   @let organization = view.organization;
   @let query = facade.query();
-  @let counts = facade.counts();
-  <header
-    adm-organizations-header
-    [eyebrow]="organization.name"
-    [heading]="'organizations.members.title' | transloco"
+  @if (!embedded()) {
+    <header
+      adm-organizations-header
+      [eyebrow]="organization.name"
+      [heading]="'organizations.members.title' | transloco"
+    >
+      <a
+        headerActions
+        nw-button
+        variant="secondary"
+        [routerLink]="organizationPath(view.platform.id, organization.id)"
+      >
+        <nw-icon name="arrow-left" size="sm" />{{
+          'organizations.members.backToOrganization' | transloco
+        }}
+      </a>
+    </header>
+  }
+
+  <section
+    class="organization-members__card"
+    [attr.aria-label]="'organizations.members.title' | transloco"
   >
-    <p headerMeta class="organization-members__subtitle">
-      {{ 'organizations.members.subtitle' | transloco }}
-    </p>
-    <a
-      headerActions
-      nw-button
-      variant="secondary"
-      [routerLink]="organizationPath(view.platform.id, organization.id)"
-    >
-      <nw-icon name="arrow-left" size="sm" />{{
-        'organizations.members.backToOrganization' | transloco
-      }}
-    </a>
-  </header>
-
-  <section class="organization-members__card" aria-labelledby="organization-members-tab-label">
-    <h2 id="organization-members-tab-label" class="nw-visually-hidden">
-      {{ 'organizations.members.title' | transloco }}
-    </h2>
-    <div
-      class="organization-members__tabs"
-      role="tablist"
-      [attr.aria-label]="'organizations.members.tabsLabel' | transloco"
-    >
-      @for (status of statuses; track status; let i = $index) {
-        <button
-          #tab
-          type="button"
-          role="tab"
-          class="organization-members__tab"
-          [id]="'organization-members-tab-' + status"
-          aria-controls="organization-members-panel"
-          [attr.aria-selected]="query.status === status"
-          [attr.tabindex]="query.status === status ? 0 : -1"
-          (click)="select(status)"
-          (keydown)="onTabKey($event, i)"
-        >
-          {{ statusKeys[status] | transloco }}
-          @if (counts) {
-            <span class="organization-members__tab-count">{{ counts[status] }}</span>
-          }
-        </button>
-      }
-    </div>
-
     <div
       id="organization-members-panel"
-      role="tabpanel"
       class="organization-members__panel"
-      [attr.aria-labelledby]="'organization-members-tab-' + query.status"
+      [attr.aria-label]="'organizations.members.title' | transloco"
     >
       @switch (view.status) {
         @case ('ready') {
@@ -65,35 +36,6 @@
           @if (total === 0) {
             <nw-data-state state="empty" [title]="emptyKeys[query.status] | transloco" />
           } @else {
-            @if (query.status === 'pending' && authority(); as role) {
-              <p class="organization-members__authority">
-                <nw-icon name="shield-check" size="sm" />
-                <span>
-                  @if (role === 'owner') {
-                    {{ 'organizations.members.decision.authorityOwner' | transloco }}
-                  } @else {
-                    {{
-                      'organizations.members.decision.authorityOperator'
-                        | transloco: { platform: isolated(view.platform.name) }
-                    }}
-                  }
-                </span>
-              </p>
-            } @else if (query.status === 'active' && revokeAuthority(); as role) {
-              <p class="organization-members__authority">
-                <nw-icon name="shield-check" size="sm" />
-                <span>
-                  @if (role === 'owner') {
-                    {{ 'organizations.members.revoke.authorityOwner' | transloco }}
-                  } @else {
-                    {{
-                      'organizations.members.revoke.authorityOperator'
-                        | transloco: { platform: isolated(view.platform.name) }
-                    }}
-                  }
-                </span>
-              </p>
-            }
             <div class="organization-members__toolbar" role="search">
               <label class="organization-members__search">
                 <nw-icon name="search" size="sm" />
@@ -110,53 +52,168 @@
                   [value]="facade.search()"
                   (input)="onSearch($event)"
                 />
+                @if (facade.search()) {
+                  <button
+                    type="button"
+                    class="organization-members__clear"
+                    [attr.aria-label]="'organizations.toolbar.clear' | transloco"
+                    (click)="facade.search.set(''); requestedPage.set(0)"
+                  >
+                    <nw-icon name="x" size="sm" />
+                  </button>
+                }
               </label>
               @if (query.status === 'active') {
-                <label class="organization-members__check">
-                  <input type="checkbox" [checked]="query.admins" (change)="onAdmins($event)" />
-                  {{ 'organizations.members.adminsOnly' | transloco }}
-                </label>
-              }
-              <nw-form-field
-                class="organization-members__sort"
-                [label]="'organizations.members.sortLabel' | transloco"
-              >
-                <select nwControl (change)="onSort($event)">
-                  @for (sort of sorts; track sort) {
-                    <option [value]="sort" [selected]="sort === query.sort">
-                      {{ sortKeys[sort] | transloco }}
-                    </option>
+                <button
+                  nw-button
+                  variant="secondary"
+                  type="button"
+                  cdkOverlayOrigin
+                  #filterOrigin="cdkOverlayOrigin"
+                  (click)="openFilters('filters', filterOrigin)"
+                  [attr.aria-expanded]="popup()?.mode === 'filters'"
+                  aria-haspopup="dialog"
+                >
+                  <nw-icon name="sliders-horizontal" size="sm" />{{
+                    'operators.filters.title' | transloco
+                  }}
+                  @if (query.admins) {
+                    <span class="organization-members__filter-dot" aria-hidden="true"></span>
                   }
-                </select>
-              </nw-form-field>
-              <p
-                #count
-                class="organization-members__count"
-                role="status"
-                aria-live="polite"
-                tabindex="-1"
+                </button>
+              }
+              <button
+                nw-button
+                variant="secondary"
+                type="button"
+                cdkOverlayOrigin
+                #sortOrigin="cdkOverlayOrigin"
+                (click)="openFilters('sort', sortOrigin)"
+                [attr.aria-expanded]="popup()?.mode === 'sort'"
+                aria-haspopup="dialog"
               >
-                {{
-                  'organizations.members.count'
-                    | transloco: { shown: facade.rows().length, total: total }
+                <nw-icon name="chevrons-up-down" size="sm" />{{
+                  'organizations.toolbar.sort' | transloco
                 }}
-              </p>
+                @if (query.sort !== 'newest') {
+                  <span class="organization-members__filter-dot" aria-hidden="true"></span>
+                }
+              </button>
+              <button
+                nw-button
+                variant="ghost"
+                type="button"
+                [disabled]="!filtered() && query.sort === 'newest'"
+                (click)="clearAll()"
+              >
+                <nw-icon name="rotate-ccw" size="sm" />{{
+                  'operators.toolbar.resetAll' | transloco
+                }}
+              </button>
             </div>
             @if (facade.rows().length > 0) {
               <adm-member-list
                 listId="organization-members-list"
-                [rows]="facade.rows()"
+                [rows]="pageRows()"
                 [status]="query.status"
-                [pathOf]="pathOf()"
                 [offers]="offers"
                 [revokeOffers]="revokeOffers"
                 [roleOffers]="roleOffers"
                 [sendingId]="decisions.sendingId() ?? revocations.sendingId() ?? roles.sendingId()"
                 [sending]="decisions.sending()"
+                (openMember)="openMember($event)"
                 (decide)="decide($event, view.platform.id, organization.id, organization.name)"
                 (revoke)="revoke($event, view.platform.id, organization.id, organization.name)"
                 (role)="changeRole($event, view.platform.id, organization.id, organization.name)"
               />
+              <nav
+                class="organization-members__pagination"
+                [attr.aria-label]="'operators.pagination.label' | transloco"
+              >
+                <p
+                  class="organization-members__count"
+                  #count
+                  tabindex="-1"
+                  role="status"
+                  aria-live="polite"
+                >
+                  {{
+                    'organizations.toolbar.count'
+                      | transloco: { shown: pageRows().length, total: facade.rows().length }
+                  }}
+                </p>
+                <div class="organization-members__page-size">
+                  <span id="members-page-size-label">{{
+                    'operators.pagination.perPage' | transloco
+                  }}</span>
+                  <button
+                    type="button"
+                    cdkOverlayOrigin
+                    #pageSizeOrigin="cdkOverlayOrigin"
+                    class="organization-members__page-size-trigger"
+                    [attr.aria-expanded]="pageSizeOpen()"
+                    aria-haspopup="true"
+                    aria-labelledby="members-page-size-label members-page-size-value"
+                    aria-controls="organization-members-list"
+                    (click)="pageSizeOpen.set(!pageSizeOpen())"
+                  >
+                    <span id="members-page-size-value">{{
+                      pageSize() === 'all' ? ('operators.pagination.all' | transloco) : pageSize()
+                    }}</span>
+                    <nw-icon name="chevron-down" size="sm" />
+                  </button>
+                  <ng-template
+                    cdkConnectedOverlay
+                    [cdkConnectedOverlayOrigin]="pageSizeOrigin"
+                    [cdkConnectedOverlayOpen]="pageSizeOpen()"
+                    [cdkConnectedOverlayPositions]="popupPositions"
+                    [cdkConnectedOverlayHasBackdrop]="true"
+                    cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                    [cdkConnectedOverlayPush]="true"
+                    [cdkConnectedOverlayViewportMargin]="16"
+                    (backdropClick)="pageSizeOpen.set(false)"
+                    (detach)="pageSizeOpen.set(false)"
+                    (overlayKeydown)="$event.key === 'Escape' && pageSizeOpen.set(false)"
+                  >
+                    <div
+                      class="organization-members__page-size-menu"
+                      role="group"
+                      [attr.aria-label]="'operators.pagination.perPage' | transloco"
+                    >
+                      @for (size of pageSizes; track size) {
+                        <button
+                          type="button"
+                          [class.is-selected]="pageSize() === size"
+                          [attr.aria-pressed]="pageSize() === size"
+                          (click)="setPageSize(size)"
+                        >
+                          {{ size === 'all' ? ('operators.pagination.all' | transloco) : size }}
+                        </button>
+                      }
+                    </div>
+                  </ng-template>
+                </div>
+                <div class="organization-members__page-actions">
+                  <button
+                    type="button"
+                    [disabled]="pageIndex() === 0"
+                    (click)="requestedPage.set(pageIndex() - 1)"
+                    [attr.aria-label]="'operators.pagination.previous' | transloco"
+                    [title]="'operators.pagination.previous' | transloco"
+                  >
+                    <nw-icon name="chevron-left" size="sm" />
+                  </button>
+                  <button
+                    type="button"
+                    [disabled]="pageIndex() + 1 >= pageCount()"
+                    (click)="requestedPage.set(pageIndex() + 1)"
+                    [attr.aria-label]="'operators.pagination.next' | transloco"
+                    [title]="'operators.pagination.next' | transloco"
+                  >
+                    <nw-icon name="chevron-right" size="sm" />
+                  </button>
+                </div>
+              </nav>
             } @else {
               <div id="organization-members-list">
                 <nw-data-state
@@ -175,9 +232,6 @@
               </div>
             }
           }
-          <p class="organization-members__footnote">
-            <nw-icon name="info" size="sm" />{{ 'organizations.members.footnote' | transloco }}
-          </p>
         }
         @case ('membersError') {
           <nw-data-state
@@ -210,3 +264,21 @@
 } @else {
   <adm-organization-states [view]="view" (retry)="facade.reload()" />
 }
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="popupOrigin()!"
+  [cdkConnectedOverlayOpen]="popup() !== null"
+  [cdkConnectedOverlayPositions]="popupPositions"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+  [cdkConnectedOverlayPush]="true"
+  [cdkConnectedOverlayViewportMargin]="16"
+  (backdropClick)="closePopup()"
+  (detach)="closePopup()"
+  (overlayKeydown)="$event.key === 'Escape' && closePopup()"
+>
+  @if (popup(); as data) {
+    <adm-member-filter-dialog [data]="data" (closed)="closePopup($event)" />
+  }
+</ng-template>

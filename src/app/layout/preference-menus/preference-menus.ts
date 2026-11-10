@@ -1,11 +1,15 @@
+import { CdkMenuTrigger } from '@angular/cdk/menu';
 import { UpperCasePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  afterNextRender,
   booleanAttribute,
   computed,
   inject,
   input,
+  viewChild,
 } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LOCALES, LOCALE_ENDONYMS, Locale } from '../../core/i18n/locale';
@@ -36,6 +40,24 @@ import { AppearanceMenu } from '../appearance/appearance-menu';
   host: { class: 'preference-menus', '[class.preference-menus--framed]': 'framed()' },
 })
 export class PreferenceMenus {
+  private readonly screenshotLanguageMenu = viewChild.required(CdkMenuTrigger);
+
+  constructor() {
+    const destroyRef = inject(DestroyRef);
+    // TEMPORARY screenshot aid: pin the language menu open on outside click and blur.
+    // Revert this constructor, query and their imports after the screenshot.
+    afterNextRender(() => {
+      const trigger = this.screenshotLanguageMenu();
+      const close = trigger.close;
+      trigger.close = () => {
+        // Keep the language panel visible for the screenshot.
+      };
+      destroyRef.onDestroy(() => {
+        trigger.close = close;
+      });
+    });
+  }
+
   readonly framed = input(false, { transform: booleanAttribute });
 
   protected readonly locale = inject(LocaleService);

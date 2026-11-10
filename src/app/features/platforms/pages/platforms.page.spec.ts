@@ -106,19 +106,11 @@ async function render(actor: Actor, scenario: PlatformDirectoryDemoScenario = 'n
 const text = (element: Element | null | undefined) =>
   element?.textContent?.replace(/\s+/g, ' ').trim();
 
-async function search(page: HTMLElement, settle: () => Promise<void>, value: string) {
-  const input = page.querySelector<HTMLInputElement>('input[type="search"]');
-  if (!input) throw new Error('search input');
-  input.value = value;
-  input.dispatchEvent(new Event('input'));
-  await settle();
-}
-
 describe('PlatformsPage', () => {
   it('lists the platforms with their figures and links into the platform scope', async () => {
     const { page } = await render(owner);
     expect(text(page.querySelector('h1'))).toBe(en.platforms.title);
-    expect(text(page.querySelector('[role="status"].platforms__count'))).toBe('2 platforms');
+    expect(page.querySelector('.platforms__count')).toBeNull();
     const cards = page.querySelectorAll('adm-platform-card');
     expect(cards.length).toBe(2);
     expect(text(cards[0]?.querySelector('dl'))).toBe(
@@ -129,19 +121,12 @@ describe('PlatformsPage', () => {
     );
   });
 
-  it('filters by name or product type, counts in the singular, and clears', async () => {
-    const { page, settle } = await render(owner);
-    await search(page, settle, 'driving');
-    expect(page.querySelectorAll('adm-platform-card').length).toBe(1);
-    expect(text(page.querySelector('.platforms__count'))).toBe('1 platform');
-    await search(page, settle, 'Academy');
-    expect(page.querySelector('adm-platform-card')).toBeNull();
-    expect(text(page.querySelector('.platforms__message-title'))).toBe(
-      'No platforms match “Academy”',
-    );
-    page.querySelector<HTMLButtonElement>('.platforms__message-action')?.click();
-    await settle();
-    expect(page.querySelectorAll('adm-platform-card').length).toBe(2);
+  it('shows the complete directory without a search control', async () => {
+    const { page } = await render(owner);
+    expect(page.querySelector('input[type="search"]')).toBeNull();
+    expect(page.querySelector('[role="search"]')).toBeNull();
+    expect(page.querySelectorAll('adm-platform-card')).toHaveLength(2);
+    expect(page.querySelectorAll('nw-product-symbol')).toHaveLength(2);
   });
 
   it('shows an unavailable figure as "—", never as zero', async () => {

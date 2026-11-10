@@ -1,22 +1,25 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { PlatformProduct } from '../../../core/context/scope.model';
 
-/** Approved source-extracted botanical symbols; null/unknown products keep the company identity. */
+/** Optical SVG emblems for small UI sizes; unknown products use Solutions. */
 export const PRODUCT_BRANDS = {
   solutions: {
-    mask: '/brand/nawara-scope-solutions-mask.webp',
-    details: '/brand/nawara-scope-solutions-details.webp',
-    ratio: '227 / 188',
+    mask: '/brand/nawara-scope-leaf-mask.svg',
+    details: '/brand/nawara-scope-solutions-details.svg',
+    ratio: '1 / 1',
+    maskSize: 'contain',
   },
   school: {
-    mask: '/brand/nawara-scope-school-mask.webp',
-    details: '/brand/nawara-scope-school-details.webp',
-    ratio: '181 / 170',
+    mask: '/brand/nawara-scope-leaf-mask.svg',
+    details: '/brand/nawara-scope-school-details.svg',
+    ratio: '1 / 1',
+    maskSize: 'contain',
   },
   drive: {
-    mask: '/brand/nawara-scope-drive-mask.webp',
-    details: '/brand/nawara-scope-drive-details.webp',
-    ratio: '178 / 170',
+    mask: '/brand/nawara-scope-leaf-mask.svg',
+    details: '/brand/nawara-scope-drive-details.svg',
+    ratio: '1 / 1',
+    maskSize: 'contain',
   },
 } as const;
 
@@ -30,6 +33,7 @@ export const PRODUCT_BRANDS = {
     '[style.--nw-product-mask]': '"url(" + artwork().mask + ")"',
     '[style.--nw-product-details]': '"url(" + artwork().details + ")"',
     '[style.aspect-ratio]': 'artwork().ratio',
+    '[style.--nw-product-mask-size]': 'artwork().maskSize',
   },
 })
 export class ProductSymbol {

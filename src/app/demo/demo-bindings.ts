@@ -24,6 +24,7 @@ import { MOCK_ORGANIZATION_COMMAND_PROVIDERS } from '../features/organizations/d
 import { MOCK_ACTIVITY_PROVIDERS } from '../features/activity/data-access/activity.mock';
 import { MOCK_ASSISTANCE_PROVIDERS } from '../features/assistance/data-access/assistance.mock';
 import { MOCK_RELEASE_INFORMATION_PROVIDERS } from '../features/releases/data-access/release-information.mock';
+import { MOCK_PLATFORM_SETTINGS_PROVIDERS } from '../features/settings/data-access/platform-settings.mock';
 import { MOCK_COMPANY_SETTINGS_PROVIDERS } from '../features/settings/data-access/company-settings.mock';
 import { MOCK_ACCOUNT_SECURITY_PROVIDERS } from '../features/settings/data-access/account-security.mock';
 import { MOCK_BILLING_PROVIDERS } from '../features/billing/data-access/billing.mock';
@@ -51,6 +52,7 @@ export const DEMO_BINDINGS: DemoBindings = {
     services: MOCK_SERVICE_INVENTORY_PROVIDERS,
     releases: MOCK_RELEASE_INFORMATION_PROVIDERS,
     companySettings: MOCK_COMPANY_SETTINGS_PROVIDERS,
+    platformSettings: MOCK_PLATFORM_SETTINGS_PROVIDERS,
     accountSecurity: MOCK_ACCOUNT_SECURITY_PROVIDERS,
     platformDashboard: MOCK_PLATFORM_DASHBOARD_PROVIDERS,
     platformCommercial: MOCK_PLATFORM_COMMERCIAL_PROVIDERS,

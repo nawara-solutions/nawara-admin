@@ -8,6 +8,7 @@ import {
   computed,
   effect,
   inject,
+  input,
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -74,6 +75,7 @@ function createdOperatorIdOf(state: unknown): string | null {
   host: { class: 'operator-detail' },
 })
 export class OperatorDetailPage {
+  readonly embedded = input(false);
   protected readonly facade = inject(OperatorDetailFacade);
   protected readonly directoryPath = OPERATORS_PATH;
   protected readonly platformPath = platformPath;
@@ -87,7 +89,7 @@ export class OperatorDetailPage {
   /** The page shows the operator the owner has just created (the next steps are shown, once, for them only). */
   protected readonly justCreated = computed(() => {
     const view = this.facade.view();
-    return view.status === 'ready' && this.createdId === view.operator.id;
+    return !this.embedded() && view.status === 'ready' && this.createdId === view.operator.id;
   });
   private readonly accountHeading = viewChild<ElementRef<HTMLElement>>('accountHeading');
   private readonly injector = inject(Injector);

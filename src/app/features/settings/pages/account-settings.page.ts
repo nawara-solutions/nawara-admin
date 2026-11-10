@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { NwButton } from '../../../shared/ui/button/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthSession } from '../../../core/auth/auth-session';
@@ -42,6 +43,7 @@ const SECTIONS = [
   imports: [
     TranslocoPipe,
     RouterLink,
+    NwButton,
     NwDataState,
     NwIcon,
     AccountIdentitySummary,

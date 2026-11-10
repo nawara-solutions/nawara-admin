@@ -1,29 +1,44 @@
 <ul class="access-summary__items" role="list">
-  <li class="access-summary__item">
+  <li class="access-summary__item access-summary__item--owner">
     <div class="access-summary__head">
-      <span class="access-summary__tile access-summary__tile--owner"><nw-icon name="award" /></span>
+      <span class="access-summary__avatar" aria-hidden="true">
+        @if (initials(); as letters) {
+          <bdi>{{ letters }}</bdi>
+        } @else {
+          <nw-icon name="user-round" />
+        }
+      </span>
       <span class="access-summary__text">
-        <span class="access-summary__title">{{
+        <span class="access-summary__owner-name">
+          @if (ownerName(); as name) {
+            <bdi>{{ name }}</bdi>
+          } @else {
+            {{ 'companyOverview.access.owner.title' | transloco }}
+          }
+        </span>
+        <span class="access-summary__description">{{
           'companyOverview.access.owner.title' | transloco
         }}</span>
-        <span class="access-summary__description">
-          @if (ownerName(); as name) {
-            <bdi>{{ name }}</bdi> ·
-          }
-          {{ 'companyOverview.access.owner.scope' | transloco }}
-        </span>
       </span>
     </div>
-    <p class="access-summary__status access-summary__status--ok">
-      <nw-icon name="circle-check" size="sm" />
-      {{ 'companyOverview.access.owner.twoFactor' | transloco }}
-    </p>
+
+    <div class="access-summary__owner-details">
+      <span class="access-summary__scope">
+        <nw-icon name="globe" size="sm" />
+        {{ 'companyOverview.access.owner.scope' | transloco }}
+      </span>
+      <span class="access-summary__status access-summary__status--ok">
+        <nw-icon name="circle-check" size="sm" />
+        {{ 'companyOverview.access.owner.twoFactor' | transloco }}
+      </span>
+    </div>
     <!-- The owner's read-only Security overview (P9-S4a). -->
-    <adm-card-link
-      chevron
-      link="/settings/security"
-      [label]="'companyOverview.access.owner.action' | transloco"
-    />
+    <div class="access-summary__footer">
+      <adm-card-link
+        link="/settings/security"
+        [label]="'companyOverview.access.owner.action' | transloco"
+      />
+    </div>
   </li>
   <li class="access-summary__item">
     <div class="access-summary__head">
@@ -34,28 +49,30 @@
         <span class="access-summary__title">{{
           'companyOverview.access.operators.title' | transloco
         }}</span>
-        @if (access(); as figures) {
-          <span class="access-summary__figures">
-            <span>
-              {{ 'companyOverview.access.operators.assignments' | transloco }}
-              <strong><adm-metric-value [metric]="figures.operatorAssignments" /></strong>
-            </span>
-            <span>
-              {{ 'companyOverview.access.operators.uniqueOperators' | transloco }}
-              <strong><adm-metric-value [metric]="figures.uniqueOperators" /></strong>
-            </span>
-            <span>
-              {{ 'companyOverview.access.operators.platforms' | transloco }}
-              <strong><adm-metric-value [metric]="figures.platformsWithOperators" /></strong>
-            </span>
-          </span>
-        } @else {
-          <span class="access-summary__description">{{
-            'companyOverview.unavailable' | transloco
-          }}</span>
-        }
       </span>
     </div>
-    <adm-card-link chevron [label]="'companyOverview.access.operators.action' | transloco" />
+    @if (access(); as figures) {
+      <div class="access-summary__figures">
+        <span>
+          {{ 'companyOverview.access.operators.assignments' | transloco }}
+          <strong><adm-metric-value [metric]="figures.operatorAssignments" /></strong>
+        </span>
+        <span>
+          {{ 'companyOverview.access.operators.uniqueOperators' | transloco }}
+          <strong><adm-metric-value [metric]="figures.uniqueOperators" /></strong>
+        </span>
+        <span>
+          {{ 'companyOverview.access.operators.platforms' | transloco }}
+          <strong><adm-metric-value [metric]="figures.platformsWithOperators" /></strong>
+        </span>
+      </div>
+    } @else {
+      <span class="access-summary__description">{{
+        'companyOverview.unavailable' | transloco
+      }}</span>
+    }
+    <div class="access-summary__footer">
+      <adm-card-link [label]="'companyOverview.access.operators.action' | transloco" />
+    </div>
   </li>
 </ul>

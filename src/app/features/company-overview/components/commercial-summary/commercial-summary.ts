@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { CommercialSummary } from '../../domain/commercial-summary.model';
+import { NwIcon } from '../../../../shared/ui/icon/icon';
 import { MetricValue } from '../../../../shared/dashboard/metric-value/metric-value';
 
 /**
@@ -9,7 +10,7 @@ import { MetricValue } from '../../../../shared/dashboard/metric-value/metric-va
  */
 @Component({
   selector: 'adm-commercial-summary',
-  imports: [TranslocoPipe, MetricValue],
+  imports: [TranslocoPipe, MetricValue, NwIcon],
   templateUrl: './commercial-summary.html',
   styleUrl: './commercial-summary.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

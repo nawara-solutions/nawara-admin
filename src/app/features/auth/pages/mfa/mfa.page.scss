@@ -2,6 +2,10 @@
   display: contents;
 }
 
+adm-auth-card {
+  max-inline-size: 26rem;
+}
+
 .mfa__form {
   display: grid;
   gap: var(--nw-space-4);

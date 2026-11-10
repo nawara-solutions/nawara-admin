@@ -16,6 +16,10 @@ describe('ProductSymbol', () => {
       expect(symbol.style.getPropertyValue('--nw-product-mask')).toContain(
         PRODUCT_BRANDS[product].mask,
       );
+      expect(symbol.style.getPropertyValue('--nw-product-mask-size')).toBe(
+        PRODUCT_BRANDS[product].maskSize,
+      );
+      expect(symbol.style.aspectRatio).toBe(PRODUCT_BRANDS[product].ratio);
       expect(symbol.style.getPropertyValue('--nw-product-details')).toContain(
         PRODUCT_BRANDS[product].details,
       );

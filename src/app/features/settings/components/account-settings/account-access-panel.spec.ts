@@ -63,7 +63,7 @@ it('displays each trusted access record once without an overview or editing cont
   expect(element.querySelectorAll('[data-platform]')).toHaveLength(1);
   expect(element.textContent?.split('Actual authorized context')).toHaveLength(2);
   expect(element.querySelector('.account-panel__overview')).toBeNull();
-  expect(element.querySelectorAll('.account-panel__read-only')).toHaveLength(1);
+  expect(element.querySelector('.account-panel__role')).toBeNull();
   expect(element.querySelector('input,form,button,a,[tabindex]')).toBeNull();
   expect(element.querySelector('dl > div > dt')).not.toBeNull();
   expect(element.querySelector('dl > div > dd')).not.toBeNull();
@@ -78,15 +78,15 @@ it('preserves multiple authorized platforms without inventing memberships or ten
     ],
   });
   expect(element.querySelectorAll('[data-platform]')).toHaveLength(2);
-  expect(element.querySelector('nw-product-symbol')).toBeNull();
+  expect(element.querySelectorAll('.account-panel__symbol nw-icon')).toHaveLength(2);
   expect(element.textContent).not.toContain('Membership');
 });
 
-it('uses the shared Solutions symbol only for an explicitly identified company', async () => {
+it('uses the Solutions logo only for an explicitly identified company', async () => {
   const { element } = await render({
     status: 'success',
     data: [{ id: 'company', name: 'Nawara Solutions', brand: 'solutions' }],
   });
-  expect(element.querySelectorAll('nw-product-symbol')).toHaveLength(1);
+  expect(element.querySelectorAll('.account-panel__symbol nw-product-symbol')).toHaveLength(1);
   expect(element.textContent?.split('Nawara Solutions')).toHaveLength(2);
 });

@@ -129,7 +129,7 @@ describe('AccountMenu', () => {
     expect(header?.getAttribute('aria-hidden')).toBe('true');
     expect(text(header?.querySelector('.account-menu__name'))).toBe('Demo Owner');
     expect(text(header?.querySelector('.account-menu__identifier'))).toBe('owner@x.invalid');
-    expect(header?.querySelector('.account-menu__identifier')?.getAttribute('dir')).toBe('ltr');
+    expect(header?.querySelector('.account-menu__identifier bdi')?.getAttribute('dir')).toBe('ltr');
     expect(text(header?.querySelector('.account-menu__role'))).toBe(en.shell.role.owner);
     expect(items().map((item) => text(item))).toEqual([
       en.shell.account.settings,

@@ -25,6 +25,7 @@ import { NwControl, NwFormField } from '../../../../shared/ui/form-field/form-fi
 import { NwIcon } from '../../../../shared/ui/icon/icon';
 import { NwInlineAlert } from '../../../../shared/ui/inline-alert/inline-alert';
 import { NwSpinner } from '../../../../shared/ui/spinner/spinner';
+import { AdminInvitationsCard } from '../admin-invitations-card/admin-invitations-card';
 import { NwToastService } from '../../../../shared/ui/toast/toast.service';
 import { isolated } from '../../../platforms/domain/create-platform.model';
 import {
@@ -79,6 +80,7 @@ type CopyState = 'idle' | 'copied' | 'failed';
   selector: 'adm-create-admin-invitation-dialog',
   imports: [
     TranslocoPipe,
+    AdminInvitationsCard,
     NwButton,
     NwControl,
     NwDatePipe,
@@ -99,6 +101,24 @@ export class CreateAdminInvitationDialog {
   private readonly toasts = inject(NwToastService);
   private readonly transloco = inject(TranslocoService);
 
+  protected readonly tab = signal<'create' | 'manage'>('create');
+  protected onTabKey(event: KeyboardEvent): void {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const rtl = getComputedStyle(event.currentTarget as HTMLElement).direction === 'rtl';
+    const next =
+      event.key === 'Home'
+        ? 'create'
+        : event.key === 'End'
+          ? 'manage'
+          : event.key === (rtl ? 'ArrowLeft' : 'ArrowRight')
+            ? 'manage'
+            : 'create';
+    this.tab.set(next);
+    (event.currentTarget as HTMLElement)
+      .querySelector<HTMLButtonElement>(`#invitation-tab-${next}`)
+      ?.focus();
+  }
   protected readonly state = this.action.run.state;
   protected readonly target = this.action.currentTarget()!;
   protected readonly presets = EXPIRY_PRESETS;

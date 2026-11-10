@@ -3,96 +3,225 @@
   class="global-search__compact"
   type="button"
   aria-haspopup="dialog"
+  aria-keyshortcuts="Control+k Meta+k"
   [attr.aria-label]="'shell.search.open' | transloco"
   [attr.aria-expanded]="open()"
   (click)="toggle()"
 >
   <nw-icon name="search" />
+  @if (!compact()) {
+    <span class="global-search__trigger-label">{{ 'shell.search.label' | transloco }}</span>
+    <kbd class="global-search__shortcut" aria-hidden="true">Ctrl K</kbd>
+  }
 </button>
 
 <ng-template #searchModal>
   <section class="global-search__modal">
-    <aside class="global-search__intro">
-      <div class="global-search__illustration" aria-hidden="true">
-        <span class="global-search__document"></span>
-        <span class="global-search__document global-search__document--second"></span>
-        <nw-icon name="search" />
-      </div>
-      <h2 [id]="unavailableDescriptionId + '-title'">{{ 'shell.search.title' | transloco }}</h2>
-      <p>{{ 'shell.search.description' | transloco }}</p>
-    </aside>
-    <div class="global-search__content">
-      <div class="global-search__close-row">
+    <h2 class="nw-visually-hidden" [id]="id + '-title'">{{ 'shell.search.title' | transloco }}</h2>
+    <div class="global-search__field" role="search">
+      <nw-icon class="global-search__search-icon" name="search" />
+      <input
+        class="global-search__input"
+        [id]="id + '-input'"
+        type="search"
+        role="combobox"
+        aria-autocomplete="list"
+        autocomplete="off"
+        spellcheck="false"
+        [attr.aria-label]="'shell.search.label' | transloco"
+        [attr.aria-expanded]="results().length > 0"
+        [attr.aria-controls]="results().length ? id + '-results' : null"
+        [attr.aria-activedescendant]="results()[active()] ? id + '-option-' + active() : null"
+        [placeholder]="category().placeholder | transloco"
+        [value]="query()"
+        (input)="type($event)"
+        (keydown)="keydown($event)"
+      />
+      @if (query()) {
         <button
+          class="global-search__clear"
           type="button"
-          class="global-search__close"
-          [attr.aria-label]="'shell.search.close' | transloco"
-          (click)="dismiss()"
+          [attr.aria-label]="'shell.search.command.clear' | transloco"
+          (click)="clear()"
         >
-          <nw-icon name="x" />
+          <nw-icon name="x" size="sm" />
         </button>
+      }
+      <button
+        class="global-search__category"
+        type="button"
+        [nwMenuTriggerFor]="categoryMenu"
+        [attr.aria-label]="
+          ('shell.search.categoryLabel' | transloco) + ': ' + (category().key | transloco)
+        "
+      >
+        <span>{{ category().key | transloco }}</span
+        ><nw-icon name="chevron-down" size="sm" />
+      </button>
+      <button
+        class="global-search__close"
+        type="button"
+        [attr.aria-label]="'shell.search.close' | transloco"
+        (click)="dismiss()"
+      >
+        <nw-icon name="x" size="sm" />
+      </button>
+    </div>
+
+    @if (disconnected()) {
+      <div class="global-search__panel global-search__unavailable" role="status">
+        <span class="global-search__state-icon"><nw-icon name="unplug" /></span>
+        <div>
+          <h3>
+            {{
+              'shell.search.command.notConnectedTitle'
+                | transloco: { category: (category().key | transloco) }
+            }}
+          </h3>
+          <p>{{ 'shell.search.command.notConnectedBody' | transloco }}</p>
+        </div>
+        @if (destination(); as page) {
+          <button class="global-search__destination" type="button" (click)="navigate(page.path)">
+            {{
+              'shell.search.command.openDestination'
+                | transloco: { page: (page.titleKey | transloco) }
+            }}<nw-icon name="arrow-right" size="sm" />
+          </button>
+        }
       </div>
-      <div class="global-search__field" role="search">
-        <button
-          class="global-search__category"
-          type="button"
-          [nwMenuTriggerFor]="categoryMenu"
-          [attr.aria-label]="'shell.search.categoryLabel' | transloco"
-        >
-          <nw-icon [name]="categoryIcon(selected())" size="sm" />
-          <span>{{ categoryKey(selected()) | transloco }}</span>
-          <nw-icon name="chevron-down" size="sm" />
-        </button>
-        <nw-icon name="search" size="sm" />
-        <input
-          class="global-search__input"
-          type="search"
-          readonly
-          [attr.aria-label]="'shell.search.label' | transloco"
-          [attr.aria-describedby]="unavailableDescriptionId"
-          [placeholder]="'shell.search.placeholder' | transloco"
-        />
-      </div>
-      <p class="global-search__unavailable" role="status" [id]="unavailableDescriptionId">
-        {{ 'shell.search.unavailable' | transloco }}
-      </p>
-      <fieldset class="global-search__categories">
-        <legend>{{ 'shell.search.searchIn' | transloco }}</legend>
-        <div class="global-search__tiles">
-          @for (category of categories; track category.id) {
-            <label
-              class="global-search__tile"
-              [class.global-search__tile--selected]="selected() === category.id"
-            >
-              <input
-                type="radio"
-                name="global-search-category"
-                [value]="category.id"
-                [checked]="selected() === category.id"
-                (change)="select(category.id)"
-              />
-              <nw-icon [name]="category.icon" />
-              <span>{{ category.key | transloco }}</span>
-            </label>
+    } @else if (!query().trim()) {
+      <div class="global-search__idle">
+        <div class="global-search__intro">
+          <h3>{{ 'shell.search.command.quickLinks' | transloco }}</h3>
+          <p>
+            {{
+              (anyRecords
+                ? 'shell.search.command.connectedHint'
+                : 'shell.search.command.pagesOnlyHint'
+              ) | transloco
+            }}
+          </p>
+        </div>
+        <div class="global-search__suggestions global-search__quick-links">
+          @for (page of suggestions(); track page.path) {
+            <button type="button" (click)="navigate(page.path)">
+              <span class="global-search__shortcut-icon"><nw-icon [name]="page.icon" /></span>
+              <span class="global-search__shortcut-copy">
+                <span class="global-search__shortcut-title">{{ page.titleKey | transloco }}</span>
+                <span class="global-search__shortcut-description">{{
+                  page.descriptionKey | transloco
+                }}</span>
+              </span>
+              <nw-icon class="global-search__shortcut-arrow" name="arrow-up-right" size="sm" />
+            </button>
           }
         </div>
-      </fieldset>
-      <p class="global-search__hint"><kbd>Esc</kbd> {{ 'shell.search.toClose' | transloco }}</p>
-    </div>
+      </div>
+    } @else {
+      <div class="global-search__panel">
+        @if (results().length) {
+          <div
+            class="global-search__results"
+            role="listbox"
+            [id]="id + '-results'"
+            [attr.aria-label]="'shell.search.command.results' | transloco"
+          >
+            @for (group of groups(); track group.key) {
+              <section role="group" [attr.aria-label]="group.key | transloco">
+                <h3 class="global-search__group-label" aria-hidden="true">
+                  {{ group.key | transloco }}
+                </h3>
+                @for (result of group.results; track result.id) {
+                  <button
+                    adm-search-result
+                    [attr.aria-label]="result.title + ' — ' + result.description"
+                    [result]="result"
+                    [query]="query()"
+                    [active]="active() === result.index"
+                    [id]="id + '-option-' + result.index"
+                    (mouseenter)="active.set(result.index)"
+                    (mousedown)="$event.preventDefault()"
+                    (click)="navigate(result.path)"
+                  ></button>
+                }
+              </section>
+            }
+          </div>
+        } @else {
+          <div class="global-search__empty" role="status">
+            <span class="global-search__state-icon"><nw-icon name="search" /></span>
+            <h3>
+              {{
+                (loading()
+                  ? 'shell.search.command.loading'
+                  : failed()
+                    ? 'shell.search.command.errorTitle'
+                    : 'shell.search.command.noMatches'
+                ) | transloco: { query: query().trim() }
+              }}
+            </h3>
+            @if (!loading()) {
+              <p>
+                {{
+                  (failed()
+                    ? 'shell.search.command.errorBody'
+                    : anyRecords
+                      ? 'shell.search.command.noMatchesConnected'
+                      : 'shell.search.command.noMatchesPages'
+                  ) | transloco
+                }}
+              </p>
+            }
+            @if (!loading() && !failed()) {
+              <div class="global-search__suggestions">
+                @for (page of suggestions(); track page.path) {
+                  <button type="button" (click)="suggest(page.titleKey)">
+                    {{ page.titleKey | transloco }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+    <footer class="global-search__footer">
+      <div class="global-search__keys" aria-hidden="true">
+        @if (query().trim() && results().length) {
+          <span><kbd>↑</kbd><kbd>↓</kbd> {{ 'shell.search.command.move' | transloco }}</span>
+          <span><kbd>↵</kbd> {{ 'shell.search.command.open' | transloco }}</span>
+        }
+        <span><kbd>Esc</kbd> {{ 'shell.search.command.close' | transloco }}</span>
+      </div>
+      @if (query().trim() && !disconnected()) {
+        <span class="global-search__count" role="status" aria-live="polite">{{
+          (loading()
+            ? 'shell.search.command.loading'
+            : failed()
+              ? 'shell.search.command.recordError'
+              : 'shell.search.command.resultCount'
+          ) | transloco: { count: (results().length | nwNumber) }
+        }}</span>
+      } @else {
+        <span class="global-search__count">Nawara Admin</span>
+      }
+    </footer>
   </section>
 </ng-template>
 
-<ng-template #categoryMenu>
-  <nw-menu>
-    @for (category of categories; track category.id) {
-      <button nw-menu-item type="button" (triggered)="select(category.id)">
-        <nw-icon [name]="category.icon" size="sm" />
-        <span class="global-search__category-option">{{ category.key | transloco }}</span>
-        @if (selected() === category.id) {
-          <nw-icon name="check" size="sm" />
-          <span class="nw-visually-hidden">({{ 'shell.context.current' | transloco }})</span>
+<ng-template #categoryMenu
+  ><nw-menu>
+    @for (item of categories; track item.id) {
+      <button nw-menu-item type="button" (triggered)="select(item.id)">
+        <nw-icon [name]="item.icon" size="sm" /><span class="global-search__category-option">{{
+          item.key | transloco
+        }}</span>
+        @if (selected() === item.id) {
+          <nw-icon name="check" size="sm" /><span class="nw-visually-hidden"
+            >({{ 'shell.context.current' | transloco }})</span
+          >
         }
       </button>
     }
-  </nw-menu>
-</ng-template>
+  </nw-menu></ng-template
+>

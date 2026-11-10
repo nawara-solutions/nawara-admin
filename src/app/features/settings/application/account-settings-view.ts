@@ -158,7 +158,7 @@ export function accountSettingsView(
       },
       {
         id: 'second-factor',
-        icon: 'lock-keyhole',
+        icon: 'smartphone',
         status: 'not-reported',
         label: 'settings.account.secondFactor',
         value: null,

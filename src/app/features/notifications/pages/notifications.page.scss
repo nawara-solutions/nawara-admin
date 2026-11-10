@@ -76,6 +76,17 @@
   border-block-end: 1px solid var(--nw-border-subtle);
 }
 
+@media (min-width: 64rem) {
+  .notifications__toolbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .notifications__toolbar .notifications__actions {
+    flex-wrap: nowrap;
+  }
+}
+
 .notifications__categories,
 .notifications__actions,
 .notifications__read-filters {
@@ -87,6 +98,12 @@
 
 .notifications__categories {
   overflow-x: auto;
+}
+
+.notifications__category-count {
+  margin-inline-start: 0.375rem;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .notifications__filter,
@@ -108,7 +125,7 @@
   }
 
   &--active {
-    background-color: var(--nw-color-primary-subtle);
+    background-color: transparent;
     color: var(--nw-color-primary);
     font-weight: var(--nw-font-weight-semibold);
   }
@@ -230,7 +247,6 @@
   inline-size: 2.75rem;
   block-size: 2.75rem;
   border-radius: var(--nw-radius-pill);
-  background-color: var(--nw-surface-brand-subtle);
   color: var(--nw-text-brand);
 }
 

@@ -27,9 +27,9 @@ let nextId = 0;
             [style.background-color]="accent.swatch"
             aria-hidden="true"
           ></span>
-          <span>{{ accent.key | transloco }}</span>
+          <span class="accent-grid__label">{{ accent.key | transloco }}</span>
           @if (theme.accent() === accent.value) {
-            <nw-icon class="accent-grid__check" name="circle-check" size="sm" />
+            <nw-icon class="accent-grid__check" name="check" size="sm" />
           }
         </label>
       }

@@ -14,12 +14,7 @@
     @if (hiddenCrumbs().length > 0) {
       <li class="breadcrumbs__item breadcrumbs__item--overflow">
         @if (layout().showHome) {
-          <nw-icon
-            class="breadcrumbs__separator"
-            name="chevron-right"
-            size="sm"
-            aria-hidden="true"
-          />
+          <span class="breadcrumbs__separator" aria-hidden="true">/</span>
         }
         <button
           class="breadcrumbs__overflow-trigger"
@@ -33,7 +28,7 @@
     }
     @for (crumb of visibleAncestors(); track $index) {
       <li class="breadcrumbs__item">
-        <nw-icon class="breadcrumbs__separator" name="chevron-right" size="sm" aria-hidden="true" />
+        <span class="breadcrumbs__separator" aria-hidden="true">/</span>
         @if (crumb.link) {
           <a class="breadcrumbs__link" [routerLink]="crumb.link">
             @if (crumb.translate) {
@@ -55,20 +50,46 @@
     }
     <li class="breadcrumbs__item breadcrumbs__item--current-item">
       @if (layout().showHome || hiddenCrumbs().length > 0 || visibleAncestors().length > 0) {
-        <nw-icon class="breadcrumbs__separator" name="chevron-right" size="sm" aria-hidden="true" />
+        <span class="breadcrumbs__separator" aria-hidden="true">/</span>
       }
-      <span
-        class="breadcrumbs__current"
-        [class.breadcrumbs__current--wrap]="layout().wrapCurrent"
-        [style.max-inline-size.px]="layout().currentMaxWidth"
-        aria-current="page"
-      >
-        @if (currentCrumb().translate) {
-          {{ currentCrumb().label | transloco }}
-        } @else {
-          <bdi>{{ currentCrumb().label }}</bdi>
-        }
-      </span>
+      @if (switchPlatforms().length > 1) {
+        <button
+          class="breadcrumbs__platform-trigger"
+          type="button"
+          [nwMenuTriggerFor]="platformMenu"
+          [attr.aria-label]="
+            'shell.context.scopeTrigger' | transloco: { scope: currentCrumb().label }
+          "
+        >
+          <bdi>{{ currentCrumb().label }}</bdi
+          ><nw-icon name="chevron-down" size="sm" />
+        </button>
+      } @else if (switchOrganizations().length > 1) {
+        <button
+          class="breadcrumbs__platform-trigger"
+          type="button"
+          [nwMenuTriggerFor]="organizationMenu"
+          (click)="organizationSearch.set('')"
+          [attr.aria-label]="
+            'shell.breadcrumb.changeOrganization' | transloco: { name: currentCrumb().label }
+          "
+        >
+          <bdi>{{ currentCrumb().label }}</bdi
+          ><nw-icon name="chevron-down" size="sm" />
+        </button>
+      } @else {
+        <span
+          class="breadcrumbs__current"
+          [style.max-inline-size.px]="layout().currentMaxWidth"
+          aria-current="page"
+        >
+          @if (currentCrumb().translate) {
+            {{ currentCrumb().label | transloco }}
+          } @else {
+            <bdi>{{ currentCrumb().label }}</bdi>
+          }
+        </span>
+      }
     </li>
   </ol>
 
@@ -117,5 +138,74 @@
         </button>
       }
     }
+  </nw-menu>
+</ng-template>
+
+<ng-template #platformMenu>
+  <nw-menu class="breadcrumbs__platform-menu" [attr.aria-label]="'shell.context.label' | transloco">
+    <span class="breadcrumbs__platform-menu-title">{{ 'shell.context.label' | transloco }}</span>
+    @for (platform of switchPlatforms(); track platform.id) {
+      <button
+        nw-menu-item
+        class="breadcrumbs__platform-option"
+        type="button"
+        [routerLink]="platformLink(platform.id)"
+        [attr.aria-current]="selectedPlatformId() === platform.id ? 'true' : null"
+      >
+        <span class="breadcrumbs__platform-icon"
+          ><nw-product-symbol [product]="platform.product"
+        /></span>
+        <span class="breadcrumbs__platform-copy">
+          <bdi>{{ platform.name }}</bdi>
+          @if (platform.product; as product) {
+            <small>{{ productDescriptions[product] | transloco }}</small>
+          }
+        </span>
+        @if (selectedPlatformId() === platform.id) {
+          <nw-icon class="breadcrumbs__platform-check" name="check" size="sm" />
+        }
+      </button>
+    }
+  </nw-menu>
+</ng-template>
+
+<ng-template #organizationMenu>
+  <nw-menu
+    class="breadcrumbs__organization-menu"
+    [attr.aria-label]="'shell.breadcrumb.organizations' | transloco"
+  >
+    <label class="breadcrumbs__organization-search">
+      <nw-icon name="search" size="sm" />
+      <span class="nw-visually-hidden">{{ 'organizations.toolbar.searchLabel' | transloco }}</span>
+      <input
+        type="search"
+        autocomplete="off"
+        [placeholder]="'organizations.toolbar.searchPlaceholder' | transloco"
+        [value]="organizationSearch()"
+        (input)="organizationSearch.set($any($event.target).value)"
+        (keydown)="onOrganizationSearchKey($event)"
+      />
+    </label>
+    <div class="breadcrumbs__organization-list">
+      @for (organization of filteredOrganizations(); track organization.id) {
+        <button
+          nw-menu-item
+          class="breadcrumbs__organization-option"
+          type="button"
+          [routerLink]="organizationLink(organization.id)"
+          [attr.aria-current]="selectedOrganizationId() === organization.id ? 'true' : null"
+        >
+          <nw-icon class="breadcrumbs__organization-icon" name="building-2" size="sm" />
+          <bdi class="breadcrumbs__organization-name">{{ organization.name }}</bdi>
+          @if (selectedOrganizationId() === organization.id) {
+            <nw-icon class="breadcrumbs__platform-check" name="check" size="sm" />
+          }
+        </button>
+      } @empty {
+        <p class="breadcrumbs__organization-empty">
+          {{ 'organizations.states.noResultsTitle' | transloco }}
+        </p>
+      }
+    </div>
   </nw-menu>
 </ng-template>

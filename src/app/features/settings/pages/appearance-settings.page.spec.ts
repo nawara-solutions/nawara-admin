@@ -49,15 +49,10 @@ describe('Appearance customization workspace', () => {
       ).toBe(`var(--nw-swatch-${choice.value})`);
     }
     expect(host.querySelector('.accent-picker__trigger')).toBeNull();
-    expect(
-      Array.from(host.querySelectorAll('.appearance-panel__mode-description')).map((item) =>
-        item.textContent?.trim(),
-      ),
-    ).toEqual([
-      en.preferences.appearance.modeCard.system,
-      en.preferences.appearance.modeCard.light,
-      en.preferences.appearance.modeCard.dark,
-    ]);
+    expect(host.querySelector('.appearance-panel__mode-description')).toBeNull();
+    expect(host.querySelector('.appearance-panel__hint')).toBeNull();
+    expect(host.querySelector('fieldset')?.hasAttribute('aria-describedby')).toBe(false);
+    expect(host.querySelector('figcaption')).toBeNull();
     expect(host.querySelectorAll('.appearance-panel__mode-check')).toHaveLength(1);
     expect(host.querySelector('.appearance-panel__status--dirty')).toBeNull();
   });

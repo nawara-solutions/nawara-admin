@@ -4,6 +4,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { platformPath } from '../../../../core/context/scope-context';
 import { PlatformProduct } from '../../../../core/context/scope.model';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
+import { ProductSymbol } from '../../../../shared/ui/product-symbol/product-symbol';
 import { PlatformSummary } from '../../domain/company-overview.model';
 import { MetricValue } from '../../../../shared/dashboard/metric-value/metric-value';
 
@@ -18,7 +19,7 @@ const PRODUCT_KEYS = {
  */
 @Component({
   selector: 'adm-platform-list',
-  imports: [RouterLink, TranslocoPipe, NwIcon, MetricValue],
+  imports: [RouterLink, TranslocoPipe, NwIcon, MetricValue, ProductSymbol],
   templateUrl: './platform-list.html',
   styleUrl: './platform-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

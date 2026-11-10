@@ -1,7 +1,7 @@
 import { Observable, throwError } from 'rxjs';
 import { adapterUnavailable } from '../../../core/errors/app-error';
 import { CompanyId } from '../../../core/context/scope.model';
-import { CompanyOverview } from '../domain/company-overview.model';
+import { CompanyOverview, OverviewPeriod } from '../domain/company-overview.model';
 
 /**
  * Frontend contract for the Company Overview (docs/ARCHITECTURE.md §3). The Company id is always explicit.
@@ -10,7 +10,7 @@ import { CompanyOverview } from '../domain/company-overview.model';
  * against an invented endpoint.
  */
 export abstract class CompanyOverviewGateway {
-  abstract load(company: CompanyId): Observable<CompanyOverview>;
+  abstract load(company: CompanyId, periodDays?: OverviewPeriod): Observable<CompanyOverview>;
 }
 
 /** Every non-demo build: there is no Core contract to call, so the overview is unavailable (never mock data). */

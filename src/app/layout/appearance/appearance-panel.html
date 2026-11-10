@@ -1,12 +1,4 @@
-@if (accentPresentation() === 'grid') {
-  <div class="appearance-panel__intro"><ng-content select="[appearanceHeading]" /></div>
-}
-
-<fieldset
-  [disabled]="theme.applying()"
-  class="appearance-panel__group"
-  [attr.aria-describedby]="id + '-mode-hint'"
->
+<fieldset [disabled]="theme.applying()" class="appearance-panel__group">
   <legend class="appearance-panel__legend">{{ 'preferences.appearance.mode' | transloco }}</legend>
   <div class="appearance-panel__modes">
     @for (mode of modes; track mode.value) {
@@ -19,10 +11,20 @@
           [checked]="theme.preference() === mode.value"
           (change)="theme.setPreference(mode.value)"
         />
-        <nw-icon [name]="mode.icon" [size]="accentPresentation() === 'grid' ? 'lg' : 'sm'" />
-        <span>{{ mode.labelKey | transloco }}</span>
         @if (accentPresentation() === 'grid') {
-          <span class="appearance-panel__mode-description">{{ mode.hintKey | transloco }}</span>
+          <span class="appearance-panel__mode-art" [attr.data-mode]="mode.value" aria-hidden="true"
+            ><i></i><i></i><i></i
+          ></span>
+        } @else {
+          <nw-icon [name]="mode.icon" size="sm" />
+        }
+        <span class="appearance-panel__mode-label"
+          >{{ mode.labelKey | transloco }}
+          @if (accentPresentation() === 'grid') {
+            <small>{{ mode.hintKey | transloco }}</small>
+          }
+        </span>
+        @if (accentPresentation() === 'grid') {
           @if (theme.preference() === mode.value) {
             <nw-icon class="appearance-panel__mode-check" name="circle-check" size="sm" />
           }
@@ -30,7 +32,6 @@
       </label>
     }
   </div>
-  <p class="appearance-panel__hint" [id]="id + '-mode-hint'">{{ modeHint() | transloco }}</p>
 </fieldset>
 
 <div class="appearance-panel__group">
@@ -41,12 +42,49 @@
     {{ 'preferences.appearance.accent' | transloco }}
   </span>
   @if (accentPresentation() === 'grid') {
+    <div class="appearance-panel__accent-summary">
+      <p>{{ 'preferences.appearance.accentDescription' | transloco }}</p>
+      <span class="appearance-panel__accent-badge">
+        <i
+          [style.background-color]="'var(--nw-swatch-' + theme.accent() + ')'"
+          aria-hidden="true"
+        ></i>
+        {{ accentKeys[theme.accent()] | transloco }}
+        @if (theme.accent() === defaultAccent) {
+          <span>· {{ 'preferences.appearance.defaultAccent' | transloco }}</span>
+        }
+      </span>
+    </div>
     <adm-accent-grid [labelledBy]="id + '-accent-label'" />
   } @else {
     <adm-accent-picker [labelledBy]="id + '-accent-label'" />
   }
 </div>
 
+<fieldset
+  class="appearance-panel__group appearance-panel__density"
+  [disabled]="theme.applying()"
+  [attr.aria-describedby]="id + '-density-hint'"
+>
+  <legend class="appearance-panel__legend">
+    {{ 'preferences.appearance.density' | transloco }}
+  </legend>
+  <p [id]="id + '-density-hint'">{{ 'preferences.appearance.densityHint' | transloco }}</p>
+  <div class="appearance-panel__density-options">
+    @for (level of [1, 2, 3, 4, 5]; track level) {
+      <label
+        ><input
+          class="appearance-panel__input"
+          type="radio"
+          [value]="level"
+          [name]="id + '-density'"
+          [checked]="theme.density() === level"
+          (change)="theme.setDensity(level)"
+        /><span>{{ level }}</span></label
+      >
+    }
+  </div>
+</fieldset>
 @if (accentPresentation() === 'grid') {
   <div
     class="appearance-panel__preview"
@@ -58,22 +96,47 @@
 }
 
 <div class="appearance-panel__footer">
-  <div class="appearance-panel__explanation">
-    <nw-icon name="info" size="sm" />
-    <div>
-      <p class="appearance-panel__note">{{ 'preferences.appearance.note' | transloco }}</p>
+  @if (accentPresentation() === 'picker') {
+    <div class="appearance-panel__explanation">
+      <nw-icon [name]="theme.dirty() ? 'info' : 'check'" size="sm" />
       <p
-        class="appearance-panel__status"
+        class="appearance-panel__note appearance-panel__status"
         [class.appearance-panel__status--dirty]="theme.dirty()"
         role="status"
       >
         {{
-          (theme.dirty() ? 'preferences.appearance.unsaved' : 'preferences.appearance.saved')
-            | transloco
+          (theme.dirty()
+            ? 'preferences.appearance.localPending'
+            : 'preferences.appearance.localNote'
+          ) | transloco
         }}
       </p>
     </div>
-  </div>
+  } @else {
+    <div class="appearance-panel__explanation">
+      <nw-icon name="info" size="sm" />
+      <div>
+        <p class="appearance-panel__note">
+          {{
+            (accentPresentation() === 'picker'
+              ? 'preferences.appearance.localNote'
+              : 'preferences.appearance.note'
+            ) | transloco
+          }}
+        </p>
+        <p
+          class="appearance-panel__status"
+          [class.appearance-panel__status--dirty]="theme.dirty()"
+          role="status"
+        >
+          {{
+            (theme.dirty() ? 'preferences.appearance.unsaved' : 'preferences.appearance.saved')
+              | transloco
+          }}
+        </p>
+      </div>
+    </div>
+  }
   <div class="appearance-panel__actions">
     <button
       nw-button
@@ -85,8 +148,25 @@
       (click)="theme.reset()"
     >
       <nw-icon name="rotate-ccw" size="sm" />
-      <span>{{ 'preferences.appearance.reset' | transloco }}</span>
+      <span>{{
+        (accentPresentation() === 'picker'
+          ? 'preferences.appearance.resetShort'
+          : 'preferences.appearance.reset'
+        ) | transloco
+      }}</span>
     </button>
+    @if (accentPresentation() === 'grid') {
+      <button
+        nw-button
+        variant="outline"
+        size="sm"
+        type="button"
+        [disabled]="!theme.dirty() || theme.applying()"
+        (click)="theme.discard()"
+      >
+        {{ 'preferences.appearance.discard' | transloco }}
+      </button>
+    }
     <button
       nw-button
       size="sm"

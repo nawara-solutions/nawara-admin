@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { AppEnvironment, adapterProviders } from '../../core/config/app-environment';
+import { loadOrganizationsRoutes } from '../organizations/organizations.routes';
+import { OrganizationDirectoryFacade } from '../organizations/application/organization-directory.facade';
 import { PlatformDashboardFacade } from './application/platform-dashboard.facade';
 import {
   PlatformCommercialGateway,
@@ -16,18 +18,25 @@ import {
  * The route is reused when the Platform changes; the facade follows the URL.
  */
 export async function loadPlatformDashboardRoutes(environment: AppEnvironment): Promise<Routes> {
-  const [dashboard, commercial] = await Promise.all([
+  const [dashboard, commercial, organizationRoutes] = await Promise.all([
     adapterProviders(environment, 'platformDashboard', [
       { provide: PlatformDashboardGateway, useClass: UnavailablePlatformDashboardGateway },
     ]),
     adapterProviders(environment, 'platformCommercial', [
       { provide: PlatformCommercialGateway, useClass: UnavailablePlatformCommercialGateway },
     ]),
+    loadOrganizationsRoutes(environment),
   ]);
   return [
     {
       path: '',
-      providers: [...dashboard, ...commercial, PlatformDashboardFacade],
+      providers: [
+        ...dashboard,
+        ...commercial,
+        ...(organizationRoutes[0]?.providers ?? []),
+        PlatformDashboardFacade,
+        OrganizationDirectoryFacade,
+      ],
       loadComponent: () =>
         import('./pages/platform-dashboard.page').then((m) => m.PlatformDashboardPage),
     },

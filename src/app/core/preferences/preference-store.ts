@@ -9,6 +9,13 @@ export const PREFERENCE_KEYS = {
   theme: 'nw.theme',
   locale: 'nw.locale',
   accent: 'nw.accent',
+  density: 'nw.density',
+  operatorTotalsMode: 'nw.operatorTotalsMode',
+  operatorTotalsOpen: 'nawara.operator-totals-open',
+  licensesOverviewMode: 'nw.licensesOverviewMode',
+  licensesOverviewOpen: 'nw.licensesOverviewOpen',
+  platformFiguresVisible: 'nw.platformFiguresVisible',
+  platformSubscriptionsVisible: 'nw.platformSubscriptionsVisible',
 } as const;
 
 export type PreferenceName = keyof typeof PREFERENCE_KEYS;
@@ -16,8 +23,15 @@ export type PreferenceName = keyof typeof PREFERENCE_KEYS;
 @Injectable({ providedIn: 'root' })
 export class PreferenceStore {
   /** Explicit appearance commits report failure; existing best-effort preference callers keep their semantics. */
-  commitAppearance(values: { theme: string | null; accent: string | null }): boolean {
-    const names = ['theme', 'accent'] as const;
+  commitAppearance(values: {
+    theme: string | null;
+    accent: string | null;
+    density?: string | null;
+  }): boolean {
+    const names =
+      values.density === undefined
+        ? (['theme', 'accent'] as const)
+        : (['theme', 'accent', 'density'] as const);
     let previous: readonly (string | null)[];
     try {
       previous = names.map((name) => globalThis.localStorage.getItem(PREFERENCE_KEYS[name]));
@@ -27,7 +41,7 @@ export class PreferenceStore {
     try {
       for (const name of names) {
         const value = values[name];
-        if (value === null) globalThis.localStorage.removeItem(PREFERENCE_KEYS[name]);
+        if (value == null) globalThis.localStorage.removeItem(PREFERENCE_KEYS[name]);
         else globalThis.localStorage.setItem(PREFERENCE_KEYS[name], value);
       }
       return true;
@@ -36,7 +50,7 @@ export class PreferenceStore {
       for (const [index, name] of names.entries()) {
         try {
           const value = previous[index] ?? null;
-          if (value === null) globalThis.localStorage.removeItem(PREFERENCE_KEYS[name]);
+          if (value == null) globalThis.localStorage.removeItem(PREFERENCE_KEYS[name]);
           else globalThis.localStorage.setItem(PREFERENCE_KEYS[name], value);
         } catch {
           /* The editor retains the draft for retry. */

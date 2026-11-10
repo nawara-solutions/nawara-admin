@@ -114,7 +114,7 @@ describe('PlatformDashboardPage', () => {
     expect(text(page.querySelector('.platform-dashboard__access'))).toBe(
       en.platformDashboard.header.accessOwner,
     );
-    expect(text(page.querySelector('.platform-dashboard__demo'))).toContain(en.shell.demo.badge);
+    expect(page.querySelector('.platform-dashboard__demo')).toBeNull();
     expect(page.querySelector('.platform-dashboard__header a')?.getAttribute('href')).toBe(
       '/platforms',
     );

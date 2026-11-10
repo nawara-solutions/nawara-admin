@@ -10,6 +10,7 @@ import type { NwIconName } from '../../../shared/ui/icon/icon.registry';
 
 const SECTIONS = [
   { path: 'appearance', key: 'settings.appearance.title', icon: 'palette' },
+  { path: 'page-sections', key: 'settings.accordions.title', icon: 'sliders-horizontal' },
   { path: 'language', key: 'settings.language.title', icon: 'globe' },
   { path: 'account', key: 'settings.account.title', icon: 'user-round' },
   { path: 'security', key: 'settings.security.title', icon: 'shield-check' },
@@ -22,8 +23,7 @@ const SECTIONS = [
   imports: [RouterLink, RouterOutlet, TranslocoPipe, NwIcon],
   template: `
     <header class="settings-workspace__header">
-      <h1>{{ 'settings.title' | transloco }}</h1>
-      <p>{{ 'settings.workspaceDescription' | transloco }}</p>
+      <h1 class="nw-page-title">{{ 'settings.title' | transloco }}</h1>
     </header>
     <nav class="settings-workspace__navigation" [attr.aria-label]="'settings.title' | transloco">
       @for (section of sections(); track section.path) {

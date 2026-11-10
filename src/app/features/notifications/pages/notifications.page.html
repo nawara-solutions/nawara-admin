@@ -1,10 +1,8 @@
 <header class="notifications__header">
-  <span class="notifications__mark" aria-hidden="true"><nw-icon name="bell" size="lg" /></span>
   <div class="notifications__titles">
-    <p class="notifications__eyebrow">{{ 'notifications.header.eyebrow' | transloco }}</p>
-    <h1 class="notifications__title">{{ 'notifications.header.title' | transloco }}</h1>
-    <p class="notifications__muted">{{ 'notifications.header.inboxSubtitle' | transloco }}</p>
-    <p class="notifications__muted">{{ 'notifications.separate' | transloco }}</p>
+    <h1 class="nw-page-title notifications__title">
+      {{ 'notifications.header.title' | transloco }}
+    </h1>
   </div>
   @if (isDemo()) {
     <span class="notifications__demo"
@@ -29,6 +27,11 @@
             (click)="category.set(item.id)"
           >
             {{ item.key | transloco }}
+            @if (item.id === 'all') {
+              <span class="notifications__category-count">({{
+                center.records().length | nwNumber
+              }})</span>
+            }
           </button>
         }
       </nav>
@@ -79,12 +82,9 @@
       </div>
     </div>
 
-    <div class="notifications__list-heading">
-      <h2 id="notifications-list-heading">{{ 'notifications.list.title' | transloco }}</h2>
-      <p>
-        {{ 'notifications.list.count' | transloco: { count: center.records().length | nwNumber } }}
-      </p>
-    </div>
+    <h2 id="notifications-list-heading" class="nw-visually-hidden">
+      {{ 'notifications.list.title' | transloco }}
+    </h2>
 
     @if (center.actionError()) {
       <p class="notifications__action-error" role="alert">

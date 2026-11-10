@@ -264,9 +264,7 @@ describe('Settings pages (P9-S1)', () => {
       ['Français', 'fr'],
       ['العربية', 'ar'],
     ]);
-    expect(root().querySelectorAll('.language-settings__globe nw-icon[name="globe"]')).toHaveLength(
-      3,
-    );
+    expect(root().querySelectorAll('.language-settings__sample')).toHaveLength(3);
     expect(root().querySelectorAll('.language-settings__check')).toHaveLength(1);
     expect(
       root().querySelector('.language-settings__check')?.closest('label')?.querySelector('input')
@@ -281,12 +279,57 @@ describe('Settings pages (P9-S1)', () => {
       const name = root().querySelector('#' + radio.getAttribute('aria-labelledby'));
       const direction = root().querySelector('#' + radio.getAttribute('aria-describedby'));
       expect(name?.getAttribute('lang')).toBe(radio.value);
-      expect(text(direction)).toBe(
+      expect(text(direction).replace(/^[←→]\s*/, '')).toBe(
         radio.value === 'ar' ? en.settings.language.rtl : en.settings.language.ltr,
       );
       expect(radio.closest('label')?.querySelectorAll('input, button, a')).toHaveLength(1);
     }
     expect(text(root().querySelector('.language-settings__note'))).toBe(en.settings.language.note);
+  });
+
+  it('previews Arabic without committing, and discards the draft', async () => {
+    const { harness, root, locale, settle } = await setup();
+    await harness.navigateByUrl('/settings/language');
+    languageRadios(root())
+      .find((radio) => radio.value === 'ar')
+      ?.click();
+    await settle();
+    await settle();
+    expect(locale.locale()).toBe('en');
+    expect(document.documentElement.dir).toBe('ltr');
+    expect(localStorage.getItem(PREFERENCE_KEYS.locale)).toBeNull();
+    expect(root().querySelector('.language-preview__app')?.getAttribute('dir')).toBe('rtl');
+    expect(text(root().querySelector('.language-preview__overview h3'))).toBe(
+      ar.settings.language.sample.overview,
+    );
+    expect(root().querySelector<HTMLButtonElement>('.language-settings__apply')?.disabled).toBe(
+      false,
+    );
+    root().querySelector<HTMLButtonElement>('.language-settings__actions button')?.click();
+    await settle();
+    expect(languageRadios(root()).find((radio) => radio.checked)?.value).toBe('en');
+    expect(root().querySelector('.language-preview__app')?.getAttribute('dir')).toBe('ltr');
+    expect(root().querySelector<HTMLButtonElement>('.language-settings__apply')?.disabled).toBe(
+      true,
+    );
+  });
+
+  it('keeps the draft available for retry when loading a language fails', async () => {
+    const { harness, root, locale, settle } = await setup();
+    await harness.navigateByUrl('/settings/language');
+    vi.spyOn(locale, 'use').mockRejectedValueOnce(new Error('Catalog unavailable'));
+    languageRadios(root())
+      .find((radio) => radio.value === 'fr')
+      ?.click();
+    await settle();
+    root().querySelector<HTMLButtonElement>('.language-settings__apply')?.click();
+    await settle();
+    expect(locale.locale()).toBe('en');
+    expect(text(root().querySelector('[role="alert"]'))).toBe(en.settings.language.error);
+    expect(languageRadios(root()).find((radio) => radio.checked)?.value).toBe('fr');
+    expect(root().querySelector<HTMLButtonElement>('.language-settings__apply')?.disabled).toBe(
+      false,
+    );
   });
 
   it('restores the persisted language when opening the Language route directly', async () => {
@@ -304,13 +347,15 @@ describe('Settings pages (P9-S1)', () => {
     );
   });
 
-  it('switches the application at once: Arabic is right to left, French and English left to right', async () => {
-    const { harness, root, locale, until } = await setup();
+  it('applies the draft language: Arabic is right to left, French and English left to right', async () => {
+    const { harness, root, locale, until, settle } = await setup();
     await harness.navigateByUrl('/settings/language');
     const choose = async (value: string) => {
       languageRadios(root())
         .find((r) => r.value === value)
         ?.click();
+      await settle();
+      root().querySelector<HTMLButtonElement>('.language-settings__apply')?.click();
       await until(() => locale.locale() === value);
     };
     await choose('ar');
@@ -338,7 +383,7 @@ describe('Settings pages (P9-S1)', () => {
   });
 
   it('stays in step with the top-bar language menu, both ways', async () => {
-    const { harness, root, locale, until } = await setup();
+    const { harness, root, locale, until, settle } = await setup();
     await harness.navigateByUrl('/with-top-bar/settings/language');
     const shell = harness.fixture.nativeElement as HTMLElement;
     const trigger = shell.querySelector<HTMLButtonElement>('.preference-menus__trigger');
@@ -347,9 +392,17 @@ describe('Settings pages (P9-S1)', () => {
     languageRadios(root())
       .find((r) => r.value === 'fr')
       ?.click();
+    await settle();
+    root().querySelector<HTMLButtonElement>('.language-settings__apply')?.click();
     await until(() => locale.locale() === 'fr');
     expect(trigger?.getAttribute('aria-label')).toBe(`${fr.preferences.language.label}: Français`);
 
+    // An external top-bar change supersedes an uncommitted page selection.
+    languageRadios(root())
+      .find((r) => r.value === 'en')
+      ?.click();
+    await settle();
+    expect(locale.locale()).toBe('fr');
     // Top bar → Settings
     trigger?.click();
     await harness.fixture.whenStable();
@@ -365,7 +418,7 @@ describe('Settings pages (P9-S1)', () => {
   });
 
   it('persists through the existing preference key only, and changes no session, business or security state', async () => {
-    const { harness, root, session, locale, until } = await setup(operator);
+    const { harness, root, session, locale, until, settle } = await setup(operator);
     const actorBefore = session.actor();
     const writes: string[] = [];
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (this: Storage, key, value) {
@@ -376,6 +429,8 @@ describe('Settings pages (P9-S1)', () => {
       languageRadios(root())
         .find((r) => r.value === value)
         ?.click();
+      await settle();
+      root().querySelector<HTMLButtonElement>('.language-settings__apply')?.click();
       await until(() => locale.locale() === value);
     }
     await harness.navigateByUrl('/settings');
