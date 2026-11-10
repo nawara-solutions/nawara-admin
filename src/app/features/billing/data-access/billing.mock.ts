@@ -84,7 +84,7 @@ export class MockBillingGateway extends BillingGateway {
       if (company !== world.company.id) return this.fail(NOT_FOUND);
       if (this.scenario === 'error') return this.fail({ kind: 'unavailable', status: 503 });
       const answer = demoPaymentFollowUps(
-        this.scenario === 'empty' ? { ...world, paymentIssues: [] } : world,
+        this.scenario === 'empty' ? { ...world, paymentRequests: [] } : world,
         this.now(),
       );
       return of(answer).pipe(delay(this.latency));

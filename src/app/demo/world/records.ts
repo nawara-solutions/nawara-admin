@@ -193,11 +193,111 @@ export interface AdminInvitationRecord {
   readonly revokedBy: string | null;
 }
 
-/** A payment that failed or awaits action (Payment), for an Organization. */
-export interface PaymentIssueRecord {
+// ── Billing and Payment facts (WP-3.2) ──────────────────────────────────────────────────────────────────────────────
+// Mirrored from nawara-core `8d89bed` with Core's own field names, and ONLY the fields Admin's projections need: no amount,
+// currency, due date, fee, balance, provider reference or raw provider payload is kept (none is shown, and none would be
+// truthful demo data). Each layer is its own record; none is derived from another, and no status implies another layer's.
+// Paths: `billing-service/db/migrations/…`, `payment-service/db/migrations/…`.
+
+/** Billing's invoice states (`billing 0003_invoice.sql:68`). */
+export type InvoiceStatus = 'draft' | 'open' | 'paid' | 'void';
+
+/** A Billing invoice: the obligation, and its Organization context (`invoice."organizationId"`, `0003:16`). */
+export interface InvoiceRecord {
   readonly id: string;
   readonly organizationId: OrganizationId;
-  readonly kind: 'failed' | 'awaiting_action';
+  readonly status: InvoiceStatus;
+}
+
+/** Billing's payment-request states (`billing 0006_payment_request.sql:29`). */
+export type PaymentRequestStatus =
+  'created' | 'sending' | 'requested' | 'paid' | 'failed' | 'cancelled' | 'expired' | 'rejected';
+
+/**
+ * Billing's request to Payment for one invoice (`0006:5-34`). `paymentId` is null until Payment acknowledges it (`created`,
+ * `sending`, `rejected`) and always set once acknowledged (`requested`, `paid`, `failed`, `expired`) (`0006:31-33`). Its status
+ * is Billing's view of the request, NOT a financial outcome: a `failed` request does not prove no money was captured.
+ */
+export interface PaymentRequestRecord {
+  readonly id: string;
+  readonly invoiceId: string;
+  readonly status: PaymentRequestStatus;
+  readonly paymentId: string | null;
+}
+
+/** Payment's payment states (`payment 0012_payment_closing_finality.sql:72`). */
+export type PaymentStatus =
+  'created' | 'pending' | 'closing' | 'succeeded' | 'failed' | 'cancelled' | 'expired';
+
+/** Payment's own payment for one payment request (`payment 0002_payment.sql:4-27`, `"paymentRequestId"`). */
+export interface PaymentRecord {
+  readonly id: string;
+  readonly paymentRequestId: string;
+  readonly status: PaymentStatus;
+}
+
+/** Attempt states (`payment 0003_payment_attempt.sql:21`); `unknown` is Core's own state for an unresolved attempt. */
+export type PaymentAttemptStatus =
+  'initiated' | 'submitted' | 'succeeded' | 'failed' | 'expired' | 'unknown';
+
+/** One provider attempt of a payment; a payment may have several, numbered from 1 (`0003:3-24`). */
+export interface PaymentAttemptRecord {
+  readonly id: string;
+  readonly paymentId: string;
+  readonly attemptNumber: number;
+  readonly status: PaymentAttemptStatus;
+  /** `0003:22`: how a failure was classified, if at all. `ambiguous` says the outcome is not known. */
+  readonly failureClass: 'retryable' | 'terminal' | 'ambiguous' | null;
+}
+
+/** Webhook processing states (`payment 0005_webhook_event.sql:20`). */
+export type ProviderObservationState =
+  'received' | 'processing' | 'processed' | 'ignored' | 'unmatched' | 'conflict' | 'failed';
+
+/**
+ * A provider OBSERVATION: a webhook Payment received (`webhook_event`, `0005:5-23`), matched to an attempt or not. It is not a
+ * verified fact: what it says is not kept here, and only a provider transaction fact records a verified capture, refund or
+ * chargeback.
+ */
+export interface ProviderObservationRecord {
+  readonly id: string;
+  readonly matchedAttemptId: string | null;
+  readonly state: ProviderObservationState;
+}
+
+/** Verified provider fact kinds (`payment 0019_payment_dispute.sql:48`, extending `0013:45`, `0017:228`). */
+export type ProviderFactKind = 'capture' | 'refund' | 'chargeback';
+
+/**
+ * A VERIFIED provider fact (`provider_transaction_fact`, `payment 0013_provider_transaction_fact.sql:28-52`): bound to one
+ * attempt of one payment, first reported through an authenticated channel (`source`), and test-mode only in Core
+ * (`liveMode = false`, `0013:49`). Every record in the demo world is a DETERMINISTIC DEMO FIXTURE: it was never observed by
+ * Nawara Core, is not a provider receipt and is not settlement evidence.
+ */
+export interface ProviderFactRecord {
+  readonly id: string;
+  readonly kind: ProviderFactKind;
+  readonly paymentId: string;
+  readonly attemptId: string;
+  readonly source: 'webhook' | 'status_check';
+  /** Set exactly when `source` is `webhook` (`0013:51`). */
+  readonly webhookEventId: string | null;
+  readonly liveMode: false;
+  readonly demoFixture: true;
+}
+
+/** Billing's refund-case states (`billing 0033_refund_case.sql:51`). */
+export type RefundCaseStatus = 'open' | 'cancelled' | 'completed';
+
+/**
+ * Billing's refund CASE for one captured payment (`0033:22-51`): the owner's request to refund, not a refund. A refund is
+ * verified only by a `refund` provider fact; `completed` is Billing's case state, never read here as money returned.
+ */
+export interface RefundCaseRecord {
+  readonly id: string;
+  readonly paymentRequestId: string;
+  readonly paymentId: string;
+  readonly status: RefundCaseStatus;
 }
 
 /**
@@ -283,7 +383,14 @@ export interface DemoWorldTables {
   /** Member identities and their Organization memberships (P5-S1). */
   readonly members: readonly MemberIdentityRecord[];
   readonly memberships: readonly MembershipRecord[];
-  readonly paymentIssues: readonly PaymentIssueRecord[];
+  /** Billing and Payment facts (WP-3.2): payment follow-ups are derived from them (`paymentIssuesOf`), never stored. */
+  readonly invoices: readonly InvoiceRecord[];
+  readonly paymentRequests: readonly PaymentRequestRecord[];
+  readonly payments: readonly PaymentRecord[];
+  readonly paymentAttempts: readonly PaymentAttemptRecord[];
+  readonly providerObservations: readonly ProviderObservationRecord[];
+  readonly providerFacts: readonly ProviderFactRecord[];
+  readonly refundCases: readonly RefundCaseRecord[];
   readonly platformCommercial: readonly PlatformCommercialRecord[];
   readonly activity: readonly ActivityRecord[];
   /** Records created at run time so far: their ids are numbered from it, so they are stable and never reuse a seed id. */

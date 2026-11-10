@@ -14,8 +14,14 @@ import {
   OperatorProfileRecord,
   OrganizationRecord,
   OrganizationSubscriptionRecord,
+  PaymentAttemptRecord,
+  PaymentRequestRecord,
+  PaymentRequestStatus,
   PlatformActivityRecord,
   PlatformAssignmentRecord,
+  ProviderFactRecord,
+  ProviderObservationRecord,
+  RefundCaseRecord,
 } from './records';
 
 /**
@@ -432,10 +438,139 @@ export const activeAdminInvitationsOf = (
     (i) => invitationStatusOf(i, now) === 'active',
   );
 
+// ── Billing and Payment facts (WP-3.2) ─────────────────────────────────────────────────────────────────────────────
+// Pure readings of the demo world's fact tables (records.ts; nawara-core `8d89bed`). Each layer stays its own: a request's
+// status never states an attempt's, an attempt's never states a payment fact, and only a verified provider fact (a demo
+// fixture here) states that money moved. Nothing here mutates the world.
+
+/** The invoices of these Organizations (an invoice's Organization context, `billing 0003:16`). */
+export const invoicesOf = (world: DemoWorldTables, organizations: readonly OrganizationRecord[]) =>
+  ofOrganizations(world.invoices, organizations);
+
+/** A payment request with its invoice's Organization: the scope it is read in. */
+export interface ScopedPaymentRequest extends PaymentRequestRecord {
+  readonly organizationId: OrganizationId;
+}
+
+/** The payment requests of these Organizations, through their invoices, in record order. */
+export function paymentRequestsOf(
+  world: DemoWorldTables,
+  organizations: readonly OrganizationRecord[],
+): readonly ScopedPaymentRequest[] {
+  const invoices = new Map(invoicesOf(world, organizations).map((i) => [i.id, i]));
+  return world.paymentRequests.flatMap((request) => {
+    const invoice = invoices.get(request.invoiceId);
+    return invoice ? [{ ...request, organizationId: invoice.organizationId }] : [];
+  });
+}
+
+/** Payment's payments for one request (normally one; `payment."paymentRequestId"`). */
+export const paymentsOfRequest = (world: DemoWorldTables, requestId: string) =>
+  world.payments.filter((p) => p.paymentRequestId === requestId);
+
+/** Every attempt of a request's payments, by payment then attempt number: several may exist, none erases another. */
+export function attemptsOfRequest(
+  world: DemoWorldTables,
+  requestId: string,
+): readonly PaymentAttemptRecord[] {
+  const payments = paymentsOfRequest(world, requestId).map((p) => p.id);
+  return world.paymentAttempts
+    .filter((a) => payments.includes(a.paymentId))
+    .sort(
+      (a, b) =>
+        payments.indexOf(a.paymentId) - payments.indexOf(b.paymentId) ||
+        a.attemptNumber - b.attemptNumber,
+    );
+}
+
+/**
+ * What the provider reported about a request, kept in two separate lists: OBSERVATIONS (webhooks matched to its attempts;
+ * received, not verified) and VERIFIED facts (provider transaction facts bound to its payments; demo fixtures here).
+ */
+export interface ProviderEvidence {
+  readonly observations: readonly ProviderObservationRecord[];
+  readonly verifiedFacts: readonly ProviderFactRecord[];
+}
+
+export function providerEvidenceOf(world: DemoWorldTables, requestId: string): ProviderEvidence {
+  const attempts = new Set(attemptsOfRequest(world, requestId).map((a) => a.id));
+  const payments = new Set(paymentsOfRequest(world, requestId).map((p) => p.id));
+  return {
+    observations: world.providerObservations.filter(
+      (o) => o.matchedAttemptId !== null && attempts.has(o.matchedAttemptId),
+    ),
+    verifiedFacts: world.providerFacts.filter((f) => payments.has(f.paymentId)),
+  };
+}
+
+/**
+ * Whether money was collected for a request, as far as the facts go. `captureVerified`: a verified `capture` fact exists (a
+ * demo fixture). `unknown` otherwise, WHATEVER the request, payment or attempt status says: a failed request, a failed or
+ * unknown attempt and a received webhook prove neither collection nor its absence. There is no "not collected" value.
+ */
+export type CollectionEvidence =
+  | {
+      readonly kind: 'captureVerified';
+      readonly factIds: readonly string[];
+      readonly demoFixture: true;
+    }
+  | { readonly kind: 'unknown' };
+
+export function collectionEvidenceOf(
+  world: DemoWorldTables,
+  requestId: string,
+): CollectionEvidence {
+  const captures = providerEvidenceOf(world, requestId).verifiedFacts.filter(
+    (f) => f.kind === 'capture',
+  );
+  return captures.length === 0
+    ? { kind: 'unknown' }
+    : { kind: 'captureVerified', factIds: captures.map((f) => f.id), demoFixture: true };
+}
+
+/**
+ * A request's refund side, kept apart: Billing's refund CASES (requests to refund, with their own state) and VERIFIED `refund`
+ * facts. A case, open or completed, is never read as money returned; only a `refund` fact is evidence of one.
+ */
+export interface RefundEvidence {
+  readonly cases: readonly RefundCaseRecord[];
+  readonly verifiedRefundFactIds: readonly string[];
+}
+
+export function refundEvidenceOf(world: DemoWorldTables, requestId: string): RefundEvidence {
+  return {
+    cases: world.refundCases.filter((c) => c.paymentRequestId === requestId),
+    verifiedRefundFactIds: providerEvidenceOf(world, requestId)
+      .verifiedFacts.filter((f) => f.kind === 'refund')
+      .map((f) => f.id),
+  };
+}
+
+/**
+ * A payment follow-up (P7-S3; WP-1.2 copy): a request Billing marks `failed`, or one `requested` and awaiting its payer. A
+ * classification of the REQUEST, never a financial outcome (see `collectionEvidenceOf`). Every other request status makes no
+ * follow-up. `id` is the request's.
+ */
+export interface PaymentIssue {
+  readonly id: string;
+  readonly organizationId: OrganizationId;
+  readonly kind: 'failed' | 'awaiting_action';
+}
+
+const FOLLOW_UP_KIND: Partial<Record<PaymentRequestStatus, PaymentIssue['kind']>> = {
+  failed: 'failed',
+  requested: 'awaiting_action',
+};
+
+/** The payment follow-ups of these Organizations, derived from their payment requests (WP-3.2; no stored issue). */
 export const paymentIssuesOf = (
   world: DemoWorldTables,
   organizations: readonly OrganizationRecord[],
-) => ofOrganizations(world.paymentIssues, organizations);
+): readonly PaymentIssue[] =>
+  paymentRequestsOf(world, organizations).flatMap((request) => {
+    const kind = FOLLOW_UP_KIND[request.status];
+    return kind ? [{ id: request.id, organizationId: request.organizationId, kind }] : [];
+  });
 
 export const platformCommercialOf = (world: DemoWorldTables, platform: PlatformId) =>
   world.platformCommercial.find((c) => c.platformId === platform);

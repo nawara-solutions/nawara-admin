@@ -327,7 +327,7 @@ describe('Platform subscriptions of the demo world (P7-S2)', () => {
       (e) => e.organizationId === riad.id,
     );
     expect(entry).toMatchObject({ state: 'active', entitlement: 'entitled' });
-    expect(of(DEMO_SCHOOL_PLATFORM_ID, { ...world, paymentIssues: [] })).toEqual(
+    expect(of(DEMO_SCHOOL_PLATFORM_ID, { ...world, paymentRequests: [] })).toEqual(
       of(DEMO_SCHOOL_PLATFORM_ID),
     );
   });

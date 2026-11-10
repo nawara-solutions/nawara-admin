@@ -591,6 +591,105 @@ function subscriptionFact(
 }
 
 /** The canonical demo world at `now` (milliseconds since the epoch). */
+/**
+ * Billing and Payment facts (WP-3.2), deterministic and independent of the clock. Illustrative mock data in Core's shapes
+ * (nawara-core `8d89bed`), carrying no amount, currency or date. Three requests, each a separate scenario:
+ * - Collège Riad (School): the request is `failed`, its payment `failed`, its one attempt `failed` (terminal), and Payment
+ *   received a provider webhook for that attempt, but NO verified fact exists: whether money was collected stays unknown;
+ * - Auto-École du Port (Drive): the request is `requested` (awaiting the payer); a first attempt `failed` (retryable), a second
+ *   is `unknown` (ambiguous): no verified financial conclusion;
+ * - École Horizon (School): the request is `paid`, its payment `succeeded`, and a `capture` provider fact (a DEMO FIXTURE,
+ *   never observed by Nawara Core) is bound to its attempt; an OPEN refund case exists with no `refund` fact: a refund
+ *   requested, not a refund made.
+ * Payment follow-ups (`paymentIssuesOf`) are derived: the `failed` and the `requested` request, as the two former
+ * payment-issue records were. Nothing here is a reconciliation case, a dispute or a late success.
+ */
+const PAYMENT_FACTS: Pick<
+  DemoWorldTables,
+  | 'invoices'
+  | 'paymentRequests'
+  | 'payments'
+  | 'paymentAttempts'
+  | 'providerObservations'
+  | 'providerFacts'
+  | 'refundCases'
+> = {
+  invoices: [
+    { id: 'invoice-1', organizationId: org(3), status: 'open' },
+    { id: 'invoice-2', organizationId: org(21), status: 'open' },
+    { id: 'invoice-3', organizationId: org(1), status: 'paid' },
+  ],
+  paymentRequests: [
+    { id: 'payment-request-1', invoiceId: 'invoice-1', status: 'failed', paymentId: 'payment-1' },
+    {
+      id: 'payment-request-2',
+      invoiceId: 'invoice-2',
+      status: 'requested',
+      paymentId: 'payment-2',
+    },
+    { id: 'payment-request-3', invoiceId: 'invoice-3', status: 'paid', paymentId: 'payment-3' },
+  ],
+  payments: [
+    { id: 'payment-1', paymentRequestId: 'payment-request-1', status: 'failed' },
+    { id: 'payment-2', paymentRequestId: 'payment-request-2', status: 'pending' },
+    { id: 'payment-3', paymentRequestId: 'payment-request-3', status: 'succeeded' },
+  ],
+  paymentAttempts: [
+    {
+      id: 'attempt-1',
+      paymentId: 'payment-1',
+      attemptNumber: 1,
+      status: 'failed',
+      failureClass: 'terminal',
+    },
+    {
+      id: 'attempt-2',
+      paymentId: 'payment-2',
+      attemptNumber: 1,
+      status: 'failed',
+      failureClass: 'retryable',
+    },
+    {
+      id: 'attempt-3',
+      paymentId: 'payment-2',
+      attemptNumber: 2,
+      status: 'unknown',
+      failureClass: 'ambiguous',
+    },
+    {
+      id: 'attempt-4',
+      paymentId: 'payment-3',
+      attemptNumber: 1,
+      status: 'succeeded',
+      failureClass: null,
+    },
+  ],
+  providerObservations: [
+    { id: 'webhook-event-1', matchedAttemptId: 'attempt-1', state: 'processed' },
+    { id: 'webhook-event-2', matchedAttemptId: 'attempt-4', state: 'processed' },
+  ],
+  providerFacts: [
+    {
+      id: 'provider-fact-1',
+      kind: 'capture',
+      paymentId: 'payment-3',
+      attemptId: 'attempt-4',
+      source: 'webhook',
+      webhookEventId: 'webhook-event-2',
+      liveMode: false,
+      demoFixture: true,
+    },
+  ],
+  refundCases: [
+    {
+      id: 'refund-case-1',
+      paymentRequestId: 'payment-request-3',
+      paymentId: 'payment-3',
+      status: 'open',
+    },
+  ],
+};
+
 export function demoWorldSeed(now: number): DemoWorldTables {
   const at = (hoursFromNow: number) => new Date(now + hoursFromNow * HOUR_MS).toISOString();
   const organizations: OrganizationRecord[] = ORGANIZATIONS.map((o) => ({
@@ -686,10 +785,7 @@ export function demoWorldSeed(now: number): DemoWorldTables {
     })),
     members,
     memberships,
-    paymentIssues: [
-      { id: 'payment-issue-1', organizationId: org(3), kind: 'failed' },
-      { id: 'payment-issue-2', organizationId: org(21), kind: 'awaiting_action' },
-    ],
+    ...PAYMENT_FACTS,
     platformCommercial: [
       { platformId: S, personalPremium: 21, assistedPayments: 'enabled' },
       { platformId: D, personalPremium: 9, assistedPayments: 'disabled' },

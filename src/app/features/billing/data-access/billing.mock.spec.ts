@@ -14,7 +14,7 @@ import {
   DEMO_SCHOOL_PLATFORM_ID,
   demoWorldSeed,
 } from '../../../demo/world/seed';
-import { subscriptionStateOf } from '../../../demo/world/selectors';
+import { paymentIssuesOf, subscriptionStateOf } from '../../../demo/world/selectors';
 import { NW_CLOCK } from '../../../shared/format/clock';
 import {
   BILLING_DEMO_SCENARIO,
@@ -65,8 +65,9 @@ describe('Payment follow-ups of the demo world (P7-S3)', () => {
   const world = demoWorldSeed(NOW);
   const { followUps } = demoPaymentFollowUps(world, NOW);
 
-  it('lists exactly the two seeded payment-issue records, with their Organization and Platform', () => {
-    expect(world.paymentIssues).toHaveLength(2);
+  it('lists exactly the two follow-ups the seeded payment requests give, with their Organization and Platform', () => {
+    // Derived from the requests (WP-3.2): the `failed` one and the `requested` one; the `paid` one is no follow-up.
+    expect(paymentIssuesOf(world, world.organizations)).toHaveLength(2);
     expect(followUps).toHaveLength(2);
     expect(
       followUps.map((f) => [f.organizationName, f.platform.id, f.platform.name, f.kind]),
@@ -92,7 +93,7 @@ describe('Payment follow-ups of the demo world (P7-S3)', () => {
       entitlement: 'notEntitled',
     });
     // Without the issues, the subscriptions are the same: a payment issue never changes a state.
-    const noIssues: DemoWorldTables = { ...world, paymentIssues: [] };
+    const noIssues: DemoWorldTables = { ...world, paymentRequests: [] };
     for (const o of world.organizations)
       expect(subscriptionStateOf(noIssues, o.id, NOW)).toEqual(
         subscriptionStateOf(world, o.id, NOW),

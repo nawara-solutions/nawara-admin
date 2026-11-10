@@ -201,7 +201,16 @@ describe('MockOrganizationCommandGateway (demo world)', () => {
     await create();
     const after = world.snapshot();
     expect(after.subscriptions).toEqual(before.subscriptions);
-    expect(after.paymentIssues).toEqual(before.paymentIssues);
+    for (const table of [
+      'invoices',
+      'paymentRequests',
+      'payments',
+      'paymentAttempts',
+      'providerObservations',
+      'providerFacts',
+      'refundCases',
+    ] as const)
+      expect(after[table]).toBe(before[table]);
     expect(after.adminInvitations).toEqual(before.adminInvitations);
     expect(after.platformCommercial).toEqual(before.platformCommercial);
     // Memberships are counts on the Organization records: the seed's are untouched, the new one starts at 0.
