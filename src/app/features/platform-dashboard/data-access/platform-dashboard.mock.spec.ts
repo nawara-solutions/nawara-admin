@@ -176,16 +176,13 @@ describe('MockPlatformCommercialGateway', () => {
     expect(data(school.organizationSubscriptions)).toHaveLength(16);
   });
 
-  it('reports the assisted-payments setting read only; a disabled Platform has no Organization override', async () => {
+  it('never reports assisted payments as a Platform setting: eligibility not verified, whatever the demo flag (WP-2.2)', async () => {
     const { commercial } = setUp('owner');
-    const school = data(
-      (await firstValueFrom(commercial.load(DEMO_SCHOOL_PLATFORM_ID))).assistedPayments,
-    );
-    expect(school).toEqual({ platform: 'enabled', organizationsDisabled: 2, organizations: 16 });
-    const drive = data(
-      (await firstValueFrom(commercial.load(DEMO_DRIVE_PLATFORM_ID))).assistedPayments,
-    );
-    expect(drive).toEqual({ platform: 'disabled', organizationsDisabled: 0, organizations: 8 });
+    // The demo world flags School "enabled" and Drive "disabled"; neither flag is read.
+    for (const platform of [DEMO_SCHOOL_PLATFORM_ID, DEMO_DRIVE_PLATFORM_ID]) {
+      const answer = await firstValueFrom(commercial.load(platform));
+      expect(data(answer.assistedPayments), platform).toEqual({ status: 'notVerified' });
+    }
   });
 
   it('counts payment issues from the Payment records, per Platform', async () => {

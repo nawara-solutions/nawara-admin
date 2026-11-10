@@ -146,17 +146,17 @@ export const commercialListOf = (
     {
       organizationId: HORIZON,
       subscription: { state: 'active', endsAt: new Date(NOW + 365 * DAY).toISOString() },
-      assistedPayments: { effective: 'enabled', platform: 'enabled', organization: 'inherit' },
+      assistedPayments: { status: 'notVerified' },
     },
     {
       organizationId: RIAD,
       subscription: { state: 'active', endsAt: new Date(NOW + 6 * DAY).toISOString() },
-      assistedPayments: { effective: 'enabled', platform: 'enabled', organization: 'inherit' },
+      assistedPayments: { status: 'notVerified' },
     },
     {
       organizationId: ATLAS,
       subscription: { state: 'none' },
-      assistedPayments: { effective: 'disabled', platform: 'enabled', organization: 'disabled' },
+      assistedPayments: { status: 'notVerified' },
     },
   ],
 });
@@ -173,10 +173,7 @@ export const commercialOf = (
   },
   entitlement: { status: 'available', data: 'entitled' },
   paymentIssues: { status: 'available', data: count(1) },
-  assistedPayments: {
-    status: 'available',
-    data: { effective: 'enabled', platform: 'enabled', organization: 'inherit' },
-  },
+  assistedPayments: { status: 'available', data: { status: 'notVerified' } },
 });
 
 interface Pending<K, T> {

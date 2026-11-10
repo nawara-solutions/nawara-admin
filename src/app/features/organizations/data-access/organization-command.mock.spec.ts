@@ -359,7 +359,8 @@ describe('a created Organization across the views (demo world)', () => {
     );
     expect(commercial.organizations.find((c) => c.organizationId === NEW)).toMatchObject({
       subscription: { state: 'none' },
-      assistedPayments: { organization: 'inherit' },
+      // Never a policy it inherits: eligibility is Core's, per request (WP-2.2).
+      assistedPayments: { status: 'notVerified' },
     });
   });
 

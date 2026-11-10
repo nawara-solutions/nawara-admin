@@ -147,6 +147,30 @@ describe('OrganizationDirectoryPage', () => {
     );
   });
 
+  it('shows each Organization’s assisted payments as eligibility not verified, never a policy (WP-2.2)', async () => {
+    const { element, organizations, commercial, settle } = await render(
+      OrganizationDirectoryPage,
+      owner,
+      '/platforms/school/organizations',
+    );
+    organizations.lists[0]?.answer.next(directoryOf());
+    commercial.lists[0]?.answer.next(commercialListOf());
+    await settle();
+    const cells = [...element.querySelectorAll('[data-eligibility]')].map((cell) => text(cell));
+    expect(cells).toEqual([
+      en.organizations.eligibility.notVerified,
+      en.organizations.eligibility.notVerified,
+      en.organizations.eligibility.notVerified,
+    ]);
+    const table = text(element.querySelector('.organization-table__table tbody'));
+    expect(table).toContain(en.organizations.eligibility.source);
+    expect(table).not.toMatch(/\b(enabled|disabled|inherited|eligible)\b/i);
+    // The subscription column is unchanged.
+    expect(text(element.querySelectorAll('.organization-table__table tbody tr')[1])).toContain(
+      'Ends in 6 days',
+    );
+  });
+
   it('shows an operator no subscription filter and no commercial column', async () => {
     const { element, organizations, commercial, settle } = await render(
       OrganizationDirectoryPage,

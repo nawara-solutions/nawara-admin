@@ -194,18 +194,8 @@ export class MockPlatformCommercialGateway extends PlatformCommercialGateway {
         status: 'available',
         data: count(paymentIssuesOf(world, organizations).length),
       },
-      assistedPayments: {
-        status: 'available',
-        data: {
-          platform: facts.assistedPayments,
-          // An override only matters while the Platform enables it: a disabled Platform cannot be enabled below.
-          organizationsDisabled:
-            facts.assistedPayments === 'enabled'
-              ? organizations.filter((o) => o.assistedPayments === 'disabled').length
-              : 0,
-          organizations: organizations.length,
-        },
-      },
+      // The demo world's old assisted-payments flags are never read: eligibility is Core's, per request (WP-2.2).
+      assistedPayments: { status: 'available', data: { status: 'notVerified' } },
     };
     return answer(commercial, this.latency);
   }

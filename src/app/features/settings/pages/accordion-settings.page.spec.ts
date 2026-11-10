@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
+import ar from '../../../../i18n/ar.json';
 import en from '../../../../i18n/en.json';
+import fr from '../../../../i18n/fr.json';
 import { Actor } from '../../../core/auth/actor';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { APP_ENVIRONMENT } from '../../../core/config/app-environment';
@@ -123,20 +125,43 @@ describe('Page sections settings: assisted payments are read only (A31-04 / X34,
     expect(text(panel)).not.toContain(A.demoPolicy);
   });
 
-  it("keeps the read-only preview of each Platform's policy, as the demo world holds it", async () => {
+  it('keeps the read-only preview, saying only that eligibility is not verified, whatever the demo flag (WP-2.2)', async () => {
     const s = await render(owner);
     await s.choose(A.platformSettings);
     const status = () =>
       text(s.preview()!.querySelector('.accordion-settings__preview-setting strong'));
     expect(text(s.preview())).toContain(P.assistedPayments);
+    expect(text(s.preview())).toContain(P.notVerifiedDetail);
+    // School's demo flag is "enabled", Drive's "disabled": both read as not verified, never as a setting.
     expect(text(s.preview()!.querySelector('h3'))).toBe('Nawara School');
-    expect(status()).toBe(P.enabled);
+    expect(status()).toBe(P.notVerified);
     const select = s.pagePanel()!.querySelector<HTMLSelectElement>('select#policy-platform')!;
     select.value = DEMO_DRIVE_PLATFORM_ID;
     select.dispatchEvent(new Event('change'));
     await s.settle();
     expect(text(s.preview()!.querySelector('h3'))).toBe('Nawara Drive');
-    expect(status()).toBe(P.disabled);
+    expect(status()).toBe(P.notVerified);
+    expect(text(s.preview())).not.toMatch(/\b(enabled|disabled|inherit|eligible)\b/i);
+  });
+
+  it('says the same uncertainty in English, French and Arabic, with no policy wording left (WP-2.2)', () => {
+    for (const [lang, copy] of [
+      ['en', en],
+      ['fr', fr],
+      ['ar', ar],
+    ] as const) {
+      const policies: Record<string, string> = copy.platformDashboard.policies;
+      const eligibility: Record<string, string> = copy.organizations.eligibility;
+      // One phrase per language, shared by the dashboard, Settings and the Organization screens.
+      expect(eligibility['notVerified'], lang).toBe(policies['notVerified']);
+      expect(eligibility['notVerifiedDetail'], lang).toBe(policies['notVerifiedDetail']);
+      expect(policies['notVerified']!.length, lang).toBeGreaterThan(0);
+      for (const removed of ['enabled', 'disabled', 'enabledDetail', 'disabledDetail', 'change'])
+        expect(Object.hasOwn(policies, removed), `${lang} ${removed}`).toBe(false);
+      expect(Object.hasOwn(copy.organizations, 'policy'), lang).toBe(false);
+      expect(Object.hasOwn(copy.settings.accordions, 'previewScope'), lang).toBe(false);
+    }
+    expect(en.platformDashboard.policies.notVerified).toBe('Eligibility not verified');
   });
 
   it('changes no Platform or Organization assisted-payments state, whatever the owner does on the page', async () => {

@@ -72,9 +72,11 @@
                 </span>
               </td>
               <td>
-                @let policy = policyKeys(facts.assistedPayments);
-                <span class="organization-table__policy">{{ policy.value | transloco }}</span>
-                <span class="organization-table__source">{{ policy.source | transloco }}</span>
+                @let eligibility = eligibilityKeys[facts.assistedPayments.status];
+                <span class="organization-table__policy" data-eligibility>{{
+                  eligibility.value | transloco
+                }}</span>
+                <span class="organization-table__source">{{ eligibility.source | transloco }}</span>
               </td>
             } @else {
               <td>

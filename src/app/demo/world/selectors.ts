@@ -358,9 +358,10 @@ export const platformCommercialOf = (world: DemoWorldTables, platform: PlatformI
   world.platformCommercial.find((c) => c.platformId === platform);
 
 /**
- * The assisted-payments policy that applies to an Organization: the Platform's setting, unless the Organization is set
- * to `disabled` (an override can only turn it off; a disabled Platform cannot be enabled below). `null`: the Platform
- * has no commercial record.
+ * LEGACY DEMO FLAG, never eligibility (A31-04 / X34, WP-2.2): the demo world's invented "policy" (the Platform's flag,
+ * unless the Organization is set to `disabled`). Core has no such policy; it decides each assistance request from its
+ * own facts (BIL-13). No read model shows this value; it remains only so the demo assistance seed can be checked
+ * against the demo world. `null`: the Platform has no commercial record.
  */
 export function assistedPaymentsOf(
   world: DemoWorldTables,

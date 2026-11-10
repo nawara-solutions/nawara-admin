@@ -170,22 +170,16 @@ describe('PlatformDashboardPage', () => {
     expect(facts[1]).toContain('1');
   });
 
-  it('shows the assisted-payments policy read only: "Change policy" does nothing and says why', async () => {
+  // Still failing since PR #89, which stopped rendering this card on the page (a pre-existing regression, reported);
+  // the expectations now state WP-2.2's meaning: eligibility not verified, no switch, nothing to change.
+  it('shows assisted payments read only: eligibility not verified, with no policy switch', async () => {
     const { page, dashboard, commercial, settle } = await render(owner);
     dashboard.requests[0]?.answer.next(dashboardOf(SCHOOL));
     commercial.requests[0]?.answer.next(commercialOf(SCHOOL));
     await settle();
     const policy = page.querySelector('adm-assisted-payments-policy');
-    expect(text(policy)).toContain(en.platformDashboard.policies.enabled);
-    expect(text(policy)).toContain('1 of 3 have it disabled');
-    const change = policy?.querySelector<HTMLButtonElement>('button');
-    expect(change?.getAttribute('aria-disabled')).toBe('true');
-    const note = page.querySelector(`#${change?.getAttribute('aria-describedby') ?? 'none'}`);
-    expect(text(note)).toBe(en.shell.notAvailableYet);
-    const requests = [dashboard.requests.length, commercial.requests.length];
-    change?.click();
-    await settle();
-    expect([dashboard.requests.length, commercial.requests.length]).toEqual(requests);
+    expect(text(policy)).toContain(en.platformDashboard.policies.notVerified);
+    expect(policy?.querySelectorAll('button, [role="switch"], input')).toHaveLength(0);
   });
 
   it('shows an operator the hierarchy only: no assignments, subscriptions, policies or activity', async () => {
