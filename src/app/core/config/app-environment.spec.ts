@@ -41,6 +41,7 @@ const bindings: DemoBindings = {
     activity: [],
     services: [],
     releases: [],
+    platformSettings: [],
     companySettings: [],
     accountSecurity: [],
     platformDashboard: [],

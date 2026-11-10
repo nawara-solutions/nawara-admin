@@ -66,6 +66,7 @@ const DEMO: DemoBindings = {
     activity: [],
     services: [],
     releases: [],
+    platformSettings: [],
     companySettings: [],
     accountSecurity: [],
     platformDashboard: [],
