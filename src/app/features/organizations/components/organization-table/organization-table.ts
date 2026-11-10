@@ -7,7 +7,7 @@ import { NW_CLOCK } from '../../../../shared/format/clock';
 import { NwDatePipe } from '../../../../shared/format/format.pipes';
 import { NwStatusBadge } from '../../../../shared/ui/status-badge/status-badge';
 import { DirectoryRow } from '../../application/organization-query';
-import { SUBSCRIPTION_BADGES, policyKeys, subscriptionNote } from '../commercial-display';
+import { ELIGIBILITY_KEYS, SUBSCRIPTION_BADGES, subscriptionNote } from '../commercial-display';
 
 /**
  * The Organization directory's rows (feature-local; a generic table waits for a second consumer, P4/P5): a table when
@@ -33,7 +33,7 @@ export class OrganizationTable {
   readonly listId = input.required<string>();
 
   protected readonly badges = SUBSCRIPTION_BADGES;
-  protected readonly policyKeys = policyKeys;
+  protected readonly eligibilityKeys = ELIGIBILITY_KEYS;
 
   protected pathOf(row: DirectoryRow): string {
     return organizationPath(row.organization.platformId, row.organization.id);

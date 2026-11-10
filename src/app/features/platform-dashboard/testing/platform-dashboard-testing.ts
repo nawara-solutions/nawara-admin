@@ -115,10 +115,7 @@ export const commercialOf = (platform: PlatformId): PlatformCommercial => ({
   },
   personalPremium: { status: 'available', data: count(21) },
   paymentIssues: { status: 'available', data: count(1) },
-  assistedPayments: {
-    status: 'available',
-    data: { platform: 'enabled', organizationsDisabled: 1, organizations: 3 },
-  },
+  assistedPayments: { status: 'available', data: { status: 'notVerified' } },
 });
 
 /** What each gateway is asked, and a subject per request so answers arrive when the test says. */

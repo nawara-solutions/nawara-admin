@@ -655,11 +655,8 @@
     "policies": {
       "title": "Policies",
       "assistedPayments": "Assisted payments",
-      "enabled": "Enabled",
-      "disabled": "Disabled",
-      "enabledDetail": "Organizations inherit it; {{disabled}} of {{total}} have it disabled.",
-      "disabledDetail": "Disabled for this platform: no organization can enable it.",
-      "change": "Change policy"
+      "notVerified": "Eligibility not verified",
+      "notVerifiedDetail": "Nawara Core decides each assistance request from its own membership, restriction, billing, catalog and fee facts. Admin holds none of them, so it shows no eligibility."
     },
     "activity": {
       "title": "Recent activity",
@@ -1199,13 +1196,6 @@
       "entitledInGrace": "Yes, until the grace period ends",
       "notEntitled": "No"
     },
-    "policy": {
-      "enabled": "Enabled",
-      "disabled": "Disabled",
-      "inherited": "inherited from the platform",
-      "platformDisabled": "disabled for the platform",
-      "organizationDisabled": "set on this organization"
-    },
     "states": {
       "checking": "Opening the platform",
       "loading": "Loading organizations",
@@ -1268,12 +1258,6 @@
       "paymentIssuesNote": "Payment details are not available in this release.",
       "noPaymentIssues": "No payment needs attention.",
       "assistedPayments": "Assisted payments",
-      "effective": "Effective for this organization",
-      "platformSetting": "Platform setting",
-      "organizationSetting": "This organization",
-      "inherits": "Inherits the platform",
-      "override": "Disabled for this organization",
-      "changePolicy": "Change policy",
       "type": "Type",
       "taxCode": "Tax code",
       "phone": "Phone",
@@ -1294,7 +1278,12 @@
       "adminRemoved": "Organization-admin role removed",
       "simulated": "simulated"
     },
-    "footnote": "Memberships are counted per organization; one person can hold memberships in several."
+    "footnote": "Memberships are counted per organization; one person can hold memberships in several.",
+    "eligibility": {
+      "notVerified": "Eligibility not verified",
+      "source": "decided by Nawara Core for each request",
+      "notVerifiedDetail": "Nawara Core decides each assistance request from its own membership, restriction, billing, catalog and fee facts. Admin holds none of them, so it shows no eligibility."
+    }
   },
   "auth": {
     "brand": {
@@ -1510,8 +1499,7 @@
       "showSubscriptions": "Show subscription summary",
       "choosePage": "Choose a page",
       "showOverview": "Show assignment overview",
-      "previewDescription": "Selected platform policy",
-      "previewScope": "Organizations inherit this setting and may have their own restrictions.",
+      "previewDescription": "Selected platform",
       "platformSettings": "Platform settings",
       "platform": "Platform",
       "demoPolicy": "Demo setting; changes last until the page is reloaded.",

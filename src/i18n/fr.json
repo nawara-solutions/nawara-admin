@@ -655,11 +655,8 @@
     "policies": {
       "title": "Règles",
       "assistedPayments": "Paiements assistés",
-      "enabled": "Activés",
-      "disabled": "Désactivés",
-      "enabledDetail": "Les organisations en héritent ; {{disabled}} sur {{total}} les ont désactivés.",
-      "disabledDetail": "Désactivés pour cette plateforme : aucune organisation ne peut les activer.",
-      "change": "Modifier la règle"
+      "notVerified": "Éligibilité non vérifiée",
+      "notVerifiedDetail": "Nawara Core décide de chaque demande d’assistance à partir de ses propres données d’adhésion, de restrictions, de facturation, de catalogue et de frais. Admin n’en détient aucune et n’affiche donc aucune éligibilité."
     },
     "activity": {
       "title": "Activité récente",
@@ -1199,13 +1196,6 @@
       "entitledInGrace": "Oui, jusqu’à la fin de la période de grâce",
       "notEntitled": "Non"
     },
-    "policy": {
-      "enabled": "Activés",
-      "disabled": "Désactivés",
-      "inherited": "hérités de la plateforme",
-      "platformDisabled": "désactivés pour la plateforme",
-      "organizationDisabled": "réglés sur cette organisation"
-    },
     "states": {
       "checking": "Ouverture de la plateforme",
       "loading": "Chargement des organisations",
@@ -1268,12 +1258,6 @@
       "paymentIssuesNote": "Le détail des paiements n’est pas disponible dans cette version.",
       "noPaymentIssues": "Aucun paiement à traiter.",
       "assistedPayments": "Paiements assistés",
-      "effective": "En vigueur pour cette organisation",
-      "platformSetting": "Réglage de la plateforme",
-      "organizationSetting": "Cette organisation",
-      "inherits": "Hérite de la plateforme",
-      "override": "Désactivés pour cette organisation",
-      "changePolicy": "Modifier la règle",
       "type": "Type",
       "taxCode": "Numéro fiscal",
       "phone": "Téléphone",
@@ -1294,7 +1278,12 @@
       "adminRemoved": "Rôle d’administrateur d’organisation retiré",
       "simulated": "simulé"
     },
-    "footnote": "Les adhésions sont comptées par organisation ; une personne peut en avoir dans plusieurs."
+    "footnote": "Les adhésions sont comptées par organisation ; une personne peut en avoir dans plusieurs.",
+    "eligibility": {
+      "notVerified": "Éligibilité non vérifiée",
+      "source": "décidée par Nawara Core pour chaque demande",
+      "notVerifiedDetail": "Nawara Core décide de chaque demande d’assistance à partir de ses propres données d’adhésion, de restrictions, de facturation, de catalogue et de frais. Admin n’en détient aucune et n’affiche donc aucune éligibilité."
+    }
   },
   "auth": {
     "brand": {
@@ -1510,8 +1499,7 @@
       "showSubscriptions": "Afficher le résumé des abonnements",
       "choosePage": "Choisir une page",
       "showOverview": "Afficher l’aperçu des affectations",
-      "previewDescription": "Paramètre de la plateforme sélectionnée",
-      "previewScope": "Les organisations héritent de ce paramètre et peuvent avoir leurs propres restrictions.",
+      "previewDescription": "Plateforme sélectionnée",
       "platformSettings": "Paramètres des plateformes",
       "platform": "Plateforme",
       "demoPolicy": "Paramètre de démonstration ; les modifications durent jusqu’au rechargement.",

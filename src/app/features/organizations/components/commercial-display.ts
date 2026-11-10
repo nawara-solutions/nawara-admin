@@ -1,6 +1,6 @@
 import { NwStatusTone } from '../../../shared/ui/status-badge/status-badge';
 import {
-  EffectiveAssistedPayments,
+  AssistanceEligibility,
   OrganizationSubscription,
   OrganizationSubscriptionState,
   daysUntilEnd,
@@ -34,18 +34,16 @@ export function subscriptionNote(
   return null;
 }
 
-/** The effective assisted-payments policy and where it comes from (catalog keys). */
-export function policyKeys(policy: EffectiveAssistedPayments): {
-  readonly value: string;
-  readonly source: string;
-} {
-  if (policy.effective === 'enabled')
-    return { value: 'organizations.policy.enabled', source: 'organizations.policy.inherited' };
-  return {
-    value: 'organizations.policy.disabled',
-    source:
-      policy.platform === 'disabled'
-        ? 'organizations.policy.platformDisabled'
-        : 'organizations.policy.organizationDisabled',
-  };
-}
+/** What Admin says about assisted payments (catalog keys): never a policy, only that eligibility is not verified. */
+export const ELIGIBILITY_KEYS = {
+  notVerified: {
+    value: 'organizations.eligibility.notVerified',
+    source: 'organizations.eligibility.source',
+    detail: 'organizations.eligibility.notVerifiedDetail',
+  },
+} as const satisfies Readonly<
+  Record<
+    AssistanceEligibility['status'],
+    { readonly value: string; readonly source: string; readonly detail: string }
+  >
+>;

@@ -11,7 +11,7 @@ import {
   OrganizationSubscriptionState,
 } from '../domain/organization-commercial.model';
 import { NW_CLOCK } from '../../../shared/format/clock';
-import { policyKeys, SUBSCRIPTION_BADGES, subscriptionNote } from './commercial-display';
+import { ELIGIBILITY_KEYS, SUBSCRIPTION_BADGES, subscriptionNote } from './commercial-display';
 import { MetricValue } from '../../../shared/dashboard/metric-value/metric-value';
 import { NwStatusBadge } from '../../../shared/ui/status-badge/status-badge';
 import { platformPath, platformSubscriptionsPath } from '../../../core/context/scope-context';
@@ -303,52 +303,13 @@ const FIELDS = [
           <section class="details">
             <h3>{{ 'organizations.detail.assistedPayments' | transloco }}</h3>
             @if (commercial.status === 'success') {
-              @let policy = commercial.data.assistedPayments;
-              @if (policy.status === 'available') {
-                <dl>
-                  <div>
-                    <dt>{{ 'organizations.detail.effective' | transloco }}</dt>
-                    <dd>
-                      <nw-status-badge
-                        [tone]="policy.data.effective === 'enabled' ? 'success' : 'info'"
-                        >{{ policyKeys(policy.data).value | transloco }}</nw-status-badge
-                      >
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>{{ 'organizations.detail.platformSetting' | transloco }}</dt>
-                    <dd>
-                      {{
-                        (policy.data.platform === 'enabled'
-                          ? 'organizations.policy.enabled'
-                          : 'organizations.policy.disabled'
-                        ) | transloco
-                      }}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>{{ 'organizations.detail.organizationSetting' | transloco }}</dt>
-                    <dd>
-                      {{
-                        (policy.data.organization === 'inherit'
-                          ? 'organizations.detail.inherits'
-                          : 'organizations.detail.override'
-                        ) | transloco
-                      }}
-                    </dd>
-                  </div>
-                </dl>
-                <button
-                  class="unavailable-action"
-                  type="button"
-                  aria-disabled="true"
-                  aria-describedby="panel-policy-unavailable"
-                >
-                  {{ 'organizations.detail.changePolicy' | transloco }}
-                </button>
-                <span id="panel-policy-unavailable" class="nw-visually-hidden">{{
-                  'shell.notAvailableYet' | transloco
-                }}</span>
+              @let eligibility = commercial.data.assistedPayments;
+              @if (eligibility.status === 'available') {
+                @let keys = eligibilityKeys[eligibility.data.status];
+                <p data-eligibility>
+                  <nw-status-badge tone="info">{{ keys.value | transloco }}</nw-status-badge>
+                </p>
+                <p class="muted">{{ keys.detail | transloco }}</p>
               } @else {
                 <p class="muted">{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
               }
@@ -420,18 +381,6 @@ const FIELDS = [
       margin: 0;
       color: var(--nw-status-warning-fg);
       font-size: var(--nw-text-size-sm);
-    }
-    .unavailable-action {
-      display: block;
-      inline-size: 100%;
-      margin-block-start: 1.25rem;
-      padding: 0.75rem;
-      border: 1px dashed var(--nw-border-strong);
-      border-radius: var(--nw-radius-md);
-      background: transparent;
-      color: var(--nw-text-secondary);
-      font: inherit;
-      text-align: start;
     }
     .summary {
       display: flex;
@@ -531,7 +480,7 @@ export class OrganizationDetailsPanel {
     return subscriptionNote(subscription, this.now());
   }
   protected readonly fields = FIELDS;
-  protected readonly policyKeys = policyKeys;
+  protected readonly eligibilityKeys = ELIGIBILITY_KEYS;
   protected readonly platformPath = platformPath;
   private readonly ref = inject(DialogRef);
   protected close(): void {

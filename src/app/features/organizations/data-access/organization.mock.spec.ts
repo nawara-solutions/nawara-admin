@@ -178,22 +178,17 @@ describe('MockOrganizationCommercialGateway (demo world, owner only)', () => {
     });
   });
 
-  it('reports the effective assisted-payments policy and where it comes from', async () => {
+  it('never reads the demo flags as eligibility: every Organization is not verified (WP-2.2)', async () => {
     const { commercial } = setUp(DEMO_OWNER_ID);
-    expect(data((await firstValueFrom(commercial.load(RIAD))).assistedPayments)).toEqual({
-      effective: 'enabled',
-      platform: 'enabled',
-      organization: 'inherit',
-    });
-    expect(data((await firstValueFrom(commercial.load(NOUR))).assistedPayments)).toEqual({
-      effective: 'disabled',
-      platform: 'enabled',
-      organization: 'disabled',
-    });
-    expect(data((await firstValueFrom(commercial.load(SAHARA))).assistedPayments)).toEqual({
-      effective: 'disabled',
-      platform: 'disabled',
-      organization: 'inherit',
-    });
+    // Riad: Platform flag "enabled", inherits; Nour: Organization flag "disabled"; Sahara: Platform flag "disabled".
+    for (const organization of [RIAD, NOUR, SAHARA])
+      expect(
+        data((await firstValueFrom(commercial.load(organization))).assistedPayments),
+        organization,
+      ).toEqual({ status: 'notVerified' });
+    const list = await firstValueFrom(commercial.list(DEMO_SCHOOL_PLATFORM_ID));
+    expect(list.organizations.length).toBeGreaterThan(0);
+    for (const row of list.organizations)
+      expect(row.assistedPayments, row.organizationId).toEqual({ status: 'notVerified' });
   });
 });

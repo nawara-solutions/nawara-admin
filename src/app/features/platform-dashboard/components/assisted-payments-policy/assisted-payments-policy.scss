@@ -18,33 +18,3 @@
   font-size: var(--nw-text-size-sm);
   font-weight: var(--nw-font-weight-semibold);
 }
-
-.assisted-payments-policy__switch {
-  display: flex;
-  flex: none;
-  align-items: center;
-  inline-size: 2.5rem;
-  block-size: 1.5rem;
-  padding: 0.1875rem;
-  border: 0;
-  border-radius: var(--nw-radius-pill);
-  background: var(--nw-text-secondary);
-  cursor: not-allowed;
-
-  &[aria-checked='true'] {
-    justify-content: flex-end;
-    background: var(--nw-status-success-fg);
-  }
-
-  span {
-    inline-size: 1.125rem;
-    block-size: 1.125rem;
-    border-radius: 50%;
-    background: var(--nw-surface-raised);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--nw-focus-ring);
-    outline-offset: 3px;
-  }
-}

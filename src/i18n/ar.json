@@ -655,11 +655,8 @@
     "policies": {
       "title": "السياسات",
       "assistedPayments": "الدفع المساعد",
-      "enabled": "مفعّل",
-      "disabled": "معطّل",
-      "enabledDetail": "ترثه المؤسسات؛ عطّلته {{disabled}} من أصل {{total}}.",
-      "disabledDetail": "معطّل لهذه المنصة: لا يمكن لأي مؤسسة تفعيله.",
-      "change": "تغيير السياسة"
+      "notVerified": "الأهلية غير متحقَّق منها",
+      "notVerifiedDetail": "تقرّر Nawara Core كل طلب مساعدة بناءً على بياناتها الخاصة بالعضوية والقيود والفوترة والكتالوج والرسوم. لا يملك Admin أيًّا منها، لذلك لا يعرض أي أهلية."
     },
     "activity": {
       "title": "النشاط الأخير",
@@ -1199,13 +1196,6 @@
       "entitledInGrace": "نعم، حتى تنتهي فترة السماح",
       "notEntitled": "لا"
     },
-    "policy": {
-      "enabled": "مفعّل",
-      "disabled": "معطّل",
-      "inherited": "موروث من المنصة",
-      "platformDisabled": "معطّل للمنصة",
-      "organizationDisabled": "مضبوط لهذه المؤسسة"
-    },
     "states": {
       "checking": "جارٍ فتح المنصة",
       "loading": "جارٍ تحميل المؤسسات",
@@ -1268,12 +1258,6 @@
       "paymentIssuesNote": "تفاصيل الدفع غير متاحة في هذا الإصدار.",
       "noPaymentIssues": "لا توجد مدفوعات تحتاج إلى متابعة.",
       "assistedPayments": "الدفع المساعد",
-      "effective": "الحالة الفعلية لهذه المؤسسة",
-      "platformSetting": "إعداد المنصة",
-      "organizationSetting": "هذه المؤسسة",
-      "inherits": "ترث إعداد المنصة",
-      "override": "معطّل لهذه المؤسسة",
-      "changePolicy": "تغيير السياسة",
       "type": "النوع",
       "taxCode": "الرقم الضريبي",
       "phone": "الهاتف",
@@ -1294,7 +1278,12 @@
       "adminRemoved": "تمت إزالة دور مسؤول المؤسسة",
       "simulated": "محاكى"
     },
-    "footnote": "تُحتسب العضويات لكل مؤسسة؛ يمكن لشخص واحد أن يملك عضويات في عدة مؤسسات."
+    "footnote": "تُحتسب العضويات لكل مؤسسة؛ يمكن لشخص واحد أن يملك عضويات في عدة مؤسسات.",
+    "eligibility": {
+      "notVerified": "الأهلية غير متحقَّق منها",
+      "source": "تقرّرها Nawara Core لكل طلب",
+      "notVerifiedDetail": "تقرّر Nawara Core كل طلب مساعدة بناءً على بياناتها الخاصة بالعضوية والقيود والفوترة والكتالوج والرسوم. لا يملك Admin أيًّا منها، لذلك لا يعرض أي أهلية."
+    }
   },
   "auth": {
     "brand": {
@@ -1510,8 +1499,7 @@
       "showSubscriptions": "إظهار ملخص الاشتراكات",
       "choosePage": "اختر صفحة",
       "showOverview": "إظهار نظرة عامة على التعيينات",
-      "previewDescription": "إعداد المنصة المحددة",
-      "previewScope": "ترث المؤسسات هذا الإعداد وقد تكون لديها قيود خاصة بها.",
+      "previewDescription": "المنصة المحددة",
       "platformSettings": "إعدادات المنصات",
       "platform": "المنصة",
       "demoPolicy": "إعداد تجريبي؛ تستمر التغييرات حتى إعادة تحميل الصفحة.",

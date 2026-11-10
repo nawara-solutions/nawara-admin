@@ -3,12 +3,12 @@ import { Metric, Section } from '../../../shared/dashboard/metric';
 
 /**
  * Commercial facts of Organizations, for the Company owner only (operators have no confirmed commercial read authority,
- * so the UI never asks for them). Billing owns subscriptions, Payment owns payment facts, the Platform owns the
- * assisted-payments setting.
+ * so the UI never asks for them). Billing owns subscriptions, Payment owns payment facts. Assisted payments are not a
+ * setting of anything (see `AssistanceEligibility`).
  *
  * Core status 🟡: no staff or owner read route before Core V2 A10/A11 (docs/CORE-INTEGRATION.md §5, §6). PROVISIONAL mock
  * contract: the rules come from the Core V2 architecture (one subscription per Organization, a 24-hour grace period
- * once it ends, an Organization can only turn assisted payments off), not from a published API. The states below are
+ * once it ends), not from a published API. The states below are
  * FRONTEND view values, not Core enums.
  */
 export type OrganizationSubscriptionState = 'active' | 'grace' | 'none';
@@ -27,21 +27,23 @@ export interface OrganizationSubscription {
  */
 export type OrganizationEntitlement = 'entitled' | 'entitledInGrace' | 'notEntitled';
 
-export type AssistedPaymentsSetting = 'enabled' | 'disabled';
-
-/** The policy that applies to one Organization, and where it comes from. */
-export interface EffectiveAssistedPayments {
-  readonly effective: AssistedPaymentsSetting;
-  readonly platform: AssistedPaymentsSetting;
-  /** The Organization's own override: inherit the Platform's setting, or disabled. */
-  readonly organization: 'inherit' | 'disabled';
+/**
+ * Assisted payments, as Admin can state them (A31-04 / X34, OD-07, WP-2.2). There is no Platform or Organization policy:
+ * Core decides each assistance request itself (BIL-13, nawara-core `8d89bed` billing-service
+ * `src/assistance/assistance.service.ts:103-141`: an active ordinary member with an active membership, no T1-T3
+ * restriction, a configured Billing Platform, an available product and price, no open request, a usable fee). Admin holds
+ * none of these facts, so it never says enabled, disabled, eligible or ineligible: only that eligibility is not verified.
+ * The demo world's old `assistedPayments` flags are never read here.
+ */
+export interface AssistanceEligibility {
+  readonly status: 'notVerified';
 }
 
 /** One row of the owner's directory columns. */
 export interface OrganizationCommercialSummary {
   readonly organizationId: OrganizationId;
   readonly subscription: OrganizationSubscription;
-  readonly assistedPayments: EffectiveAssistedPayments;
+  readonly assistedPayments: AssistanceEligibility;
 }
 
 export interface PlatformOrganizationsCommercial {
@@ -56,7 +58,7 @@ export interface OrganizationCommercial {
   readonly entitlement: Section<OrganizationEntitlement>;
   /** Payments of this Organization that failed or await action (a Payment fact; details are not available). */
   readonly paymentIssues: Section<Metric>;
-  readonly assistedPayments: Section<EffectiveAssistedPayments>;
+  readonly assistedPayments: Section<AssistanceEligibility>;
 }
 
 /** "Expiring soon": an active subscription that ends within this many days (as on the Company Overview). */

@@ -145,15 +145,9 @@
         <h3><bdi>{{ platform.name }}</bdi></h3>
         <div class="accordion-settings__preview-setting">
           <span>{{ 'platformDashboard.policies.assistedPayments' | transloco }}</span>
-          @if (policy.policies().has(platform.id)) {
-            <strong [class.accordion-settings__preview-status--enabled]="policy.policies().get(platform.id)">
-              {{ (policy.policies().get(platform.id) ? 'platformDashboard.policies.enabled' : 'platformDashboard.policies.disabled') | transloco }}
-            </strong>
-          } @else {
-            <strong>{{ 'organizations.table.unavailable' | transloco }}</strong>
-          }
+          <strong data-eligibility>{{ 'platformDashboard.policies.notVerified' | transloco }}</strong>
         </div>
-        <p>{{ 'settings.accordions.previewScope' | transloco }}</p>
+        <p>{{ 'platformDashboard.policies.notVerifiedDetail' | transloco }}</p>
       </div>
     </div>
   </aside>

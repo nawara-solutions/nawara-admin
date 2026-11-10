@@ -25,14 +25,14 @@ export interface OrganizationSubscription {
   readonly graceEndsAt?: string;
 }
 
-/** A Platform setting (Core V2 architecture): Organizations inherit it, or are set to `disabled`; never `enabled` alone. */
-export type AssistedPaymentsSetting = 'enabled' | 'disabled';
-
-export interface AssistedPaymentsPolicy {
-  readonly platform: AssistedPaymentsSetting;
-  /** Organizations whose override is `disabled` (only meaningful while the Platform enables it). */
-  readonly organizationsDisabled: number;
-  readonly organizations: number;
+/**
+ * Assisted payments, as Admin can state them (A31-04 / X34, OD-07, WP-2.2). They are not a Platform setting: Core decides
+ * each assistance request from its own member, restriction, Billing-configuration, catalog, open-request and fee facts
+ * (BIL-13, nawara-core `8d89bed` billing-service `src/assistance/assistance.service.ts:103-141`). Admin holds none of them,
+ * so it states only that eligibility is not verified, never enabled, disabled, eligible or ineligible.
+ */
+export interface AssistanceEligibility {
+  readonly status: 'notVerified';
 }
 
 export interface PlatformCommercial {
@@ -43,8 +43,8 @@ export interface PlatformCommercial {
   readonly personalPremium: Section<Metric>;
   /** Payments that failed or await action (Payment facts). */
   readonly paymentIssues: Section<Metric>;
-  /** Read-only here; changing it needs authority and a Core route that do not exist yet. */
-  readonly assistedPayments: Section<AssistedPaymentsPolicy>;
+  /** Never a policy: eligibility is Core's, per request (see `AssistanceEligibility`). */
+  readonly assistedPayments: Section<AssistanceEligibility>;
 }
 
 /** Organization subscriptions by state; derived from the list, so the figures always add up to the Organizations. */

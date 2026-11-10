@@ -1,21 +1,12 @@
-import { computed, inject, Provider } from '@angular/core';
-import { DemoWorld } from '../../../demo/world/demo-world';
+import { Provider } from '@angular/core';
 import { PlatformSettingsGateway } from './platform-settings.gateway';
 
-/** Demo adapter: reads the demo world's Platform assisted-payments policies; it never changes them (WP-1.1). */
+/**
+ * Demo adapter: the Platform section is shown in demo builds. It reads no assisted-payments value: the demo world's old
+ * flags are never presented as a policy or as eligibility (WP-2.2), and nothing is ever changed (WP-1.1).
+ */
 export class MockPlatformSettingsGateway extends PlatformSettingsGateway {
-  private readonly world = inject(DemoWorld);
   readonly available = true;
-  readonly policies = computed(
-    () =>
-      new Map(
-        this.world
-          .snapshot()
-          .platformCommercial.map(
-            (record) => [record.platformId, record.assistedPayments === 'enabled'] as const,
-          ),
-      ),
-  );
 }
 export const MOCK_PLATFORM_SETTINGS_PROVIDERS: readonly Provider[] = [
   { provide: PlatformSettingsGateway, useClass: MockPlatformSettingsGateway },

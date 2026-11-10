@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { AssistedPaymentsPolicy } from '../../domain/platform-commercial.model';
+import { AssistanceEligibility } from '../../domain/platform-commercial.model';
 
 /**
- * The Platform's assisted-payments setting, read only (Core V2 architecture): Organizations inherit it or are set to
- * disabled, and none can enable it while the Platform disables it. Changing it needs authority and a Core route that do
- * not exist yet, so the switch is read only and says why.
+ * Assisted payments on a Platform, as Admin can state them (WP-2.2): eligibility not verified. Not a setting, so there is
+ * no switch: Core decides each assistance request from its own facts. (Since PR #89 the dashboard page does not render
+ * this card; it stays so the read model has one faithful presentation.)
  */
 @Component({
   selector: 'adm-assisted-payments-policy',
@@ -16,5 +16,5 @@ import { AssistedPaymentsPolicy } from '../../domain/platform-commercial.model';
   host: { class: 'assisted-payments-policy' },
 })
 export class AssistedPaymentsPolicyCard {
-  readonly policy = input.required<AssistedPaymentsPolicy>();
+  readonly policy = input.required<AssistanceEligibility>();
 }

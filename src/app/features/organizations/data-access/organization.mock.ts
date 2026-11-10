@@ -11,12 +11,12 @@ import {
   activeAdminInvitationsOf,
   activeMembershipCount,
   pendingRequestCount,
-  assistedPaymentsOf,
   entitlementOf,
   newestFirst,
   organizationOf,
   organizationsOf,
   paymentIssuesOf,
+  platformCommercialOf,
   platformViewerOf,
   subscriptionEndOf,
   subscriptionStateOf,
@@ -24,6 +24,7 @@ import {
 import { Metric } from '../../../shared/dashboard/metric';
 import { NW_CLOCK } from '../../../shared/format/clock';
 import {
+  AssistanceEligibility,
   OrganizationCommercial,
   OrganizationSubscription,
   PlatformOrganizationsCommercial,
@@ -179,11 +180,15 @@ export class MockOrganizationGateway extends OrganizationGateway {
   }
 }
 
+/** The only assisted-payments statement Admin can make (WP-2.2). */
+const NOT_VERIFIED: AssistanceEligibility = { status: 'notVerified' };
+
 /**
  * Mock adapter of Organizations' commercial facts (demo builds only), for the owner: an operator is refused (`403`), as
  * no commercial read authority is confirmed for operators (the UI never asks). Subscription states follow from each
- * Organization's one subscription record and the clock; payment issues are Payment records; the assisted-payments
- * policy is the Platform's setting with the Organization's override.
+ * Organization's one subscription record and the clock; payment issues are Payment records. Assisted payments are
+ * never read from the demo world's old flags: eligibility is Core's, per request, so it is always not verified here
+ * (WP-2.2). A Platform without a commercial record has no commercial facts at all, as before.
  */
 export class MockOrganizationCommercialGateway extends OrganizationCommercialGateway {
   private readonly latency = inject(DEMO_LATENCY_MS);
@@ -205,18 +210,17 @@ export class MockOrganizationCommercialGateway extends OrganizationCommercialGat
     return answer(
       {
         platformId: platform,
-        organizations: organizations.flatMap((o) => {
-          const assistedPayments = assistedPaymentsOf(world, o);
-          return assistedPayments === null
+        organizations: organizations.flatMap((o) =>
+          platformCommercialOf(world, o.platformId) === undefined
             ? []
             : [
                 {
                   organizationId: o.id,
                   subscription: subscriptionOf(world, o.id, now),
-                  assistedPayments,
+                  assistedPayments: NOT_VERIFIED,
                 },
-              ];
-        }),
+              ],
+        ),
       },
       this.latency,
     );
@@ -230,7 +234,6 @@ export class MockOrganizationCommercialGateway extends OrganizationCommercialGat
       return fail({ kind: 'forbidden', code: 'admin_forbidden', status: 403 }, this.latency);
     if (this.scenario === 'error') return fail({ kind: 'unavailable', status: 503 }, this.latency);
     const { record } = visible;
-    const assistedPayments = assistedPaymentsOf(world, record);
     const commercial: OrganizationCommercial = {
       organizationId: record.id,
       platformId: record.platformId,
@@ -244,7 +247,9 @@ export class MockOrganizationCommercialGateway extends OrganizationCommercialGat
           : { status: 'available', data: entitlementOf(world, record.id, this.now()) },
       paymentIssues: { status: 'available', data: count(paymentIssuesOf(world, [record]).length) },
       assistedPayments:
-        assistedPayments === null ? UNAVAILABLE : { status: 'available', data: assistedPayments },
+        platformCommercialOf(world, record.platformId) === undefined
+          ? UNAVAILABLE
+          : { status: 'available', data: NOT_VERIFIED },
     };
     return answer(commercial, this.latency);
   }
