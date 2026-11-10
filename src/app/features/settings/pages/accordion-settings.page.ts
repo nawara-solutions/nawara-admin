@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { can } from '../../../core/access/capability-policy';
 import { AuthSession } from '../../../core/auth/auth-session';
 import { ScopeContext } from '../../../core/context/scope-context';
-import { platformId } from '../../../core/context/scope.model';
 import { PlatformSettingsGateway } from '../data-access/platform-settings.gateway';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { AccordionPreferences } from '../../../core/preferences/accordion-preferences';
@@ -67,13 +66,5 @@ export class AccordionSettingsPage {
   );
   protected selectPlatform(event: Event): void {
     this.selected.set((event.target as HTMLSelectElement).value);
-  }
-  protected setPolicy(event: Event): void {
-    const platform = this.selectedPlatform();
-    if (platform)
-      this.policy.setAssistedPayments(
-        platformId(platform.id),
-        (event.target as HTMLInputElement).checked,
-      );
   }
 }
