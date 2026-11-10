@@ -144,7 +144,7 @@ describe('Option B status presentation without new security reads', () => {
   it('keeps Arabic labels and static cards accessible without tab stops', async () => {
     const { element } = await render(base, 'ar');
     element.dir = 'rtl';
-    expect(element.querySelector('h3')?.textContent).toBe(ar.settings.account.securityTab);
+    expect(element.querySelector('h3')?.textContent?.trim()).toBe(ar.settings.account.securityTab);
     expect(element.querySelectorAll('article')).toHaveLength(3);
     expect(element.querySelectorAll('dl dt')).toHaveLength(3);
     expect(

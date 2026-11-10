@@ -29,6 +29,13 @@ async function render(query: Record<string, string> = {}) {
   return { ...setup, fixture, page, identifier, code, submit, fill };
 }
 
+// The demo session is restored from sessionStorage (PR #89): every test starts and ends
+// signed out. Only the demo session keys are removed, never other storage.
+const DEMO_SESSION_KEYS = ['nw.demo.actor', 'nw.demo.mockSession'];
+const clearDemoSession = () => DEMO_SESSION_KEYS.forEach((key) => sessionStorage.removeItem(key));
+beforeEach(clearDemoSession);
+afterEach(clearDemoSession);
+
 describe('ContactConfirmationPage', () => {
   it('keeps a safe requested page on "Request a working code", and drops an unsafe one', async () => {
     for (const [returnUrl, href] of [

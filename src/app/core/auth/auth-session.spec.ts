@@ -58,6 +58,13 @@ function session(environment: AppEnvironment): AuthSession {
   return TestBed.inject(AuthSession);
 }
 
+// The demo session is restored from sessionStorage (PR #89): every test starts and ends
+// signed out. Only the demo session keys are removed, never other storage.
+const DEMO_SESSION_KEYS = ['nw.demo.actor', 'nw.demo.mockSession'];
+const clearDemoSession = () => DEMO_SESSION_KEYS.forEach((key) => sessionStorage.removeItem(key));
+beforeEach(clearDemoSession);
+afterEach(clearDemoSession);
+
 describe('AuthSession', () => {
   it('starts signed out', () => {
     const s = session({ production: true, demo: null });
