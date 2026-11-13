@@ -792,7 +792,9 @@
       "created": "Organization “{{name}}” created.",
       "notCreated": "“{{name}}” was not created.",
       "operatorReason": "Creating an organization needs a verified action. Operators can’t verify actions yet.",
-      "notInBuildReason": "Organization creation is not available in this build."
+      "notInBuildReason": "Organization creation is not available in this build.",
+      "stepDetails": "Organization details",
+      "stepDetailsDescription": "Enter the organization’s name and optional details."
     },
     "edit": {
       "open": "Edit details",

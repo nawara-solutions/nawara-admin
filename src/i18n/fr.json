@@ -792,7 +792,9 @@
       "created": "Organisation « {{name}} » créée.",
       "notCreated": "« {{name}} » n’a pas été créée.",
       "operatorReason": "Créer une organisation nécessite une action vérifiée. Les opérateurs ne peuvent pas encore vérifier d’actions.",
-      "notInBuildReason": "La création d’organisations n’est pas disponible dans cette version."
+      "notInBuildReason": "La création d’organisations n’est pas disponible dans cette version.",
+      "stepDetails": "Détails de l’organisation",
+      "stepDetailsDescription": "Saisissez le nom et les détails facultatifs de l’organisation."
     },
     "edit": {
       "open": "Modifier les détails",
