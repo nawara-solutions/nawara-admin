@@ -3521,23 +3521,19 @@
     "records": {
       "invitation": {
         "title": "Invitation awaiting acceptance",
-        "description": "An invitation to join École Horizon is still pending."
+        "description": "An administrator invitation to this organization has not been accepted yet."
       },
       "license": {
-        "title": "License nearing expiration",
-        "description": "A Nawara School license is approaching its renewal date."
+        "title": "Subscription ending soon",
+        "description": "This organization’s subscription period ends within 14 days."
       },
-      "organization": {
-        "title": "Organization created",
-        "description": "A new organization was added to Nawara School."
+      "licenseGrace": {
+        "title": "Subscription in grace",
+        "description": "This organization’s subscription period has ended; it stays entitled until the grace period ends."
       },
       "approval": {
-        "title": "Membership approved",
-        "description": "A membership request for École Horizon was approved."
-      },
-      "access": {
-        "title": "Operator access request",
-        "description": "An operator access request is ready for review."
+        "title": "Membership requests awaiting a decision",
+        "description": "People asked to join this organization; their requests are still pending."
       }
     },
     "preferences": {

@@ -29,6 +29,9 @@ import {
 } from '../../core/notifications/notification-summary.gateway';
 import { MockNotificationSummaryGateway } from '../../core/notifications/notification-summary.mock';
 import { DemoNotificationInbox } from '../../core/notifications/notification-inbox.mock';
+import { derivedNotificationsOf } from '../../core/notifications/demo-notifications.mock';
+import { DemoWorld } from '../../demo/world/demo-world';
+import { NW_CLOCK } from '../../shared/format/clock';
 import { loadShellRoutes } from '../shell.routes';
 import { NAVIGATION, NOTIFICATIONS_ITEM, SETTINGS_ITEM } from './navigation';
 import { Sidebar } from './sidebar';
@@ -322,11 +325,17 @@ describe('Sidebar', () => {
 
   it('badges Notifications with the owner’s unread count, and shows no badge without a count', async () => {
     const { sidebar: withCount } = await render(owner);
-    expect(withCount.querySelector('.sidebar__badge')?.textContent?.trim()).toBe('4');
+    // The count of the notifications the demo world derives (WP-3.4), all unread at first.
+    const unread = String(
+      derivedNotificationsOf(TestBed.inject(DemoWorld).snapshot(), TestBed.inject(NW_CLOCK)())
+        .length,
+    );
+    expect(Number(unread)).toBeGreaterThan(0);
+    expect(withCount.querySelector('.sidebar__badge')?.textContent?.trim()).toBe(unread);
     // The badge sits on the working Notifications link (P8-S3).
     expect(
       withCount.querySelector('a[href="/notifications"] .sidebar__badge')?.textContent?.trim(),
-    ).toBe('4');
+    ).toBe(unread);
     TestBed.resetTestingModule();
     const { sidebar: without } = await render(owner, { notifications: 'unavailable' });
     expect(without.querySelector('.sidebar__badge')).toBeNull();

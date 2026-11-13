@@ -3521,23 +3521,19 @@
     "records": {
       "invitation": {
         "title": "Invitation en attente",
-        "description": "Une invitation à rejoindre École Horizon est toujours en attente."
+        "description": "Une invitation d’administrateur à cette organisation n’a pas encore été acceptée."
       },
       "license": {
-        "title": "Licence bientôt expirée",
-        "description": "Une licence Nawara School approche de sa date de renouvellement."
+        "title": "Abonnement bientôt terminé",
+        "description": "La période d’abonnement de cette organisation se termine dans les 14 jours."
       },
-      "organization": {
-        "title": "Organisation créée",
-        "description": "Une organisation a été ajoutée à Nawara School."
+      "licenseGrace": {
+        "title": "Abonnement en période de grâce",
+        "description": "La période d’abonnement de cette organisation est terminée ; elle garde ses droits jusqu’à la fin de la période de grâce."
       },
       "approval": {
-        "title": "Adhésion approuvée",
-        "description": "Une demande d’adhésion à École Horizon a été approuvée."
-      },
-      "access": {
-        "title": "Demande d’accès opérateur",
-        "description": "Une demande d’accès opérateur est prête à être examinée."
+        "title": "Demandes d’adhésion en attente de décision",
+        "description": "Des personnes ont demandé à rejoindre cette organisation ; leurs demandes sont toujours en attente."
       }
     },
     "preferences": {

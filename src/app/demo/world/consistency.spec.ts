@@ -9,6 +9,7 @@ import {
   DemoNotificationInbox,
   MockNotificationSummaryGateway,
 } from '../../core/notifications/notification-inbox.mock';
+import { derivedNotificationsOf } from '../../core/notifications/demo-notifications.mock';
 import {
   MockCommercialSummaryGateway,
   MockCompanyOverviewGateway,
@@ -270,7 +271,10 @@ describe('demo world: cross-feature consistency', () => {
 
   it('answers the owner’s unread count from the world', async () => {
     const m = mocks(DEMO_OWNER_ID, 'owner');
-    expect((await firstValueFrom(m.notifications.summary())).unread).toBe(4);
+    // Derived from the world's own facts (WP-3.4), nothing stored apart.
+    const derived = derivedNotificationsOf(TestBed.inject(DemoWorld).snapshot(), NOW);
+    expect(derived.length).toBeGreaterThan(0);
+    expect((await firstValueFrom(m.notifications.summary())).unread).toBe(derived.length);
   });
 
   it('gives the Organization directory and detail the dashboard’s figures and subscription states', async () => {
