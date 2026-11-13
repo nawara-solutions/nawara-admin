@@ -209,7 +209,13 @@ describe('Platform subscriptions page (P7-S2)', { timeout: 15_000 }, () => {
     select.value = 'endingSoon';
     select.dispatchEvent(new Event('change'));
     await settle();
-    expect(names(element)).toEqual(['Collège Riad', 'École Ibn Sina', 'École Les Oliviers', 'Lycée Averroès', 'Lycée Ibn Khaldoun']);
+    expect(names(element)).toEqual([
+      'Collège Riad',
+      'École Ibn Sina',
+      'École Les Oliviers',
+      'Lycée Averroès',
+      'Lycée Ibn Khaldoun',
+    ]);
     select.value = 'all';
     select.dispatchEvent(new Event('change'));
     await settle();

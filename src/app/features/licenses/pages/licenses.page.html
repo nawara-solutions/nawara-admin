@@ -22,73 +22,70 @@
   @case ('ready') {
     @let overview = view.overview;
     <div class="licenses__overview-row">
-        <div class="licenses__summary-row">
-          <section
-            class="licenses__figures"
-            [attr.aria-label]="'licenses.figures.label' | transloco"
-          >
-            <div class="licenses__overview-content">
-              <dl class="licenses__summary-totals">
-                <div>
-                  <dt>{{ 'licenses.figures.grace' | transloco }}</dt>
-                  <dd>
-                    <button
-                      type="button"
-                      class="licenses__total-link"
-                      (click)="openAttention(overview, 'graceEnds')"
-                    >
-                      {{ overview.company.grace | nwNumber }}
-                    </button>
-                  </dd>
-                </div>
-                <div>
-                  <dt>{{ 'licenses.figures.endingSoon' | transloco }}</dt>
-                  <dd>
-                    <button
-                      type="button"
-                      class="licenses__total-link"
-                      (click)="openAttention(overview, 'ends')"
-                    >
-                      {{ overview.company.endingSoon | nwNumber }}
-                    </button>
-                  </dd>
-                </div>
-              </dl>
-              <div class="licenses__figure-bar" aria-hidden="true">
-                <span
-                  class="licenses__figure-fill licenses__figure-fill--active"
-                  [style.flex-grow]="overview.company.active"
-                ></span>
-                <span
-                  class="licenses__figure-fill licenses__figure-fill--grace"
-                  [style.flex-grow]="overview.company.grace"
-                ></span>
-                <span
-                  class="licenses__figure-fill licenses__figure-fill--none"
-                  [style.flex-grow]="overview.company.none"
-                ></span>
+      <div class="licenses__summary-row">
+        <section class="licenses__figures" [attr.aria-label]="'licenses.figures.label' | transloco">
+          <div class="licenses__overview-content">
+            <dl class="licenses__summary-totals">
+              <div>
+                <dt>{{ 'licenses.figures.grace' | transloco }}</dt>
+                <dd>
+                  <button
+                    type="button"
+                    class="licenses__total-link"
+                    (click)="openAttention(overview, 'graceEnds')"
+                  >
+                    {{ overview.company.grace | nwNumber }}
+                  </button>
+                </dd>
               </div>
-              <ul class="licenses__figure-legend" role="list">
-                <li class="licenses__figure-legend--active">
-                  {{ 'licenses.figures.active' | transloco }}
-                  <strong>{{ overview.company.active | nwNumber }}</strong>
-                </li>
-                <li class="licenses__figure-legend--grace">
-                  {{ 'licenses.figures.grace' | transloco }}
-                  <strong>{{ overview.company.grace | nwNumber }}</strong>
-                </li>
-                <li class="licenses__figure-legend--none">
-                  {{ 'licenses.figures.none' | transloco }}
-                  <strong>{{ overview.company.none | nwNumber }}</strong>
-                </li>
-                <li class="licenses__figure-total">
-                  {{ 'licenses.figures.organizations' | transloco }}
-                  <strong>{{ overview.company.organizations | nwNumber }}</strong>
-                </li>
-              </ul>
+              <div>
+                <dt>{{ 'licenses.figures.endingSoon' | transloco }}</dt>
+                <dd>
+                  <button
+                    type="button"
+                    class="licenses__total-link"
+                    (click)="openAttention(overview, 'ends')"
+                  >
+                    {{ overview.company.endingSoon | nwNumber }}
+                  </button>
+                </dd>
+              </div>
+            </dl>
+            <div class="licenses__figure-bar" aria-hidden="true">
+              <span
+                class="licenses__figure-fill licenses__figure-fill--active"
+                [style.flex-grow]="overview.company.active"
+              ></span>
+              <span
+                class="licenses__figure-fill licenses__figure-fill--grace"
+                [style.flex-grow]="overview.company.grace"
+              ></span>
+              <span
+                class="licenses__figure-fill licenses__figure-fill--none"
+                [style.flex-grow]="overview.company.none"
+              ></span>
             </div>
-          </section>
-        </div>
+            <ul class="licenses__figure-legend" role="list">
+              <li class="licenses__figure-legend--active">
+                {{ 'licenses.figures.active' | transloco }}
+                <strong>{{ overview.company.active | nwNumber }}</strong>
+              </li>
+              <li class="licenses__figure-legend--grace">
+                {{ 'licenses.figures.grace' | transloco }}
+                <strong>{{ overview.company.grace | nwNumber }}</strong>
+              </li>
+              <li class="licenses__figure-legend--none">
+                {{ 'licenses.figures.none' | transloco }}
+                <strong>{{ overview.company.none | nwNumber }}</strong>
+              </li>
+              <li class="licenses__figure-total">
+                {{ 'licenses.figures.organizations' | transloco }}
+                <strong>{{ overview.company.organizations | nwNumber }}</strong>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
       <section class="licenses__platform-panel" aria-labelledby="licenses-platforms">
         <h2 id="licenses-platforms" class="nw-visually-hidden">
           {{ 'licenses.platforms.title' | transloco }}

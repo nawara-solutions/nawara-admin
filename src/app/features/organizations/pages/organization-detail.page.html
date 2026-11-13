@@ -99,29 +99,29 @@
         <button nw-button variant="secondary" type="button" (click)="openDetails()">
           <nw-icon name="info" size="sm" />{{ 'organizations.detail.overview' | transloco }}
         </button>
-      @if (facade.showsAccess()) {
-        <div>
-          @if (invitationCreate.available) {
-            <button
-              nw-button
-              type="button"
-              (click)="
-                invitationCreate.open({
-                  organizationId: detail.id,
-                  organizationName: detail.name,
-                  platformId: platform.id,
-                })
-              "
-            >
-              <nw-icon name="mail" size="sm" />{{ 'organizations.invitations.view' | transloco }}
-            </button>
-          } @else {
-            <button nw-button type="button" (click)="openInvitations()">
-              <nw-icon name="mail" size="sm" />{{ 'organizations.invitations.view' | transloco }}
-            </button>
-          }
-        </div>
-      }
+        @if (facade.showsAccess()) {
+          <div>
+            @if (invitationCreate.available) {
+              <button
+                nw-button
+                type="button"
+                (click)="
+                  invitationCreate.open({
+                    organizationId: detail.id,
+                    organizationName: detail.name,
+                    platformId: platform.id,
+                  })
+                "
+              >
+                <nw-icon name="mail" size="sm" />{{ 'organizations.invitations.view' | transloco }}
+              </button>
+            } @else {
+              <button nw-button type="button" (click)="openInvitations()">
+                <nw-icon name="mail" size="sm" />{{ 'organizations.invitations.view' | transloco }}
+              </button>
+            }
+          </div>
+        }
       </div>
     </header>
 

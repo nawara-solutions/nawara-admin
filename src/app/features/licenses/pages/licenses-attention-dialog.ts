@@ -391,7 +391,9 @@ export class LicensesAttentionDialog {
   protected readonly dialog = inject(DialogRef);
   protected readonly organizationPath = organizationPath;
   protected readonly search = signal('');
-  protected readonly filter = signal<'all' | 'graceEnds' | 'ends' | 'within7' | 'within14'>(this.data.initialFilter ?? 'all');
+  protected readonly filter = signal<'all' | 'graceEnds' | 'ends' | 'within7' | 'within14'>(
+    this.data.initialFilter ?? 'all',
+  );
   protected readonly sort = signal<'earliest' | 'latest' | 'name'>('earliest');
   protected readonly expiryId = signal<string | null>(null);
   protected readonly copyStatus = signal<string | null>(null);

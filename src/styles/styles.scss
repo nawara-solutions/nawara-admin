@@ -55,6 +55,7 @@ html:has(adm-operator-create-dialog) {
 }
 
 /* Density applies to data rows throughout the application. */
-tbody > tr > th, tbody > tr > td {
+tbody > tr > th,
+tbody > tr > td {
   padding-block: var(--nw-density-row-padding, 0.6875rem) !important;
 }

@@ -33,16 +33,24 @@ export class AppearanceDraft {
   readonly dirty = computed(
     () =>
       this.preference() !== this.committed.preference() ||
-      this.accent() !== this.committed.accent() || this.density() !== this.committed.density(),
+      this.accent() !== this.committed.accent() ||
+      this.density() !== this.committed.density(),
   );
   readonly customized = computed(
-    () => this.preference() !== DEFAULT_THEME || this.accent() !== DEFAULT_ACCENT || this.density() !== 3,
+    () =>
+      this.preference() !== DEFAULT_THEME ||
+      this.accent() !== DEFAULT_ACCENT ||
+      this.density() !== 3,
   );
   readonly applying = signal(false);
 
   constructor() {
     effect(() => {
-      const next = { mode: this.committed.preference(), accent: this.committed.accent(), density: this.committed.density() };
+      const next = {
+        mode: this.committed.preference(),
+        accent: this.committed.accent(),
+        density: this.committed.density(),
+      };
       untracked(() => this.value.set(next));
     });
   }
@@ -55,10 +63,16 @@ export class AppearanceDraft {
     this.value.update((current) => ({ ...current, accent }));
   }
   setDensity(density: number): void {
-    if (!this.applying() && Number.isInteger(density) && density >= 1 && density <= 5) this.value.update((current) => ({ ...current, density }));
+    if (!this.applying() && Number.isInteger(density) && density >= 1 && density <= 5)
+      this.value.update((current) => ({ ...current, density }));
   }
   discard(): void {
-    if (!this.applying()) this.value.set({ mode: this.committed.preference(), accent: this.committed.accent(), density: this.committed.density() });
+    if (!this.applying())
+      this.value.set({
+        mode: this.committed.preference(),
+        accent: this.committed.accent(),
+        density: this.committed.density(),
+      });
   }
   reset(): void {
     if (this.applying()) return;

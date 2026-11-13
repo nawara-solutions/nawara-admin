@@ -1,168 +1,321 @@
 <div class="accordion-settings__layout">
-<section class="accordion-settings" aria-labelledby="accordion-settings-title">
-  <h2 id="accordion-settings-title">{{ 'settings.accordions.title' | transloco }}</h2>
-  <p class="accordion-settings__description">{{ 'settings.accordions.description' | transloco }}</p>
-  <fieldset class="accordion-settings__page-picker">
-    <legend>{{ 'settings.accordions.choosePage' | transloco }}</legend>
-    <label class="accordion-settings__page-search">
-      <nw-icon name="search" size="sm" />
-      <span class="nw-visually-hidden">{{ 'settings.accordions.searchPages' | transloco }}</span>
-      <input type="search" [placeholder]="'settings.accordions.searchPages' | transloco" [value]="pageSearch()" (input)="pageSearch.set($any($event.target).value)" />
-    </label>
-    <div class="accordion-settings__page-options">
-      @if (matchesPage('operators.header.title')) {
-      <label><input type="radio" name="settings-page" [checked]="page() === 'operators'" (change)="page.set('operators')" /><nw-icon name="users" size="sm" /><span>{{ 'operators.header.title' | transloco }}</span></label>
-      }
-      @if (matchesPage('settings.accordions.platformDashboard')) {
-      <label><input type="radio" name="settings-page" [checked]="page() === 'dashboard'" (change)="page.set('dashboard')" /><nw-icon name="building-2" size="sm" /><span>{{ 'settings.accordions.platformDashboard' | transloco }}</span></label>
-      }
-      @if (canConfigure() && matchesPage('settings.accordions.platformSettings')) {
-        <label><input type="radio" name="settings-page" [checked]="page() === 'platform'" (change)="page.set('platform')" /><nw-icon name="settings" size="sm" /><span>{{ 'settings.accordions.platformSettings' | transloco }}</span></label>
-      }
-      @if (!matchesPage('operators.header.title') && !matchesPage('settings.accordions.platformDashboard') && !(canConfigure() && matchesPage('settings.accordions.platformSettings'))) {
-        <p class="accordion-settings__page-empty">{{ 'settings.accordions.noPages' | transloco }}</p>
-      }
-    </div>
-  </fieldset>
-  @if (page() === 'operators') {
-    <div class="accordion-settings__page">
-      <h3>{{ 'settings.accordions.operatorTotals' | transloco }}</h3>
-      <p class="accordion-settings__description">{{ 'settings.accordions.operatorDescription' | transloco }}</p>
-      <label class="accordion-settings__policy">
-        <input type="checkbox" [checked]="operatorVisible()"
-          (change)="operatorVisible.set($any($event.target).checked)" />
-        {{ 'settings.accordions.showOverview' | transloco }}
+  <section class="accordion-settings" aria-labelledby="accordion-settings-title">
+    <h2 id="accordion-settings-title">{{ 'settings.accordions.title' | transloco }}</h2>
+    <p class="accordion-settings__description">
+      {{ 'settings.accordions.description' | transloco }}
+    </p>
+    <fieldset class="accordion-settings__page-picker">
+      <legend>{{ 'settings.accordions.choosePage' | transloco }}</legend>
+      <label class="accordion-settings__page-search">
+        <nw-icon name="search" size="sm" />
+        <span class="nw-visually-hidden">{{ 'settings.accordions.searchPages' | transloco }}</span>
+        <input
+          type="search"
+          [placeholder]="'settings.accordions.searchPages' | transloco"
+          [value]="pageSearch()"
+          (input)="pageSearch.set($any($event.target).value)"
+        />
       </label>
-    </div>
-  }
-  @if (page() === 'dashboard') {
-    <div class="accordion-settings__page">
-      <h3>{{ 'settings.accordions.platformDashboard' | transloco }}</h3>
-      <label class="accordion-settings__policy"><input type="checkbox" [checked]="figuresVisible()" (change)="figuresVisible.set($any($event.target).checked)" />{{ 'settings.accordions.showFigures' | transloco }}</label>
-      <label class="accordion-settings__policy"><input type="checkbox" [checked]="subscriptionsVisible()" (change)="subscriptionsVisible.set($any($event.target).checked)" />{{ 'settings.accordions.showSubscriptions' | transloco }}</label>
-    </div>
-  }
-  @if (page() === 'platform' && canConfigure()) {
-    <div class="accordion-settings__page">
-      <div class="accordion-settings__page-heading">
-        <h3>{{ 'settings.accordions.platformSettings' | transloco }}</h3>
-      </div>
-      @if (policy.available && platforms().length) {
-        <fieldset>
-          <label for="policy-platform">{{ 'settings.accordions.platform' | transloco }}</label>
-          <select
-            id="policy-platform"
-            [value]="selectedPlatform()?.id"
-            (change)="selectPlatform($event)"
+      <div class="accordion-settings__page-options">
+        @if (matchesPage('operators.header.title')) {
+          <label
+            ><input
+              type="radio"
+              name="settings-page"
+              [checked]="page() === 'operators'"
+              (change)="page.set('operators')"
+            /><nw-icon name="users" size="sm" /><span>{{
+              'operators.header.title' | transloco
+            }}</span></label
           >
-            @for (platform of platforms(); track platform.id) {
-              <option [value]="platform.id">{{ platform.name }}</option>
-            }
-          </select>
-        </fieldset>
-      } @else {
+        }
+        @if (matchesPage('settings.accordions.platformDashboard')) {
+          <label
+            ><input
+              type="radio"
+              name="settings-page"
+              [checked]="page() === 'dashboard'"
+              (change)="page.set('dashboard')"
+            /><nw-icon name="building-2" size="sm" /><span>{{
+              'settings.accordions.platformDashboard' | transloco
+            }}</span></label
+          >
+        }
+        @if (canConfigure() && matchesPage('settings.accordions.platformSettings')) {
+          <label
+            ><input
+              type="radio"
+              name="settings-page"
+              [checked]="page() === 'platform'"
+              (change)="page.set('platform')"
+            /><nw-icon name="settings" size="sm" /><span>{{
+              'settings.accordions.platformSettings' | transloco
+            }}</span></label
+          >
+        }
+        @if (
+          !matchesPage('operators.header.title') &&
+          !matchesPage('settings.accordions.platformDashboard') &&
+          !(canConfigure() && matchesPage('settings.accordions.platformSettings'))
+        ) {
+          <p class="accordion-settings__page-empty">
+            {{ 'settings.accordions.noPages' | transloco }}
+          </p>
+        }
+      </div>
+    </fieldset>
+    @if (page() === 'operators') {
+      <div class="accordion-settings__page">
+        <h3>{{ 'settings.accordions.operatorTotals' | transloco }}</h3>
         <p class="accordion-settings__description">
-          {{ 'settings.accordions.platformUnavailable' | transloco }}
+          {{ 'settings.accordions.operatorDescription' | transloco }}
         </p>
-      }
-    </div>
-  }
-</section>
-@if (page() === 'dashboard') {
-  <aside class="accordion-settings__preview" aria-labelledby="dashboard-preview-title">
-    <header><nw-brand-mark wordmark symbolFirst label="" /><span class="accordion-settings__live-label"><span class="accordion-settings__live-dot"></span><strong id="dashboard-preview-title">{{ 'settings.appearance.preview.title' | transloco }}</strong></span></header>
-    <div class="accordion-settings__mock-shell">
-      <nav class="accordion-settings__mock-sidebar" aria-hidden="true">
-        <span><nw-icon name="house" size="sm" />{{ 'companyOverview.title' | transloco }}</span>
-        <span class="accordion-settings__mock-current"><nw-icon name="building-2" size="sm" />{{ 'platforms.title' | transloco }}</span>
-        <span><nw-icon name="users" size="sm" />{{ 'operators.header.title' | transloco }}</span>
-        <span><nw-icon name="settings" size="sm" />{{ 'settings.title' | transloco }}</span>
-      </nav>
-      <div class="accordion-settings__mock-page">
+        <label class="accordion-settings__policy">
+          <input
+            type="checkbox"
+            [checked]="operatorVisible()"
+            (change)="operatorVisible.set($any($event.target).checked)"
+          />
+          {{ 'settings.accordions.showOverview' | transloco }}
+        </label>
+      </div>
+    }
+    @if (page() === 'dashboard') {
+      <div class="accordion-settings__page">
         <h3>{{ 'settings.accordions.platformDashboard' | transloco }}</h3>
-        @if (figuresVisible()) {
-          <div class="accordion-settings__mock-figures" aria-hidden="true">
-            <div>{{ 'platformDashboard.figures.organizations' | transloco }}<strong>—</strong></div>
-            <div>{{ 'platformDashboard.figures.memberships' | transloco }}<strong>—</strong></div>
-            <div>{{ 'platformDashboard.figures.membershipRequests' | transloco }}<strong>—</strong></div>
-            <div>{{ 'platformDashboard.figures.operatorAssignments' | transloco }}<strong>—</strong></div>
-          </div>
-        }
-        @if (subscriptionsVisible()) {
-          <div class="accordion-settings__mock-overview" aria-hidden="true">
-            <div><span>{{ 'platformDashboard.figures.organizations' | transloco }}</span><strong>—</strong></div>
-            <div><span>{{ 'platformDashboard.commercial.personalPremium' | transloco }}</span><strong>—</strong></div>
-            <span class="accordion-settings__mock-bar"></span>
-          </div>
-        }
-        <div class="accordion-settings__mock-table" aria-hidden="true"><div class="accordion-settings__mock-toolbar"><span>{{ 'organizations.toolbar.searchPlaceholder' | transloco }}</span><b>{{ 'operators.filters.title' | transloco }}</b></div><div class="accordion-settings__mock-row"><span>{{ 'organizations.table.organization' | transloco }}</span><span>—</span></div><div class="accordion-settings__mock-row"><span>—</span><span>—</span></div></div>
+        <label class="accordion-settings__policy"
+          ><input
+            type="checkbox"
+            [checked]="figuresVisible()"
+            (change)="figuresVisible.set($any($event.target).checked)"
+          />{{ 'settings.accordions.showFigures' | transloco }}</label
+        >
+        <label class="accordion-settings__policy"
+          ><input
+            type="checkbox"
+            [checked]="subscriptionsVisible()"
+            (change)="subscriptionsVisible.set($any($event.target).checked)"
+          />{{ 'settings.accordions.showSubscriptions' | transloco }}</label
+        >
       </div>
-    </div>
-  </aside>
-}
-@if (page() === 'operators') {
-  <aside class="accordion-settings__preview" aria-labelledby="operators-preview-title">
-    <header><nw-brand-mark wordmark symbolFirst label="" /><span class="accordion-settings__live-label"><span class="accordion-settings__live-dot"></span><strong id="operators-preview-title">{{ 'settings.appearance.preview.title' | transloco }}</strong></span></header>
-    <div class="accordion-settings__preview-body accordion-settings__preview-body--mock">
+    }
+    @if (page() === 'platform' && canConfigure()) {
+      <div class="accordion-settings__page">
+        <div class="accordion-settings__page-heading">
+          <h3>{{ 'settings.accordions.platformSettings' | transloco }}</h3>
+        </div>
+        @if (policy.available && platforms().length) {
+          <fieldset>
+            <label for="policy-platform">{{ 'settings.accordions.platform' | transloco }}</label>
+            <select
+              id="policy-platform"
+              [value]="selectedPlatform()?.id"
+              (change)="selectPlatform($event)"
+            >
+              @for (platform of platforms(); track platform.id) {
+                <option [value]="platform.id">{{ platform.name }}</option>
+              }
+            </select>
+          </fieldset>
+        } @else {
+          <p class="accordion-settings__description">
+            {{ 'settings.accordions.platformUnavailable' | transloco }}
+          </p>
+        }
+      </div>
+    }
+  </section>
+  @if (page() === 'dashboard') {
+    <aside class="accordion-settings__preview" aria-labelledby="dashboard-preview-title">
+      <header>
+        <nw-brand-mark wordmark symbolFirst label="" /><span class="accordion-settings__live-label"
+          ><span class="accordion-settings__live-dot"></span
+          ><strong id="dashboard-preview-title">{{
+            'settings.appearance.preview.title' | transloco
+          }}</strong></span
+        >
+      </header>
       <div class="accordion-settings__mock-shell">
-      <nav class="accordion-settings__mock-sidebar" aria-hidden="true">
-        <span><nw-icon name="house" size="sm" />{{ 'companyOverview.title' | transloco }}</span>
-        <span><nw-icon name="building-2" size="sm" />{{ 'platforms.title' | transloco }}</span>
-        <span class="accordion-settings__mock-current"><nw-icon name="users" size="sm" />{{ 'operators.header.title' | transloco }}</span>
-        <span><nw-icon name="settings" size="sm" />{{ 'settings.title' | transloco }}</span>
-      </nav>
-      <div class="accordion-settings__mock-page">
-        <h3>{{ 'operators.header.title' | transloco }}</h3>
-        @if (operatorVisible()) {
-          <div class="accordion-settings__mock-overview">
-            <div><span>{{ 'operators.totals.assignments' | transloco }}</span><strong>—</strong></div>
-            <div><span>{{ 'operators.totals.withoutAccess' | transloco }}</span><strong>—</strong></div>
-            <span class="accordion-settings__mock-bar"></span>
+        <nav class="accordion-settings__mock-sidebar" aria-hidden="true">
+          <span><nw-icon name="house" size="sm" />{{ 'companyOverview.title' | transloco }}</span>
+          <span class="accordion-settings__mock-current"
+            ><nw-icon name="building-2" size="sm" />{{ 'platforms.title' | transloco }}</span
+          >
+          <span><nw-icon name="users" size="sm" />{{ 'operators.header.title' | transloco }}</span>
+          <span><nw-icon name="settings" size="sm" />{{ 'settings.title' | transloco }}</span>
+        </nav>
+        <div class="accordion-settings__mock-page">
+          <h3>{{ 'settings.accordions.platformDashboard' | transloco }}</h3>
+          @if (figuresVisible()) {
+            <div class="accordion-settings__mock-figures" aria-hidden="true">
+              <div>
+                {{ 'platformDashboard.figures.organizations' | transloco }}<strong>—</strong>
+              </div>
+              <div>{{ 'platformDashboard.figures.memberships' | transloco }}<strong>—</strong></div>
+              <div>
+                {{ 'platformDashboard.figures.membershipRequests' | transloco }}<strong>—</strong>
+              </div>
+              <div>
+                {{ 'platformDashboard.figures.operatorAssignments' | transloco }}<strong>—</strong>
+              </div>
+            </div>
+          }
+          @if (subscriptionsVisible()) {
+            <div class="accordion-settings__mock-overview" aria-hidden="true">
+              <div>
+                <span>{{ 'platformDashboard.figures.organizations' | transloco }}</span
+                ><strong>—</strong>
+              </div>
+              <div>
+                <span>{{ 'platformDashboard.commercial.personalPremium' | transloco }}</span
+                ><strong>—</strong>
+              </div>
+              <span class="accordion-settings__mock-bar"></span>
+            </div>
+          }
+          <div class="accordion-settings__mock-table" aria-hidden="true">
+            <div class="accordion-settings__mock-toolbar">
+              <span>{{ 'organizations.toolbar.searchPlaceholder' | transloco }}</span
+              ><b>{{ 'operators.filters.title' | transloco }}</b>
+            </div>
+            <div class="accordion-settings__mock-row">
+              <span>{{ 'organizations.table.organization' | transloco }}</span
+              ><span>—</span>
+            </div>
+            <div class="accordion-settings__mock-row"><span>—</span><span>—</span></div>
           </div>
-        }
-        <div class="accordion-settings__mock-table" aria-hidden="true">
-          <div class="accordion-settings__mock-toolbar"><span>{{ 'operators.toolbar.searchPlaceholder' | transloco }}</span><b>{{ 'operators.filters.title' | transloco }}</b><b>{{ 'organizations.toolbar.sort' | transloco }}</b></div>
-          <div class="accordion-settings__mock-row accordion-settings__mock-row--head"><span>{{ 'operators.list.operator' | transloco }}</span><span>{{ 'operators.list.platforms' | transloco }}</span></div>
-          <div class="accordion-settings__mock-row"><span>operator@example.com</span><span class="accordion-settings__mock-pill">Nawara School</span></div>
-          <div class="accordion-settings__mock-row"><span>admin@example.com</span><span class="accordion-settings__mock-pill">Nawara Drive</span></div>
-          <div class="accordion-settings__mock-row"><span>team@example.com</span><span>—</span></div>
         </div>
       </div>
-      </div>
-    </div>
-  </aside>
-}
-@if (page() === 'platform' && canConfigure() && policy.available) {
-  @if (selectedPlatform(); as platform) {
-  <aside class="accordion-settings__preview" aria-labelledby="page-settings-preview-title">
-    <header>
-      <strong id="page-settings-preview-title">{{ 'settings.appearance.preview.title' | transloco }}</strong>
-      <span class="accordion-settings__live-dot"></span>
-    </header>
-    <div class="accordion-settings__preview-body">
-      <p class="accordion-settings__preview-label">{{ 'settings.accordions.previewDescription' | transloco }}</p>
-      <div class="accordion-settings__preview-card">
-        <h3><bdi>{{ platform.name }}</bdi></h3>
-        <div class="accordion-settings__preview-setting">
-          <span>{{ 'platformDashboard.policies.assistedPayments' | transloco }}</span>
-          <strong data-eligibility>{{ 'platformDashboard.policies.notVerified' | transloco }}</strong>
-        </div>
-        <p>{{ 'platformDashboard.policies.notVerifiedDetail' | transloco }}</p>
-      </div>
-    </div>
-  </aside>
+    </aside>
   }
-}
+  @if (page() === 'operators') {
+    <aside class="accordion-settings__preview" aria-labelledby="operators-preview-title">
+      <header>
+        <nw-brand-mark wordmark symbolFirst label="" /><span class="accordion-settings__live-label"
+          ><span class="accordion-settings__live-dot"></span
+          ><strong id="operators-preview-title">{{
+            'settings.appearance.preview.title' | transloco
+          }}</strong></span
+        >
+      </header>
+      <div class="accordion-settings__preview-body accordion-settings__preview-body--mock">
+        <div class="accordion-settings__mock-shell">
+          <nav class="accordion-settings__mock-sidebar" aria-hidden="true">
+            <span><nw-icon name="house" size="sm" />{{ 'companyOverview.title' | transloco }}</span>
+            <span><nw-icon name="building-2" size="sm" />{{ 'platforms.title' | transloco }}</span>
+            <span class="accordion-settings__mock-current"
+              ><nw-icon name="users" size="sm" />{{ 'operators.header.title' | transloco }}</span
+            >
+            <span><nw-icon name="settings" size="sm" />{{ 'settings.title' | transloco }}</span>
+          </nav>
+          <div class="accordion-settings__mock-page">
+            <h3>{{ 'operators.header.title' | transloco }}</h3>
+            @if (operatorVisible()) {
+              <div class="accordion-settings__mock-overview">
+                <div>
+                  <span>{{ 'operators.totals.assignments' | transloco }}</span
+                  ><strong>—</strong>
+                </div>
+                <div>
+                  <span>{{ 'operators.totals.withoutAccess' | transloco }}</span
+                  ><strong>—</strong>
+                </div>
+                <span class="accordion-settings__mock-bar"></span>
+              </div>
+            }
+            <div class="accordion-settings__mock-table" aria-hidden="true">
+              <div class="accordion-settings__mock-toolbar">
+                <span>{{ 'operators.toolbar.searchPlaceholder' | transloco }}</span
+                ><b>{{ 'operators.filters.title' | transloco }}</b
+                ><b>{{ 'organizations.toolbar.sort' | transloco }}</b>
+              </div>
+              <div class="accordion-settings__mock-row accordion-settings__mock-row--head">
+                <span>{{ 'operators.list.operator' | transloco }}</span
+                ><span>{{ 'operators.list.platforms' | transloco }}</span>
+              </div>
+              <div class="accordion-settings__mock-row">
+                <span>operator@example.com</span
+                ><span class="accordion-settings__mock-pill">Nawara School</span>
+              </div>
+              <div class="accordion-settings__mock-row">
+                <span>admin@example.com</span
+                ><span class="accordion-settings__mock-pill">Nawara Drive</span>
+              </div>
+              <div class="accordion-settings__mock-row">
+                <span>team@example.com</span><span>—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  }
+  @if (page() === 'platform' && canConfigure() && policy.available) {
+    @if (selectedPlatform(); as platform) {
+      <aside class="accordion-settings__preview" aria-labelledby="page-settings-preview-title">
+        <header>
+          <strong id="page-settings-preview-title">{{
+            'settings.appearance.preview.title' | transloco
+          }}</strong>
+          <span class="accordion-settings__live-dot"></span>
+        </header>
+        <div class="accordion-settings__preview-body">
+          <p class="accordion-settings__preview-label">
+            {{ 'settings.accordions.previewDescription' | transloco }}
+          </p>
+          <div class="accordion-settings__preview-card">
+            <h3>
+              <bdi>{{ platform.name }}</bdi>
+            </h3>
+            <div class="accordion-settings__preview-setting">
+              <span>{{ 'platformDashboard.policies.assistedPayments' | transloco }}</span>
+              <strong data-eligibility>{{
+                'platformDashboard.policies.notVerified' | transloco
+              }}</strong>
+            </div>
+            <p>{{ 'platformDashboard.policies.notVerifiedDetail' | transloco }}</p>
+          </div>
+        </div>
+      </aside>
+    }
+  }
 </div>
 
 <div class="accordion-settings__footer">
   <div class="accordion-settings__footer-note">
     <nw-icon name="info" size="sm" />
-    <div><p>{{ 'preferences.appearance.note' | transloco }}</p><p role="status">{{ (dirty() ? 'preferences.appearance.unsaved' : 'preferences.appearance.saved') | transloco }}</p></div>
+    <div>
+      <p>{{ 'preferences.appearance.note' | transloco }}</p>
+      <p role="status">
+        {{
+          (dirty() ? 'preferences.appearance.unsaved' : 'preferences.appearance.saved') | transloco
+        }}
+      </p>
+    </div>
   </div>
   <div class="accordion-settings__footer-actions">
-    <button nw-button variant="outline" size="sm" type="button" [disabled]="!customized()" (click)="reset()"><nw-icon name="rotate-ccw" size="sm" />{{ 'preferences.appearance.reset' | transloco }}</button>
-    <button nw-button variant="outline" size="sm" type="button" [disabled]="!dirty()" (click)="discard()">{{ 'preferences.appearance.discard' | transloco }}</button>
-    <button nw-button size="sm" type="button" [disabled]="!dirty()" (click)="apply()"><nw-icon name="check" size="sm" />{{ 'preferences.appearance.apply' | transloco }}</button>
+    <button
+      nw-button
+      variant="outline"
+      size="sm"
+      type="button"
+      [disabled]="!customized()"
+      (click)="reset()"
+    >
+      <nw-icon name="rotate-ccw" size="sm" />{{ 'preferences.appearance.reset' | transloco }}
+    </button>
+    <button
+      nw-button
+      variant="outline"
+      size="sm"
+      type="button"
+      [disabled]="!dirty()"
+      (click)="discard()"
+    >
+      {{ 'preferences.appearance.discard' | transloco }}
+    </button>
+    <button nw-button size="sm" type="button" [disabled]="!dirty()" (click)="apply()">
+      <nw-icon name="check" size="sm" />{{ 'preferences.appearance.apply' | transloco }}
+    </button>
   </div>
 </div>
