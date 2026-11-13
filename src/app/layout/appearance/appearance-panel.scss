@@ -144,7 +144,6 @@
   }
   .appearance-panel__mode {
     position: relative;
-    display: grid;
     justify-items: center;
     align-content: center;
     gap: var(--nw-space-2);
@@ -152,10 +151,8 @@
     padding: var(--nw-space-3) var(--nw-space-2);
     border: 1px solid var(--nw-border-subtle);
     border-radius: var(--nw-radius-md);
-    background-color: var(--nw-surface-sunken);
     color: var(--nw-text-primary);
     font-size: var(--nw-text-size-sm);
-    text-align: center;
     &:has(:checked) {
       border-color: var(--nw-color-primary);
       background-color: var(--nw-color-primary-subtle);
@@ -178,8 +175,6 @@
   .appearance-panel__footer {
     // In the stacked workspace, keep actions after the preview instead of covering it.
     position: static;
-    padding: var(--nw-space-3) var(--nw-space-4);
-    background-color: var(--nw-surface-sunken);
   }
   .appearance-panel__reset,
   .appearance-panel__apply {
@@ -187,16 +182,13 @@
     padding-inline: var(--nw-space-4);
   }
   @container (min-width: 54rem) {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
     grid-template-rows: auto auto 1fr auto;
     align-items: start;
     gap: var(--nw-space-4) var(--nw-space-6);
-    .appearance-panel__intro,
     .appearance-panel__group {
       grid-column: 1;
     }
     .appearance-panel__footer {
-      position: sticky;
       grid-column: 1 / -1;
       grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
@@ -211,24 +203,16 @@
     }
     .appearance-panel__preview {
       grid-column: 2;
-      grid-row: 1 / span 3;
-      align-self: start;
-      padding: var(--nw-space-4);
-      border: 1px solid var(--nw-border-subtle);
     }
   }
 }
 
 // Settings workspace cards and theme illustrations.
 :host(.appearance-panel--workspace) {
-  .appearance-panel__intro,
   .appearance-panel__group {
     padding: var(--nw-space-5);
     border: 1px solid var(--nw-border-subtle);
     background: var(--nw-surface-raised);
-  }
-  .appearance-panel__intro {
-    border-radius: var(--nw-radius-lg) var(--nw-radius-lg) 0 0;
   }
   .appearance-panel__group {
     margin-block-start: calc(-1 * var(--nw-space-4));
@@ -291,9 +275,6 @@
   }
   @container (min-width: 54rem) {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.07fr);
-    .appearance-panel__preview {
-      grid-row: 1 / span 3;
-    }
     .appearance-panel__footer {
       position: static;
     }
@@ -347,7 +328,6 @@
 /* Keep controls usable when the settings workspace is narrow or text is translated. */
 :host(.appearance-panel--workspace) {
   min-inline-size: 0;
-  .appearance-panel__intro,
   .appearance-panel__group,
   .appearance-panel__preview,
   .appearance-panel__footer {
@@ -364,7 +344,6 @@
     overflow-wrap: anywhere;
   }
   @container (max-width: 35rem) {
-    .appearance-panel__intro,
     .appearance-panel__group,
     .appearance-panel__preview,
     .appearance-panel__footer {

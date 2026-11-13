@@ -15,53 +15,11 @@
   gap: var(--nw-space-3);
 }
 
-.platform-dashboard__back {
-  display: inline-grid;
-  flex: none;
-  place-items: center;
-  inline-size: 2.5rem;
-  block-size: 2.5rem;
-  border: 1px solid var(--nw-border-default);
-  border-radius: var(--nw-radius-md);
-  color: var(--nw-text-secondary);
-  text-decoration: none;
-  transition:
-    background-color 150ms,
-    color 150ms;
-
-  &:hover {
-    background-color: var(--nw-surface-brand-subtle);
-    color: var(--nw-text-brand);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--nw-text-brand);
-    outline-offset: 2px;
-  }
-}
-
-.platform-dashboard__mark {
-  display: inline-grid;
-  flex: none;
-  place-items: center;
-  inline-size: 3.5rem;
-  block-size: 3.5rem;
-  border-radius: var(--nw-radius-lg);
-  background-color: var(--nw-surface-brand-subtle);
-  color: var(--nw-text-brand);
-}
-
 .platform-dashboard__titles {
   display: grid;
   flex: 1 1 18rem;
   gap: var(--nw-space-1);
   min-inline-size: 0;
-}
-
-.platform-dashboard__eyebrow {
-  color: var(--nw-text-brand);
-  font-size: var(--nw-text-size-sm);
-  font-weight: var(--nw-font-weight-semibold);
 }
 
 .platform-dashboard__title {
@@ -72,77 +30,11 @@
   overflow-wrap: anywhere;
 }
 
-.platform-dashboard__meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--nw-space-1) var(--nw-space-3);
-  color: var(--nw-text-secondary);
-  font-size: var(--nw-text-size-sm);
-}
-
-.platform-dashboard__key {
-  color: var(--nw-text-primary);
-  font-family: var(--nw-font-mono);
-  font-size: 0.78125rem;
-}
-
-.platform-dashboard__access,
-.platform-dashboard__pill {
-  padding: 2px 0.5625rem;
-  border-radius: var(--nw-radius-pill);
-  background-color: var(--nw-accent-purple-bg);
-  color: var(--nw-accent-purple-fg);
-  font-size: var(--nw-text-size-xs);
-  font-weight: var(--nw-font-weight-semibold);
-}
-
-.platform-dashboard__pill {
-  background-color: var(--nw-surface-brand-subtle);
-  color: var(--nw-text-brand);
-  white-space: nowrap;
-}
-
-.platform-dashboard__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--nw-space-2);
-}
-
-.platform-dashboard__demo {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  min-block-size: 2.25rem;
-  padding-inline: 0.75rem;
-  border-radius: var(--nw-radius-md);
-  background-color: var(--nw-accent-orange-bg);
-  color: var(--nw-accent-orange-fg);
-  font-size: 0.8125rem;
-  font-weight: var(--nw-font-weight-semibold);
-}
-
 .platform-dashboard__figures {
   display: grid;
   // Two by two, then one row of four: never three and an orphan.
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.625rem;
-}
-
-.platform-dashboard__row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
-  gap: var(--nw-space-4);
-
-  &--main {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 27.5rem), 1fr));
-  }
-}
-
-.platform-dashboard__footnote {
-  color: var(--nw-text-secondary);
-  font-size: 0.78125rem;
 }
 
 .platform-dashboard__unavailable {
@@ -152,34 +44,6 @@
   gap: var(--nw-space-2);
   color: var(--nw-text-secondary);
   font-size: var(--nw-text-size-sm);
-}
-
-.platform-dashboard__empty {
-  display: grid;
-  justify-items: start;
-  gap: var(--nw-space-2);
-}
-
-.platform-dashboard__empty-title {
-  font-weight: var(--nw-font-weight-semibold);
-}
-
-.platform-dashboard__empty-text {
-  color: var(--nw-text-secondary);
-  font-size: var(--nw-text-size-sm);
-}
-
-// Read only: focusable (so its "not available yet" description is reachable), never actionable.
-.platform-dashboard__unavailable-action {
-  padding: 0.5rem 0.875rem;
-  border: 1px solid var(--nw-border-default);
-  border-radius: var(--nw-radius-md);
-  background-color: var(--nw-surface-raised);
-  color: var(--nw-text-secondary);
-  font: inherit;
-  font-size: var(--nw-text-size-sm);
-  font-weight: var(--nw-font-weight-semibold);
-  cursor: not-allowed;
 }
 
 // Very narrow pages (320 px phones): one figure per row, so the cards' icon tiles are never clipped.
@@ -207,15 +71,6 @@
 
 // Wide (a 1440 px window is about 62rem here, at the 110% root size): the organizations take two thirds beside the
 // attention list, and the owner's subscriptions, policies and activity sit side by side.
-@container (min-width: 58rem) {
-  .platform-dashboard__row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .platform-dashboard__row--main {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  }
-}
 
 .platform-dashboard__history-backdrop {
   position: fixed;
@@ -285,12 +140,6 @@
     outline: 2px solid var(--nw-text-brand);
     outline-offset: -2px;
   }
-}
-
-.platform-dashboard__history-heading {
-  display: flex;
-  align-items: center;
-  gap: var(--nw-space-2);
 }
 
 .platform-dashboard__history-count {
@@ -409,10 +258,6 @@
   padding-block: 0.875rem;
 }
 
-.platform-dashboard__attention-content {
-  padding-block-start: var(--nw-space-4);
-}
-
 .platform-dashboard__attention-button--warning {
   border-color: var(--nw-alert-warning-border);
   background-color: var(--nw-alert-warning-bg);
@@ -422,10 +267,6 @@
     border-color: var(--nw-alert-warning-icon);
     background-color: var(--nw-alert-warning-bg);
   }
-}
-
-.platform-dashboard__attention-icon {
-  color: var(--nw-alert-warning-icon);
 }
 
 .platform-dashboard__attention-count {
