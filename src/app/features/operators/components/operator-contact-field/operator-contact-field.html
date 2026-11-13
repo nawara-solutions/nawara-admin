@@ -1,0 +1,50 @@
+@let kindInput = inputs[kind()];
+<nw-form-field
+  [class.operator-create__phone-field]="kind() === 'phone'"
+  [label]="label()"
+  [hint]="kind() === 'email' ? (hintKeys.email | transloco) : undefined"
+  [describedByRef]="kind() === 'phone' ? 'operator-phone-hint' : undefined"
+  [error]="error()"
+  [errorRef]="errorRef()"
+  required
+>
+  @if (kind() === 'phone') {
+    <span class="operator-create__phone-prefix" aria-hidden="true" dir="ltr">+216</span>
+    <span class="operator-create__phone-boxes" aria-hidden="true">
+      @for (digit of digits; track digit) {
+        <span [class.operator-create__digit-placeholder]="!value()[digit - 1]">{{
+          value()[digit - 1] || digit
+        }}</span>
+        @if (digit === 2 || digit === 5) {
+          <b class="operator-create__digit-separator">-</b>
+        }
+      }
+    </span>
+  } @else {
+    <span class="operator-create__email-icon" aria-hidden="true">
+      <nw-icon name="mail" size="sm" />
+    </span>
+  }
+  <input
+    #control
+    nwControl
+    name="operator-contact"
+    autocomplete="off"
+    spellcheck="false"
+    dir="ltr"
+    [type]="kindInput.type"
+    [attr.inputmode]="kindInput.inputmode"
+    [attr.maxlength]="kind() === 'phone' ? 8 : null"
+    [attr.placeholder]="kind() === 'phone' ? '12345678' : 'name@nawara-solutions.com'"
+    [class.operator-create__phone-input]="kind() === 'phone'"
+    [class.operator-create__email-input]="kind() === 'email'"
+    [value]="value()"
+    (input)="contactInput.emit($event)"
+  />
+</nw-form-field>
+@if (kind() === 'phone') {
+  <p id="operator-phone-hint" class="operator-create__phone-hint">
+    <nw-icon name="info" size="sm" />
+    <span>{{ hintKeys.phone | transloco }}</span>
+  </p>
+}

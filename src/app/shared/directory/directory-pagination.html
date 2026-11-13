@@ -1,0 +1,72 @@
+@let b = block();
+@let v = variant();
+<p class="{{ b }}__count" role="status" aria-live="polite">{{ count() }}</p>
+<div class="{{ b }}__page-size">
+  <span [id]="v + '-page-size-label'">{{ 'operators.pagination.perPage' | transloco }}</span>
+  <button
+    type="button"
+    cdkOverlayOrigin
+    #pageSizeOrigin="cdkOverlayOrigin"
+    class="{{ b }}__page-size-trigger"
+    [attr.aria-expanded]="pageSizeOpen()"
+    aria-haspopup="true"
+    [attr.aria-labelledby]="v + '-page-size-label ' + v + '-page-size-value'"
+    [attr.aria-controls]="b + '-list'"
+    (click)="pageSizeOpen.set(!pageSizeOpen())"
+  >
+    <span [id]="v + '-page-size-value'">{{
+      pageSize() === 'all' ? ('operators.pagination.all' | transloco) : pageSize()
+    }}</span>
+    <nw-icon name="chevron-down" size="sm" />
+  </button>
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="pageSizeOrigin"
+    [cdkConnectedOverlayOpen]="pageSizeOpen()"
+    [cdkConnectedOverlayPositions]="popupPositions"
+    [cdkConnectedOverlayHasBackdrop]="true"
+    cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+    [cdkConnectedOverlayPush]="true"
+    [cdkConnectedOverlayViewportMargin]="16"
+    (backdropClick)="pageSizeOpen.set(false)"
+    (detach)="pageSizeOpen.set(false)"
+    (overlayKeydown)="$event.key === 'Escape' && pageSizeOpen.set(false)"
+  >
+    <div
+      class="{{ b }}__page-size-menu"
+      role="group"
+      [attr.aria-label]="'operators.pagination.perPage' | transloco"
+    >
+      @for (size of pageSizes; track size) {
+        <button
+          type="button"
+          [class.is-selected]="pageSize() === size"
+          [attr.aria-pressed]="pageSize() === size"
+          (click)="choose(size)"
+        >
+          {{ size === 'all' ? ('operators.pagination.all' | transloco) : size }}
+        </button>
+      }
+    </div>
+  </ng-template>
+</div>
+<div class="{{ b }}__page-actions">
+  <button
+    type="button"
+    [disabled]="pageIndex() === 0"
+    (click)="pageChange.emit(pageIndex() - 1)"
+    [attr.aria-label]="'operators.pagination.previous' | transloco"
+    [title]="'operators.pagination.previous' | transloco"
+  >
+    <nw-icon name="chevron-left" size="sm" />
+  </button>
+  <button
+    type="button"
+    [disabled]="pageIndex() + 1 >= pageCount()"
+    (click)="pageChange.emit(pageIndex() + 1)"
+    [attr.aria-label]="'operators.pagination.next' | transloco"
+    [title]="'operators.pagination.next' | transloco"
+  >
+    <nw-icon name="chevron-right" size="sm" />
+  </button>
+</div>

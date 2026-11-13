@@ -1,0 +1,229 @@
+// Each directory's pagination rules, moved unchanged from its page stylesheet (WP-5.2b), in their original order.
+// A rule set matches only its own directory's class names; the page keeps its rule for the <nav> itself.
+
+// Organizations (organization-directory.page.scss)
+.organization-directory__count {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}
+@container (min-width: 58rem) {
+  .organization-directory__count {
+    padding-block-end: 0.625rem;
+  }
+}
+
+.organization-directory__page-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+.organization-directory__page-size-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-block-size: 2.375rem;
+  min-inline-size: 4.25rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  color: var(--nw-text-primary);
+  font: inherit;
+  font-weight: var(--nw-font-weight-medium);
+  cursor: pointer;
+}
+.organization-directory__page-size-trigger:hover,
+.organization-directory__page-size-trigger[aria-expanded='true'] {
+  color: var(--nw-text-brand);
+}
+.organization-directory__page-size-trigger:focus-visible {
+  outline: 2px solid var(--nw-focus-ring);
+  outline-offset: 2px;
+}
+
+.organization-directory__page-size-menu {
+  display: grid;
+  gap: 0.125rem;
+  min-inline-size: 7rem;
+  padding: 0.375rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background: var(--nw-surface-raised);
+  box-shadow: var(--nw-shadow-md);
+}
+.organization-directory__page-size-menu button {
+  padding: 0.5rem 0.625rem;
+  border: 0;
+  border-radius: var(--nw-radius-md);
+  background: transparent;
+  color: var(--nw-text-primary);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-align: start;
+  cursor: pointer;
+}
+.organization-directory__page-size-menu button:hover,
+.organization-directory__page-size-menu button.is-selected {
+  background: var(--nw-surface-brand-subtle);
+  color: var(--nw-text-brand);
+}
+.organization-directory__page-size-menu button:focus-visible {
+  outline: 2px solid var(--nw-focus-ring);
+  outline-offset: -2px;
+}
+
+.organization-directory__page-actions {
+  display: flex;
+  gap: 0.375rem;
+}
+.organization-directory__page-actions button {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 2.375rem;
+  block-size: 2.375rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  color: var(--nw-text-secondary);
+  cursor: pointer;
+}
+.organization-directory__page-actions button:hover:not(:disabled) {
+  color: var(--nw-text-brand);
+}
+.organization-directory__page-actions button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.organization-directory__page-actions button:focus-visible {
+  outline: 2px solid var(--nw-focus-ring);
+  outline-offset: 2px;
+}
+
+.organization-directory__count {
+  flex: 0 0 auto;
+  margin: 0 auto 0 0;
+}
+
+.organization-directory__page-size-trigger,
+.organization-directory__page-actions button {
+  border-color: color-mix(in srgb, var(--nw-border-brand) 35%, var(--nw-border-subtle));
+  background: color-mix(in srgb, var(--nw-surface-brand-subtle) 35%, var(--nw-surface-sunken));
+}
+
+.organization-directory__page-size-trigger nw-icon,
+.organization-directory__page-actions button nw-icon {
+  color: var(--nw-text-brand);
+}
+
+.organization-directory__page-size-trigger:hover,
+.organization-directory__page-size-trigger[aria-expanded='true'],
+.organization-directory__page-actions button:hover:not(:disabled) {
+  border-color: var(--nw-border-brand);
+  background: var(--nw-surface-brand-subtle);
+}
+
+.organization-directory__page-actions button:disabled nw-icon {
+  color: var(--nw-text-disabled);
+}
+
+// Operators (operator-directory.page.scss)
+.operator-directory__page-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+.operator-directory__page-size-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-block-size: 2.375rem;
+  min-inline-size: 4.25rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background: var(--nw-surface-raised);
+  color: var(--nw-text-primary);
+  font: inherit;
+  font-weight: var(--nw-font-weight-medium);
+  cursor: pointer;
+}
+.operator-directory__page-size-trigger:hover,
+.operator-directory__page-size-trigger[aria-expanded='true'] {
+  border-color: var(--nw-border-brand);
+  color: var(--nw-text-brand);
+}
+.operator-directory__page-size-trigger:focus-visible {
+  outline: 2px solid var(--nw-focus-ring);
+  outline-offset: 2px;
+}
+
+.operator-directory__page-size-menu {
+  display: grid;
+  gap: 0.125rem;
+  min-inline-size: 7rem;
+  padding: 0.375rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background: var(--nw-surface-raised);
+  box-shadow: var(--nw-shadow-md);
+}
+.operator-directory__page-size-menu button {
+  padding: 0.5rem 0.625rem;
+  border: 0;
+  border-radius: var(--nw-radius-md);
+  background: transparent;
+  color: var(--nw-text-primary);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-align: start;
+  cursor: pointer;
+}
+.operator-directory__page-size-menu button:hover,
+.operator-directory__page-size-menu button.is-selected {
+  background: var(--nw-surface-brand-subtle);
+  color: var(--nw-text-brand);
+}
+.operator-directory__page-size-menu button:focus-visible {
+  outline: 2px solid var(--nw-focus-ring);
+  outline-offset: -2px;
+}
+
+.operator-directory__page-actions {
+  display: flex;
+  gap: 0.375rem;
+}
+.operator-directory__page-actions button {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 2.375rem;
+  block-size: 2.375rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background: var(--nw-surface-raised);
+  color: var(--nw-text-secondary);
+  cursor: pointer;
+}
+.operator-directory__page-actions button:hover:not(:disabled) {
+  border-color: var(--nw-border-brand);
+  background: var(--nw-surface-brand-subtle);
+  color: var(--nw-text-brand);
+}
+.operator-directory__page-actions button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.operator-directory__page-actions button:focus-visible {
+  outline: 2px solid var(--nw-focus-ring);
+  outline-offset: 2px;
+}
+
+.operator-directory__count {
+  flex: 0 0 auto;
+  margin: 0;
+  margin-inline-end: auto;
+  color: var(--nw-text-secondary);
+  font-size: 0.875rem;
+  font-weight: var(--nw-font-weight-medium);
+  line-height: 1.5;
+  white-space: nowrap;
+}

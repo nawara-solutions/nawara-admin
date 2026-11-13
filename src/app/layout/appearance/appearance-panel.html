@@ -1,37 +1,13 @@
 <fieldset [disabled]="theme.applying()" class="appearance-panel__group">
   <legend class="appearance-panel__legend">{{ 'preferences.appearance.mode' | transloco }}</legend>
-  <div class="appearance-panel__modes">
-    @for (mode of modes; track mode.value) {
-      <label class="appearance-panel__mode">
-        <input
-          class="appearance-panel__input"
-          type="radio"
-          [name]="id + '-mode'"
-          [value]="mode.value"
-          [checked]="theme.preference() === mode.value"
-          (change)="theme.setPreference(mode.value)"
-        />
-        @if (accentPresentation() === 'grid') {
-          <span class="appearance-panel__mode-art" [attr.data-mode]="mode.value" aria-hidden="true"
-            ><i></i><i></i><i></i
-          ></span>
-        } @else {
-          <nw-icon [name]="mode.icon" size="sm" />
-        }
-        <span class="appearance-panel__mode-label"
-          >{{ mode.labelKey | transloco }}
-          @if (accentPresentation() === 'grid') {
-            <small>{{ mode.hintKey | transloco }}</small>
-          }
-        </span>
-        @if (accentPresentation() === 'grid') {
-          @if (theme.preference() === mode.value) {
-            <nw-icon class="appearance-panel__mode-check" name="circle-check" size="sm" />
-          }
-        }
-      </label>
-    }
-  </div>
+  <div
+    class="appearance-panel__modes"
+    [adm-appearance-modes]="accentPresentation()"
+    [modes]="modes"
+    [preference]="theme.preference()"
+    [name]="id + '-mode'"
+    (choose)="theme.setPreference($event)"
+  ></div>
 </fieldset>
 
 <div class="appearance-panel__group">
@@ -70,20 +46,13 @@
     {{ 'preferences.appearance.density' | transloco }}
   </legend>
   <p [id]="id + '-density-hint'">{{ 'preferences.appearance.densityHint' | transloco }}</p>
-  <div class="appearance-panel__density-options">
-    @for (level of [1, 2, 3, 4, 5]; track level) {
-      <label
-        ><input
-          class="appearance-panel__input"
-          type="radio"
-          [value]="level"
-          [name]="id + '-density'"
-          [checked]="theme.density() === level"
-          (change)="theme.setDensity(level)"
-        /><span>{{ level }}</span></label
-      >
-    }
-  </div>
+  <div
+    class="appearance-panel__density-options"
+    [adm-appearance-density]="accentPresentation()"
+    [density]="theme.density()"
+    [name]="id + '-density'"
+    (choose)="theme.setDensity($event)"
+  ></div>
 </fieldset>
 @if (accentPresentation() === 'grid') {
   <div

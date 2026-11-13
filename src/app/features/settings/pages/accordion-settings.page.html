@@ -135,57 +135,12 @@
           }}</strong></span
         >
       </header>
-      <div class="accordion-settings__mock-shell">
-        <nav class="accordion-settings__mock-sidebar" aria-hidden="true">
-          <span><nw-icon name="house" size="sm" />{{ 'companyOverview.title' | transloco }}</span>
-          <span class="accordion-settings__mock-current"
-            ><nw-icon name="building-2" size="sm" />{{ 'platforms.title' | transloco }}</span
-          >
-          <span><nw-icon name="users" size="sm" />{{ 'operators.header.title' | transloco }}</span>
-          <span><nw-icon name="settings" size="sm" />{{ 'settings.title' | transloco }}</span>
-        </nav>
-        <div class="accordion-settings__mock-page">
-          <h3>{{ 'settings.accordions.platformDashboard' | transloco }}</h3>
-          @if (figuresVisible()) {
-            <div class="accordion-settings__mock-figures" aria-hidden="true">
-              <div>
-                {{ 'platformDashboard.figures.organizations' | transloco }}<strong>—</strong>
-              </div>
-              <div>{{ 'platformDashboard.figures.memberships' | transloco }}<strong>—</strong></div>
-              <div>
-                {{ 'platformDashboard.figures.membershipRequests' | transloco }}<strong>—</strong>
-              </div>
-              <div>
-                {{ 'platformDashboard.figures.operatorAssignments' | transloco }}<strong>—</strong>
-              </div>
-            </div>
-          }
-          @if (subscriptionsVisible()) {
-            <div class="accordion-settings__mock-overview" aria-hidden="true">
-              <div>
-                <span>{{ 'platformDashboard.figures.organizations' | transloco }}</span
-                ><strong>—</strong>
-              </div>
-              <div>
-                <span>{{ 'platformDashboard.commercial.personalPremium' | transloco }}</span
-                ><strong>—</strong>
-              </div>
-              <span class="accordion-settings__mock-bar"></span>
-            </div>
-          }
-          <div class="accordion-settings__mock-table" aria-hidden="true">
-            <div class="accordion-settings__mock-toolbar">
-              <span>{{ 'organizations.toolbar.searchPlaceholder' | transloco }}</span
-              ><b>{{ 'operators.filters.title' | transloco }}</b>
-            </div>
-            <div class="accordion-settings__mock-row">
-              <span>{{ 'organizations.table.organization' | transloco }}</span
-              ><span>—</span>
-            </div>
-            <div class="accordion-settings__mock-row"><span>—</span><span>—</span></div>
-          </div>
-        </div>
-      </div>
+      <div
+        class="accordion-settings__mock-shell"
+        adm-accordion-mock-shell="dashboard"
+        [figures]="figuresVisible()"
+        [subscriptions]="subscriptionsVisible()"
+      ></div>
     </aside>
   }
   @if (page() === 'operators') {
@@ -199,54 +154,11 @@
         >
       </header>
       <div class="accordion-settings__preview-body accordion-settings__preview-body--mock">
-        <div class="accordion-settings__mock-shell">
-          <nav class="accordion-settings__mock-sidebar" aria-hidden="true">
-            <span><nw-icon name="house" size="sm" />{{ 'companyOverview.title' | transloco }}</span>
-            <span><nw-icon name="building-2" size="sm" />{{ 'platforms.title' | transloco }}</span>
-            <span class="accordion-settings__mock-current"
-              ><nw-icon name="users" size="sm" />{{ 'operators.header.title' | transloco }}</span
-            >
-            <span><nw-icon name="settings" size="sm" />{{ 'settings.title' | transloco }}</span>
-          </nav>
-          <div class="accordion-settings__mock-page">
-            <h3>{{ 'operators.header.title' | transloco }}</h3>
-            @if (operatorVisible()) {
-              <div class="accordion-settings__mock-overview">
-                <div>
-                  <span>{{ 'operators.totals.assignments' | transloco }}</span
-                  ><strong>—</strong>
-                </div>
-                <div>
-                  <span>{{ 'operators.totals.withoutAccess' | transloco }}</span
-                  ><strong>—</strong>
-                </div>
-                <span class="accordion-settings__mock-bar"></span>
-              </div>
-            }
-            <div class="accordion-settings__mock-table" aria-hidden="true">
-              <div class="accordion-settings__mock-toolbar">
-                <span>{{ 'operators.toolbar.searchPlaceholder' | transloco }}</span
-                ><b>{{ 'operators.filters.title' | transloco }}</b
-                ><b>{{ 'organizations.toolbar.sort' | transloco }}</b>
-              </div>
-              <div class="accordion-settings__mock-row accordion-settings__mock-row--head">
-                <span>{{ 'operators.list.operator' | transloco }}</span
-                ><span>{{ 'operators.list.platforms' | transloco }}</span>
-              </div>
-              <div class="accordion-settings__mock-row">
-                <span>operator@example.com</span
-                ><span class="accordion-settings__mock-pill">Nawara School</span>
-              </div>
-              <div class="accordion-settings__mock-row">
-                <span>admin@example.com</span
-                ><span class="accordion-settings__mock-pill">Nawara Drive</span>
-              </div>
-              <div class="accordion-settings__mock-row">
-                <span>team@example.com</span><span>—</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div
+          class="accordion-settings__mock-shell"
+          adm-accordion-mock-shell="operators"
+          [totals]="operatorVisible()"
+        ></div>
       </div>
     </aside>
   }

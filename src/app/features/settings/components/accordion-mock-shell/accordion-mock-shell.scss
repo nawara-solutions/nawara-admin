@@ -1,0 +1,150 @@
+// The miniature page's rules, moved unchanged from accordion-settings.page.scss (WP-5.2b), in their original order.
+
+.accordion-settings__mock-page {
+  display: grid;
+  gap: var(--nw-space-3);
+  padding: var(--nw-space-4);
+  background: var(--nw-surface-sunken);
+  min-inline-size: 0;
+  min-block-size: 22rem;
+  align-content: start;
+}
+.accordion-settings__mock-page h3 {
+  margin: 0;
+  font-size: var(--nw-text-size-sm);
+}
+
+.accordion-settings__mock-sidebar {
+  display: grid;
+  align-content: start;
+  gap: var(--nw-space-2);
+  padding: var(--nw-space-2) var(--nw-space-1);
+  border-inline-end: 1px solid var(--nw-border-subtle);
+  font-size: var(--nw-text-size-xs);
+  color: var(--nw-text-primary);
+}
+.accordion-settings__mock-sidebar span {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-1);
+  padding: var(--nw-space-2) var(--nw-space-1);
+  border-radius: var(--nw-radius-sm);
+  overflow-wrap: anywhere;
+}
+.accordion-settings__mock-sidebar .accordion-settings__mock-current {
+  background: var(--nw-surface-brand-subtle);
+  color: var(--nw-text-brand);
+}
+
+.accordion-settings__mock-overview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--nw-space-3);
+  padding: var(--nw-space-3);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background: var(--nw-surface-raised);
+  font-size: var(--nw-text-size-xs);
+  color: var(--nw-text-secondary);
+}
+.accordion-settings__mock-overview div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.accordion-settings__mock-overview strong {
+  color: var(--nw-text-brand);
+}
+
+.accordion-settings__mock-figures {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+.accordion-settings__mock-figures div {
+  display: grid;
+  gap: 0.75rem;
+  min-inline-size: 0;
+  padding: 0.5rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background: var(--nw-surface-raised);
+  color: var(--nw-text-secondary);
+  font-size: 0.625rem;
+  overflow-wrap: anywhere;
+}
+.accordion-settings__mock-figures strong {
+  color: var(--nw-text-primary);
+  font-size: 1rem;
+}
+
+.accordion-settings__mock-bar {
+  grid-column: 1/-1;
+  block-size: 0.35rem;
+  border-radius: var(--nw-radius-pill);
+  background: var(--nw-color-primary);
+}
+
+.accordion-settings__mock-table {
+  overflow: hidden;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background: var(--nw-surface-raised);
+  font-size: 0.625rem;
+}
+
+.accordion-settings__mock-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem;
+  border-block-end: 1px solid var(--nw-border-subtle);
+}
+.accordion-settings__mock-toolbar span {
+  flex: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  padding: 0.4rem;
+  border-radius: var(--nw-radius-sm);
+  background: var(--nw-surface-sunken);
+  color: var(--nw-text-secondary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.accordion-settings__mock-toolbar b {
+  padding: 0.35rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-sm);
+  font-weight: var(--nw-font-weight-medium);
+}
+
+.accordion-settings__mock-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  min-inline-size: 0;
+  padding: 0.625rem;
+  border-block-end: 1px solid var(--nw-border-subtle);
+}
+.accordion-settings__mock-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.accordion-settings__mock-row:last-child {
+  border: 0;
+}
+
+.accordion-settings__mock-row--head {
+  color: var(--nw-text-brand);
+  font-weight: var(--nw-font-weight-semibold);
+}
+
+.accordion-settings__mock-pill {
+  justify-self: start;
+  max-inline-size: 100%;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--nw-radius-pill);
+  background: var(--nw-surface-brand-subtle);
+}

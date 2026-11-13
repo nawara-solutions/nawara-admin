@@ -99,11 +99,6 @@
   }
 }
 
-.organization-directory__count {
-  color: var(--nw-text-secondary);
-  font-size: var(--nw-text-size-sm);
-}
-
 .organization-directory__unavailable {
   display: flex;
   flex-wrap: wrap;
@@ -120,13 +115,6 @@
 
   .organization-directory__totals {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-// Wide: search, segments, the two selects and the count on one row.
-@container (min-width: 58rem) {
-  .organization-directory__count {
-    padding-block-end: 0.625rem;
   }
 }
 
@@ -168,102 +156,6 @@
   font-size: 0.875rem;
 }
 
-.organization-directory__page-size {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.625rem;
-
-  &-trigger {
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    min-block-size: 2.375rem;
-    min-inline-size: 4.25rem;
-    padding: 0.375rem 0.75rem;
-    border: 1px solid var(--nw-border-subtle);
-    border-radius: var(--nw-radius-md);
-    color: var(--nw-text-primary);
-    font: inherit;
-    font-weight: var(--nw-font-weight-medium);
-    cursor: pointer;
-
-    &:hover,
-    &[aria-expanded='true'] {
-      color: var(--nw-text-brand);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--nw-focus-ring);
-      outline-offset: 2px;
-    }
-  }
-}
-
-.organization-directory__page-size-menu {
-  display: grid;
-  gap: 0.125rem;
-  min-inline-size: 7rem;
-  padding: 0.375rem;
-  border: 1px solid var(--nw-border-subtle);
-  border-radius: var(--nw-radius-md);
-  background: var(--nw-surface-raised);
-  box-shadow: var(--nw-shadow-md);
-
-  button {
-    padding: 0.5rem 0.625rem;
-    border: 0;
-    border-radius: var(--nw-radius-md);
-    background: transparent;
-    color: var(--nw-text-primary);
-    font: inherit;
-    font-size: 0.8125rem;
-    text-align: start;
-    cursor: pointer;
-
-    &:hover,
-    &.is-selected {
-      background: var(--nw-surface-brand-subtle);
-      color: var(--nw-text-brand);
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--nw-focus-ring);
-      outline-offset: -2px;
-    }
-  }
-}
-
-.organization-directory__page-actions {
-  display: flex;
-  gap: 0.375rem;
-
-  button {
-    display: inline-grid;
-    place-items: center;
-    inline-size: 2.375rem;
-    block-size: 2.375rem;
-    border: 1px solid var(--nw-border-subtle);
-    border-radius: var(--nw-radius-md);
-    color: var(--nw-text-secondary);
-    cursor: pointer;
-
-    &:hover:not(:disabled) {
-      color: var(--nw-text-brand);
-    }
-
-    &:disabled {
-      opacity: 0.4;
-      cursor: default;
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--nw-focus-ring);
-      outline-offset: 2px;
-    }
-  }
-}
-
 .organization-directory__card {
   gap: 0;
   padding: 0;
@@ -282,10 +174,6 @@
   min-inline-size: 0;
   max-inline-size: 26rem;
   margin-inline-end: auto;
-}
-.organization-directory__count {
-  flex: 0 0 auto;
-  margin: 0 auto 0 0;
 }
 .organization-directory__filter-dot {
   inline-size: 0.375rem;
@@ -336,30 +224,19 @@
   }
 }
 
-.organization-directory__search,
-.organization-directory__page-size-trigger,
-.organization-directory__page-actions button {
+.organization-directory__search {
   border-color: color-mix(in srgb, var(--nw-border-brand) 35%, var(--nw-border-subtle));
   background: color-mix(in srgb, var(--nw-surface-brand-subtle) 35%, var(--nw-surface-sunken));
 }
 
-.organization-directory__search > nw-icon,
-.organization-directory__page-size-trigger nw-icon,
-.organization-directory__page-actions button nw-icon {
+.organization-directory__search > nw-icon {
   color: var(--nw-text-brand);
 }
 
 .organization-directory__search:hover,
-.organization-directory__search:focus-within,
-.organization-directory__page-size-trigger:hover,
-.organization-directory__page-size-trigger[aria-expanded='true'],
-.organization-directory__page-actions button:hover:not(:disabled) {
+.organization-directory__search:focus-within {
   border-color: var(--nw-border-brand);
   background: var(--nw-surface-brand-subtle);
-}
-
-.organization-directory__page-actions button:disabled nw-icon {
-  color: var(--nw-text-disabled);
 }
 
 .organization-directory__toolbar .organization-directory__reset {

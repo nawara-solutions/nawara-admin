@@ -1,0 +1,30 @@
+@for (mode of modes(); track mode.value) {
+  <label class="appearance-panel__mode">
+    <input
+      class="appearance-panel__input"
+      type="radio"
+      [name]="name()"
+      [value]="mode.value"
+      [checked]="preference() === mode.value"
+      (change)="choose.emit(mode.value)"
+    />
+    @if (presentation() === 'grid') {
+      <span class="appearance-panel__mode-art" [attr.data-mode]="mode.value" aria-hidden="true"
+        ><i></i><i></i><i></i
+      ></span>
+    } @else {
+      <nw-icon [name]="mode.icon" size="sm" />
+    }
+    <span class="appearance-panel__mode-label"
+      >{{ mode.labelKey | transloco }}
+      @if (presentation() === 'grid') {
+        <small>{{ mode.hintKey | transloco }}</small>
+      }
+    </span>
+    @if (presentation() === 'grid') {
+      @if (preference() === mode.value) {
+        <nw-icon class="appearance-panel__mode-check" name="circle-check" size="sm" />
+      }
+    }
+  </label>
+}

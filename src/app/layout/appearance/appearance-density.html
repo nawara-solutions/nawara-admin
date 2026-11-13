@@ -1,0 +1,12 @@
+@for (level of levels; track level) {
+  <label
+    ><input
+      class="appearance-panel__input"
+      type="radio"
+      [value]="level"
+      [name]="name()"
+      [checked]="density() === level"
+      (change)="choose.emit(level)"
+    /><span>{{ level }}</span></label
+  >
+}
