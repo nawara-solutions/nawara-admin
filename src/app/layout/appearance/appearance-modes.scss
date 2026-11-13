@@ -1,0 +1,144 @@
+// The mode choices' rules, moved unchanged from appearance-panel.scss and then appearance-picker-panel.scss (WP-5.2b),
+// in their original order. The host mirrors the panel's presentation class, so `:host(.appearance-panel--…)` keeps
+// its meaning.
+
+.appearance-panel__input {
+  position: absolute !important;
+  inline-size: 1px !important;
+  block-size: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.appearance-panel__mode {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-block-size: 2.125rem;
+  padding-inline: var(--nw-space-2);
+  border-radius: 0.4375rem;
+  color: var(--nw-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: var(--nw-font-weight-medium);
+  cursor: pointer;
+}
+.appearance-panel__mode:hover {
+  color: var(--nw-text-primary);
+}
+.appearance-panel__mode:has(:checked) {
+  background-color: var(--nw-surface-raised);
+  box-shadow: var(--nw-shadow-sm);
+  color: var(--nw-text-brand);
+}
+.appearance-panel__mode:has(:focus-visible) {
+  outline: var(--nw-focus-ring-width) solid var(--nw-focus-ring);
+  outline-offset: var(--nw-focus-ring-offset);
+}
+
+@media (forced-colors: active) {
+  .appearance-panel__mode:has(:checked) {
+    outline: 2px solid Highlight;
+  }
+}
+:host(.appearance-panel--workspace) .appearance-panel__mode {
+  position: relative;
+  justify-items: center;
+  align-content: center;
+  gap: var(--nw-space-2);
+  min-block-size: 4.5rem;
+  padding: var(--nw-space-3) var(--nw-space-2);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  color: var(--nw-text-primary);
+  font-size: var(--nw-text-size-sm);
+}
+:host(.appearance-panel--workspace) .appearance-panel__mode:has(:checked) {
+  border-color: var(--nw-color-primary);
+  background-color: var(--nw-color-primary-subtle);
+  box-shadow: none;
+  color: var(--nw-text-brand);
+}
+:host(.appearance-panel--workspace) .appearance-panel__mode-check {
+  position: absolute;
+  inset-block-start: var(--nw-space-1);
+  inset-inline-end: var(--nw-space-1);
+}
+:host(.appearance-panel--workspace) .appearance-panel__mode {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: start;
+  background: var(--nw-surface-raised);
+}
+:host(.appearance-panel--workspace) .appearance-panel__mode-label {
+  font-weight: var(--nw-font-weight-semibold);
+}
+:host(.appearance-panel--workspace) .appearance-panel__mode-label small {
+  display: block;
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-xs);
+  font-weight: normal;
+}
+:host(.appearance-panel--workspace) .appearance-panel__mode-art {
+  display: flex;
+  align-items: end;
+  gap: 4px;
+  height: 4rem;
+  padding: 8px;
+  border-radius: var(--nw-radius-md);
+  background: #eeedf4;
+}
+:host(.appearance-panel--workspace) .appearance-panel__mode-art i {
+  display: block;
+  flex: 1;
+  height: 75%;
+  border-radius: 4px;
+  background: white;
+}
+:host(.appearance-panel--workspace) .appearance-panel__mode-art i:first-child {
+  height: 100%;
+  border-top: 4px solid var(--nw-color-primary);
+}
+:host(.appearance-panel--workspace) .appearance-panel__mode-art[data-mode='dark'] {
+  background: #171622;
+}
+:host(.appearance-panel--workspace) .appearance-panel__mode-art[data-mode='dark'] i {
+  background: #292835;
+}
+:host(.appearance-panel--workspace) .appearance-panel__mode-art[data-mode='system'] {
+  background: linear-gradient(90deg, #eeedf4 50%, #171622 50%);
+}
+:host(.appearance-panel--workspace) .appearance-panel__mode-label {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+@container (max-width: 35rem) {
+  :host(.appearance-panel--workspace) .appearance-panel__mode {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--nw-space-3);
+  }
+  :host(.appearance-panel--workspace) .appearance-panel__mode-art {
+    flex: 0 0 5rem;
+    height: 3.5rem;
+  }
+  :host(.appearance-panel--workspace) .appearance-panel__mode-label {
+    flex: 1;
+    padding-inline-end: var(--nw-space-4);
+  }
+}
+
+:host(.appearance-panel--picker) .appearance-panel__mode {
+  min-block-size: 2.75rem;
+  padding-inline: 0.375rem;
+  font-size: 0.8125rem;
+}
+:host(.appearance-panel--picker) .appearance-panel__mode:has(:checked) {
+  background: var(--nw-surface-overlay);
+  box-shadow: 0 0 0 1px var(--nw-border-subtle);
+}

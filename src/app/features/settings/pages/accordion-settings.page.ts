@@ -9,9 +9,10 @@ import { NwBrandMark } from '../../../shared/ui/brand-mark/brand-mark';
 import { NwIcon } from '../../../shared/ui/icon/icon';
 import { NwButton } from '../../../shared/ui/button/button';
 
+import { AccordionMockShell } from '../components/accordion-mock-shell/accordion-mock-shell';
 @Component({
   selector: 'adm-accordion-settings-page',
-  imports: [TranslocoPipe, NwBrandMark, NwIcon, NwButton],
+  imports: [AccordionMockShell, TranslocoPipe, NwBrandMark, NwIcon, NwButton],
   templateUrl: './accordion-settings.page.html',
   styleUrl: './accordion-settings.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

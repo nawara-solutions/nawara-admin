@@ -64,9 +64,14 @@ const STATE_FILTER_KEYS = {
  * The search filters the loaded list by email or phone and stays in the page (contacts never go into a URL); the
  * Platform filter, the account-state filter and the sort are URL parameters. The count is announced politely.
  */
+import {
+  DirectoryPageSize,
+  DirectoryPagination,
+} from '../../../shared/directory/directory-pagination';
 @Component({
   selector: 'adm-operator-directory-page',
   imports: [
+    DirectoryPagination,
     TranslocoPipe,
     NwButton,
     NwDataState,
@@ -210,9 +215,7 @@ export class OperatorDirectoryPage {
     if (query) this.facade.setQuery(query);
   }
   protected readonly facade = inject(OperatorDirectoryFacade);
-  protected readonly pageSize = signal<10 | 50 | 'all'>(10);
-  protected readonly pageSizes = [10, 50, 'all'] as const;
-  protected readonly pageSizeOpen = signal(false);
+  protected readonly pageSize = signal<DirectoryPageSize>(10);
   protected readonly requestedPage = signal(0);
   protected readonly pageCount = computed(() => {
     const size = this.pageSize();
@@ -283,10 +286,9 @@ export class OperatorDirectoryPage {
     this.facade.search.set((event.target as HTMLInputElement).value);
   }
 
-  protected setPageSize(value: 10 | 50 | 'all'): void {
+  protected setPageSize(value: DirectoryPageSize): void {
     this.pageSize.set(value);
     this.requestedPage.set(0);
-    this.pageSizeOpen.set(false);
   }
 
   protected resetAll(): void {

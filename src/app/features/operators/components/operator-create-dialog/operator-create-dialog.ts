@@ -31,16 +31,12 @@ import {
   parseNewOperatorContact,
 } from '../../domain/create-operator.model';
 import { OperatorContact, contactText } from '../../domain/operator.model';
+import { OperatorContactField } from '../operator-contact-field/operator-contact-field';
 
 /** Catalog keys, listed in full (never built at runtime). */
 const KIND_KEYS = {
   email: 'operators.create.kindEmail',
   phone: 'operators.create.kindPhone',
-} as const satisfies Record<ContactKind, string>;
-
-const HINT_KEYS = {
-  email: 'operators.create.emailHint',
-  phone: 'operators.create.phoneHint',
 } as const satisfies Record<ContactKind, string>;
 
 const PROBLEM_KEYS = {
@@ -49,11 +45,6 @@ const PROBLEM_KEYS = {
 } as const satisfies Record<ContactKind, Record<ContactProblem, string>>;
 
 /** How each contact is typed: always left to right, never autofilled from the owner's own details. */
-const INPUTS = {
-  email: { type: 'email', inputmode: 'email' },
-  phone: { type: 'tel', inputmode: 'tel' },
-} as const satisfies Record<ContactKind, object>;
-
 /**
  * The "Create an operator" dialog (P6-S4 design, artboards CreateForm, Validation, Verify, Duplicate, Unknown,
  * MobileEn): one contact, an email address OR a phone number (switching clears the other, so both are never sent);
@@ -74,6 +65,7 @@ const INPUTS = {
     NwIcon,
     NwInlineAlert,
     NwSpinner,
+    OperatorContactField,
   ],
   templateUrl: './operator-create-dialog.html',
   styleUrl: './operator-create-dialog.scss',
@@ -88,8 +80,6 @@ export class OperatorCreateDialog {
   protected readonly reconciliation = this.action.reconciliation;
   protected readonly kinds = CONTACT_KINDS;
   protected readonly kindKeys = KIND_KEYS;
-  protected readonly hintKeys = HINT_KEYS;
-  protected readonly inputs = INPUTS;
 
   protected readonly kind = signal<ContactKind>('email');
   protected readonly value = signal('');
@@ -101,7 +91,7 @@ export class OperatorCreateDialog {
   /** The demo verification code (demo builds only, from the demo bindings; never in a production bundle). */
   protected readonly demoCode = signal<string | null>(null);
 
-  private readonly valueInput = viewChild<ElementRef<HTMLInputElement>>('valueInput');
+  private readonly valueInput = viewChild<OperatorContactField>('valueInput');
   private readonly codeInput = viewChild<ElementRef<HTMLInputElement>>('codeInput');
   private readonly mainButton = viewChild<ElementRef<HTMLButtonElement>>('mainButton');
 
@@ -211,7 +201,7 @@ export class OperatorCreateDialog {
     this.submitted.set(true);
     const parsed = parseNewOperatorContact(this.kind(), this.value());
     if ('problem' in parsed) {
-      afterNextRender(() => this.valueInput()?.nativeElement.focus(), { injector: this.injector });
+      afterNextRender(() => this.valueInput()?.focus(), { injector: this.injector });
       return;
     }
     // The normalized value is what is sent, and what the field now shows.
@@ -254,7 +244,7 @@ export class OperatorCreateDialog {
 
   private focusFor(phase: string): void {
     if (phase === 'editing' || (phase === 'failed' && this.formFailure() !== null))
-      this.valueInput()?.nativeElement.focus();
+      this.valueInput()?.focus();
     else if (phase === 'verifying' && !this.busy()) this.codeInput()?.nativeElement.focus();
     else if (phase === 'failed') this.mainButton()?.nativeElement.focus();
   }

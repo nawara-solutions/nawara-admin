@@ -19,17 +19,6 @@
     background: var(--nw-surface-inset);
   }
 
-  .appearance-panel__mode {
-    min-block-size: 2.75rem;
-    padding-inline: 0.375rem;
-    font-size: 0.8125rem;
-
-    &:has(:checked) {
-      background: var(--nw-surface-overlay);
-      box-shadow: 0 0 0 1px var(--nw-border-subtle);
-    }
-  }
-
   .appearance-panel__density > p {
     color: var(--nw-text-secondary);
     font-size: 0.75rem;
@@ -40,43 +29,6 @@
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 0.5rem;
-
-    label {
-      position: relative;
-      cursor: pointer;
-    }
-
-    span {
-      display: grid;
-      place-items: center;
-      min-block-size: 2.5rem;
-      border: 1px solid var(--nw-border-subtle);
-      border-radius: var(--nw-radius-md);
-      background: var(--nw-surface-inset);
-      color: var(--nw-text-secondary);
-      font-size: 0.8125rem;
-    }
-
-    label:hover span {
-      border-color: var(--nw-border-default);
-      color: var(--nw-text-primary);
-    }
-
-    input:checked + span {
-      border-color: var(--nw-color-primary);
-      background: var(--nw-surface-brand-subtle);
-      color: var(--nw-text-brand);
-      font-weight: var(--nw-font-weight-semibold);
-    }
-
-    input:focus-visible + span {
-      outline: 2px solid var(--nw-focus-ring);
-      outline-offset: 2px;
-    }
-
-    input:disabled + span {
-      opacity: 0.5;
-    }
   }
 
   .appearance-panel__footer {

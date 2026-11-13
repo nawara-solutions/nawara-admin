@@ -1,0 +1,72 @@
+// The density levels' rules, moved unchanged from appearance-panel.scss and then appearance-picker-panel.scss
+// (WP-5.2b), in their original order. The host is the former `.appearance-panel__density-options` element, so its
+// descendants are now addressed from `:host(…)`; the host mirrors the panel's presentation class.
+
+.appearance-panel__input {
+  position: absolute !important;
+  inline-size: 1px !important;
+  block-size: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+:host(.appearance-panel--workspace) label {
+  position: relative;
+  cursor: pointer;
+}
+:host(.appearance-panel--workspace) input {
+  position: absolute;
+  opacity: 0;
+}
+:host(.appearance-panel--workspace) span {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+}
+:host(.appearance-panel--workspace) input:checked + span {
+  background: var(--nw-color-primary-subtle);
+  color: var(--nw-text-brand);
+  border-color: var(--nw-color-primary);
+  font-weight: bold;
+}
+:host(.appearance-panel--workspace) input:focus-visible + span {
+  outline: 2px solid var(--nw-focus-ring);
+}
+
+:host(.appearance-panel--picker) label {
+  position: relative;
+  cursor: pointer;
+}
+:host(.appearance-panel--picker) span {
+  display: grid;
+  place-items: center;
+  min-block-size: 2.5rem;
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-md);
+  background: var(--nw-surface-inset);
+  color: var(--nw-text-secondary);
+  font-size: 0.8125rem;
+}
+:host(.appearance-panel--picker) label:hover span {
+  border-color: var(--nw-border-default);
+  color: var(--nw-text-primary);
+}
+:host(.appearance-panel--picker) input:checked + span {
+  border-color: var(--nw-color-primary);
+  background: var(--nw-surface-brand-subtle);
+  color: var(--nw-text-brand);
+  font-weight: var(--nw-font-weight-semibold);
+}
+:host(.appearance-panel--picker) input:focus-visible + span {
+  outline: 2px solid var(--nw-focus-ring);
+  outline-offset: 2px;
+}
+:host(.appearance-panel--picker) input:disabled + span {
+  opacity: 0.5;
+}

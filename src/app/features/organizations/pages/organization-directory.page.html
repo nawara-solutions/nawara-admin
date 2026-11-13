@@ -204,86 +204,18 @@
           </section>
           <nav
             class="organization-directory__pagination"
+            adm-directory-pagination="organization"
             [attr.aria-label]="'operators.pagination.label' | transloco"
-          >
-            <p class="organization-directory__count" role="status" aria-live="polite">
-              {{
-                'organizations.toolbar.count'
-                  | transloco: { shown: pageRows().length, total: facade.rows().length }
-              }}
-            </p>
-            <div class="organization-directory__page-size">
-              <span id="organization-page-size-label">{{
-                'operators.pagination.perPage' | transloco
-              }}</span>
-              <button
-                type="button"
-                cdkOverlayOrigin
-                #pageSizeOrigin="cdkOverlayOrigin"
-                class="organization-directory__page-size-trigger"
-                [attr.aria-expanded]="pageSizeOpen()"
-                aria-haspopup="true"
-                aria-labelledby="organization-page-size-label organization-page-size-value"
-                aria-controls="organization-directory-list"
-                (click)="pageSizeOpen.set(!pageSizeOpen())"
-              >
-                <span id="organization-page-size-value">{{
-                  pageSize() === 'all' ? ('operators.pagination.all' | transloco) : pageSize()
-                }}</span>
-                <nw-icon name="chevron-down" size="sm" />
-              </button>
-              <ng-template
-                cdkConnectedOverlay
-                [cdkConnectedOverlayOrigin]="pageSizeOrigin"
-                [cdkConnectedOverlayOpen]="pageSizeOpen()"
-                [cdkConnectedOverlayPositions]="popupPositions"
-                [cdkConnectedOverlayHasBackdrop]="true"
-                cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-                [cdkConnectedOverlayPush]="true"
-                [cdkConnectedOverlayViewportMargin]="16"
-                (backdropClick)="pageSizeOpen.set(false)"
-                (detach)="pageSizeOpen.set(false)"
-                (overlayKeydown)="$event.key === 'Escape' && pageSizeOpen.set(false)"
-              >
-                <div
-                  class="organization-directory__page-size-menu"
-                  role="group"
-                  [attr.aria-label]="'operators.pagination.perPage' | transloco"
-                >
-                  @for (size of pageSizes; track size) {
-                    <button
-                      type="button"
-                      [class.is-selected]="pageSize() === size"
-                      [attr.aria-pressed]="pageSize() === size"
-                      (click)="setPageSize(size)"
-                    >
-                      {{ size === 'all' ? ('operators.pagination.all' | transloco) : size }}
-                    </button>
-                  }
-                </div>
-              </ng-template>
-            </div>
-            <div class="organization-directory__page-actions">
-              <button
-                type="button"
-                [disabled]="pageIndex() === 0"
-                (click)="requestedPage.set(pageIndex() - 1)"
-                [attr.aria-label]="'operators.pagination.previous' | transloco"
-                [title]="'operators.pagination.previous' | transloco"
-              >
-                <nw-icon name="chevron-left" size="sm" />
-              </button>
-              <button
-                type="button"
-                [disabled]="pageIndex() + 1 >= pageCount()"
-                (click)="requestedPage.set(pageIndex() + 1)"
-                [attr.aria-label]="'operators.pagination.next' | transloco"
-                [title]="'operators.pagination.next' | transloco"
-              >
-                <nw-icon name="chevron-right" size="sm" />
-              </button>
-            </div>
-          </nav>
+            [count]="
+              'organizations.toolbar.count'
+                | transloco: { shown: pageRows().length, total: facade.rows().length }
+            "
+            [pageSize]="pageSize()"
+            [pageIndex]="pageIndex()"
+            [pageCount]="pageCount()"
+            (pageSizeChange)="setPageSize($event)"
+            (pageChange)="requestedPage.set($event)"
+          ></nav>
         }
       }
       @case ('notInBuild') {

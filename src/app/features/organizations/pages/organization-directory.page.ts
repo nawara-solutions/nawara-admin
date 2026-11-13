@@ -68,9 +68,14 @@ const FILTER_KEYS = {
  * and the sort are URL query parameters; they filter the loaded list and request nothing. The count is announced
  * politely.
  */
+import {
+  DirectoryPageSize,
+  DirectoryPagination,
+} from '../../../shared/directory/directory-pagination';
 @Component({
   selector: 'adm-organization-directory-page',
   imports: [
+    DirectoryPagination,
     GrantsRefreshNotice,
     NgTemplateOutlet,
     RouterLink,
@@ -103,9 +108,7 @@ export class OrganizationDirectoryPage {
     { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 8 },
     { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom', offsetY: -8 },
   ];
-  protected readonly pageSize = signal<10 | 50 | 'all'>(10);
-  protected readonly pageSizes = [10, 50, 'all'] as const;
-  protected readonly pageSizeOpen = signal(false);
+  protected readonly pageSize = signal<DirectoryPageSize>(10);
   protected readonly requestedPage = signal(0);
   protected readonly pageCount = computed(() =>
     this.pageSize() === 'all'
@@ -127,10 +130,9 @@ export class OrganizationDirectoryPage {
     this.requestedPage.set(0);
   });
 
-  protected setPageSize(value: 10 | 50 | 'all'): void {
+  protected setPageSize(value: DirectoryPageSize): void {
     this.pageSize.set(value);
     this.requestedPage.set(0);
-    this.pageSizeOpen.set(false);
   }
 
   protected openFilters(mode: 'filters' | 'sort', origin: CdkOverlayOrigin): void {

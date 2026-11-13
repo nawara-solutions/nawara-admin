@@ -7,6 +7,8 @@ import { NwIconName } from '../../shared/ui/icon/icon.registry';
 import { AppearanceDraft } from './appearance-draft';
 import { AccentGrid } from './accent-grid';
 import { ACCENT_KEYS, AccentPicker } from './accent-picker';
+import { AppearanceDensity } from './appearance-density';
+import { AppearanceModeChoice, AppearanceModes } from './appearance-modes';
 
 const MODES = {
   light: { icon: 'sun', labelKey: 'preferences.theme.light' },
@@ -34,7 +36,15 @@ let nextId = 0;
  */
 @Component({
   selector: 'adm-appearance-panel',
-  imports: [TranslocoPipe, NwButton, NwIcon, AccentPicker, AccentGrid],
+  imports: [
+    TranslocoPipe,
+    NwButton,
+    NwIcon,
+    AccentPicker,
+    AccentGrid,
+    AppearanceModes,
+    AppearanceDensity,
+  ],
   templateUrl: './appearance-panel.html',
   providers: [AppearanceDraft],
   styleUrls: ['./appearance-panel.scss', './appearance-picker-panel.scss'],
@@ -51,7 +61,7 @@ export class AppearancePanel {
   protected readonly accentKeys = ACCENT_KEYS;
   protected readonly defaultAccent = DEFAULT_ACCENT;
   protected readonly id = `appearance-${nextId++}`;
-  protected readonly modes = THEME_PREFERENCES.map((value) => ({
+  protected readonly modes: readonly AppearanceModeChoice[] = THEME_PREFERENCES.map((value) => ({
     value,
     ...MODES[value],
     hintKey: MODE_HINTS[value],
