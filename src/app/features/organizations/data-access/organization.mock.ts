@@ -19,6 +19,7 @@ import {
   platformCommercialOf,
   platformViewerOf,
   subscriptionEndOf,
+  subscriptionLifecycleOf,
   subscriptionStateOf,
 } from '../../../demo/world/selectors';
 import { Metric } from '../../../shared/dashboard/metric';
@@ -102,10 +103,11 @@ function subscriptionOf(
 ): OrganizationSubscription {
   const { state, graceEndsAt } = subscriptionStateOf(world, organization, now);
   const endsAt = subscriptionEndOf(world, organization);
-  if (state === 'active' && endsAt !== null) return { state, endsAt };
+  const lifecycle = subscriptionLifecycleOf(world, organization, now);
+  if (state === 'active' && endsAt !== null) return { state, endsAt, lifecycle };
   if (state === 'grace' && endsAt !== null && graceEndsAt !== undefined)
-    return { state, endsAt, graceEndsAt };
-  return { state: 'none' };
+    return { state, endsAt, graceEndsAt, lifecycle };
+  return { state: 'none', lifecycle };
 }
 
 /**

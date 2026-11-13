@@ -3744,5 +3744,30 @@
         "noAnswer": "No answer"
       }
     }
+  },
+  "subscriptionLifecycle": {
+    "state": {
+      "none": "No subscription",
+      "pending": "Pending",
+      "notStarted": "Not started yet",
+      "active": "Active",
+      "grace": "In grace",
+      "expired": "Expired",
+      "terminated": "Access ended"
+    },
+    "condition": {
+      "cancellationScheduled": "Cancellation scheduled",
+      "cancellationScheduledDetail": "Scheduled for the end of the current period. Access continues until then, then through the grace period."
+    },
+    "detail": {
+      "periodStart": "Current period start",
+      "periodEnd": "Current period end",
+      "graceUntil": "Grace period ends",
+      "cancellation": "Cancellation",
+      "termination": "Termination effective",
+      "storedStatus": "Status recorded by Billing",
+      "storedStatusLags": "Not current: the state above comes from the dates, not from this recorded status.",
+      "illustrative": "Illustrative demo data. Nawara Core offers no owner read of subscriptions yet, and an active period does not show that a renewal was paid."
+    }
   }
 }

@@ -17,6 +17,7 @@ import { OrganizationCommercialGateway } from '../data-access/organization-comme
 import { OrganizationGateway } from '../data-access/organization.gateway';
 import {
   OrganizationCommercial,
+  OrganizationSubscription,
   PlatformOrganizationsCommercial,
 } from '../domain/organization-commercial.model';
 import {
@@ -138,6 +139,40 @@ export const detailOf = (
 
 const DAY = 86_400_000;
 
+/**
+ * A subscription view with its consistent lifecycle reading (WP-4.1): an active period ending at `endsAt`; with
+ * `graceEndsAt`, a period that ended at `endsAt` and is in grace until then; with `endsAt` null, no subscription.
+ */
+export function subscriptionFixture(
+  endsAt: string | null,
+  graceEndsAt?: string,
+): OrganizationSubscription {
+  const none = {
+    state: 'none',
+    storedStatus: null,
+    storedStatusLags: false,
+    currentPeriodStart: null,
+    currentPeriodEnd: null,
+    graceUntil: null,
+    cancelAtPeriodEnd: false,
+    effectiveTerminationAt: null,
+    accessEndsAt: null,
+  } as const;
+  if (endsAt === null) return { state: 'none', lifecycle: none };
+  const graceUntil = graceEndsAt ?? new Date(Date.parse(endsAt) + DAY).toISOString();
+  const lifecycle = {
+    ...none,
+    storedStatus: graceEndsAt === undefined ? ('active' as const) : ('grace' as const),
+    currentPeriodStart: new Date(Date.parse(endsAt) - 365 * DAY).toISOString(),
+    currentPeriodEnd: endsAt,
+    graceUntil,
+    accessEndsAt: graceUntil,
+  };
+  return graceEndsAt === undefined
+    ? { state: 'active', endsAt, lifecycle: { ...lifecycle, state: 'active' } }
+    : { state: 'grace', endsAt, graceEndsAt, lifecycle: { ...lifecycle, state: 'grace' } };
+}
+
 export const commercialListOf = (
   platform: PlatformId = SCHOOL,
 ): PlatformOrganizationsCommercial => ({
@@ -145,17 +180,17 @@ export const commercialListOf = (
   organizations: [
     {
       organizationId: HORIZON,
-      subscription: { state: 'active', endsAt: new Date(NOW + 365 * DAY).toISOString() },
+      subscription: subscriptionFixture(new Date(NOW + 365 * DAY).toISOString()),
       assistedPayments: { status: 'notVerified' },
     },
     {
       organizationId: RIAD,
-      subscription: { state: 'active', endsAt: new Date(NOW + 6 * DAY).toISOString() },
+      subscription: subscriptionFixture(new Date(NOW + 6 * DAY).toISOString()),
       assistedPayments: { status: 'notVerified' },
     },
     {
       organizationId: ATLAS,
-      subscription: { state: 'none' },
+      subscription: subscriptionFixture(null),
       assistedPayments: { status: 'notVerified' },
     },
   ],
@@ -169,7 +204,7 @@ export const commercialOf = (
   platformId: platform,
   subscription: {
     status: 'available',
-    data: { state: 'active', endsAt: new Date(NOW + 6 * DAY).toISOString() },
+    data: subscriptionFixture(new Date(NOW + 6 * DAY).toISOString()),
   },
   entitlement: { status: 'available', data: 'entitled' },
   paymentIssues: { status: 'available', data: count(1) },

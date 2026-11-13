@@ -3744,5 +3744,30 @@
         "noAnswer": "لا رد"
       }
     }
+  },
+  "subscriptionLifecycle": {
+    "state": {
+      "none": "بلا اشتراك",
+      "pending": "قيد الانتظار",
+      "notStarted": "لم يبدأ بعد",
+      "active": "نشط",
+      "grace": "في فترة السماح",
+      "expired": "منتهٍ",
+      "terminated": "انتهى الوصول"
+    },
+    "condition": {
+      "cancellationScheduled": "إلغاء مُجدول",
+      "cancellationScheduledDetail": "مُجدول لنهاية الفترة الحالية. يستمر الوصول حتى ذلك الحين، ثم خلال فترة السماح."
+    },
+    "detail": {
+      "periodStart": "بداية الفترة الحالية",
+      "periodEnd": "نهاية الفترة الحالية",
+      "graceUntil": "نهاية فترة السماح",
+      "cancellation": "الإلغاء",
+      "termination": "الإنهاء النافذ",
+      "storedStatus": "الحالة المسجَّلة لدى Billing",
+      "storedStatusLags": "غير محدَّثة: الحالة أعلاه مستمدة من التواريخ، لا من هذه الحالة المسجَّلة.",
+      "illustrative": "بيانات تجريبية توضيحية. لا توفر Nawara Core بعد قراءةً للاشتراكات للمالك، ولا تدل الفترة النشطة على دفع تجديد."
+    }
   }
 }

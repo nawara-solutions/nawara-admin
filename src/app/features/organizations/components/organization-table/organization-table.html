@@ -51,9 +51,7 @@
             @if (row.commercial; as facts) {
               <td>
                 <span class="organization-table__subscription">
-                  <nw-status-badge [tone]="badges[facts.subscription.state].tone">{{
-                    badges[facts.subscription.state].key | transloco
-                  }}</nw-status-badge>
+                  <adm-subscription-lifecycle-badge [lifecycle]="facts.subscription.lifecycle" />
                   @if (noteOf(row); as note) {
                     <span class="organization-table__note">
                       @if (note.kind === 'ends') {
@@ -116,9 +114,7 @@
           <span class="organization-table__facts">
             @if (commercial() && row.commercial; as facts) {
               <span class="organization-table__subscription">
-                <nw-status-badge [tone]="badges[facts.subscription.state].tone">{{
-                  badges[facts.subscription.state].key | transloco
-                }}</nw-status-badge>
+                <adm-subscription-lifecycle-badge [lifecycle]="facts.subscription.lifecycle" />
                 @if (noteOf(row); as note) {
                   <span class="organization-table__note">
                     @if (note.kind === 'ends') {

@@ -5,9 +5,9 @@ import { organizationPath } from '../../../../core/context/scope-context';
 import { MetricValue } from '../../../../shared/dashboard/metric-value/metric-value';
 import { NW_CLOCK } from '../../../../shared/format/clock';
 import { NwDatePipe } from '../../../../shared/format/format.pipes';
-import { NwStatusBadge } from '../../../../shared/ui/status-badge/status-badge';
 import { DirectoryRow } from '../../application/organization-query';
-import { ELIGIBILITY_KEYS, SUBSCRIPTION_BADGES, subscriptionNote } from '../commercial-display';
+import { ELIGIBILITY_KEYS, subscriptionNote } from '../commercial-display';
+import { SubscriptionLifecycleBadge } from '../../../../shared/subscription/subscription-lifecycle-badge';
 
 /**
  * The Organization directory's rows (feature-local; a generic table waits for a second consumer, P4/P5): a table when
@@ -17,7 +17,7 @@ import { ELIGIBILITY_KEYS, SUBSCRIPTION_BADGES, subscriptionNote } from '../comm
  */
 @Component({
   selector: 'adm-organization-table',
-  imports: [RouterLink, TranslocoPipe, MetricValue, NwDatePipe, NwStatusBadge],
+  imports: [SubscriptionLifecycleBadge, RouterLink, TranslocoPipe, MetricValue, NwDatePipe],
   templateUrl: './organization-table.html',
   styleUrl: './organization-table.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,7 +32,6 @@ export class OrganizationTable {
   /** The id of the list, for the toolbar's `aria-controls`. */
   readonly listId = input.required<string>();
 
-  protected readonly badges = SUBSCRIPTION_BADGES;
   protected readonly eligibilityKeys = ELIGIBILITY_KEYS;
 
   protected pathOf(row: DirectoryRow): string {

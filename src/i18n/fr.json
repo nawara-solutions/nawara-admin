@@ -3744,5 +3744,30 @@
         "noAnswer": "Aucune réponse"
       }
     }
+  },
+  "subscriptionLifecycle": {
+    "state": {
+      "none": "Sans abonnement",
+      "pending": "En attente",
+      "notStarted": "Pas encore commencé",
+      "active": "Actif",
+      "grace": "En période de grâce",
+      "expired": "Expiré",
+      "terminated": "Accès terminé"
+    },
+    "condition": {
+      "cancellationScheduled": "Résiliation programmée",
+      "cancellationScheduledDetail": "Programmée pour la fin de la période en cours. L’accès continue jusque-là, puis pendant la période de grâce."
+    },
+    "detail": {
+      "periodStart": "Début de la période en cours",
+      "periodEnd": "Fin de la période en cours",
+      "graceUntil": "Fin de la période de grâce",
+      "cancellation": "Résiliation",
+      "termination": "Résiliation effective",
+      "storedStatus": "Statut enregistré par Billing",
+      "storedStatusLags": "Pas à jour : l’état ci-dessus vient des dates, pas de ce statut enregistré.",
+      "illustrative": "Données de démonstration illustratives. Nawara Core ne propose pas encore de lecture des abonnements pour le propriétaire, et une période active ne montre pas qu’un renouvellement a été payé."
+    }
   }
 }

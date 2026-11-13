@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { SubscriptionLifecycleBadge } from '../../../shared/subscription/subscription-lifecycle-badge';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthSession } from '../../../core/auth/auth-session';
@@ -14,11 +15,7 @@ import {
   SubscriptionStateFilter,
   parseStateFilter,
 } from '../application/platform-subscriptions.facade';
-import {
-  EntitlementState,
-  SubscriptionDistribution,
-  SubscriptionState,
-} from '../domain/licenses.model';
+import { EntitlementState, SubscriptionDistribution } from '../domain/licenses.model';
 
 /** Catalog keys, listed in full (never built at runtime). */
 const FILTER_KEYS = {
@@ -28,12 +25,6 @@ const FILTER_KEYS = {
   grace: 'licenses.platform.filter.grace',
   none: 'licenses.platform.filter.none',
 } as const satisfies Record<SubscriptionStateFilter, string>;
-
-const STATE_KEYS = {
-  active: 'licenses.platform.state.active',
-  grace: 'licenses.platform.state.grace',
-  none: 'licenses.platform.state.none',
-} as const satisfies Record<SubscriptionState, string>;
 
 const ENTITLEMENT_KEYS = {
   entitled: 'licenses.platform.entitlement.entitled',
@@ -55,6 +46,7 @@ const filterCount = (d: SubscriptionDistribution, filter: SubscriptionStateFilte
 @Component({
   selector: 'adm-platform-subscriptions-page',
   imports: [
+    SubscriptionLifecycleBadge,
     RouterLink,
     TranslocoPipe,
     NwButton,
@@ -75,7 +67,6 @@ export class PlatformSubscriptionsPage {
   protected readonly isDemo = inject(AuthSession).isDemo;
   protected readonly filters = STATE_FILTERS;
   protected readonly filterKeys = FILTER_KEYS;
-  protected readonly stateKeys = STATE_KEYS;
   protected readonly entitlementKeys = ENTITLEMENT_KEYS;
   protected readonly filterCount = filterCount;
   protected readonly platformPath = platformPath;

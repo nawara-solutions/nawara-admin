@@ -1,5 +1,6 @@
 import { OrganizationId, PlatformId, PlatformRef } from '../../../core/context/scope.model';
 import { Metric } from '../../../shared/dashboard/metric';
+import { SubscriptionLifecycle } from '../../../shared/subscription/subscription-lifecycle';
 
 /**
  * The Company's Licenses & entitlements overview (`/licenses`, P7-S1), for the Company owner only. Billing owns
@@ -77,6 +78,8 @@ export interface OrganizationSubscriptionEntry {
   /** Active and ending within `endingWithinDays` (counted in the distribution's `endingSoon`). */
   readonly endingSoon: boolean;
   readonly entitlement: EntitlementState;
+  /** The full lifecycle reading (WP-4.1) for presentation; `state` stays the three-way view the counts and filters use. */
+  readonly lifecycle: SubscriptionLifecycle;
 }
 
 /**

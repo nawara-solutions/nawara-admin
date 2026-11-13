@@ -176,12 +176,7 @@
                       >
                     </th>
                     <td data-column="state">
-                      <span
-                        class="platform-subscriptions__state"
-                        [class.platform-subscriptions__state--grace]="row.state === 'grace'"
-                        [class.platform-subscriptions__state--none]="row.state === 'none'"
-                        >{{ stateKeys[row.state] | transloco }}</span
-                      >
+                      <adm-subscription-lifecycle-badge [lifecycle]="row.lifecycle" />
                     </td>
                     <td data-column="timeline">
                       @if (row.state === 'active' && row.endsAt) {
