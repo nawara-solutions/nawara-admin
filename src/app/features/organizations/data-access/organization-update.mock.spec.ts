@@ -131,6 +131,10 @@ describe('MockOrganizationCommandGateway.update (demo world)', () => {
       'providerObservations',
       'providerFacts',
       'refundCases',
+      'paymentDisputes',
+      'lateSuccesses',
+      'refundAttempts',
+      'reconciliationCases',
     ] as const)
       expect(after[table]).toBe(before[table]);
     expect(after.adminInvitations).toEqual(before.adminInvitations);

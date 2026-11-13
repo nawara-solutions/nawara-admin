@@ -12,6 +12,7 @@ import {
   activeMembershipCount,
   pendingRequestCount,
   entitlementOf,
+  financialAttentionOf,
   newestFirst,
   organizationOf,
   organizationsOf,
@@ -27,6 +28,7 @@ import { NW_CLOCK } from '../../../shared/format/clock';
 import {
   AssistanceEligibility,
   OrganizationCommercial,
+  OrganizationFinancialCases,
   OrganizationSubscription,
   PlatformOrganizationsCommercial,
 } from '../domain/organization-commercial.model';
@@ -182,6 +184,19 @@ export class MockOrganizationGateway extends OrganizationGateway {
   }
 }
 
+/** Unresolved financial records of one Organization, as counts (WP-4.2; `financialAttentionOf`). */
+function financialCasesOf(
+  world: DemoWorldTables,
+  organization: OrganizationRecord,
+): OrganizationFinancialCases {
+  const attention = financialAttentionOf(world, [organization]);
+  return {
+    openReconciliationCases: count(attention.openReconciliationCases),
+    openPaymentDisputes: count(attention.openPaymentDisputes),
+    openRefundCases: count(attention.openRefundCases),
+  };
+}
+
 /** The only assisted-payments statement Admin can make (WP-2.2). */
 const NOT_VERIFIED: AssistanceEligibility = { status: 'notVerified' };
 
@@ -252,6 +267,7 @@ export class MockOrganizationCommercialGateway extends OrganizationCommercialGat
         platformCommercialOf(world, record.platformId) === undefined
           ? UNAVAILABLE
           : { status: 'available', data: NOT_VERIFIED },
+      financialCases: { status: 'available', data: financialCasesOf(world, record) },
     };
     return answer(commercial, this.latency);
   }
