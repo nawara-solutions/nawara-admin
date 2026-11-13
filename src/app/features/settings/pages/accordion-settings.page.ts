@@ -21,13 +21,14 @@ export class AccordionSettingsPage {
   protected readonly operatorVisible = signal(this.preferences.operatorTotalsMode() !== 'hidden');
   protected readonly figuresVisible = signal(this.preferences.platformFiguresVisible());
   protected readonly subscriptionsVisible = signal(this.preferences.platformSubscriptionsVisible());
-  protected readonly dirty = computed(() =>
-    this.operatorVisible() !== (this.preferences.operatorTotalsMode() !== 'hidden') ||
-    this.figuresVisible() !== this.preferences.platformFiguresVisible() ||
-    this.subscriptionsVisible() !== this.preferences.platformSubscriptionsVisible(),
+  protected readonly dirty = computed(
+    () =>
+      this.operatorVisible() !== (this.preferences.operatorTotalsMode() !== 'hidden') ||
+      this.figuresVisible() !== this.preferences.platformFiguresVisible() ||
+      this.subscriptionsVisible() !== this.preferences.platformSubscriptionsVisible(),
   );
-  protected readonly customized = computed(() =>
-    !this.operatorVisible() || !this.figuresVisible() || !this.subscriptionsVisible(),
+  protected readonly customized = computed(
+    () => !this.operatorVisible() || !this.figuresVisible() || !this.subscriptionsVisible(),
   );
   protected discard(): void {
     this.operatorVisible.set(this.preferences.operatorTotalsMode() !== 'hidden');
@@ -48,7 +49,10 @@ export class AccordionSettingsPage {
   protected readonly pageSearch = signal('');
   protected readonly translations = inject(TranslocoService);
   protected matchesPage(key: string): boolean {
-    return this.translations.translate(key).toLocaleLowerCase().includes(this.pageSearch().trim().toLocaleLowerCase());
+    return this.translations
+      .translate(key)
+      .toLocaleLowerCase()
+      .includes(this.pageSearch().trim().toLocaleLowerCase());
   }
   protected readonly policy = inject(PlatformSettingsGateway);
   private readonly context = inject(ScopeContext);

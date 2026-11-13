@@ -24,111 +24,109 @@ export interface OrganizationActivityPanelData {
   selector: 'adm-organization-activity-panel',
   imports: [RouterLink, TranslocoPipe, NwButton, NwIcon, OrganizationActivity],
   template: `
-      @if (data().entries; as entries) {
-        <div class="toolbar" role="search">
-          <label class="search"
-            ><nw-icon name="search" size="sm" /><span class="nw-visually-hidden">{{
-              'platformDashboard.activity.search' | transloco
-            }}</span
+    @if (data().entries; as entries) {
+      <div class="toolbar" role="search">
+        <label class="search"
+          ><nw-icon name="search" size="sm" /><span class="nw-visually-hidden">{{
+            'platformDashboard.activity.search' | transloco
+          }}</span
+          ><input
+            type="search"
+            [placeholder]="'platformDashboard.activity.search' | transloco"
+            [value]="search()"
+            (input)="search.set($any($event.target).value)"
+        /></label>
+        <button
+          nw-button
+          variant="secondary"
+          type="button"
+          [attr.aria-expanded]="menu() === 'filter'"
+          (click)="menu.set(menu() === 'filter' ? null : 'filter')"
+        >
+          <nw-icon name="sliders-horizontal" size="sm" />{{ 'operators.filters.title' | transloco }}
+        </button>
+        <button
+          nw-button
+          variant="secondary"
+          type="button"
+          [attr.aria-expanded]="menu() === 'sort'"
+          (click)="menu.set(menu() === 'sort' ? null : 'sort')"
+        >
+          <nw-icon name="chevrons-up-down" size="sm" />{{
+            'organizations.toolbar.sort' | transloco
+          }}
+        </button>
+        <button
+          nw-button
+          variant="ghost"
+          type="button"
+          [disabled]="!search() && filter() === 'all' && sort() === 'newest'"
+          (click)="search.set(''); filter.set('all'); sort.set('newest'); menu.set(null)"
+        >
+          <nw-icon name="rotate-ccw" size="sm" />{{ 'operators.toolbar.resetAll' | transloco }}
+        </button>
+      </div>
+      @if (menu() === 'filter') {
+        <fieldset>
+          <legend>{{ 'platformDashboard.activity.filterAction' | transloco }}</legend>
+          <label
             ><input
-              type="search"
-              [placeholder]="'platformDashboard.activity.search' | transloco"
-              [value]="search()"
-              (input)="search.set($any($event.target).value)"
-          /></label>
-          <button
-            nw-button
-            variant="secondary"
-            type="button"
-            [attr.aria-expanded]="menu() === 'filter'"
-            (click)="menu.set(menu() === 'filter' ? null : 'filter')"
+              type="radio"
+              name="activity-filter"
+              [checked]="filter() === 'all'"
+              (change)="filter.set('all'); menu.set(null)"
+            />{{ 'organizations.toolbar.all' | transloco }}</label
           >
-            <nw-icon name="sliders-horizontal" size="sm" />{{
-              'operators.filters.title' | transloco
-            }}
-          </button>
-          <button
-            nw-button
-            variant="secondary"
-            type="button"
-            [attr.aria-expanded]="menu() === 'sort'"
-            (click)="menu.set(menu() === 'sort' ? null : 'sort')"
-          >
-            <nw-icon name="chevrons-up-down" size="sm" />{{
-              'organizations.toolbar.sort' | transloco
-            }}
-          </button>
-          <button
-            nw-button
-            variant="ghost"
-            type="button"
-            [disabled]="!search() && filter() === 'all' && sort() === 'newest'"
-            (click)="search.set(''); filter.set('all'); sort.set('newest'); menu.set(null)"
-          >
-            <nw-icon name="rotate-ccw" size="sm" />{{ 'operators.toolbar.resetAll' | transloco }}
-          </button>
-        </div>
-        @if (menu() === 'filter') {
-          <fieldset>
-            <legend>{{ 'platformDashboard.activity.filterAction' | transloco }}</legend>
+          @for (action of actions(); track action) {
             <label
               ><input
                 type="radio"
                 name="activity-filter"
-                [checked]="filter() === 'all'"
-                (change)="filter.set('all'); menu.set(null)"
-              />{{ 'organizations.toolbar.all' | transloco }}</label
+                [checked]="filter() === action"
+                (change)="filter.set(action); menu.set(null)"
+              />{{ labels[action].key | transloco }}</label
             >
-            @for (action of actions(); track action) {
-              <label
-                ><input
-                  type="radio"
-                  name="activity-filter"
-                  [checked]="filter() === action"
-                  (change)="filter.set(action); menu.set(null)"
-                />{{ labels[action].key | transloco }}</label
-              >
-            }
-          </fieldset>
-        }
-        @if (menu() === 'sort') {
-          <fieldset>
-            <legend>{{ 'organizations.toolbar.sort' | transloco }}</legend>
-            <label
-              ><input
-                type="radio"
-                name="activity-sort"
-                [checked]="sort() === 'newest'"
-                (change)="sort.set('newest'); menu.set(null)"
-              />{{ 'organizations.sort.newest' | transloco }}</label
-            >
-            <label
-              ><input
-                type="radio"
-                name="activity-sort"
-                [checked]="sort() === 'oldest'"
-                (change)="sort.set('oldest'); menu.set(null)"
-              />{{ 'organizations.sort.oldest' | transloco }}</label
-            >
-          </fieldset>
-        }
-        @if (filtered().length === 0 && entries.length > 0) {
-          <p class="empty">{{ 'platformDashboard.activity.noMatches' | transloco }}</p>
-        } @else {
-          <adm-organization-activity [entries]="filtered()" />
-        }
+          }
+        </fieldset>
+      }
+      @if (menu() === 'sort') {
+        <fieldset>
+          <legend>{{ 'organizations.toolbar.sort' | transloco }}</legend>
+          <label
+            ><input
+              type="radio"
+              name="activity-sort"
+              [checked]="sort() === 'newest'"
+              (change)="sort.set('newest'); menu.set(null)"
+            />{{ 'organizations.sort.newest' | transloco }}</label
+          >
+          <label
+            ><input
+              type="radio"
+              name="activity-sort"
+              [checked]="sort() === 'oldest'"
+              (change)="sort.set('oldest'); menu.set(null)"
+            />{{ 'organizations.sort.oldest' | transloco }}</label
+          >
+        </fieldset>
+      }
+      @if (filtered().length === 0 && entries.length > 0) {
+        <p class="empty">{{ 'platformDashboard.activity.noMatches' | transloco }}</p>
       } @else {
-        <p>{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
+        <adm-organization-activity [entries]="filtered()" />
       }
-      @if (data().canBrowse) {
-        <a
-          class="activity-link"
-          (click)="close()"
-          routerLink="/audit"
-          [queryParams]="{ platform: data().platformId, organization: data().organizationId }"
-          >{{ 'organizations.detail.openActivity' | transloco }}</a
-        >
-      }
+    } @else {
+      <p>{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
+    }
+    @if (data().canBrowse) {
+      <a
+        class="activity-link"
+        (click)="close()"
+        routerLink="/audit"
+        [queryParams]="{ platform: data().platformId, organization: data().organizationId }"
+        >{{ 'organizations.detail.openActivity' | transloco }}</a
+      >
+    }
   `,
   styles: `
     .toolbar {

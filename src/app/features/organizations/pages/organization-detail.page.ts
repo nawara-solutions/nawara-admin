@@ -87,12 +87,14 @@ export class OrganizationDetailPage {
     const view = this.facade.view();
     if (view.status !== 'ready') return;
     const data: OrganizationDetailsPanelData = {
-      activity: this.facade.showsActivity() ? {
-        entries: view.detail.activity.status === 'available' ? view.detail.activity.data : null,
-        platformId: view.platform.id,
-        organizationId: view.detail.id,
-        canBrowse: this.canBrowseActivity(),
-      } : null,
+      activity: this.facade.showsActivity()
+        ? {
+            entries: view.detail.activity.status === 'available' ? view.detail.activity.data : null,
+            platformId: view.platform.id,
+            organizationId: view.detail.id,
+            canBrowse: this.canBrowseActivity(),
+          }
+        : null,
       detail: () => {
         const current = this.facade.view();
         return current.status === 'ready' ? current.detail : view.detail;

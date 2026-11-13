@@ -45,12 +45,10 @@ describe('Company Overview of the demo world (derived from its records)', () => 
   it('Today includes only events since UTC midnight, rather than the last 24 hours', () => {
     const dated = {
       ...world,
-      activity: world.activity
-        .slice(0, 2)
-        .map((event, index) => ({
-          ...event,
-          occurredAt: new Date(NOW - (index === 0 ? 6 : 18) * 3600000).toISOString(),
-        })),
+      activity: world.activity.slice(0, 2).map((event, index) => ({
+        ...event,
+        occurredAt: new Date(NOW - (index === 0 ? 6 : 18) * 3600000).toISOString(),
+      })),
     };
     const result = demoCompanyOverview(dated, NOW, 1);
     if (result.activity.status !== 'available' || result.growth.status !== 'available')

@@ -11,7 +11,9 @@ export class AccordionPreferences {
   readonly licensesOverviewOpen = signal(this.store.read('licensesOverviewOpen') !== 'false');
   readonly operatorTotalsOpen = signal(this.store.read('operatorTotalsOpen') !== 'false');
   readonly platformFiguresVisible = signal(this.store.read('platformFiguresVisible') !== 'false');
-  readonly platformSubscriptionsVisible = signal(this.store.read('platformSubscriptionsVisible') !== 'false');
+  readonly platformSubscriptionsVisible = signal(
+    this.store.read('platformSubscriptionsVisible') !== 'false',
+  );
 
   setPlatformFiguresVisible(visible: boolean): void {
     this.platformFiguresVisible.set(visible);

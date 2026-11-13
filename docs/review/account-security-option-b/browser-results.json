@@ -186,11 +186,7 @@
   },
   {
     "type": "presentationFixture",
-    "statuses": [
-      "reported",
-      "configured",
-      "not-reported"
-    ],
+    "statuses": ["reported", "configured", "not-reported"],
     "note": "partial",
     "passed": true
   },

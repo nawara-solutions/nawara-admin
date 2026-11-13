@@ -28,9 +28,9 @@
           >
             {{ item.key | transloco }}
             @if (item.id === 'all') {
-              <span class="notifications__category-count">({{
-                center.records().length | nwNumber
-              }})</span>
+              <span class="notifications__category-count"
+                >({{ center.records().length | nwNumber }})</span
+              >
             }
           </button>
         }

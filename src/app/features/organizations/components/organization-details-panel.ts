@@ -22,7 +22,10 @@ import { NwButton } from '../../../shared/ui/button/button';
 import { NwDialog } from '../../../shared/ui/dialog/dialog';
 import { NwIcon } from '../../../shared/ui/icon/icon';
 import { OrganizationDetail, OrganizationMetadata } from '../domain/organization.model';
-import { OrganizationActivityPanel, OrganizationActivityPanelData } from './organization-activity-panel';
+import {
+  OrganizationActivityPanel,
+  OrganizationActivityPanelData,
+} from './organization-activity-panel';
 
 export interface OrganizationDetailsPanelData {
   activity: OrganizationActivityPanelData | null;
@@ -77,305 +80,328 @@ const FIELDS = [
     >
       @if (data.activity; as activity) {
         <nav class="tabs" [attr.aria-label]="'organizations.detail.overview' | transloco">
-          <button type="button" [attr.aria-current]="section() === 'profile' ? 'page' : null" (click)="section.set('profile')">{{ 'organizations.detail.detailsPanel' | transloco }}</button>
-          <button type="button" [attr.aria-current]="section() === 'activity' ? 'page' : null" (click)="section.set('activity')">{{ 'organizations.detail.activity' | transloco }}</button>
+          <button
+            type="button"
+            [attr.aria-current]="section() === 'profile' ? 'page' : null"
+            (click)="section.set('profile')"
+          >
+            {{ 'organizations.detail.detailsPanel' | transloco }}
+          </button>
+          <button
+            type="button"
+            [attr.aria-current]="section() === 'activity' ? 'page' : null"
+            (click)="section.set('activity')"
+          >
+            {{ 'organizations.detail.activity' | transloco }}
+          </button>
         </nav>
-        <div [hidden]="section() !== 'activity'"><adm-organization-activity-panel [data]="activity" /></div>
+        <div [hidden]="section() !== 'activity'">
+          <adm-organization-activity-panel [data]="activity" />
+        </div>
       }
       <div [hidden]="section() !== 'profile'">
-      @let detail = data.detail();
-      <div class="summary">
-        <span class="summary__icon"><nw-icon name="building-2" size="lg" /></span
-        ><strong
-          ><bdi>{{ detail.name }}</bdi></strong
-        >
-      </div>
-      @if (data.showCommercial) {
-        <div
-          class="tabs"
-          role="tablist"
-          [attr.aria-label]="'organizations.detail.detailsPanel' | transloco"
-          (keydown)="onTabKey($event)"
-        >
-          <button
-            id="organization-details-tab-about"
-            type="button"
-            role="tab"
-            [attr.aria-selected]="tab() === 'about'"
-            [attr.tabindex]="tab() === 'about' ? 0 : -1"
-            aria-controls="organization-details-about"
-            (click)="tab.set('about')"
+        @let detail = data.detail();
+        <div class="summary">
+          <span class="summary__icon"><nw-icon name="building-2" size="lg" /></span
+          ><strong
+            ><bdi>{{ detail.name }}</bdi></strong
           >
-            <nw-icon name="building-2" size="sm" />{{ 'organizations.detail.about' | transloco }}
-          </button>
-          <button
-            id="organization-details-tab-payments"
-            type="button"
-            role="tab"
-            [attr.aria-selected]="tab() === 'payments'"
-            [attr.tabindex]="tab() === 'payments' ? 0 : -1"
-            aria-controls="organization-details-payments"
-            (click)="tab.set('payments')"
-          >
-            <nw-icon name="credit-card" size="sm" />{{
-              'organizations.detail.payments' | transloco
-            }}
-          </button>
         </div>
-      }
-      @if (tab() === 'about') {
-        <div
-          id="organization-details-about"
-          [attr.role]="data.showCommercial ? 'tabpanel' : null"
-          [attr.aria-labelledby]="data.showCommercial ? 'organization-details-tab-about' : null"
-        >
-          <section class="details">
-            <h3>{{ 'organizations.detail.about' | transloco }}</h3>
-            <dl>
-              <div>
-                <dt>{{ 'organizations.detail.platform' | transloco }}</dt>
-                <dd>
-                  <a [routerLink]="platformPath(data.platform.id)" (click)="close()"
-                    ><bdi>{{ data.platform.name }}</bdi></a
-                  >
-                </dd>
-              </div>
-              <div>
-                <dt>{{ 'organizations.detail.organizationId' | transloco }}</dt>
-                <dd>
-                  <code dir="ltr" translate="no">{{ detail.id }}</code>
-                </dd>
-              </div>
-              <div>
-                <dt>{{ 'organizations.detail.createdAt' | transloco }}</dt>
-                <dd>{{ detail.createdAt | nwDate: 'date' }}</dd>
-              </div>
-              @for (field of fields; track field.key) {
-                @let value = detail.metadata[field.key];
-                @if (value !== null) {
-                  <div>
-                    <dt>{{ field.label | transloco }}</dt>
-                    <dd>
-                      <bdi [attr.dir]="field.ltr ? 'ltr' : null">{{ value }}</bdi>
-                    </dd>
-                  </div>
-                }
-              }
-            </dl>
-          </section>
-          @if (data.mayEdit) {
+        @if (data.showCommercial) {
+          <div
+            class="tabs"
+            role="tablist"
+            [attr.aria-label]="'organizations.detail.detailsPanel' | transloco"
+            (keydown)="onTabKey($event)"
+          >
             <button
-              nw-button
-              variant="secondary"
+              id="organization-details-tab-about"
               type="button"
-              [attr.aria-disabled]="!data.editAvailable || null"
-              [attr.aria-describedby]="
-                data.editAvailable ? null : 'organization-edit-panel-unavailable'
-              "
-              (click)="edit()"
+              role="tab"
+              [attr.aria-selected]="tab() === 'about'"
+              [attr.tabindex]="tab() === 'about' ? 0 : -1"
+              aria-controls="organization-details-about"
+              (click)="tab.set('about')"
             >
-              <nw-icon name="pencil" size="sm" />{{ 'organizations.edit.open' | transloco }}
+              <nw-icon name="building-2" size="sm" />{{ 'organizations.detail.about' | transloco }}
             </button>
-            @if (!data.editAvailable) {
-              <span id="organization-edit-panel-unavailable" class="nw-visually-hidden">{{
-                'organizations.edit.notInBuildReason' | transloco
-              }}</span>
-            }
-          }
-        </div>
-      }
-      @if (data.showCommercial && tab() === 'payments') {
-        <div
-          id="organization-details-payments"
-          role="tabpanel"
-          aria-labelledby="organization-details-tab-payments"
-        >
-          @let commercial = data.commercial();
-          <section class="details">
-            <h3>{{ 'organizations.detail.subscription' | transloco }}</h3>
-            @if (commercial.status === 'success') {
-              @let subscription = commercial.data.subscription;
-              @let entitlement = commercial.data.entitlement;
-              @if (subscription.status === 'available') {
-                @let current = subscription.data;
-                <dl>
-                  <div>
-                    <dt>{{ 'organizations.detail.subscriptionState' | transloco }}</dt>
-                    <dd>
-                      <adm-subscription-lifecycle-badge [lifecycle]="current.lifecycle" />
-                    </dd>
-                  </div>
-                  @let lifecycle = current.lifecycle;
-                  @if (lifecycle.currentPeriodStart) {
-                    <div data-period-start>
-                      <dt>{{ 'subscriptionLifecycle.detail.periodStart' | transloco }}</dt>
-                      <dd>{{ lifecycle.currentPeriodStart | nwDate: 'date' }}</dd>
-                    </div>
-                  }
-                  @if (lifecycle.currentPeriodEnd) {
-                    <div data-period-end>
-                      <dt>{{ 'subscriptionLifecycle.detail.periodEnd' | transloco }}</dt>
-                      <dd>
-                        {{ lifecycle.currentPeriodEnd | nwDate: 'date' }}
-                        @if (noteOf(current); as note) {
-                          @if (note.kind === 'ends') {
-                            <nw-status-badge tone="warning">{{
-                              'organizations.subscription.ends'
-                                | transloco: { when: note.at | nwDate: 'until' }
-                            }}</nw-status-badge>
-                          }
-                        }
-                      </dd>
-                    </div>
-                  }
-                  @if (lifecycle.graceUntil && lifecycle.state !== 'pending') {
-                    <div data-grace-until>
-                      <dt>{{ 'subscriptionLifecycle.detail.graceUntil' | transloco }}</dt>
-                      <dd>{{ lifecycle.graceUntil | nwDate: 'date-time' }}</dd>
-                    </div>
-                  }
-                  @if (cancellationScheduled(lifecycle)) {
-                    <div data-cancellation>
-                      <dt>{{ 'subscriptionLifecycle.detail.cancellation' | transloco }}</dt>
-                      <dd>{{ 'subscriptionLifecycle.condition.cancellationScheduledDetail' | transloco }}</dd>
-                    </div>
-                  }
-                  @if (lifecycle.effectiveTerminationAt) {
-                    <div data-termination>
-                      <dt>{{ 'subscriptionLifecycle.detail.termination' | transloco }}</dt>
-                      <dd>{{ lifecycle.effectiveTerminationAt | nwDate: 'date-time' }}</dd>
-                    </div>
-                  }
-                  <div>
-                    <dt>{{ 'organizations.detail.entitledNow' | transloco }}</dt>
-                    <dd>
-                      {{
-                        (entitlement.status === 'available'
-                          ? entitlementKeys[entitlement.data]
-                          : 'organizations.table.unavailable'
-                        ) | transloco
-                      }}
-                    </dd>
-                  </div>
-                  @if (lifecycle.storedStatus) {
-                    <div data-stored-status>
-                      <dt>{{ 'subscriptionLifecycle.detail.storedStatus' | transloco }}</dt>
-                      <dd>
-                        <code>{{ lifecycle.storedStatus }}</code>
-                        @if (lifecycle.storedStatusLags) {
-                          <span class="muted" data-stored-status-lags>{{
-                            'subscriptionLifecycle.detail.storedStatusLags' | transloco
-                          }}</span>
-                        }
-                      </dd>
-                    </div>
-                  }
-                </dl>
-                <p class="subscription-note">
-                  {{ subscriptionNoteKeys[current.state] | transloco }}
-                </p>
-                <p class="muted" data-subscription-illustrative>
-                  {{ 'subscriptionLifecycle.detail.illustrative' | transloco }}
-                </p>
-                @if (data.canViewSubscriptions) {
-                  <a [routerLink]="platformSubscriptionsPath(data.platform.id)" (click)="close()">{{
-                    'organizations.detail.platformSubscriptions' | transloco
-                  }}</a>
-                }
-              } @else {
-                <p class="muted">{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
-                <button nw-button variant="ghost" type="button" (click)="data.retryCommercial()">
-                  {{ 'organizations.states.retry' | transloco }}
-                </button>
-              }
-            } @else if (commercial.status === 'error' || commercial.status === 'forbidden') {
-              <p class="muted">{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
-              @if (commercial.status === 'error') {
-                <button nw-button variant="ghost" type="button" (click)="data.retryCommercial()">
-                  {{ 'organizations.states.retry' | transloco }}
-                </button>
-              }
-            } @else {
-              <p class="muted">{{ 'organizations.states.loadingSection' | transloco }}</p>
-            }
-          </section>
-          <section class="details">
-            <h3>{{ 'organizations.detail.payments' | transloco }}</h3>
-            @if (commercial.status === 'success') {
-              @let issues = commercial.data.paymentIssues;
-              @if (issues.status === 'available' && issues.data.status === 'available') {
-                @if (issues.data.value > 0) {
-                  <p class="payment-alert">
-                    <nw-icon name="circle-alert" size="sm" /><span
-                      ><strong
-                        >{{ 'organizations.detail.paymentIssues' | transloco }}:
-                        <adm-metric-value [metric]="issues.data" /></strong
-                      ><br />{{ 'organizations.detail.paymentIssuesNote' | transloco }}</span
+            <button
+              id="organization-details-tab-payments"
+              type="button"
+              role="tab"
+              [attr.aria-selected]="tab() === 'payments'"
+              [attr.tabindex]="tab() === 'payments' ? 0 : -1"
+              aria-controls="organization-details-payments"
+              (click)="tab.set('payments')"
+            >
+              <nw-icon name="credit-card" size="sm" />{{
+                'organizations.detail.payments' | transloco
+              }}
+            </button>
+          </div>
+        }
+        @if (tab() === 'about') {
+          <div
+            id="organization-details-about"
+            [attr.role]="data.showCommercial ? 'tabpanel' : null"
+            [attr.aria-labelledby]="data.showCommercial ? 'organization-details-tab-about' : null"
+          >
+            <section class="details">
+              <h3>{{ 'organizations.detail.about' | transloco }}</h3>
+              <dl>
+                <div>
+                  <dt>{{ 'organizations.detail.platform' | transloco }}</dt>
+                  <dd>
+                    <a [routerLink]="platformPath(data.platform.id)" (click)="close()"
+                      ><bdi>{{ data.platform.name }}</bdi></a
                     >
+                  </dd>
+                </div>
+                <div>
+                  <dt>{{ 'organizations.detail.organizationId' | transloco }}</dt>
+                  <dd>
+                    <code dir="ltr" translate="no">{{ detail.id }}</code>
+                  </dd>
+                </div>
+                <div>
+                  <dt>{{ 'organizations.detail.createdAt' | transloco }}</dt>
+                  <dd>{{ detail.createdAt | nwDate: 'date' }}</dd>
+                </div>
+                @for (field of fields; track field.key) {
+                  @let value = detail.metadata[field.key];
+                  @if (value !== null) {
+                    <div>
+                      <dt>{{ field.label | transloco }}</dt>
+                      <dd>
+                        <bdi [attr.dir]="field.ltr ? 'ltr' : null">{{ value }}</bdi>
+                      </dd>
+                    </div>
+                  }
+                }
+              </dl>
+            </section>
+            @if (data.mayEdit) {
+              <button
+                nw-button
+                variant="secondary"
+                type="button"
+                [attr.aria-disabled]="!data.editAvailable || null"
+                [attr.aria-describedby]="
+                  data.editAvailable ? null : 'organization-edit-panel-unavailable'
+                "
+                (click)="edit()"
+              >
+                <nw-icon name="pencil" size="sm" />{{ 'organizations.edit.open' | transloco }}
+              </button>
+              @if (!data.editAvailable) {
+                <span id="organization-edit-panel-unavailable" class="nw-visually-hidden">{{
+                  'organizations.edit.notInBuildReason' | transloco
+                }}</span>
+              }
+            }
+          </div>
+        }
+        @if (data.showCommercial && tab() === 'payments') {
+          <div
+            id="organization-details-payments"
+            role="tabpanel"
+            aria-labelledby="organization-details-tab-payments"
+          >
+            @let commercial = data.commercial();
+            <section class="details">
+              <h3>{{ 'organizations.detail.subscription' | transloco }}</h3>
+              @if (commercial.status === 'success') {
+                @let subscription = commercial.data.subscription;
+                @let entitlement = commercial.data.entitlement;
+                @if (subscription.status === 'available') {
+                  @let current = subscription.data;
+                  <dl>
+                    <div>
+                      <dt>{{ 'organizations.detail.subscriptionState' | transloco }}</dt>
+                      <dd>
+                        <adm-subscription-lifecycle-badge [lifecycle]="current.lifecycle" />
+                      </dd>
+                    </div>
+                    @let lifecycle = current.lifecycle;
+                    @if (lifecycle.currentPeriodStart) {
+                      <div data-period-start>
+                        <dt>{{ 'subscriptionLifecycle.detail.periodStart' | transloco }}</dt>
+                        <dd>{{ lifecycle.currentPeriodStart | nwDate: 'date' }}</dd>
+                      </div>
+                    }
+                    @if (lifecycle.currentPeriodEnd) {
+                      <div data-period-end>
+                        <dt>{{ 'subscriptionLifecycle.detail.periodEnd' | transloco }}</dt>
+                        <dd>
+                          {{ lifecycle.currentPeriodEnd | nwDate: 'date' }}
+                          @if (noteOf(current); as note) {
+                            @if (note.kind === 'ends') {
+                              <nw-status-badge tone="warning">{{
+                                'organizations.subscription.ends'
+                                  | transloco: { when: note.at | nwDate: 'until' }
+                              }}</nw-status-badge>
+                            }
+                          }
+                        </dd>
+                      </div>
+                    }
+                    @if (lifecycle.graceUntil && lifecycle.state !== 'pending') {
+                      <div data-grace-until>
+                        <dt>{{ 'subscriptionLifecycle.detail.graceUntil' | transloco }}</dt>
+                        <dd>{{ lifecycle.graceUntil | nwDate: 'date-time' }}</dd>
+                      </div>
+                    }
+                    @if (cancellationScheduled(lifecycle)) {
+                      <div data-cancellation>
+                        <dt>{{ 'subscriptionLifecycle.detail.cancellation' | transloco }}</dt>
+                        <dd>
+                          {{
+                            'subscriptionLifecycle.condition.cancellationScheduledDetail'
+                              | transloco
+                          }}
+                        </dd>
+                      </div>
+                    }
+                    @if (lifecycle.effectiveTerminationAt) {
+                      <div data-termination>
+                        <dt>{{ 'subscriptionLifecycle.detail.termination' | transloco }}</dt>
+                        <dd>{{ lifecycle.effectiveTerminationAt | nwDate: 'date-time' }}</dd>
+                      </div>
+                    }
+                    <div>
+                      <dt>{{ 'organizations.detail.entitledNow' | transloco }}</dt>
+                      <dd>
+                        {{
+                          (entitlement.status === 'available'
+                            ? entitlementKeys[entitlement.data]
+                            : 'organizations.table.unavailable'
+                          ) | transloco
+                        }}
+                      </dd>
+                    </div>
+                    @if (lifecycle.storedStatus) {
+                      <div data-stored-status>
+                        <dt>{{ 'subscriptionLifecycle.detail.storedStatus' | transloco }}</dt>
+                        <dd>
+                          <code>{{ lifecycle.storedStatus }}</code>
+                          @if (lifecycle.storedStatusLags) {
+                            <span class="muted" data-stored-status-lags>{{
+                              'subscriptionLifecycle.detail.storedStatusLags' | transloco
+                            }}</span>
+                          }
+                        </dd>
+                      </div>
+                    }
+                  </dl>
+                  <p class="subscription-note">
+                    {{ subscriptionNoteKeys[current.state] | transloco }}
                   </p>
+                  <p class="muted" data-subscription-illustrative>
+                    {{ 'subscriptionLifecycle.detail.illustrative' | transloco }}
+                  </p>
+                  @if (data.canViewSubscriptions) {
+                    <a
+                      [routerLink]="platformSubscriptionsPath(data.platform.id)"
+                      (click)="close()"
+                      >{{ 'organizations.detail.platformSubscriptions' | transloco }}</a
+                    >
+                  }
                 } @else {
-                  <p class="muted">{{ 'organizations.detail.noPaymentIssues' | transloco }}</p>
+                  <p class="muted">{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
+                  <button nw-button variant="ghost" type="button" (click)="data.retryCommercial()">
+                    {{ 'organizations.states.retry' | transloco }}
+                  </button>
+                }
+              } @else if (commercial.status === 'error' || commercial.status === 'forbidden') {
+                <p class="muted">{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
+                @if (commercial.status === 'error') {
+                  <button nw-button variant="ghost" type="button" (click)="data.retryCommercial()">
+                    {{ 'organizations.states.retry' | transloco }}
+                  </button>
                 }
               } @else {
+                <p class="muted">{{ 'organizations.states.loadingSection' | transloco }}</p>
+              }
+            </section>
+            <section class="details">
+              <h3>{{ 'organizations.detail.payments' | transloco }}</h3>
+              @if (commercial.status === 'success') {
+                @let issues = commercial.data.paymentIssues;
+                @if (issues.status === 'available' && issues.data.status === 'available') {
+                  @if (issues.data.value > 0) {
+                    <p class="payment-alert">
+                      <nw-icon name="circle-alert" size="sm" /><span
+                        ><strong
+                          >{{ 'organizations.detail.paymentIssues' | transloco }}:
+                          <adm-metric-value [metric]="issues.data" /></strong
+                        ><br />{{ 'organizations.detail.paymentIssuesNote' | transloco }}</span
+                      >
+                    </p>
+                  } @else {
+                    <p class="muted">{{ 'organizations.detail.noPaymentIssues' | transloco }}</p>
+                  }
+                } @else {
+                  <p class="muted">{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
+                }
+                @let cases = commercial.data.financialCases;
+                @if (cases.status === 'available') {
+                  <dl data-financial-cases>
+                    <div>
+                      <dt>
+                        {{ 'organizations.detail.financialCases.reconciliation' | transloco }}
+                      </dt>
+                      <dd><adm-metric-value [metric]="cases.data.openReconciliationCases" /></dd>
+                    </div>
+                    <div>
+                      <dt>{{ 'organizations.detail.financialCases.disputes' | transloco }}</dt>
+                      <dd><adm-metric-value [metric]="cases.data.openPaymentDisputes" /></dd>
+                    </div>
+                    <div>
+                      <dt>{{ 'organizations.detail.financialCases.refunds' | transloco }}</dt>
+                      <dd><adm-metric-value [metric]="cases.data.openRefundCases" /></dd>
+                    </div>
+                  </dl>
+                  <p class="muted" data-financial-cases-note>
+                    {{ 'organizations.detail.financialCases.note' | transloco }}
+                  </p>
+                }
+              } @else if (commercial.status === 'error' || commercial.status === 'forbidden') {
                 <p class="muted">{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
-              }
-              @let cases = commercial.data.financialCases;
-              @if (cases.status === 'available') {
-                <dl data-financial-cases>
-                  <div>
-                    <dt>{{ 'organizations.detail.financialCases.reconciliation' | transloco }}</dt>
-                    <dd><adm-metric-value [metric]="cases.data.openReconciliationCases" /></dd>
-                  </div>
-                  <div>
-                    <dt>{{ 'organizations.detail.financialCases.disputes' | transloco }}</dt>
-                    <dd><adm-metric-value [metric]="cases.data.openPaymentDisputes" /></dd>
-                  </div>
-                  <div>
-                    <dt>{{ 'organizations.detail.financialCases.refunds' | transloco }}</dt>
-                    <dd><adm-metric-value [metric]="cases.data.openRefundCases" /></dd>
-                  </div>
-                </dl>
-                <p class="muted" data-financial-cases-note>
-                  {{ 'organizations.detail.financialCases.note' | transloco }}
-                </p>
-              }
-            } @else if (commercial.status === 'error' || commercial.status === 'forbidden') {
-              <p class="muted">{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
-              @if (commercial.status === 'error') {
-                <button nw-button variant="ghost" type="button" (click)="data.retryCommercial()">
-                  {{ 'organizations.states.retry' | transloco }}
-                </button>
-              }
-            } @else {
-              <p class="muted">{{ 'organizations.states.loadingSection' | transloco }}</p>
-            }
-          </section>
-          <section class="details">
-            <h3>{{ 'organizations.detail.assistedPayments' | transloco }}</h3>
-            @if (commercial.status === 'success') {
-              @let eligibility = commercial.data.assistedPayments;
-              @if (eligibility.status === 'available') {
-                @let keys = eligibilityKeys[eligibility.data.status];
-                <p data-eligibility>
-                  <nw-status-badge tone="info">{{ keys.value | transloco }}</nw-status-badge>
-                </p>
-                <p class="muted">{{ keys.detail | transloco }}</p>
+                @if (commercial.status === 'error') {
+                  <button nw-button variant="ghost" type="button" (click)="data.retryCommercial()">
+                    {{ 'organizations.states.retry' | transloco }}
+                  </button>
+                }
               } @else {
+                <p class="muted">{{ 'organizations.states.loadingSection' | transloco }}</p>
+              }
+            </section>
+            <section class="details">
+              <h3>{{ 'organizations.detail.assistedPayments' | transloco }}</h3>
+              @if (commercial.status === 'success') {
+                @let eligibility = commercial.data.assistedPayments;
+                @if (eligibility.status === 'available') {
+                  @let keys = eligibilityKeys[eligibility.data.status];
+                  <p data-eligibility>
+                    <nw-status-badge tone="info">{{ keys.value | transloco }}</nw-status-badge>
+                  </p>
+                  <p class="muted">{{ keys.detail | transloco }}</p>
+                } @else {
+                  <p class="muted">{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
+                }
+              } @else if (commercial.status === 'error' || commercial.status === 'forbidden') {
                 <p class="muted">{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
+                @if (commercial.status === 'error') {
+                  <button nw-button variant="ghost" type="button" (click)="data.retryCommercial()">
+                    {{ 'organizations.states.retry' | transloco }}
+                  </button>
+                }
+              } @else {
+                <p class="muted">{{ 'organizations.states.loadingSection' | transloco }}</p>
               }
-            } @else if (commercial.status === 'error' || commercial.status === 'forbidden') {
-              <p class="muted">{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
-              @if (commercial.status === 'error') {
-                <button nw-button variant="ghost" type="button" (click)="data.retryCommercial()">
-                  {{ 'organizations.states.retry' | transloco }}
-                </button>
-              }
-            } @else {
-              <p class="muted">{{ 'organizations.states.loadingSection' | transloco }}</p>
-            }
-          </section>
-        </div>
-      }
+            </section>
+          </div>
+        }
       </div>
     </nw-dialog>
   `,
@@ -405,7 +431,8 @@ const FIELDS = [
       font-weight: var(--nw-font-weight-medium);
       cursor: pointer;
     }
-    .tabs button[aria-selected='true'], .tabs button[aria-current='page'] {
+    .tabs button[aria-selected='true'],
+    .tabs button[aria-current='page'] {
       background: var(--nw-surface-raised);
       color: var(--nw-text-brand);
       box-shadow: var(--nw-shadow-sm);
