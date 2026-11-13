@@ -1,117 +1,55 @@
 import { Provider, inject } from '@angular/core';
 import { Observable, delay, of, throwError, timer, switchMap } from 'rxjs';
+import { DemoWorld } from '../../demo/world/demo-world';
 import { DEMO_OWNER_ID } from '../../demo/world/seed';
 import { DemoAuthState } from '../auth/auth.mock-state';
 import { DEMO_LATENCY_MS } from '../context/scope-directory.mock';
 import { AppError } from '../errors/app-error';
 import { NW_CLOCK } from '../../shared/format/clock';
+import { derivedNotificationsOf } from './demo-notifications.mock';
 import { NotificationInboxGateway, NotificationRecord } from './notification-inbox.gateway';
 import { NotificationSummary, NotificationSummaryGateway } from './notification-summary.gateway';
 
-const SCHOOL = '/platforms/5b8d2a10-3c4e-4f61-8a2b-9d0e1f2a3b01';
-const HORIZON = `${SCHOOL}/organizations/3f6d2b10-8c4e-4a71-9b2c-5e0f1a2b3c01`;
-
-/** Demo-only, in-memory inbox state, scoped to the signed-in business identity and reset on page reload. */
+/**
+ * Demo-only inbox (WP-3.4): its notifications are DERIVED from the shared demo world on every read
+ * (`derivedNotificationsOf`), so one exists exactly while its condition holds. The Company owner sees them; every other
+ * identity sees none (unchanged). Only the read state is kept here, in memory, per business identity, reset on page reload.
+ */
 export class DemoNotificationInbox {
   private readonly auth = inject(DemoAuthState);
-  private readonly latency = inject(DEMO_LATENCY_MS);
   private readonly clock = inject(NW_CLOCK);
-  private readonly inboxes = new Map<string, readonly NotificationRecord[]>();
+  private readonly world = inject(DemoWorld);
+  /** Per identity: the notifications read so far (`false`) or marked unread again (`true`). */
+  private readonly readState = new Map<string, ReadonlyMap<string, boolean>>();
 
   records(): readonly NotificationRecord[] {
-    const signedIn = this.auth.signedIn();
-    if (!signedIn || signedIn.businessIdentityId === null) return [];
-    const identity = signedIn.businessIdentityId;
-    let records = this.inboxes.get(identity);
-    if (!records) {
-      records = identity === DEMO_OWNER_ID ? this.ownerFixture() : [];
-      this.inboxes.set(identity, records);
-    }
-    return records;
+    const identity = this.identity();
+    if (identity === null || identity !== DEMO_OWNER_ID) return [];
+    const state = this.readState.get(identity);
+    return derivedNotificationsOf(this.world.snapshot(), this.clock()).map((n) => ({
+      ...n,
+      unread: state?.get(n.id) ?? true,
+    }));
   }
 
   update(id: string, unread: boolean): boolean {
-    const signedIn = this.auth.signedIn();
-    if (!signedIn || signedIn.businessIdentityId === null) return false;
-    const identity = signedIn.businessIdentityId;
-    const records = this.records();
-    if (!records.some((record) => record.id === id)) return false;
-    this.inboxes.set(
-      identity,
-      records.map((record) => (record.id === id ? { ...record, unread } : record)),
-    );
+    const identity = this.identity();
+    if (identity === null || !this.records().some((record) => record.id === id)) return false;
+    this.readState.set(identity, new Map(this.readState.get(identity)).set(id, unread));
     return true;
   }
 
   markAllRead(): void {
-    const signedIn = this.auth.signedIn();
-    if (!signedIn || signedIn.businessIdentityId === null) return;
-    const identity = signedIn.businessIdentityId;
-    this.inboxes.set(
-      identity,
-      this.records().map((record) => ({ ...record, unread: false })),
-    );
+    const identity = this.identity();
+    if (identity === null) return;
+    const state = new Map(this.readState.get(identity));
+    for (const record of this.records()) state.set(record.id, false);
+    this.readState.set(identity, state);
   }
 
-  private ownerFixture(): readonly NotificationRecord[] {
-    const now = this.clock();
-    return [
-      {
-        id: 'demo-invitation-awaiting-acceptance',
-        category: 'invitation',
-        titleKey: 'notifications.records.invitation.title',
-        descriptionKey: 'notifications.records.invitation.description',
-        context: 'École Horizon · Nawara School',
-        createdAt: new Date(now - 5 * 60_000).toISOString(),
-        priority: 'normal',
-        unread: true,
-        destination: `${HORIZON}/members`,
-      },
-      {
-        id: 'demo-license-expiring',
-        category: 'license',
-        titleKey: 'notifications.records.license.title',
-        descriptionKey: 'notifications.records.license.description',
-        context: 'Nawara School',
-        createdAt: new Date(now - 60 * 60_000).toISOString(),
-        priority: 'urgent',
-        unread: true,
-        destination: '/licenses',
-      },
-      {
-        id: 'demo-organization-created',
-        category: 'organization',
-        titleKey: 'notifications.records.organization.title',
-        descriptionKey: 'notifications.records.organization.description',
-        context: 'Institut Atlas Savoir · Nawara School',
-        createdAt: new Date(now - 3 * 60 * 60_000).toISOString(),
-        priority: 'normal',
-        unread: false,
-        destination: `${SCHOOL}/organizations`,
-      },
-      {
-        id: 'demo-membership-approved',
-        category: 'approval',
-        titleKey: 'notifications.records.approval.title',
-        descriptionKey: 'notifications.records.approval.description',
-        context: 'Nawara School · École Horizon',
-        createdAt: new Date(now - 5 * 60 * 60_000).toISOString(),
-        priority: 'normal',
-        unread: true,
-        destination: `${HORIZON}/members`,
-      },
-      {
-        id: 'demo-operator-access-request',
-        category: 'access',
-        titleKey: 'notifications.records.access.title',
-        descriptionKey: 'notifications.records.access.description',
-        context: 'Nawara Drive',
-        createdAt: new Date(now - 24 * 60 * 60_000).toISOString(),
-        priority: 'normal',
-        unread: true,
-        destination: '/operators',
-      },
-    ];
+  private identity(): string | null {
+    const signedIn = this.auth.signedIn();
+    return signedIn?.businessIdentityId ?? null;
   }
 }
 
