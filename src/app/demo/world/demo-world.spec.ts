@@ -50,6 +50,10 @@ describe('demo world: canonical seed invariants', () => {
       world.providerObservations,
       world.providerFacts,
       world.refundCases,
+      world.paymentDisputes,
+      world.lateSuccesses,
+      world.refundAttempts,
+      world.reconciliationCases,
     ])
       expect(unique(records.map((r) => r.id))).toBe(true);
     expect(unique(world.activity.map((e) => e.id))).toBe(true);

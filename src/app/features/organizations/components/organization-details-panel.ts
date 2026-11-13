@@ -319,6 +319,26 @@ const FIELDS = [
               } @else {
                 <p class="muted">{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
               }
+              @let cases = commercial.data.financialCases;
+              @if (cases.status === 'available') {
+                <dl data-financial-cases>
+                  <div>
+                    <dt>{{ 'organizations.detail.financialCases.reconciliation' | transloco }}</dt>
+                    <dd><adm-metric-value [metric]="cases.data.openReconciliationCases" /></dd>
+                  </div>
+                  <div>
+                    <dt>{{ 'organizations.detail.financialCases.disputes' | transloco }}</dt>
+                    <dd><adm-metric-value [metric]="cases.data.openPaymentDisputes" /></dd>
+                  </div>
+                  <div>
+                    <dt>{{ 'organizations.detail.financialCases.refunds' | transloco }}</dt>
+                    <dd><adm-metric-value [metric]="cases.data.openRefundCases" /></dd>
+                  </div>
+                </dl>
+                <p class="muted" data-financial-cases-note>
+                  {{ 'organizations.detail.financialCases.note' | transloco }}
+                </p>
+              }
             } @else if (commercial.status === 'error' || commercial.status === 'forbidden') {
               <p class="muted">{{ 'organizations.states.sectionUnavailable' | transloco }}</p>
               @if (commercial.status === 'error') {

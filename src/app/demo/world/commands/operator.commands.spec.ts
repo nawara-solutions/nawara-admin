@@ -63,6 +63,10 @@ const UNTOUCHED = [
   'providerObservations',
   'providerFacts',
   'refundCases',
+  'paymentDisputes',
+  'lateSuccesses',
+  'refundAttempts',
+  'reconciliationCases',
   'platformCommercial',
   'idempotency',
 ] as const;

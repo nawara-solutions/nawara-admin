@@ -1264,7 +1264,13 @@
       "address": "العنوان",
       "viewMembers": "عرض الأعضاء",
       "detailsPanel": "ملف المؤسسة",
-      "subscriptionPayments": "الاشتراك والمدفوعات"
+      "subscriptionPayments": "الاشتراك والمدفوعات",
+      "financialCases": {
+        "reconciliation": "حالات تسوية مفتوحة",
+        "disputes": "نزاعات دفع مفتوحة",
+        "refunds": "حالات استرداد غير مكتملة",
+        "note": "أعداد سجلات غير محسومة من بيانات تجريبية توضيحية. لا تدل على أي استرداد أو تحصيل أو تسوية، ولا تُحسم أي حالة في Admin."
+      }
     },
     "activity": {
       "organizationCreated": "تم إنشاء مؤسسة",

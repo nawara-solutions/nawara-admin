@@ -613,11 +613,20 @@ const PAYMENT_FACTS: Pick<
   | 'providerObservations'
   | 'providerFacts'
   | 'refundCases'
+  | 'paymentDisputes'
+  | 'lateSuccesses'
+  | 'refundAttempts'
+  | 'reconciliationCases'
 > = {
   invoices: [
     { id: 'invoice-1', organizationId: org(3), status: 'open' },
     { id: 'invoice-2', organizationId: org(21), status: 'open' },
     { id: 'invoice-3', organizationId: org(1), status: 'paid' },
+    // WP-4.2 financial cases.
+    { id: 'invoice-4', organizationId: org(2), status: 'open' },
+    { id: 'invoice-5', organizationId: org(22), status: 'paid' },
+    { id: 'invoice-6', organizationId: org(4), status: 'paid' },
+    { id: 'invoice-7', organizationId: org(5), status: 'paid' },
   ],
   paymentRequests: [
     { id: 'payment-request-1', invoiceId: 'invoice-1', status: 'failed', paymentId: 'payment-1' },
@@ -628,11 +637,20 @@ const PAYMENT_FACTS: Pick<
       paymentId: 'payment-2',
     },
     { id: 'payment-request-3', invoiceId: 'invoice-3', status: 'paid', paymentId: 'payment-3' },
+    // `expired` and `paid` make no payment follow-up: the Billing, Overview and dashboard figures are unchanged.
+    { id: 'payment-request-4', invoiceId: 'invoice-4', status: 'expired', paymentId: 'payment-4' },
+    { id: 'payment-request-5', invoiceId: 'invoice-5', status: 'paid', paymentId: 'payment-5' },
+    { id: 'payment-request-6', invoiceId: 'invoice-6', status: 'paid', paymentId: 'payment-6' },
+    { id: 'payment-request-7', invoiceId: 'invoice-7', status: 'paid', paymentId: 'payment-7' },
   ],
   payments: [
     { id: 'payment-1', paymentRequestId: 'payment-request-1', status: 'failed' },
     { id: 'payment-2', paymentRequestId: 'payment-request-2', status: 'pending' },
     { id: 'payment-3', paymentRequestId: 'payment-request-3', status: 'succeeded' },
+    { id: 'payment-4', paymentRequestId: 'payment-request-4', status: 'expired' },
+    { id: 'payment-5', paymentRequestId: 'payment-request-5', status: 'succeeded' },
+    { id: 'payment-6', paymentRequestId: 'payment-request-6', status: 'succeeded' },
+    { id: 'payment-7', paymentRequestId: 'payment-request-7', status: 'succeeded' },
   ],
   paymentAttempts: [
     {
@@ -663,10 +681,43 @@ const PAYMENT_FACTS: Pick<
       status: 'succeeded',
       failureClass: null,
     },
+    {
+      id: 'attempt-5',
+      paymentId: 'payment-4',
+      attemptNumber: 1,
+      status: 'expired',
+      failureClass: null,
+    },
+    {
+      id: 'attempt-6',
+      paymentId: 'payment-5',
+      attemptNumber: 1,
+      status: 'succeeded',
+      failureClass: null,
+    },
+    {
+      id: 'attempt-7',
+      paymentId: 'payment-6',
+      attemptNumber: 1,
+      status: 'succeeded',
+      failureClass: null,
+    },
+    {
+      id: 'attempt-8',
+      paymentId: 'payment-7',
+      attemptNumber: 1,
+      status: 'succeeded',
+      failureClass: null,
+    },
   ],
   providerObservations: [
     { id: 'webhook-event-1', matchedAttemptId: 'attempt-1', state: 'processed' },
     { id: 'webhook-event-2', matchedAttemptId: 'attempt-4', state: 'processed' },
+    { id: 'webhook-event-3', matchedAttemptId: 'attempt-5', state: 'processed' },
+    { id: 'webhook-event-4', matchedAttemptId: 'attempt-6', state: 'processed' },
+    { id: 'webhook-event-5', matchedAttemptId: 'attempt-7', state: 'processed' },
+    { id: 'webhook-event-6', matchedAttemptId: 'attempt-7', state: 'processed' },
+    { id: 'webhook-event-7', matchedAttemptId: 'attempt-8', state: 'processed' },
   ],
   providerFacts: [
     {
@@ -679,6 +730,66 @@ const PAYMENT_FACTS: Pick<
       liveMode: false,
       demoFixture: true,
     },
+    {
+      id: 'provider-fact-2',
+      kind: 'capture',
+      paymentId: 'payment-4',
+      attemptId: 'attempt-5',
+      source: 'webhook',
+      webhookEventId: 'webhook-event-3',
+      liveMode: false,
+      demoFixture: true,
+    },
+    {
+      id: 'provider-fact-3',
+      kind: 'capture',
+      paymentId: 'payment-5',
+      attemptId: 'attempt-6',
+      source: 'webhook',
+      webhookEventId: 'webhook-event-4',
+      liveMode: false,
+      demoFixture: true,
+    },
+    {
+      id: 'provider-fact-4',
+      kind: 'capture',
+      paymentId: 'payment-6',
+      attemptId: 'attempt-7',
+      source: 'webhook',
+      webhookEventId: 'webhook-event-5',
+      liveMode: false,
+      demoFixture: true,
+    },
+    {
+      id: 'provider-fact-5',
+      kind: 'chargeback',
+      paymentId: 'payment-6',
+      attemptId: 'attempt-7',
+      source: 'webhook',
+      webhookEventId: 'webhook-event-6',
+      liveMode: false,
+      demoFixture: true,
+    },
+    {
+      id: 'provider-fact-6',
+      kind: 'capture',
+      paymentId: 'payment-7',
+      attemptId: 'attempt-8',
+      source: 'webhook',
+      webhookEventId: 'webhook-event-7',
+      liveMode: false,
+      demoFixture: true,
+    },
+    {
+      id: 'provider-fact-7',
+      kind: 'refund',
+      paymentId: 'payment-7',
+      attemptId: 'attempt-8',
+      source: 'status_check',
+      webhookEventId: null,
+      liveMode: false,
+      demoFixture: true,
+    },
   ],
   refundCases: [
     {
@@ -686,6 +797,83 @@ const PAYMENT_FACTS: Pick<
       paymentRequestId: 'payment-request-3',
       paymentId: 'payment-3',
       status: 'open',
+    },
+    {
+      id: 'refund-case-2',
+      paymentRequestId: 'payment-request-7',
+      paymentId: 'payment-7',
+      status: 'open',
+    },
+  ],
+  paymentDisputes: [
+    // Open: no chargeback is recorded, and nothing is refunded or recovered.
+    {
+      id: 'payment-dispute-1',
+      paymentId: 'payment-5',
+      attemptId: 'attempt-6',
+      captureFactId: 'provider-fact-3',
+      status: 'open',
+      chargebackFactId: null,
+    },
+    // Lost, with a verified chargeback fact: still no recovery is stated.
+    {
+      id: 'payment-dispute-2',
+      paymentId: 'payment-6',
+      attemptId: 'attempt-7',
+      captureFactId: 'provider-fact-4',
+      status: 'lost',
+      chargebackFactId: 'provider-fact-5',
+    },
+  ],
+  lateSuccesses: [
+    // A verified capture after the payment expired: the request stays `expired`.
+    {
+      id: 'late-success-1',
+      paymentId: 'payment-4',
+      paymentRequestId: 'payment-request-4',
+      factId: 'provider-fact-2',
+      paymentStatus: 'expired',
+      source: 'event',
+    },
+  ],
+  refundAttempts: [
+    // Sent to the provider, no refund fact yet: awaiting authoritative evidence.
+    {
+      id: 'refund-attempt-1',
+      paymentId: 'payment-3',
+      refundCaseId: 'refund-case-1',
+      status: 'submitted',
+    },
+    // Outcome unknown at Payment, though a verified refund fact exists for the payment.
+    {
+      id: 'refund-attempt-2',
+      paymentId: 'payment-7',
+      refundCaseId: 'refund-case-2',
+      status: 'unknown',
+    },
+  ],
+  reconciliationCases: [
+    {
+      id: 'reconciliation-case-1',
+      caseType: 'late_success',
+      evidenceKey: 'late-success-1',
+      organizationId: org(2),
+      platformId: DEMO_SCHOOL_PLATFORM_ID,
+      paymentId: 'payment-4',
+      paymentRequestId: 'payment-request-4',
+      captureFactId: 'provider-fact-2',
+      resolutionKind: null,
+    },
+    {
+      id: 'reconciliation-case-2',
+      caseType: 'refund_fact_unallocated',
+      evidenceKey: 'provider-fact-7',
+      organizationId: org(5),
+      platformId: DEMO_SCHOOL_PLATFORM_ID,
+      paymentId: 'payment-7',
+      paymentRequestId: 'payment-request-7',
+      captureFactId: 'provider-fact-6',
+      resolutionKind: null,
     },
   ],
 };

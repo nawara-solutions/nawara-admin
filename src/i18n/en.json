@@ -1264,7 +1264,13 @@
       "address": "Address",
       "viewMembers": "View members",
       "detailsPanel": "Organization profile",
-      "subscriptionPayments": "Subscription & payments"
+      "subscriptionPayments": "Subscription & payments",
+      "financialCases": {
+        "reconciliation": "Open reconciliation cases",
+        "disputes": "Open payment disputes",
+        "refunds": "Refund cases not completed",
+        "note": "Counts of unresolved records, from illustrative demo data. They state no refund, recovery or settlement, and no case is resolved in Admin."
+      }
     },
     "activity": {
       "organizationCreated": "Organization created",

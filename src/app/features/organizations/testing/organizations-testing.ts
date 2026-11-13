@@ -209,6 +209,14 @@ export const commercialOf = (
   entitlement: { status: 'available', data: 'entitled' },
   paymentIssues: { status: 'available', data: count(1) },
   assistedPayments: { status: 'available', data: { status: 'notVerified' } },
+  financialCases: {
+    status: 'available',
+    data: {
+      openReconciliationCases: count(0),
+      openPaymentDisputes: count(0),
+      openRefundCases: count(0),
+    },
+  },
 });
 
 interface Pending<K, T> {

@@ -1264,7 +1264,13 @@
       "address": "Adresse",
       "viewMembers": "Voir les membres",
       "detailsPanel": "Profil de l’organisation",
-      "subscriptionPayments": "Abonnement et paiements"
+      "subscriptionPayments": "Abonnement et paiements",
+      "financialCases": {
+        "reconciliation": "Cas de rapprochement ouverts",
+        "disputes": "Litiges de paiement ouverts",
+        "refunds": "Dossiers de remboursement non terminés",
+        "note": "Décomptes d’éléments non résolus, issus de données de démonstration illustratives. Ils n’indiquent aucun remboursement, recouvrement ou règlement, et aucun cas n’est résolu dans Admin."
+      }
     },
     "activity": {
       "organizationCreated": "Organisation créée",

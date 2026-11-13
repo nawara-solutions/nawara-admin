@@ -300,6 +300,122 @@ export interface RefundCaseRecord {
   readonly status: RefundCaseStatus;
 }
 
+// ── Financial cases (WP-4.2) ────────────────────────────────────────────────────────────────────────────────────────
+// Also nawara-core `8d89bed`, Core's field names, the fields oversight needs only (no amount, currency, provider
+// reference, reason text or customer data). Every record is ILLUSTRATIVE mock data in Core's shapes.
+
+/** Payment's dispute states (`payment 0019_payment_dispute.sql:38`). */
+export type PaymentDisputeStatus = 'open' | 'won' | 'lost';
+
+/**
+ * A provider's dispute of one CAPTURED attempt (`payment_dispute`, `0019:14-41`). A dispute is not a chargeback: only a
+ * verified `chargeback` provider fact (`chargebackFactId`, possible only once the dispute is `lost`, `0019:41`) records one,
+ * and neither says anything about recovery.
+ */
+export interface PaymentDisputeRecord {
+  readonly id: string;
+  readonly paymentId: string;
+  readonly attemptId: string;
+  readonly captureFactId: string;
+  readonly status: PaymentDisputeStatus;
+  readonly chargebackFactId: string | null;
+}
+
+/**
+ * Billing's record of Payment's LATE success (`payment_late_success`, `billing 0042_reconciliation.sql`): a verified capture
+ * (`factId`) that arrived after the payment ended. `paymentStatus` is the payment's terminal state, UNCHANGED: the request's
+ * own history is never rewritten by it.
+ */
+export interface LateSuccessRecord {
+  readonly id: string;
+  readonly paymentId: string;
+  readonly paymentRequestId: string;
+  readonly factId: string | null;
+  readonly paymentStatus: 'succeeded' | 'failed' | 'expired' | 'cancelled';
+  readonly source: 'event' | 'reconciliation';
+}
+
+/** Payment's refund-attempt states (`payment 0017_refund_attempt.sql:70-71`). */
+export type RefundAttemptStatus =
+  | 'authorization_pending'
+  | 'authorized'
+  | 'authorization_expired'
+  | 'authorization_refused'
+  | 'dispatching'
+  | 'submitted'
+  | 'succeeded'
+  | 'failed'
+  | 'unknown'
+  | 'discrepancy';
+
+/**
+ * Payment's refund ATTEMPT for one Billing refund case (`refund_attempt`, `0017`; `"refundCaseId"`). An attempt's status is
+ * Payment's processing state, not a refund: only a verified `refund` provider fact is one, and whether Payment allocated such a
+ * fact to this attempt is not represented here (DO-73: an unallocated fact opens a `refund_fact_unallocated` case).
+ */
+export interface RefundAttemptRecord {
+  readonly id: string;
+  readonly paymentId: string;
+  readonly refundCaseId: string;
+  readonly status: RefundAttemptStatus;
+}
+
+/** Billing's reconciliation case types (`billing 0054_do74_refund_observation_conflict.sql:23-26`): twenty. */
+export const RECONCILIATION_CASE_TYPES = [
+  'late_assisted_settlement',
+  'recovery_surplus',
+  'late_success',
+  'unmatched_capture',
+  'unrouted_settlement',
+  'over_return',
+  'refund_discrepancy',
+  'partial_chargeback',
+  'second_reversal_cause',
+  'contradictory_effect',
+  'authorization_pending',
+  'chargeback_refund_overlap',
+  'capture_contradiction',
+  'chargeback_loss_review',
+  'chargeback_effect_waiting',
+  'chargeback_refund_exposure',
+  'refund_fact_contested',
+  'dispute_conflict_observed',
+  'refund_fact_unallocated',
+  'refund_observation_conflict',
+] as const;
+export type ReconciliationCaseType = (typeof RECONCILIATION_CASE_TYPES)[number];
+
+/** How a case was resolved (`reconciliation_case_resolution.kind`, `billing 0045_late_capture_disputes.sql`). */
+export type ReconciliationResolutionKind =
+  | 'refund_completed'
+  | 'late_settlement_applied'
+  | 'surplus_refunded'
+  | 'surplus_repaid'
+  | 'recovery_counted'
+  | 'loss_recognized'
+  | 'effect_applied'
+  | 'authorization_resolved'
+  | 'acknowledged'
+  | 'chargeback_returned';
+
+/**
+ * A Billing reconciliation case (`reconciliation_case`, `billing 0042:310-330`): a case about ONE record (`evidenceKey`) that
+ * needs attention. It is OPEN until a resolution row exists (`resolutionKind`, `reconciliation_case_resolution`); most kinds are
+ * recorded by the evidence itself, and the owner's acknowledgement is limited per type (and refused outright for some, e.g.
+ * `refund_fact_unallocated`, `0053`). Admin offers no resolution of any kind: a case is never a permission to resolve it.
+ */
+export interface ReconciliationCaseRecord {
+  readonly id: string;
+  readonly caseType: ReconciliationCaseType;
+  readonly evidenceKey: string;
+  readonly organizationId: OrganizationId | null;
+  readonly platformId: PlatformId | null;
+  readonly paymentId: string | null;
+  readonly paymentRequestId: string | null;
+  readonly captureFactId: string | null;
+  readonly resolutionKind: ReconciliationResolutionKind | null;
+}
+
 /**
  * Per-Platform commercial facts that are not about one Organization:
  * - `personalPremium`: people's own Personal Premium subscriptions active in the product (a DECLARED count: person
@@ -391,6 +507,11 @@ export interface DemoWorldTables {
   readonly providerObservations: readonly ProviderObservationRecord[];
   readonly providerFacts: readonly ProviderFactRecord[];
   readonly refundCases: readonly RefundCaseRecord[];
+  /** Financial cases (WP-4.2), each its own record: none is derived from, or rewrites, another. */
+  readonly paymentDisputes: readonly PaymentDisputeRecord[];
+  readonly lateSuccesses: readonly LateSuccessRecord[];
+  readonly refundAttempts: readonly RefundAttemptRecord[];
+  readonly reconciliationCases: readonly ReconciliationCaseRecord[];
   readonly platformCommercial: readonly PlatformCommercialRecord[];
   readonly activity: readonly ActivityRecord[];
   /** Records created at run time so far: their ids are numbered from it, so they are stable and never reuse a seed id. */

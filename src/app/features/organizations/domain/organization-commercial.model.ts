@@ -65,6 +65,19 @@ export interface OrganizationCommercial {
   /** Payments of this Organization that failed or await action (a Payment fact; details are not available). */
   readonly paymentIssues: Section<Metric>;
   readonly assistedPayments: Section<AssistanceEligibility>;
+  /** Unresolved financial records of this Organization (WP-4.2), as counts only: never a refund, recovery or settlement. */
+  readonly financialCases: Section<OrganizationFinancialCases>;
+}
+
+/**
+ * Counts of this Organization's unresolved financial records (WP-4.2; nawara-core `8d89bed` shapes, illustrative demo data):
+ * open reconciliation cases, open payment disputes, refund cases not completed. A count states no outcome, and Admin offers
+ * no resolution, refund or dispute action.
+ */
+export interface OrganizationFinancialCases {
+  readonly openReconciliationCases: Metric;
+  readonly openPaymentDisputes: Metric;
+  readonly openRefundCases: Metric;
 }
 
 /** "Expiring soon": an active subscription that ends within this many days (as on the Company Overview). */

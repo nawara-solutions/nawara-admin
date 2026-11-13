@@ -22,6 +22,10 @@ import {
   PaymentAttemptRecord,
   PaymentRequestRecord,
   PaymentRequestStatus,
+  LateSuccessRecord,
+  PaymentDisputeRecord,
+  ReconciliationCaseRecord,
+  RefundAttemptRecord,
   PlatformActivityRecord,
   PlatformAssignmentRecord,
   ProviderFactRecord,
@@ -640,6 +644,187 @@ export const paymentIssuesOf = (
     const kind = FOLLOW_UP_KIND[request.status];
     return kind ? [{ id: request.id, organizationId: request.organizationId, kind }] : [];
   });
+
+// ── Financial cases (WP-4.2) ──────────────────────────────────────────────────────────────────────────────────────
+// Pure readings of the case tables (records.ts; nawara-core `8d89bed`). Each fact keeps its own layer: a dispute is not a
+// chargeback, a chargeback is not a recovery, a late success does not rewrite its request, a refund case or attempt is not a
+// refund, a refund fact is not an allocation or a completion, and a reconciliation case is never a permission to resolve it.
+
+/** The reconciliation cases of these Organizations (a case's Organization context, `billing 0042:316`), in record order. */
+export const reconciliationCasesOf = (
+  world: DemoWorldTables,
+  organizations: readonly OrganizationRecord[],
+) => {
+  const ids = new Set(organizations.map((o) => o.id));
+  return world.reconciliationCases.filter(
+    (c) => c.organizationId !== null && ids.has(c.organizationId),
+  );
+};
+
+/**
+ * The reconciliation cases visible under one Platform of the Company: the case's own Platform, never inferred from a
+ * payment. A case of another Company's Platform is never returned.
+ */
+export const reconciliationCasesOfPlatform = (world: DemoWorldTables, platform: PlatformId) =>
+  isCompanyPlatform(world, platform)
+    ? world.reconciliationCases.filter((c) => c.platformId === platform)
+    : [];
+
+/** A case's lifecycle: `open` until a resolution is recorded. Admin offers no resolution (never an action). */
+export interface ReconciliationCaseView {
+  readonly case: ReconciliationCaseRecord;
+  readonly state: 'open' | 'resolved';
+  /** Who may resolve it is Core's, per type: Admin states none and offers none. */
+  readonly resolutionInAdmin: 'notOffered';
+}
+
+export const reconciliationCaseViewOf = (
+  record: ReconciliationCaseRecord,
+): ReconciliationCaseView => ({
+  case: record,
+  state: record.resolutionKind === null ? 'open' : 'resolved',
+  resolutionInAdmin: 'notOffered',
+});
+
+/**
+ * A payment request's disputes, each with its chargeback as a SEPARATE fact: `verifiedChargeback` only when a `chargeback`
+ * provider fact is linked (a dispute alone, open, won or lost, is not one). Nothing here states a refund or a recovery.
+ */
+export interface DisputeEvidence {
+  readonly dispute: PaymentDisputeRecord;
+  readonly chargeback:
+    { readonly kind: 'verifiedChargeback'; readonly factId: string } | { readonly kind: 'none' };
+}
+
+export function disputesOfRequest(
+  world: DemoWorldTables,
+  requestId: string,
+): readonly DisputeEvidence[] {
+  const payments = new Set(paymentsOfRequest(world, requestId).map((p) => p.id));
+  return world.paymentDisputes
+    .filter((d) => payments.has(d.paymentId))
+    .map((dispute) => {
+      const fact =
+        dispute.chargebackFactId === null
+          ? undefined
+          : world.providerFacts.find(
+              (f) => f.id === dispute.chargebackFactId && f.kind === 'chargeback',
+            );
+      return {
+        dispute,
+        chargeback: fact ? { kind: 'verifiedChargeback', factId: fact.id } : { kind: 'none' },
+      };
+    });
+}
+
+/**
+ * A request's late successes, kept apart from its history: the request, payment and attempt statuses stay as recorded; the
+ * late capture is verified only when its fact exists. `collectionEvidenceOf` already counts that fact as a capture.
+ */
+export interface LateSuccessEvidence {
+  readonly lateSuccess: LateSuccessRecord;
+  readonly requestStatus: PaymentRequestStatus | null;
+  readonly verifiedCaptureFactId: string | null;
+}
+
+export function lateSuccessesOfRequest(
+  world: DemoWorldTables,
+  requestId: string,
+): readonly LateSuccessEvidence[] {
+  const request = world.paymentRequests.find((r) => r.id === requestId);
+  return world.lateSuccesses
+    .filter((l) => l.paymentRequestId === requestId)
+    .map((lateSuccess) => ({
+      lateSuccess,
+      requestStatus: request?.status ?? null,
+      verifiedCaptureFactId:
+        lateSuccess.factId !== null &&
+        world.providerFacts.some((f) => f.id === lateSuccess.factId && f.kind === 'capture')
+          ? lateSuccess.factId
+          : null,
+    }));
+}
+
+/**
+ * One refund case, every layer apart: the CASE (Billing's request to refund, with its own state), Payment's refund ATTEMPTS
+ * (processing states), and VERIFIED `refund` facts for its payment. A verified fact is neither an allocation (not
+ * represented: DO-73) nor a completion; `caseCompleted` is only Billing's case state.
+ */
+export interface RefundCaseEvidence {
+  readonly refundCase: RefundCaseRecord;
+  readonly attempts: readonly RefundAttemptRecord[];
+  readonly verifiedRefundFactIds: readonly string[];
+  readonly allocation: 'notRepresented';
+  readonly caseCompleted: boolean;
+}
+
+export function refundCaseEvidenceOf(
+  world: DemoWorldTables,
+  refundCaseId: string,
+): RefundCaseEvidence | null {
+  const refundCase = world.refundCases.find((c) => c.id === refundCaseId);
+  if (!refundCase) return null;
+  return {
+    refundCase,
+    attempts: world.refundAttempts.filter((a) => a.refundCaseId === refundCaseId),
+    verifiedRefundFactIds: world.providerFacts
+      .filter((f) => f.kind === 'refund' && f.paymentId === refundCase.paymentId)
+      .map((f) => f.id),
+    allocation: 'notRepresented',
+    caseCompleted: refundCase.status === 'completed',
+  };
+}
+
+/**
+ * A payment-request reference held elsewhere (e.g. an Assistance record), resolved against the shared facts only: `linked`
+ * when the request exists, with its Organization; otherwise `notInSharedFacts` (never a guessed match).
+ */
+export type PaymentRequestReference =
+  | { readonly kind: 'linked'; readonly request: ScopedPaymentRequest }
+  | { readonly kind: 'notInSharedFacts'; readonly paymentRequestId: string };
+
+export function paymentRequestReferenceOf(
+  world: DemoWorldTables,
+  paymentRequestId: string,
+): PaymentRequestReference {
+  const request = paymentRequestsOf(world, world.organizations).find(
+    (r) => r.id === paymentRequestId,
+  );
+  return request ? { kind: 'linked', request } : { kind: 'notInSharedFacts', paymentRequestId };
+}
+
+/**
+ * What still needs attention in these Organizations, as counts of unresolved records only: open reconciliation cases, open
+ * payment disputes, refund cases not completed. A count is never a financial conclusion (nothing is "lost", "owed" or
+ * "refunded" here), and Admin offers no action on any of them.
+ */
+export interface FinancialAttention {
+  readonly openReconciliationCases: number;
+  readonly openPaymentDisputes: number;
+  readonly openRefundCases: number;
+}
+
+export function financialAttentionOf(
+  world: DemoWorldTables,
+  organizations: readonly OrganizationRecord[],
+): FinancialAttention {
+  const requests = paymentRequestsOf(world, organizations);
+  const payments = new Set(
+    requests.flatMap((r) => paymentsOfRequest(world, r.id).map((p) => p.id)),
+  );
+  const requestIds = new Set(requests.map((r) => r.id));
+  return {
+    openReconciliationCases: reconciliationCasesOf(world, organizations).filter(
+      (c) => c.resolutionKind === null,
+    ).length,
+    openPaymentDisputes: world.paymentDisputes.filter(
+      (d) => d.status === 'open' && payments.has(d.paymentId),
+    ).length,
+    openRefundCases: world.refundCases.filter(
+      (c) => c.status === 'open' && requestIds.has(c.paymentRequestId),
+    ).length,
+  };
+}
 
 export const platformCommercialOf = (world: DemoWorldTables, platform: PlatformId) =>
   world.platformCommercial.find((c) => c.platformId === platform);

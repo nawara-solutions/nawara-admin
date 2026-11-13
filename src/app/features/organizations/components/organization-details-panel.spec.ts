@@ -3,7 +3,9 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslocoTestingModule } from '@jsverse/transloco';
 import { NEVER } from 'rxjs';
+import ar from '../../../../i18n/ar.json';
 import en from '../../../../i18n/en.json';
+import fr from '../../../../i18n/fr.json';
 import { ViewState } from '../../../core/state/view-state';
 import { NW_CLOCK } from '../../../shared/format/clock';
 import { NW_DIALOG_TITLE_ID } from '../../../shared/ui/dialog/dialog.service';
@@ -178,6 +180,65 @@ describe('Organization details panel: subscription lifecycle (WP-4.1)', () => {
         state === 'terminated',
       );
       expect(section.querySelector('[data-period-end]') !== null, state).toBe(state !== 'none');
+    }
+  });
+});
+
+describe('Organization details panel: financial cases (WP-4.2)', () => {
+  const F = en.organizations.detail.financialCases;
+  const count = (value: number) => ({ status: 'available', value }) as const;
+
+  it('shows the unresolved financial records as counts, with no action and no outcome', () => {
+    const { element } = render({
+      status: 'success',
+      data: {
+        ...commercialOf(),
+        financialCases: {
+          status: 'available',
+          data: {
+            openReconciliationCases: count(1),
+            openPaymentDisputes: count(2),
+            openRefundCases: count(0),
+          },
+        },
+      },
+    });
+    const list = element.querySelector('[data-financial-cases]')!;
+    expect([...list.querySelectorAll('dt')].map((dt) => text(dt))).toEqual([
+      F.reconciliation,
+      F.disputes,
+      F.refunds,
+    ]);
+    expect([...list.querySelectorAll('dd')].map((dd) => text(dd))).toEqual(['1', '2', '0']);
+    expect(text(element.querySelector('[data-financial-cases-note]'))).toBe(F.note);
+    const section = list.closest('section')!;
+    // The payments section offers no resolve, refund, retry or override action.
+    expect([...section.querySelectorAll('button')].map((b) => text(b))).toEqual([]);
+  });
+
+  it('shows nothing when the counts are unavailable', () => {
+    const { element } = render({
+      status: 'success',
+      data: { ...commercialOf(), financialCases: { status: 'unavailable' } },
+    });
+    expect(element.querySelector('[data-financial-cases]')).toBeNull();
+  });
+
+  it('labels the counts in English, French and Arabic without claiming an outcome', () => {
+    for (const [lang, copy] of [
+      ['en', en],
+      ['fr', fr],
+      ['ar', ar],
+    ] as const) {
+      const c = copy.organizations.detail.financialCases;
+      expect(Object.keys(c).sort(), lang).toEqual([
+        'disputes',
+        'note',
+        'reconciliation',
+        'refunds',
+      ]);
+      for (const label of [c.reconciliation, c.disputes, c.refunds])
+        expect(label, lang).not.toMatch(/refunded|recovered|settled|remboursé|recouvré|réglé/i);
     }
   });
 });

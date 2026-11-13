@@ -121,8 +121,15 @@ describe('Billing and Payment facts (WP-3.2): consistency', () => {
   it('scopes requests to Organizations through their invoices', () => {
     const school = paymentRequestsOf(world, organizationsOf(world, DEMO_SCHOOL_PLATFORM_ID));
     const drive = paymentRequestsOf(world, organizationsOf(world, DEMO_DRIVE_PLATFORM_ID));
-    expect(school.map((r) => r.id)).toEqual([FAILED, PAID]);
-    expect(drive.map((r) => r.id)).toEqual([AWAITING]);
+    // WP-4.2 adds paid and expired requests for the financial-case scenarios.
+    expect(school.map((r) => r.id)).toEqual([
+      FAILED,
+      PAID,
+      'payment-request-4',
+      'payment-request-6',
+      'payment-request-7',
+    ]);
+    expect(drive.map((r) => r.id)).toEqual([AWAITING, 'payment-request-5']);
     for (const r of [...school, ...drive]) {
       const invoice = world.invoices.find((i) => i.id === r.invoiceId)!;
       expect(r.organizationId).toBe(invoice.organizationId);
