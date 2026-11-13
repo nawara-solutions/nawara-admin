@@ -323,40 +323,6 @@ legend {
   margin-block-end: var(--nw-space-2);
   font-weight: var(--nw-font-weight-semibold);
 }
-.accordion-settings__choices {
-  display: grid;
-  gap: var(--nw-space-2);
-  margin-block-start: var(--nw-space-4);
-}
-.accordion-settings__choice {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--nw-space-3);
-  padding: var(--nw-space-4);
-  border: 1px solid var(--nw-border-subtle);
-  border-radius: var(--nw-radius-md);
-  cursor: pointer;
-  &:has(:checked) {
-    border-color: var(--nw-border-brand);
-    background: var(--nw-surface-brand-subtle);
-  }
-  &:focus-within {
-    outline: 2px solid var(--nw-focus-ring);
-    outline-offset: 2px;
-  }
-  input {
-    margin-block-start: 0.25rem;
-    accent-color: var(--nw-text-brand);
-  }
-  span {
-    display: grid;
-    gap: var(--nw-space-1);
-  }
-  small {
-    color: var(--nw-text-secondary);
-    font-size: var(--nw-text-size-sm);
-  }
-}
 
 select {
   display: block;
