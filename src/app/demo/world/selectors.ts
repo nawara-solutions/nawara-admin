@@ -1,5 +1,9 @@
 import { Grants } from '../../core/auth/auth.model';
 import {
+  SubscriptionLifecycle,
+  SubscriptionLifecycleState,
+} from '../../shared/subscription/subscription-lifecycle';
+import {
   CompanyDirectory,
   OrganizationId,
   PlatformId,
@@ -14,6 +18,7 @@ import {
   OperatorProfileRecord,
   OrganizationRecord,
   OrganizationSubscriptionRecord,
+  SubscriptionStatusFact,
   PaymentAttemptRecord,
   PaymentRequestRecord,
   PaymentRequestStatus,
@@ -329,6 +334,70 @@ export function subscriptionStateOf(
   return now < Date.parse(subscription.currentPeriodEnd)
     ? { state: 'active' }
     : { state: 'grace', graceEndsAt: window.expiresAt };
+}
+
+/**
+ * The lifecycle of an Organization's subscription at `now`, for presentation (WP-4.1). Built ONLY on `subscriptionFactOf` and
+ * `entitlementWindowOf` (WP-3.1): the stored status is reported beside it, never trusted for access.
+ * - `none`: no record; `pending`: a record whose first period never started (never entitled);
+ * - `active`: entitled before the period ends; `grace`: entitled after it, until the grace ends (the same split as
+ *   `subscriptionStateOf`);
+ * - `notStarted`: a non-pending record whose period starts after `now` (not entitled yet);
+ * - `terminated`: an effective termination at or before `now` ended access; `expired`: the entitlement window ended.
+ * `cancelAtPeriodEnd` is a CONDITION, not a state: access continues until the period, then the grace, ends. A future
+ * termination is reported as `accessEndsAt`. No renewal, period extension or payment is ever inferred (CFU-1 not reproduced).
+ */
+/** The stored status a record in each lifecycle state would carry if Billing were current. */
+const STORED_STATUS_OF: Readonly<
+  Record<SubscriptionLifecycleState, SubscriptionStatusFact | null>
+> = {
+  none: null,
+  pending: 'pending',
+  notStarted: 'active',
+  active: 'active',
+  grace: 'grace',
+  expired: 'expired',
+  terminated: 'expired',
+};
+
+export function subscriptionLifecycleOf(
+  world: DemoWorldTables,
+  organization: OrganizationId,
+  now: number,
+): SubscriptionLifecycle {
+  const fact = subscriptionFactOf(world, organization);
+  const window = entitlementWindowOf(fact, now);
+  const state = lifecycleStateOf(fact, window, now);
+  return {
+    state,
+    storedStatus: fact?.status ?? null,
+    storedStatusLags: (fact?.status ?? null) !== STORED_STATUS_OF[state],
+    currentPeriodStart: fact?.currentPeriodStart ?? null,
+    currentPeriodEnd: fact?.currentPeriodEnd ?? null,
+    graceUntil: fact?.graceUntil ?? null,
+    cancelAtPeriodEnd: fact?.cancelAtPeriodEnd ?? false,
+    effectiveTerminationAt: fact?.effectiveTerminationAt ?? null,
+    accessEndsAt: window.valid ? window.expiresAt : null,
+  };
+}
+
+function lifecycleStateOf(
+  fact: OrganizationSubscriptionRecord | null,
+  window: EntitlementWindow,
+  now: number,
+): SubscriptionLifecycleState {
+  if (fact === null) return 'none';
+  if (
+    fact.status === 'pending' ||
+    fact.currentPeriodStart === null ||
+    fact.currentPeriodEnd === null
+  )
+    return 'pending';
+  if (window.valid) return now < Date.parse(fact.currentPeriodEnd) ? 'active' : 'grace';
+  if (now < Date.parse(fact.currentPeriodStart)) return 'notStarted';
+  if (fact.effectiveTerminationAt !== null && Date.parse(fact.effectiveTerminationAt) <= now)
+    return 'terminated';
+  return 'expired';
 }
 
 /**

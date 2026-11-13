@@ -25,6 +25,7 @@ import {
   ScriptedOrganizations,
   commercialListOf,
   commercialOf,
+  subscriptionFixture,
   detailOf,
   directoryOf,
   operator,
@@ -391,25 +392,24 @@ describe('OrganizationDetailPage', () => {
     const HOUR = 3_600_000;
     const cases = [
       {
-        subscription: { state: 'active', endsAt: new Date(NOW + 6 * 24 * HOUR).toISOString() },
+        subscription: subscriptionFixture(new Date(NOW + 6 * 24 * HOUR).toISOString()),
         entitlement: 'entitled',
         rows: [d.subscriptionState, d.endsAt, d.entitledNow],
         value: en.organizations.entitlement.entitled,
         note: d.activeNote,
       },
       {
-        subscription: {
-          state: 'grace',
-          endsAt: new Date(NOW - 6 * HOUR).toISOString(),
-          graceEndsAt: new Date(NOW + 18 * HOUR).toISOString(),
-        },
+        subscription: subscriptionFixture(
+          new Date(NOW - 6 * HOUR).toISOString(),
+          new Date(NOW + 18 * HOUR).toISOString(),
+        ),
         entitlement: 'entitledInGrace',
         rows: [d.subscriptionState, d.endedAt, d.graceEndsAt, d.entitledNow],
         value: en.organizations.entitlement.entitledInGrace,
         note: d.graceNote,
       },
       {
-        subscription: { state: 'none' },
+        subscription: subscriptionFixture(null),
         entitlement: 'notEntitled',
         rows: [d.subscriptionState, d.entitledNow],
         value: en.organizations.entitlement.notEntitled,

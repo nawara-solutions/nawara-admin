@@ -19,6 +19,7 @@ import {
   subscriptionDistribution,
   subscriptionEndOf,
   subscriptionEndsWithin,
+  subscriptionLifecycleOf,
   subscriptionStateOf,
 } from '../../../demo/world/selectors';
 import { NW_CLOCK } from '../../../shared/format/clock';
@@ -119,6 +120,7 @@ export function demoPlatformSubscriptions(
         graceEndsAt: graceEndsAt ?? null,
         endingSoon: subscriptionEndsWithin(world, o.id, now, LICENSES_ENDING_WITHIN_DAYS),
         entitlement: entitlementOf(world, o.id, now),
+        lifecycle: subscriptionLifecycleOf(world, o.id, now),
       };
     }),
   };

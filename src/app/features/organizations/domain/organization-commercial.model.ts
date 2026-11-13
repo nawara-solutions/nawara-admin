@@ -1,5 +1,6 @@
 import { OrganizationId, PlatformId } from '../../../core/context/scope.model';
 import { Metric, Section } from '../../../shared/dashboard/metric';
+import { SubscriptionLifecycle } from '../../../shared/subscription/subscription-lifecycle';
 
 /**
  * Commercial facts of Organizations, for the Company owner only (operators have no confirmed commercial read authority,
@@ -19,6 +20,11 @@ export interface OrganizationSubscription {
   readonly endsAt?: string;
   /** `grace`: when the 24-hour grace period ends (UTC instant). */
   readonly graceEndsAt?: string;
+  /**
+   * The full lifecycle reading (WP-4.1), for presentation: `state` above stays the three-way view the figures and filters
+   * count; this tells "no subscription" apart from pending, not started, expired and terminated, and carries the dates.
+   */
+  readonly lifecycle: SubscriptionLifecycle;
 }
 
 /**

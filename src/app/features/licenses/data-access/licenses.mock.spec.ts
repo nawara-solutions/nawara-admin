@@ -308,15 +308,27 @@ describe('Platform subscriptions of the demo world (P7-S2)', () => {
         entitlement: 'notEntitled',
       }),
     );
-    // Only these facts: no plan, price, subscription identifier or payment history.
+    // Only these facts: no plan, price, subscription identifier or payment history (the lifecycle carries dates only).
     expect(Object.keys(byName('Collège Riad')).sort()).toEqual([
       'endingSoon',
       'endsAt',
       'entitlement',
       'graceEndsAt',
+      'lifecycle',
       'organizationId',
       'organizationName',
       'state',
+    ]);
+    expect(Object.keys(byName('Collège Riad').lifecycle).sort()).toEqual([
+      'accessEndsAt',
+      'cancelAtPeriodEnd',
+      'currentPeriodEnd',
+      'currentPeriodStart',
+      'effectiveTerminationAt',
+      'graceUntil',
+      'state',
+      'storedStatus',
+      'storedStatusLags',
     ]);
   });
 

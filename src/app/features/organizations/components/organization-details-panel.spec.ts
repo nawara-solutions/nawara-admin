@@ -85,3 +85,99 @@ describe('Organization details panel: assisted payments (WP-2.2)', () => {
     expect(section()!.querySelector('[data-eligibility]')).toBeNull();
   });
 });
+
+describe('Organization details panel: subscription lifecycle (WP-4.1)', () => {
+  const subscriptionSection = (element: HTMLElement) =>
+    [...element.querySelectorAll('section')].find(
+      (s) => text(s.querySelector('h3')) === en.organizations.detail.subscription,
+    )!;
+  const L = en.subscriptionLifecycle;
+
+  it('shows the period, grace, a scheduled cancellation and a lagging stored status, as illustrative demo data', () => {
+    const base = commercialOf();
+    const { element } = render({
+      status: 'success',
+      data: {
+        ...base,
+        subscription: {
+          status: 'available',
+          data: {
+            ...(base.subscription.status === 'available' ? base.subscription.data : ({} as never)),
+            lifecycle: {
+              state: 'active',
+              storedStatus: 'grace',
+              storedStatusLags: true,
+              currentPeriodStart: '2026-01-01T00:00:00.000Z',
+              currentPeriodEnd: '2026-11-01T00:00:00.000Z',
+              graceUntil: '2026-11-02T00:00:00.000Z',
+              cancelAtPeriodEnd: true,
+              effectiveTerminationAt: null,
+              accessEndsAt: '2026-11-02T00:00:00.000Z',
+            },
+          },
+        },
+      },
+    });
+    const section = subscriptionSection(element);
+    expect(text(section.querySelector('[data-lifecycle]'))).toBe(L.state.active);
+    expect(section.querySelector('[data-cancellation-scheduled]')).not.toBeNull();
+    for (const row of [
+      'period-start',
+      'period-end',
+      'grace-until',
+      'cancellation',
+      'stored-status',
+    ])
+      expect(section.querySelector(`[data-${row}]`), row).not.toBeNull();
+    expect(section.querySelector('[data-termination]')).toBeNull();
+    expect(text(section.querySelector('[data-cancellation] dd'))).toBe(
+      L.condition.cancellationScheduledDetail,
+    );
+    expect(text(section.querySelector('[data-stored-status] code'))).toBe('grace');
+    expect(text(section.querySelector('[data-stored-status-lags]'))).toBe(
+      L.detail.storedStatusLags,
+    );
+    expect(text(section.querySelector('[data-subscription-illustrative]'))).toBe(
+      L.detail.illustrative,
+    );
+    // Read only: nothing to renew, cancel or pay.
+    expect(section.querySelectorAll('button, input, form')).toHaveLength(0);
+  });
+
+  it('tells "expired" and "access ended" apart from "no subscription"', () => {
+    const base = commercialOf();
+    const with_ = (state: 'expired' | 'terminated' | 'none') =>
+      render({
+        status: 'success',
+        data: {
+          ...base,
+          subscription: {
+            status: 'available',
+            data: {
+              state: 'none',
+              lifecycle: {
+                state,
+                storedStatus: state === 'none' ? null : 'expired',
+                storedStatusLags: false,
+                currentPeriodStart: state === 'none' ? null : '2025-01-01T00:00:00.000Z',
+                currentPeriodEnd: state === 'none' ? null : '2026-01-01T00:00:00.000Z',
+                graceUntil: state === 'none' ? null : '2026-01-02T00:00:00.000Z',
+                cancelAtPeriodEnd: false,
+                effectiveTerminationAt: state === 'terminated' ? '2025-06-01T00:00:00.000Z' : null,
+                accessEndsAt: null,
+              },
+            },
+          },
+        },
+      }).element;
+    for (const state of ['expired', 'terminated', 'none'] as const) {
+      TestBed.resetTestingModule();
+      const section = subscriptionSection(with_(state));
+      expect(text(section.querySelector('[data-lifecycle]')), state).toBe(L.state[state]);
+      expect(section.querySelector('[data-termination]') !== null, state).toBe(
+        state === 'terminated',
+      );
+      expect(section.querySelector('[data-period-end]') !== null, state).toBe(state !== 'none');
+    }
+  });
+});

@@ -12,6 +12,8 @@ import {
 } from '../domain/organization-commercial.model';
 import { NW_CLOCK } from '../../../shared/format/clock';
 import { ELIGIBILITY_KEYS, SUBSCRIPTION_BADGES, subscriptionNote } from './commercial-display';
+import { SubscriptionLifecycleBadge } from '../../../shared/subscription/subscription-lifecycle-badge';
+import { cancellationScheduled } from '../../../shared/subscription/subscription-lifecycle';
 import { MetricValue } from '../../../shared/dashboard/metric-value/metric-value';
 import { NwStatusBadge } from '../../../shared/ui/status-badge/status-badge';
 import { platformPath, platformSubscriptionsPath } from '../../../core/context/scope-context';
@@ -56,6 +58,7 @@ const FIELDS = [
 @Component({
   selector: 'adm-organization-details-panel',
   imports: [
+    SubscriptionLifecycleBadge,
     RouterLink,
     TranslocoPipe,
     NwDatePipe,
@@ -199,38 +202,49 @@ const FIELDS = [
                   <div>
                     <dt>{{ 'organizations.detail.subscriptionState' | transloco }}</dt>
                     <dd>
-                      <nw-status-badge [tone]="badges[current.state].tone">{{
-                        badges[current.state].key | transloco
-                      }}</nw-status-badge>
+                      <adm-subscription-lifecycle-badge [lifecycle]="current.lifecycle" />
                     </dd>
                   </div>
-                  @if (current.state === 'active' && current.endsAt) {
-                    <div>
-                      <dt>{{ 'organizations.detail.endsAt' | transloco }}</dt>
+                  @let lifecycle = current.lifecycle;
+                  @if (lifecycle.currentPeriodStart) {
+                    <div data-period-start>
+                      <dt>{{ 'subscriptionLifecycle.detail.periodStart' | transloco }}</dt>
+                      <dd>{{ lifecycle.currentPeriodStart | nwDate: 'date' }}</dd>
+                    </div>
+                  }
+                  @if (lifecycle.currentPeriodEnd) {
+                    <div data-period-end>
+                      <dt>{{ 'subscriptionLifecycle.detail.periodEnd' | transloco }}</dt>
                       <dd>
-                        {{ current.endsAt | nwDate: 'date' }}
+                        {{ lifecycle.currentPeriodEnd | nwDate: 'date' }}
                         @if (noteOf(current); as note) {
-                          <nw-status-badge tone="warning">{{
-                            'organizations.subscription.ends'
-                              | transloco: { when: note.at | nwDate: 'until' }
-                          }}</nw-status-badge>
+                          @if (note.kind === 'ends') {
+                            <nw-status-badge tone="warning">{{
+                              'organizations.subscription.ends'
+                                | transloco: { when: note.at | nwDate: 'until' }
+                            }}</nw-status-badge>
+                          }
                         }
                       </dd>
                     </div>
                   }
-                  @if (current.state === 'grace') {
-                    @if (current.endsAt) {
-                      <div>
-                        <dt>{{ 'organizations.detail.endedAt' | transloco }}</dt>
-                        <dd>{{ current.endsAt | nwDate: 'date' }}</dd>
-                      </div>
-                    }
-                    @if (current.graceEndsAt) {
-                      <div>
-                        <dt>{{ 'organizations.detail.graceEndsAt' | transloco }}</dt>
-                        <dd>{{ current.graceEndsAt | nwDate: 'date-time' }}</dd>
-                      </div>
-                    }
+                  @if (lifecycle.graceUntil && lifecycle.state !== 'pending') {
+                    <div data-grace-until>
+                      <dt>{{ 'subscriptionLifecycle.detail.graceUntil' | transloco }}</dt>
+                      <dd>{{ lifecycle.graceUntil | nwDate: 'date-time' }}</dd>
+                    </div>
+                  }
+                  @if (cancellationScheduled(lifecycle)) {
+                    <div data-cancellation>
+                      <dt>{{ 'subscriptionLifecycle.detail.cancellation' | transloco }}</dt>
+                      <dd>{{ 'subscriptionLifecycle.condition.cancellationScheduledDetail' | transloco }}</dd>
+                    </div>
+                  }
+                  @if (lifecycle.effectiveTerminationAt) {
+                    <div data-termination>
+                      <dt>{{ 'subscriptionLifecycle.detail.termination' | transloco }}</dt>
+                      <dd>{{ lifecycle.effectiveTerminationAt | nwDate: 'date-time' }}</dd>
+                    </div>
                   }
                   <div>
                     <dt>{{ 'organizations.detail.entitledNow' | transloco }}</dt>
@@ -243,9 +257,25 @@ const FIELDS = [
                       }}
                     </dd>
                   </div>
+                  @if (lifecycle.storedStatus) {
+                    <div data-stored-status>
+                      <dt>{{ 'subscriptionLifecycle.detail.storedStatus' | transloco }}</dt>
+                      <dd>
+                        <code>{{ lifecycle.storedStatus }}</code>
+                        @if (lifecycle.storedStatusLags) {
+                          <span class="muted" data-stored-status-lags>{{
+                            'subscriptionLifecycle.detail.storedStatusLags' | transloco
+                          }}</span>
+                        }
+                      </dd>
+                    </div>
+                  }
                 </dl>
                 <p class="subscription-note">
                   {{ subscriptionNoteKeys[current.state] | transloco }}
+                </p>
+                <p class="muted" data-subscription-illustrative>
+                  {{ 'subscriptionLifecycle.detail.illustrative' | transloco }}
                 </p>
                 @if (data.canViewSubscriptions) {
                   <a [routerLink]="platformSubscriptionsPath(data.platform.id)" (click)="close()">{{
@@ -481,6 +511,7 @@ export class OrganizationDetailsPanel {
   }
   protected readonly fields = FIELDS;
   protected readonly eligibilityKeys = ELIGIBILITY_KEYS;
+  protected readonly cancellationScheduled = cancellationScheduled;
   protected readonly platformPath = platformPath;
   private readonly ref = inject(DialogRef);
   protected close(): void {

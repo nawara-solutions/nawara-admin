@@ -166,15 +166,17 @@ describe('MockOrganizationCommercialGateway (demo world, owner only)', () => {
     expect(states.filter((s) => s === 'grace')).toHaveLength(1);
     expect(states.filter((s) => s === 'none')).toHaveLength(2);
     const riad = await firstValueFrom(commercial.load(RIAD));
-    expect(data(riad.subscription)).toEqual({
+    expect(data(riad.subscription)).toMatchObject({
       state: 'active',
       endsAt: new Date(NOW + 6 * 24 * HOUR).toISOString(),
+      lifecycle: { state: 'active', currentPeriodEnd: new Date(NOW + 6 * 24 * HOUR).toISOString() },
     });
     expect(data(riad.paymentIssues)).toEqual({ status: 'available', value: 1 });
-    expect(data((await firstValueFrom(commercial.load(AL_AMAL))).subscription)).toEqual({
+    expect(data((await firstValueFrom(commercial.load(AL_AMAL))).subscription)).toMatchObject({
       state: 'grace',
       endsAt: '2026-10-23T06:00:00.000Z',
       graceEndsAt: '2026-10-24T06:00:00.000Z',
+      lifecycle: { state: 'grace', graceUntil: '2026-10-24T06:00:00.000Z' },
     });
   });
 

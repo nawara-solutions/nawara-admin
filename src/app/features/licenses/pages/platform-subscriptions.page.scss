@@ -170,18 +170,6 @@
   }
 }
 
-.platform-subscriptions__state {
-  font-weight: var(--nw-font-weight-semibold);
-
-  &--grace {
-    color: var(--nw-status-warning-fg);
-  }
-
-  &--none {
-    color: var(--nw-text-secondary);
-  }
-}
-
 .platform-subscriptions__soon {
   display: inline-flex;
   align-items: center;
