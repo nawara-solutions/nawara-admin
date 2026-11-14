@@ -46,21 +46,21 @@ async function setUp({
   const { element, settle } = rendered;
   for (let i = 0; i < 20 && !element.querySelector('.member-list, .membership-detail__card'); i++)
     await settle(latency + 10);
+  // Every row (PR #89 pages the list): chosen once the list is there, whatever the latency.
+  await rendered.showAll();
   const world = TestBed.inject(DemoWorld);
   const dialog = () => document.querySelector<HTMLElement>('adm-organization-admin-role-dialog');
-  /** The table's "Actions" buttons (the cards' twins are hidden by the container query in a browser, not jsdom). */
+  /** The table's role buttons (PR #89: a direct row action; the cards' twins are hidden by a container query). */
   const triggers = () =>
-    [...element.querySelectorAll<HTMLButtonElement>('[data-actions]')].filter(
+    [...element.querySelectorAll<HTMLButtonElement>('[data-role]')].filter(
       (b) => b.closest('.member-list__cards') === null,
     );
   const triggerOf = (id: string) => triggers().find((b) => b.dataset['membership'] === id)!;
   const menuItems = () =>
     [...document.querySelectorAll<HTMLButtonElement>('.nw-menu button')].map((b) => text(b));
-  /** Opens a row's menu and chooses its role change. */
+  /** Chooses a row's role change. */
   const openRole = async (id: string) => {
     triggerOf(id).click();
-    await settle();
-    document.querySelector<HTMLButtonElement>('.nw-menu [data-role]')!.click();
     await settle();
   };
   const button = (label: string) =>
@@ -103,7 +103,7 @@ async function setUp({
     member: () => horizon((m) => m.status === 'active' && !m.isOrganizationAdmin)[0]!,
     admin: () => horizon((m) => m.status === 'active' && m.isOrganizationAdmin)[0]!,
     record: (id: string) => world.snapshot().memberships.find((m) => m.id === id),
-    tabCounts: () => rendered.tabs().map((t) => text(t)),
+    tabCounts: () => rendered.statusCounts(),
   };
 }
 
@@ -115,15 +115,15 @@ describe('Organization-admin role (P5-S3b)', { timeout: 15_000 }, () => {
 
   it('gives the owner one "Actions" menu per active row: the role change that applies, then Revoke', async () => {
     const s = await setUp();
+    // PR #89: the row's actions are direct buttons: the role change that applies, then Revoke.
     expect(s.triggers()).toHaveLength(64);
-    s.triggerOf(s.member().id).click();
-    await s.settle();
-    expect(s.menuItems()).toEqual([ROLE.grantOpen, en.organizations.members.revoke.menuItem]);
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-    await s.settle();
-    s.triggerOf(s.admin().id).click();
-    await s.settle();
-    expect(s.menuItems()[0]).toBe(ROLE.removeOpen);
+    const memberRow = s.triggerOf(s.member().id).closest('tr')!;
+    expect(
+      [...memberRow.querySelectorAll('[data-role], [data-revoke]')].map((b) =>
+        b.getAttribute('title'),
+      ),
+    ).toEqual([ROLE.grantOpen, en.organizations.members.revoke.menuItem]);
+    expect(s.triggerOf(s.admin().id).getAttribute('title')).toBe(ROLE.removeOpen);
   });
 
   it('never offers the role to an operator, in the list or on the details page', async () => {
@@ -171,9 +171,8 @@ describe('Organization-admin role (P5-S3b)', { timeout: 15_000 }, () => {
     expect(s.revision()).toBeGreaterThan(before);
     await s.settle(20);
     expect(s.tabCounts()).toEqual(['Active 64', 'Requests 3', 'Rejected 1']);
-    expect(
-      s.triggerOf(member.id).closest('tr')?.querySelector('.member-list__admin'),
-    ).not.toBeNull();
+    // The row now offers removing the role (the table's sign of an admin since PR #89).
+    expect(s.triggerOf(member.id).getAttribute('title')).toBe(ROLE.removeOpen);
     const message = strip(String(s.toasts.mock.calls[0]?.[0]));
     expect(message).toBe(ROLE.granted.replace('{{name}}', 'École Horizon'));
     expect(message).not.toContain('@');

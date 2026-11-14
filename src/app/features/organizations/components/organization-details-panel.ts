@@ -112,7 +112,6 @@ const FIELDS = [
             class="tabs"
             role="tablist"
             [attr.aria-label]="'organizations.detail.detailsPanel' | transloco"
-            (keydown)="onTabKey($event)"
           >
             <button
               id="organization-details-tab-about"
@@ -122,6 +121,7 @@ const FIELDS = [
               [attr.tabindex]="tab() === 'about' ? 0 : -1"
               aria-controls="organization-details-about"
               (click)="tab.set('about')"
+              (keydown)="onTabKey($event)"
             >
               <nw-icon name="building-2" size="sm" />{{ 'organizations.detail.about' | transloco }}
             </button>
@@ -133,6 +133,7 @@ const FIELDS = [
               [attr.tabindex]="tab() === 'payments' ? 0 : -1"
               aria-controls="organization-details-payments"
               (click)="tab.set('payments')"
+              (keydown)="onTabKey($event)"
             >
               <nw-icon name="credit-card" size="sm" />{{
                 'organizations.detail.payments' | transloco
@@ -534,7 +535,10 @@ export class OrganizationDetailsPanel {
   protected onTabKey(event: KeyboardEvent): void {
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
     event.preventDefault();
-    const rtl = getComputedStyle(event.currentTarget as HTMLElement).direction === 'rtl';
+    // The key comes from a tab; the tablist is its container.
+    const tablist = (event.currentTarget as HTMLElement).closest<HTMLElement>('[role="tablist"]');
+    if (!tablist) return;
+    const rtl = getComputedStyle(tablist).direction === 'rtl';
     const next =
       event.key === 'Home'
         ? 'about'
@@ -544,9 +548,7 @@ export class OrganizationDetailsPanel {
             ? 'payments'
             : 'about';
     this.tab.set(next);
-    (event.currentTarget as HTMLElement)
-      .querySelector<HTMLButtonElement>(`#organization-details-tab-${next}`)
-      ?.focus();
+    tablist.querySelector<HTMLButtonElement>(`#organization-details-tab-${next}`)?.focus();
   }
   private readonly now = inject(NW_CLOCK);
   protected readonly badges = SUBSCRIPTION_BADGES;

@@ -62,7 +62,11 @@ export async function renderMembers<T>(
   actor: Actor,
   identity: AdminIdentityId,
   url: string,
-  { memberships = 'mock' as 'mock' | 'unavailable', extraProviders = [] as Provider[] } = {},
+  {
+    memberships = 'mock' as 'mock' | 'unavailable',
+    extraProviders = [] as Provider[],
+    allRows = true,
+  } = {},
 ) {
   TestBed.configureTestingModule({
     imports: [
@@ -125,6 +129,49 @@ export async function renderMembers<T>(
   const element = fixture.nativeElement as HTMLElement;
   for (let i = 0; i < 20 && !element.querySelector('h1'); i++) await settle(10);
   await settle(10);
+  // PR #89 pages the list (10 rows); these tests read every row, so they choose "All" as a person would.
+  const showAll = async () => {
+    const trigger = element.querySelector<HTMLButtonElement>(
+      '.organization-members__page-size-trigger',
+    );
+    if (!trigger) return;
+    trigger.click();
+    await settle();
+    [
+      ...document.querySelectorAll<HTMLButtonElement>(
+        '.organization-members__page-size-menu button',
+      ),
+    ]
+      .find((b) => b.textContent?.trim() === en.operators.pagination.all)
+      ?.click();
+    await settle(10);
+  };
+  if (allRows) await showAll();
+  const world = TestBed.inject(DemoWorld);
+  /** A row's membership, from the contact it shows (PR #89: rows carry no link or id). */
+  const membershipOfRow = (row: Element | null | undefined) => {
+    const shown = row
+      ?.querySelector('.member-list__link')
+      ?.textContent?.replace(/[⁨⁩]/g, '')
+      .trim();
+    const tables = world.snapshot();
+    const person = tables.members.find((p) => p.email === shown || p.phone === shown);
+    return (
+      tables.memberships.find((m) => m.organizationId === HORIZON && m.userId === person?.id) ??
+      null
+    );
+  };
+  /**
+   * The Organization's counts per status, in the former tabs' words (PR #89 removed the tabs; the counts are the
+   * Organization page's summary now). Read from the shared records the lists come from.
+   */
+  const statusCounts = () => {
+    const of = (status: string) =>
+      world
+        .snapshot()
+        .memberships.filter((m) => m.organizationId === HORIZON && m.status === status).length;
+    return [`Active ${of('active')}`, `Requests ${of('pending')}`, `Rejected ${of('rejected')}`];
+  };
   const tabs = () => [...element.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
   const rows = () => [...element.querySelectorAll('.member-list__table tbody tr')];
   return {
@@ -133,6 +180,9 @@ export async function renderMembers<T>(
     settle,
     tabs,
     rows,
+    showAll,
+    membershipOfRow,
+    statusCounts,
     listSpy,
     world: TestBed.inject(DemoWorld),
     label: TestBed.inject(EntityLabel),

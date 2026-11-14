@@ -50,6 +50,8 @@ async function setUp({
   const { element, settle } = rendered;
   for (let i = 0; i < 20 && !element.querySelector('.member-list, .membership-detail__card'); i++)
     await settle(latency + 10);
+  // Every row (PR #89 pages the list): chosen once the list is there, whatever the latency.
+  await rendered.showAll();
   const world = TestBed.inject(DemoWorld);
   const dialog = () => document.querySelector<HTMLElement>('adm-revoke-membership-dialog');
   /**
@@ -57,7 +59,7 @@ async function setUp({
    * owner's "Actions" menu buttons (P5-S3b), an operator's direct "Revoke…".
    */
   const revokes = () =>
-    [...element.querySelectorAll<HTMLButtonElement>('[data-revoke], [data-actions]')].filter(
+    [...element.querySelectorAll<HTMLButtonElement>('[data-revoke]')].filter(
       (b) => b.closest('.member-list__cards') === null,
     );
   const button = (label: string, root: ParentNode | null = dialog()) =>
@@ -73,21 +75,16 @@ async function setUp({
   const horizon = (status: MembershipRecord['status']) =>
     world.snapshot().memberships.filter((m) => m.organizationId === HORIZON && m.status === status);
   /** The table row's membership id of a Revoke control. */
-  const idOf = (b: HTMLElement) =>
-    b.closest('tr')?.querySelector('a')?.getAttribute('href')?.split('/').at(-1) ?? '';
+  const idOf = (b: HTMLElement) => rendered.membershipOfRow(b.closest('tr'))?.id ?? '';
   /** The Revoke control of the row of an organization admin (or not). */
   const revokeFor = (admin: boolean) =>
     revokes().find(
-      (b) => (b.closest('tr')?.querySelector('.member-list__admin') !== null) === admin,
+      (b) => rendered.membershipOfRow(b.closest('tr'))?.isOrganizationAdmin === admin,
     )!;
-  /** Opens the revocation from a row control: directly, or through the owner's "Actions" menu. */
+  /** Opens the revocation from a row's Revoke button (PR #89: a direct row action, no "Actions" menu). */
   const openRevoke = async (control: HTMLButtonElement) => {
     control.click();
     await settle();
-    if (control.hasAttribute('data-actions')) {
-      document.querySelector<HTMLButtonElement>('.nw-menu [data-revoke]')!.click();
-      await settle();
-    }
   };
   return {
     ...rendered,
@@ -107,7 +104,7 @@ async function setUp({
     press,
     horizon,
     record: (id: string) => world.snapshot().memberships.find((m) => m.id === id),
-    tabCounts: () => rendered.tabs().map((t) => text(t)),
+    tabCounts: () => rendered.statusCounts(),
   };
 }
 
@@ -121,11 +118,12 @@ describe('Membership revocation (P5-S3a)', { timeout: 15_000 }, () => {
     const s = await setUp();
     expect(s.revokes().length).toBe(s.rows().length);
     const first = s.revokes()[0]!;
-    // The owner's row actions are one menu (P5-S3b), named with the member; Revoke is its last item.
-    expect(strip(first.getAttribute('aria-label') ?? '')).toContain(
-      en.organizations.members.role.actionsFor.replace('{{who}}', '').trim(),
+    // PR #89: Revoke is a direct row action, named with the member (no "Actions" menu, no authority line).
+    const who = s.membershipOfRow(first.closest('tr'));
+    const person = s.world.snapshot().members.find((p) => p.id === who?.userId);
+    expect(strip(first.getAttribute('aria-label') ?? '')).toBe(
+      R.for.replace('{{who}}', person?.email ?? person?.phone ?? ''),
     );
-    expect(text(s.element)).toContain(R.authorityOwner);
     await s.router.navigateByUrl(`${MEMBERS}?status=pending`);
     await s.settle(10);
     expect(s.element.querySelectorAll('[data-revoke]')).toHaveLength(0);
@@ -157,9 +155,7 @@ describe('Membership revocation (P5-S3a)', { timeout: 15_000 }, () => {
     expect(s.revision()).toBeGreaterThan(before);
     await s.settle(10);
     expect(s.tabCounts()).toEqual(['Active 63', 'Requests 3', 'Rejected 1']);
-    expect(s.rows().some((r) => r.querySelector('a')?.getAttribute('href')?.endsWith(id))).toBe(
-      false,
-    );
+    expect(s.rows().some((r) => s.membershipOfRow(r)?.id === id)).toBe(false);
     const message = strip(String(s.toasts.mock.calls[0]?.[0]));
     expect(message).toBe(R.revoked.replace('{{name}}', 'École Horizon'));
     expect(message).not.toContain('@');
@@ -179,9 +175,6 @@ describe('Membership revocation (P5-S3a)', { timeout: 15_000 }, () => {
       actor: operatorOf(DEMO_OPERATOR_IDS.school),
       identity: DEMO_OPERATOR_IDS.school,
     });
-    expect(strip(text(s.element))).toContain(
-      R.authorityOperator.replace('{{platform}}', 'Nawara School'),
-    );
     const admin = s.revokeFor(true);
     const id = s.idOf(admin);
     await s.openRevoke(admin);

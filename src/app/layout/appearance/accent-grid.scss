@@ -91,7 +91,7 @@
 }
 .accent-grid__check {
   inset: auto;
-  color: white;
+  color: var(--nw-swatch-check);
   pointer-events: none;
 }
 .accent-grid__tile {

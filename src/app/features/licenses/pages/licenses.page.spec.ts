@@ -114,6 +114,19 @@ async function render(
 const text = (e: Element | null | undefined) =>
   e?.textContent?.replace(/[⁨⁩]/g, '').replace(/\s+/g, ' ').trim() ?? '';
 
+/**
+ * PR #89: the attention list opens from a summary total (here "Ending soon"), pre-filtered; "All" shows every item,
+ * as the former "needs attention" link did.
+ */
+async function openAttention(element: HTMLElement, settle: () => Promise<void>) {
+  element.querySelectorAll<HTMLButtonElement>('.licenses__total-link')[1]!.click();
+  await settle();
+  const filter = document.querySelector<HTMLSelectElement>('.attention-control select')!;
+  filter.value = 'all';
+  filter.dispatchEvent(new Event('change'));
+  await settle();
+}
+
 describe('Licenses & entitlements page (P7-S1)', { timeout: 15_000 }, () => {
   it('shows the Company figures from the demo world, grace apart from active, entitlement apart from both', async () => {
     const { element } = await render();
@@ -123,8 +136,12 @@ describe('Licenses & entitlements page (P7-S1)', { timeout: 15_000 }, () => {
       `${t.figures.active} 20`,
       `${t.figures.grace} 1`,
       `${t.figures.none} 3`,
-      `${t.figures.endingSoon} 8`,
       `${t.figures.organizations} 24`,
+    ]);
+    // PR #89: grace and ending soon are the summary totals above the bar, each opening its attention list.
+    expect([...element.querySelectorAll('.licenses__summary-totals > div')].map(text)).toEqual([
+      `${t.figures.grace} 1`,
+      `${t.figures.endingSoon} 8`,
     ]);
     expect(text(element.querySelector('.licenses__demo'))).toContain(en.shell.demo.badge);
   });
@@ -146,8 +163,7 @@ describe('Licenses & entitlements page (P7-S1)', { timeout: 15_000 }, () => {
 
   it('lists what needs attention, linked to each Organization', async () => {
     const { element, settle } = await render();
-    element.querySelector<HTMLButtonElement>('.licenses__attention-link')!.click();
-    await settle();
+    await openAttention(element, settle);
     expect(document.querySelectorAll('.attention-list__item')).toHaveLength(5);
     const pageButtons = () =>
       document.querySelectorAll<HTMLButtonElement>('.attention-pagination__buttons button');
@@ -209,8 +225,7 @@ describe('Licenses & entitlements page (P7-S1)', { timeout: 15_000 }, () => {
     Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
     try {
       const { element, settle } = await render();
-      element.querySelector<HTMLButtonElement>('.licenses__attention-link')!.click();
-      await settle();
+      await openAttention(element, settle);
       const rows = document.querySelectorAll<HTMLElement>('.attention-list__item');
       rows[0]!.querySelector<HTMLButtonElement>('.attention-list__menu-trigger')!.click();
       await settle();
@@ -240,8 +255,7 @@ describe('Licenses & entitlements page (P7-S1)', { timeout: 15_000 }, () => {
 
   it('navigates to the selected organization and closes the dialog', async () => {
     const { element, settle } = await render();
-    element.querySelector<HTMLButtonElement>('.licenses__attention-link')!.click();
-    await settle();
+    await openAttention(element, settle);
     const row = document.querySelector<HTMLElement>('.attention-list__item')!;
     const expected = row.querySelector('a')!.getAttribute('href');
     row.querySelector<HTMLButtonElement>('.attention-list__menu-trigger')!.click();

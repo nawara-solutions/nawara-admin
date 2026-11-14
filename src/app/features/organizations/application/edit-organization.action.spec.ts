@@ -152,11 +152,20 @@ async function render(
     if (!b) throw new Error(`no button ${label}`);
     b.click();
   };
+  // PR #89: "Edit details" is in the details side panel, which "Overview" opens.
+  const overviewButton = () =>
+    [...page.querySelectorAll<HTMLButtonElement>('.organization-detail__header button')].find(
+      (b) => b.textContent?.trim() === en.organizations.detail.overview,
+    ) ?? null;
   const editButton = () =>
-    [...page.querySelectorAll<HTMLButtonElement>('adm-overview-card button')].find(
+    [...document.querySelectorAll<HTMLButtonElement>('adm-organization-details-panel button')].find(
       (b) => b.textContent?.trim() === en.organizations.edit.open,
     ) ?? null;
   const open = async () => {
+    if (!editButton()) {
+      overviewButton()?.click();
+      await settle();
+    }
     editButton()?.focus();
     editButton()?.click();
     await settle();
@@ -205,8 +214,8 @@ describe('Edit organization details (owner, demo build)', () => {
       world,
       toasts,
     } = await render(owner);
-    expect(editButton()).not.toBeNull();
     await open();
+    expect(editButton()).not.toBeNull();
     expect(text(dialog()?.querySelector('h2'))).toBe(en.organizations.edit.title);
     expect(document.activeElement?.getAttribute('name')).toBe('organization-name');
     expect(field('name')?.value).toBe('École Horizon');
@@ -291,7 +300,8 @@ describe('Edit organization details (owner, demo build)', () => {
     expect(document.querySelector<HTMLInputElement>('[name="organization-type"]')?.value).toBe(
       'Secondary school',
     );
-    document.querySelector<HTMLElement>('.cdk-overlay-backdrop')?.click();
+    // The editor's backdrop: the last one (the details panel's lies under it since PR #89).
+    [...document.querySelectorAll<HTMLElement>('.cdk-overlay-backdrop')].at(-1)?.click();
     await settle();
     expect(text(dialog()?.querySelector('h2'))).toBe(en.organizations.edit.discardTitle);
     press(en.organizations.edit.discard);

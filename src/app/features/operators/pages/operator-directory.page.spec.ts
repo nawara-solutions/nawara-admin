@@ -46,9 +46,10 @@ describe('OperatorDirectoryPage (P6-S1, read only, provisional)', { timeout: 15_
     const chooseSize = async (index: number) => {
       element.querySelector<HTMLButtonElement>('.operator-directory__page-size-trigger')!.click();
       await settle();
-      document
-        .querySelectorAll<HTMLButtonElement>('.operator-directory__page-size-menu button')
-        [index]!.click();
+      const sizes = document.querySelectorAll<HTMLButtonElement>(
+        '.operator-directory__page-size-menu button',
+      );
+      sizes[index]!.click();
       await settle();
     };
     const buttons = () =>

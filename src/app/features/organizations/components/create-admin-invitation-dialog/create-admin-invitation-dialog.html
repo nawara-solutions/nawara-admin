@@ -22,7 +22,6 @@
       class="admin-invitation__tabs"
       role="tablist"
       [attr.aria-label]="'organizations.invitations.title' | transloco"
-      (keydown)="onTabKey($event)"
     >
       <button
         id="invitation-tab-create"
@@ -32,6 +31,7 @@
         [attr.tabindex]="tab() === 'create' ? 0 : -1"
         aria-controls="invitation-create-panel"
         (click)="tab.set('create')"
+        (keydown)="onTabKey($event)"
       >
         {{ 'organizations.invitations.create.open' | transloco }}
       </button>
@@ -43,6 +43,7 @@
         [attr.tabindex]="tab() === 'manage' ? 0 : -1"
         aria-controls="invitation-manage-panel"
         (click)="tab.set('manage')"
+        (keydown)="onTabKey($event)"
       >
         {{ 'organizations.invitations.manageTab' | transloco }}
       </button>

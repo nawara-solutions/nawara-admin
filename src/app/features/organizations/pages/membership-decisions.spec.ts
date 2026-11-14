@@ -50,6 +50,8 @@ async function setUp({
   const { element, settle } = rendered;
   for (let i = 0; i < 20 && !element.querySelector('.member-list, .membership-detail__card'); i++)
     await settle(latency + 10);
+  // Every row (PR #89 pages the list): chosen once the list is there, whatever the latency.
+  await rendered.showAll();
   const world = TestBed.inject(DemoWorld);
   const dialog = () => document.querySelector<HTMLElement>('adm-membership-decision-dialog');
   /** The table's controls (the cards' twins are hidden by the container query in a browser, not in jsdom). */
@@ -88,7 +90,7 @@ async function setUp({
     press,
     horizon,
     emailOf,
-    tabCounts: () => rendered.tabs().map((t) => text(t)),
+    tabCounts: () => rendered.statusCounts(),
   };
 }
 
@@ -108,7 +110,7 @@ describe('Membership decisions (P5-S2)', { timeout: 15_000 }, () => {
       const who = s.emailOf(m) ?? s.world.snapshot().members.find((p) => p.id === m.userId)!.phone!;
       expect(labels).toContain(D.approveFor.replace('{{who}}', who));
     }
-    expect(text(s.element)).toContain(D.authorityOwner);
+    // PR #89 removed the list's authority line (its copy is unreferenced); the controls themselves are the offer.
     await s.router.navigateByUrl(MEMBERS);
     await s.settle(10);
     expect(s.element.querySelectorAll('[data-decide]')).toHaveLength(0);
@@ -119,7 +121,7 @@ describe('Membership decisions (P5-S2)', { timeout: 15_000 }, () => {
     const before = s.revision();
     const rows = s.rows();
     const target = s.controls('approve')[0]!;
-    const id = rows[0]!.querySelector('a')!.getAttribute('href')!.split('/').at(-1)!;
+    const id = s.membershipOfRow(rows[0])!.id;
     target.click();
     await s.settle();
     expect(s.role()).toBe('dialog');
@@ -225,9 +227,6 @@ describe('Membership decisions (P5-S2)', { timeout: 15_000 }, () => {
       actor: operatorOf(DEMO_OPERATOR_IDS.school),
       identity: DEMO_OPERATOR_IDS.school,
     });
-    expect(strip(text(s.element))).toContain(
-      D.authorityOperator.replace('{{platform}}', 'Nawara School'),
-    );
     s.controls('approve')[0]!.click();
     await s.settle();
     await s.press(D.approveConfirm, 20);

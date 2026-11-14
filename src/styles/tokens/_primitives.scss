@@ -31,6 +31,11 @@
   --nw-ref-swatch-emerald: #047857;
   --nw-ref-swatch-burgundy: #8e2849;
 
+  // Theme-mode miniatures (Appearance settings): a fixed light and a fixed dark screen, whatever the current theme.
+  --nw-ref-mode-art-light: #eeedf4; // design (light screen ground)
+  --nw-ref-mode-art-dark: #171622; // design (dark screen ground)
+  --nw-ref-mode-art-dark-card: #292835; // design (dark screen cards)
+
   // Brand gradient: the "SOLUTIONS" lettering and accent lines.
   --nw-ref-gradient-coral: linear-gradient(
     90deg,

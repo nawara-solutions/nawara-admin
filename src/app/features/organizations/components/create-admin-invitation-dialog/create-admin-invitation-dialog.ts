@@ -105,7 +105,10 @@ export class CreateAdminInvitationDialog {
   protected onTabKey(event: KeyboardEvent): void {
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
     event.preventDefault();
-    const rtl = getComputedStyle(event.currentTarget as HTMLElement).direction === 'rtl';
+    // The key comes from a tab; the tablist is its container.
+    const tablist = (event.currentTarget as HTMLElement).closest<HTMLElement>('[role="tablist"]');
+    if (!tablist) return;
+    const rtl = getComputedStyle(tablist).direction === 'rtl';
     const next =
       event.key === 'Home'
         ? 'create'
@@ -115,9 +118,7 @@ export class CreateAdminInvitationDialog {
             ? 'manage'
             : 'create';
     this.tab.set(next);
-    (event.currentTarget as HTMLElement)
-      .querySelector<HTMLButtonElement>(`#invitation-tab-${next}`)
-      ?.focus();
+    tablist.querySelector<HTMLButtonElement>(`#invitation-tab-${next}`)?.focus();
   }
   protected readonly state = this.action.run.state;
   protected readonly target = this.action.currentTarget()!;
