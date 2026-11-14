@@ -1,5 +1,12 @@
 # Scope product symbols
 
+## School and Drive use the approved extracted symbols (owner decision, 2026-11-14, WP-5.3b)
+
+Nawara School and Nawara Drive use the approved owner-reference layers again (`nawara-scope-school-*.webp`,
+`nawara-scope-drive-*.webp`, the 2026-11-04 extraction below), in the scope switcher and everywhere `nw-product-symbol`
+renders them. The 2026-11-06 SVG redraws remain in `public/brand/` for history; they are not official masters. Solutions
+keeps its current emblem (no decision taken on it).
+
 ## Small-size clarity update (2026-11-06)
 
 The UI now uses optical SVG redraws of the leaf and the Solutions puzzle, Drive car/road, and School cap/book. These are small-size UI artwork, not official vector masters. `nawara-scope-leaf-mask.svg` and the three `nawara-scope-*-details.svg` files share a 64-unit viewBox and render with `contain`, eliminating fractional raster cropping and stray branch fragments. Theme-driven leaf and pictogram colors are preserved. The extracted WebP layers and original references remain available unchanged below.

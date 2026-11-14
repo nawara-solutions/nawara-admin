@@ -18,7 +18,14 @@ describe('settings routes (P9-S1)', () => {
   });
 
   it('makes /settings a default Appearance page within one shared workspace, not a redirect, with Appearance, Language, Account, Security and Company below it', () => {
-    expect(SECTIONS.map((r) => [r.path, r.title, r.redirectTo])).toEqual([
+    // X33 "page-sections" is routed but NOT approved (frozen, owner WP-5.3b): kept apart from the approved sections,
+    // and named so that no other route can be added unnoticed.
+    const FROZEN = ['page-sections'];
+    expect(SECTIONS.filter((r) => FROZEN.includes(r.path ?? '')).map((r) => r.path)).toEqual(
+      FROZEN,
+    );
+    const approved = SECTIONS.filter((r) => !FROZEN.includes(r.path ?? ''));
+    expect(approved.map((r) => [r.path, r.title, r.redirectTo])).toEqual([
       ['', 'titles.settings', undefined],
       ['appearance', 'titles.settingsAppearance', undefined],
       ['language', 'titles.settingsLanguage', undefined],

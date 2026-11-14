@@ -63,21 +63,6 @@
   min-inline-size: 0;
 }
 
-.account-settings__security-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
-:host .account-settings__security-link {
-  --nw-button-bg: var(--nw-surface-raised);
-  --nw-button-border: var(--nw-text-brand);
-  --nw-button-fg: var(--nw-text-brand);
-  --nw-button-bg-hover: var(--nw-surface-brand-subtle);
-
-  max-inline-size: 100%;
-  white-space: normal;
-  font-size: 0.8125rem;
-}
 .account-settings__panel {
   min-inline-size: 0;
   border: 1px solid var(--nw-border-subtle);

@@ -113,43 +113,41 @@ async function render(actor: Actor, url = '/platforms/school') {
 const text = (element: Element | null | undefined) =>
   element?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
 
+/** The facts of the subscription summary, by their label (PR #89: Organizations, Personal Premium, Payment issues). */
+const fact = (page: HTMLElement, label: string) =>
+  [...page.querySelectorAll('adm-subscription-summary .subscription-summary__fact')].find(
+    (f) => text(f.querySelector('dt')) === label,
+  ) ?? null;
+/** PR #89: what needs attention is in the panel "Updates" opens. */
+async function openUpdates(page: HTMLElement, settle: () => Promise<void>) {
+  [...page.querySelectorAll<HTMLButtonElement>('.platform-dashboard__header button')]
+    .find((b) => text(b).startsWith(en.platformDashboard.updates))
+    ?.click();
+  await settle();
+  return [...page.querySelectorAll('.platform-attention__item')];
+}
+
 describe('PlatformDashboardPage', () => {
   afterEach(() => {
     ScriptedDirectory.answer = () => of(PLATFORMS);
   });
 
-  it('shows the owner the Platform’s identity, figures, organizations, attention, commercial facts and activity', async () => {
-    const { page, dashboard, commercial, settle, headings } = await render(owner);
+  it('shows the owner the Platform’s figures, commercial facts, assisted payments, Organizations and attention', async () => {
+    // PR #89's dashboard: the title, the figures, the subscription summary, the read-only assisted payments
+    // (WP-5.3b), the Platform's Organization directory and the "Updates" panel; no identity, access or back line.
+    const { page, dashboard, commercial, settle } = await render(owner);
     dashboard.requests[0]?.answer.next(withOrganizations(dashboardOf(SCHOOL)));
     commercial.requests[0]?.answer.next(commercialOf(SCHOOL));
     await settle();
     expect(text(page.querySelector('h1'))).toBe('Nawara School');
-    expect(text(page.querySelector('.platform-dashboard__meta'))).toContain(
-      en.platforms.product.school,
-    );
-    const key = page.querySelector('.platform-dashboard__key');
-    expect(text(key)).toBe('nawara-school');
-    expect(key?.getAttribute('dir')).toBe('ltr');
-    expect(text(page.querySelector('.platform-dashboard__access'))).toBe(
-      en.platformDashboard.header.accessOwner,
-    );
     expect(page.querySelector('.platform-dashboard__demo')).toBeNull();
-    expect(page.querySelector('.platform-dashboard__header a')?.getAttribute('href')).toBe(
-      '/platforms',
-    );
     expect(page.querySelectorAll('adm-summary-card')).toHaveLength(4);
-    expect(headings()).toEqual([
-      en.platformDashboard.organizations.title,
-      en.platformDashboard.attention.title,
-      en.platformDashboard.commercial.title,
-      en.platformDashboard.policies.title,
-      en.platformDashboard.activity.title,
-    ]);
-    // The owner's organization table has the subscription column.
-    expect(
-      [...page.querySelectorAll('.recent-organizations__table thead th')].map((th) => text(th)),
-    ).toContain(en.platformDashboard.organizations.subscriptionColumn);
-    expect(page.querySelectorAll('.platform-attention__item')).toHaveLength(4);
+    expect(page.querySelector('adm-subscription-summary')).not.toBeNull();
+    expect(text(page.querySelector('[data-policies]'))).toContain(
+      en.platformDashboard.policies.notVerified,
+    );
+    expect(page.querySelector('adm-organization-directory-page')).not.toBeNull();
+    expect(await openUpdates(page, settle)).toHaveLength(4);
   });
 
   it('keeps Organization subscriptions, Personal Premium and payment issues apart', async () => {
@@ -161,17 +159,18 @@ describe('PlatformDashboardPage', () => {
     expect(summary?.querySelector('[role="img"]')?.getAttribute('aria-label')).toBe(
       'Organization subscriptions: 1 active, 1 in grace, 1 none, of 3 organizations',
     );
-    const facts = [...(summary?.querySelectorAll('.subscription-summary__fact') ?? [])].map((f) =>
-      text(f),
+    expect(text(fact(page, en.platformDashboard.figures.organizations)?.querySelector('dd'))).toBe(
+      '3',
     );
-    expect(facts[0]).toContain(en.platformDashboard.commercial.personalPremium);
-    expect(facts[0]).toContain('21');
-    expect(facts[1]).toContain(en.platformDashboard.commercial.paymentIssues);
-    expect(facts[1]).toContain('1');
+    expect(
+      text(fact(page, en.platformDashboard.commercial.personalPremium)?.querySelector('dd')),
+    ).toContain('21');
+    expect(
+      text(fact(page, en.platformDashboard.commercial.paymentIssues)?.querySelector('dd')),
+    ).toContain('1');
   });
 
-  // Still failing since PR #89, which stopped rendering this card on the page (a pre-existing regression, reported);
-  // the expectations now state WP-2.2's meaning: eligibility not verified, no switch, nothing to change.
+  // WP-2.2's read model, restored on the dashboard (owner decision, WP-5.3b): eligibility not verified, no switch.
   it('shows assisted payments read only: eligibility not verified, with no policy switch', async () => {
     const { page, dashboard, commercial, settle } = await render(owner);
     dashboard.requests[0]?.answer.next(dashboardOf(SCHOOL));
@@ -183,21 +182,17 @@ describe('PlatformDashboardPage', () => {
   });
 
   it('shows an operator the hierarchy only: no assignments, subscriptions, policies or activity', async () => {
-    const { page, dashboard, commercial, settle, headings } = await render(operator);
+    const { page, dashboard, commercial, settle } = await render(operator);
     dashboard.requests[0]?.answer.next(withOrganizations(dashboardOf(SCHOOL)));
     await settle();
     expect(commercial.requests).toHaveLength(0);
-    expect(text(page.querySelector('.platform-dashboard__access'))).toBe(
-      en.platformDashboard.header.accessOperator,
-    );
+    // Organizations, memberships and requests; never the operator assignments.
     expect(page.querySelectorAll('adm-summary-card')).toHaveLength(3);
-    expect(headings()).toEqual([
-      en.platformDashboard.organizations.title,
-      en.platformDashboard.attention.title,
-    ]);
-    expect(page.textContent).not.toContain(en.platformDashboard.organizations.subscriptionColumn);
+    expect(page.querySelector('adm-subscription-summary')).toBeNull();
+    expect(page.querySelector('[data-policies]')).toBeNull();
+    expect(page.textContent).not.toContain(en.platformDashboard.policies.assistedPayments);
     expect(page.textContent).not.toContain(en.platformDashboard.header.backToPlatforms);
-    expect(page.querySelectorAll('.platform-attention__item')).toHaveLength(1);
+    expect(await openUpdates(page, settle)).toHaveLength(1);
   });
 
   it('shows loading while the dashboard is asked for', async () => {
@@ -218,14 +213,15 @@ describe('PlatformDashboardPage', () => {
       personalPremium: { status: 'unavailable' },
     });
     await settle();
-    const organizations = page
-      .querySelector('#platform-organizations')
-      ?.closest('adm-overview-card');
-    expect(text(organizations)).toContain(en.platformDashboard.states.sectionUnavailable);
     expect(page.querySelectorAll('adm-summary-card')).toHaveLength(4);
-    const premium = page.querySelector('.subscription-summary__fact');
+    const premium = fact(page, en.platformDashboard.commercial.personalPremium);
     expect(text(premium)).toContain('—');
     expect(text(premium)).toContain(en.common.notAvailable);
+    // The other commercial facts and the assisted payments stay.
+    expect(text(fact(page, en.platformDashboard.commercial.paymentIssues))).toContain('1');
+    expect(text(page.querySelector('[data-policies]'))).toContain(
+      en.platformDashboard.policies.notVerified,
+    );
   });
 
   it('offers "Try again" after an error, which asks again', async () => {
@@ -252,7 +248,11 @@ describe('PlatformDashboardPage', () => {
           : empty.figures,
     });
     await settle();
-    expect(page.textContent).toContain(en.platformDashboard.organizations.emptyTitle);
+    // PR #89: the figure says none (the former "No organizations yet" card is gone; the directory has its own state).
+    const organizations = [...page.querySelectorAll('adm-summary-card')].find((c) =>
+      text(c).startsWith(en.platformDashboard.figures.organizations),
+    );
+    expect(text(organizations?.querySelector('.summary-card__value'))).toBe('0');
     const create = [...page.querySelectorAll<HTMLButtonElement>('button')].find(
       (b) => text(b) === en.platformDashboard.organizations.create,
     );
@@ -293,15 +293,15 @@ describe('PlatformDashboardPage', () => {
     expect(page.querySelector('.platform-dashboard__header')).toBeNull();
   });
 
-  it('links to the Platform’s Organization directory and to each Organization', async () => {
+  it('embeds the Platform’s own Organization directory', async () => {
+    // PR #89: the dashboard embeds the directory (its links are the directory's, tested there).
     const { page, dashboard, settle } = await render(operator);
     dashboard.requests[0]?.answer.next(withOrganizations(dashboardOf(SCHOOL)));
     await settle();
-    expect(page.querySelector('a.card-link__button')?.getAttribute('href')).toBe(
-      '/platforms/school/organizations',
-    );
-    expect(
-      [...page.querySelectorAll('.recent-organizations__link')].map((a) => a.getAttribute('href')),
-    ).toEqual(['/platforms/school/organizations/a', '/platforms/school/organizations/b']);
+    expect(page.querySelector('adm-organization-directory-page')).not.toBeNull();
+    // Scoped to this Platform (here a build without the Organization gateway, so it says so for this Platform).
+    const view = TestBed.inject(OrganizationDirectoryFacade).view();
+    expect(view.status).toBe('notInBuild');
+    expect('platform' in view && view.platform.id).toBe(SCHOOL);
   });
 });

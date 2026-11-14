@@ -1,7 +1,11 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { PlatformProduct } from '../../../core/context/scope.model';
 
-/** Optical SVG emblems for small UI sizes; unknown products use Solutions. */
+/**
+ * Product emblems; unknown products use Solutions. School and Drive use the approved symbols extracted from the
+ * owner's reference (2026-11-04, `docs/brand/scope-symbols.md`; owner decision WP-5.3b), not the later small-size SVG
+ * redraws, which are not official masters. Solutions keeps its current emblem.
+ */
 export const PRODUCT_BRANDS = {
   solutions: {
     mask: '/brand/nawara-scope-leaf-mask.svg',
@@ -10,15 +14,15 @@ export const PRODUCT_BRANDS = {
     maskSize: 'contain',
   },
   school: {
-    mask: '/brand/nawara-scope-leaf-mask.svg',
-    details: '/brand/nawara-scope-school-details.svg',
-    ratio: '1 / 1',
+    mask: '/brand/nawara-scope-school-mask.webp',
+    details: '/brand/nawara-scope-school-details.webp',
+    ratio: '181 / 170',
     maskSize: 'contain',
   },
   drive: {
-    mask: '/brand/nawara-scope-leaf-mask.svg',
-    details: '/brand/nawara-scope-drive-details.svg',
-    ratio: '1 / 1',
+    mask: '/brand/nawara-scope-drive-mask.webp',
+    details: '/brand/nawara-scope-drive-details.webp',
+    ratio: '178 / 170',
     maskSize: 'contain',
   },
 } as const;

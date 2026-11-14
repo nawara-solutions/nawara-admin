@@ -110,6 +110,12 @@
   font-weight: var(--nw-font-weight-semibold);
 }
 
+.member-list__admin--inline {
+  display: inline-block;
+  margin-inline-start: var(--nw-space-2);
+  vertical-align: middle;
+}
+
 .member-list__member,
 .member-list__meta {
   color: var(--nw-text-secondary);
