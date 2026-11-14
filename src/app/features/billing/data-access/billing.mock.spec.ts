@@ -14,7 +14,13 @@ import {
   DEMO_SCHOOL_PLATFORM_ID,
   demoWorldSeed,
 } from '../../../demo/world/seed';
-import { paymentIssuesOf, subscriptionStateOf } from '../../../demo/world/selectors';
+import {
+  paymentIssuesOf,
+  platformRefOf,
+  subscriptionLifecycleOf,
+  subscriptionStateOf,
+} from '../../../demo/world/selectors';
+import { demoPlatformSubscriptions } from '../../licenses/data-access/licenses.mock';
 import { NW_CLOCK } from '../../../shared/format/clock';
 import {
   BILLING_DEMO_SCENARIO,
@@ -82,16 +88,13 @@ describe('Payment follow-ups of the demo world (P7-S3)', () => {
   });
 
   it('keeps the subscription and entitlement apart: a failed payment leaves Collège Riad active and entitled', () => {
-    expect(followUps[0]).toMatchObject({
-      kind: 'failed',
-      subscription: 'active',
-      entitlement: 'entitled',
-    });
-    expect(followUps[1]).toMatchObject({
-      kind: 'awaiting_action',
-      subscription: 'none',
-      entitlement: 'notEntitled',
-    });
+    // The WP-4.1 lifecycle (M1): Collège Riad's subscription ends in 6 days; Auto-École du Port has none.
+    expect(followUps[0]).toMatchObject({ kind: 'failed', entitlement: 'entitled' });
+    expect(followUps[0]?.lifecycle.state).toBe('active');
+    expect(followUps[0]?.lifecycle.currentPeriodEnd).not.toBeNull();
+    expect(followUps[1]).toMatchObject({ kind: 'awaiting_action', entitlement: 'notEntitled' });
+    expect(followUps[1]?.lifecycle.state).toBe('none');
+    expect(followUps[1]?.lifecycle.currentPeriodEnd).toBeNull();
     // Without the issues, the subscriptions are the same: a payment issue never changes a state.
     const noIssues: DemoWorldTables = { ...world, paymentRequests: [] };
     for (const o of world.organizations)
@@ -111,7 +114,18 @@ describe('Payment follow-ups of the demo world (P7-S3)', () => {
       (o) => subscriptionStateOf(world, o.id, NOW).state === 'none',
     );
     expect(none.length).toBe(3);
-    expect(followUps.filter((f) => f.subscription === 'none')).toHaveLength(1);
+    expect(followUps.filter((f) => f.lifecycle.state === 'none')).toHaveLength(1);
+  });
+
+  it('shows the same lifecycle as Licenses for each Organization: one calculation, not a second (M1)', () => {
+    for (const f of followUps) {
+      expect(f.lifecycle).toEqual(subscriptionLifecycleOf(world, f.organizationId, NOW));
+      const platform = platformRefOf(world, f.platform.id)!;
+      const licensed = demoPlatformSubscriptions(world, platform, NOW).organizations.find(
+        (o) => o.organizationId === f.organizationId,
+      );
+      expect(licensed?.lifecycle, f.organizationName).toEqual(f.lifecycle);
+    }
   });
 
   it('carries only the supported fields: no amount, currency, invoice, reference, method, date or balance', () => {
@@ -119,10 +133,11 @@ describe('Payment follow-ups of the demo world (P7-S3)', () => {
       expect(Object.keys(f).sort()).toEqual([
         'entitlement',
         'kind',
+        // The subscription's lifecycle (WP-4.1): its own period dates, never a payment amount, reference or date.
+        'lifecycle',
         'organizationId',
         'organizationName',
         'platform',
-        'subscription',
       ]);
   });
 

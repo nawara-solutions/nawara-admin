@@ -10,12 +10,9 @@ import { NwDataState } from '../../../shared/ui/data-state/data-state';
 import { NwControl, NwFormField } from '../../../shared/ui/form-field/form-field';
 import { NwIcon } from '../../../shared/ui/icon/icon';
 import { NwLink } from '../../../shared/ui/link/link';
+import { SubscriptionLifecycleBadge } from '../../../shared/subscription/subscription-lifecycle-badge';
 import { BillingFacade, ISSUE_FILTERS, IssueFilter } from '../application/billing.facade';
-import {
-  FollowUpEntitlement,
-  FollowUpSubscriptionState,
-  PaymentIssueKind,
-} from '../domain/billing.model';
+import { FollowUpEntitlement, PaymentIssueKind } from '../domain/billing.model';
 
 /** Catalog keys, listed in full (never built at runtime). */
 const FILTER_KEYS = {
@@ -28,12 +25,6 @@ const KIND_KEYS = {
   failed: 'billing.kind.failed',
   awaiting_action: 'billing.kind.awaitingAction',
 } as const satisfies Record<PaymentIssueKind, string>;
-
-const SUBSCRIPTION_KEYS = {
-  active: 'billing.subscription.active',
-  grace: 'billing.subscription.grace',
-  none: 'billing.subscription.none',
-} as const satisfies Record<FollowUpSubscriptionState, string>;
 
 const ENTITLEMENT_KEYS = {
   entitled: 'billing.entitlement.entitled',
@@ -54,6 +45,7 @@ const pick = (value: string): IssueFilter | null =>
 @Component({
   selector: 'adm-billing-page',
   imports: [
+    SubscriptionLifecycleBadge,
     RouterLink,
     TranslocoPipe,
     NwButton,
@@ -81,7 +73,6 @@ export class BillingPage {
   protected readonly filters = ISSUE_FILTERS;
   protected readonly filterKeys = FILTER_KEYS;
   protected readonly kindKeys = KIND_KEYS;
-  protected readonly subscriptionKeys = SUBSCRIPTION_KEYS;
   protected readonly entitlementKeys = ENTITLEMENT_KEYS;
   protected readonly organizationPath = organizationPath;
   protected readonly platformPath = platformPath;
