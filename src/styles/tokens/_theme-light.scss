@@ -122,6 +122,11 @@
   --nw-swatch-emerald: var(--nw-ref-swatch-emerald);
   --nw-swatch-burgundy: var(--nw-ref-swatch-burgundy);
   --nw-swatch-check: var(--nw-ref-ink-0);
+  // Theme-mode miniatures: the same in both themes (each depicts one theme).
+  --nw-mode-art-light-ground: var(--nw-ref-mode-art-light);
+  --nw-mode-art-light-card: var(--nw-ref-ink-0);
+  --nw-mode-art-dark-ground: var(--nw-ref-mode-art-dark);
+  --nw-mode-art-dark-card: var(--nw-ref-mode-art-dark-card);
 
   // Fixed meanings the accent palettes never recolour (tokens/_accents.scss): an urgent attention item keeps its
   // severity colour, and the School product keeps its coral identity (its bloom tile).

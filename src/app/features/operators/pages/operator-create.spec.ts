@@ -232,7 +232,8 @@ describe('Create an operator (P6-S4)', { timeout: 20_000 }, () => {
     for (const kind of ['member', 'owner']) expect(text(alert).toLowerCase()).not.toContain(kind);
     expect(s.input('operator-contact')?.getAttribute('aria-invalid')).toBe('true');
     expect(s.input('operator-contact')?.value).toBe('member@demo.nawara.invalid');
-    expect(text(s.button('[data-submit]'))).toBe(C.submitAnother);
+    // PR #89's stepper: one "Next" for every edit, a retry with another contact included.
+    expect(text(s.button('[data-submit]'))).toBe(C.stepNext);
     // Another contact: verified again, then created.
     await s.type('operator-contact', 'another@demo.nawara.invalid');
     await s.submit('operator-create-form');

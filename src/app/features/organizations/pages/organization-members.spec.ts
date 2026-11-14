@@ -16,26 +16,51 @@ import {
 import { MembershipDetailPage } from './membership-detail.page';
 import { OrganizationMembersPage } from './organization-members.page';
 
+/** Opens a members popup ("Filters" or "Sort"), chooses an option and applies it. */
+async function choose(
+  element: HTMLElement,
+  settle: (ms?: number) => Promise<void>,
+  opener: string,
+  value: string,
+) {
+  [...element.querySelectorAll<HTMLButtonElement>('button')]
+    .find((b) => text(b).startsWith(opener))
+    ?.click();
+  await settle();
+  const dialog = document.querySelector('adm-member-filter-dialog');
+  dialog?.querySelector<HTMLInputElement>(`input[type="radio"][value="${value}"]`)?.click();
+  await settle();
+  [...(dialog?.querySelectorAll<HTMLButtonElement>('button') ?? [])]
+    .find((b) => text(b) === en.operators.filters.apply)
+    ?.click();
+  await settle();
+}
+
 // These page tests render the real demo world (École Horizon's 64 active rows, as a table and as cards, each with its
 // membership controls): about a second each on their own, several under the full parallel suite. The timeout covers
 // that rendering cost only; every assertion is unchanged.
 describe('OrganizationMembersPage (demo world)', { timeout: 15_000 }, () => {
-  it('shows Active by default with each tab’s count, the admin badge in words, and email or phone identities', async () => {
-    const { element, tabs, rows, label } = await render(
+  it('shows Active by default, the admin badge in words, and email or phone identities', async () => {
+    const { element, rows, label, world } = await render(
       OrganizationMembersPage,
       owner,
       DEMO_OWNER_ID,
       MEMBERS,
     );
-    expect(tabs().map(text)).toEqual(['Active 64', 'Requests 3', 'Rejected 1']);
-    expect(tabs()[0]?.getAttribute('aria-selected')).toBe('true');
+    // PR #89: no status tabs; the URL's status (Active by default) comes from the Organization page's counts.
     expect(rows()).toHaveLength(64);
+    expect(
+      world
+        .snapshot()
+        .memberships.filter((m) => m.organizationId === HORIZON && m.status === 'active'),
+    ).toHaveLength(64);
     expect(text(element.querySelector('.organization-members__count'))).toBe('Showing 64 of 64');
     const identities = rows().map((r) => text(r.querySelector('.member-list__link')));
     expect(identities.every((t) => /^member-\d{4}@example\.invalid$|^\+999\d{9}$/.test(t))).toBe(
       true,
     );
-    expect(element.querySelectorAll('.member-list__table .member-list__admin')).toHaveLength(1);
+    // The role in words is on the cards (PR #89's table shows it to the owner through the role action only).
+    expect(element.querySelectorAll('.member-list__cards .member-list__admin')).toHaveLength(1);
     // The breadcrumb label is the Organization's name, never a contact.
     expect(label.labelFor(MEMBERS)).toBe('École Horizon');
     // Cards exist for narrow widths, the same rows.
@@ -55,38 +80,31 @@ describe('OrganizationMembersPage (demo world)', { timeout: 15_000 }, () => {
     await settle();
     expect(rows().length).toBeLessThan(64);
     expect(router.url).toBe(MEMBERS);
-    element.querySelector<HTMLInputElement>('.organization-members__check input')!.click();
-    await settle();
+    // PR #89: the admins filter and the sort are chosen in the Filters and Sort popups, then applied.
+    await choose(element, settle, en.operators.filters.title, 'true');
     expect(router.url).toContain('admins=1');
-    const select = element.querySelector<HTMLSelectElement>('.organization-members__sort select')!;
-    select.value = 'identity';
-    select.dispatchEvent(new Event('change'));
-    await settle();
+    await choose(element, settle, en.organizations.toolbar.sort, 'identity');
     expect(router.url).toContain('sort=identity');
     expect(router.url).not.toContain('member-000');
   });
 
-  it('moves between tabs with the arrow keys, Home and End, loading nothing new', async () => {
-    const { router, settle, tabs, rows, listSpy } = await render(
+  it('moves between statuses from the URL (PR #89: the Organization page’s counts), loading nothing new', async () => {
+    const { router, settle, rows, listSpy } = await render(
       OrganizationMembersPage,
       owner,
       DEMO_OWNER_ID,
       MEMBERS,
     );
     const calls = listSpy.mock.calls.length;
-    tabs()[0]!.focus();
-    tabs()[0]!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    await router.navigateByUrl(`${MEMBERS}?status=pending`);
     await settle();
-    expect(router.url).toContain('status=pending');
-    expect(document.activeElement).toBe(tabs()[1]);
     expect(rows()).toHaveLength(3);
-    tabs()[1]!.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+    await router.navigateByUrl(`${MEMBERS}?status=rejected`);
     await settle();
-    expect(router.url).toContain('status=rejected');
     expect(rows()).toHaveLength(1);
-    tabs()[2]!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+    await router.navigateByUrl(MEMBERS);
     await settle();
-    expect(router.url).toBe(MEMBERS);
+    expect(rows()).toHaveLength(64);
     expect(listSpy.mock.calls.length).toBe(calls);
     // Exactly Core's three statuses were asked, each explicitly.
     expect(listSpy.mock.calls.map((c) => c[1]).sort()).toEqual(['active', 'pending', 'rejected']);

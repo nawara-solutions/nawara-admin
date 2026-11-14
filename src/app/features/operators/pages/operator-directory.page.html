@@ -1,6 +1,6 @@
 @let view = facade.view();
 @if (create.panelOpen()) {
-  <div class="operator-directory__panel-backdrop" (click)="create.close()"></div>
+  <div class="operator-directory__panel-backdrop" aria-hidden="true" (click)="create.close()"></div>
   <adm-operator-create-dialog />
 }
 <header

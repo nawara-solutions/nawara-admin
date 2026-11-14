@@ -123,13 +123,31 @@ async function render(
     await fixture.whenStable();
   };
   const page = fixture.nativeElement as HTMLElement;
-  const card = () => page.querySelector<HTMLElement>('adm-admin-invitations-card');
+  // PR #89: the list is no longer a card on the page. "Invitations" opens a dialog whose Manage tab holds it (the
+  // summary count opens the active ones in a side panel). These helpers reach the list and dialogs where they are.
+  const topmost = <T extends Element>(selector: string) =>
+    [...document.querySelectorAll<T>(selector)].at(-1) ?? null;
+  const card = () => topmost<HTMLElement>('adm-admin-invitations-card');
   const items = () => [...(card()?.querySelectorAll('.admin-invitations__item') ?? [])];
-  for (let i = 0; i < 30 && items().length === 0; i++) await settle(2 * latency + 10);
   const dialog = () =>
-    document.querySelector<HTMLElement>(
-      'adm-create-admin-invitation-dialog, adm-revoke-admin-invitation-dialog',
-    );
+    topmost<HTMLElement>('adm-create-admin-invitation-dialog, adm-revoke-admin-invitation-dialog');
+  const createDialog = () => topmost<HTMLElement>('adm-create-admin-invitation-dialog');
+  const revokeDialog = () => topmost<HTMLElement>('adm-revoke-admin-invitation-dialog');
+  const headerButton = () =>
+    [
+      ...page.querySelectorAll<HTMLButtonElement>('.organization-detail__header-actions button'),
+    ].find((b) => b.textContent?.trim() === en.organizations.invitations.view) ?? null;
+  /** Opens the full list (the Manage tab), from the header's "Invitations". */
+  const showList = async () => {
+    if (!createDialog()) {
+      headerButton()?.click();
+      await settle();
+    }
+    createDialog()?.querySelector<HTMLButtonElement>('#invitation-tab-manage')?.click();
+    for (let i = 0; i < 30 && items().length === 0; i++) await settle(2 * latency + 10);
+  };
+  for (let i = 0; i < 30 && !page.querySelector('h1 bdi'); i++) await settle(2 * latency + 10);
+  if (actor.kind === 'owner') await showList();
   const field = (name: string) =>
     dialog()?.querySelector<HTMLInputElement>(`[name="${name}"]`) ?? null;
   const type = async (name: string, value: string) => {
@@ -155,7 +173,13 @@ async function render(
       ?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27, bubbles: true }));
     await settle();
   };
-  const openCreate = async () => press(en.organizations.invitations.create.open, card());
+  /** "Create invitation": "Invitations" opened afresh, on its Create tab (focus starts in the form). */
+  const openCreate = async () => {
+    TestBed.inject(Dialog).closeAll();
+    await settle();
+    headerButton()?.click();
+    await settle();
+  };
   /** Fills the form, verifies and waits for the result. */
   const createOne = async (invitationType = 'org_admin', wait = 20) => {
     await openCreate();
@@ -181,6 +205,8 @@ async function render(
     escape,
     openCreate,
     createOne,
+    showList,
+    revokeDialog,
     world,
     horizonInvitations,
     listSpy,
@@ -251,7 +277,7 @@ describe('Organization admin invitations (owner, demo build)', () => {
   });
 
   it('creates once after verification, shows the code once, copies it, and leaves it nowhere after closing', async () => {
-    const { settle, dialog, field, type, press, openCreate, items, world, toasts } =
+    const { settle, dialog, field, type, press, openCreate, items, world, toasts, showList } =
       await render(owner);
     await openCreate();
     await type('invitation-type', 'org_admin');
@@ -279,15 +305,15 @@ describe('Organization admin invitations (owner, demo build)', () => {
     // The contact typed is never shown back; only "a specific person".
     expect(text(dialog())).not.toContain('amina');
     expect(text(dialog())).toContain(en.organizations.invitations.list.boundPerson);
-    // The list behind already shows the new invitation, without its code.
-    expect(items()).toHaveLength(6);
-    expect(text(items()[0])).not.toContain(code);
-
     await press(en.organizations.invitations.code.copy);
     expect(clipboard.writeText).toHaveBeenCalledWith(code);
     expect(text(dialog())).toContain(en.organizations.invitations.code.copiedStatus);
     await press(en.organizations.invitations.code.done);
     expect(dialog()).toBeNull();
+    // The list shows the new invitation, without its code.
+    await showList();
+    expect(items()).toHaveLength(6);
+    expect(text(items()[0])).not.toContain(code);
     expect(exposures(code, toasts, world)).toEqual([]);
     expect(toasts.toasts()).toEqual([]);
   });
@@ -352,18 +378,17 @@ describe('Organization admin invitations (owner, demo build)', () => {
   });
 
   it('after a lost answer, never retries: it marks what MAY be the new invitation, and only that one', async () => {
-    const { dialog, button, press, createOne, items, horizonInvitations, card } = await render(
-      owner,
-      {
+    const { dialog, button, press, createOne, items, horizonInvitations, card, showList } =
+      await render(owner, {
         scenario: 'outcomeUnknown',
-      },
-    );
+      });
     await createOne();
     expect(text(dialog())).toContain(en.organizations.invitations.failure.createUnknown);
     expect(button(en.actions.retry)).toBeNull();
     expect(horizonInvitations()).toHaveLength(6);
     await press(en.organizations.invitations.create.checkInvitations);
     expect(dialog()).toBeNull();
+    await showList();
     expect(text(card())).toContain(en.organizations.invitations.possibleNote);
     const marked = items().filter((li) => text(li).includes(en.organizations.invitations.possible));
     expect(marked).toHaveLength(1);
@@ -388,15 +413,15 @@ describe('Organization admin invitations (owner, demo build)', () => {
   });
 
   it('revokes an active invitation after confirmation and verification, then focuses the card', async () => {
-    const { dialog, type, press, items, world, toasts, card } = await render(owner);
+    const { dialog, type, press, items, world, toasts, card, revokeDialog } = await render(owner);
     await press(en.organizations.invitations.revoke.open, items()[0]);
-    expect(document.querySelector('.cdk-dialog-container')?.getAttribute('role')).toBe(
-      'alertdialog',
-    );
+    expect(
+      [...document.querySelectorAll('.cdk-dialog-container')].at(-1)?.getAttribute('role'),
+    ).toBe('alertdialog');
     expect(document.activeElement?.textContent?.trim()).toBe(en.common.cancel);
     expect(text(dialog())).toContain(en.organizations.invitations.revoke.body);
     await press(en.common.cancel);
-    expect(dialog()).toBeNull();
+    expect(revokeDialog()).toBeNull();
     expect(
       world.snapshot().adminInvitations.find((i) => i.id === 'admin-invitation-1')?.revokedAt,
     ).toBeNull();
@@ -407,7 +432,7 @@ describe('Organization admin invitations (owner, demo build)', () => {
     await type('step-up-code', '123456');
     await press(en.organizations.invitations.revoke.verifyAndRevoke);
     await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(dialog()).toBeNull();
+    expect(revokeDialog()).toBeNull();
     expect(toasts.toasts().map((t) => t.message)).toEqual([en.organizations.invitations.revoked]);
     expect(
       world.snapshot().adminInvitations.find((i) => i.id === 'admin-invitation-1')?.revokedAt,

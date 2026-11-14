@@ -103,6 +103,34 @@ async function render<T>(page: Type<T>, actor: Actor, url: string) {
 const text = (element: Element | null | undefined) =>
   element?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
 
+/** PR #89: the directory's filters are in a popup opened by "Filters"; the radio groups it offers, by name. */
+async function filterGroups(element: HTMLElement, settle: () => Promise<void>) {
+  const open = [...element.querySelectorAll<HTMLButtonElement>('button')].find((b) =>
+    b.textContent?.trim().startsWith(en.operators.filters.title),
+  );
+  open?.click();
+  await settle();
+  const radios = [
+    ...document.querySelectorAll<HTMLInputElement>(
+      'adm-organization-filter-dialog input[type="radio"]',
+    ),
+  ];
+  const names = [...new Set(radios.map((r) => r.name))];
+  const checked = radios.filter((r) => r.checked).map((r) => `${r.name}=${r.value}`);
+  open?.click();
+  await settle();
+  return { names, checked };
+}
+
+/** PR #89: the details, commercial section and activity are in the side panel "Overview" opens. */
+async function openOverview(element: HTMLElement, settle: () => Promise<void>) {
+  [...element.querySelectorAll<HTMLButtonElement>('.organization-detail__header button')]
+    .find((b) => b.textContent?.trim() === en.organizations.detail.overview)
+    ?.click();
+  await settle();
+  return document.querySelector<HTMLElement>('adm-organization-details-panel');
+}
+
 describe('OrganizationDirectoryPage', () => {
   afterEach(() => {
     ScriptedDirectory.answer = () => of(PLATFORMS);
@@ -181,7 +209,8 @@ describe('OrganizationDirectoryPage', () => {
     organizations.lists[0]?.answer.next(directoryOf());
     await settle();
     expect(commercial.lists).toHaveLength(0);
-    expect(element.querySelectorAll('select')).toHaveLength(1);
+    // The filters offer an operator the requests filter only, never a subscription filter.
+    expect((await filterGroups(element, settle)).names).toEqual(['requests']);
     const headers = [...element.querySelectorAll('.organization-table__table thead th')].map((th) =>
       text(th),
     );
@@ -205,10 +234,9 @@ describe('OrganizationDirectoryPage', () => {
     commercial.lists[0]?.answer.next(commercialListOf());
     await settle();
     expect(text(element)).toContain(en.organizations.states.noResultsTitle);
-    const pressed = [...element.querySelectorAll('.organization-directory__segment')].map((b) =>
-      b.getAttribute('aria-pressed'),
-    );
-    expect(pressed).toEqual(['false', 'true']);
+    // The URL's requests=1 is the active filter: marked on "Filters" and checked in its popup.
+    expect(element.querySelector('.organization-directory__filter-dot')).not.toBeNull();
+    expect((await filterGroups(element, settle)).checked).toContain('requests=true');
     const clear = [...element.querySelectorAll('button')].find(
       (b) => text(b) === en.organizations.states.clearAll,
     );
@@ -356,7 +384,9 @@ describe('OrganizationDetailPage', () => {
     );
     organizations.loads[0]?.answer.next(detailOf());
     await settle();
-    const link = element.querySelector('[data-activity-browser]');
+    // The panel's Activity section links to the browser, this Organization preselected.
+    const panel = await openOverview(element, settle);
+    const link = panel?.querySelector('a.activity-link');
     expect(text(link)).toBe(en.organizations.detail.openActivity);
     expect(link?.getAttribute('href')).toBe('/audit?platform=school&organization=riad');
   });
@@ -456,9 +486,13 @@ describe('OrganizationDetailPage', () => {
     await settle();
     commercial.loads[0]?.answer.error({ kind: 'unavailable', status: 503 });
     await settle();
-    expect(text(element)).toContain(en.organizations.detail.activeMemberships);
-    expect(text(element)).toContain(en.organizations.states.sectionUnavailable);
-    const retry = [...element.querySelectorAll('button')].find(
+    // The page keeps its membership figures; the panel's commercial section alone is unavailable, with "Try again".
+    expect(text(element)).toContain(en.organizations.detail.memberships);
+    const panel = await openOverview(element, settle);
+    panel?.querySelector<HTMLButtonElement>('#organization-details-tab-payments')?.click();
+    await settle();
+    expect(text(panel)).toContain(en.organizations.states.sectionUnavailable);
+    const retry = [...(panel?.querySelectorAll('button') ?? [])].find(
       (b) => text(b) === en.organizations.states.retry,
     );
     retry?.click();

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { AuthSession } from '../../../core/auth/auth-session';
 import { platformSubscriptionsPath } from '../../../core/context/scope-context';
 import { MetricValue } from '../../../shared/dashboard/metric-value/metric-value';
 import { NwNumberPipe } from '../../../shared/format/format.pipes';
@@ -34,6 +35,8 @@ export class LicensesPage {
   protected readonly facade = inject(LicensesFacade);
   protected readonly platformSubscriptionsPath = platformSubscriptionsPath;
   private readonly dialogs = inject(NwDialogService);
+  /** Demo builds say the figures are fictional (as every demo page does). */
+  protected readonly isDemo = inject(AuthSession).isDemo;
 
   protected openStatuses(graceHours: number): void {
     this.dialogs.open(LicensesStatusDialog, { data: { graceHours }, sidePanel: true });

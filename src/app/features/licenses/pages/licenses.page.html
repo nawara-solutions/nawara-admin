@@ -3,6 +3,13 @@
   <div class="licenses__titles">
     <h1 class="nw-page-title licenses__title">{{ 'licenses.header.title' | transloco }}</h1>
   </div>
+  <!-- Restored (WP-5.3): PR #89 dropped this page's demo disclosure; every other demo page keeps it. -->
+  @if (isDemo()) {
+    <span class="licenses__demo">
+      <nw-icon name="flask-conical" size="sm" />{{ 'shell.demo.badge' | transloco }}
+      <span class="nw-visually-hidden">: {{ 'licenses.demoExplanation' | transloco }}</span>
+    </span>
+  }
   @if (view.status === 'ready') {
     <button
       nw-button

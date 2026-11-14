@@ -91,27 +91,31 @@
   height: 4rem;
   padding: 8px;
   border-radius: var(--nw-radius-md);
-  background: #eeedf4;
+  background: var(--nw-mode-art-light-ground);
 }
 :host(.appearance-panel--workspace) .appearance-panel__mode-art i {
   display: block;
   flex: 1;
   height: 75%;
   border-radius: 4px;
-  background: white;
+  background: var(--nw-mode-art-light-card);
 }
 :host(.appearance-panel--workspace) .appearance-panel__mode-art i:first-child {
   height: 100%;
   border-top: 4px solid var(--nw-color-primary);
 }
 :host(.appearance-panel--workspace) .appearance-panel__mode-art[data-mode='dark'] {
-  background: #171622;
+  background: var(--nw-mode-art-dark-ground);
 }
 :host(.appearance-panel--workspace) .appearance-panel__mode-art[data-mode='dark'] i {
-  background: #292835;
+  background: var(--nw-mode-art-dark-card);
 }
 :host(.appearance-panel--workspace) .appearance-panel__mode-art[data-mode='system'] {
-  background: linear-gradient(90deg, #eeedf4 50%, #171622 50%);
+  background: linear-gradient(
+    90deg,
+    var(--nw-mode-art-light-ground) 50%,
+    var(--nw-mode-art-dark-ground) 50%
+  );
 }
 :host(.appearance-panel--workspace) .appearance-panel__mode-label {
   min-inline-size: 0;

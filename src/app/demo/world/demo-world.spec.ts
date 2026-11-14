@@ -216,10 +216,14 @@ describe('demo world: derived figures', () => {
     expect(alAmal && subscriptionFactOf(world, alAmal.id)?.currentPeriodEnd).toBe(
       '2026-10-23T06:00:00.000Z',
     );
-    // Pre-existing (fails identically on main 376e310): the seed gives 5 and 3 here, not 3 and 1. Left for a
-    // dedicated test-recovery package; subscription-facts.spec pins the actual values.
-    expect(subscriptionsEndingWithin(world, organizationsOf(world, S), NOW, 14)).toBe(3);
-    expect(subscriptionsEndingWithin(world, organizationsOf(world, D), NOW, 14)).toBe(1);
+    // Active, not terminating, ending in (now, now + 14 days] (WP-5.3, from the seed): School: Collège Riad 6 days,
+    // École Les Oliviers 2, École Ibn Sina 12, Lycée Averroès 7, Lycée Ibn Khaldoun 3; Drive: Permis Express 9,
+    // Auto-École Sahara 11, Auto-École Médina 13. The next ones end in 15 days or later. subscription-facts.spec pins
+    // the same values.
+    expect(subscriptionsEndingWithin(world, organizationsOf(world, S), NOW, 14)).toBe(5);
+    expect(subscriptionsEndingWithin(world, organizationsOf(world, D), NOW, 14)).toBe(3);
+    // The window's edge: none of them ends on or before now, and widening to 15 days adds Auto-École Andalous.
+    expect(subscriptionsEndingWithin(world, organizationsOf(world, D), NOW, 15)).toBe(4);
   });
 
   it('derives growth from creation dates at explicit UTC day boundaries', () => {
