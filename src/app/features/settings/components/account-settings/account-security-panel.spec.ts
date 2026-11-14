@@ -38,15 +38,19 @@ for (const authorized of [true, false]) {
         status.textContent?.trim(),
       ),
     ).toEqual(Array(3).fill(en.settings.account.notReported));
-    expect(Boolean(element.querySelector('.account-security__header a'))).toBe(authorized);
+    expect(Boolean(element.querySelector('.account-security__actions a'))).toBe(authorized);
     expect(element.querySelectorAll('.account-security__explanation')).toHaveLength(1);
     expect(element.textContent).toContain(en.settings.account.securitySessionNote);
     expect(element.textContent).not.toMatch(/Enabled|Configured|Not configured|Not available/);
     expect(element.querySelector('form,input,button')).toBeNull();
-    expect(Boolean(element.querySelector('a[href="/settings/security"]'))).toBe(authorized);
-    expect(
-      element.querySelector('a')?.classList.contains('nw-button--primary') ?? !authorized,
-    ).toBe(true);
+    // The one link: to the existing Security page, named in words, the Account page's outline look.
+    const link = element.querySelector<HTMLAnchorElement>('a[href="/settings/security"]');
+    expect(Boolean(link)).toBe(authorized);
+    expect(element.querySelectorAll('a')).toHaveLength(authorized ? 1 : 0);
+    if (link) {
+      expect(link.textContent?.trim()).toBe(en.settings.account.reviewSecurity);
+      expect(link.classList.contains('nw-button--outline')).toBe(true);
+    }
   });
 }
 

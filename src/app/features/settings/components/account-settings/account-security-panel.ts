@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { NwButton } from '../../../../shared/ui/button/button';
 import { NwIcon } from '../../../../shared/ui/icon/icon';
 import { AccountSecurityInfo } from '../../application/account-settings-view';
 
@@ -18,7 +20,7 @@ const STATUS_KEYS: Readonly<Record<AccountSecurityInfo['status'], string>> = {
 /** Presentation only: no security query, enrollment inference or authorization policy. */
 @Component({
   selector: 'adm-account-security-panel',
-  imports: [TranslocoPipe, NwIcon],
+  imports: [TranslocoPipe, RouterLink, NwButton, NwIcon],
   template: `
     <h3 id="account-security-heading" class="nw-visually-hidden">
       {{ 'settings.account.securityTab' | transloco }}
@@ -55,6 +57,20 @@ const STATUS_KEYS: Readonly<Record<AccountSecurityInfo['status'], string>> = {
       <p class="account-security__explanation">
         <nw-icon name="info" size="sm" /><span>{{ note | transloco }}</span>
       </p>
+    }
+    <!-- The panel's own way to the Security page (owner decision, WP-5.3b), for those who may view it. -->
+    @if (securityLink()) {
+      <div class="account-security__actions">
+        <a
+          class="account-security__link"
+          nw-button
+          variant="outline"
+          routerLink="/settings/security"
+        >
+          {{ 'settings.account.reviewSecurity' | transloco
+          }}<nw-icon name="arrow-right" size="sm" />
+        </a>
+      </div>
     }
   `,
   styleUrl: './account-security-panel.scss',

@@ -111,7 +111,8 @@
 }
 @container account-workspace (max-width: 32rem) {
   .account-security__header,
-  .account-security__explanation {
+  .account-security__explanation,
+  .account-security__actions {
     padding-inline: var(--nw-space-4);
   }
   .account-security__card {
@@ -134,8 +135,22 @@
   }
 }
 
+.account-security__actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--nw-space-4) 1.5rem;
+  border-block-start: 1px solid var(--nw-border-subtle);
+}
+// The look the link had on the Account page (an outline button in the brand colour).
 .account-security__link.nw-button {
+  --nw-button-bg: var(--nw-surface-raised);
+  --nw-button-border: var(--nw-text-brand);
+  --nw-button-fg: var(--nw-text-brand);
+  --nw-button-bg-hover: var(--nw-surface-brand-subtle);
+
   min-block-size: 2.5rem;
+  max-inline-size: 100%;
+  white-space: normal;
   font-size: 0.8125rem;
   font-weight: var(--nw-font-weight-medium);
 }

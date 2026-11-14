@@ -40,6 +40,7 @@ const UNAVAILABLE: Metric = { status: 'unavailable' };
  * own and shows "not available" rather than a made-up zero; owner-only sections are not rendered for an operator.
  * Everything is read only: actions whose destination is not built are shown unavailable and say so.
  */
+import { AssistedPaymentsPolicyCard } from '../components/assisted-payments-policy/assisted-payments-policy';
 @Component({
   selector: 'adm-platform-dashboard-page',
   imports: [
@@ -58,6 +59,7 @@ const UNAVAILABLE: Metric = { status: 'unavailable' };
     OrganizationDirectoryPage,
     SubscriptionSummary,
     CreateOrganizationButton,
+    AssistedPaymentsPolicyCard,
   ],
   templateUrl: './platform-dashboard.page.html',
   styleUrl: './platform-dashboard.page.scss',

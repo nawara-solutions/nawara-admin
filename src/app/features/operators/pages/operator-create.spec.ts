@@ -143,7 +143,13 @@ describe('Create an operator (P6-S4)', { timeout: 20_000 }, () => {
     await s.settle();
     expect(s.input('operator-contact')?.value).toBe('');
     expect(s.input('operator-contact')?.type).toBe('tel');
+    // The phone field takes the 8 digits after the fixed +216 (owner decision, WP-5.3b): anything else is not kept,
+    // so an email typed there leaves it empty, and fewer than 8 digits is not a number.
     await s.type('operator-contact', 'someone@demo.nawara.invalid');
+    expect(s.input('operator-contact')?.value).toBe('');
+    await s.submit('operator-create-form');
+    expect(text(s.dialog())).toContain(C.phoneRequired);
+    await s.type('operator-contact', '1234');
     await s.submit('operator-create-form');
     expect(text(s.dialog())).toContain(C.phoneInvalid);
     expect(s.createSpy).not.toHaveBeenCalled();
@@ -183,11 +189,12 @@ describe('Create an operator (P6-S4)', { timeout: 20_000 }, () => {
 
   it('creates a phone operator from a formatted number', async () => {
     const s = await setUp();
-    await s.create('+999 (0000) 0099', 'phone');
-    expect(s.createSpy.mock.calls[0]?.[0]).toEqual({ kind: 'phone', phone: '+99900000099' });
+    // +216 and the 8 digits typed (spaces dropped); Core accepts it (`^\+?[0-9]{8,15}$` after normalization).
+    await s.create('98 765 432', 'phone');
+    expect(s.createSpy.mock.calls[0]?.[0]).toEqual({ kind: 'phone', phone: '+21698765432' });
     expect(s.world.snapshot().operators.at(-1)).toMatchObject({
       email: null,
-      phone: '+99900000099',
+      phone: '+21698765432',
     });
   });
 

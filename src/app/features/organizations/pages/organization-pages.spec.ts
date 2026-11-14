@@ -1,3 +1,4 @@
+import { Dialog } from '@angular/cdk/dialog';
 import { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
@@ -313,6 +314,8 @@ describe('OrganizationDetailPage', () => {
   });
 
   it('shows the owner identity, figures, membership, activity, About and the commercial sections', async () => {
+    // The approved PR #89 layout: the page's figures and members, the rest in the "Overview" side panel.
+    const d = en.organizations.detail;
     const { element, organizations, commercial, settle } = await render(
       OrganizationDetailPage,
       owner,
@@ -326,54 +329,40 @@ describe('OrganizationDetailPage', () => {
     commercial.loads[0]?.answer.next(commercialOf());
     await settle();
     expect(text(element.querySelector('h1'))).toBe('Collège Riad');
-    expect(element.querySelector('.organization-detail__platform')?.getAttribute('href')).toBe(
-      '/platforms/school',
-    );
-    expect(element.querySelectorAll('adm-summary-card')).toHaveLength(3);
-    expect([...element.querySelectorAll('h2')].map((h) => text(h))).toEqual([
-      en.organizations.detail.membership,
-      en.organizations.invitations.title,
-      en.organizations.detail.activity,
-      en.organizations.detail.about,
-      en.organizations.detail.subscription,
-      en.organizations.detail.payments,
-      en.organizations.detail.assistedPayments,
-    ]);
-    expect(text(element)).toContain(en.organizations.activity.adminInvitationCreated);
-    // A build without the invitation gateway: the owner's card says so, and Create is disabled with that reason.
-    const card = element.querySelector('adm-admin-invitations-card');
-    expect(text(card)).toContain(en.organizations.invitations.notInBuild);
-    const create = card?.querySelector('button');
-    expect(create?.getAttribute('aria-disabled')).toBe('true');
-    expect(text(element.querySelector(`#${create?.getAttribute('aria-describedby')}`))).toBe(
-      en.organizations.invitations.notInBuild,
-    );
-    expect(element.querySelector('.organization-detail__id')?.getAttribute('dir')).toBe('ltr');
-    // About lists the optional fields that were given, and only those; a phone number reads left to right.
-    const about = [...element.querySelectorAll('.organization-detail__row dt')].map((dt) =>
-      text(dt),
-    );
-    expect(about).toContain(en.organizations.detail.type);
-    expect(about).toContain(en.organizations.detail.phone);
-    expect(about).not.toContain(en.organizations.detail.taxCode);
-    expect(about).not.toContain(en.organizations.detail.address);
-    const phone = [...element.querySelectorAll('.organization-detail__row bdi')].find(
-      (b) => text(b) === '+213 21 00 00',
-    );
+    // The owner's figures: memberships, requests and awaiting invitations.
+    expect(
+      [...element.querySelectorAll('.organization-detail__summary-totals dt')].map((dt) =>
+        text(dt),
+      ),
+    ).toEqual([d.memberships, d.requests, d.invitations]);
+    const panel = (await openOverview(element, settle))!;
+    expect(text(panel)).toContain(en.organizations.activity.adminInvitationCreated);
+    // About: the Platform, the ID left to right, the creation date, and only the optional fields given.
+    const about = panel.querySelector('#organization-details-about')!;
+    const labels = [...about.querySelectorAll('dt')].map((dt) => text(dt));
+    expect(labels).toEqual(expect.arrayContaining([d.platform, d.organizationId, d.createdAt]));
+    expect(labels).toContain(d.type);
+    expect(labels).toContain(d.phone);
+    expect(labels).not.toContain(d.taxCode);
+    expect(labels).not.toContain(d.address);
+    expect(about.querySelector('a')?.getAttribute('href')).toBe('/platforms/school');
+    expect(about.querySelector('code')?.getAttribute('dir')).toBe('ltr');
+    const phone = [...about.querySelectorAll('bdi')].find((b) => text(b) === '+213 21 00 00');
     expect(phone?.getAttribute('dir')).toBe('ltr');
-    // A build without the command (here: no adapter) shows Edit details in About, disabled, with its reason.
-    const edit = [...element.querySelectorAll('adm-overview-card button')].find(
+    // A build without the command: Edit details is shown disabled, with its reason.
+    const edit = [...panel.querySelectorAll('button')].find(
       (b) => text(b) === en.organizations.edit.open,
     );
     expect(edit?.getAttribute('aria-disabled')).toBe('true');
-    expect(text(element.querySelector(`#${edit?.getAttribute('aria-describedby')}`))).toBe(
+    expect(text(panel.querySelector(`#${edit?.getAttribute('aria-describedby')}`))).toBe(
       en.organizations.edit.notInBuildReason,
     );
-    // Future actions are focusable, never actionable, and say why.
-    const unavailable = [...element.querySelectorAll('.organization-detail__unavailable-action')];
-    expect(unavailable.map((b) => b.getAttribute('aria-disabled'))).toEqual(['true', 'true']);
+    // The commercial section is the panel's Payments tab.
+    expect(panel.querySelector('#organization-details-tab-payments')).not.toBeNull();
     // No lifecycle status is invented.
-    expect(text(element).toLowerCase()).not.toMatch(/\b(suspended|archived|provisioned)\b/);
+    expect(`${text(element)} ${text(panel)}`.toLowerCase()).not.toMatch(
+      /\b(suspended|archived|provisioned)\b/,
+    );
   });
 
   it('links the owner’s activity card to the activity browser with this Organization preselected (P8-S1)', async () => {
@@ -392,6 +381,7 @@ describe('OrganizationDetailPage', () => {
   });
 
   it('shows an operator the hierarchy facts only', async () => {
+    const d = en.organizations.detail;
     const { element, organizations, commercial, settle } = await render(
       OrganizationDetailPage,
       operator,
@@ -404,27 +394,36 @@ describe('OrganizationDetailPage', () => {
     });
     await settle();
     expect(commercial.loads).toHaveLength(0);
-    expect(element.querySelectorAll('adm-summary-card')).toHaveLength(2);
-    expect([...element.querySelectorAll('h2')].map((h) => text(h))).toEqual([
-      en.organizations.detail.membership,
-      en.organizations.detail.about,
-    ]);
-    // No invitation card for operators (Core refuses them), and no activity browser link.
-    expect(element.querySelector('adm-admin-invitations-card')).toBeNull();
-    expect(element.querySelector('[data-activity-browser]')).toBeNull();
-    expect(text(element.querySelector('.organization-detail__access'))).toBe(
-      en.organizations.header.accessOperator,
-    );
+    // Memberships and requests only: no invitations (Core refuses operators them).
+    expect(
+      [...element.querySelectorAll('.organization-detail__summary-totals dt')].map((dt) =>
+        text(dt),
+      ),
+    ).toEqual([d.memberships, d.requests]);
+    expect(
+      [...element.querySelectorAll('button')].some(
+        (b) => text(b) === en.organizations.invitations.view,
+      ),
+    ).toBe(false);
+    // The panel: About only, no Payments tab, no Activity and no activity browser link.
+    const panel = (await openOverview(element, settle))!;
+    expect(panel.querySelector('#organization-details-about')).not.toBeNull();
+    expect(panel.querySelector('#organization-details-tab-payments')).toBeNull();
+    expect(panel.querySelector('a.activity-link')).toBeNull();
+    expect(text(panel)).not.toContain(d.activity);
   });
 
   it('shows the subscription, its timeline and the entitlement as separate rows, per state (P7-S2)', async () => {
     const d = en.organizations.detail;
+    const L = en.subscriptionLifecycle.detail;
     const HOUR = 3_600_000;
+    // The panel's Payments tab (PR #89, lifecycle rows from WP-4.1); the entitlement stays its own row.
+    const timeline = [d.subscriptionState, L.periodStart, L.periodEnd, L.graceUntil, d.entitledNow];
     const cases = [
       {
         subscription: subscriptionFixture(new Date(NOW + 6 * 24 * HOUR).toISOString()),
         entitlement: 'entitled',
-        rows: [d.subscriptionState, d.endsAt, d.entitledNow],
+        rows: [...timeline, L.storedStatus],
         value: en.organizations.entitlement.entitled,
         note: d.activeNote,
       },
@@ -434,7 +433,7 @@ describe('OrganizationDetailPage', () => {
           new Date(NOW + 18 * HOUR).toISOString(),
         ),
         entitlement: 'entitledInGrace',
-        rows: [d.subscriptionState, d.endedAt, d.graceEndsAt, d.entitledNow],
+        rows: [...timeline, L.storedStatus],
         value: en.organizations.entitlement.entitledInGrace,
         note: d.graceNote,
       },
@@ -460,18 +459,29 @@ describe('OrganizationDetailPage', () => {
         entitlement: { status: 'available', data: c.entitlement },
       });
       await settle();
-      const section = element.querySelector('[data-subscription]');
-      expect([...(section?.querySelectorAll('dt') ?? [])].map((dt) => text(dt))).toEqual(c.rows);
-      expect(text(element.querySelector('[data-entitlement] dd'))).toBe(c.value);
-      expect(text(element.querySelector('[data-subscription-note]'))).toBe(c.note);
-      const link = [...element.querySelectorAll('adm-overview-card a')].find(
+      const panel = (await openOverview(element, settle))!;
+      panel.querySelector<HTMLButtonElement>('#organization-details-tab-payments')!.click();
+      await settle();
+      const payments = panel.querySelector('#organization-details-payments')!;
+      const section = payments.querySelector('section.details')!;
+      const rows = [...section.querySelectorAll(':scope > dl > div')];
+      expect(
+        rows.map((r) => text(r.querySelector('dt'))),
+        c.entitlement,
+      ).toEqual(c.rows);
+      const entitled = rows.find((r) => text(r.querySelector('dt')) === d.entitledNow);
+      expect(text(entitled?.querySelector('dd')), c.entitlement).toBe(c.value);
+      expect(text(section.querySelector('.subscription-note')), c.entitlement).toBe(c.note);
+      // The way to the Platform's subscriptions.
+      const link = [...panel.querySelectorAll('a')].find(
         (a) => text(a) === d.platformSubscriptions,
       );
       expect(link?.getAttribute('href')).toBe('/licenses/platforms/school');
-      // Membership stays its own card, with the same figures whatever the subscription.
-      expect(
-        text(element.querySelector('#organization-membership')?.closest('adm-overview-card')),
-      ).toContain(d.activeMemberships);
+      // Membership stays on the page, whatever the subscription.
+      expect(text(element.querySelector('.organization-detail__summary-totals'))).toContain(
+        d.memberships,
+      );
+      TestBed.inject(Dialog).closeAll();
       TestBed.resetTestingModule();
     }
   });

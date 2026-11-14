@@ -119,8 +119,22 @@ async function setup(actor: Actor = owner) {
 
 const text = (element: Element | null | undefined) =>
   element?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
-const links = (root: HTMLElement) =>
+/**
+ * X33 "Page sections" (`page-sections`) is in the workspace but NOT approved: it stays frozen (owner, WP-5.3b). These
+ * tests keep it apart: `links` are the approved sections only; `frozenSections` names what else is there, so a new
+ * entry can never slip in unnoticed, and nothing here treats X33's presence as approval.
+ */
+const FROZEN = ['page-sections'];
+const allLinks = (root: HTMLElement) =>
   Array.from(root.querySelectorAll<HTMLAnchorElement>('a.settings-workspace__link'));
+const links = (root: HTMLElement) =>
+  allLinks(root).filter((a) => !FROZEN.includes(a.dataset['section'] ?? ''));
+const frozenSections = (root: HTMLElement) =>
+  allLinks(root)
+    .map((a) => a.dataset['section'])
+    .filter((section) => FROZEN.includes(section ?? ''));
+const link = (root: HTMLElement, section: string) =>
+  allLinks(root).find((a) => a.dataset['section'] === section);
 const languageRadios = (root: HTMLElement) =>
   Array.from(
     root.querySelectorAll<HTMLInputElement>('input[type=radio][name="language-settings"]'),
@@ -160,6 +174,8 @@ describe('Settings pages (P9-S1)', () => {
             ]
           : []),
       ]);
+      // Besides those, only the frozen, unapproved X33 entry (never part of the approved list above).
+      expect(frozenSections(root())).toEqual(['page-sections']);
       expect(root().querySelectorAll('[aria-current="page"]')).toHaveLength(1);
       expect(
         root().querySelector('[data-section="appearance"]')?.getAttribute('aria-current'),
@@ -183,7 +199,7 @@ describe('Settings pages (P9-S1)', () => {
   it('navigates to Language and Appearance, and back and forward through the browser history', async () => {
     const { harness, root, router, location, settle, until } = await setup();
     await harness.navigateByUrl('/settings');
-    links(root())[1]?.click();
+    link(root(), 'language')?.click();
     await settle();
     expect(router.url).toBe('/settings/language');
     expect(text(root().querySelector('.language-settings__title'))).toBe(
@@ -202,7 +218,7 @@ describe('Settings pages (P9-S1)', () => {
 
     location.back();
     await until(() => router.url === '/settings');
-    links(root())[0]?.click();
+    link(root(), 'appearance')?.click();
     await settle();
     expect(router.url).toBe('/settings/appearance');
     // The Appearance panel: three modes, the compact accent selector (its list holds the palettes), the reset.
@@ -406,9 +422,11 @@ describe('Settings pages (P9-S1)', () => {
     // Top bar → Settings
     trigger?.click();
     await harness.fixture.whenStable();
-    const arabic = document.querySelector<HTMLElement>(
-      '.cdk-overlay-container [role="menuitem"][lang="ar"]',
-    );
+    // The item names each language in itself (PR #89: `lang` is on the item's label).
+    const arabic =
+      document
+        .querySelector('.cdk-overlay-container [lang="ar"]')
+        ?.closest<HTMLElement>('[role="menuitem"], .preference-menus__language-item') ?? null;
     expect(arabic).not.toBeNull();
     arabic?.click();
     await until(() => locale.locale() === 'ar');

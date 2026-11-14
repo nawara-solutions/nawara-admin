@@ -40,6 +40,12 @@
         <tr>
           <th scope="row">
             <ng-container *ngTemplateOutlet="identityLink; context: { $implicit: row }" />
+            <!-- The role in words on wide screens too (owner decision, WP-5.3b); the cards keep theirs. -->
+            @if (row.isOrganizationAdmin) {
+              <span class="member-list__admin member-list__admin--inline">{{
+                'organizations.members.role.admin' | transloco
+              }}</span>
+            }
           </th>
           <td>
             <bdi class="member-list__audience" dir="ltr" translate="no">{{ row.audience }}</bdi>

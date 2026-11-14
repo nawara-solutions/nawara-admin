@@ -59,12 +59,37 @@ describe('OrganizationMembersPage (demo world)', { timeout: 15_000 }, () => {
     expect(identities.every((t) => /^member-\d{4}@example\.invalid$|^\+999\d{9}$/.test(t))).toBe(
       true,
     );
-    // The role in words is on the cards (PR #89's table shows it to the owner through the role action only).
+    // The role in words, on the table (wide screens, WP-5.3b) and on the cards (narrow screens).
+    expect(element.querySelectorAll('.member-list__table .member-list__admin')).toHaveLength(1);
     expect(element.querySelectorAll('.member-list__cards .member-list__admin')).toHaveLength(1);
     // The breadcrumb label is the Organization's name, never a contact.
     expect(label.labelFor(MEMBERS)).toBe('École Horizon');
     // Cards exist for narrow widths, the same rows.
     expect(element.querySelectorAll('.member-list__card')).toHaveLength(64);
+  });
+
+  it('marks each organization admin in the table, in words, for the owner and an assigned operator alike (WP-5.3b)', async () => {
+    for (const [actor, identity] of [
+      [owner, DEMO_OWNER_ID],
+      [operatorOf(DEMO_OPERATOR_IDS.school), DEMO_OPERATOR_IDS.school],
+    ] as const) {
+      TestBed.resetTestingModule();
+      const { rows, world } = await render(OrganizationMembersPage, actor, identity, MEMBERS);
+      const admins = world
+        .snapshot()
+        .memberships.filter(
+          (m) => m.organizationId === HORIZON && m.status === 'active' && m.isOrganizationAdmin,
+        );
+      expect(admins.length, actor.kind).toBeGreaterThan(0);
+      const marked = rows().filter((r) => r.querySelector('th .member-list__admin'));
+      expect(marked, actor.kind).toHaveLength(admins.length);
+      for (const row of marked)
+        expect(text(row.querySelector('.member-list__admin'))).toBe(
+          en.organizations.members.role.admin,
+        );
+      // Ordinary members carry no badge, and the column set is unchanged.
+      expect(rows().length - marked.length).toBe(64 - admins.length);
+    }
   });
 
   it('keeps the search out of the URL; the admins filter and the sort go into it', async () => {

@@ -65,19 +65,6 @@
             [securityLink]="account.securityLink"
           />
         </section>
-        @if (account.securityLink) {
-          <div class="account-settings__security-actions">
-            <a
-              class="account-settings__security-link"
-              nw-button
-              variant="outline"
-              routerLink="/settings/security"
-            >
-              {{ 'settings.account.reviewSecurity' | transloco
-              }}<nw-icon name="arrow-right" size="sm" />
-            </a>
-          </div>
-        }
       }
     </div>
   </div>

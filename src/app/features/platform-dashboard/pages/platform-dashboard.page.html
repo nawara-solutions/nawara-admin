@@ -435,6 +435,48 @@
             </section>
           }
 
+          <!--
+            Assisted payments, read only (WP-2.2, restored by owner decision WP-5.3b): eligibility is Core's, per request,
+            so Admin states only that it is not verified. No switch, and never derived from the demo world's old flags.
+          -->
+          @if (facade.showsCommercial()) {
+            @let policies = facade.commercial();
+            <section
+              class="platform-dashboard__subscription-card"
+              [attr.aria-label]="'platformDashboard.policies.title' | transloco"
+              data-policies
+            >
+              <div class="platform-dashboard__subscription-content">
+                @switch (policies.status) {
+                  @case ('success') {
+                    @if (policies.data.assistedPayments.status === 'available') {
+                      <adm-assisted-payments-policy
+                        [policy]="policies.data.assistedPayments.data"
+                      />
+                    } @else {
+                      <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+                    }
+                  }
+                  @case ('error') {
+                    <ng-container
+                      [ngTemplateOutlet]="sectionUnavailable"
+                      [ngTemplateOutletContext]="{ retry: true }"
+                    />
+                  }
+                  @case ('forbidden') {
+                    <ng-container [ngTemplateOutlet]="sectionUnavailable" />
+                  }
+                  @default {
+                    <nw-data-state
+                      state="loading"
+                      [title]="'platformDashboard.states.loadingSection' | transloco"
+                    />
+                  }
+                }
+              </div>
+            </section>
+          }
+
           <adm-organization-directory-page [embedded]="true" />
         }
         @case ('error') {
