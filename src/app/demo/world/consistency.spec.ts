@@ -209,7 +209,8 @@ describe('demo world: cross-feature consistency', () => {
       const detail = await firstValueFrom(m.organizationCommercial.load(f.organizationId));
       expect(value(data(detail.paymentIssues))).toBeGreaterThan(0);
       // The issue sits beside the subscription and entitlement the detail shows, never changing them.
-      expect(data(detail.subscription).state).toBe(f.subscription);
+      // The same WP-4.1 lifecycle as the Organization's own details (M1).
+      expect(data(detail.subscription).lifecycle).toEqual(f.lifecycle);
       expect(data(detail.entitlement)).toBe(f.entitlement);
     }
   });

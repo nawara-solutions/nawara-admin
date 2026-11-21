@@ -33,6 +33,7 @@ import {
   BILLING_DEMO_SCENARIO,
   BillingDemoScenario,
   MockBillingGateway,
+  demoPaymentFollowUps,
 } from '../data-access/billing.mock';
 import { BillingPage } from './billing.page';
 
@@ -60,14 +61,19 @@ async function render(
   {
     gateway = 'mock',
     scenario = 'normal',
-  }: { gateway?: 'mock' | 'unavailable'; scenario?: BillingDemoScenario } = {},
+    lang = 'en',
+  }: {
+    gateway?: 'mock' | 'unavailable';
+    scenario?: BillingDemoScenario;
+    lang?: 'en' | 'fr' | 'ar';
+  } = {},
 ) {
   TestBed.configureTestingModule({
     imports: [
       BillingPage,
       TranslocoTestingModule.forRoot({
-        langs: { en },
-        translocoConfig: { availableLangs: ['en'], defaultLang: 'en' },
+        langs: { en, fr, ar },
+        translocoConfig: { availableLangs: ['en', 'fr', 'ar'], defaultLang: lang },
         preloadLangs: true,
       }),
     ],
@@ -133,18 +139,46 @@ describe('Billing & payments page (P7-S3)', { timeout: 15_000 }, () => {
         'Collège Riad',
         'Nawara School',
         t.kind.failed,
-        t.subscription.active,
+        en.subscriptionLifecycle.state.active,
         t.entitlement.entitled,
       ],
       [
         'Auto-École du Port',
         'Nawara Drive',
         t.kind.awaitingAction,
-        t.subscription.none,
+        en.subscriptionLifecycle.state.none,
         t.entitlement.notEntitled,
       ],
     ]);
     expect(text(element.querySelector('.billing__hint'))).toBe(t.list.separate);
+  });
+
+  it('shows each follow-up’s subscription with the shared lifecycle badge, in English, French and Arabic (M1)', async () => {
+    for (const [lang, copy] of [
+      ['en', en],
+      ['fr', fr],
+      ['ar', ar],
+    ] as const) {
+      TestBed.resetTestingModule();
+      const { element, world } = await render(owner, { lang });
+      const facts = demoPaymentFollowUps(world.snapshot(), NOW).followUps;
+      const badges = [...element.querySelectorAll('tbody tr adm-subscription-lifecycle-badge')];
+      expect(badges, lang).toHaveLength(facts.length);
+      badges.forEach((badge, i) => {
+        const state = facts[i]!.lifecycle.state;
+        expect(
+          badge.querySelector(`[data-lifecycle="${state}"]`),
+          `${lang} ${state}`,
+        ).not.toBeNull();
+        expect(text(badge.querySelector('[data-lifecycle]')), lang).toBe(
+          copy.subscriptionLifecycle.state[state],
+        );
+      });
+      // No raw key and no former three-state label.
+      expect(text(element.querySelector('tbody')), lang).not.toMatch(
+        /subscriptionLifecycle\.|billing\.subscription\./,
+      );
+    }
   });
 
   it('links each follow-up to its Organization and Platform', async () => {

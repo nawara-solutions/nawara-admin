@@ -12,7 +12,7 @@ import {
   organizationsOfCompany,
   paymentIssuesOf,
   platformRefOf,
-  subscriptionStateOf,
+  subscriptionLifecycleOf,
 } from '../../../demo/world/selectors';
 import { NW_CLOCK } from '../../../shared/format/clock';
 import { PaymentFollowUp, PaymentFollowUps } from '../domain/billing.model';
@@ -29,7 +29,7 @@ export const BILLING_DEMO_SCENARIO = new InjectionToken<BillingDemoScenario>(
 /**
  * The Company's payment follow-ups at `now`: exactly the world's payment-issue records of the Company's Organizations
  * (`paymentIssuesOf`, as the Company Overview counts them), each joined with its Organization, Platform, subscription
- * state and entitlement. Nothing is derived from a subscription: grace, an ending or a missing subscription makes no
+ * lifecycle (`subscriptionLifecycleOf`, as Licenses shows it) and entitlement. Nothing is derived from a subscription: grace, an ending or a missing subscription makes no
  * follow-up, and a follow-up changes no state.
  */
 export function demoPaymentFollowUps(world: DemoWorldTables, now: number): PaymentFollowUps {
@@ -44,7 +44,7 @@ export function demoPaymentFollowUps(world: DemoWorldTables, now: number): Payme
         organizationName: organization.name,
         platform,
         kind: issue.kind,
-        subscription: subscriptionStateOf(world, organization.id, now).state,
+        lifecycle: subscriptionLifecycleOf(world, organization.id, now),
         entitlement: entitlementOf(world, organization.id, now),
       },
     ];

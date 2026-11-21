@@ -96,7 +96,7 @@
                     >
                   </td>
                   <td class="billing__issue">{{ kindKeys[row.kind] | transloco }}</td>
-                  <td>{{ subscriptionKeys[row.subscription] | transloco }}</td>
+                  <td><adm-subscription-lifecycle-badge [lifecycle]="row.lifecycle" /></td>
                   <td>{{ entitlementKeys[row.entitlement] | transloco }}</td>
                 </tr>
               }

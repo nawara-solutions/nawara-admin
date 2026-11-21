@@ -1,3 +1,4 @@
+import { SubscriptionLifecycle } from '../../../shared/subscription/subscription-lifecycle';
 import { OrganizationId, PlatformRef } from '../../../core/context/scope.model';
 
 /**
@@ -18,7 +19,6 @@ import { OrganizationId, PlatformRef } from '../../../core/context/scope.model';
  */
 export type PaymentIssueKind = 'failed' | 'awaiting_action';
 
-export type FollowUpSubscriptionState = 'active' | 'grace' | 'none';
 export type FollowUpEntitlement = 'entitled' | 'entitledInGrace' | 'notEntitled';
 
 export interface PaymentFollowUp {
@@ -27,8 +27,11 @@ export interface PaymentFollowUp {
   readonly organizationName: string;
   readonly platform: PlatformRef;
   readonly kind: PaymentIssueKind;
-  /** The Organization's own subscription state now: a separate fact, never changed by the payment issue. */
-  readonly subscription: FollowUpSubscriptionState;
+  /**
+   * The Organization's subscription lifecycle now (WP-4.1, the same value the Licenses and Organization pages show): a
+   * separate fact, never changed by the payment issue.
+   */
+  readonly lifecycle: SubscriptionLifecycle;
   /** Whether the Organization is entitled now: a separate fact, never changed by the payment issue. */
   readonly entitlement: FollowUpEntitlement;
 }
