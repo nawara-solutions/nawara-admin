@@ -272,7 +272,8 @@
     "releases": "Releases",
     "assistanceDisputes": "Assistance disputes and exceptions",
     "assistanceSettlements": "Late settlements and cash returns",
-    "assistanceRecovery": "Recovery and surplus"
+    "assistanceRecovery": "Recovery and surplus",
+    "platformSettings": "Platform settings"
   },
   "shell": {
     "skipToContent": "Skip to content",
@@ -317,7 +318,8 @@
       "assistanceDisputes": "Disputes and exceptions",
       "assistanceSettlements": "Late settlements and returns",
       "assistanceRecovery": "Recovery and surplus",
-      "changeOrganization": "Current organization: {{name}}. Change organization."
+      "changeOrganization": "Current organization: {{name}}. Change organization.",
+      "platformSettings": "Settings"
     },
     "context": {
       "label": "Administration scope",
@@ -531,7 +533,8 @@
         "platformCreated": "Platform created",
         "operatorBlocked": "Operator blocked",
         "operatorUnblocked": "Operator unblocked",
-        "operatorCreated": "Operator created"
+        "operatorCreated": "Operator created",
+        "platformUpdated": "Platform renamed"
       },
       "auditLog": "Audit log",
       "companyLevel": "Company"
@@ -587,7 +590,8 @@
       "eyebrow": "Platform",
       "accessOwner": "Your access: Company owner",
       "accessOperator": "Your access: Assigned operator",
-      "backToPlatforms": "Back to Platforms"
+      "backToPlatforms": "Back to Platforms",
+      "settings": "Platform settings"
     },
     "figures": {
       "label": "Platform figures",
@@ -676,7 +680,8 @@
       "adminRemoved": "Organization-admin role removed",
       "operatorAssigned": "Operator assigned",
       "operatorUnassigned": "Operator access removed",
-      "platformCreated": "Platform created"
+      "platformCreated": "Platform created",
+      "platformUpdated": "Platform renamed"
     },
     "states": {
       "checking": "Opening the platform",
@@ -751,6 +756,44 @@
       "creatingShort": "Creating…",
       "created": "Platform “{{name}}” created.",
       "notCreated": "“{{name}}” was not created."
+    },
+    "settings": {
+      "title": "Platform settings",
+      "backToDashboard": "Back to the dashboard",
+      "identity": "Platform identity",
+      "name": "Name",
+      "key": "Key",
+      "noKey": "No key",
+      "product": "Product",
+      "noProduct": "Not set",
+      "identityNote": "Only the name can be changed. The key and the product are set by Nawara Core and cannot be changed here.",
+      "notConfigurable": "Commercial configuration and the platform’s lifecycle are not configurable in Admin."
+    },
+    "edit": {
+      "open": "Edit name",
+      "title": "Edit platform name",
+      "nameLabel": "Platform name",
+      "nameLimit": "1 to {{max}} characters. Spaces at the start and end are removed.",
+      "nameRequired": "Enter a name. The name can’t be empty.",
+      "nameTooLong": "Use at most {{max}} characters.",
+      "sentNote": "Only the name is sent. The key, the product and the company never change.",
+      "noChanges": "No changes to save.",
+      "simulated": "Demo: saving is simulated; no Nawara Core service is called.",
+      "save": "Save name",
+      "saving": "Saving the name…",
+      "savingShort": "Saving…",
+      "discardTitle": "Discard your change?",
+      "discardBody": "Your new name for “{{name}}” has not been saved.",
+      "discard": "Discard change",
+      "keepEditing": "Keep editing",
+      "saved": "Platform renamed to “{{name}}”.",
+      "notSaved": "The name of “{{name}}” was not changed.",
+      "outcomeUnknown": "We couldn’t confirm whether the name was saved: it may already be. Check the current name before saving again.",
+      "checkCurrent": "Check current name",
+      "reloadFailed": "The current name could not be loaded. Try again in a moment.",
+      "reloadedKept": "This is the current name. Your new name is kept: review it, then save if still needed.",
+      "reloadedSaved": "This is the current name: your change is already saved. Nothing more to do.",
+      "notInBuildReason": "Editing the platform name is not available in this build."
     }
   },
   "organizations": {
@@ -1676,7 +1719,7 @@
         },
         "platforms": {
           "title": "Platforms & Organizations",
-          "description": "Each Platform and its Organizations."
+          "description": "Each Platform, its settings (from its dashboard) and its Organizations."
         },
         "operators": {
           "title": "Operators & access",
@@ -3403,7 +3446,8 @@
       "operatorUnassigned": "Operator Platform access removed",
       "operatorCreated": "Operator account created",
       "operatorBlocked": "Operator account blocked",
-      "operatorUnblocked": "Operator account unblocked"
+      "operatorUnblocked": "Operator account unblocked",
+      "platformUpdated": "Platform renamed"
     },
     "states": {
       "loading": "Loading activity…",

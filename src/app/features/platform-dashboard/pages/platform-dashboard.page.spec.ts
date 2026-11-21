@@ -195,6 +195,23 @@ describe('PlatformDashboardPage', () => {
     expect(await openUpdates(page, settle)).toHaveLength(1);
   });
 
+  // M4: the owner's entry to the Platform settings; an assigned operator never sees it (no configuration authority).
+  it('offers the owner "Platform settings" in the header, and an operator nothing', async () => {
+    const { page, dashboard, commercial, settle } = await render(owner);
+    dashboard.requests[0]?.answer.next(dashboardOf(SCHOOL));
+    commercial.requests[0]?.answer.next(commercialOf(SCHOOL));
+    await settle();
+    const link = page.querySelector('.platform-dashboard__header [data-platform-settings]');
+    expect(text(link)).toBe(en.platformDashboard.header.settings);
+    expect(link?.getAttribute('href')).toBe(`/platforms/${SCHOOL}/settings`);
+    TestBed.resetTestingModule();
+    const assigned = await render(operator);
+    assigned.dashboard.requests[0]?.answer.next(dashboardOf(SCHOOL));
+    await assigned.settle();
+    expect(assigned.page.querySelector('[data-platform-settings]')).toBeNull();
+    expect(assigned.page.textContent).not.toContain(en.platformDashboard.header.settings);
+  });
+
   it('shows loading while the dashboard is asked for', async () => {
     const { page } = await render(owner);
     expect(

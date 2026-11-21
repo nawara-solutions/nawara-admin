@@ -46,6 +46,7 @@ export const ACTIVITY_ACTIONS: readonly ActivityAction[] = [
   'organization.admin.granted',
   'organization.admin.revoked',
   'platform.created',
+  'platform.updated',
   'operator.assigned',
   'operator.unassigned',
   'operator.created',

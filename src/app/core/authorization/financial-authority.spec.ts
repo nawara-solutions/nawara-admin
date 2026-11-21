@@ -196,8 +196,10 @@ describe('attemptableFinancialOperations', () => {
 });
 
 describe('existing runtime capability policy', () => {
-  // Assistance A4 added one READ capability, `company.assistance.view` (the case directory): still no financial command.
-  it('is unchanged but for one read: operators hold no capability, the owner 23', () => {
+  // Assistance A4 added one READ capability, `company.assistance.view` (the case directory), and M4 one Platform-settings
+  // capability, `platform.settings.view` (the Platform name edit; no financial or commercial setting): still no
+  // financial command.
+  it('is unchanged but for one read and Platform settings: operators hold no capability, the owner 24', () => {
     expect(capabilitiesOf(operator).size).toBe(0);
     expect([...capabilitiesOf(owner)].sort()).toEqual(
       [
@@ -224,6 +226,7 @@ describe('existing runtime capability policy', () => {
         'platform.commercial.view',
         'platform.activity.view',
         'platform.access.view',
+        'platform.settings.view',
       ].sort(),
     );
   });

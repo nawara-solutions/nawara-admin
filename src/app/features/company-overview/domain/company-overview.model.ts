@@ -86,6 +86,7 @@ export interface GrowthSeries {
 /** Administrative actions shown in the activity feed (machine values; labels come from the catalog). */
 export type ActivityAction =
   | 'platform.created'
+  | 'platform.updated'
   | 'organization.created'
   | 'organization.updated'
   | 'operator.assigned'

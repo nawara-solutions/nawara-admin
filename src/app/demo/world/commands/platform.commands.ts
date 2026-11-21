@@ -1,4 +1,5 @@
 import { CompanyId, PlatformId, platformId } from '../../../core/context/scope.model';
+import { AppError } from '../../../core/errors/app-error';
 import { CommandOutcome } from '../demo-world';
 import { AdminIdentityId, DemoWorldTables, PlatformRecord } from '../records';
 
@@ -101,6 +102,111 @@ export function createPlatform(
           actor: input.actor,
           request,
           resultId: platform.id,
+        },
+      ],
+    },
+  };
+}
+
+// ── Platform edit (M4) ─────────────────────────────────────────────────────────────────────────────────────────────
+// Core, verified at nawara-core `b1baacc`: `PATCH /organization/admin/platforms/:id` (organization-service
+// `admin/admin.controller.ts` `updatePlatform`): the body holds `name` only (`domain/platform-input.ts`
+// `normaliseUpdatePlatform`: unknown fields refused, `id`, `companyId`, `createdAt`, `updatedAt` refused as immutable,
+// at least one field, the name 1–200 after trimming and stored trimmed); the Platform (`404`), then authority (the owner
+// of its Company only, `canUpdatePlatform`; `403 admin_forbidden`); NOT sensitive, so no step-up and no idempotency key;
+// no version check. The same name changes nothing and records nothing (`platform.repository.ts` `update`).
+
+export const UPDATE_PLATFORM_COMMAND = 'platform.update';
+
+/** The one field Core's PATCH accepts, trimmed. */
+export interface NormalisedPlatformPatch {
+  readonly name: string;
+}
+
+const PLATFORM_IMMUTABLE_FIELDS: readonly string[] = ['id', 'companyId', 'createdAt', 'updatedAt'];
+
+const invalidPlatformRequest = (message: string): AppError => ({
+  kind: 'validation',
+  code: 'invalid_platform_request',
+  messages: [message],
+  status: 400,
+});
+
+/** The body as Core's `normaliseUpdatePlatform` reads it: `{ name }` only, a non-blank name of at most 200 characters. */
+export function normalisePlatformPatch(raw: unknown): NormalisedPlatformPatch | AppError {
+  if (raw === null || typeof raw !== 'object' || Array.isArray(raw))
+    return invalidPlatformRequest('body must be an object');
+  const body = raw as Record<string, unknown>;
+  for (const key of Object.keys(body)) {
+    if (PLATFORM_IMMUTABLE_FIELDS.includes(key))
+      return invalidPlatformRequest(`${key} cannot be changed`);
+    if (key !== 'name') return invalidPlatformRequest(`unknown field ${key}`);
+  }
+  if (!('name' in body)) return invalidPlatformRequest('at least one field is required');
+  const name = body['name'];
+  if (
+    typeof name !== 'string' ||
+    name.trim() === '' ||
+    name.trim().length > PLATFORM_NAME_MAX_LENGTH
+  )
+    return invalidPlatformRequest(`name must be 1 to ${PLATFORM_NAME_MAX_LENGTH} characters`);
+  return { name: name.trim() };
+}
+
+/** Core's `platformAuthority`: the owner of the Platform's Company, never an operator (an assignment confers nothing). */
+export const mayUpdatePlatform = (
+  world: DemoWorldTables,
+  actor: AdminIdentityId,
+  platform: PlatformRecord,
+): boolean => platform.companyId === world.company.id && world.company.ownerId === actor;
+
+export interface UpdatePlatformInput {
+  readonly platformId: PlatformId;
+  readonly patch: NormalisedPlatformPatch;
+  readonly actor: AdminIdentityId;
+  readonly now: number;
+}
+
+export interface UpdatePlatformResult {
+  readonly platform: PlatformRecord;
+  /** Whether the name really changed (the same name is a no-op, as in Core). */
+  readonly changed: boolean;
+}
+
+/**
+ * Renames one Platform: only its name. Its id, Company, key, product, Organizations, assignments, subscriptions and
+ * financial facts are untouched. The same name returns the world unchanged (no activity); a real change appends one
+ * simulated `platform.updated` activity record. No idempotency record: the PATCH has no key.
+ */
+export function updatePlatform(
+  world: DemoWorldTables,
+  input: UpdatePlatformInput,
+): CommandOutcome<UpdatePlatformResult> {
+  const current = world.platforms.find((p) => p.id === input.platformId);
+  if (current === undefined)
+    return { ok: false, error: { kind: 'not_found', code: 'not_found', status: 404 } };
+  if (!mayUpdatePlatform(world, input.actor, current))
+    return { ok: false, error: { kind: 'forbidden', code: 'admin_forbidden', status: 403 } };
+  if (input.patch.name === current.name)
+    return { ok: true, world, result: { platform: current, changed: false } };
+
+  const sequence = world.sequence + 1;
+  const platform: PlatformRecord = { ...current, name: input.patch.name };
+  return {
+    ok: true,
+    result: { platform, changed: true },
+    world: {
+      ...world,
+      sequence,
+      platforms: world.platforms.map((p) => (p.id === current.id ? platform : p)),
+      activity: [
+        ...world.activity,
+        {
+          id: `platform-activity-updated-${sequence}`,
+          platformId: current.id,
+          organizationId: null,
+          action: 'platform.updated',
+          occurredAt: new Date(input.now).toISOString(),
         },
       ],
     },

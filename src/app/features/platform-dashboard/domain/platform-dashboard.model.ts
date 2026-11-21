@@ -35,6 +35,7 @@ export interface RecentOrganization {
 /** Administrative actions of the activity feed (machine values; labels come from the catalog). */
 export type PlatformActivityAction =
   | 'platform.created'
+  | 'platform.updated'
   | 'organization.created'
   | 'organization.updated'
   | 'admin_invitation.created'

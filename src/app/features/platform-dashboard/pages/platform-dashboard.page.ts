@@ -7,6 +7,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { GrantsRefreshNotice } from '../../../layout/grants-refresh-notice/grants-refresh-notice';
 import { homePath } from '../../../core/access/home-path';
 import { AuthSession } from '../../../core/auth/auth-session';
+import { platformSettingsPath } from '../../../core/context/scope-context';
 import { ADAPTER_UNAVAILABLE } from '../../../core/errors/app-error';
 import { Metric, Section } from '../../../shared/dashboard/metric';
 import { SummaryCard } from '../../../shared/dashboard/summary-card/summary-card';
@@ -69,6 +70,7 @@ import { AssistedPaymentsPolicyCard } from '../components/assisted-payments-poli
 export class PlatformDashboardPage {
   protected readonly preferences = inject(AccordionPreferences);
   protected readonly facade = inject(PlatformDashboardFacade);
+  protected readonly settingsPath = platformSettingsPath;
   private readonly session = inject(AuthSession);
   private readonly translations = inject(TranslocoService);
   private readonly language = toSignal(this.translations.langChanges$);

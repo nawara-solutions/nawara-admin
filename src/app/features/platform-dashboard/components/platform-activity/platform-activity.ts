@@ -10,6 +10,7 @@ import {
 
 export const PLATFORM_ACTIVITY_ACTIONS = {
   'platform.created': { icon: 'hexagon', key: 'platformDashboard.activity.platformCreated' },
+  'platform.updated': { icon: 'pencil', key: 'platformDashboard.activity.platformUpdated' },
   'organization.created': {
     icon: 'building-2',
     key: 'platformDashboard.activity.organizationCreated',

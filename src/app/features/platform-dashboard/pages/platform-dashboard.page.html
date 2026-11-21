@@ -346,6 +346,18 @@
             }
           </button>
         }
+        @if (facade.showsSettings()) {
+          <a
+            nw-button
+            variant="secondary"
+            data-platform-settings
+            [routerLink]="settingsPath(platform.id)"
+          >
+            <nw-icon name="settings" size="sm" />{{
+              'platformDashboard.header.settings' | transloco
+            }}
+          </a>
+        }
         <adm-create-organization-button />
       </header>
 

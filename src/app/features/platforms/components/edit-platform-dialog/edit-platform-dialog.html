@@ -1,0 +1,145 @@
+@let current = state();
+<nw-dialog
+  [title]="
+    (view() === 'discard' ? 'platforms.edit.discardTitle' : 'platforms.edit.title') | transloco
+  "
+  [closeLabel]="'common.close' | transloco"
+  [busy]="busy()"
+  [guarded]="guarded()"
+  (closeRequested)="requestClose()"
+>
+  @if (view() === 'discard') {
+    <div class="edit-platform__body">
+      <p>{{ 'platforms.edit.discardBody' | transloco: { name: isolatedName() } }}</p>
+    </div>
+  } @else if (current.phase === 'pending') {
+    <div class="edit-platform__body">
+      <p class="edit-platform__summary">
+        <span>{{ 'platforms.edit.nameLabel' | transloco }}</span>
+        <bdi>{{ draft().trim() }}</bdi>
+      </p>
+      <p class="edit-platform__status" role="status">
+        <nw-spinner />{{ 'platforms.edit.saving' | transloco }}
+      </p>
+    </div>
+  } @else if (showsForm()) {
+    <form id="edit-platform-form" class="edit-platform__body" novalidate (submit)="save($event)">
+      @if (failure()?.kind === 'validation') {
+        <nw-inline-alert tone="danger">{{
+          'actions.failure.validation' | transloco
+        }}</nw-inline-alert>
+      }
+      @if (recovered()) {
+        <nw-inline-alert tone="info">
+          {{
+            (dirty() ? 'platforms.edit.reloadedKept' : 'platforms.edit.reloadedSaved') | transloco
+          }}
+        </nw-inline-alert>
+      }
+      <nw-form-field
+        [label]="'platforms.edit.nameLabel' | transloco"
+        [hint]="'platforms.edit.nameLimit' | transloco: { max: max }"
+        [error]="error() ? (error()! | transloco: { max: max }) : undefined"
+        [required]="true"
+      >
+        <input
+          #nameInput
+          nwControl
+          type="text"
+          name="platform-name"
+          autocomplete="off"
+          dir="auto"
+          [value]="draft()"
+          (input)="onName($event)"
+        />
+      </nw-form-field>
+      <p class="edit-platform__note" id="edit-platform-note">
+        <nw-icon name="file-text" size="sm" />
+        @if (dirty()) {
+          {{ 'platforms.edit.sentNote' | transloco }}
+        } @else {
+          {{ 'platforms.edit.noChanges' | transloco }}
+        }
+      </p>
+      @if (demo()) {
+        <p class="edit-platform__demo-chip">
+          <nw-icon name="flask-conical" size="sm" />{{ 'platforms.edit.simulated' | transloco }}
+        </p>
+      }
+    </form>
+  } @else if (current.phase === 'failed') {
+    <div class="edit-platform__body">
+      <nw-inline-alert
+        [tone]="
+          current.failure.kind === 'outcomeUnknown' || current.failure.kind === 'refused'
+            ? 'danger'
+            : 'warning'
+        "
+      >
+        {{ failureKey()! | transloco }}
+      </nw-inline-alert>
+      @if (reloadFailed()) {
+        <nw-inline-alert tone="danger">{{
+          'platforms.edit.reloadFailed' | transloco
+        }}</nw-inline-alert>
+      }
+    </div>
+  }
+
+  <div nwDialogActions>
+    @if (view() === 'discard') {
+      <button nw-button variant="secondary" type="button" (click)="discard()">
+        {{ 'platforms.edit.discard' | transloco }}
+      </button>
+      <button #keepEditing nw-button type="button" (click)="keepEditingChange()">
+        {{ 'platforms.edit.keepEditing' | transloco }}
+      </button>
+    } @else if (current.phase === 'pending') {
+      <button nw-button variant="ghost" type="button" aria-disabled="true">
+        {{ 'common.cancel' | transloco }}
+      </button>
+      <button #mainButton nw-button type="button" busy aria-disabled="true">
+        <nw-spinner />{{ 'platforms.edit.savingShort' | transloco }}
+      </button>
+    } @else if (showsForm()) {
+      <button nw-button variant="ghost" type="button" (click)="requestClose()">
+        {{ 'common.cancel' | transloco }}
+      </button>
+      <button
+        #mainButton
+        nw-button
+        type="submit"
+        form="edit-platform-form"
+        [attr.aria-disabled]="!dirty() || null"
+        [attr.aria-describedby]="dirty() ? null : 'edit-platform-note'"
+      >
+        {{ 'platforms.edit.save' | transloco }}
+      </button>
+    } @else if (current.phase === 'failed') {
+      <button nw-button variant="ghost" type="button" (click)="requestClose()">
+        {{ 'common.close' | transloco }}
+      </button>
+      @if (current.failure.kind === 'outcomeUnknown') {
+        <button
+          #mainButton
+          nw-button
+          type="button"
+          [busy]="reloading()"
+          [attr.aria-disabled]="reloading() || null"
+          (click)="checkCurrent()"
+        >
+          @if (reloading()) {
+            <nw-spinner />
+          } @else {
+            <nw-icon name="refresh-cw" size="sm" />
+          }
+          {{ 'platforms.edit.checkCurrent' | transloco }}
+        </button>
+      } @else if (canRetry()) {
+        <button #mainButton nw-button type="button" (click)="tryAgain()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'actions.retry' | transloco }}
+        </button>
+      }
+    }
+  </div>
+</nw-dialog>

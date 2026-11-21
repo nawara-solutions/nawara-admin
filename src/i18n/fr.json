@@ -272,7 +272,8 @@
     "releases": "Versions",
     "assistanceDisputes": "Contestations et exceptions d’assistance",
     "assistanceSettlements": "Règlements tardifs et restitutions d’espèces",
-    "assistanceRecovery": "Recouvrement et excédents"
+    "assistanceRecovery": "Recouvrement et excédents",
+    "platformSettings": "Paramètres de la plateforme"
   },
   "shell": {
     "skipToContent": "Aller au contenu",
@@ -317,7 +318,8 @@
       "assistanceDisputes": "Contestations et exceptions",
       "assistanceSettlements": "Règlements tardifs et restitutions",
       "assistanceRecovery": "Recouvrement et excédents",
-      "changeOrganization": "Organisation actuelle : {{name}}. Changer d’organisation."
+      "changeOrganization": "Organisation actuelle : {{name}}. Changer d’organisation.",
+      "platformSettings": "Paramètres"
     },
     "context": {
       "label": "Périmètre d’administration",
@@ -531,7 +533,8 @@
         "platformCreated": "Plateforme créée",
         "operatorBlocked": "Opérateur bloqué",
         "operatorUnblocked": "Opérateur débloqué",
-        "operatorCreated": "Opérateur créé"
+        "operatorCreated": "Opérateur créé",
+        "platformUpdated": "Plateforme renommée"
       },
       "auditLog": "Journal d’audit",
       "companyLevel": "Entreprise"
@@ -587,7 +590,8 @@
       "eyebrow": "Plateforme",
       "accessOwner": "Votre accès : propriétaire de l’entreprise",
       "accessOperator": "Votre accès : opérateur affecté",
-      "backToPlatforms": "Retour aux plateformes"
+      "backToPlatforms": "Retour aux plateformes",
+      "settings": "Paramètres de la plateforme"
     },
     "figures": {
       "label": "Chiffres de la plateforme",
@@ -676,7 +680,8 @@
       "adminRemoved": "Rôle d’administrateur d’organisation retiré",
       "operatorAssigned": "Opérateur affecté",
       "operatorUnassigned": "Accès d’opérateur retiré",
-      "platformCreated": "Plateforme créée"
+      "platformCreated": "Plateforme créée",
+      "platformUpdated": "Plateforme renommée"
     },
     "states": {
       "checking": "Ouverture de la plateforme",
@@ -751,6 +756,44 @@
       "creatingShort": "Création…",
       "created": "Plateforme « {{name}} » créée.",
       "notCreated": "« {{name}} » n’a pas été créée."
+    },
+    "settings": {
+      "title": "Paramètres de la plateforme",
+      "backToDashboard": "Retour au tableau de bord",
+      "identity": "Identité de la plateforme",
+      "name": "Nom",
+      "key": "Clé",
+      "noKey": "Aucune clé",
+      "product": "Produit",
+      "noProduct": "Non renseigné",
+      "identityNote": "Seul le nom peut être modifié. La clé et le produit sont définis par Nawara Core et ne peuvent pas être modifiés ici.",
+      "notConfigurable": "La configuration commerciale et le cycle de vie de la plateforme ne sont pas configurables dans Admin."
+    },
+    "edit": {
+      "open": "Modifier le nom",
+      "title": "Modifier le nom de la plateforme",
+      "nameLabel": "Nom de la plateforme",
+      "nameLimit": "De 1 à {{max}} caractères. Les espaces au début et à la fin sont supprimés.",
+      "nameRequired": "Saisissez un nom. Le nom ne peut pas être vide.",
+      "nameTooLong": "Utilisez au plus {{max}} caractères.",
+      "sentNote": "Seul le nom est envoyé. La clé, le produit et l’entreprise ne changent jamais.",
+      "noChanges": "Aucune modification à enregistrer.",
+      "simulated": "Démo : l’enregistrement est simulé ; aucun service Nawara Core n’est appelé.",
+      "save": "Enregistrer le nom",
+      "saving": "Enregistrement du nom…",
+      "savingShort": "Enregistrement…",
+      "discardTitle": "Abandonner votre modification ?",
+      "discardBody": "Le nouveau nom de « {{name}} » n’a pas été enregistré.",
+      "discard": "Abandonner",
+      "keepEditing": "Continuer la modification",
+      "saved": "Plateforme renommée en « {{name}} ».",
+      "notSaved": "Le nom de « {{name}} » n’a pas été modifié.",
+      "outcomeUnknown": "Nous n’avons pas pu confirmer l’enregistrement du nom : il a peut-être déjà eu lieu. Vérifiez le nom actuel avant d’enregistrer à nouveau.",
+      "checkCurrent": "Vérifier le nom actuel",
+      "reloadFailed": "Le nom actuel n’a pas pu être chargé. Réessayez dans un instant.",
+      "reloadedKept": "Voici le nom actuel. Votre nouveau nom est conservé : vérifiez-le, puis enregistrez si nécessaire.",
+      "reloadedSaved": "Voici le nom actuel : votre modification est déjà enregistrée. Rien d’autre à faire.",
+      "notInBuildReason": "La modification du nom de la plateforme n’est pas disponible dans cette version."
     }
   },
   "organizations": {
@@ -1676,7 +1719,7 @@
         },
         "platforms": {
           "title": "Plateformes et organisations",
-          "description": "Chaque plateforme et ses organisations."
+          "description": "Chaque plateforme, ses paramètres (depuis son tableau de bord) et ses organisations."
         },
         "operators": {
           "title": "Opérateurs et accès",
@@ -3403,7 +3446,8 @@
       "operatorUnassigned": "Accès à la plateforme retiré à un opérateur",
       "operatorCreated": "Compte d’opérateur créé",
       "operatorBlocked": "Compte d’opérateur bloqué",
-      "operatorUnblocked": "Compte d’opérateur débloqué"
+      "operatorUnblocked": "Compte d’opérateur débloqué",
+      "platformUpdated": "Plateforme renommée"
     },
     "states": {
       "loading": "Chargement de l’activité…",

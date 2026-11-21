@@ -101,6 +101,8 @@ export class Breadcrumbs implements AfterViewInit {
     if (scope.kind !== 'platform' || platforms.status !== 'success' || platforms.data.length < 2)
       return [];
     const page = this.context.platformPage();
+    // Only where the last crumb is the Platform itself: never on a page named below it (its settings, M4).
+    if (page.kind === 'other' && this.pageKey() !== null) return [];
     return page.kind === 'dashboard' || page.kind === 'other' ? platforms.data : [];
   });
   protected readonly switchOrganizations = computed(() => {
@@ -190,8 +192,19 @@ export class Breadcrumbs implements AfterViewInit {
         ? { label: name, translate: false }
         : { label: 'shell.breadcrumb.platform', translate: true };
       const page = this.context.platformPage();
-      if (page.kind === 'dashboard' || page.kind === 'other')
-        return [company, ...platforms, platform];
+      if (page.kind === 'dashboard') return [company, ...platforms, platform];
+      if (page.kind === 'other') {
+        // A Platform page of its own (its settings, M4) names itself below the Platform, which becomes a link.
+        const own = this.pageKey();
+        return own === null
+          ? [company, ...platforms, platform]
+          : [
+              company,
+              ...platforms,
+              { ...platform, link: platformPath(scope.platformId) },
+              { label: own.key, translate: true },
+            ];
+      }
       const organizations: Crumb = {
         label: 'shell.breadcrumb.organizations',
         translate: true,

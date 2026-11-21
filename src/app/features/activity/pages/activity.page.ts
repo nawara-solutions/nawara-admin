@@ -14,6 +14,7 @@ import { ActivityAction } from '../domain/activity.model';
 /** Catalog keys of the actions, listed in full (never built at runtime). */
 const ACTION_KEYS = {
   'platform.created': 'activity.actions.platformCreated',
+  'platform.updated': 'activity.actions.platformUpdated',
   'organization.created': 'activity.actions.organizationCreated',
   'organization.updated': 'activity.actions.organizationUpdated',
   'admin_invitation.created': 'activity.actions.adminInvitationCreated',
