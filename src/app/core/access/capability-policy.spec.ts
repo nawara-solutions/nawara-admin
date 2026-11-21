@@ -45,6 +45,7 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
       'platform.activity.view',
       'platform.commercial.view',
       'platform.create',
+      'platform.settings.view',
     ]);
   });
 
@@ -54,6 +55,8 @@ describe('CapabilityPolicy (UX only; Core authorizes)', () => {
     expect(can(operator, 'platform.commercial.view')).toBe(false);
     expect(can(operator, 'platform.activity.view')).toBe(false);
     expect(can(operator, 'platform.access.view')).toBe(false);
+    // Platform settings (M4): an assignment never confers configuration.
+    expect(can(operator, 'platform.settings.view')).toBe(false);
     expect(can(operator, 'company.overview.view')).toBe(false);
     expect(can(operator, 'operator.create')).toBe(false);
     expect(can(operator, 'company.commercial.view')).toBe(false);

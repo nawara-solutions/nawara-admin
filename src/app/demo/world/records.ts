@@ -435,6 +435,8 @@ export interface PlatformActivityRecord {
   readonly organizationId: OrganizationId | null;
   readonly action:
     | 'platform.created'
+    /** The owner renamed the Platform (M4; Core's audit action `platform.updated`). */
+    | 'platform.updated'
     | 'organization.created'
     | 'organization.updated'
     | 'admin_invitation.created'

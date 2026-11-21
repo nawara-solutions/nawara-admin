@@ -71,6 +71,8 @@ export class PlatformDashboardFacade {
   readonly showsActivity = computed(() => can(this.session.actor(), 'platform.activity.view'));
   readonly showsAccess = computed(() => can(this.session.actor(), 'platform.access.view'));
   readonly canOpenPlatforms = computed(() => can(this.session.actor(), 'company.platforms.view'));
+  /** The Platform settings entry (M4): the owner only; a Platform assignment never confers configuration. */
+  readonly showsSettings = computed(() => can(this.session.actor(), 'platform.settings.view'));
 
   private readonly commercialPlatformId = computed(() =>
     this.showsCommercial() ? this.platformId() : null,

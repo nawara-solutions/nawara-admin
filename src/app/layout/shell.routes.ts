@@ -201,6 +201,18 @@ export async function loadShellRoutes(environment: AppEnvironment): Promise<Rout
           },
         },
         {
+          // A Platform's settings (M4): the owner only; the access check is the page's (collapsed 404, operators included).
+          path: 'platforms/:platformId/settings',
+          title: 'titles.platformSettings',
+          data: { [BREADCRUMB_DATA]: 'shell.breadcrumb.platformSettings' },
+          loadChildren: () => {
+            const env = inject(APP_ENVIRONMENT);
+            return import('../features/platforms/platform-settings.routes').then((m) =>
+              m.loadPlatformSettingsRoutes(env),
+            );
+          },
+        },
+        {
           // The Platform dashboard: owner or assigned operator; the access check is the page's (collapsed 404).
           path: 'platforms/:platformId',
           title: 'titles.platform',

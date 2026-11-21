@@ -11,6 +11,11 @@ const ACTIONS = {
     accent: 'pink',
     labelKey: 'companyOverview.activity.actions.platformCreated',
   },
+  'platform.updated': {
+    icon: 'pencil',
+    accent: 'pink',
+    labelKey: 'companyOverview.activity.actions.platformUpdated',
+  },
   'organization.created': {
     icon: 'store',
     accent: 'pink',

@@ -1,0 +1,165 @@
+@let access = facade.access();
+@switch (access.status) {
+  @case ('granted') {
+    @let platform = access.platform;
+    <header class="platform-settings__header">
+      <div class="platform-settings__titles">
+        <h1 class="nw-page-title">{{ 'platforms.settings.title' | transloco }}</h1>
+        <p class="platform-settings__subtitle">
+          <bdi>{{ platform.name }}</bdi>
+        </p>
+      </div>
+      <a nw-button variant="secondary" [routerLink]="dashboardPath()">
+        <nw-icon name="arrow-left" size="sm" />{{
+          'platforms.settings.backToDashboard' | transloco
+        }}
+      </a>
+    </header>
+
+    <section
+      class="platform-settings__card"
+      aria-labelledby="platform-settings-identity"
+      data-identity
+    >
+      <div class="platform-settings__card-header">
+        <h2 id="platform-settings-identity">{{ 'platforms.settings.identity' | transloco }}</h2>
+        <button
+          nw-button
+          variant="secondary"
+          type="button"
+          data-edit-name
+          [attr.aria-disabled]="!edit.available || null"
+          [attr.aria-describedby]="edit.available ? null : 'platform-edit-unavailable'"
+          (click)="edit.open(platform)"
+        >
+          <nw-icon name="pencil" size="sm" />{{ 'platforms.edit.open' | transloco }}
+        </button>
+        @if (!edit.available) {
+          <span id="platform-edit-unavailable" class="nw-visually-hidden">{{
+            'platforms.edit.notInBuildReason' | transloco
+          }}</span>
+        }
+      </div>
+      <dl class="platform-settings__facts">
+        <div data-name>
+          <dt>{{ 'platforms.settings.name' | transloco }}</dt>
+          <dd>
+            <bdi>{{ platform.name }}</bdi>
+          </dd>
+        </div>
+        <div data-key>
+          <dt>
+            {{ 'platforms.settings.key' | transloco }}
+            <span class="platform-settings__read-only"
+              ><nw-icon name="lock-keyhole" size="sm" />{{
+                'settings.account.readOnly' | transloco
+              }}</span
+            >
+          </dt>
+          <dd>
+            @if (platform.key) {
+              <code dir="ltr">{{ platform.key }}</code>
+            } @else {
+              <span class="platform-settings__muted">{{
+                'platforms.settings.noKey' | transloco
+              }}</span>
+            }
+          </dd>
+        </div>
+        <div data-product>
+          <dt>
+            {{ 'platforms.settings.product' | transloco }}
+            <span class="platform-settings__read-only"
+              ><nw-icon name="lock-keyhole" size="sm" />{{
+                'settings.account.readOnly' | transloco
+              }}</span
+            >
+          </dt>
+          <dd>
+            @if (platform.product) {
+              {{ productKeys[platform.product] | transloco }}
+            } @else {
+              <span class="platform-settings__muted">{{
+                'platforms.settings.noProduct' | transloco
+              }}</span>
+            }
+          </dd>
+        </div>
+      </dl>
+      <p class="platform-settings__muted">{{ 'platforms.settings.identityNote' | transloco }}</p>
+    </section>
+
+    <section
+      class="platform-settings__card"
+      aria-labelledby="platform-settings-policies"
+      data-policies
+    >
+      <h2 id="platform-settings-policies">{{ 'platformDashboard.policies.title' | transloco }}</h2>
+      @let commercial = facade.commercial();
+      @switch (commercial.status) {
+        @case ('success') {
+          @if (commercial.data.assistedPayments.status === 'available') {
+            <adm-assisted-payments-policy [policy]="commercial.data.assistedPayments.data" />
+          } @else {
+            <p class="platform-settings__muted">
+              {{ 'platformDashboard.states.sectionUnavailable' | transloco }}
+            </p>
+          }
+        }
+        @case ('error') {
+          <p class="platform-settings__muted">
+            {{ 'platformDashboard.states.sectionUnavailable' | transloco }}
+          </p>
+          <button nw-button variant="ghost" size="sm" type="button" (click)="facade.reload()">
+            <nw-icon name="refresh-cw" size="sm" />{{
+              'platformDashboard.states.retry' | transloco
+            }}
+          </button>
+        }
+        @case ('forbidden') {
+          <p class="platform-settings__muted">
+            {{ 'platformDashboard.states.sectionUnavailable' | transloco }}
+          </p>
+        }
+        @default {
+          <p class="platform-settings__muted" role="status">
+            {{ 'platformDashboard.states.loadingSection' | transloco }}
+          </p>
+        }
+      }
+    </section>
+
+    <p class="platform-settings__availability" data-availability>
+      <nw-icon name="info" size="sm" />{{ 'platforms.settings.notConfigurable' | transloco }}
+    </p>
+  }
+  @case ('directoryUnavailable') {
+    <h1 class="nw-visually-hidden">{{ 'platformDashboard.states.directoryTitle' | transloco }}</h1>
+    <nw-data-state
+      state="error"
+      [title]="'platformDashboard.states.directoryTitle' | transloco"
+      [description]="'platformDashboard.states.directoryDescription' | transloco"
+    >
+      <div nwDataStateActions>
+        <button nw-button variant="secondary" type="button" (click)="facade.reload()">
+          <nw-icon name="refresh-cw" size="sm" />{{ 'platformDashboard.states.retry' | transloco }}
+        </button>
+      </div>
+    </nw-data-state>
+  }
+  @case ('notAccessible') {
+    <h1 class="nw-visually-hidden">
+      {{ 'platformDashboard.states.notAccessibleTitle' | transloco }}
+    </h1>
+    <nw-data-state
+      state="empty"
+      data-not-accessible
+      [title]="'platformDashboard.states.notAccessibleTitle' | transloco"
+      [description]="'platformDashboard.states.notAccessibleDescription' | transloco"
+    />
+  }
+  @default {
+    <h1 class="nw-visually-hidden">{{ 'platformDashboard.states.checking' | transloco }}</h1>
+    <nw-data-state state="loading" [title]="'platformDashboard.states.checking' | transloco" />
+  }
+}

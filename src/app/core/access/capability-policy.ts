@@ -117,7 +117,12 @@ export type Capability =
   /** A Platform's administrative activity: Core's owner audit read; operators have no audit read (CF-04). */
   | 'platform.activity.view'
   /** Operator assignments and admin invitations of a Platform: the owner manages both; operators manage neither. */
-  | 'platform.access.view';
+  | 'platform.access.view'
+  /**
+   * A Platform's settings (`/platforms/:platformId/settings`, M4) and its name edit: the Company owner only, as Core's
+   * `canUpdatePlatform` (organization-service `authorization-evaluator.ts`). A Platform assignment never confers it.
+   */
+  | 'platform.settings.view';
 
 const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'company.scope',
@@ -143,6 +148,7 @@ const OWNER_CAPABILITIES: ReadonlySet<Capability> = new Set<Capability>([
   'platform.commercial.view',
   'platform.activity.view',
   'platform.access.view',
+  'platform.settings.view',
 ]);
 const NONE: ReadonlySet<Capability> = new Set<Capability>();
 

@@ -1,0 +1,93 @@
+// Platform settings (M4): the identity card, the read-only policies card and the availability note, in the cards of
+// the Settings pages (border, raised surface, small shadow).
+:host {
+  display: grid;
+  align-content: start;
+  gap: var(--nw-space-5);
+  min-inline-size: 0;
+  container-type: inline-size;
+}
+
+.platform-settings__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--nw-space-3);
+}
+
+.platform-settings__titles {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.platform-settings__subtitle,
+.platform-settings__muted {
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+  overflow-wrap: anywhere;
+}
+
+.platform-settings__card {
+  display: grid;
+  gap: var(--nw-space-4);
+  min-inline-size: 0;
+  padding: var(--nw-space-5);
+  border: 1px solid var(--nw-border-subtle);
+  border-radius: var(--nw-radius-xl);
+  background: var(--nw-surface-raised);
+  box-shadow: var(--nw-shadow-sm);
+
+  h2 {
+    font-size: var(--nw-text-size-lg);
+  }
+}
+
+.platform-settings__card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--nw-space-3);
+}
+
+.platform-settings__facts {
+  display: grid;
+  gap: var(--nw-space-4);
+
+  @container (min-width: 40rem) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  dt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nw-space-2);
+    color: var(--nw-text-secondary);
+    font-size: var(--nw-text-size-sm);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: var(--nw-font-weight-semibold);
+    overflow-wrap: anywhere;
+  }
+}
+
+.platform-settings__read-only {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0 var(--nw-space-2);
+  border-radius: var(--nw-radius-pill);
+  background-color: var(--nw-surface-sunken);
+  font-size: var(--nw-text-size-xs);
+}
+
+.platform-settings__availability {
+  display: flex;
+  align-items: center;
+  gap: var(--nw-space-2);
+  color: var(--nw-text-secondary);
+  font-size: var(--nw-text-size-sm);
+}

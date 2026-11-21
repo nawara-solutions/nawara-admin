@@ -272,7 +272,8 @@
     "releases": "الإصدارات",
     "assistanceDisputes": "اعتراضات واستثناءات المساعدة",
     "assistanceSettlements": "التسويات المتأخرة وإعادة النقد",
-    "assistanceRecovery": "الاسترداد والفائض"
+    "assistanceRecovery": "الاسترداد والفائض",
+    "platformSettings": "إعدادات المنصة"
   },
   "shell": {
     "skipToContent": "الانتقال إلى المحتوى",
@@ -317,7 +318,8 @@
       "assistanceDisputes": "الاعتراضات والاستثناءات",
       "assistanceSettlements": "التسويات المتأخرة والإعادة",
       "assistanceRecovery": "الاسترداد والفائض",
-      "changeOrganization": "المؤسسة الحالية: {{name}}. تغيير المؤسسة."
+      "changeOrganization": "المؤسسة الحالية: {{name}}. تغيير المؤسسة.",
+      "platformSettings": "الإعدادات"
     },
     "context": {
       "label": "نطاق الإدارة",
@@ -531,7 +533,8 @@
         "platformCreated": "تم إنشاء منصة",
         "operatorBlocked": "حُظر مشغّل",
         "operatorUnblocked": "رُفع الحظر عن مشغّل",
-        "operatorCreated": "تم إنشاء مشغّل"
+        "operatorCreated": "تم إنشاء مشغّل",
+        "platformUpdated": "أُعيدت تسمية المنصة"
       },
       "auditLog": "سجل التدقيق",
       "companyLevel": "الشركة"
@@ -587,7 +590,8 @@
       "eyebrow": "المنصة",
       "accessOwner": "وصولك: مالك الشركة",
       "accessOperator": "وصولك: مشغّل معيَّن",
-      "backToPlatforms": "العودة إلى المنصات"
+      "backToPlatforms": "العودة إلى المنصات",
+      "settings": "إعدادات المنصة"
     },
     "figures": {
       "label": "أرقام المنصة",
@@ -676,7 +680,8 @@
       "adminRemoved": "تمت إزالة دور مسؤول المؤسسة",
       "operatorAssigned": "تم تعيين مشغّل",
       "operatorUnassigned": "أُزيل وصول مشغّل",
-      "platformCreated": "تم إنشاء منصة"
+      "platformCreated": "تم إنشاء منصة",
+      "platformUpdated": "أُعيدت تسمية المنصة"
     },
     "states": {
       "checking": "جارٍ فتح المنصة",
@@ -751,6 +756,44 @@
       "creatingShort": "جارٍ الإنشاء…",
       "created": "تم إنشاء المنصة «{{name}}».",
       "notCreated": "لم تُنشأ «{{name}}»."
+    },
+    "settings": {
+      "title": "إعدادات المنصة",
+      "backToDashboard": "العودة إلى لوحة المعلومات",
+      "identity": "هوية المنصة",
+      "name": "الاسم",
+      "key": "المفتاح",
+      "noKey": "لا يوجد مفتاح",
+      "product": "المنتج",
+      "noProduct": "غير محدد",
+      "identityNote": "يمكن تغيير الاسم فقط. يحدد Nawara Core المفتاح والمنتج، ولا يمكن تغييرهما هنا.",
+      "notConfigurable": "الإعدادات التجارية ودورة حياة المنصة غير قابلة للتهيئة في Admin."
+    },
+    "edit": {
+      "open": "تعديل الاسم",
+      "title": "تعديل اسم المنصة",
+      "nameLabel": "اسم المنصة",
+      "nameLimit": "من 1 إلى {{max}} حرفًا. تُزال المسافات في البداية والنهاية.",
+      "nameRequired": "أدخل اسمًا. لا يمكن أن يكون الاسم فارغًا.",
+      "nameTooLong": "استخدم {{max}} حرفًا على الأكثر.",
+      "sentNote": "يُرسل الاسم فقط. لا يتغيّر المفتاح ولا المنتج ولا الشركة أبدًا.",
+      "noChanges": "لا توجد تغييرات للحفظ.",
+      "simulated": "نسخة تجريبية: الحفظ محاكى؛ لا تُستدعى أي خدمة من Nawara Core.",
+      "save": "حفظ الاسم",
+      "saving": "جارٍ حفظ الاسم…",
+      "savingShort": "جارٍ الحفظ…",
+      "discardTitle": "تجاهل تغييرك؟",
+      "discardBody": "لم يُحفظ الاسم الجديد لـ«{{name}}».",
+      "discard": "تجاهل التغيير",
+      "keepEditing": "متابعة التعديل",
+      "saved": "أُعيدت تسمية المنصة إلى «{{name}}».",
+      "notSaved": "لم يتغيّر اسم «{{name}}».",
+      "outcomeUnknown": "تعذّر التأكد من حفظ الاسم: ربما حُفظ بالفعل. تحقّق من الاسم الحالي قبل الحفظ مجددًا.",
+      "checkCurrent": "التحقق من الاسم الحالي",
+      "reloadFailed": "تعذّر تحميل الاسم الحالي. حاول مجددًا بعد قليل.",
+      "reloadedKept": "هذا هو الاسم الحالي. اسمك الجديد محفوظ في النموذج: راجعه ثم احفظ إن لزم.",
+      "reloadedSaved": "هذا هو الاسم الحالي: تغييرك محفوظ بالفعل. لا شيء آخر مطلوب.",
+      "notInBuildReason": "تعديل اسم المنصة غير متاح في هذا الإصدار."
     }
   },
   "organizations": {
@@ -1676,7 +1719,7 @@
         },
         "platforms": {
           "title": "المنصات والمؤسسات",
-          "description": "كل منصة ومؤسساتها."
+          "description": "كل منصة وإعداداتها (من لوحة معلوماتها) ومؤسساتها."
         },
         "operators": {
           "title": "المشغّلون والوصول",
@@ -3403,7 +3446,8 @@
       "operatorUnassigned": "سحب وصول مشغّل إلى منصة",
       "operatorCreated": "إنشاء حساب مشغّل",
       "operatorBlocked": "حظر حساب مشغّل",
-      "operatorUnblocked": "رفع حظر حساب مشغّل"
+      "operatorUnblocked": "رفع حظر حساب مشغّل",
+      "platformUpdated": "أُعيدت تسمية المنصة"
     },
     "states": {
       "loading": "جارٍ تحميل النشاط…",

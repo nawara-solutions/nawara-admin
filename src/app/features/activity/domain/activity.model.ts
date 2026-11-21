@@ -15,6 +15,7 @@ export type ActivityScope = 'company' | 'platform' | 'organization';
 /** Machine values; labels come from the catalog. */
 export type ActivityAction =
   | 'platform.created'
+  | 'platform.updated'
   | 'organization.created'
   | 'organization.updated'
   | 'admin_invitation.created'

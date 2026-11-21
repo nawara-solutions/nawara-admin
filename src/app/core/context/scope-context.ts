@@ -37,6 +37,10 @@ export const PLATFORM_SCOPE_SEGMENT = 'platforms';
 export const platformPath = (platform: PlatformId): string =>
   `/${PLATFORM_SCOPE_SEGMENT}/${encodeURIComponent(platform)}`;
 
+/** A Platform's settings (M4): the owner's; a page of platform scope with no Organization in it. */
+export const platformSettingsPath = (platform: PlatformId): string =>
+  `${platformPath(platform)}/settings`;
+
 /** Below a Platform: its Organizations (an entity of platform scope, never a scope of its own; docs/ARCHITECTURE.md §7). */
 export const ORGANIZATIONS_SEGMENT = 'organizations';
 
